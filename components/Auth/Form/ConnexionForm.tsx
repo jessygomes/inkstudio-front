@@ -62,6 +62,8 @@ export const LoginForm = () => {
       setSuccess("Connexion réussie !");
       setIsPending(false);
 
+      console.log("Infos de l'utilisateur connecté :", infos);
+
       // Créez une session pour l'utilisateur connecté
       await createSession(infos.userId);
 
@@ -86,17 +88,22 @@ export const LoginForm = () => {
 
   return (
     <div>
-      <CardWrapper headerLabel="Connectez-vous">
-        <form method="post" onSubmit={form.handleSubmit(onSubmit)}>
-          <>
-            <div className="flex flex-col gap-2 font-krub">
+      <h2 className="text-center font-two text-white uppercase">InkStudio</h2>
+      <CardWrapper headerLabel="Connectez-vous et gérez votre salon">
+        <form
+          method="post"
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="relative text-white"
+        >
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-1 font-one">
               <label htmlFor="mail">Email</label>
               <input
                 id="mail"
                 placeholder="johndoe@domaine.com"
                 type="text"
                 required
-                className=""
+                className="bg-white/30 py-2 px-4 rounded-[20px]"
                 {...form.register("email")}
               />
               {form.formState.errors.email && (
@@ -113,7 +120,7 @@ export const LoginForm = () => {
                 placeholder="Mot de passe"
                 type="password"
                 required
-                className=""
+                className="bg-white/30 py-2 px-4 rounded-[20px]"
                 {...form.register("password")}
               />
               {form.formState.errors.password && (
@@ -125,23 +132,35 @@ export const LoginForm = () => {
 
             <FormError message={error} />
             <FormSuccess message={success} />
-          </>
 
-          <button
-            className="cursor-pointer bg-gradient-to-r px-2 relative group/btn from-primary-700 to-primary-500 block w-full text-white font-krub rounded-md h-10 font-medium font-font1 uppercase tracking-widest"
-            type="submit"
-            disabled={isPending}
-          >
-            SE CONNECTER &rarr;
-          </button>
+            <button
+              className="relative cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[400px] text-white font-one py-2 px-4 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
+              type="submit"
+              disabled={isPending}
+            >
+              SE CONNECTER &rarr;
+            </button>
+          </div>
         </form>
       </CardWrapper>
-      <Link
-        className="mt-2 text-center text-noir-100 text-xs hover:text-white/70 transition-all ease-in-out duration-150"
-        href="/motdepasseoublie"
-      >
-        Mot de passe oublié ?
-      </Link>
+      <div className="relative flex flex-col gap-2 justify-center items-center">
+        <p className="text-white text-sm text-center font-two mt-2">
+          Pas encore de compte ?{" "}
+          <Link
+            className="text-tertiary-400 hover:text-tertiary-500 transition-all ease-in-out duration-150"
+            href="/inscription"
+          >
+            Créer un compte
+          </Link>
+        </p>
+        <div className="h-[1px] bg-white w-[300px]"></div>
+        <Link
+          className="relative text-center text-white text-xs hover:text-white/70 transition-all ease-in-out duration-150"
+          href="/motdepasseoublie"
+        >
+          Mot de passe oublié ?
+        </Link>
+      </div>
     </div>
   );
 };

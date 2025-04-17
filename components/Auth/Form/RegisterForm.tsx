@@ -84,17 +84,22 @@ export const Register = () => {
 
   return (
     <div>
-      <CardWrapper headerLabel="Inscrivez-vous">
-        <form method="post" onSubmit={form.handleSubmit(onSubmit)}>
-          <>
-            <div className="flex flex-col gap-2 font-krub">
-              <label htmlFor="name">Nom</label>
+      {/* <h2 className="text-center font-two text-white uppercase">InkStudio</h2> */}
+      <CardWrapper headerLabel="Rejoignez INKSTUDIO gratuitement !">
+        <form
+          method="post"
+          className="font-one text-white"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2 ">
+              <label htmlFor="name">Nom du salon</label>
               <input
                 id="name"
                 placeholder="John"
                 type="text"
                 required
-                className=""
+                className="bg-white/30 py-2 px-4 rounded-[20px]"
                 {...form.register("name")}
               />
               {form.formState.errors.name && (
@@ -111,7 +116,7 @@ export const Register = () => {
                 placeholder="johndoe@domaine.com"
                 type="text"
                 required
-                className=""
+                className="bg-white/30 py-2 px-4 rounded-[20px]"
                 {...form.register("email")}
               />
               {form.formState.errors.email && (
@@ -129,7 +134,7 @@ export const Register = () => {
                 type="password"
                 minLength={6}
                 required
-                className=""
+                className="bg-white/30 py-2 px-4 rounded-[20px]"
                 {...form.register("password")}
               />
               {form.formState.errors.password && (
@@ -149,7 +154,7 @@ export const Register = () => {
                 type="password"
                 minLength={6}
                 required
-                className=""
+                className="bg-white/30 py-2 px-4 rounded-[20px]"
                 {...form.register("passwordConfirmation")}
               />
               {form.formState.errors.passwordConfirmation && (
@@ -161,23 +166,37 @@ export const Register = () => {
 
             <FormError message={error} />
             <FormSuccess message={success} />
-          </>
-
-          <button
-            className="cursor-pointer bg-gradient-to-r px-2 relative group/btn from-primary-700 to-primary-500 block w-full text-white font-krub rounded-md h-10 font-medium font-font1 uppercase tracking-widest"
-            type="submit"
-            disabled={isPending}
-          >
-            S'INSCRIRE &rarr;
-          </button>
+            <button
+              className="relative cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[400px] text-white font-one py-2 px-4 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
+              style={{
+                boxSizing: "border-box", // Bordure incluse dans les dimensions
+              }}
+              type="submit"
+              disabled={isPending}
+            >
+              S'INSCRIRE &rarr;
+            </button>
+          </div>
         </form>
       </CardWrapper>
-      <Link
-        className="mt-2 text-center text-noir-100 text-xs hover:text-white/70 transition-all ease-in-out duration-150"
-        href="/auth/reset"
-      >
-        Mot de passe oublié ?
-      </Link>
+      <div className="relative flex flex-col gap-2 justify-center items-center">
+        <p className="text-white text-sm text-center font-two mt-2">
+          Vous avez déjà un compte ?{" "}
+          <Link
+            className="text-tertiary-400 hover:text-tertiary-500 transition-all ease-in-out duration-150"
+            href="/connexion"
+          >
+            Connectez-vous
+          </Link>
+        </p>
+        {/* <div className="h-[1px] bg-white w-[300px]"></div> */}
+        {/* <Link
+          className="relative text-center text-white text-xs hover:text-white/70 transition-all ease-in-out duration-150"
+          href="/motdepasseoublie"
+        >
+          Mot de passe oublié ?
+        </Link> */}
+      </div>
     </div>
   );
 };

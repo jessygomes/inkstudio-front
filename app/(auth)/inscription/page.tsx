@@ -23,9 +23,18 @@ export default async function page() {
 
   return (
     <section className="">
-      <Suspense>
-        <Register />
-      </Suspense>
+      <div
+        className="hidden sm:flex h-screen w-full bg-cover bg-center items-center justify-center"
+        style={{
+          backgroundImage: "url('/images/bv.png')",
+          backgroundSize: "cover",
+        }}
+      >
+        {/* Ajoutez ici d'autres éléments si nécessaire */}
+        <Suspense>
+          <Register />
+        </Suspense>
+      </div>
     </section>
   );
 }

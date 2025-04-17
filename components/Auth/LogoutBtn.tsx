@@ -26,7 +26,10 @@ export const LogoutBtn = ({ children }: LogoutBtnProps) => {
   };
 
   return (
-    <span onClick={onClick} className="rounded-full cursor-pointer">
+    <span
+      onClick={onClick}
+      className="cursor-pointer text-white font-one tracking-wide text-xs font-bold bg-gradient-to-l from-tertiary-400 to-tertiary-500 px-4 py-2 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
+    >
       {children}
     </span>
   );
