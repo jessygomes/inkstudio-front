@@ -1,7 +1,9 @@
 // import { LoginForm } from "@/components/Auth/Form/LoginForm";
 // import { currentUser } from "@/lib/authAction/auth";
 import { LoginForm } from "@/components/Auth/Form/ConnexionForm";
+import { currentUser } from "@/lib/auth.server";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 // import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
@@ -18,10 +20,10 @@ export const metadata: Metadata = {
 };
 
 export default async function page() {
-  // const user = await currentUser();
-  // if (user) {
-  //   redirect("/");
-  // }
+  const user = await currentUser();
+  if (user) {
+    redirect("/dashboard"); // Redirigez vers le tableau de bord si l'utilisateur est déjà connecté
+  }
 
   return (
     <section className="">

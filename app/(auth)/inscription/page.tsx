@@ -1,5 +1,7 @@
 import { Register } from "@/components/Auth/Form/RegisterForm";
+import { currentUser } from "@/lib/auth.server";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 // import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
@@ -16,10 +18,10 @@ export const metadata: Metadata = {
 };
 
 export default async function page() {
-  // const user = await currentUser();
-  // if (user) {
-  //   redirect("/");
-  // }
+  const user = await currentUser();
+  if (user) {
+    redirect("/dashboard");
+  }
 
   return (
     <section className="">

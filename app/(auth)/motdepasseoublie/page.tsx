@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { FormError } from "@/components/Shared/FormError";
 import { FormSuccess } from "@/components/Shared/FormSuccess";
+import { useUser } from "@/components/Auth/Context/UserContext";
+import { redirect } from "next/navigation";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -15,6 +17,11 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
+  const user = useUser();
+  if (user) {
+    redirect("/dashboard");
+  }
+
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");

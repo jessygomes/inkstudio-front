@@ -37,7 +37,40 @@ export const tokenSchema = z.object({
 
 export const getAuthenticatedUserSchema = z.object({
   id: z.string(),
-  email: z.string(),
-  name: z.string(),
-  role: z.enum(["admin", "user"]),
+  email: z.string().email(),
+  salonName: z.string(),
+  firstName: z.string().nullable().optional(),
+  lastName: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  postalCode: z.string().nullable().optional(),
+  salonHours: z.string().nullable().optional(),
+  role: z.enum(["user", "admin"]),
+});
+
+//! RDV
+export const appointmentSchema = z.object({
+  userId: z.string(),
+  title: z.string().min(1, "Le titre est requis."),
+  clientName: z.string().min(1, "Le nom et prénom est requis."),
+  clientEmail: z.string().email({
+    message: "Votre email n'est pas valide.",
+  }),
+  clientPhone: z.string().optional(),
+  clientBirthday: z.date().optional(),
+  prestation: z.enum(["TATTOO", "PIERCING", "RETOUCHE", "PROJET"]),
+  allDay: z.boolean(),
+  start: z.string(),
+  end: z.string(),
+  tatoueurId: z.string(),
+  status: z.enum(["PENDING", "CONFIRMED", "DECLINED", "CANCELED"]),
+  // champs optionnels pour projet :
+  description: z.string().optional(),
+  zone: z.string().optional(),
+  size: z.string().optional(),
+  colorStyle: z.string().optional(),
+  reference: z.string().optional(),
+  sketch: z.string().optional(),
+  estimatedPrice: z.number().optional(),
 });

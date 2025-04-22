@@ -2,6 +2,7 @@ import { getAuthenticatedUser } from "@/lib/auth.server";
 import { redirect } from "next/navigation";
 import HeaderApp from "@/components/Shared/HeaderApp";
 import { UserProvider } from "@/components/Auth/Context/UserContext";
+import Footer from "@/components/Shared/Footer/FooterApp";
 
 export default async function DashboardLayout({
   children,
@@ -48,6 +49,7 @@ export default async function DashboardLayout({
         <LogoutBtn>Logout</LogoutBtn>
       </header> */}
       {children}
+      <Footer />
     </UserProvider>
   );
 }

@@ -21,7 +21,7 @@ export default function NavbarApp() {
   ];
 
   return (
-    <nav className="flex justify-between items-center py-4 mx-20">
+    <nav className="flex justify-between items-center py-4 px-20 bg-secondary-500/30">
       {" "}
       <Link
         href={"/"}

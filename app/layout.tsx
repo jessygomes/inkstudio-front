@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Didact_Gothic, Exo_2, Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
 // import Header from "@/components/Shared/Header";
-import Footer from "@/components/Shared/Footer";
 
 // const geistSans = Didact_Gothic({
 //   variable: "--font-didact-gothic",
@@ -57,7 +56,6 @@ export default function RootLayout({
           <Header />
         </div> */}
         {children}
-        <Footer />
       </body>
     </html>
   );

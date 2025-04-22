@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, redirect } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { FormError } from "@/components/Shared/FormError";
 import { FormSuccess } from "@/components/Shared/FormSuccess";
+import { useUser } from "@/components/Auth/Context/UserContext";
 
 const resetPasswordSchema = z
   .object({
@@ -24,6 +25,11 @@ const resetPasswordSchema = z
 type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPasswordPage() {
+  const user = useUser();
+  if (user) {
+    redirect("/dashboard");
+  }
+
   const searchParams = useSearchParams();
   const router = useRouter();
 

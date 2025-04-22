@@ -1,7 +1,8 @@
 "use server";
 import { cookies } from "next/headers";
 import { getAuthenticatedUserSchema } from "./zod/validator.schema";
-import { deleteSession } from "./session";
+// import { deleteSession } from "./session";
+import jwt from "jsonwebtoken";
 
 export const getAuthenticatedUser = async () => {
   const cookieStore = cookies();
@@ -32,7 +33,18 @@ export const getAuthenticatedUser = async () => {
     return getAuthenticatedUserSchema.parse(data);
   } catch (error) {
     console.error("Erreur lors de la récupération de l'utilisateur :", error);
-    await deleteSession(); // Supprimez la session si une erreur se produit
+    // await deleteSession(); // Supprimez la session si une erreur se produit
     throw new Error("Erreur lors de la récupération de l'utilisateur.");
+  }
+};
+
+export const currentUser = async () => {
+  const token = (await cookies()).get("session")?.value;
+  if (!token) return null;
+
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET!);
+  } catch {
+    return null;
   }
 };

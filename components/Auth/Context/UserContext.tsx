@@ -3,7 +3,7 @@ import React, { createContext, useContext } from "react";
 
 export interface User {
   id: string | null;
-  name: string | null;
+  salonName: string | null;
   role: string | null;
   email: string | null;
 }
