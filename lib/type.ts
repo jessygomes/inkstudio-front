@@ -6,6 +6,7 @@ export interface TatoueurProps {
 }
 
 export interface TimeSlotProps {
+  id: string;
   start: string;
   end: string;
 }

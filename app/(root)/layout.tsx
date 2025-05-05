@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import HeaderApp from "@/components/Shared/HeaderApp";
 import { UserProvider } from "@/components/Auth/Context/UserContext";
 import Footer from "@/components/Shared/Footer/FooterApp";
+import Providers from "@/components/Providers/ReactQueryProvider";
 
 export default async function DashboardLayout({
   children,
@@ -11,7 +12,7 @@ export default async function DashboardLayout({
 }) {
   let user = {
     id: "",
-    name: "",
+    salonName: "",
     role: "",
     email: "",
   };
@@ -23,7 +24,7 @@ export default async function DashboardLayout({
 
     user = {
       id: userData.id,
-      name: userData.name,
+      salonName: userData.salonName,
       role: userData.role,
       email: userData.email,
     };
@@ -35,10 +36,11 @@ export default async function DashboardLayout({
 
   return (
     <UserProvider user={user}>
-      <div className="absolute top-0 left-0 w-full h-screen">
-        <HeaderApp />
-      </div>
-      {/* <header>
+      <Providers>
+        <div className="absolute top-0 left-0 w-full h-screen">
+          <HeaderApp />
+        </div>
+        {/* <header>
         {user ? (
           <p>
             Connecté en tant que : {user.name} ({user.role})
@@ -48,8 +50,9 @@ export default async function DashboardLayout({
         )}
         <LogoutBtn>Logout</LogoutBtn>
       </header> */}
-      {children}
-      <Footer />
+        {children}
+        <Footer />
+      </Providers>
     </UserProvider>
   );
 }

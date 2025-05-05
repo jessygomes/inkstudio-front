@@ -74,3 +74,34 @@ export const appointmentSchema = z.object({
   sketch: z.string().optional(),
   estimatedPrice: z.number().optional(),
 });
+
+export const updateAppointmentSchema = z.object({
+  userId: z.string(),
+  title: z.string().min(1, "Le titre est requis."),
+  clientName: z.string().min(1, "Le nom et prénom est requis."),
+  clientEmail: z.string().email({
+    message: "Votre email n'est pas valide.",
+  }),
+  clientPhone: z.string().optional(),
+  clientBirthday: z.date().optional(),
+  prestation: z.enum(["TATTOO", "PIERCING", "RETOUCHE", "PROJET"]),
+  allDay: z.boolean().default(false),
+  start: z.string(),
+  end: z.string(),
+  tatoueurId: z.string(),
+  status: z.enum(["PENDING", "CONFIRMED", "DECLINED", "CANCELED"]),
+
+  // --- Tattoo Details intégrés proprement ---
+  tattooDetail: z
+    .object({
+      description: z.string().optional(),
+      zone: z.string().optional(),
+      size: z.string().optional(),
+      colorStyle: z.string().optional(),
+      reference: z.string().optional(),
+      sketch: z.string().optional(),
+      estimatedPrice: z.number().optional(),
+      price: z.number().optional(), // Ajouté ici aussi pour être propre
+    })
+    .optional(),
+});

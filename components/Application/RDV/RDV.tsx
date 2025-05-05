@@ -4,7 +4,7 @@ import {
   CalendarEvent,
   CalendarView,
 } from "@/components/Application/RDV/Calendar";
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, useState } from "react";
 import BarLoader from "react-spinners/BarLoader";
 import {
   startOfDay,
@@ -17,11 +17,17 @@ import {
 import { View } from "react-big-calendar";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { useSearchParams } from "next/navigation";
+import ConfirmRdv from "./ConfirmRdv";
+
+import { useQuery } from "@tanstack/react-query";
+import { fetchAppointments } from "@/lib/queries/appointment";
+import CancelRdv from "./CancelRdv";
+import UpdateRdv, { UpdateRdvFormProps } from "./UpdateRdv";
 
 export default function RDV() {
   const user = useUser();
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  // const [events, setEvents] = useState<CalendarEvent[]>([]);
+  // const [error, setError] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
   const query = searchParams.get("query")?.toLowerCase() || "";
@@ -47,7 +53,7 @@ export default function RDV() {
   };
 
   //! Loader
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(false);
 
   const override: CSSProperties = {
     display: "block",
@@ -83,39 +89,53 @@ export default function RDV() {
   };
 
   //! DATA
-  useEffect(() => {
-    const { start, end } = getDateRange(currentView, currentDate);
-    const userId = user?.id; // Récupérer l'ID de l'utilisateur connecté
+  // useEffect(() => {
+  //   const { start, end } = getDateRange(currentView, currentDate);
+  //   const userId = user?.id; // Récupérer l'ID de l'utilisateur connecté
 
-    const fetchEvents = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/range?userId=${userId}&start=${start}&end=${end}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) {
-          const errorText = await response.text(); // <--- pour voir le contenu brut de l’erreur
-          throw new Error(errorText || "Réponse du serveur invalide");
-        }
+  //   const fetchEvents = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/range?userId=${userId}&start=${start}&end=${end}`,
+  //         {
+  //           method: "GET",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
+  //       if (!response.ok) {
+  //         const errorText = await response.text(); // <--- pour voir le contenu brut de l’erreur
+  //         throw new Error(errorText || "Réponse du serveur invalide");
+  //       }
 
-        const data = await response.json();
-        setEvents(data);
-      } catch (error) {
-        setError(
-          error instanceof Error ? error.message : "An unknown error occurred"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       const data = await response.json();
+  //       setEvents(data);
+  //     } catch (error) {
+  //       setError(
+  //         error instanceof Error ? error.message : "An unknown error occurred"
+  //       );
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchEvents();
-  }, [currentDate, currentView, user?.id]); // Ajoutez user?.id comme dépendance
+  //   fetchEvents();
+  // }, [currentDate, currentView, user?.id]); // Ajoutez user?.id comme dépendance
+
+  const { start, end } = getDateRange(currentView, currentDate);
+  const userId = user?.id;
+
+  const {
+    data: events = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["appointments", userId, start, end],
+    queryFn: () => fetchAppointments(userId!, start, end),
+    enabled: !!userId, // évite de fetch tant que l'ID n'est pas dispo
+  });
 
   const getFormattedLabel = () => {
     const options: Intl.DateTimeFormatOptions = {
@@ -150,9 +170,7 @@ export default function RDV() {
     }
   };
 
-  console.log("Events:", events);
-
-  const filteredEvents = events.filter((event) => {
+  const filteredEvents = events.filter((event: CalendarEvent) => {
     const target = `${event.title} ${event.clientName} ${event.prestation} ${
       event.tatoueur?.name || ""
     }`.toLowerCase();
@@ -161,14 +179,11 @@ export default function RDV() {
 
   return (
     <div className="w-full flex gap-2">
-      {loading ? (
+      {isLoading ? (
         <div className="h-[80vh] w-full flex items-center justify-center">
-          {/* <p className="text-white text-2xl font-two text-center">
-            Chargement...
-          </p> */}
           <BarLoader
             color={color}
-            loading={loading}
+            loading={isLoading}
             cssOverride={override}
             // size={150}
             width={300}
@@ -179,7 +194,7 @@ export default function RDV() {
         </div>
       ) : error ? (
         <div className="h-[80vh] w-full flex items-center justify-center relative">
-          <p className="text-white text-2xl font-two text-center">{error}</p>
+          <p className="text-white text-2xl font-two text-center">{isError}</p>
         </div>
       ) : (
         <>
@@ -201,7 +216,7 @@ export default function RDV() {
                 <div className="h-[1px] w-full bg-white/70" />
 
                 {filteredEvents.length > 0 &&
-                  events.map((event) => {
+                  events.map((event: CalendarEvent) => {
                     // Calcul de la durée en millisecondes
                     const start = new Date(event.start ?? "").getTime();
                     const end = new Date(event.end ?? "").getTime();
@@ -261,20 +276,24 @@ export default function RDV() {
                         <p className="truncate">{event.tatoueur.name}</p>
 
                         {/* CONFIRMER LE RDV OU VOIR TOUS LES DETAILS */}
-                        <p className="text-center">
-                          {event.status !== "CONFIRMED" ? (
-                            <span className="text-red-500 font-bold">
+                        <button
+                          onClick={() => openEventDetails(event)}
+                          className="text-center"
+                        >
+                          {event.status === "CANCELED" ? (
+                            <p className="cursor-pointer bg-red-900 text-white px-2 py-1 rounded-[20px] hover:bg-red-700 transition">
+                              RDV Annulé
+                            </p>
+                          ) : event.status !== "CONFIRMED" ? (
+                            <p className="cursor-pointer bg-primary-500 text-white px-2 py-1 rounded-[20px] hover:bg-primary-400 transition">
                               {event.status === "PENDING" ? "En attente" : ""}
-                            </span>
+                            </p>
                           ) : (
-                            <button
-                              onClick={() => openEventDetails(event)} // Affiche les détails du rendez-vous
-                              className="cursor-pointer bg-tertiary-500 text-white px-2 py-1 rounded-[20px] hover:bg-tertiary-400 transition"
-                            >
+                            <p className="cursor-pointer bg-tertiary-500 text-white px-2 py-1 rounded-[20px] hover:bg-tertiary-400 transition">
                               Voir les infos
-                            </button>
+                            </p>
                           )}
-                        </p>
+                        </button>
                       </div>
                     );
                   })}
@@ -293,14 +312,45 @@ export default function RDV() {
           {/* <h1 className="text-2xl font-bold mb-4">Agenda des Rendez-vous</h1> */}
           <section className="w-2/5 h-[85vh] relative">
             {selectedEvent ? (
-              <div className="flex flex-col gap-2 bg-primary-500/60 h-full rounded-lg p-6 font-two text-white text-sm">
+              <div className="flex flex-col justify-between gap-2 bg-primary-500/60 h-full rounded-lg p-6 font-two text-white text-sm">
                 <div className="flex flex-col gap-2">
-                  <h2 className="text-xl font-bold font-two text-white">
-                    Détails du Rendez-vous
-                  </h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-bold font-two text-white">
+                      Détails du Rendez-vous
+                    </h2>
+                  </div>
+
+                  {selectedEvent.status === "PENDING" ? (
+                    <p className="text-white/60 tracking-widest font-bold">
+                      Ce rendez-vous est en attente de confirmation.
+                    </p>
+                  ) : selectedEvent.status === "CONFIRMED" ? (
+                    <p className="text-green-500 font-bold">
+                      Ce rendez-vous est confirmé.
+                    </p>
+                  ) : selectedEvent.status === "CANCELED" ? (
+                    <p className="text-red-500 font-bold">
+                      Ce rendez-vous a été annulé.
+                    </p>
+                  ) : null}
+
+                  <div className="flex items-center gap-2">
+                    {selectedEvent.status !== "CONFIRMED" ? (
+                      <ConfirmRdv rdvId={selectedEvent.id} />
+                    ) : null}
+
+                    <UpdateRdv
+                      rdv={selectedEvent as unknown as UpdateRdvFormProps}
+                      userId={userId || ""}
+                    />
+
+                    {selectedEvent.status !== "CANCELED" ? (
+                      <CancelRdv rdvId={selectedEvent.id} />
+                    ) : null}
+                  </div>
+
                   <div className="h-[1px] w-full bg-white/70" />
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <p>
                     <strong>Date :</strong>{" "}
@@ -312,7 +362,6 @@ export default function RDV() {
                     - {new Date(selectedEvent.end).toLocaleTimeString("fr-FR")}
                   </p>
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <p>
                     <strong>Client :</strong> {selectedEvent.clientName}
@@ -321,7 +370,7 @@ export default function RDV() {
                     <strong>Prestation :</strong> {selectedEvent.prestation}
                   </p>
                 </div>
-
+                <div className="h-[1px] w-full bg-white/70" />
                 <div className="grid grid-cols-2 gap-4">
                   <p>
                     <strong>Titre :</strong> {selectedEvent.title}
@@ -330,18 +379,41 @@ export default function RDV() {
                     <strong>Tatoueur :</strong> {selectedEvent.tatoueur.name}
                   </p>
                 </div>
-
                 <p>
                   <strong>Statut :</strong> {selectedEvent.status}
                 </p>
-
-                {/* <p>
-                  <strong>Statut :</strong> {selectedEvent.tattooDetail}
-                </p> */}
-
+                {/* DETAIL TATTOO  */}
+                <div className="h-[1px] w-full bg-white/70" />
+                <p className="font-bold underline">Détails supplémentaires :</p>
+                <p className="text-xs">
+                  <strong>Description :</strong>{" "}
+                  {selectedEvent.tattooDetail?.description}
+                </p>
+                <p className="text-xs">
+                  <strong>Style/Couleur :</strong>{" "}
+                  {selectedEvent.tattooDetail?.colorStyle}
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <p className="text-xs">
+                    <strong>Zone :</strong> {selectedEvent.tattooDetail?.zone}
+                  </p>
+                  <p className="text-xs">
+                    <strong>Taille :</strong> {selectedEvent.tattooDetail?.size}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <p className="text-xs">
+                    <strong>Image de référence 1 :</strong>{" "}
+                    {selectedEvent.tattooDetail?.reference}
+                  </p>
+                  <p className="text-xs">
+                    <strong>Image de référence 2 :</strong>{" "}
+                    {selectedEvent.tattooDetail?.sketch}
+                  </p>
+                </div>
                 <button
                   onClick={closeEventDetails}
-                  className="cursor-pointer bg-red-500 text-white text-xs px-4 py-1 rounded-[20px] hover:bg-red-600 transition"
+                  className="cursor-pointer bg-primary-500 text-white text-xs px-4 py-1 rounded-[20px] hover:bg-primary-400 transition"
                 >
                   Retour
                 </button>
