@@ -49,6 +49,33 @@ export const getAuthenticatedUserSchema = z.object({
   role: z.enum(["user", "admin"]),
 });
 
+//! SALON
+export const updateSalonSchema = z.object({
+  salonName: z.string().min(2, "Nom requis"),
+  firstName: z.string().min(1, "Prénom requis"),
+  lastName: z.string().min(1, "Nom requis"),
+  phone: z.string().min(10, "Numéro invalide"),
+  address: z.string(),
+  city: z.string(),
+  postalCode: z.string(),
+  instagram: z.string().optional(),
+  facebook: z.string().optional(),
+  tiktok: z.string().optional(),
+  website: z.string().optional(),
+  description: z.string().optional(),
+});
+
+//! TATOUEUR
+export const createTatoueurSchema = z.object({
+  name: z.string().min(2, "Le nom est requis"),
+  img: z.string().optional(),
+  description: z.string().optional(),
+  phone: z.string().optional(),
+  instagram: z.string().optional(),
+  hours: z.string().optional(),
+  userId: z.string(),
+});
+
 //! RDV
 export const appointmentSchema = z.object({
   userId: z.string(),

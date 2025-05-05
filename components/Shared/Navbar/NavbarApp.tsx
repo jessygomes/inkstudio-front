@@ -21,13 +21,13 @@ export default function NavbarApp() {
   ];
 
   return (
-    <nav className="flex justify-between items-center py-4 px-20 bg-secondary-500/30">
+    <nav className="flex justify-between items-center py-4 px-20">
       {" "}
       <Link
         href={"/"}
         className="font-two uppercase font-bold text-xl text-white"
       >
-        {user?.name || "InkStudio"}
+        {user?.salonName || "InkStudio"}
       </Link>
       <ul ref={navRef} className="flex gap-8">
         {links.map((link, index) => {
