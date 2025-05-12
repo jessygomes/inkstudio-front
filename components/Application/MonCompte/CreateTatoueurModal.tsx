@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createTatoueurSchema } from "@/lib/zod/validator.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { TatoueurProps } from "./TatoueurSalon";
 
 type Horaire = {
   [key: string]: { start: string; end: string } | null;
@@ -25,25 +26,28 @@ export default function CreateTatoueurModal({
   onClose,
   onCreated,
   salonHours,
+  existingTatoueur,
 }: {
   salonId: string;
   onClose: () => void;
   onCreated: () => void;
   salonHours: string | null;
+  existingTatoueur?: TatoueurProps | null;
 }) {
   const [loading, setLoading] = useState(false);
 
   //! Mettre en valeur  par défaut les horaires d'ouverture du salon
-  const initialHours: Horaire = (salonHours &&
-    JSON.parse(salonHours || "")) || {
-    monday: { start: "", end: "" },
-    tuesday: { start: "", end: "" },
-    wednesday: { start: "", end: "" },
-    thursday: { start: "", end: "" },
-    friday: { start: "", end: "" },
-    saturday: { start: "", end: "" },
-    sunday: null,
-  };
+  const initialHours: Horaire = (existingTatoueur?.hours &&
+    JSON.parse(existingTatoueur.hours)) ||
+    (salonHours && JSON.parse(salonHours)) || {
+      monday: { start: "", end: "" },
+      tuesday: { start: "", end: "" },
+      wednesday: { start: "", end: "" },
+      thursday: { start: "", end: "" },
+      friday: { start: "", end: "" },
+      saturday: { start: "", end: "" },
+      sunday: null,
+    };
 
   const [editingHours, setEditingHours] = useState<Horaire>(initialHours);
 
@@ -51,26 +55,32 @@ export default function CreateTatoueurModal({
   const form = useForm<z.infer<typeof createTatoueurSchema>>({
     resolver: zodResolver(createTatoueurSchema),
     defaultValues: {
-      name: "",
-      img: "",
-      description: "",
-      phone: "",
-      instagram: "",
-      hours: "",
+      name: existingTatoueur?.name || "",
+      img: existingTatoueur?.img || "",
+      description: existingTatoueur?.description || "",
+      instagram: existingTatoueur?.instagram || "",
+      hours: existingTatoueur?.hours || "",
       userId: salonId,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
     console.log("values", values);
+
     const payload = {
       ...values,
       hours: JSON.stringify(editingHours), // très important !
     };
+
     console.log("payload", payload);
     setLoading(true);
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`, {
-      method: "POST",
+
+    const url = existingTatoueur
+      ? `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/update/${existingTatoueur.id}`
+      : `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`;
+
+    const res = await fetch(url, {
+      method: existingTatoueur ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
@@ -92,7 +102,7 @@ export default function CreateTatoueurModal({
         className="bg-primary-500 p-6 rounded-[20px] w-full max-w-[800px] h-[90%] space-y-4 text-white font-one text-sm overflow-auto"
       >
         <h2 className="text-xl font-bold text-center uppercase tracking-widest">
-          Ajouter un tatoueur
+          {existingTatoueur ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
         </h2>
 
         <div className="flex flex-col gap-2">
@@ -223,7 +233,13 @@ export default function CreateTatoueurModal({
             disabled={loading}
             className="text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[200px] max-w-[400px] text-center text-white py-2 px-4 rounded-[20px] hover:scale-105 transition"
           >
-            {loading ? "Création..." : "Créer"}
+            {loading
+              ? existingTatoueur
+                ? "Modification..."
+                : "Création..."
+              : existingTatoueur
+              ? "Modifier"
+              : "Créer"}
           </button>
         </div>
       </form>
