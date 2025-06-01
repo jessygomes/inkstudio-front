@@ -51,6 +51,9 @@ export default function UpdateRdv({
   const [error, setError] = useState<string | null>(null);
 
   const [tatoueurs, setTatoueurs] = useState<TatoueurProps[]>([]);
+  const [selectedTatoueur, setSelectedTatoueur] = useState<string | null>(
+    rdv.tatoueurId
+  );
   const [timeSlots, setTimeSlots] = useState<{ start: string; end: string }[]>(
     []
   );
@@ -86,13 +89,15 @@ export default function UpdateRdv({
 
   // fetch créneaux horaires
   useEffect(() => {
-    const selectedDate = watchStart?.slice(0, 10);
+    const selectedDate = watchStart
+      ? format(new Date(watchStart), "yyyy-MM-dd")
+      : null;
     if (!selectedDate || !userId) return;
 
     const fetchSlots = async () => {
       try {
         const slotsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/timeslots?date=${selectedDate}&salonId=${userId}`
+          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${selectedTatoueur}`
         );
         const slotsData = await slotsRes.json();
         setTimeSlots(slotsData);
@@ -105,7 +110,7 @@ export default function UpdateRdv({
         const occupiedRes = await fetch(
           `${
             process.env.NEXT_PUBLIC_BACK_URL
-          }/appointments/range?userId=${userId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
+          }/appointments/tatoueur-range?tatoueurId=${selectedTatoueur}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
         );
         const occupiedData = await occupiedRes.json();
         setOccupiedSlots(occupiedData);
@@ -115,7 +120,7 @@ export default function UpdateRdv({
     };
 
     fetchSlots();
-  }, [watchStart, userId]);
+  }, [watchStart, selectedTatoueur]);
 
   // Reset form quand le RDV change
   useEffect(() => {
@@ -133,6 +138,9 @@ export default function UpdateRdv({
           estimatedPrice: rdv.tattooDetail?.estimatedPrice || 0,
         },
       });
+
+      // Reset selectedTatoueur à celui du nouveau RDV
+      setSelectedTatoueur(rdv.tatoueurId);
 
       // Regénérer les selectedSlots
       const slots = [];
@@ -297,6 +305,10 @@ export default function UpdateRdv({
             <div className="grid grid-cols-3 gap-4">
               <select
                 {...form.register("tatoueurId")}
+                onChange={(e) => {
+                  setSelectedTatoueur(e.target.value);
+                  form.setValue("tatoueurId", e.target.value);
+                }}
                 className="bg-white/30 p-2 rounded-[20px]"
               >
                 {tatoueurs.map((tatoueur) => (
@@ -331,24 +343,38 @@ export default function UpdateRdv({
             {/* CRENEAUX */}
             <div className="grid grid-cols-4 gap-2">
               {timeSlots.map((slot) => {
+                const slotTime = new Date(slot.start).getTime();
+
+                // const isCurrentRdvSlot = selectedSlots.includes(slot.start);
+
                 const isTaken = occupiedSlots.some((rdvOcc) => {
-                  if (rdvOcc.id === rdv.id) return false;
+                  // Ne pas tenir compte du RDV en cours
+                  if (String(rdvOcc.id) === String(rdv.id)) return false;
+
                   const start = new Date(rdvOcc.start).getTime();
                   const end = new Date(rdvOcc.end).getTime();
-                  const slotTime = new Date(slot.start).getTime();
+
                   return slotTime >= start && slotTime < end;
                 });
 
+                const startRdv = new Date(rdv.start).getTime();
+                const endRdv = new Date(rdv.end).getTime();
+                const isPartOfCurrentRdv =
+                  slotTime >= startRdv && slotTime < endRdv;
+
                 const isSelected = selectedSlots.includes(slot.start);
+
+                // => Ne pas considérer comme pris si fait partie du RDV actuel
+                const disabled = isTaken && !isPartOfCurrentRdv;
 
                 return (
                   <button
                     key={slot.start}
                     type="button"
-                    disabled={isTaken}
+                    disabled={disabled}
                     onClick={() => handleSlotClick(slot.start)}
                     className={`p-1 rounded-[20px] text-xs transition-all ${
-                      isTaken
+                      disabled
                         ? "bg-gray-400 text-gray-300 cursor-not-allowed"
                         : isSelected
                         ? "bg-tertiary-500 text-white"

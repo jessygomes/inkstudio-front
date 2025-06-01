@@ -86,7 +86,7 @@ export const appointmentSchema = z.object({
   }),
   clientPhone: z.string().optional(),
   clientBirthday: z.date().optional(),
-  prestation: z.enum(["TATTOO", "PIERCING", "RETOUCHE", "PROJET"]),
+  prestation: z.enum(["TATTOO", "PIERCING", "RETOUCHE", "PROJET", ""]),
   allDay: z.boolean(),
   start: z.string(),
   end: z.string(),

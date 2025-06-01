@@ -3,13 +3,20 @@ import { useUser } from "@/components/Auth/Context/UserContext";
 import { LogoutBtn } from "@/components/Auth/LogoutBtn";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+
+import { CgProfile } from "react-icons/cg";
 
 export default function NavbarApp() {
   const user = useUser();
   const pathname = usePathname();
 
   const navRef = useRef<HTMLUListElement>(null);
+
+  const [showMenu, setShowMenu] = useState(false);
+  const toggleMenu = () => {
+    setShowMenu((prev) => !prev);
+  };
 
   const links = [
     { href: "/dashboard", label: "Dashboard" },
@@ -21,7 +28,7 @@ export default function NavbarApp() {
   ];
 
   return (
-    <nav className="flex justify-between items-center py-4 px-20">
+    <nav className="flex justify-between items-center py-4 px-20 bg-gradient-to-b from-noir-700 to-secondary-600 border-b border-tertiary-400">
       {" "}
       <Link
         href={"/"}
@@ -29,7 +36,7 @@ export default function NavbarApp() {
       >
         {user?.salonName || "InkStudio"}
       </Link>
-      <ul ref={navRef} className="flex gap-8">
+      <ul ref={navRef} className="flex justify-center items-center gap-8">
         {links.map((link, index) => {
           const isActive = pathname === link.href;
 
@@ -46,7 +53,36 @@ export default function NavbarApp() {
             </li>
           );
         })}
-        <LogoutBtn>Se déconnecter</LogoutBtn>
+        <li className="relative">
+          <button
+            onClick={toggleMenu}
+            className="cursor-pointer items-center text-white hover:text-white/70 transition duration-300"
+          >
+            <CgProfile size={20} />
+          </button>
+
+          {showMenu && (
+            <div className="absolute right-0 mt-4 p-2 w-[300px] bg-noir-700 text-white rounded shadow-lg z-50 flex flex-col gap-2">
+              <Link
+                href="/mon-compte"
+                className="px-4 py-2 text-xs hover:bg-noir-500 transition-colors"
+              >
+                Paramètres du compte
+              </Link>
+              <Link
+                href="/mon-compte"
+                className="px-4 py-2 text-xs hover:bg-noir-500 transition-colors"
+              >
+                Mes
+              </Link>
+              <LogoutBtn>
+                <span className="block text-xs w-full text-left transition-colors">
+                  Déconnexion
+                </span>
+              </LogoutBtn>
+            </div>
+          )}
+        </li>
       </ul>
     </nav>
   );

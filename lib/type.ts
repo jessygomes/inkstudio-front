@@ -4,6 +4,7 @@ export interface TatoueurProps {
   name: string;
   img?: string;
   description: string | null;
+  hours: string | null;
 }
 
 export interface TimeSlotProps {

@@ -18,11 +18,22 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   const [success, setSuccess] = useState<string | undefined>("");
   const [loading, setLoading] = useState(false);
 
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [timeSlots, setTimeSlots] = useState<{ start: string; end: string }[]>(
+    []
+  );
+
+  // stocke les créneaux horaires disponibles
+  const [selectedSlots, setSelectedSlots] = useState<string[]>([]); // stocke les start ISO
+  const [occupiedSlots, setOccupiedSlots] = useState<TimeSlotProps[]>([]);
+
   //! Selection de la prestation change les inputs à afficher
   const [selectedPrestation, setSelectedPrestation] = useState("");
   const [selectedTatoueur, setSelectedTatoueur] = useState<string | null>(null);
 
-  //! Récupérer le nom nom et l'ID des tatoueurs du salon
+  //! Récupérer les tatoueurs
   const [tatoueurs, setTatoueurs] = useState<TatoueurProps[]>([]);
 
   useEffect(() => {
@@ -36,15 +47,65 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     fetchTatoueurs();
   }, []);
 
-  //!
-  const [selectedDate, setSelectedDate] = useState<string>("2025-04-23");
-  const [timeSlots, setTimeSlots] = useState<{ start: string; end: string }[]>(
-    []
-  );
+  console.log("tatoueurs", tatoueurs);
 
-  // stocke les créneaux horaires disponibles
-  const [selectedSlots, setSelectedSlots] = useState<string[]>([]); // stocke les start ISO
-  const [occupiedSlots, setOccupiedSlots] = useState<TimeSlotProps[]>([]);
+  //! Fetch slots en fonction du tatoueur sélectionné
+  // useEffect(() => {
+  //   if (!selectedTatoueur) return;
+
+  //   const selected = tatoueurs.find((t) => t.id === selectedTatoueur);
+  //   if (selected?.hours) {
+  //     try {
+  //       const parsedHours = JSON.parse(selected.hours);
+  //       setTimeSlots(generateTimeSlots(parsedHours, selectedDate));
+  //     } catch (e) {
+  //       console.error("Erreur parsing horaires du tatoueur :", e);
+  //     }
+  //   }
+
+  console.log("selectedTatoueur", selectedTatoueur);
+  console.log("selectedDate", selectedDate);
+
+  console.log("timeslot", timeSlots);
+
+  useEffect(() => {
+    if (!selectedDate || !selectedTatoueur) return;
+
+    const fetchTimeSlots = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${selectedTatoueur}`
+        );
+        // if (!res.ok) {
+        //   throw new Error("Erreur lors de la récupération des créneaux");
+        // }
+        const data = await res.json();
+        setTimeSlots(data);
+      } catch (err) {
+        setTimeSlots([]);
+        console.error("Erreur lors du fetch des créneaux :", err);
+      }
+    };
+
+    const fetchOccupied = async () => {
+      const startOfDay = new Date(selectedDate);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(selectedDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const res = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_BACK_URL
+        }/appointments/tatoueur-range?tatoueurId=${selectedTatoueur}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
+      );
+      const data = await res.json();
+      setOccupiedSlots(data);
+    };
+
+    fetchTimeSlots();
+    fetchOccupied();
+  }, [selectedDate, selectedTatoueur]);
 
   // ! Fonction pour gérer le clic sur un créneau horaire
   // Fait en sorte que les créneaux soient consécutifs
@@ -91,47 +152,48 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   };
 
   // Récupération des créneaux horaires disponibles et les créneaux horaires occupés pour la date sélectionnée
-  useEffect(() => {
-    const fetchTimeSlots = async () => {
-      if (!selectedDate || !userId) return;
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/timeslots?date=${selectedDate}&salonId=${userId}`
-        );
-        const data = await res.json();
-        console.log("✅ Slots reçus :", data);
-        setTimeSlots(data);
-      } catch (err) {
-        console.error("Erreur lors du fetch des créneaux :", err);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchTimeSlots = async () => {
+  //     if (!selectedDate || !userId) return;
+  //     try {
+  //       const res = await fetch(
+  //         // `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/timeslots?date=${selectedDate}&salonId=${userId}`
+  //         `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/timeslots?date=${selectedDate}&tatoueurId=${selectedTatoueur}`
+  //       );
+  //       const data = await res.json();
+  //       console.log("✅ Slots reçus :", data);
+  //       setTimeSlots(data);
+  //     } catch (err) {
+  //       console.error("Erreur lors du fetch des créneaux :", err);
+  //     }
+  //   };
 
-    const fetchOccupiedSlots = async () => {
-      if (!selectedDate || !userId) return;
+  //   const fetchOccupiedSlots = async () => {
+  //     if (!selectedDate || !userId) return;
 
-      const startOfDay = new Date(selectedDate);
-      startOfDay.setHours(0, 0, 0, 0);
+  //     const startOfDay = new Date(selectedDate);
+  //     startOfDay.setHours(0, 0, 0, 0);
 
-      const endOfDay = new Date(selectedDate);
-      endOfDay.setHours(23, 59, 59, 999);
+  //     const endOfDay = new Date(selectedDate);
+  //     endOfDay.setHours(23, 59, 59, 999);
 
-      try {
-        const res = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_BACK_URL
-          }/appointments/range?userId=${userId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
-        );
+  //     try {
+  //       const res = await fetch(
+  //         `${
+  //           process.env.NEXT_PUBLIC_BACK_URL
+  //         }/appointments/range?tatoueurId=${selectedTatoueur}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
+  //       );
 
-        const data = await res.json();
-        setOccupiedSlots(data); // [{ start: "...", end: "..." }]
-      } catch (err) {
-        console.error("Erreur fetch créneaux occupés :", err);
-      }
-    };
+  //       const data = await res.json();
+  //       setOccupiedSlots(data); // [{ start: "...", end: "..." }]
+  //     } catch (err) {
+  //       console.error("Erreur fetch créneaux occupés :", err);
+  //     }
+  //   };
 
-    fetchTimeSlots();
-    fetchOccupiedSlots();
-  }, [selectedDate, userId]);
+  //   fetchTimeSlots();
+  //   fetchOccupiedSlots();
+  // }, [selectedDate, userId]);
 
   // console.log("selectedDate", selectedDate);
   // console.log("timeSlots", timeSlots);
@@ -145,7 +207,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       clientEmail: "",
       clientPhone: "",
       clientBirthday: undefined,
-      prestation: "TATTOO",
+      prestation: "",
       allDay: false,
       start: new Date().toISOString(),
       end: new Date().toISOString(),
