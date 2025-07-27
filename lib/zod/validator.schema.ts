@@ -11,7 +11,9 @@ export const userLoginSchema = z.object({
 
 export const userRegisterSchema = z
   .object({
-    name: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
+    salonName: z
+      .string()
+      .min(2, "Le nom du salon doit contenir au moins 2 caractères"),
     // lastName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
     email: z.string().email({
       message: "Votre email n'est pas valide.",
@@ -80,7 +82,8 @@ export const createTatoueurSchema = z.object({
 export const appointmentSchema = z.object({
   userId: z.string(),
   title: z.string().min(1, "Le titre est requis."),
-  clientName: z.string().min(1, "Le nom et prénom est requis."),
+  clientFirstname: z.string().min(1, "Le prénom est requis."),
+  clientLastname: z.string().min(1, "Le nom est requis."),
   clientEmail: z.string().email({
     message: "Votre email n'est pas valide.",
   }),
@@ -99,24 +102,31 @@ export const appointmentSchema = z.object({
   colorStyle: z.string().optional(),
   reference: z.string().optional(),
   sketch: z.string().optional(),
-  estimatedPrice: z.number().optional(),
+  estimatedPrice: z.preprocess(
+    (val) => (val === "" ? undefined : Number(val)),
+    z.number().optional()
+  ),
 });
 
 export const updateAppointmentSchema = z.object({
   userId: z.string(),
   title: z.string().min(1, "Le titre est requis."),
-  clientName: z.string().min(1, "Le nom et prénom est requis."),
-  clientEmail: z.string().email({
-    message: "Votre email n'est pas valide.",
-  }),
-  clientPhone: z.string().optional(),
-  clientBirthday: z.date().optional(),
+
   prestation: z.enum(["TATTOO", "PIERCING", "RETOUCHE", "PROJET"]),
-  allDay: z.boolean().default(false),
+  // allDay: z.boolean().default(false),
   start: z.string(),
   end: z.string(),
   tatoueurId: z.string(),
-  status: z.enum(["PENDING", "CONFIRMED", "DECLINED", "CANCELED"]),
+  // status: z.enum(["PENDING", "CONFIRMED", "DECLINED", "CANCELED"]),
+
+  client: z.object({
+    firstName: z.string().min(1, "Le prénom est requis."),
+    lastName: z.string().min(1, "Le nom est requis."),
+    email: z.string().email({
+      message: "Votre email n'est pas valide.",
+    }),
+    phone: z.string().optional(),
+  }),
 
   // --- Tattoo Details intégrés proprement ---
   tattooDetail: z

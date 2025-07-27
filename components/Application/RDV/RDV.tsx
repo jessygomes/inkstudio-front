@@ -43,11 +43,9 @@ export default function RDV() {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
   );
-
   const openEventDetails = (event: CalendarEvent) => {
     setSelectedEvent(event); // Stocke le rendez-vous sélectionné
   };
-
   const closeEventDetails = () => {
     setSelectedEvent(null); // Réinitialise le rendez-vous sélectionné
   };
@@ -137,6 +135,13 @@ export default function RDV() {
     enabled: !!userId, // évite de fetch tant que l'ID n'est pas dispo
   });
 
+  const handleRdvUpdated = (updatedId: string) => {
+    const updated = events.find((e: CalendarEvent) => e.id === updatedId);
+    if (updated) {
+      setSelectedEvent(updated);
+    }
+  };
+
   const getFormattedLabel = () => {
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
@@ -171,9 +176,9 @@ export default function RDV() {
   };
 
   const filteredEvents = events.filter((event: CalendarEvent) => {
-    const target = `${event.title} ${event.clientName} ${event.prestation} ${
-      event.tatoueur?.name || ""
-    }`.toLowerCase();
+    const target = `${event.title} ${event.client.firstName} ${
+      event.client.lastName
+    } ${event.prestation} ${event.tatoueur?.name || ""}`.toLowerCase();
     return target.includes(query);
   });
 
@@ -260,7 +265,7 @@ export default function RDV() {
 
                         {/* CLIQUER SUR LE NOM DUU CLIENT POUR AFFICHER SA FICHE CLIENT */}
                         <button className="cursor-pointer text-left hover:text-tertiary-500 transition duration-200">
-                          {event.clientName}
+                          {event.client.firstName} {event.client.lastName}
                         </button>
 
                         {/* DUREE */}
@@ -342,6 +347,7 @@ export default function RDV() {
                     <UpdateRdv
                       rdv={selectedEvent as unknown as UpdateRdvFormProps}
                       userId={userId || ""}
+                      onUpdate={() => handleRdvUpdated(selectedEvent.id)}
                     />
 
                     {selectedEvent.status !== "CANCELED" ? (
@@ -364,7 +370,8 @@ export default function RDV() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <p>
-                    <strong>Client :</strong> {selectedEvent.clientName}
+                    <strong>Client :</strong> {selectedEvent.client.firstName}{" "}
+                    {selectedEvent.client.lastName}
                   </p>
                   <p>
                     <strong>Prestation :</strong> {selectedEvent.prestation}

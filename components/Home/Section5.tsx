@@ -34,7 +34,7 @@ export default function Section5() {
           Créez votre compte gratuitement afin d'être{" "}
           <span
             style={{
-              background: "linear-gradient(90deg, #ff5500, #ff4d41)",
+              background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
@@ -52,7 +52,7 @@ export default function Section5() {
           <br></br>
           <br></br>
           Chaque salon dispose d’un{" "}
-          <span className="font-bold text-tertiary-500">
+          <span className="font-bold text-tertiary-400">
             profil public unique
           </span>{" "}
           regroupant ses informations, son portfolio, les photos du lieu, et ses

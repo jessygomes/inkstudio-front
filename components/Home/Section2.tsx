@@ -44,12 +44,12 @@ export default function Section2() {
       <h2 className="text-white font-two tracking-wide text-3xl font-bold py-2">
         Moins d’administratif, plus de tatouages.{" "}
         <span
-          className="text-tertiary-500 font-bold uppercase"
-          style={{
-            background: "linear-gradient(90deg, #ff5500, #ff4d41)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
+          className="font-bold uppercase bg-gradient-to-l from-tertiary-400 to-tertiary-500 bg-clip-text text-transparent"
+          // style={{
+          //   background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
+          //   WebkitBackgroundClip: "text",
+          //   WebkitTextFillColor: "transparent",
+          // }}
         >
           La plateforme tout-en-un !
         </span>

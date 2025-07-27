@@ -23,7 +23,7 @@ export const Register = () => {
   const form = useForm<z.infer<typeof userRegisterSchema>>({
     resolver: zodResolver(userRegisterSchema),
     defaultValues: {
-      name: "",
+      salonName: "",
       email: "",
       password: "",
       passwordConfirmation: "",
@@ -54,7 +54,7 @@ export const Register = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name: data.name,
+            salonName: data.salonName,
             email: data.email,
             password: data.password,
           }),
@@ -93,18 +93,18 @@ export const Register = () => {
         >
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2 ">
-              <label htmlFor="name">Nom du salon</label>
+              <label htmlFor="salonName">Nom du salon</label>
               <input
-                id="name"
+                id="salonName"
                 placeholder="John"
                 type="text"
                 required
                 className="bg-white/30 py-2 px-4 rounded-[20px]"
-                {...form.register("name")}
+                {...form.register("salonName")}
               />
-              {form.formState.errors.name && (
+              {form.formState.errors.salonName && (
                 <p className="text-red-500 text-sm">
-                  {form.formState.errors.name.message}
+                  {form.formState.errors.salonName.message}
                 </p>
               )}
             </div>

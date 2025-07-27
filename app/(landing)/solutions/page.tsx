@@ -21,7 +21,7 @@ export default function SolutionsPage() {
             </h1>
             <FaArrowDown
               size={35}
-              className="text-tertiary-500 animate-pulse"
+              className="text-tertiary-400 animate-pulse"
             />
           </div>
         </div>

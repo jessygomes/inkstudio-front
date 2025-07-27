@@ -21,7 +21,7 @@ export default function Section4() {
           <span
             className="text-tertiary-500 font-bold uppercase"
             style={{
-              background: "linear-gradient(90deg, #ff5500, #ff4d41)",
+              background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
@@ -35,7 +35,7 @@ export default function Section4() {
       <div className="w-full py-8 sm:py-0 flex flex-col justify-center ">
         <div className="relative px-4 sm:px-20 flex flex-col gap-8 text-white font-one">
           <div className="flex flex-col gap-2">
-            <FaClock size={20} className="text-tertiary-500" />
+            <FaClock size={20} className="text-tertiary-400" />
             <div>
               <h3 className="text-base font-bold text-white mb-2">
                 Gagner du temps
@@ -49,7 +49,7 @@ export default function Section4() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <FaBlackTie size={20} className="text-tertiary-500" />
+            <FaBlackTie size={20} className="text-tertiary-400" />
             <div>
               <h3 className="text-base font-bold text-white mb-2">
                 Renforcer votre image professionnelle
@@ -63,7 +63,7 @@ export default function Section4() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <FaDatabase size={20} className="text-tertiary-500" />
+            <FaDatabase size={20} className="text-tertiary-400" />
             <div>
               <h3 className="text-base font-bold text-white mb-2">
                 Centraliser et sécuriser vos données
@@ -77,7 +77,7 @@ export default function Section4() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <FaUserClock size={20} className="text-tertiary-500" />
+            <FaUserClock size={20} className="text-tertiary-400" />
             <div>
               <h3 className="text-base font-bold text-white mb-2">
                 Suivi client intelligent

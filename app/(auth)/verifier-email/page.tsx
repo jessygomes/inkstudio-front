@@ -8,10 +8,10 @@ import { motion } from "framer-motion";
 import { useUser } from "@/components/Auth/Context/UserContext";
 
 export default function VerifyEmailPage() {
-  const user = useUser();
-  if (user) {
-    redirect("/dashboard");
-  }
+  // const user = useUser();
+  // if (user) {
+  //   redirect("/dashboard");
+  // }
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -69,7 +69,7 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-noir-700">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -77,10 +77,10 @@ export default function VerifyEmailPage() {
         className="text-center max-w-md"
       >
         <div className="flex justify-center mb-4">{getStatusIcon()}</div>
-        <h1 className="text-2xl font-semibold font-krub">
+        <h1 className="text-2xl font-semibold font-one tracking-widest text-white">
           Confirmation de l'adresse email
         </h1>
-        <p className="mt-4 text-gray-700 font-krub animate-pulse text-sm">
+        <p className="mt-4 text-gray-400 font-krub animate-pulse text-sm">
           {message}
         </p>
       </motion.div>

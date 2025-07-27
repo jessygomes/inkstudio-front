@@ -12,7 +12,9 @@ export default function Footer() {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-0 text-white">
         <ul className="font-two flex flex-col gap-4 text-sm">
-          <li className="text-tertiary-500 uppercase font-bold">Navigation</li>
+          <li className="bg-gradient-to-l from-tertiary-400 to-tertiary-500 bg-clip-text text-transparent uppercase font-bold">
+            Navigation
+          </li>
           <li>
             <Link href={"/"} className="hover:text-white/70 duration-300">
               Accueil
@@ -45,7 +47,7 @@ export default function Footer() {
         </ul>
 
         <ul className="font-two flex flex-col gap-4 text-sm">
-          <li className="text-tertiary-500 uppercase font-bold">
+          <li className="bg-gradient-to-l from-tertiary-400 to-tertiary-500 bg-clip-text text-transparent uppercase font-bold">
             Qui sommes-nous ?
           </li>
           <li>
@@ -68,7 +70,9 @@ export default function Footer() {
         </ul>
 
         <ul className="font-two flex flex-col gap-4 text-sm">
-          <li className="text-tertiary-500 uppercase font-bold">Légales</li>
+          <li className="bg-gradient-to-l from-tertiary-400 to-tertiary-500 bg-clip-text text-transparent uppercase font-bold">
+            Légales
+          </li>
           <li>
             <Link
               href={"/mentions-legales"}
@@ -96,7 +100,9 @@ export default function Footer() {
         </ul>
 
         <ul className="font-two flex flex-col gap-4 text-sm">
-          <li className="text-tertiary-500 uppercase font-bold">Contact</li>
+          <li className="bg-gradient-to-l from-tertiary-400 to-tertiary-500 bg-clip-text text-transparent uppercase font-bold">
+            Contact
+          </li>
           <li>
             <Link
               href={"/contactez-nous"}

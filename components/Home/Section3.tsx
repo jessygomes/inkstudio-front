@@ -30,7 +30,7 @@ export default function Section3() {
           InkStudio, pensé{" "}
           <span
             style={{
-              background: "linear-gradient(90deg, #ff5500, #ff4d41)",
+              background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}

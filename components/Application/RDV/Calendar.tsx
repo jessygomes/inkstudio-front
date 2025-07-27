@@ -26,9 +26,12 @@ export type CalendarEvent = Event & {
   id: string;
   status?: string;
   prestation?: string;
-  clientName?: string;
-  clientEmail?: string;
-  clientPhone?: string;
+  client: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+  };
   clientId?: string;
   allDay?: boolean;
   start: Date | string;
@@ -107,7 +110,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
     return events.map((event) => ({
       ...event,
-      title: `${event.title} - ${event.clientName || ""}`,
+      title: `${event.title} - ${
+        event.client.firstName + " " + event.client.lastName || ""
+      }`,
       allDay: event.allDay ?? false,
       start: new Date(event.start ?? Date.now()),
       end: new Date(event.end ?? Date.now()),

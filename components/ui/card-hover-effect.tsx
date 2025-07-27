@@ -56,7 +56,7 @@ export const HoverEffect = ({
               <span
                 className="text-2xl"
                 style={{
-                  background: "linear-gradient(90deg, #ff4d41, #ff5500)",
+                  background: "linear-gradient(90deg, #ff9d00, #ff5500)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}

@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FormError } from "@/components/Shared/FormError";
 import { FormSuccess } from "@/components/Shared/FormSuccess";
@@ -11,6 +12,7 @@ import { appointmentSchema } from "@/lib/zod/validator.schema";
 import { TatoueurProps, TimeSlotProps } from "@/lib/type";
 import { addMinutes, format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
+import { toast } from "sonner";
 
 export default function CreateRdvForm({ userId }: { userId: string }) {
   const router = useRouter();
@@ -18,6 +20,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   const [success, setSuccess] = useState<string | undefined>("");
   const [loading, setLoading] = useState(false);
 
+  //! Date sélectionnée pour le rendez-vous
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().slice(0, 10)
   );
@@ -25,7 +28,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     []
   );
 
-  // stocke les créneaux horaires disponibles
+  //! stocke les créneaux horaires disponibles
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]); // stocke les start ISO
   const [occupiedSlots, setOccupiedSlots] = useState<TimeSlotProps[]>([]);
 
@@ -47,7 +50,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     fetchTatoueurs();
   }, []);
 
-  console.log("tatoueurs", tatoueurs);
+  // console.log("tatoueurs", tatoueurs);
 
   //! Fetch slots en fonction du tatoueur sélectionné
   // useEffect(() => {
@@ -63,10 +66,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   //     }
   //   }
 
-  console.log("selectedTatoueur", selectedTatoueur);
-  console.log("selectedDate", selectedDate);
+  // console.log("selectedTatoueur", selectedTatoueur);
+  // console.log("selectedDate", selectedDate);
 
-  console.log("timeslot", timeSlots);
+  // console.log("timeslot", timeSlots);
 
   useEffect(() => {
     if (!selectedDate || !selectedTatoueur) return;
@@ -198,12 +201,77 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   // console.log("selectedDate", selectedDate);
   // console.log("timeSlots", timeSlots);
 
+  //! Fonction pour rechercher un client par email
+  const [searchClientQuery, setSearchClientQuery] = useState("");
+  const [clientResults, setClientResults] = useState<any[]>([]);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleClientSearch = useCallback(
+    async (query: string) => {
+      if (!query.trim()) {
+        setClientResults([]);
+        return;
+      }
+
+      console.log(
+        "Searching clients with query:",
+        query,
+        "for userId:",
+        userId
+      );
+
+      try {
+        const res = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_BACK_URL
+          }/clients/search?query=${encodeURIComponent(query)}&userId=${userId}`
+        );
+        if (!res.ok) {
+          setClientResults([]);
+          throw new Error("Erreur lors de la recherche de clients");
+        }
+        const results = await res.json();
+        console.log("Client search results:", results);
+
+        // Gérer la structure de réponse du backend
+        if (results.error) {
+          console.log("Erreur backend:", results.message);
+          setClientResults([]);
+        } else {
+          setClientResults(results.clients || []);
+        }
+      } catch (error) {
+        console.error("Erreur recherche client :", error);
+        setClientResults([]);
+      }
+    },
+    [userId]
+  );
+
+  useEffect(() => {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+
+    if (searchClientQuery.length < 2) {
+      setClientResults([]);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      handleClientSearch(searchClientQuery);
+    }, 400); // délai de 400ms
+
+    searchTimeoutRef.current = timeout;
+  }, [searchClientQuery, handleClientSearch]);
+
+  console.log("clientResults", clientResults);
+
   //! Formulaire de création de rendez-vous
   const form = useForm<z.infer<typeof appointmentSchema>>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
       title: "",
-      clientName: "",
+      clientFirstname: "",
+      clientLastname: "",
       clientEmail: "",
       clientPhone: "",
       clientBirthday: undefined,
@@ -290,11 +358,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       form.reset();
     } catch {
       setError("Erreur serveur. Veuillez réessayer.");
+      toast.error("Erreur lors de la création du rendez-vous.");
     } finally {
       setLoading(false);
       router.push("/mes-rendez-vous");
       setSelectedSlots([]); // Réinitialise les créneaux sélectionnés
       setSelectedTatoueur(null); // Réinitialise le tatoueur sélectionné
+      toast.success("Rendez-vous créé avec succès !");
     }
   };
 
@@ -307,36 +377,64 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         })}
         className="flex flex-col gap-4 text-white font-one text-sm"
       >
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="clientName">Titre</label>
+        <div className="flex gap-2 items-end">
+          <input
+            type="text"
+            value={searchClientQuery}
+            onChange={(e) => setSearchClientQuery(e.target.value)}
+            className="w-full border-b border-gray-300 px-3 py-2 text-xs text-white"
+            placeholder="Rechercher un client par nom ou email..."
+          />
+        </div>
+        {clientResults.length > 0 && (
+          <div className="border border-tertiary-500 rounded p-1 mb-2 bg-primary-400 max-h-40 overflow-auto hover:bg-primary-500">
+            {clientResults.map((client) => (
+              <div
+                key={client.id}
+                className="cursor-pointer text-noir-500 px-2 py-1 text-xs"
+                onClick={() => {
+                  form.setValue("clientLastname", client.lastName);
+                  form.setValue("clientFirstname", client.firstName);
+                  form.setValue("clientEmail", client.email);
+                  form.setValue("clientPhone", client.phone);
+                  setSearchClientQuery(""); // reset l'input
+                  setClientResults([]); // fermer les résultats
+                }}
+              >
+                {client.firstName} {client.lastName} - {client.email}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="grid grid-cols-4 gap-4">
+          <div className="flex flex-col gap-2 ">
+            <label htmlFor="clientLastname">Nom du client</label>
             <input
-              placeholder="Titre"
-              {...form.register("title")}
+              placeholder="Prénom du client"
+              {...form.register("clientLastname")}
               className="bg-white/30 py-2 px-4 rounded-[20px]"
             />
-            {form.formState.errors.title && (
+            {form.formState.errors.clientLastname && (
               <p className="text-red-500 text-sm">
-                {form.formState.errors.title.message}
+                {form.formState.errors.clientLastname.message}
               </p>
             )}
           </div>
           <div className="flex flex-col gap-2 ">
-            <label htmlFor="clientName">Nom du client</label>
+            <label htmlFor="clientName">Prénom du client</label>
             <input
-              placeholder="Nom du client"
-              {...form.register("clientName")}
+              placeholder="Prénom du client"
+              {...form.register("clientFirstname")}
               className="bg-white/30 py-2 px-4 rounded-[20px]"
             />
-            {form.formState.errors.clientName && (
+            {form.formState.errors.clientFirstname && (
               <p className="text-red-500 text-sm">
-                {form.formState.errors.clientName.message}
+                {form.formState.errors.clientFirstname.message}
               </p>
             )}
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2 ">
             <label htmlFor="clientName">Email du client</label>
             <input
@@ -352,7 +450,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
           </div>
 
           <div className="flex flex-col gap-2 ">
-            <label htmlFor="clientName">Téléphone du client</label>
+            <label htmlFor="clientPhone">Téléphone du client (optionnel)</label>
             <input
               placeholder="Tél du client"
               {...form.register("clientPhone")}
@@ -362,8 +460,22 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
+          {" "}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="title">Titre</label>
+            <input
+              placeholder="Titre"
+              {...form.register("title")}
+              className="bg-white/30 py-2 px-4 rounded-[20px]"
+            />
+            {form.formState.errors.title && (
+              <p className="text-red-500 text-sm">
+                {form.formState.errors.title.message}
+              </p>
+            )}
+          </div>
           <div className="flex flex-col gap-2 ">
-            <label htmlFor="clientName">Selectionnez le tatoueur</label>
+            <label htmlFor="tatoueurId">Selectionnez le tatoueur</label>
             <select
               {...form.register("tatoueurId")}
               onChange={(e) => {
@@ -383,33 +495,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   {tatoueur.name}
                 </option>
               ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-2 ">
-            <label htmlFor="clientName">Type du RDV</label>
-            <select
-              {...form.register("prestation")}
-              onChange={(e) => {
-                setSelectedPrestation(e.target.value);
-              }}
-              className="bg-white/30 py-2 px-4 rounded-[20px]"
-            >
-              <option value="" className="bg-noir-700/50">
-                -- Choisissez le type du rendez-vous --
-              </option>
-              <option value="TATTOO" className="bg-noir-700/50">
-                Tattoo
-              </option>
-              <option value="PROJET" className="bg-noir-700/50">
-                Projet
-              </option>
-              <option value="RETOUCHE" className="bg-noir-700/50">
-                Retouche
-              </option>
-              <option value="PIERCING" className="bg-noir-700/50">
-                Piercing
-              </option>
             </select>
           </div>
         </div>
@@ -465,61 +550,92 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
           </div>
         )}
 
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2 ">
+            <label htmlFor="clientName">Type du RDV</label>
+            <select
+              {...form.register("prestation")}
+              onChange={(e) => {
+                setSelectedPrestation(e.target.value);
+              }}
+              className="bg-white/30 py-2 px-4 rounded-[20px]"
+            >
+              <option value="" className="bg-noir-700/50">
+                -- Choisissez le type du rendez-vous --
+              </option>
+              <option value="TATTOO" className="bg-noir-700/50">
+                Tattoo
+              </option>
+              <option value="PROJET" className="bg-noir-700/50">
+                Projet
+              </option>
+              <option value="RETOUCHE" className="bg-noir-700/50">
+                Retouche
+              </option>
+              <option value="PIERCING" className="bg-noir-700/50">
+                Piercing
+              </option>
+            </select>
+          </div>
+        </div>
+
         {/* Champs pour prestation de type "PROJET" */}
         {selectedPrestation === "PROJET" && (
-          <div className="grid grid-cols-4 gap-4">
+          <>
             <div className="flex flex-col gap-2 ">
               <label htmlFor="description">Description du projet</label>
-              <input
+              <textarea
                 placeholder="Description du projet"
                 {...form.register("description")}
                 className="bg-white/30 py-2 px-4 rounded-[20px]"
               />
             </div>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="zone">Zone du corps</label>
-              <input
-                placeholder="Bras avant droit"
-                {...form.register("zone")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="size">Taille du tatouage (cm)</label>
-              <input
-                placeholder="20cm x 30cm"
-                {...form.register("size")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="colorStyle">Style / Couleur du tatouage</label>
-              <input
-                placeholder="Style gothique, couleur rouge et noir"
-                {...form.register("colorStyle")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               <div className="flex flex-col gap-2 ">
-                <label htmlFor="clientName">Image de référence 1</label>
+                <label htmlFor="zone">Zone du corps</label>
                 <input
-                  placeholder="Image de référence 1"
-                  {...form.register("reference")}
+                  placeholder="Bras avant droit"
+                  {...form.register("zone")}
                   className="bg-white/30 py-2 px-4 rounded-[20px]"
                 />
               </div>
+              <div className="flex flex-col gap-2 ">
+                <label htmlFor="size">Taille du tatouage (cm)</label>
+                <input
+                  placeholder="20cm x 30cm"
+                  {...form.register("size")}
+                  className="bg-white/30 py-2 px-4 rounded-[20px]"
+                />
+              </div>
+              <div className="flex flex-col gap-2 ">
+                <label htmlFor="colorStyle">Style / Couleur du tatouage</label>
+                <input
+                  placeholder="Style gothique, couleur rouge et noir"
+                  {...form.register("colorStyle")}
+                  className="bg-white/30 py-2 px-4 rounded-[20px]"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2 ">
+                  <label htmlFor="clientName">Image de référence 1</label>
+                  <input
+                    placeholder="Image de référence 1"
+                    {...form.register("reference")}
+                    className="bg-white/30 py-2 px-4 rounded-[20px]"
+                  />
+                </div>
 
-              <div className="flex flex-col gap-2 ">
-                <label htmlFor="clientName">Image de référence 2</label>
-                <input
-                  placeholder="Image de référence 2"
-                  {...form.register("sketch")}
-                  className="bg-white/30 py-2 px-4 rounded-[20px]"
-                />
+                <div className="flex flex-col gap-2 ">
+                  <label htmlFor="clientName">Image de référence 2</label>
+                  <input
+                    placeholder="Image de référence 2"
+                    {...form.register("sketch")}
+                    className="bg-white/30 py-2 px-4 rounded-[20px]"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {selectedPrestation === "TATTOO" && (
@@ -570,34 +686,36 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         )}
 
         {selectedPrestation === "PIERCING" && (
-          <div className="grid grid-cols-3 gap-4">
+          <>
             <div className="flex flex-col gap-2 ">
               <label htmlFor="description">Description du piercing</label>
-              <input
+              <textarea
                 placeholder="Description"
                 {...form.register("description")}
                 className="bg-white/30 py-2 px-4 rounded-[20px]"
               />
             </div>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="zone">Zone du piercing</label>
-              <input
-                placeholder="Zone (si projet)"
-                {...form.register("zone")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="flex flex-col gap-2 ">
+                <label htmlFor="zone">Zone du piercing</label>
+                <input
+                  placeholder="Zone (si projet)"
+                  {...form.register("zone")}
+                  className="bg-white/30 py-2 px-4 rounded-[20px]"
+                />
+              </div>
 
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="estimatedPrice">Prix</label>
-              <input
-                type="number"
-                placeholder="Prix estimé"
-                {...form.register("estimatedPrice")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
+              <div className="flex flex-col gap-2 ">
+                <label htmlFor="estimatedPrice">Prix</label>
+                <input
+                  type="number"
+                  placeholder="Prix estimé"
+                  {...form.register("estimatedPrice")}
+                  className="bg-white/30 py-2 px-4 rounded-[20px]"
+                />
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         {selectedPrestation === "RETOUCHE" && (
