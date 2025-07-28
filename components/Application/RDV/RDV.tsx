@@ -22,7 +22,8 @@ import ConfirmRdv from "./ConfirmRdv";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAppointments } from "@/lib/queries/appointment";
 import CancelRdv from "./CancelRdv";
-import UpdateRdv, { UpdateRdvFormProps } from "./UpdateRdv";
+import UpdateRdv from "./UpdateRdv";
+import { UpdateRdvFormProps } from "@/lib/type";
 
 export default function RDV() {
   const user = useUser();
@@ -209,7 +210,7 @@ export default function RDV() {
             </h2>
             {events.length > 0 ? (
               <div className="flex flex-col gap-4 mt-2  rounded-[20px] p-2">
-                <div className="grid grid-cols-7 gap-2 p-1 text-white text-xs font-bold">
+                <div className="grid grid-cols-7 gap-2 p-1 text-white text-xs font-one tracking-widest font-bold">
                   <p>Date & Heure</p>
                   <p>Titre</p>
                   <p>Client</p>

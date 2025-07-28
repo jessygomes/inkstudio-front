@@ -5,36 +5,12 @@ import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateAppointmentSchema } from "@/lib/zod/validator.schema";
-import { TatoueurProps, TimeSlotProps } from "@/lib/type";
+import { TatoueurProps, TimeSlotProps, UpdateRdvFormProps } from "@/lib/type";
 import { addMinutes, format, isValid } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
 // import { FormError } from "@/components/Shared/FormError";
 // import { FormSuccess } from "@/components/Shared/FormSuccess";
-
-export type UpdateRdvFormProps = {
-  id: string;
-  title: string;
-  description: string;
-  start: string;
-  end: string;
-  status: "PENDING" | "CONFIRMED" | "DECLINED" | "CANCELED";
-  prestation: "TATTOO" | "PIERCING" | "RETOUCHE" | "PROJET";
-  zone: string;
-  size: number;
-  estimatedPrice: number;
-  tatoueurId: string;
-  userId: string;
-  tattooDetail?: {
-    description?: string;
-    zone?: string;
-    size?: string;
-    colorStyle?: string;
-    reference?: string;
-    sketch?: string;
-    estimatedPrice?: number;
-  };
-};
 
 export default function UpdateRdv({
   rdv,

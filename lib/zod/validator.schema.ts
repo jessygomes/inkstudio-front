@@ -142,3 +142,34 @@ export const updateAppointmentSchema = z.object({
     })
     .optional(),
 });
+
+//! CLIENT
+export const clientSchema = z.object({
+  firstName: z.string().min(1, "Le prénom est requis."),
+  lastName: z.string().min(1, "Le nom est requis."),
+  phone: z.string().optional(),
+  email: z.string().email({
+    message: "Votre email n'est pas valide.",
+  }),
+  birthDate: z
+    .string()
+    .optional()
+    .refine(
+      (date) => {
+        if (!date) return true; // Optionnel, donc vide c'est OK
+        const parsedDate = new Date(date);
+        return !isNaN(parsedDate.getTime()); // Vérifie que c'est une date valide
+      },
+      {
+        message: "La date de naissance doit être une date valide.",
+      }
+    ),
+  address: z.string().optional(),
+
+  // Historique médical (optionnel)
+  allergies: z.string().optional(),
+  healthIssues: z.string().optional(),
+  medications: z.string().optional(),
+  pregnancy: z.boolean().optional(),
+  tattooHistory: z.string().optional(),
+});

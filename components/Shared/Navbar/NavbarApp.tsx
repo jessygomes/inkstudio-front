@@ -3,7 +3,7 @@ import { useUser } from "@/components/Auth/Context/UserContext";
 import { LogoutBtn } from "@/components/Auth/LogoutBtn";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { CgProfile } from "react-icons/cg";
 
@@ -18,6 +18,28 @@ export default function NavbarApp() {
     setShowMenu((prev) => !prev);
   };
 
+  // Fermer le menu quand on clique ailleurs
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMenu]);
+
+  // Debug temporaire pour voir l'état du menu
+  useEffect(() => {
+    console.log("Menu navbar ouvert:", showMenu);
+  }, [showMenu]);
+
   const links = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/mes-rendez-vous", label: "Rendez-vous" },
@@ -28,8 +50,8 @@ export default function NavbarApp() {
   ];
 
   return (
-    <nav className="flex justify-between items-center py-4 px-20 bg-gradient-to-b from-noir-700 to-secondary-600 border-b border-tertiary-400">
-      {" "}
+    <nav className="flex justify-between items-center py-4 px-20 bg-noir-700 pb-6">
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-tertiary-500 to-tertiary-400"></div>{" "}
       <Link
         href={"/"}
         className="font-two uppercase font-bold text-xl text-white"
@@ -66,20 +88,24 @@ export default function NavbarApp() {
               <Link
                 href="/mon-compte"
                 className="px-4 py-2 text-xs hover:bg-noir-500 transition-colors"
+                onClick={() => setShowMenu(false)}
               >
                 Paramètres du compte
               </Link>
               <Link
                 href="/mon-compte"
                 className="px-4 py-2 text-xs hover:bg-noir-500 transition-colors"
+                onClick={() => setShowMenu(false)}
               >
                 Mes
               </Link>
-              <LogoutBtn>
-                <span className="block text-xs w-full text-left transition-colors">
-                  Déconnexion
-                </span>
-              </LogoutBtn>
+              <div onClick={() => setShowMenu(false)}>
+                <LogoutBtn>
+                  <span className="block text-xs w-full text-left transition-colors">
+                    Déconnexion
+                  </span>
+                </LogoutBtn>
+              </div>
             </div>
           )}
         </li>

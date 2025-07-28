@@ -37,7 +37,7 @@ export default async function DashboardLayout({
   return (
     <UserProvider user={user}>
       <Providers>
-        <div className="absolute top-0 left-0 w-full h-screen">
+        <div className="absolute top-0 left-0 w-full">
           <HeaderApp />
         </div>
         {/* <header>

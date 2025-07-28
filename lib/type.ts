@@ -13,6 +13,57 @@ export interface TimeSlotProps {
   end: string;
 }
 
+//! RENDEZ-VOUS
+export interface AppointmentProps {
+  id: string;
+  title: string;
+  description: string;
+  start: string; // Date au format ISO
+  end: string; // Date au format ISO
+  allDay?: boolean;
+  status: "PENDING" | "CONFIRMED" | "DECLINED" | "CANCELED";
+  prestation: "TATTOO" | "PIERCING" | "RETOUCHE" | "PROJET";
+  zone: string;
+  size: number;
+  estimatedPrice: number;
+  tatoueurId: string;
+  userId: string;
+  clientId: string;
+  tattooDetail?: {
+    description?: string;
+    zone?: string;
+    size?: string;
+    colorStyle?: string;
+    reference?: string;
+    sketch?: string;
+    estimatedPrice?: number;
+  };
+}
+
+export type UpdateRdvFormProps = {
+  id: string;
+  title: string;
+  description: string;
+  start: string;
+  end: string;
+  status: "PENDING" | "CONFIRMED" | "DECLINED" | "CANCELED";
+  prestation: "TATTOO" | "PIERCING" | "RETOUCHE" | "PROJET";
+  zone: string;
+  size: number;
+  estimatedPrice: number;
+  tatoueurId: string;
+  userId: string;
+  tattooDetail?: {
+    description?: string;
+    zone?: string;
+    size?: string;
+    colorStyle?: string;
+    reference?: string;
+    sketch?: string;
+    estimatedPrice?: number;
+  };
+};
+
 //! SALON
 export interface SalonUserProps {
   id: string;
@@ -53,4 +104,37 @@ export interface UpdateSalonUserProps {
   tiktok: string | null;
   website: string | null;
   image: string | null;
+}
+
+//! TATTOO HISTORY
+export interface TattooHistoryProps {
+  id: string;
+  clientId: string; // ID du client
+  date: string; // Date au format ISO
+  description: string; // Type de tatouage
+  beforeImage: string; // Image avant le tatouage
+  afterImage: string; // Image après le tatouage
+  inkused: string; // Type d'encre utilisée
+  healingTime: string; // Temps de guérison
+  careProducts: string; // Produits de soin utilisés
+}
+
+//! CLIENTS
+export interface ClientProps {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  birthDate: string | null; // Date de naissance au format ISO
+  address: string;
+  appointments: AppointmentProps[]; // Liste des rendez-vous
+  tattooHistories: TattooHistoryProps[]; // Historique des tatouages
+  medicalHistory: {
+    allergies: string | null; // Allergies
+    healthIssues: string | null; // Problèmes de santé
+    medications: string | null; // Médicaments
+    pregnancy: boolean; // Indique si la personne est enceinte
+    tattooHistory: string | null; // Historique des tatouages
+  };
 }
