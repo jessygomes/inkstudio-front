@@ -1,6 +1,6 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState } from "react";
+import React from "react";
+import { useRouter } from "next/navigation";
 
 interface HoraireProps {
   isHoursVisible: boolean;
@@ -35,11 +35,10 @@ export default function Horaire({
   isHoursVisible,
   hours,
   setIsHoursVisible,
-  salonId,
 }: HoraireProps) {
-  const [showModal, setShowModal] = useState(false);
+  const router = useRouter();
 
-  const initialHours: SalonHours = hours
+  const salonHoursState: SalonHours | null = hours
     ? JSON.parse(hours)
     : {
         monday: { start: "", end: "" },
@@ -51,178 +50,88 @@ export default function Horaire({
         sunday: null,
       };
 
-  const [editingHours, setEditingHours] = useState<SalonHours>(initialHours);
-  const [salonHoursState, setSalonHoursState] = useState<SalonHours | null>(
-    initialHours
-  );
-
   const hasHours = salonHoursState && Object.keys(salonHoursState).length > 0;
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}/hours`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingHours),
-      }
-    );
-
-    if (res.ok) {
-      setSalonHoursState(editingHours); // Met à jour dynamiquement l'affichage
-      setShowModal(false);
-    } else {
-      console.error("Erreur lors de la mise à jour des horaires");
-    }
-  };
-
   return (
-    <>
-      <article className="p-2 rounded-[20px]">
-        <div className="flex justify-between items-center">
-          <button
-            onClick={() => setIsHoursVisible(!isHoursVisible)}
-            className="flex items-center gap-2 cursor-pointer text-white font-bold font-one"
-          >
-            {hasHours
-              ? "Mes horaires d'ouverture"
-              : "Indiquez vos horaires d'ouverture"}
-            <span
-              className={`transform transition-transform ${
-                isHoursVisible ? "rotate-180" : "rotate-0"
-              }`}
-            >
-              ▼
+    <article className="space-y-6">
+      <div className="flex justify-between items-center">
+        <button
+          onClick={() => setIsHoursVisible(!isHoursVisible)}
+          className="group flex items-center gap-3 cursor-pointer text-white font-bold font-one hover:text-tertiary-300 transition-colors duration-200"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-lg">{hasHours ? "📅" : "⏰"}</span>
+            <span className="text-lg">
+              {hasHours
+                ? "Horaires configurés"
+                : "Configurer les horaires d'ouverture"}
             </span>
-          </button>
-          <button
-            onClick={() => {
-              setEditingHours(salonHoursState || initialHours);
-              setShowModal(true);
-            }}
-            className="text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[200px] max-w-[400px] text-center text-white font-one py-2 px-4 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
+          </div>
+          <div
+            className={`transform transition-transform duration-300 ${
+              isHoursVisible ? "rotate-180" : "rotate-0"
+            }`}
           >
-            {hasHours
-              ? "Modifier les horaires"
-              : "Ajouter les horaires du salon"}
-          </button>
-        </div>
+            <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+              <span className="text-sm">▼</span>
+            </div>
+          </div>
+        </button>
 
-        {isHoursVisible && (
-          <ul className="text-white mt-2 font-two overflow-hidden">
+        <button
+          onClick={() => router.push("/mon-compte/horaires")}
+          className="text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[200px] max-w-[200px] text-center text-white font-one py-2 px-4 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
+        >
+          <span className="flex items-center justify-center gap-2">
+            <span>{hasHours ? "Modifier" : "Ajouter"}</span>
+          </span>
+        </button>
+      </div>
+
+      {isHoursVisible && (
+        <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 space-y-3">
+          <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+            <span>📋</span>
+            <span>Planning de la semaine</span>
+          </h3>
+          <div className="grid gap-3">
             {daysOfWeek.map((day) => {
               const hours = salonHoursState?.[day.key as keyof SalonHours];
+              const isOpen = !!hours;
+
               return (
-                <li key={day.key} className="flex gap-2">
-                  <span className="w-1/6">{day.label} :</span>
-                  <span>
-                    {hours ? `${hours.start} - ${hours.end}` : "Fermé"}
+                <div
+                  key={day.key}
+                  className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10"
+                >
+                  <span className="w-24 text-white font-medium font-one">
+                    {day.label}
                   </span>
-                </li>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-3 h-3 rounded-full ${
+                        isOpen ? "bg-green-400" : "bg-red-400"
+                      }`}
+                    />
+                    <span className="text-white font-two min-w-[120px]">
+                      {hours ? `${hours.start} - ${hours.end}` : "Fermé"}
+                    </span>
+                    <div
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        isOpen
+                          ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                          : "bg-red-500/20 text-red-300 border border-red-500/30"
+                      }`}
+                    >
+                      {isOpen ? "Ouvert" : "Fermé"}
+                    </div>
+                  </div>
+                </div>
               );
             })}
-          </ul>
-        )}
-      </article>
-
-      {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-primary-500 rounded-lg p-6 w-[90%] max-w-[500px] space-y-4 text-white"
-          >
-            <h2 className="text-lg font-bold text-center font-two">
-              Modifier les horaires
-            </h2>
-            {daysOfWeek.map(({ key, label }) => (
-              <div
-                key={key}
-                className="flex items-center justify-between gap-2"
-              >
-                <label className="w-1/4">{label}</label>
-                {editingHours[key as keyof SalonHours] ? (
-                  <>
-                    <input
-                      type="time"
-                      value={editingHours[key as keyof SalonHours]?.start ?? ""}
-                      onChange={(e) =>
-                        setEditingHours((prev) => ({
-                          ...prev,
-                          [key]: {
-                            ...(prev[key as keyof SalonHours] || {
-                              start: "",
-                              end: "",
-                            }),
-                            start: e.target.value,
-                          },
-                        }))
-                      }
-                    />
-                    <input
-                      type="time"
-                      value={editingHours[key as keyof SalonHours]?.end ?? ""}
-                      onChange={(e) =>
-                        setEditingHours((prev) => ({
-                          ...prev,
-                          [key]: {
-                            ...(prev[key as keyof SalonHours] || {
-                              start: "",
-                              end: "",
-                            }),
-                            end: e.target.value,
-                          },
-                        }))
-                      }
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setEditingHours((prev) => ({
-                          ...prev,
-                          [key]: null,
-                        }))
-                      }
-                      className="cursor-pointer text-xs p-1 rounded-[20px] bg-red-900 text-white"
-                    >
-                      Fermer le salon
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setEditingHours((prev) => ({
-                        ...prev,
-                        [key]: { start: "", end: "" },
-                      }))
-                    }
-                    className="cursor-pointer text-xs p-1 rounded-[20px] bg-green-900 text-white"
-                  >
-                    Ouvrir le salon
-                  </button>
-                )}
-              </div>
-            ))}
-
-            <div className="flex items-center justify-center gap-4 mt-4">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="cursor-pointer text-xs p-2 rounded-[20px] bg-red-900 text-white"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                className="text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[200px] max-w-[400px] text-center text-white py-2 px-4 rounded-[20px] hover:scale-105 transition"
-              >
-                Sauvegarder
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
       )}
-    </>
+    </article>
   );
 }

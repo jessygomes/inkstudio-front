@@ -24,6 +24,7 @@ import { fetchAppointments } from "@/lib/queries/appointment";
 import CancelRdv from "./CancelRdv";
 import UpdateRdv from "./UpdateRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
+import Image from "next/image";
 
 export default function RDV() {
   const user = useUser();
@@ -184,14 +185,13 @@ export default function RDV() {
   });
 
   return (
-    <div className="w-full flex gap-2">
+    <div className="w-full flex gap-6">
       {isLoading ? (
         <div className="h-[80vh] w-full flex items-center justify-center">
           <BarLoader
             color={color}
             loading={isLoading}
             cssOverride={override}
-            // size={150}
             width={300}
             height={5}
             aria-label="Loading Spinner"
@@ -204,55 +204,229 @@ export default function RDV() {
         </div>
       ) : (
         <>
-          <section className="w-3/5 rounded-[20px] relative">
-            <h2 className="text-white font-two text-xl uppercase">
-              {getFormattedLabel()}
-            </h2>
+          <section className="w-3/5 bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl">
+            <div className="mb-6">
+              <h2 className="text-white font-one text-2xl font-bold tracking-wide mb-2">
+                {getFormattedLabel()}
+              </h2>
+              <div className="h-[1px] w-full bg-gradient-to-r from-tertiary-400/50 via-white/30 to-transparent" />
+            </div>
+
             {events.length > 0 ? (
-              <div className="flex flex-col gap-4 mt-2  rounded-[20px] p-2">
-                <div className="grid grid-cols-7 gap-2 p-1 text-white text-xs font-one tracking-widest font-bold">
-                  <p>Date & Heure</p>
-                  <p>Titre</p>
-                  <p>Client</p>
-                  <p>Durée</p>
-                  <p>Type</p>
-                  <p>Tatoueur</p>
-                  <p></p>
+              <div className="space-y-4">
+                {/* Header de la table */}
+                <div className="grid grid-cols-7 gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                  <p className="text-white/80 text-xs font-one font-semibold tracking-widest">
+                    Date & Heure
+                  </p>
+                  <p className="text-white/80 text-xs font-one font-semibold tracking-widest">
+                    Titre
+                  </p>
+                  <p className="text-white/80 text-xs font-one font-semibold tracking-widest">
+                    Client
+                  </p>
+                  <p className="text-white/80 text-xs font-one font-semibold tracking-widest">
+                    Durée
+                  </p>
+                  <p className="text-white/80 text-xs font-one font-semibold tracking-widest">
+                    Type
+                  </p>
+                  <p className="text-white/80 text-xs font-one font-semibold tracking-widest">
+                    Tatoueur
+                  </p>
+                  <p className="text-white/80 text-xs font-one font-semibold tracking-widest text-center">
+                    Statut
+                  </p>
                 </div>
-                <div className="h-[1px] w-full bg-white/70" />
 
-                {filteredEvents.length > 0 &&
-                  events.map((event: CalendarEvent) => {
-                    // Calcul de la durée en millisecondes
-                    const start = new Date(event.start ?? "").getTime();
-                    const end = new Date(event.end ?? "").getTime();
-                    const durationMs = end - start;
+                {/* Liste des rendez-vous */}
+                <div className="space-y-2 max-h-[65vh] overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                  {filteredEvents.length > 0 &&
+                    events.map((event: CalendarEvent) => {
+                      // Calcul de la durée en millisecondes
+                      const start = new Date(event.start ?? "").getTime();
+                      const end = new Date(event.end ?? "").getTime();
+                      const durationMs = end - start;
 
-                    // Conversion en heures et minutes
-                    const durationHours = Math.floor(
-                      durationMs / (1000 * 60 * 60)
-                    );
-                    const durationMinutes = Math.floor(
-                      (durationMs % (1000 * 60 * 60)) / (1000 * 60)
-                    );
+                      // Conversion en heures et minutes
+                      const durationHours = Math.floor(
+                        durationMs / (1000 * 60 * 60)
+                      );
+                      const durationMinutes = Math.floor(
+                        (durationMs % (1000 * 60 * 60)) / (1000 * 60)
+                      );
 
-                    return (
-                      <div
-                        key={event.id} // Assurez-vous que chaque événement a un ID unique
-                        className="grid grid-cols-7 items-center gap-2 text-white font-one text-xs p-1 rounded-[20px] hover:bg-secondary-500 transition duration-200"
-                      >
-                        {/* DATE ET HEURE */}
-                        <p className="font-bold">
-                          {new Date(event.start ?? "").toLocaleDateString(
+                      return (
+                        <div
+                          key={event.id}
+                          className="grid grid-cols-7 items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 group"
+                        >
+                          {/* DATE ET HEURE */}
+                          <div className="text-white font-two text-sm">
+                            <p className="font-bold">
+                              {new Date(event.start ?? "").toLocaleDateString(
+                                "fr-FR",
+                                {
+                                  day: "2-digit",
+                                  month: "2-digit",
+                                  year: "2-digit",
+                                }
+                              )}
+                            </p>
+                            <p className="text-xs text-white/70">
+                              {new Date(event.start ?? "").toLocaleTimeString(
+                                "fr-FR",
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </p>
+                          </div>
+
+                          {/* TITRE DU RDV */}
+                          <p className="text-white font-two text-sm truncate">
+                            {event.title}
+                          </p>
+
+                          {/* CLIENT */}
+                          <button className="text-left text-white font-two text-sm hover:text-tertiary-400 transition-colors duration-200 truncate">
+                            {event.client.firstName} {event.client.lastName}
+                          </button>
+
+                          {/* DUREE */}
+                          <p className="text-white font-two text-sm">
+                            {durationHours}h
+                            {durationMinutes > 0 ? `${durationMinutes}m` : ""}
+                          </p>
+
+                          {/* PRESTATION */}
+                          <p className="text-white font-two text-sm truncate">
+                            {event.prestation}
+                          </p>
+
+                          {/* NOM DU TATOUEUR */}
+                          <p className="text-white font-two text-sm truncate">
+                            {event.tatoueur.name}
+                          </p>
+
+                          {/* STATUT */}
+                          <div className="text-center">
+                            <button
+                              onClick={() => openEventDetails(event)}
+                              className="w-full cursor-pointer"
+                            >
+                              {event.status === "CANCELED" ? (
+                                <span className="inline-block px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-full text-xs font-medium hover:bg-red-500/30 transition-all duration-200">
+                                  Annulé
+                                </span>
+                              ) : event.status !== "CONFIRMED" ? (
+                                <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-full text-xs font-medium hover:bg-orange-500/30 transition-all duration-200">
+                                  En attente
+                                </span>
+                              ) : (
+                                <span className="inline-block px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full text-xs font-medium hover:bg-green-500/30 transition-all duration-200">
+                                  Confirmé
+                                </span>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            ) : (
+              <div className="h-[60vh] flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
+                    <span className="text-3xl">📅</span>
+                  </div>
+                  <p className="font-two text-xl text-white">
+                    Aucun rendez-vous disponible
+                  </p>
+                  <p className="font-two text-sm text-white/60">
+                    Les nouveaux rendez-vous apparaîtront ici
+                  </p>
+                </div>
+              </div>
+            )}
+          </section>
+
+          <section className="w-2/5 h-[85vh] relative">
+            {selectedEvent ? (
+              <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl h-full flex flex-col">
+                <div className="flex-1 space-y-6 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                  {/* Header */}
+                  <div className="space-y-4">
+                    <h2 className="text-2xl font-bold font-one text-white tracking-wide">
+                      Détails du Rendez-vous
+                    </h2>
+
+                    {/* Statut avec badge */}
+                    <div className="flex items-center gap-3">
+                      {selectedEvent.status === "PENDING" ? (
+                        <span className="inline-flex items-center px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-full text-sm font-medium">
+                          <span className="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
+                          En attente de confirmation
+                        </span>
+                      ) : selectedEvent.status === "CONFIRMED" ? (
+                        <span className="inline-flex items-center px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full text-sm font-medium">
+                          <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                          Confirmé
+                        </span>
+                      ) : selectedEvent.status === "CANCELED" ? (
+                        <span className="inline-flex items-center px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-full text-sm font-medium">
+                          <span className="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
+                          Annulé
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                      {selectedEvent.status !== "CONFIRMED" && (
+                        <ConfirmRdv rdvId={selectedEvent.id} />
+                      )}
+                      <UpdateRdv
+                        rdv={selectedEvent as unknown as UpdateRdvFormProps}
+                        userId={userId || ""}
+                        onUpdate={() => handleRdvUpdated(selectedEvent.id)}
+                      />
+                      {selectedEvent.status !== "CANCELED" && (
+                        <CancelRdv rdvId={selectedEvent.id} />
+                      )}
+                    </div>
+
+                    <div className="h-[1px] w-full bg-gradient-to-r from-tertiary-400/50 via-white/30 to-transparent" />
+                  </div>
+
+                  {/* Informations principales */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-tertiary-400 font-one">
+                      Informations générales
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-white/60 text-xs font-one">Date</p>
+                        <p className="text-white font-two text-sm">
+                          {new Date(selectedEvent.start).toLocaleDateString(
+                            "fr-FR"
+                          )}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-white/60 text-xs font-one">Heure</p>
+                        <p className="text-white font-two text-sm">
+                          {new Date(selectedEvent.start).toLocaleTimeString(
                             "fr-FR",
                             {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
                             }
                           )}{" "}
                           -{" "}
-                          {new Date(event.start ?? "").toLocaleTimeString(
+                          {new Date(selectedEvent.end).toLocaleTimeString(
                             "fr-FR",
                             {
                               hour: "2-digit",
@@ -260,181 +434,165 @@ export default function RDV() {
                             }
                           )}
                         </p>
-
-                        {/* TITRE DU RDV */}
-                        <p className="truncate">{event.title}</p>
-
-                        {/* CLIQUER SUR LE NOM DUU CLIENT POUR AFFICHER SA FICHE CLIENT */}
-                        <button className="cursor-pointer text-left hover:text-tertiary-500 transition duration-200">
-                          {event.client.firstName} {event.client.lastName}
-                        </button>
-
-                        {/* DUREE */}
-                        <p>
-                          {durationHours}h
-                          {durationMinutes > 0 ? `${durationMinutes}m` : ""}
-                        </p>
-
-                        {/* PRESTATION */}
-                        <p>{event.prestation}</p>
-
-                        {/* NOM DU TATOUEUR */}
-                        <p className="truncate">{event.tatoueur.name}</p>
-
-                        {/* CONFIRMER LE RDV OU VOIR TOUS LES DETAILS */}
-                        <button
-                          onClick={() => openEventDetails(event)}
-                          className="text-center"
-                        >
-                          {event.status === "CANCELED" ? (
-                            <p className="cursor-pointer bg-red-900 text-white px-2 py-1 rounded-[20px] hover:bg-red-700 transition">
-                              RDV Annulé
-                            </p>
-                          ) : event.status !== "CONFIRMED" ? (
-                            <p className="cursor-pointer bg-primary-500 text-white px-2 py-1 rounded-[20px] hover:bg-primary-400 transition">
-                              {event.status === "PENDING" ? "En attente" : ""}
-                            </p>
-                          ) : (
-                            <p className="cursor-pointer bg-tertiary-500 text-white px-2 py-1 rounded-[20px] hover:bg-tertiary-400 transition">
-                              Voir les infos
-                            </p>
-                          )}
-                        </button>
                       </div>
-                    );
-                  })}
-              </div>
-            ) : (
-              <section>
-                <div className="h-[1px] w-full bg-white/70 mt-2" />
-                <div className="h-[85vh] w-full flex items-center justify-center relative">
-                  <p className="font-two text-xl text-center text-white">
-                    Aucun rendez-vous disponible.
-                  </p>
-                </div>
-              </section>
-            )}
-          </section>
-          {/* <h1 className="text-2xl font-bold mb-4">Agenda des Rendez-vous</h1> */}
-          <section className="w-2/5 h-[85vh] relative">
-            {selectedEvent ? (
-              <div className="flex flex-col justify-between gap-2 bg-primary-500/60 h-full rounded-lg p-6 font-two text-white text-sm">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold font-two text-white">
-                      Détails du Rendez-vous
-                    </h2>
+                      <div className="space-y-1">
+                        <p className="text-white/60 text-xs font-one">Client</p>
+                        <p className="text-white font-two text-sm">
+                          {selectedEvent.client.firstName}{" "}
+                          {selectedEvent.client.lastName}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-white/60 text-xs font-one">
+                          Prestation
+                        </p>
+                        <p className="text-white font-two text-sm">
+                          {selectedEvent.prestation}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-white/60 text-xs font-one">Titre</p>
+                        <p className="text-white font-two text-sm">
+                          {selectedEvent.title}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-white/60 text-xs font-one">
+                          Tatoueur
+                        </p>
+                        <p className="text-white font-two text-sm">
+                          {selectedEvent.tatoueur.name}
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
-                  {selectedEvent.status === "PENDING" ? (
-                    <p className="text-white/60 tracking-widest font-bold">
-                      Ce rendez-vous est en attente de confirmation.
-                    </p>
-                  ) : selectedEvent.status === "CONFIRMED" ? (
-                    <p className="text-green-500 font-bold">
-                      Ce rendez-vous est confirmé.
-                    </p>
-                  ) : selectedEvent.status === "CANCELED" ? (
-                    <p className="text-red-500 font-bold">
-                      Ce rendez-vous a été annulé.
-                    </p>
-                  ) : null}
+                  {/* Détails du tattoo */}
+                  {selectedEvent.tattooDetail && (
+                    <div className="space-y-4">
+                      <div className="h-[1px] w-full bg-gradient-to-r from-tertiary-400/50 via-white/30 to-transparent" />
+                      <h3 className="text-lg font-semibold text-tertiary-400 font-one">
+                        Détails du tatouage
+                      </h3>
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <p className="text-white/60 text-xs font-one">
+                            Description
+                          </p>
+                          <p className="text-white font-two text-sm">
+                            {selectedEvent.tattooDetail.description}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-white/60 text-xs font-one">
+                            Style/Couleur
+                          </p>
+                          <p className="text-white font-two text-sm">
+                            {selectedEvent.tattooDetail.colorStyle}
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <p className="text-white/60 text-xs font-one">
+                              Zone
+                            </p>
+                            <p className="text-white font-two text-sm">
+                              {selectedEvent.tattooDetail.zone}
+                            </p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-white/60 text-xs font-one">
+                              Taille
+                            </p>
+                            <p className="text-white font-two text-sm">
+                              {selectedEvent.tattooDetail.size}
+                            </p>
+                          </div>
+                        </div>
 
-                  <div className="flex items-center gap-2">
-                    {selectedEvent.status !== "CONFIRMED" ? (
-                      <ConfirmRdv rdvId={selectedEvent.id} />
-                    ) : null}
+                        {/* Images de référence */}
+                        {(selectedEvent.tattooDetail.reference ||
+                          selectedEvent.tattooDetail.sketch) && (
+                          <div className="space-y-3">
+                            <div className="h-[1px] w-full bg-gradient-to-r from-tertiary-400/30 via-white/20 to-transparent" />
+                            <h3 className="text-lg font-semibold text-tertiary-400 font-one">
+                              Images de référence
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {/* Image de référence 1 */}
+                              {selectedEvent.tattooDetail.reference && (
+                                <div className="space-y-2">
+                                  <p className="text-white/60 text-xs font-one">
+                                    Référence 1
+                                  </p>
+                                  <div className="relative w-full h-32 bg-white/5 rounded-lg border border-white/10 overflow-hidden">
+                                    <Image
+                                      src={selectedEvent.tattooDetail.reference}
+                                      alt="Image de référence 1"
+                                      fill
+                                      className="object-cover hover:scale-105 transition-transform duration-200"
+                                    />
+                                  </div>
+                                </div>
+                              )}
 
-                    <UpdateRdv
-                      rdv={selectedEvent as unknown as UpdateRdvFormProps}
-                      userId={userId || ""}
-                      onUpdate={() => handleRdvUpdated(selectedEvent.id)}
-                    />
+                              {/* Croquis/Référence 2 */}
+                              {selectedEvent.tattooDetail.sketch && (
+                                <div className="space-y-2">
+                                  <p className="text-white/60 text-xs font-one">
+                                    Croquis / Référence 2
+                                  </p>
+                                  <div className="relative w-full h-32 bg-white/5 rounded-lg border border-white/10 overflow-hidden">
+                                    <Image
+                                      src={selectedEvent.tattooDetail.sketch}
+                                      alt="Croquis/Référence 2"
+                                      fill
+                                      className="object-cover hover:scale-105 transition-transform duration-200"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
 
-                    {selectedEvent.status !== "CANCELED" ? (
-                      <CancelRdv rdvId={selectedEvent.id} />
-                    ) : null}
-                  </div>
+                        {/* Prix estimé */}
+                        {selectedEvent.tattooDetail.estimatedPrice && (
+                          <div className="space-y-1 mb-2">
+                            <h3 className="text-lg font-semibold text-tertiary-400 font-one">
+                              Prix estimé
+                            </h3>
+                            <p className="text-white font-two text-sm font-semibold">
+                              {selectedEvent.tattooDetail.estimatedPrice}€
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-                  <div className="h-[1px] w-full bg-white/70" />
+                {/* Footer avec bouton retour */}
+                <div className="pt-4 border-t border-white/10">
+                  <button
+                    onClick={closeEventDetails}
+                    className="cursor-pointer w-full py-2 text-xs bg-white/10 hover:bg-white/20 text-white rounded-xl border border-white/20 transition-colors font-medium font-one"
+                  >
+                    Retour à la liste
+                  </button>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <p>
-                    <strong>Date :</strong>{" "}
-                    {new Date(selectedEvent.start).toLocaleDateString("fr-FR")}
-                  </p>
-                  <p>
-                    <strong>Heure :</strong>{" "}
-                    {new Date(selectedEvent.start).toLocaleTimeString("fr-FR")}{" "}
-                    - {new Date(selectedEvent.end).toLocaleTimeString("fr-FR")}
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <p>
-                    <strong>Client :</strong> {selectedEvent.client.firstName}{" "}
-                    {selectedEvent.client.lastName}
-                  </p>
-                  <p>
-                    <strong>Prestation :</strong> {selectedEvent.prestation}
-                  </p>
-                </div>
-                <div className="h-[1px] w-full bg-white/70" />
-                <div className="grid grid-cols-2 gap-4">
-                  <p>
-                    <strong>Titre :</strong> {selectedEvent.title}
-                  </p>
-                  <p>
-                    <strong>Tatoueur :</strong> {selectedEvent.tatoueur.name}
-                  </p>
-                </div>
-                <p>
-                  <strong>Statut :</strong> {selectedEvent.status}
-                </p>
-                {/* DETAIL TATTOO  */}
-                <div className="h-[1px] w-full bg-white/70" />
-                <p className="font-bold underline">Détails supplémentaires :</p>
-                <p className="text-xs">
-                  <strong>Description :</strong>{" "}
-                  {selectedEvent.tattooDetail?.description}
-                </p>
-                <p className="text-xs">
-                  <strong>Style/Couleur :</strong>{" "}
-                  {selectedEvent.tattooDetail?.colorStyle}
-                </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <p className="text-xs">
-                    <strong>Zone :</strong> {selectedEvent.tattooDetail?.zone}
-                  </p>
-                  <p className="text-xs">
-                    <strong>Taille :</strong> {selectedEvent.tattooDetail?.size}
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <p className="text-xs">
-                    <strong>Image de référence 1 :</strong>{" "}
-                    {selectedEvent.tattooDetail?.reference}
-                  </p>
-                  <p className="text-xs">
-                    <strong>Image de référence 2 :</strong>{" "}
-                    {selectedEvent.tattooDetail?.sketch}
-                  </p>
-                </div>
-                <button
-                  onClick={closeEventDetails}
-                  className="cursor-pointer bg-primary-500 text-white text-xs px-4 py-1 rounded-[20px] hover:bg-primary-400 transition"
-                >
-                  Retour
-                </button>
               </div>
             ) : (
-              <CalendarView
-                events={events}
-                currentDate={currentDate}
-                setCurrentDate={setCurrentDate}
-                currentView={currentView}
-                setCurrentView={setCurrentView}
-                onSelectEvent={openEventDetails}
-              />
+              <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl border border-white/20 shadow-2xl h-full">
+                <CalendarView
+                  events={events}
+                  currentDate={currentDate}
+                  setCurrentDate={setCurrentDate}
+                  currentView={currentView}
+                  setCurrentView={setCurrentView}
+                  onSelectEvent={openEventDetails}
+                />
+              </div>
             )}
           </section>
         </>

@@ -9,8 +9,7 @@ import { TatoueurProps, TimeSlotProps, UpdateRdvFormProps } from "@/lib/type";
 import { addMinutes, format, isValid } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
-// import { FormError } from "@/components/Shared/FormError";
-// import { FormSuccess } from "@/components/Shared/FormSuccess";
+import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 
 export default function UpdateRdv({
   rdv,
@@ -303,398 +302,520 @@ export default function UpdateRdv({
               : new Date(rdv.start).toISOString();
           form.setValue("start", startStr);
         }}
-        className="cursor-pointer bg-blue-900 text-white text-[10px] px-4 py-1 rounded-[20px] hover:bg-blue-800 transition"
+        className="cursor-pointer bg-tertiary-500 text-white font-one text-[10px] px-4 py-1 rounded-[20px] hover:bg-tertiary-400 transition"
       >
-        Modifier RDV
+        Modifier
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
-          <form
-            onSubmit={form.handleSubmit((data) => {
-              onSubmit(data);
-            })}
-            className="bg-primary-500 rounded-[20px] p-6 w-[80%] h-[95%] flex flex-col gap-2 text-sm text-white"
-          >
-            {/* TITRE / CLIENT / EMAIL / PHONE*/}
-            <div className="grid grid-cols-4 gap-4">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="clientLastname">Nom du client</label>
-                <input
-                  {...form.register("client.lastName")}
-                  placeholder="Nom du client"
-                  className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  disabled
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="clientName">Prénom du client</label>
-                <input
-                  {...form.register("client.firstName")}
-                  placeholder="Nom du client"
-                  className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  disabled
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label htmlFor="clientName">Email du client</label>
-                <input
-                  {...form.register("client.email")}
-                  placeholder="Email du client"
-                  className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  disabled
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label htmlFor="clientPhone">Téléphone du client</label>
-                <input
-                  {...form.register("client.phone")}
-                  placeholder="Téléphone du client"
-                  className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  disabled
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label htmlFor="title">Titre</label>
-              <input
-                {...form.register("title")}
-                placeholder="Titre"
-                className="bg-white/30 p-2 rounded-[20px] text-xs"
-              />
-            </div>
-
-            {/* STATUT */}
-
-            {/* TATOUEUR / TYPE */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="tatoueurId">Selectionnez le tatoueur</label>
-                <select
-                  {...form.register("tatoueurId")}
-                  onChange={(e) => {
-                    setSelectedTatoueur(e.target.value);
-                    form.setValue("tatoueurId", e.target.value);
-                  }}
-                  className="bg-white/30 p-2 rounded-[20px] text-xs"
+        <div className="fixed inset-0 z-[9999] bg-noir-700 rounded-3xl backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-noir-500 rounded-3xl w-full h-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+            {/* Header */}
+            <div className="p-4 border-b border-white/10 bg-white/5">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white font-one tracking-wide">
+                  Modifier le rendez-vous
+                </h2>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
                 >
-                  {tatoueurs.map((tatoueur) => (
-                    <option key={tatoueur.id} value={tatoueur.id}>
-                      {tatoueur.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label htmlFor="clientName">Type du RDV</label>
-                <select
-                  {...form.register("prestation")}
-                  className="bg-white/30 p-2 rounded-[20px] text-xs"
-                >
-                  <option value="TATTOO">Tattoo</option>
-                  <option value="PROJET">Projet</option>
-                  <option value="RETOUCHE">Retouche</option>
-                  <option value="PIERCING">Piercing</option>
-                </select>
-              </div>
-
-              {/* DATE */}
-              <div className="flex flex-col gap-1">
-                <label htmlFor="date">Date du rendez-vous</label>
-                <input
-                  type="date"
-                  value={
-                    watchStart && isValid(new Date(watchStart))
-                      ? format(new Date(watchStart), "yyyy-MM-dd")
-                      : format(new Date(), "yyyy-MM-dd")
-                  }
-                  onChange={(e) => {
-                    const dateStr = new Date(e.target.value).toISOString();
-                    form.setValue("start", dateStr);
-                    form.setValue("end", dateStr); // On met la même date pour end aussi
-                  }}
-                  className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  required
-                />
+                  <span className="text-white text-xl">×</span>
+                </button>
               </div>
             </div>
 
-            {/* CRENEAUX */}
-            <div className="grid grid-cols-4 gap-2">
-              {timeSlots.map((slot) => {
-                const slotTime = new Date(slot.start).getTime();
-
-                // const isCurrentRdvSlot = selectedSlots.includes(slot.start);
-
-                const isTaken = occupiedSlots.some((rdvOcc) => {
-                  // Ne pas tenir compte du RDV en cours
-                  if (String(rdvOcc.id) === String(rdv.id)) return false;
-
-                  const start = new Date(rdvOcc.start).getTime();
-                  const end = new Date(rdvOcc.end).getTime();
-
-                  return slotTime >= start && slotTime < end;
-                });
-
-                const startRdv = new Date(rdv.start).getTime();
-                const endRdv = new Date(rdv.end).getTime();
-                const isPartOfCurrentRdv =
-                  slotTime >= startRdv && slotTime < endRdv;
-
-                const isSelected = selectedSlots.includes(slot.start);
-
-                // => Ne pas considérer comme pris si fait partie du RDV actuel
-                const disabled = isTaken && !isPartOfCurrentRdv;
-
-                return (
-                  <button
-                    key={slot.start}
-                    type="button"
-                    disabled={disabled}
-                    onClick={() => handleSlotClick(slot.start)}
-                    className={`p-1 rounded-[20px] text-xs transition-all ${
-                      disabled
-                        ? "bg-gray-400 text-gray-300 cursor-not-allowed"
-                        : isSelected
-                        ? "bg-tertiary-500 text-white"
-                        : "bg-white/20 text-white border border-white/20"
-                    } hover:bg-tertiary-400`}
-                  >
-                    {format(new Date(slot.start), "HH:mm", { locale: fr })} -{" "}
-                    {format(new Date(slot.end), "HH:mm", { locale: fr })}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* DESCRIPTION / ZONE / TAILLE / PRIX */}
-            {/* Champs dynamiques selon le type de prestation */}
-            {watchPrestation === "PROJET" && (
-              <>
-                <div className="flex flex-col gap-1 ">
-                  <label htmlFor="description">Description du projet</label>
-                  <textarea
-                    {...form.register("tattooDetail.description")}
-                    placeholder="Description du projet"
-                    className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  />
+            {/* Form Content */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                {/* Section: Informations client (lecture seule) */}
+                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                    Client{" "}
+                    <span className="text-[10px] font-medium text-white/50">
+                      (les infos du client ne sont pas modifiables ici.)
+                    </span>
+                  </h3>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Prénom
+                      </label>
+                      <input
+                        {...form.register("client.firstName")}
+                        disabled
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Nom
+                      </label>
+                      <input
+                        {...form.register("client.lastName")}
+                        disabled
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Email
+                      </label>
+                      <input
+                        {...form.register("client.email")}
+                        disabled
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Téléphone
+                      </label>
+                      <input
+                        {...form.register("client.phone")}
+                        disabled
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="zone">Zone du corps</label>
-                    <input
-                      {...form.register("tattooDetail.zone")}
-                      placeholder="Zone"
-                      className="bg-white/30 p-2 rounded-[20px] text-xs"
-                    />
-                  </div>
 
-                  <div className="flex flex-col gap-1 ">
-                    <label htmlFor="size">Taille du tatouage (cm)</label>
-                    <input
-                      {...form.register("tattooDetail.size")}
-                      placeholder="Taille"
-                      className="bg-white/30 p-2 rounded-[20px] text-xs"
-                    />
+                {/* Section: Informations générales */}
+                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                    Détails du rendez-vous
+                  </h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Titre
+                      </label>
+                      <input
+                        {...form.register("title")}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Tatoueur
+                      </label>
+                      <select
+                        {...form.register("tatoueurId")}
+                        onChange={(e) => {
+                          setSelectedTatoueur(e.target.value);
+                          form.setValue("tatoueurId", e.target.value);
+                        }}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                      >
+                        {tatoueurs.map((tatoueur) => (
+                          <option
+                            key={tatoueur.id}
+                            value={tatoueur.id}
+                            className="bg-primary-500"
+                          >
+                            {tatoueur.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Type
+                      </label>
+                      <select
+                        {...form.register("prestation")}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                      >
+                        <option value="TATTOO" className="bg-primary-500">
+                          Tatouage
+                        </option>
+                        <option value="PROJET" className="bg-primary-500">
+                          Projet
+                        </option>
+                        <option value="RETOUCHE" className="bg-primary-500">
+                          Retouche
+                        </option>
+                        <option value="PIERCING" className="bg-primary-500">
+                          Piercing
+                        </option>
+                      </select>
+                    </div>
                   </div>
+                </div>
 
-                  <div className="flex flex-col gap-1 ">
-                    <label htmlFor="colorStyle">
-                      Style / Couleur du tatouage
+                {/* Section: Créneaux horaires */}
+                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                    Créneaux horaires
+                  </h3>
+                  <div className="space-y-1">
+                    <label className="text-xs text-white/70 font-one">
+                      Date
                     </label>
                     <input
-                      {...form.register("tattooDetail.colorStyle")}
-                      placeholder="Style / Couleur"
-                      className="bg-white/30 p-2 rounded-[20px] text-xs"
+                      type="date"
+                      value={
+                        watchStart && isValid(new Date(watchStart))
+                          ? format(new Date(watchStart), "yyyy-MM-dd")
+                          : format(new Date(), "yyyy-MM-dd")
+                      }
+                      onChange={(e) => {
+                        const dateStr = new Date(e.target.value).toISOString();
+                        form.setValue("start", dateStr);
+                        form.setValue("end", dateStr);
+                      }}
+                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                      required
                     />
                   </div>
-
-                  <div className="flex flex-col gap-1 ">
-                    <label htmlFor="clientName">Image de référence 1</label>
-                    <input
-                      {...form.register("tattooDetail.reference")}
-                      placeholder="Image de référence"
-                      className="bg-white/30 p-2 rounded-[20px] text-xs"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1 ">
-                    <label htmlFor="clientName">Image de référence 2</label>
-                    <input
-                      {...form.register("tattooDetail.sketch")}
-                      placeholder="Croquis"
-                      className="bg-white/30 p-2 rounded-[20px] text-xs"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1 ">
-                    <label htmlFor="estimatedPrice">Prix</label>
-                    <input
-                      type="number"
-                      {...form.register("tattooDetail.estimatedPrice", {
-                        valueAsNumber: true,
-                      })}
-                      placeholder="Prix estimé"
-                      className="bg-white/30 p-2 rounded-[20px] text-xs"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {watchPrestation === "TATTOO" && (
-              <>
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="description">Description</label>
-                  <textarea
-                    {...form.register("tattooDetail.description")}
-                    placeholder="Description du tatouage"
-                    className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-1">
-                  <div className="flex flex-col gap-1">
-                    <label htmlFor="zone">Zone du corps</label>
-                    <input
-                      {...form.register("tattooDetail.zone")}
-                      placeholder="Zone"
-                      className="bg-white/30 p-2 rounded-[20px] text-xs"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1 ">
-                    <label htmlFor="size">Taille du tatouage</label>
-                    <input
-                      {...form.register("tattooDetail.size")}
-                      placeholder="Taille"
-                      className="bg-white/30 p-2 rounded-[20px] text-xs"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1 ">
-                    <label htmlFor="colorStyle">
-                      Style / Couleur du tatouage
+                  <div className="space-y-1 my-4">
+                    <label className="text-xs text-white/70 font-one">
+                      Sélectionnez les créneaux (30 min)
                     </label>
-                    <input
-                      {...form.register("tattooDetail.colorStyle")}
-                      placeholder="Style / Couleur"
-                      className="bg-white/30 p-2 rounded-[20px] text-xs"
-                    />
+                    <p className="text-xs text-white/50">
+                      Cliquez sur les créneaux pour les sélectionner. Ils
+                      doivent être consécutifs.
+                    </p>
                   </div>
+                  {/* Affichage des créneaux disponibles */}
+                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                    {timeSlots.map((slot) => {
+                      const slotTime = new Date(slot.start).getTime();
+                      const isTaken = occupiedSlots.some((rdvOcc) => {
+                        if (String(rdvOcc.id) === String(rdv.id)) return false;
+                        const start = new Date(rdvOcc.start).getTime();
+                        const end = new Date(rdvOcc.end).getTime();
+                        return slotTime >= start && slotTime < end;
+                      });
 
-                  <div className="flex flex-col gap-1 ">
-                    <label htmlFor="estimatedPrice">Prix</label>
-                    <input
-                      type="number"
-                      {...form.register("tattooDetail.estimatedPrice", {
-                        valueAsNumber: true,
-                      })}
-                      placeholder="Prix estimé"
-                      className="bg-white/30 p-2 rounded-[20px] text-xs"
-                    />
+                      const startRdv = new Date(rdv.start).getTime();
+                      const endRdv = new Date(rdv.end).getTime();
+                      const isPartOfCurrentRdv =
+                        slotTime >= startRdv && slotTime < endRdv;
+                      const isSelected = selectedSlots.includes(slot.start);
+                      const disabled = isTaken && !isPartOfCurrentRdv;
+
+                      return (
+                        <button
+                          key={slot.start}
+                          type="button"
+                          disabled={disabled}
+                          onClick={() => handleSlotClick(slot.start)}
+                          className={`p-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+                            disabled
+                              ? "bg-gray-500/20 text-gray-400 cursor-not-allowed border border-gray-500/30"
+                              : isSelected
+                              ? "bg-tertiary-500 text-white border border-tertiary-400"
+                              : "bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-tertiary-400/50"
+                          }`}
+                        >
+                          <div className="text-center">
+                            <div className="text-xs">
+                              {format(new Date(slot.start), "HH:mm", {
+                                locale: fr,
+                              })}
+                            </div>
+                            <div className="text-xs opacity-70">-</div>
+                            <div className="text-xs">
+                              {format(new Date(slot.end), "HH:mm", {
+                                locale: fr,
+                              })}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-              </>
-            )}
 
-            {watchPrestation === "PIERCING" && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="description">Description du piercing</label>
-                  <input
-                    {...form.register("tattooDetail.description")}
-                    placeholder="Description du piercing"
-                    className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  />
-                </div>
+                {/* Sections conditionnelles selon le type de prestation */}
+                {watchPrestation === "PROJET" && (
+                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                    <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                      Détails du projet
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/70 font-one">
+                          Description
+                        </label>
+                        <textarea
+                          {...form.register("tattooDetail.description")}
+                          rows={3}
+                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-xs text-white/70 font-one">
+                            Zone
+                          </label>
+                          <input
+                            {...form.register("tattooDetail.zone")}
+                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-white/70 font-one">
+                            Taille
+                          </label>
+                          <input
+                            {...form.register("tattooDetail.size")}
+                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-white/70 font-one">
+                            Style/Couleur
+                          </label>
+                          <input
+                            {...form.register("tattooDetail.colorStyle")}
+                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          />
+                        </div>
+                      </div>
 
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="zone">Zone du piercing</label>
-                  <input
-                    {...form.register("tattooDetail.zone")}
-                    placeholder="Zone du piercing"
-                    className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  />
-                </div>
+                      {/* Section Upload des images de référence */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-xs text-white/70 font-one">
+                            Image de référence 1
+                          </label>
+                          <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                            <SalonImageUploader
+                              currentImage={
+                                form.watch("tattooDetail.reference") ||
+                                undefined
+                              }
+                              onImageUpload={(imageUrl) => {
+                                form.setValue(
+                                  "tattooDetail.reference",
+                                  imageUrl
+                                );
+                              }}
+                              onImageRemove={() => {
+                                form.setValue("tattooDetail.reference", "");
+                              }}
+                              compact={true}
+                            />
+                          </div>
+                        </div>
 
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="estimatedPrice">Prix</label>
-                  <input
-                    type="number"
-                    {...form.register("tattooDetail.estimatedPrice", {
-                      valueAsNumber: true,
-                    })}
-                    placeholder="Prix"
-                    className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  />
-                </div>
-              </div>
-            )}
+                        <div className="space-y-2">
+                          <label className="text-xs text-white/70 font-one">
+                            Croquis / Référence 2
+                          </label>
+                          <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                            <SalonImageUploader
+                              currentImage={
+                                form.watch("tattooDetail.sketch") || undefined
+                              }
+                              onImageUpload={(imageUrl) => {
+                                form.setValue("tattooDetail.sketch", imageUrl);
+                              }}
+                              onImageRemove={() => {
+                                form.setValue("tattooDetail.sketch", "");
+                              }}
+                              compact={true}
+                            />
+                          </div>
+                        </div>
+                      </div>
 
-            {watchPrestation === "RETOUCHE" && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="description">
-                    Description de la retouche
-                  </label>
-                  <input
-                    {...form.register("tattooDetail.description")}
-                    placeholder="Description de la retouche"
-                    className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  />
-                </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/70 font-one">
+                          Prix (€)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          {...form.register("tattooDetail.estimatedPrice", {
+                            valueAsNumber: true,
+                          })}
+                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="zone">Zone du tatouage</label>
-                  <input
-                    {...form.register("tattooDetail.zone")}
-                    placeholder="Zone de la retouche"
-                    className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  />
-                </div>
+                {watchPrestation === "TATTOO" && (
+                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                    <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                      Détails du tatouage
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/70 font-one">
+                          Description
+                        </label>
+                        <textarea
+                          {...form.register("tattooDetail.description")}
+                          rows={3}
+                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-xs text-white/70 font-one">
+                            Zone
+                          </label>
+                          <input
+                            {...form.register("tattooDetail.zone")}
+                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-white/70 font-one">
+                            Taille
+                          </label>
+                          <input
+                            {...form.register("tattooDetail.size")}
+                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-white/70 font-one">
+                            Style/Couleur
+                          </label>
+                          <input
+                            {...form.register("tattooDetail.colorStyle")}
+                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-white/70 font-one">
+                            Prix (€)
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            {...form.register("tattooDetail.estimatedPrice", {
+                              valueAsNumber: true,
+                            })}
+                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="estimatedPrice">Prix</label>
-                  <input
-                    type="number"
-                    {...form.register("tattooDetail.estimatedPrice", {
-                      valueAsNumber: true,
-                    })}
-                    placeholder="Prix"
-                    className="bg-white/30 p-2 rounded-[20px] text-xs"
-                  />
-                </div>
-              </div>
-            )}
+                {watchPrestation === "PIERCING" && (
+                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                    <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                      Détails du piercing
+                    </h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/70 font-one">
+                          Description
+                        </label>
+                        <input
+                          {...form.register("tattooDetail.description")}
+                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/70 font-one">
+                          Zone
+                        </label>
+                        <input
+                          {...form.register("tattooDetail.zone")}
+                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/70 font-one">
+                          Prix (€)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          {...form.register("tattooDetail.estimatedPrice", {
+                            valueAsNumber: true,
+                          })}
+                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-            <div className="flex justify-center gap-4 mt-4">
+                {watchPrestation === "RETOUCHE" && (
+                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                    <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                      Détails de la retouche
+                    </h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/70 font-one">
+                          Description
+                        </label>
+                        <input
+                          {...form.register("tattooDetail.description")}
+                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/70 font-one">
+                          Zone
+                        </label>
+                        <input
+                          {...form.register("tattooDetail.zone")}
+                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs text-white/70 font-one">
+                          Prix (€)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          {...form.register("tattooDetail.estimatedPrice", {
+                            valueAsNumber: true,
+                          })}
+                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Messages d'erreur */}
+                {error && (
+                  <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
+                    <p className="text-red-300 text-xs">{error}</p>
+                  </div>
+                )}
+              </form>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="cursor-pointer bg-red-900 text-white px-6 py-2 rounded-[20px]"
+                className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
               >
                 Annuler
               </button>
               <button
                 type="submit"
                 disabled={loading || mutation.isPending}
-                className="cursor-pointer bg-green-700 text-white px-6 py-2 rounded-[20px] hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={form.handleSubmit(onSubmit)}
+                className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
               >
                 {loading || mutation.isPending
                   ? "Modification..."
-                  : "Modifier le rendez-vous"}
+                  : "Sauvegarder"}
               </button>
             </div>
-
-            {error && (
-              <p className="text-red-500 text-xs mt-2 text-center">{error}</p>
-            )}
-          </form>
+          </div>
         </div>
       )}
     </>

@@ -138,3 +138,23 @@ export interface ClientProps {
     tattooHistory: string | null; // Historique des tatouages
   };
 }
+
+//! PORTFOLIO
+export interface PortfolioProps {
+  id: string;
+  title: string;
+  description: string | null;
+  imageUrl: string; // URL de l'image
+  createdAt: string; // Date de création au format ISO
+  updatedAt: string; // Date de mise à jour au format ISO
+  tatoueurId: string; // ID du tatoueur associé
+}
+
+//! PRODUCTS
+export interface ProductSalonProps {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  imageUrl: string; // URL de l'image
+}

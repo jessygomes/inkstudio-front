@@ -64,15 +64,6 @@ export default function ClientList() {
     fetchClients();
   }, []);
 
-  // Debug pour voir quels modaux sont ouverts
-  useEffect(() => {
-    console.log("État des modaux:", {
-      isModalOpen,
-      isModalDeleteOpen,
-      isFullInfoModalOpen,
-    });
-  }, [isModalOpen, isModalDeleteOpen, isFullInfoModalOpen]);
-
   //! Filtre les clients en fonction du terme de recherche
   const filteredClients = clients.filter((client) => {
     const fullName = `${client.firstName} ${client.lastName}`.toLowerCase();
@@ -100,8 +91,6 @@ export default function ClientList() {
     setSelectedClient(client);
     setIsModalDeleteOpen(true);
   };
-
-  console.log("Clients:", clients);
 
   return (
     <section>

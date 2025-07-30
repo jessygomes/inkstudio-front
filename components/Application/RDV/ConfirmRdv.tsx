@@ -38,10 +38,10 @@ export default function ConfirmRdv({ rdvId }: { rdvId: string }) {
   return (
     <>
       <button
-        className="cursor-pointer bg-green-900 text-white text-[10px] px-4 py-1 rounded-[20px] hover:bg-green-800 transition"
+        className="cursor-pointer bg-green-900 text-white font-one text-[10px] px-4 py-1 rounded-[20px] hover:bg-green-800 transition"
         onClick={() => setShowModal(true)}
       >
-        Confirmer RDV
+        Confirmer
       </button>
 
       {showModal && (

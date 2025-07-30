@@ -65,6 +65,7 @@ export const updateSalonSchema = z.object({
   tiktok: z.string().optional(),
   website: z.string().optional(),
   description: z.string().optional(),
+  image: z.string().optional(),
 });
 
 //! TATOUEUR
@@ -172,4 +173,20 @@ export const clientSchema = z.object({
   medications: z.string().optional(),
   pregnancy: z.boolean().optional(),
   tattooHistory: z.string().optional(),
+});
+
+//! PORTFOLIO
+export const portfolioSchema = z.object({
+  title: z.string().min(1, "Le titre est requis."),
+  description: z.string().optional(),
+  imageUrl: z.string().url("L'URL de l'image doit être valide."),
+});
+
+//! PRODUCT SALON
+export const productSalonSchema = z.object({
+  name: z.string().min(2, "Le nom est requis"),
+  imageUrl: z.string().optional(),
+  description: z.string().optional(),
+  price: z.number().min(0, "Le prix doit être positif"),
+  userId: z.string(),
 });

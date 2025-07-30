@@ -13,6 +13,7 @@ import { TatoueurProps, TimeSlotProps } from "@/lib/type";
 import { addMinutes, format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function CreateRdvForm({ userId }: { userId: string }) {
   const router = useRouter();
@@ -382,12 +383,12 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             type="text"
             value={searchClientQuery}
             onChange={(e) => setSearchClientQuery(e.target.value)}
-            className="w-full border-b border-gray-300 px-3 py-2 text-xs text-white"
+            className="w-full border-b border-gray-300 bg-white/30 px-3 py-2 text-xs text-white"
             placeholder="Rechercher un client par nom ou email..."
           />
         </div>
         {clientResults.length > 0 && (
-          <div className="border border-tertiary-500 rounded p-1 mb-2 bg-primary-400 max-h-40 overflow-auto hover:bg-primary-500">
+          <div className="border border-tertiary-500 rounded p-1 mb-4 bg-primary-400 max-h-40 overflow-auto hover:bg-primary-500">
             {clientResults.map((client) => (
               <div
                 key={client.id}
@@ -752,13 +753,21 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         <FormError message={error} />
         <FormSuccess message={success} />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="relative mx-auto text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[200px] max-w-[400px] text-center text-white font-one py-2 px-4 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
-        >
-          {loading ? "Création..." : "Créer le rendez-vous"}
-        </button>
+        <div className="flex gap-4 mt-2">
+          <Link
+            href={"/mes-rendez-vous"}
+            className="relative text-xs cursor-pointer w-full bg-noir-500/60 text-center text-white font-one py-2 px-4 rounded-[20px] hover:bg-noir-500/80 transition-all ease-in-out duration-300"
+          >
+            Revenir à la liste des rendez-vous
+          </Link>
+          <button
+            type="submit"
+            disabled={loading}
+            className="relative mx-auto text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 w-full text-center text-white font-one py-2 px-4 rounded-[20px] hover:bg-tertiary-500 transition-all ease-in-out duration-300"
+          >
+            {loading ? "Création..." : "Créer le rendez-vous"}
+          </button>
+        </div>
       </form>
     </div>
   );
