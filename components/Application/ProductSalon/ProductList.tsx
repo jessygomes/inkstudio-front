@@ -113,53 +113,91 @@ export default function ProductList() {
           Aucune photo dans votre portfolio
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
           {products.map((product) => (
             <div
               key={product.id}
-              className="bg-white/10 rounded-2xl overflow-hidden border border-white/20 hover:border-tertiary-400/50 transition-all duration-300"
+              className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 hover:border-tertiary-400/50 transition-all duration-300 shadow-xl hover:shadow-2xl group"
             >
-              <div className="aspect-square relative">
+              <div className="aspect-square relative overflow-hidden">
                 <Image
                   width={500}
                   height={500}
                   src={product.imageUrl}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-              </div>
-              <div className="p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-white font-one tracking-widest font-semibold mb-2">
-                    {product.name} | {product.price}€
-                  </h3>
 
-                  <div className="flex gap-2 text-xs items-center justify-center">
+                {/* Overlay avec actions */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <div className="flex gap-3">
                     <button
-                      className="cursor-pointer text-black"
+                      className="cursor-pointer p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
                       onClick={() => handleEdit(product)}
                     >
                       <IoCreateOutline
                         size={20}
-                        className="text-white hover:text-tertiary-500 duration-200"
+                        className="text-white hover:text-tertiary-400 transition-colors"
                       />
                     </button>
                     <button
-                      className="cursor-pointer text-black"
+                      className="cursor-pointer p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-500/30 transition-all duration-200"
                       onClick={() => handleDelete(product)}
                     >
-                      {" "}
                       <AiOutlineDelete
                         size={20}
-                        className="text-white hover:text-red-800 duration-200"
+                        className="text-white hover:text-red-400 transition-colors"
                       />
                     </button>
                   </div>
                 </div>
+              </div>
 
-                <p className="text-white/70 text-[10px] line-clamp-2">
-                  {product.description}
-                </p>
+              <div className="p-4 space-y-3">
+                {/* Header avec nom et prix */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-white font-one text-sm font-bold tracking-wide truncate flex-1">
+                      {product.name}
+                    </h3>
+                    <div className="flex items-center justify-between">
+                      <span className="px-2 py-1 bg-tertiary-500/20 text-tertiary-400 rounded-full text-xs font-one font-medium border border-tertiary-500/30">
+                        {product.price}€
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Prix avec badge */}
+                </div>
+
+                {/* Description */}
+                <div className="border-t border-white/10 pt-2">
+                  <p className="text-white/70 text-xs font-one line-clamp-3 leading-relaxed">
+                    {product.description}
+                  </p>
+                </div>
+
+                {/* Actions au bas (version alternative pour mobile) */}
+                <div className="flex gap-2 justify-end pt-2 lg:hidden">
+                  <button
+                    className="cursor-pointer p-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-all duration-200"
+                    onClick={() => handleEdit(product)}
+                  >
+                    <IoCreateOutline
+                      size={16}
+                      className="text-white hover:text-tertiary-400 transition-colors"
+                    />
+                  </button>
+                  <button
+                    className="cursor-pointer p-1.5 bg-white/10 rounded-lg hover:bg-red-500/20 transition-all duration-200"
+                    onClick={() => handleDelete(product)}
+                  >
+                    <AiOutlineDelete
+                      size={16}
+                      className="text-white hover:text-red-400 transition-colors"
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

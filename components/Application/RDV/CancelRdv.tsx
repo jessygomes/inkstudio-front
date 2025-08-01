@@ -36,7 +36,7 @@ export default function CancelRdv({ rdvId }: { rdvId: string }) {
   return (
     <>
       <button
-        className="cursor-pointer bg-red-900 text-white font-one text-[10px] px-4 py-1 rounded-[20px] hover:bg-red-800 transition"
+        className="cursor-pointer bg-red-500/20 text-red-300 border border-red-500/30  font-one text-[10px] px-4 py-1 rounded-[20px] hover:bg-red-700/20 transition"
         onClick={() => setShowModal(true)}
       >
         Annuler

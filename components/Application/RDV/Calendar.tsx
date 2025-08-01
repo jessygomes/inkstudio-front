@@ -38,6 +38,7 @@ export type CalendarEvent = Event & {
   start: Date | string;
   end: Date | string;
   title: string;
+  isPayed?: boolean;
   tatoueur: {
     id: string;
     name: string;

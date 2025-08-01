@@ -302,7 +302,7 @@ export default function UpdateRdv({
               : new Date(rdv.start).toISOString();
           form.setValue("start", startStr);
         }}
-        className="cursor-pointer bg-tertiary-500 text-white font-one text-[10px] px-4 py-1 rounded-[20px] hover:bg-tertiary-400 transition"
+        className="cursor-pointer bg-orange-500/20 text-orange-300 border border-orange-500/30 font-one text-[10px] px-4 py-1 rounded-[20px] hover:bg-orange-700/20 transition"
       >
         Modifier
       </button>

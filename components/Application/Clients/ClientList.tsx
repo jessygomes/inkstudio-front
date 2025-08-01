@@ -140,7 +140,7 @@ export default function ClientList() {
           filteredClients.map((client) => (
             <div
               key={client.id}
-              className="grid grid-cols-6 gap-2 px-4 py-3 items-center border mb-2 border-white/30 hover:bg-primary-500 rounded-lg"
+              className="grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300"
             >
               <p className="text-white font-one text-xs">
                 {client.lastName} {client.firstName}

@@ -103,6 +103,11 @@ export const appointmentSchema = z.object({
   colorStyle: z.string().optional(),
   reference: z.string().optional(),
   sketch: z.string().optional(),
+  price: z.preprocess(
+    (val) => (val === "" ? undefined : Number(val)),
+    z.number().optional()
+  ),
+  // prix estimé pour les projets
   estimatedPrice: z.preprocess(
     (val) => (val === "" ? undefined : Number(val)),
     z.number().optional()

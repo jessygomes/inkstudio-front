@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 import {
@@ -48,6 +49,8 @@ export default function RDV() {
   //! États pour les filtres
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all"); // all, past, upcoming
+  const [prestationFilter, setPrestationFilter] = useState<string>("all");
+  const [tatoueurFilter, setTatoueurFilter] = useState<string>("all");
 
   //! Afficher les infos d'un RDV
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
@@ -62,7 +65,6 @@ export default function RDV() {
 
   //! Loader
   // const [loading, setLoading] = useState(false);
-
   const override: CSSProperties = {
     display: "block",
     margin: "0 auto",
@@ -116,15 +118,11 @@ export default function RDV() {
       viewMode === "calendar" ? end : "all",
     ],
     queryFn: async () => {
-      console.log("🔄 Début du fetch - viewMode:", viewMode);
-      console.log("🔄 userId:", userId);
-
       try {
         let result;
         if (viewMode === "calendar") {
           result = await fetchAppointments(userId!, start, end, 1, 1000);
         } else {
-          console.log("📋 Mode liste - récupération de tous les RDV");
           // Pour la vue liste, on récupère tous les RDV (pas de pagination backend)
           result = await fetchAllAppointments(userId!, 1, 1000); // Grande limite pour récupérer tous
         }
@@ -143,6 +141,19 @@ export default function RDV() {
 
   // Extraire les événements selon le format de réponse
   const events = rawData?.appointments || [];
+
+  // Extraire les prestations et tatoueurs uniques pour les filtres
+  const uniquePrestations = [
+    ...new Set(events.map((event: CalendarEvent) => event.prestation)),
+  ];
+
+  // Extraire les tatoueurs uniques en dédupliquant par ID
+  const uniqueTatoueurs = events.reduce((acc: any[], event: CalendarEvent) => {
+    if (!acc.find((t) => t.id === event.tatoueur.id)) {
+      acc.push(event.tatoueur);
+    }
+    return acc;
+  }, []);
 
   const handleRdvUpdated = (updatedId: string) => {
     const updated = events.find((e: CalendarEvent) => e.id === updatedId);
@@ -195,6 +206,14 @@ export default function RDV() {
     const matchesStatus =
       statusFilter === "all" || event.status === statusFilter;
 
+    // Filtre par prestation
+    const matchesPrestation =
+      prestationFilter === "all" || event.prestation === prestationFilter;
+
+    // Filtre par tatoueur
+    const matchesTatoueur =
+      tatoueurFilter === "all" || event.tatoueur?.id === tatoueurFilter;
+
     // Filtre par date (seulement en mode "Tous les RDV")
     let matchesDate = true;
     if (viewMode === "list" && dateFilter !== "all") {
@@ -208,7 +227,13 @@ export default function RDV() {
       }
     }
 
-    return matchesSearch && matchesStatus && matchesDate;
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesPrestation &&
+      matchesTatoueur &&
+      matchesDate
+    );
   });
 
   // Pagination côté frontend pour les deux vues
@@ -224,6 +249,8 @@ export default function RDV() {
     setCurrentPage(1);
     setStatusFilter("all");
     setDateFilter("all");
+    setPrestationFilter("all");
+    setTatoueurFilter("all");
     if (mode === "calendar") {
       setSelectedEvent(null);
     }
@@ -232,7 +259,7 @@ export default function RDV() {
   // Reset pagination when query or filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [query, statusFilter, dateFilter]);
+  }, [query, statusFilter, dateFilter, prestationFilter, tatoueurFilter]);
 
   // Reset pagination when date range changes in calendar mode
   useEffect(() => {
@@ -240,6 +267,42 @@ export default function RDV() {
       setCurrentPage(1);
     }
   }, [currentDate, currentView, viewMode]);
+
+  //! Changer le statut de paiement
+  const handlePaymentStatusChange = async (rdvId: string, isPayed: boolean) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/payed/${rdvId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ isPayed }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la mise à jour du statut de paiement");
+      }
+
+      console.log(response);
+
+      // Mettre à jour l'événement sélectionné si c'est celui qui a été modifié
+      if (selectedEvent && selectedEvent.id === rdvId) {
+        setSelectedEvent({
+          ...selectedEvent,
+          isPayed: isPayed,
+        });
+      }
+
+      // Optionnel: refetch des données pour mettre à jour la liste
+      // queryClient.invalidateQueries(['appointments']);
+    } catch (error) {
+      console.error("Erreur:", error);
+      // Optionnel: afficher une notification d'erreur
+    }
+  };
 
   return (
     <div className="w-full flex gap-6">
@@ -338,6 +401,56 @@ export default function RDV() {
                   </select>
                 </div>
 
+                {/* Filtre par type de prestation */}
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-white/70 font-one">
+                    Type :
+                  </label>
+                  <select
+                    value={prestationFilter}
+                    onChange={(e) => setPrestationFilter(e.target.value)}
+                    className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                  >
+                    <option value="all" className="bg-noir-500">
+                      Tous
+                    </option>
+                    {uniquePrestations.map((prestation: any) => (
+                      <option
+                        key={prestation}
+                        value={prestation}
+                        className="bg-noir-500"
+                      >
+                        {prestation}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Filtre par tatoueur */}
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-white/70 font-one">
+                    Tatoueur :
+                  </label>
+                  <select
+                    value={tatoueurFilter}
+                    onChange={(e) => setTatoueurFilter(e.target.value)}
+                    className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                  >
+                    <option value="all" className="bg-noir-500">
+                      Tous
+                    </option>
+                    {uniqueTatoueurs.map((tatoueur: any) => (
+                      <option
+                        key={tatoueur.id}
+                        value={tatoueur.id}
+                        className="bg-noir-500"
+                      >
+                        {tatoueur.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Filtre par date - seulement en mode "Tous les RDV" */}
                 {viewMode === "list" && (
                   <div className="flex items-center gap-2">
@@ -364,6 +477,8 @@ export default function RDV() {
 
                 {/* Indicateur des filtres actifs */}
                 {(statusFilter !== "all" ||
+                  prestationFilter !== "all" ||
+                  tatoueurFilter !== "all" ||
                   (viewMode === "list" && dateFilter !== "all")) && (
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-white/50">
@@ -380,6 +495,20 @@ export default function RDV() {
                           : statusFilter}
                       </span>
                     )}
+                    {prestationFilter !== "all" && (
+                      <span className="px-2 py-1 bg-purple-400/20 text-purple-300 rounded-full text-xs border border-purple-400/30">
+                        {prestationFilter}
+                      </span>
+                    )}
+                    {tatoueurFilter !== "all" && (
+                      <span className="px-2 py-1 bg-cyan-400/20 text-cyan-300 rounded-full text-xs border border-cyan-400/30">
+                        {
+                          uniqueTatoueurs.find(
+                            (t: any) => t.id === tatoueurFilter
+                          )?.name
+                        }
+                      </span>
+                    )}
                     {viewMode === "list" && dateFilter !== "all" && (
                       <span className="px-2 py-1 bg-blue-400/20 text-blue-300 rounded-full text-xs border border-blue-400/30">
                         {dateFilter === "upcoming"
@@ -393,6 +522,8 @@ export default function RDV() {
                       onClick={() => {
                         setStatusFilter("all");
                         setDateFilter("all");
+                        setPrestationFilter("all");
+                        setTatoueurFilter("all");
                       }}
                       className="cursor-pointer px-2 py-1 bg-red-400/20 text-red-300 rounded-full text-xs border border-red-400/30 hover:bg-red-400/30 transition-colors"
                     >
@@ -601,30 +732,47 @@ export default function RDV() {
                   sur {filteredEvents.length} rendez-vous
                   {(query ||
                     statusFilter !== "all" ||
+                    prestationFilter !== "all" ||
+                    tatoueurFilter !== "all" ||
                     (viewMode === "list" && dateFilter !== "all")) && (
                     <span className="ml-2">
                       (
                       {[
-                        query && `recherche: "${query}"`,
-                        statusFilter !== "all" &&
-                          `statut: ${
-                            statusFilter === "PENDING"
-                              ? "en attente"
-                              : statusFilter === "CONFIRMED"
-                              ? "confirmés"
-                              : statusFilter === "CANCELED"
-                              ? "annulés"
-                              : statusFilter
-                          }`,
-                        viewMode === "list" &&
-                          dateFilter !== "all" &&
-                          `période: ${
-                            dateFilter === "upcoming"
-                              ? "à venir"
-                              : dateFilter === "past"
-                              ? "passés"
-                              : dateFilter
-                          }`,
+                        query ? `recherche: "${query}"` : null,
+                        statusFilter !== "all"
+                          ? `statut: ${
+                              statusFilter === "PENDING"
+                                ? "en attente"
+                                : statusFilter === "CONFIRMED"
+                                ? "confirmés"
+                                : statusFilter === "CANCELED"
+                                ? "annulés"
+                                : statusFilter
+                            }`
+                          : null,
+                        prestationFilter !== "all"
+                          ? `type: ${prestationFilter}`
+                          : null,
+                        tatoueurFilter !== "all"
+                          ? `tatoueur: ${
+                              (
+                                uniqueTatoueurs as {
+                                  id: string;
+                                  name: string;
+                                }[]
+                              ).find((t) => t.id === tatoueurFilter)?.name ??
+                              tatoueurFilter
+                            }`
+                          : null,
+                        viewMode === "list" && dateFilter !== "all"
+                          ? `période: ${
+                              dateFilter === "upcoming"
+                                ? "à venir"
+                                : dateFilter === "past"
+                                ? "passés"
+                                : dateFilter
+                            }`
+                          : null,
                       ]
                         .filter(Boolean)
                         .join(", ")}
@@ -653,6 +801,8 @@ export default function RDV() {
                   <p className="font-two text-xl text-white">
                     {query ||
                     statusFilter !== "all" ||
+                    prestationFilter !== "all" ||
+                    tatoueurFilter !== "all" ||
                     (viewMode === "list" && dateFilter !== "all")
                       ? "Aucun résultat trouvé"
                       : "Aucun rendez-vous disponible"}
@@ -660,6 +810,8 @@ export default function RDV() {
                   <p className="font-two text-sm text-white/60">
                     {query ||
                     statusFilter !== "all" ||
+                    prestationFilter !== "all" ||
+                    tatoueurFilter !== "all" ||
                     (viewMode === "list" && dateFilter !== "all") ? (
                       <span>
                         Aucun rendez-vous ne correspond aux critères
@@ -669,6 +821,8 @@ export default function RDV() {
                           onClick={() => {
                             setStatusFilter("all");
                             setDateFilter("all");
+                            setPrestationFilter("all");
+                            setTatoueurFilter("all");
                           }}
                           className="cursor-pointer mt-2 px-3 py-1 bg-tertiary-400/20 text-tertiary-300 rounded-full text-xs border border-tertiary-400/30 hover:bg-tertiary-400/30 transition-colors"
                         >
@@ -737,7 +891,75 @@ export default function RDV() {
                       )}
                     </div>
 
-                    <div className="h-[1px] w-full bg-gradient-to-r from-tertiary-400/50 via-white/30 to-transparent" />
+                    {/* Statut de paiement - seulement pour certains types de RDV */}
+                    {(selectedEvent.prestation === "RETOUCHE" ||
+                      selectedEvent.prestation === "TATTOO" ||
+                      selectedEvent.prestation === "PIERCING") && (
+                      <div className="space-y-3">
+                        <div className="h-[1px] w-full bg-gradient-to-r from-tertiary-400/30 via-white/20 to-transparent" />
+                        <h4 className="text-sm font-semibold text-tertiary-400 font-one">
+                          Statut de paiement
+                        </h4>
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`payment-${selectedEvent.id}`}
+                              checked={selectedEvent.isPayed === false}
+                              onChange={() =>
+                                handlePaymentStatusChange(
+                                  selectedEvent.id,
+                                  false
+                                )
+                              }
+                              className="w-4 h-4 text-red-500 bg-transparent border-2 border-red-500/50 focus:ring-red-500/30 focus:ring-2"
+                            />
+                            <span className="text-red-400 text-sm font-one">
+                              Non payé
+                            </span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`payment-${selectedEvent.id}`}
+                              checked={selectedEvent.isPayed === true}
+                              onChange={() =>
+                                handlePaymentStatusChange(
+                                  selectedEvent.id,
+                                  true
+                                )
+                              }
+                              className="w-4 h-4 text-green-500 bg-transparent border-2 border-green-500/50 focus:ring-green-500/30 focus:ring-2"
+                            />
+                            <span className="text-green-400 text-sm font-one">
+                              Payé
+                            </span>
+                          </label>
+                        </div>
+
+                        {/* Indicateur visuel du statut */}
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              selectedEvent.isPayed
+                                ? "bg-green-400"
+                                : "bg-red-400"
+                            }`}
+                          ></div>
+                          <span
+                            className={`text-xs font-one ${
+                              selectedEvent.isPayed
+                                ? "text-green-400"
+                                : "text-red-400"
+                            }`}
+                          >
+                            {selectedEvent.isPayed
+                              ? "Paiement effectué"
+                              : "En attente de paiement"}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Informations principales */}

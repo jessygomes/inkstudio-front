@@ -287,6 +287,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       size: "",
       reference: "",
       sketch: "",
+      price: 1,
       estimatedPrice: 1,
       userId: userId,
     },
@@ -815,7 +816,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         type="number"
                         min={0}
                         placeholder="Prix"
-                        {...form.register("estimatedPrice", {
+                        {...form.register("price", {
                           valueAsNumber: true,
                         })}
                         className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
@@ -861,7 +862,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       <input
                         type="number"
                         placeholder="Prix"
-                        {...form.register("estimatedPrice")}
+                        {...form.register("price")}
                         className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
@@ -903,7 +904,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     <input
                       type="number"
                       placeholder="Prix"
-                      {...form.register("estimatedPrice")}
+                      {...form.register("price")}
                       className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                   </div>
