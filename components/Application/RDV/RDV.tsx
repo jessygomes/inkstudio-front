@@ -4,7 +4,7 @@ import {
   CalendarEvent,
   CalendarView,
 } from "@/components/Application/RDV/Calendar";
-import { CSSProperties, useState } from "react";
+import { CSSProperties, useState, useEffect } from "react";
 import BarLoader from "react-spinners/BarLoader";
 import {
   startOfDay,
@@ -20,36 +20,44 @@ import { useSearchParams } from "next/navigation";
 import ConfirmRdv from "./ConfirmRdv";
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchAppointments } from "@/lib/queries/appointment";
+import {
+  fetchAllAppointments,
+  fetchAppointments,
+} from "@/lib/queries/appointment";
 import CancelRdv from "./CancelRdv";
 import UpdateRdv from "./UpdateRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import Image from "next/image";
+import { FaArrowLeft } from "react-icons/fa6";
+import { CiCalendar, CiCalendarDate } from "react-icons/ci";
 
 export default function RDV() {
   const user = useUser();
-  // const [events, setEvents] = useState<CalendarEvent[]>([]);
-  // const [error, setError] = useState<string | null>(null);
-
   const searchParams = useSearchParams();
   const query = searchParams.get("query")?.toLowerCase() || "";
-  // const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-  //   null
-  // );
 
   //! Pour afficher les rdv en fonction de la date courante
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<View>("week");
+
+  //! Nouvelle state pour la vue liste
+  const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+
+  //! États pour les filtres
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateFilter, setDateFilter] = useState<string>("all"); // all, past, upcoming
 
   //! Afficher les infos d'un RDV
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
   );
   const openEventDetails = (event: CalendarEvent) => {
-    setSelectedEvent(event); // Stocke le rendez-vous sélectionné
+    setSelectedEvent(event);
   };
   const closeEventDetails = () => {
-    setSelectedEvent(null); // Réinitialise le rendez-vous sélectionné
+    setSelectedEvent(null);
   };
 
   //! Loader
@@ -88,54 +96,53 @@ export default function RDV() {
     }
   };
 
-  //! DATA
-  // useEffect(() => {
-  //   const { start, end } = getDateRange(currentView, currentDate);
-  //   const userId = user?.id; // Récupérer l'ID de l'utilisateur connecté
+  //! DATA - Modifier pour récupérer tous les RDV en mode liste
+  const { start, end } =
+    viewMode === "calendar"
+      ? getDateRange(currentView, currentDate)
+      : { start: "", end: "" }; // Pas de filtre de date en mode liste
 
-  //   const fetchEvents = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/range?userId=${userId}&start=${start}&end=${end}`,
-  //         {
-  //           method: "GET",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //         }
-  //       );
-  //       if (!response.ok) {
-  //         const errorText = await response.text(); // <--- pour voir le contenu brut de l’erreur
-  //         throw new Error(errorText || "Réponse du serveur invalide");
-  //       }
-
-  //       const data = await response.json();
-  //       setEvents(data);
-  //     } catch (error) {
-  //       setError(
-  //         error instanceof Error ? error.message : "An unknown error occurred"
-  //       );
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchEvents();
-  // }, [currentDate, currentView, user?.id]); // Ajoutez user?.id comme dépendance
-
-  const { start, end } = getDateRange(currentView, currentDate);
   const userId = user?.id;
 
   const {
-    data: events = [],
+    data: rawData,
     isLoading,
-    isError,
     error,
   } = useQuery({
-    queryKey: ["appointments", userId, start, end],
-    queryFn: () => fetchAppointments(userId!, start, end),
-    enabled: !!userId, // évite de fetch tant que l'ID n'est pas dispo
+    queryKey: [
+      "appointments",
+      userId,
+      viewMode === "calendar" ? start : "all",
+      viewMode === "calendar" ? end : "all",
+    ],
+    queryFn: async () => {
+      console.log("🔄 Début du fetch - viewMode:", viewMode);
+      console.log("🔄 userId:", userId);
+
+      try {
+        let result;
+        if (viewMode === "calendar") {
+          result = await fetchAppointments(userId!, start, end, 1, 1000);
+        } else {
+          console.log("📋 Mode liste - récupération de tous les RDV");
+          // Pour la vue liste, on récupère tous les RDV (pas de pagination backend)
+          result = await fetchAllAppointments(userId!, 1, 1000); // Grande limite pour récupérer tous
+        }
+
+        console.log("✅ Résultat du fetch:", result);
+        return result;
+      } catch (error) {
+        console.error("❌ Erreur dans queryFn:", error);
+        throw error;
+      }
+    },
+    enabled: !!userId,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
+
+  // Extraire les événements selon le format de réponse
+  const events = rawData?.appointments || [];
 
   const handleRdvUpdated = (updatedId: string) => {
     const updated = events.find((e: CalendarEvent) => e.id === updatedId);
@@ -178,11 +185,61 @@ export default function RDV() {
   };
 
   const filteredEvents = events.filter((event: CalendarEvent) => {
+    // Filtre par recherche
     const target = `${event.title} ${event.client.firstName} ${
       event.client.lastName
     } ${event.prestation} ${event.tatoueur?.name || ""}`.toLowerCase();
-    return target.includes(query);
+    const matchesSearch = target.includes(query);
+
+    // Filtre par statut
+    const matchesStatus =
+      statusFilter === "all" || event.status === statusFilter;
+
+    // Filtre par date (seulement en mode "Tous les RDV")
+    let matchesDate = true;
+    if (viewMode === "list" && dateFilter !== "all") {
+      const eventDate = new Date(event.start);
+      const now = new Date();
+
+      if (dateFilter === "past") {
+        matchesDate = eventDate < now;
+      } else if (dateFilter === "upcoming") {
+        matchesDate = eventDate >= now;
+      }
+    }
+
+    return matchesSearch && matchesStatus && matchesDate;
   });
+
+  // Pagination côté frontend pour les deux vues
+  const totalPages = Math.ceil(filteredEvents.length / ITEMS_PER_PAGE);
+  const paginatedEvents = filteredEvents.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Reset de la pagination quand on change de vue, query ou filtres
+  const handleViewModeChange = (mode: "calendar" | "list") => {
+    setViewMode(mode);
+    setCurrentPage(1);
+    setStatusFilter("all");
+    setDateFilter("all");
+    if (mode === "calendar") {
+      setSelectedEvent(null);
+    }
+  };
+
+  // Reset pagination when query or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query, statusFilter, dateFilter]);
+
+  // Reset pagination when date range changes in calendar mode
+  useEffect(() => {
+    if (viewMode === "calendar") {
+      setCurrentPage(1);
+    }
+  }, [currentDate, currentView, viewMode]);
 
   return (
     <div className="w-full flex gap-6">
@@ -200,19 +257,156 @@ export default function RDV() {
         </div>
       ) : error ? (
         <div className="h-[80vh] w-full flex items-center justify-center relative">
-          <p className="text-white text-2xl font-two text-center">{isError}</p>
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <p className="text-white text-xl font-two">Erreur de chargement</p>
+            <p className="text-white/60 text-sm max-w-md">
+              {error instanceof Error
+                ? error.message
+                : "Une erreur est survenue lors du chargement des rendez-vous"}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-tertiary-400 hover:bg-tertiary-500 text-white rounded-lg transition-colors text-sm"
+            >
+              Réessayer
+            </button>
+          </div>
         </div>
       ) : (
         <>
           <section className="w-3/5 bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl">
             <div className="mb-6">
-              <h2 className="text-white font-one text-2xl font-bold tracking-wide mb-2">
-                {getFormattedLabel()}
-              </h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-white font-one text-2xl font-bold tracking-wide">
+                  {viewMode === "calendar"
+                    ? getFormattedLabel()
+                    : "Tous les rendez-vous"}
+                </h2>
+
+                {/* Boutons de basculement de vue */}
+                <div className="flex bg-white/10 rounded-xl border border-white/20 overflow-hidden">
+                  <button
+                    onClick={() => handleViewModeChange("calendar")}
+                    className={`cursor-pointer px-4 py-2 text-xs font-medium transition-all duration-200 flex gap-2 items-center font-one ${
+                      viewMode === "calendar"
+                        ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                        : "text-white/70 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <CiCalendarDate size={20} /> Calendrier
+                  </button>
+                  <button
+                    onClick={() => handleViewModeChange("list")}
+                    className={`cursor-pointer flex gap-2 items-center font-one px-4 py-2 text-xs font-medium transition-all duration-200 ${
+                      viewMode === "list"
+                        ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                        : "text-white/70 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <CiCalendar size={20} /> Tous les RDV
+                  </button>
+                </div>
+              </div>
+
+              {/* Filtres */}
+              <div className="flex flex-wrap gap-3 mb-4">
+                {/* Filtre par statut - pour les deux vues */}
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-white/70 font-one">
+                    Statut :
+                  </label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                  >
+                    <option value="all" className="bg-noir-500">
+                      Tous
+                    </option>
+                    <option value="PENDING" className="bg-noir-500">
+                      En attente
+                    </option>
+                    <option value="CONFIRMED" className="bg-noir-500">
+                      Confirmés
+                    </option>
+                    <option value="CANCELED" className="bg-noir-500">
+                      Annulés
+                    </option>
+                  </select>
+                </div>
+
+                {/* Filtre par date - seulement en mode "Tous les RDV" */}
+                {viewMode === "list" && (
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs text-white/70 font-one">
+                      Période :
+                    </label>
+                    <select
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                    >
+                      <option value="all" className="bg-noir-500">
+                        Tous
+                      </option>
+                      <option value="upcoming" className="bg-noir-500">
+                        À venir
+                      </option>
+                      <option value="past" className="bg-noir-500">
+                        Passés
+                      </option>
+                    </select>
+                  </div>
+                )}
+
+                {/* Indicateur des filtres actifs */}
+                {(statusFilter !== "all" ||
+                  (viewMode === "list" && dateFilter !== "all")) && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-white/50">
+                      Filtres actifs :
+                    </span>
+                    {statusFilter !== "all" && (
+                      <span className="px-2 py-1 bg-tertiary-400/20 text-tertiary-300 rounded-full text-xs border border-tertiary-400/30">
+                        {statusFilter === "PENDING"
+                          ? "En attente"
+                          : statusFilter === "CONFIRMED"
+                          ? "Confirmés"
+                          : statusFilter === "CANCELED"
+                          ? "Annulés"
+                          : statusFilter}
+                      </span>
+                    )}
+                    {viewMode === "list" && dateFilter !== "all" && (
+                      <span className="px-2 py-1 bg-blue-400/20 text-blue-300 rounded-full text-xs border border-blue-400/30">
+                        {dateFilter === "upcoming"
+                          ? "À venir"
+                          : dateFilter === "past"
+                          ? "Passés"
+                          : dateFilter}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => {
+                        setStatusFilter("all");
+                        setDateFilter("all");
+                      }}
+                      className="cursor-pointer px-2 py-1 bg-red-400/20 text-red-300 rounded-full text-xs border border-red-400/30 hover:bg-red-400/30 transition-colors"
+                    >
+                      ✕ Effacer
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="h-[1px] w-full bg-gradient-to-r from-tertiary-400/50 via-white/30 to-transparent" />
             </div>
 
-            {events.length > 0 ? (
+            {/* Affichage conditionnel selon la vue - maintenant paginatedEvents pour les deux */}
+            {paginatedEvents.length > 0 ? (
               <div className="space-y-4">
                 {/* Header de la table */}
                 <div className="grid grid-cols-7 gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
@@ -239,101 +433,215 @@ export default function RDV() {
                   </p>
                 </div>
 
-                {/* Liste des rendez-vous */}
+                {/* Liste des rendez-vous - maintenant toujours paginatedEvents */}
                 <div className="space-y-2 max-h-[65vh] overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-                  {filteredEvents.length > 0 &&
-                    events.map((event: CalendarEvent) => {
-                      // Calcul de la durée en millisecondes
-                      const start = new Date(event.start ?? "").getTime();
-                      const end = new Date(event.end ?? "").getTime();
-                      const durationMs = end - start;
+                  {paginatedEvents.map((event: CalendarEvent) => {
+                    // Calcul de la durée en millisecondes
+                    const start = new Date(event.start ?? "").getTime();
+                    const end = new Date(event.end ?? "").getTime();
+                    const durationMs = end - start;
 
-                      // Conversion en heures et minutes
-                      const durationHours = Math.floor(
-                        durationMs / (1000 * 60 * 60)
-                      );
-                      const durationMinutes = Math.floor(
-                        (durationMs % (1000 * 60 * 60)) / (1000 * 60)
-                      );
+                    // Conversion en heures et minutes
+                    const durationHours = Math.floor(
+                      durationMs / (1000 * 60 * 60)
+                    );
+                    const durationMinutes = Math.floor(
+                      (durationMs % (1000 * 60 * 60)) / (1000 * 60)
+                    );
 
-                      return (
-                        <div
-                          key={event.id}
-                          className="grid grid-cols-7 items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 group"
-                        >
-                          {/* DATE ET HEURE */}
-                          <div className="text-white font-two text-sm">
-                            <p className="font-bold">
-                              {new Date(event.start ?? "").toLocaleDateString(
-                                "fr-FR",
-                                {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "2-digit",
-                                }
-                              )}
-                            </p>
-                            <p className="text-xs text-white/70">
-                              {new Date(event.start ?? "").toLocaleTimeString(
-                                "fr-FR",
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </p>
-                          </div>
-
-                          {/* TITRE DU RDV */}
-                          <p className="text-white font-two text-sm truncate">
-                            {event.title}
+                    return (
+                      <div
+                        key={event.id}
+                        className="grid grid-cols-7 items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 group"
+                      >
+                        {/* DATE ET HEURE */}
+                        <div className="text-white font-two text-sm">
+                          <p className="font-bold">
+                            {new Date(event.start ?? "").toLocaleDateString(
+                              "fr-FR",
+                              {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "2-digit",
+                              }
+                            )}
                           </p>
-
-                          {/* CLIENT */}
-                          <button className="text-left text-white font-two text-sm hover:text-tertiary-400 transition-colors duration-200 truncate">
-                            {event.client.firstName} {event.client.lastName}
-                          </button>
-
-                          {/* DUREE */}
-                          <p className="text-white font-two text-sm">
-                            {durationHours}h
-                            {durationMinutes > 0 ? `${durationMinutes}m` : ""}
+                          <p className="text-xs text-white/70">
+                            {new Date(event.start ?? "").toLocaleTimeString(
+                              "fr-FR",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
                           </p>
-
-                          {/* PRESTATION */}
-                          <p className="text-white font-two text-sm truncate">
-                            {event.prestation}
-                          </p>
-
-                          {/* NOM DU TATOUEUR */}
-                          <p className="text-white font-two text-sm truncate">
-                            {event.tatoueur.name}
-                          </p>
-
-                          {/* STATUT */}
-                          <div className="text-center">
-                            <button
-                              onClick={() => openEventDetails(event)}
-                              className="w-full cursor-pointer"
-                            >
-                              {event.status === "CANCELED" ? (
-                                <span className="inline-block px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-full text-xs font-medium hover:bg-red-500/30 transition-all duration-200">
-                                  Annulé
-                                </span>
-                              ) : event.status !== "CONFIRMED" ? (
-                                <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-full text-xs font-medium hover:bg-orange-500/30 transition-all duration-200">
-                                  En attente
-                                </span>
-                              ) : (
-                                <span className="inline-block px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full text-xs font-medium hover:bg-green-500/30 transition-all duration-200">
-                                  Confirmé
-                                </span>
-                              )}
-                            </button>
-                          </div>
                         </div>
-                      );
-                    })}
+
+                        {/* TITRE DU RDV */}
+                        <p className="text-white font-two text-sm truncate">
+                          {event.title}
+                        </p>
+
+                        {/* CLIENT */}
+                        <button className="text-left text-white font-two text-sm hover:text-tertiary-400 transition-colors duration-200 truncate">
+                          {event.client.firstName} {event.client.lastName}
+                        </button>
+
+                        {/* DUREE */}
+                        <p className="text-white font-two text-sm">
+                          {durationHours}h
+                          {durationMinutes > 0 ? `${durationMinutes}m` : ""}
+                        </p>
+
+                        {/* PRESTATION */}
+                        <p className="text-white font-two text-sm truncate">
+                          {event.prestation}
+                        </p>
+
+                        {/* NOM DU TATOUEUR */}
+                        <p className="text-white font-two text-sm truncate">
+                          {event.tatoueur.name}
+                        </p>
+
+                        {/* STATUT */}
+                        <div className="text-center">
+                          <button
+                            onClick={() => openEventDetails(event)}
+                            className="w-full cursor-pointer"
+                          >
+                            {event.status === "CANCELED" ? (
+                              <span className="inline-block px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-full text-xs font-medium hover:bg-red-500/30 transition-all duration-200">
+                                Annulé
+                              </span>
+                            ) : event.status !== "CONFIRMED" ? (
+                              <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-full text-xs font-medium hover:bg-orange-500/30 transition-all duration-200">
+                                En attente
+                              </span>
+                            ) : (
+                              <span className="inline-block px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full text-xs font-medium hover:bg-green-500/30 transition-all duration-200">
+                                Confirmé
+                              </span>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Pagination - maintenant pour les deux vues */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-4 pt-4 border-t border-white/10">
+                    <button
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={currentPage === 1}
+                      className="cursor-pointer px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                    >
+                      Précédent
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      {Array.from(
+                        { length: Math.min(totalPages, 5) },
+                        (_, i) => {
+                          let pageNumber;
+                          if (totalPages <= 5) {
+                            pageNumber = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNumber = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNumber = totalPages - 4 + i;
+                          } else {
+                            pageNumber = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <button
+                              key={pageNumber}
+                              onClick={() => setCurrentPage(pageNumber)}
+                              className={`cursor-pointer w-8 h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
+                                currentPage === pageNumber
+                                  ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                              }`}
+                            >
+                              {pageNumber}
+                            </button>
+                          );
+                        }
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
+                      disabled={currentPage === totalPages}
+                      className="cursor-pointer px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                    >
+                      Suivant
+                    </button>
+                  </div>
+                )}
+
+                {/* Informations de pagination - pour les deux vues */}
+                <div className="text-center text-white/60 text-xs mt-2 font-one">
+                  Affichage de{" "}
+                  {Math.min(
+                    (currentPage - 1) * ITEMS_PER_PAGE + 1,
+                    filteredEvents.length
+                  )}{" "}
+                  à{" "}
+                  {Math.min(
+                    currentPage * ITEMS_PER_PAGE,
+                    filteredEvents.length
+                  )}{" "}
+                  sur {filteredEvents.length} rendez-vous
+                  {(query ||
+                    statusFilter !== "all" ||
+                    (viewMode === "list" && dateFilter !== "all")) && (
+                    <span className="ml-2">
+                      (
+                      {[
+                        query && `recherche: "${query}"`,
+                        statusFilter !== "all" &&
+                          `statut: ${
+                            statusFilter === "PENDING"
+                              ? "en attente"
+                              : statusFilter === "CONFIRMED"
+                              ? "confirmés"
+                              : statusFilter === "CANCELED"
+                              ? "annulés"
+                              : statusFilter
+                          }`,
+                        viewMode === "list" &&
+                          dateFilter !== "all" &&
+                          `période: ${
+                            dateFilter === "upcoming"
+                              ? "à venir"
+                              : dateFilter === "past"
+                              ? "passés"
+                              : dateFilter
+                          }`,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
+                      )
+                    </span>
+                  )}
+                  {viewMode === "calendar" && (
+                    <span className="ml-2">
+                      pour{" "}
+                      {currentView === "day"
+                        ? "la journée"
+                        : currentView === "week"
+                        ? "la semaine"
+                        : "le mois"}{" "}
+                      sélectionné(e)
+                    </span>
+                  )}
                 </div>
               </div>
             ) : (
@@ -343,10 +651,41 @@ export default function RDV() {
                     <span className="text-3xl">📅</span>
                   </div>
                   <p className="font-two text-xl text-white">
-                    Aucun rendez-vous disponible
+                    {query ||
+                    statusFilter !== "all" ||
+                    (viewMode === "list" && dateFilter !== "all")
+                      ? "Aucun résultat trouvé"
+                      : "Aucun rendez-vous disponible"}
                   </p>
                   <p className="font-two text-sm text-white/60">
-                    Les nouveaux rendez-vous apparaîtront ici
+                    {query ||
+                    statusFilter !== "all" ||
+                    (viewMode === "list" && dateFilter !== "all") ? (
+                      <span>
+                        Aucun rendez-vous ne correspond aux critères
+                        sélectionnés
+                        <br />
+                        <button
+                          onClick={() => {
+                            setStatusFilter("all");
+                            setDateFilter("all");
+                          }}
+                          className="cursor-pointer mt-2 px-3 py-1 bg-tertiary-400/20 text-tertiary-300 rounded-full text-xs border border-tertiary-400/30 hover:bg-tertiary-400/30 transition-colors"
+                        >
+                          Effacer les filtres
+                        </button>
+                      </span>
+                    ) : viewMode === "calendar" ? (
+                      `Aucun rendez-vous pour ${
+                        currentView === "day"
+                          ? "cette journée"
+                          : currentView === "week"
+                          ? "cette semaine"
+                          : "ce mois"
+                      }`
+                    ) : (
+                      "Les nouveaux rendez-vous apparaîtront ici"
+                    )}
                   </p>
                 </div>
               </div>
@@ -582,16 +921,32 @@ export default function RDV() {
                   </button>
                 </div>
               </div>
-            ) : (
+            ) : viewMode === "calendar" ? (
               <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl border border-white/20 shadow-2xl h-full">
                 <CalendarView
-                  events={events}
+                  events={paginatedEvents} // Maintenant on passe les événements paginés au calendrier
                   currentDate={currentDate}
                   setCurrentDate={setCurrentDate}
                   currentView={currentView}
                   setCurrentView={setCurrentView}
                   onSelectEvent={openEventDetails}
                 />
+              </div>
+            ) : (
+              <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl h-full flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
+                    <span className="text-3xl text-white">
+                      <FaArrowLeft />
+                    </span>
+                  </div>
+                  <p className="font-two text-xl text-white">
+                    Sélectionnez un rendez-vous
+                  </p>
+                  <p className="font-two text-sm text-white/60">
+                    Cliquez sur un rendez-vous pour voir ses détails
+                  </p>
+                </div>
               </div>
             )}
           </section>

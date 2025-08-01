@@ -106,10 +106,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 }) => {
   const styledEvents = useMemo(() => {
     if (!Array.isArray(events) || events.length === 0) {
-      return []; // Retourne un tableau vide si `events` n'est pas un tableau ou est vide
+      return [];
     }
 
-    return events.map((event) => ({
+    const styled = events.map((event) => ({
       ...event,
       title: `${event.title} - ${
         event.client.firstName + " " + event.client.lastName || ""
@@ -118,6 +118,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       start: new Date(event.start ?? Date.now()),
       end: new Date(event.end ?? Date.now()),
     }));
+
+    return styled;
   }, [events]);
 
   return (
@@ -133,7 +135,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 onClick={() => setCurrentView(view)}
                 className={`px-4 py-2 text-xs font-medium transition-all duration-200 ${
                   currentView === view
-                    ? "bg-tertiary-400 text-white"
+                    ? "bg-secondary-500 text-white"
                     : "text-white/70 hover:text-white hover:bg-white/10"
                 }`}
               >
@@ -161,7 +163,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               }
               setCurrentDate(newDate);
             }}
-            className="p-2 bg-white/10 hover:bg-white/20 text-white text-xs rounded-xl border border-white/20 transition-colors"
+            className="cursor-pointer p-2 bg-white/10 hover:bg-white/20 text-white text-xs rounded-xl border border-white/20 transition-colors"
           >
             ←
           </button>
@@ -185,7 +187,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               }
               setCurrentDate(newDate);
             }}
-            className="p-2 bg-white/10 hover:bg-white/20 text-white text-xs rounded-xl border border-white/20 transition-colors"
+            className="cursor-pointer p-2 bg-white/10 hover:bg-white/20 text-white text-xs rounded-xl border border-white/20 transition-colors"
           >
             →
           </button>

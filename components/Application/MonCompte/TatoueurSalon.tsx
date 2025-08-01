@@ -1,10 +1,8 @@
 "use client";
-import Image from "next/image";
-import CreateTatoueurModal from "./CreateTatoueurModal";
 import { useState } from "react";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
-import { AiOutlineDelete } from "react-icons/ai";
-import { IoCreateOutline } from "react-icons/io5";
+import Link from "next/link";
+import Image from "next/image";
 
 export type TatoueurProps = {
   id: string;
@@ -18,169 +16,155 @@ export type TatoueurProps = {
 
 export default function TatoueurSalon({
   tatoueurs,
-  salonId,
-  salonHours,
 }: {
   tatoueurs: TatoueurProps[];
   salonId: string;
   salonHours: string | null;
 }) {
-  const [showModal, setShowModal] = useState(false);
-
   const [selectedTatoueur, setSelectedTatoueur] =
     useState<TatoueurProps | null>(null);
-
-  const [tatoueurToDelete, setTatoueurToDelete] =
-    useState<TatoueurProps | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   return (
-    <>
-      <article className="flex flex-col items-center gap-6">
-        {/* Titre de la section */}
-        <div className="flex items-center justify-between w-full">
-          <h2 className="text-white text-2xl font-one font-bold tracking-wide">
-            💼 Équipe de tatoueurs
-          </h2>
-          <div className="flex items-center gap-2 text-white/70 text-sm">
-            <span>{tatoueurs.length}</span>
-            <span>tatoueur{tatoueurs.length > 1 ? "s" : ""}</span>
+    <div className="space-y-6">
+      {/* Header avec bouton d'ajout */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          {/* <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+            <span className="text-sm">👥</span>
+          </div> */}
+          <div>
+            <p className="text-white font-semibold font-one text-sm tracking-widest">
+              Équipe ({tatoueurs.length} tatoueur
+              {tatoueurs.length > 1 ? "s" : ""})
+            </p>
+            <p className="text-xs text-white/60 font-two">
+              Gérez votre équipe de tatoueurs
+            </p>
           </div>
         </div>
 
-        {/* Grille des tatoueurs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+        <Link
+          href="/mon-compte/ajouter-tatoueur"
+          className="px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
+        >
+          Ajouter
+        </Link>
+      </div>
+
+      {/* Liste des tatoueurs */}
+      {tatoueurs.length > 0 ? (
+        <div className="space-y-3">
           {tatoueurs.map((tatoueur) => (
             <div
               key={tatoueur.id}
-              className="group relative bg-gradient-to-br from-noir-600/90 to-secondary-700/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 border border-white/10 h-full flex flex-col"
+              className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-all duration-200"
             >
-              {/* Image du tatoueur */}
-              <div className="relative h-40 overflow-hidden flex-shrink-0">
-                <Image
-                  src={tatoueur.img || "/default-tatoueur.jpg"}
-                  alt={tatoueur.name}
-                  width={300}
-                  height={160}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-
-                {/* Badge de statut repositionné */}
-                <div className="absolute top-2 right-2">
-                  <div className="bg-green-500/30 w-10 text-center font-one backdrop-blur-sm text-white text-[10px] font-medium px-2 py-1 rounded-full shadow-lg">
-                    Actif
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 rounded-full flex items-center justify-center border border-tertiary-400/30 overflow-hidden">
+                    {tatoueur.img ? (
+                      <Image
+                        src={tatoueur.img}
+                        alt={tatoueur.name}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-tertiary-300 font-bold font-one text-sm">
+                        {tatoueur.name.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold font-one text-sm">
+                      {tatoueur.name}
+                    </h4>
+                    <p className="text-white/60 font-two text-xs">
+                      {tatoueur.description
+                        ? tatoueur.description.length > 100
+                          ? `${tatoueur.description.substring(0, 100)}...`
+                          : tatoueur.description
+                        : "Aucune description"}
+                    </p>
+                    {tatoueur.phone && (
+                      <p className="text-white/50 font-two text-xs mt-1">
+                        📞 {tatoueur.phone}
+                      </p>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              {/* Contenu avec flex-grow pour équilibrer */}
-              <div className="p-4 flex flex-col flex-grow">
-                {/* Informations principales */}
-                <div className="text-center flex-grow">
-                  <h3 className="text-white text-lg font-bold font-one mb-1">
-                    {tatoueur.name}
-                  </h3>
-                  <p className="text-white/80 text-xs font-two leading-relaxed line-clamp-2 mb-3">
-                    {tatoueur.description || "Tatoueur passionné"}
-                  </p>
-                </div>
-
-                {/* Informations complémentaires */}
-                <div className="flex flex-col gap-1 text-xs text-white/70 mb-4 min-h-[32px]">
-                  {tatoueur.phone && (
-                    <div className="flex items-center gap-2">
-                      <span>📱</span>
-                      <span className="truncate">{tatoueur.phone}</span>
-                    </div>
-                  )}
-                  {tatoueur.instagram && (
-                    <div className="flex items-center gap-2">
-                      <span>📸</span>
-                      <span className="truncate">@{tatoueur.instagram}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Boutons d'action - toujours en bas */}
-                <div className="flex justify-end gap-2 mt-auto w-full">
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/mon-compte/ajouter-tatoueur?id=${tatoueur.id}`}
+                    className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-xs border border-white/20 transition-colors font-one"
+                  >
+                    Modifier
+                  </Link>
                   <button
                     onClick={() => {
                       setSelectedTatoueur(tatoueur);
-                      setShowModal(true);
+                      setIsDeleteModalOpen(true);
                     }}
-                    className="text-xs cursor-pointer"
+                    className="cursor-pointer px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded text-xs border border-red-500/30 transition-colors font-one"
                   >
-                    <IoCreateOutline
-                      size={20}
-                      className="text-white text-center hover:text-tertiary-500 transition-colors duration-200"
-                    />
-                  </button>
-                  <button
-                    onClick={() => setTatoueurToDelete(tatoueur)}
-                    className="text-xs cursor-pointer"
-                  >
-                    <AiOutlineDelete
-                      size={20}
-                      className="text-white text-center hover:text-red-800 transition-colors duration-200"
-                    />
+                    Supprimer
                   </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Bouton d'ajout modernisé */}
-        <div className="w-full flex justify-center mt-8">
-          <button
-            onClick={() => setShowModal(true)}
-            className="text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[200px] max-w-[200px] text-center text-white font-one py-2 px-4 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
-          >
-            <span className="flex items-center justify-center gap-3">
-              <span>Nouveau tatoueur</span>
-              <span className="transform group-hover:translate-x-1 transition-transform duration-200">
-                →
-              </span>
-            </span>
-          </button>
+      ) : (
+        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
+          <div className="space-y-4">
+            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
+              <span className="text-3xl">👤</span>
+            </div>
+            <div>
+              <h3 className="text-white font-semibold font-one text-lg mb-2">
+                Aucun tatoueur ajouté
+              </h3>
+              <p className="text-white/60 font-two text-sm">
+                Commencez par ajouter un tatoueur à votre équipe
+              </p>
+            </div>
+            <Link
+              href="/mon-compte/ajouter-tatoueur"
+              className="inline-block px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
+            >
+              Ajouter le premier tatoueur
+            </Link>
+          </div>
         </div>
-      </article>
-
-      {showModal && (
-        <CreateTatoueurModal
-          salonId={salonId} // à récupérer dynamiquement ou passer en prop
-          onClose={() => {
-            setShowModal(false);
-            setSelectedTatoueur(null);
-          }}
-          onCreated={() => window.location.reload()} // ou refetch via React Query
-          salonHours={salonHours} // à récupérer dynamiquement ou passer en prop
-          existingTatoueur={selectedTatoueur}
-        />
       )}
 
-      {tatoueurToDelete && (
+      {/* Modale de suppression seulement */}
+      {isDeleteModalOpen && selectedTatoueur && (
         <DeleteConfirmationModal
-          tatoueurName={tatoueurToDelete.name}
-          onCancel={() => setTatoueurToDelete(null)}
+          tatoueurName={selectedTatoueur.name}
+          onCancel={() => setIsDeleteModalOpen(false)}
           onConfirm={async () => {
             const res = await fetch(
-              `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/delete/${tatoueurToDelete.id}`,
+              `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/delete/${selectedTatoueur.id}`,
               {
                 method: "DELETE",
               }
             );
 
             if (res.ok) {
-              window.location.reload(); // ou refetch les données avec React Query
+              window.location.reload();
             } else {
               console.error("Erreur lors de la suppression");
             }
 
-            setTatoueurToDelete(null);
+            setIsDeleteModalOpen(false);
+            setSelectedTatoueur(null);
           }}
         />
       )}
-    </>
+    </div>
   );
 }

@@ -57,12 +57,12 @@ export default function DeleteClient({
   return (
     <div>
       <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-        <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg relative">
-          <h2 className="text-lg font-semibold font-one text-secondary-500 mb-4">
+        <div className="bg-noir-500 rounded-lg p-6 w-full max-w-md shadow-lg relative">
+          <h2 className="text-lg font-semibold font-one text-white tracking-widest mb-4 border-b border-white/10 pb-2">
             {`Confirmer la suppression : ${client.firstName} ${client.lastName}`}
           </h2>
 
-          <p className="text-sm text-noir-500 mb-4">
+          <p className="text-sm text-white font-one mb-4">
             Es-tu sûr de vouloir supprimer ce client ? Cette action est
             irréversible.
           </p>
@@ -70,10 +70,10 @@ export default function DeleteClient({
           <FormError message={error} />
           <FormSuccess message={success} />
 
-          <div className="flex gap-4">
+          <div className="flex justify-end gap-4">
             <button
               onClick={() => setIsOpen(false)}
-              className="w-full text-noir-500 font-one tracking-wide text-sm font-bold border px-4 py-2  hover:bg-noir-500 hover:border-noir-500 hover:text-white transition-all ease-in-out duration-300 cursor-pointer"
+              className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
             >
               Annuler
             </button>
@@ -81,7 +81,7 @@ export default function DeleteClient({
               type="submit"
               onClick={handleDelete}
               disabled={loading}
-              className="w-full text-secondary-500 font-one tracking-wide text-sm font-bold border px-4 py-2  hover:bg-secondary-500 hover:border-secondary-500 hover:text-white transition-all ease-in-out duration-300 cursor-pointer"
+              className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
             >
               {loading ? "Suppression..." : "Supprimer"}
             </button>

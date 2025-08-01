@@ -56,12 +56,12 @@ export default function DeleteProduct({
   return (
     <div>
       <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-        <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg relative">
-          <h2 className="text-lg font-semibold font-one text-secondary-500 mb-4">
+        <div className="bg-noir-500 rounded-lg p-6 w-full max-w-md shadow-lg relative">
+          <h2 className="text-lg font-semibold font-one text-white tracking-widest mb-4 border-b border-white/10 pb-2">
             {`Confirmer la suppression : ${product.name}`}
           </h2>
 
-          <p className="text-sm text-noir-500 mb-4">
+          <p className="text-sm text-white font-one mb-4">
             Es-tu sûr de vouloir supprimer ce produit ? Cette action est
             irréversible.
           </p>
@@ -69,10 +69,10 @@ export default function DeleteProduct({
           {error && <div className="text-red-500 mb-2">{error}</div>}
           {success && <div className="text-green-500 mb-2">{success}</div>}
 
-          <div className="flex gap-4">
+          <div className="flex justify-end gap-4">
             <button
               onClick={() => setIsOpen(false)}
-              className="relative text-xs cursor-pointer bg-secondary-500 w-[150px] text-center text-white font-one py-2 px-4 rounded-[20px] hover:bg-secondary-600 transition-all ease-in-out duration-300"
+              className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
             >
               Annuler
             </button>
@@ -80,7 +80,7 @@ export default function DeleteProduct({
               type="submit"
               onClick={handleDelete}
               disabled={loading}
-              className="relative text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 w-full text-center text-white font-one py-2 px-4 rounded-[20px] hover:bg-tertiary-500 transition-all ease-in-out duration-300"
+              className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
             >
               {loading ? "Suppression..." : "Supprimer"}
             </button>

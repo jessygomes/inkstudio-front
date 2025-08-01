@@ -91,9 +91,9 @@ export default function ProductList() {
       <div className="flex justify-center gap-4 items-center mt-4 mb-8">
         <button
           onClick={handleCreate}
-          className="relative text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[200px] max-w-[400px] text-center text-white font-one py-2 px-4 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
+          className="cursor-pointer w-[200px] text-center px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
         >
-          Nouveeau produit
+          Nouveau produit
         </button>
       </div>
       {loading ? (

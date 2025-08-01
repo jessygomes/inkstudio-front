@@ -2,84 +2,127 @@
 import { UpdateSalonUserProps } from "@/lib/type";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
+import { CiInstagram, CiFacebook } from "react-icons/ci";
+import { PiTiktokLogoThin } from "react-icons/pi";
+import { TfiWorld } from "react-icons/tfi";
 
 interface InfoSalonProps {
   salon: UpdateSalonUserProps;
 }
 
 export default function InfoSalon({ salon }: InfoSalonProps) {
-  const router = useRouter();
-
   return (
-    <article className="flex flex-col items-end p-2 rounded-[20px]">
-      <article className="flex gap-8 w-full ">
-        <div className="relative w-[250px] h-[250px] rounded-3xl overflow-hidden">
+    <div className="space-y-6">
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="relative w-full lg:w-[250px] h-[250px] rounded-2xl overflow-hidden bg-white/10 flex-shrink-0">
           {salon.image ? (
             <Image
-              width={200}
-              height={200}
+              width={250}
+              height={250}
               src={salon.image}
               alt="Salon Image"
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-              <span className="text-gray-500 font-two">No Image</span>
+            <div className="w-full h-full bg-white/10 flex items-center justify-center">
+              <div className="text-center space-y-2">
+                <div className="text-4xl">📸</div>
+                <span className="text-white/60 font-two text-sm">
+                  Aucune image
+                </span>
+              </div>
             </div>
           )}
         </div>
 
-        <div className="flex flex-col gap-4 justify-center">
-          <h1 className="text-white uppercase text-3xl font-one">
-            {salon.salonName}
-          </h1>
-          <p className="text-white font-two text-sm">
-            Lieu : {salon.address}, {salon.postalCode} {salon.city}
-          </p>
-          <p className="text-white text-sm">{salon.description}</p>
-          <div>
-            {salon.instagram && (
-              <Link
-                href={salon.instagram}
-                target="_blank"
-                className="text-white"
-              >
-                Instagram
-              </Link>
-            )}
-            {salon.facebook && (
-              <Link
-                href={`https://www.facebook.com/${salon.facebook}`}
-                target="_blank"
-                className="text-white"
-              >
-                Facebook
-              </Link>
-            )}
-            {salon.tiktok && (
-              <Link
-                href={`https://www.tiktok.com/@${salon.tiktok}`}
-                target="_blank"
-                className="text-white"
-              >
-                Tik Tok
-              </Link>
-            )}
-            {salon.website && (
-              <Link href={salon.website} target="_blank" className="text-white">
-                Site Web
-              </Link>
-            )}
+        <div className="flex-1 space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs text-white/70 font-one">
+              Nom du salon
+            </label>
+            <h1 className="text-white text-2xl font-one font-bold">
+              {salon.salonName}
+            </h1>
           </div>
+
+          <div className="space-y-1">
+            <label className="text-xs text-white/70 font-one">Adresse</label>
+            <p className="text-white font-two text-sm">
+              {salon.address}, {salon.postalCode} {salon.city}
+            </p>
+          </div>
+
+          {salon.description && (
+            <div className="space-y-1">
+              <label className="text-xs text-white/70 font-one">
+                Description
+              </label>
+              <p className="text-white font-two text-sm">{salon.description}</p>
+            </div>
+          )}
+
+          {/* Réseaux sociaux */}
+          {(salon.instagram ||
+            salon.facebook ||
+            salon.tiktok ||
+            salon.website) && (
+            <div className="space-y-2">
+              <label className="text-xs text-white/70 font-one">
+                Réseaux sociaux
+              </label>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {salon.instagram && (
+                  <Link
+                    href={salon.instagram}
+                    target="_blank"
+                    className="flex items-center gap-2 font-one px-3 py-1 bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-white border border-pink-500/30 rounded-full text-xs hover:bg-pink-500/30 transition-colors"
+                  >
+                    <CiInstagram size={15} /> Instagram
+                  </Link>
+                )}
+                {salon.facebook && (
+                  <Link
+                    href={salon.facebook}
+                    target="_blank"
+                    className="flex items-center gap-2 font-one px-3 py-1 bg-blue-500/20 text-white border border-blue-500/30 rounded-full text-xs hover:bg-blue-500/30 transition-colors"
+                  >
+                    <CiFacebook size={15} /> Facebook
+                  </Link>
+                )}
+                {salon.tiktok && (
+                  <Link
+                    href={salon.tiktok}
+                    target="_blank"
+                    className="flex items-center gap-2 font-one px-3 py-1 bg-gray-500/20 text-white border border-gray-500/30 rounded-full text-xs hover:bg-gray-500/30 transition-colors"
+                  >
+                    <PiTiktokLogoThin size={15} /> TikTok
+                  </Link>
+                )}
+                {salon.website && (
+                  <Link
+                    href={salon.website}
+                    target="_blank"
+                    className="flex items-center gap-2 font-one px-3 py-1 bg-green-500/20 text-white border border-green-500/30 rounded-full text-xs hover:bg-green-500/30 transition-colors"
+                  >
+                    <TfiWorld size={14} /> Site Web
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
         </div>
-      </article>
-      <button
-        onClick={() => router.push("/mon-compte/modifier-salon")}
-        className="text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[200px] max-w-[200px] text-center text-white font-one py-2 px-4 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
-      >
-        Modifier les informations
-      </button>
-    </article>
+      </div>
+
+      {/* Bouton de modification */}
+      <div className="flex justify-end pt-4 border-t border-white/10">
+        <Link
+          href="/mon-compte/modifier-salon"
+          className="px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
+        >
+          Modifier
+        </Link>
+      </div>
+    </div>
   );
 }

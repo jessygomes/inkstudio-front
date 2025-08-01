@@ -6,14 +6,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { FormError } from "@/components/Shared/FormError";
-import { FormSuccess } from "@/components/Shared/FormSuccess";
 import { appointmentSchema } from "@/lib/zod/validator.schema";
 import { TatoueurProps, TimeSlotProps } from "@/lib/type";
 import { addMinutes, format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
 import Link from "next/link";
+import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 
 export default function CreateRdvForm({ userId }: { userId: string }) {
   const router = useRouter();
@@ -371,404 +370,579 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
   //! Affichage du formulaire de création de rendez-vous
   return (
-    <div className="relative">
-      <form
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log("❌ Erreurs de validation", errors);
-        })}
-        className="flex flex-col gap-4 text-white font-one text-sm"
-      >
-        <div className="flex gap-2 items-end">
-          <input
-            type="text"
-            value={searchClientQuery}
-            onChange={(e) => setSearchClientQuery(e.target.value)}
-            className="w-full border-b border-gray-300 bg-white/30 px-3 py-2 text-xs text-white"
-            placeholder="Rechercher un client par nom ou email..."
-          />
-        </div>
-        {clientResults.length > 0 && (
-          <div className="border border-tertiary-500 rounded p-1 mb-4 bg-primary-400 max-h-40 overflow-auto hover:bg-primary-500">
-            {clientResults.map((client) => (
-              <div
-                key={client.id}
-                className="cursor-pointer text-noir-500 px-2 py-1 text-xs"
-                onClick={() => {
-                  form.setValue("clientLastname", client.lastName);
-                  form.setValue("clientFirstname", client.firstName);
-                  form.setValue("clientEmail", client.email);
-                  form.setValue("clientPhone", client.phone);
-                  setSearchClientQuery(""); // reset l'input
-                  setClientResults([]); // fermer les résultats
-                }}
-              >
-                {client.firstName} {client.lastName} - {client.email}
+    <div className="min-h-screen bg-noir-700 pb-8">
+      <div className="container mx-auto max-w-6xl">
+        {/* Form Content */}
+        <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+          <form
+            onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              console.log("❌ Erreurs de validation", errors);
+            })}
+            className="space-y-6"
+          >
+            {/* Section: Recherche client */}
+            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                🔍 Recherche client
+              </h3>
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">
+                    Rechercher un client existant
+                  </label>
+                  <input
+                    type="text"
+                    value={searchClientQuery}
+                    onChange={(e) => setSearchClientQuery(e.target.value)}
+                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    placeholder="Rechercher par nom ou email..."
+                  />
+                </div>
+
+                {clientResults.length > 0 && (
+                  <div className="bg-white/10 border border-white/20 rounded-lg max-h-40 overflow-auto">
+                    {clientResults.map((client) => (
+                      <div
+                        key={client.id}
+                        className="cursor-pointer px-3 py-2 text-white text-xs hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
+                        onClick={() => {
+                          form.setValue("clientLastname", client.lastName);
+                          form.setValue("clientFirstname", client.firstName);
+                          form.setValue("clientEmail", client.email);
+                          form.setValue("clientPhone", client.phone);
+                          setSearchClientQuery("");
+                          setClientResults([]);
+                        }}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span>
+                            {client.firstName} {client.lastName}
+                          </span>
+                          <span className="text-white/60">{client.email}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-        )}
-
-        <div className="grid grid-cols-4 gap-4">
-          <div className="flex flex-col gap-2 ">
-            <label htmlFor="clientLastname">Nom du client</label>
-            <input
-              placeholder="Prénom du client"
-              {...form.register("clientLastname")}
-              className="bg-white/30 py-2 px-4 rounded-[20px]"
-            />
-            {form.formState.errors.clientLastname && (
-              <p className="text-red-500 text-sm">
-                {form.formState.errors.clientLastname.message}
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-2 ">
-            <label htmlFor="clientName">Prénom du client</label>
-            <input
-              placeholder="Prénom du client"
-              {...form.register("clientFirstname")}
-              className="bg-white/30 py-2 px-4 rounded-[20px]"
-            />
-            {form.formState.errors.clientFirstname && (
-              <p className="text-red-500 text-sm">
-                {form.formState.errors.clientFirstname.message}
-              </p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-2 ">
-            <label htmlFor="clientName">Email du client</label>
-            <input
-              placeholder="Email du client"
-              {...form.register("clientEmail")}
-              className="bg-white/30 py-2 px-4 rounded-[20px]"
-            />
-            {form.formState.errors.clientEmail && (
-              <p className="text-red-500 text-sm">
-                {form.formState.errors.clientEmail.message}
-              </p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-2 ">
-            <label htmlFor="clientPhone">Téléphone du client (optionnel)</label>
-            <input
-              placeholder="Tél du client"
-              {...form.register("clientPhone")}
-              className="bg-white/30 py-2 px-4 rounded-[20px]"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          {" "}
-          <div className="flex flex-col gap-2">
-            <label htmlFor="title">Titre</label>
-            <input
-              placeholder="Titre"
-              {...form.register("title")}
-              className="bg-white/30 py-2 px-4 rounded-[20px]"
-            />
-            {form.formState.errors.title && (
-              <p className="text-red-500 text-sm">
-                {form.formState.errors.title.message}
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-2 ">
-            <label htmlFor="tatoueurId">Selectionnez le tatoueur</label>
-            <select
-              {...form.register("tatoueurId")}
-              onChange={(e) => {
-                setSelectedTatoueur(e.target.value);
-              }}
-              className="bg-white/30 py-2 px-4 rounded-[20px]"
-            >
-              <option value="" className="bg-noir-700/50">
-                -- Choisissez un tatoueur --
-              </option>
-              {tatoueurs.map((tatoueur) => (
-                <option
-                  key={tatoueur.id}
-                  value={tatoueur.id}
-                  className="bg-noir-700/50"
-                >
-                  {tatoueur.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {selectedTatoueur && (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="date">Date du rendez-vous</label>
-              <input
-                type="date"
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {timeSlots.map((slot) => {
-                const isOccupied = (start: string) => {
-                  const startDate = new Date(start).getTime();
-                  return occupiedSlots.some((rdv) => {
-                    const rdvStart = new Date(rdv.start).getTime();
-                    const rdvEnd = new Date(rdv.end).getTime();
-                    return startDate >= rdvStart && startDate < rdvEnd;
-                  });
-                };
-                const isSelected = selectedSlots.includes(slot.start);
-                const startTime = format(new Date(slot.start), "HH:mm", {
-                  locale: fr,
-                });
-                const endTime = format(new Date(slot.end), "HH:mm", {
-                  locale: fr,
-                });
-                const isTaken = isOccupied(slot.start);
 
-                return (
-                  <button
-                    key={slot.start}
-                    type="button"
-                    onClick={() => !isTaken && handleSlotClick(slot.start)} // Désactive le clic si le créneau est occupé
-                    className={` py-2 px-3 rounded-[12px] text-sm transition-all 
-                    ${
-                      isTaken
-                        ? " bg-gray-400 text-gray-300 cursor-not-allowed" // Style pour les créneaux occupés
-                        : isSelected
-                        ? "bg-tertiary-500 text-white cursor-pointer" // Style pour les créneaux sélectionnés
-                        : "bg-white/20 text-white border-white/20 border cursor-pointer" // Style par défaut
-                    } hover:bg-tertiary-400`}
+            {/* Section: Informations client */}
+            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                👤 Informations client
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">Nom</label>
+                  <input
+                    placeholder="Nom du client"
+                    {...form.register("clientLastname")}
+                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                  />
+                  {form.formState.errors.clientLastname && (
+                    <p className="text-red-300 text-xs">
+                      {form.formState.errors.clientLastname.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">
+                    Prénom
+                  </label>
+                  <input
+                    placeholder="Prénom du client"
+                    {...form.register("clientFirstname")}
+                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                  />
+                  {form.formState.errors.clientFirstname && (
+                    <p className="text-red-300 text-xs">
+                      {form.formState.errors.clientFirstname.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">
+                    Email
+                  </label>
+                  <input
+                    placeholder="Email du client"
+                    {...form.register("clientEmail")}
+                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                  />
+                  {form.formState.errors.clientEmail && (
+                    <p className="text-red-300 text-xs">
+                      {form.formState.errors.clientEmail.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">
+                    Téléphone (optionnel)
+                  </label>
+                  <input
+                    placeholder="Téléphone du client"
+                    {...form.register("clientPhone")}
+                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section: Informations générales */}
+            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                📋 Détails du rendez-vous
+              </h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">
+                    Titre
+                  </label>
+                  <input
+                    placeholder="Titre du rendez-vous"
+                    {...form.register("title")}
+                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                  />
+                  {form.formState.errors.title && (
+                    <p className="text-red-300 text-xs">
+                      {form.formState.errors.title.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">
+                    Tatoueur
+                  </label>
+                  <select
+                    {...form.register("tatoueurId")}
+                    onChange={(e) => {
+                      setSelectedTatoueur(e.target.value);
+                    }}
+                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
                   >
-                    {startTime} - {endTime}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2 ">
-            <label htmlFor="clientName">Type du RDV</label>
-            <select
-              {...form.register("prestation")}
-              onChange={(e) => {
-                setSelectedPrestation(e.target.value);
-              }}
-              className="bg-white/30 py-2 px-4 rounded-[20px]"
-            >
-              <option value="" className="bg-noir-700/50">
-                -- Choisissez le type du rendez-vous --
-              </option>
-              <option value="TATTOO" className="bg-noir-700/50">
-                Tattoo
-              </option>
-              <option value="PROJET" className="bg-noir-700/50">
-                Projet
-              </option>
-              <option value="RETOUCHE" className="bg-noir-700/50">
-                Retouche
-              </option>
-              <option value="PIERCING" className="bg-noir-700/50">
-                Piercing
-              </option>
-            </select>
-          </div>
-        </div>
-
-        {/* Champs pour prestation de type "PROJET" */}
-        {selectedPrestation === "PROJET" && (
-          <>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="description">Description du projet</label>
-              <textarea
-                placeholder="Description du projet"
-                {...form.register("description")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-            <div className="grid grid-cols-4 gap-4">
-              <div className="flex flex-col gap-2 ">
-                <label htmlFor="zone">Zone du corps</label>
-                <input
-                  placeholder="Bras avant droit"
-                  {...form.register("zone")}
-                  className="bg-white/30 py-2 px-4 rounded-[20px]"
-                />
-              </div>
-              <div className="flex flex-col gap-2 ">
-                <label htmlFor="size">Taille du tatouage (cm)</label>
-                <input
-                  placeholder="20cm x 30cm"
-                  {...form.register("size")}
-                  className="bg-white/30 py-2 px-4 rounded-[20px]"
-                />
-              </div>
-              <div className="flex flex-col gap-2 ">
-                <label htmlFor="colorStyle">Style / Couleur du tatouage</label>
-                <input
-                  placeholder="Style gothique, couleur rouge et noir"
-                  {...form.register("colorStyle")}
-                  className="bg-white/30 py-2 px-4 rounded-[20px]"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2 ">
-                  <label htmlFor="clientName">Image de référence 1</label>
-                  <input
-                    placeholder="Image de référence 1"
-                    {...form.register("reference")}
-                    className="bg-white/30 py-2 px-4 rounded-[20px]"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2 ">
-                  <label htmlFor="clientName">Image de référence 2</label>
-                  <input
-                    placeholder="Image de référence 2"
-                    {...form.register("sketch")}
-                    className="bg-white/30 py-2 px-4 rounded-[20px]"
-                  />
+                    <option value="" className="bg-noir-500">
+                      -- Choisissez un tatoueur --
+                    </option>
+                    {tatoueurs.map((tatoueur) => (
+                      <option
+                        key={tatoueur.id}
+                        value={tatoueur.id}
+                        className="bg-noir-500"
+                      >
+                        {tatoueur.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-            </div>
-          </>
-        )}
 
-        {selectedPrestation === "TATTOO" && (
-          <div className="grid grid-cols-4 gap-4">
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="description">Description</label>
-              <input
-                placeholder="Description du tatouage"
-                {...form.register("description")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="zone">Zone du corps</label>
-              <input
-                placeholder="Avant bras droit"
-                {...form.register("zone")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="size">Taille du tatouage</label>
-              <input
-                placeholder="30cm x 20cm"
-                {...form.register("size")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="colorStyle">Style / Couleur du tatouage</label>
-              <input
-                placeholder="Style gothique, couleur rouge et noir"
-                {...form.register("colorStyle")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="estimatedPrice">Prix</label>
-              <input
-                type="number"
-                min={0}
-                placeholder="Prix estimé"
-                {...form.register("estimatedPrice", { valueAsNumber: true })}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-          </div>
-        )}
-
-        {selectedPrestation === "PIERCING" && (
-          <>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="description">Description du piercing</label>
-              <textarea
-                placeholder="Description"
-                {...form.register("description")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col gap-2 ">
-                <label htmlFor="zone">Zone du piercing</label>
-                <input
-                  placeholder="Zone (si projet)"
-                  {...form.register("zone")}
-                  className="bg-white/30 py-2 px-4 rounded-[20px]"
-                />
-              </div>
-
-              <div className="flex flex-col gap-2 ">
-                <label htmlFor="estimatedPrice">Prix</label>
-                <input
-                  type="number"
-                  placeholder="Prix estimé"
-                  {...form.register("estimatedPrice")}
-                  className="bg-white/30 py-2 px-4 rounded-[20px]"
-                />
+              <div className="space-y-1">
+                <label className="text-xs text-white/70 font-one">
+                  Type de prestation
+                </label>
+                <select
+                  {...form.register("prestation")}
+                  onChange={(e) => {
+                    setSelectedPrestation(e.target.value);
+                  }}
+                  className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                >
+                  <option value="" className="bg-noir-500">
+                    -- Choisissez le type du rendez-vous --
+                  </option>
+                  <option value="TATTOO" className="bg-noir-500">
+                    Tatouage
+                  </option>
+                  <option value="PROJET" className="bg-noir-500">
+                    Projet
+                  </option>
+                  <option value="RETOUCHE" className="bg-noir-500">
+                    Retouche
+                  </option>
+                  <option value="PIERCING" className="bg-noir-500">
+                    Piercing
+                  </option>
+                </select>
               </div>
             </div>
-          </>
-        )}
 
-        {selectedPrestation === "RETOUCHE" && (
-          <div className="grid grid-cols-3 gap-4">
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="description">Description de la retouche</label>
-              <input
-                placeholder="Description de la retouche"
-                {...form.register("description")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
+            {/* Section: Créneaux horaires */}
+            {selectedTatoueur && (
+              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  🕒 Créneaux horaires
+                </h3>
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-xs text-white/70 font-one">
+                      Date du rendez-vous
+                    </label>
+                    <input
+                      type="date"
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                    />
+                  </div>
+
+                  {timeSlots.length > 0 && (
+                    <div className="space-y-2">
+                      <label className="text-xs text-white/70 font-one">
+                        Sélectionnez les créneaux (30 min chacun)
+                      </label>
+                      <p className="text-xs text-white/50 mb-3">
+                        Cliquez sur les créneaux pour les sélectionner. Ils
+                        doivent être consécutifs.
+                      </p>
+                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                        {timeSlots.map((slot) => {
+                          const isOccupied = (start: string) => {
+                            const startDate = new Date(start).getTime();
+                            return occupiedSlots.some((rdv) => {
+                              const rdvStart = new Date(rdv.start).getTime();
+                              const rdvEnd = new Date(rdv.end).getTime();
+                              return (
+                                startDate >= rdvStart && startDate < rdvEnd
+                              );
+                            });
+                          };
+                          const isSelected = selectedSlots.includes(slot.start);
+                          const startTime = format(
+                            new Date(slot.start),
+                            "HH:mm",
+                            {
+                              locale: fr,
+                            }
+                          );
+                          const endTime = format(new Date(slot.end), "HH:mm", {
+                            locale: fr,
+                          });
+                          const isTaken = isOccupied(slot.start);
+
+                          return (
+                            <button
+                              key={slot.start}
+                              type="button"
+                              onClick={() =>
+                                !isTaken && handleSlotClick(slot.start)
+                              }
+                              className={`p-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+                                isTaken
+                                  ? "bg-gray-500/20 text-gray-400 cursor-not-allowed border border-gray-500/30"
+                                  : isSelected
+                                  ? "bg-tertiary-500 text-white border border-tertiary-400"
+                                  : "bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-tertiary-400/50"
+                              }`}
+                            >
+                              <div className="text-center">
+                                <div>{startTime}</div>
+                                <div className="opacity-70">-</div>
+                                <div>{endTime}</div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Sections conditionnelles selon le type de prestation */}
+            {selectedPrestation === "PROJET" && (
+              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  🎨 Détails du projet
+                </h3>
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-xs text-white/70 font-one">
+                      Description du projet
+                    </label>
+                    <textarea
+                      placeholder="Description du projet"
+                      {...form.register("description")}
+                      rows={3}
+                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Zone du corps
+                      </label>
+                      <input
+                        placeholder="Bras avant droit"
+                        {...form.register("zone")}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Taille (cm)
+                      </label>
+                      <input
+                        placeholder="20cm x 30cm"
+                        {...form.register("size")}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Style/Couleur
+                      </label>
+                      <input
+                        placeholder="Style gothique, rouge et noir"
+                        {...form.register("colorStyle")}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Prix estimé (€)
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="Prix estimé"
+                        {...form.register("estimatedPrice", {
+                          valueAsNumber: true,
+                        })}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Section Upload des images de référence */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs text-white/70 font-one">
+                        Image de référence 1
+                      </label>
+                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                        <SalonImageUploader
+                          currentImage={form.watch("reference") || undefined}
+                          onImageUpload={(imageUrl) => {
+                            form.setValue("reference", imageUrl);
+                          }}
+                          onImageRemove={() => {
+                            form.setValue("reference", "");
+                          }}
+                          compact={true}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs text-white/70 font-one">
+                        Croquis / Référence 2
+                      </label>
+                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                        <SalonImageUploader
+                          currentImage={form.watch("sketch") || undefined}
+                          onImageUpload={(imageUrl) => {
+                            form.setValue("sketch", imageUrl);
+                          }}
+                          onImageRemove={() => {
+                            form.setValue("sketch", "");
+                          }}
+                          compact={true}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedPrestation === "TATTOO" && (
+              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  🖋️ Détails du tatouage
+                </h3>
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-xs text-white/70 font-one">
+                      Description
+                    </label>
+                    <input
+                      placeholder="Description du tatouage"
+                      {...form.register("description")}
+                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Zone du corps
+                      </label>
+                      <input
+                        placeholder="Avant bras droit"
+                        {...form.register("zone")}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Taille
+                      </label>
+                      <input
+                        placeholder="30cm x 20cm"
+                        {...form.register("size")}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Style/Couleur
+                      </label>
+                      <input
+                        placeholder="Style gothique, rouge et noir"
+                        {...form.register("colorStyle")}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Prix (€)
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="Prix"
+                        {...form.register("estimatedPrice", {
+                          valueAsNumber: true,
+                        })}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedPrestation === "PIERCING" && (
+              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  💎 Détails du piercing
+                </h3>
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-xs text-white/70 font-one">
+                      Description du piercing
+                    </label>
+                    <textarea
+                      placeholder="Description"
+                      {...form.register("description")}
+                      rows={3}
+                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Zone du piercing
+                      </label>
+                      <input
+                        placeholder="Zone du piercing"
+                        {...form.register("zone")}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Prix (€)
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="Prix"
+                        {...form.register("estimatedPrice")}
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedPrestation === "RETOUCHE" && (
+              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  🔧 Détails de la retouche
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs text-white/70 font-one">
+                      Description de la retouche
+                    </label>
+                    <input
+                      placeholder="Description de la retouche"
+                      {...form.register("description")}
+                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-white/70 font-one">
+                      Zone du tatouage
+                    </label>
+                    <input
+                      placeholder="Mollet gauche"
+                      {...form.register("zone")}
+                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-white/70 font-one">
+                      Prix (€)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Prix"
+                      {...form.register("estimatedPrice")}
+                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Messages d'erreur et de succès */}
+            {error && (
+              <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
+                <p className="text-red-300 text-xs">{error}</p>
+              </div>
+            )}
+
+            {success && (
+              <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-xl">
+                <p className="text-green-300 text-xs">{success}</p>
+              </div>
+            )}
+
+            {/* Footer avec boutons d'action */}
+            <div className="flex justify-end gap-4 pt-6 border-t border-white/10">
+              <Link
+                href={"/mes-rendez-vous"}
+                className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+              >
+                Annuler
+              </Link>
+              <button
+                type="submit"
+                disabled={loading}
+                className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+              >
+                {loading ? "Création..." : "Créer le rendez-vous"}
+              </button>
             </div>
-            <div className="flex flex-col gap-2 ">
-              <label htmlFor="zone">Zone du tatouage</label>
-              <input
-                placeholder="Mollet gauche"
-                {...form.register("zone")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="estimatedPrice">Prix</label>
-              <input
-                type="number"
-                placeholder="Prix estimé"
-                {...form.register("estimatedPrice")}
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
-              />
-            </div>
-          </div>
-        )}
-
-        <FormError message={error} />
-        <FormSuccess message={success} />
-
-        <div className="flex gap-4 mt-2">
-          <Link
-            href={"/mes-rendez-vous"}
-            className="relative text-xs cursor-pointer w-full bg-noir-500/60 text-center text-white font-one py-2 px-4 rounded-[20px] hover:bg-noir-500/80 transition-all ease-in-out duration-300"
-          >
-            Revenir à la liste des rendez-vous
-          </Link>
-          <button
-            type="submit"
-            disabled={loading}
-            className="relative mx-auto text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 w-full text-center text-white font-one py-2 px-4 rounded-[20px] hover:bg-tertiary-500 transition-all ease-in-out duration-300"
-          >
-            {loading ? "Création..." : "Créer le rendez-vous"}
-          </button>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

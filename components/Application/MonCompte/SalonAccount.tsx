@@ -7,8 +7,13 @@ import { CSSProperties, useEffect, useState } from "react";
 import Horaire from "./Horaire";
 import InfoSalon from "./InfoSalon";
 import TatoueurSalon from "./TatoueurSalon";
-import { CgProfile } from "react-icons/cg";
 import BarLoader from "react-spinners/BarLoader";
+import SalonPhoto from "./SalonPhoto";
+
+import { IoBusinessOutline } from "react-icons/io5";
+import { TbClockHour5 } from "react-icons/tb";
+import { PiUsersLight } from "react-icons/pi";
+import { HiOutlinePhotograph } from "react-icons/hi";
 
 export default function SalonAccount() {
   const user = useUser();
@@ -69,71 +74,81 @@ export default function SalonAccount() {
 
   //! HORAIRES D'OUVERTURE
   return (
-    <div className="flex flex-col gap-8">
-      <div className="">
-        <div className="w-full bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg pb-4 border-b border-white/20">
-          <h1 className="text-3xl font-bold text-white font-one tracking-wide text-center">
-            Mon Compte
-          </h1>
-          <p className="text-white/70 text-sm font-one text-center mt-2">
-            Gérez les informations de votre salon, les horaires d'ouverture et
-            les tatoueurs associés.
-          </p>
+    <div className="min-h-screen w-full bg-noir-700">
+      <div className="container">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="w-full bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg p-6 border-b border-white/20">
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-bold text-white font-one tracking-wide">
+                Mon Compte
+              </h1>
+              <p className="text-white/70 text-sm">
+                Gérez les informations de votre salon, les horaires d'ouverture
+                et les tatoueurs associés
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Form Content */}
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Section INFO SALON */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">
+                <IoBusinessOutline /> Informations du salon
+              </h3>
+              <InfoSalon salon={salon} />
+            </div>
+          </div>
+
+          {/* Section HORAIRES */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">
+                <TbClockHour5 size={20} /> Horaires d'ouverture
+              </h3>
+              <Horaire
+                isHoursVisible={isHoursVisible}
+                setIsHoursVisible={setIsHoursVisible}
+                hours={salon.salonHours}
+                salonId={salonId || ""}
+              />
+            </div>
+          </div>
+
+          {/* Section TATOUEURS */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">
+                <PiUsersLight size={20} /> Équipe de tatoueurs
+              </h3>
+              <TatoueurSalon
+                tatoueurs={salon.Tatoueur}
+                salonId={salonId || ""}
+                salonHours={salon.salonHours || ""}
+              />
+            </div>
+          </div>
+
+          {/* Section PHOTOS */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">
+                <HiOutlinePhotograph size={20} /> Galerie photos
+              </h3>
+              <SalonPhoto />
+            </div>
+          </div>
         </div>
       </div>
-      <section className="w-full space-y-12 px-20">
-        {/* Section INFO SALON avec design moderne */}
-        <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center">
-              <CgProfile size={30} className="text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-white font-one tracking-wide">
-              Informations du salon
-            </h2>
-          </div>
-          <InfoSalon salon={salon} />
-        </div>
-
-        {/* Section HORAIRES avec design moderne */}
-        <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-r rounded-2xl flex items-center justify-center">
-              <span className="text-2xl">🕒</span>
-            </div>
-            <h2 className="text-2xl font-bold text-white font-one tracking-wide">
-              Horaires d'ouverture
-            </h2>
-          </div>
-          <Horaire
-            isHoursVisible={isHoursVisible}
-            setIsHoursVisible={setIsHoursVisible}
-            hours={salon.salonHours}
-            salonId={salonId || ""}
-          />
-        </div>
-
-        {/* Ligne de séparation moderne */}
-        {/* <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-          </div>
-          <div className="relative flex justify-center">
-            <div className="bg-gradient-to-r from-noir-700 to-noir-800 px-6 py-2 rounded-full border border-white/20">
-              <span className="text-white/70 text-sm font-two">💫</span>
-            </div>
-          </div>
-        </div> */}
-
-        {/* Section TATOUEURS avec design moderne */}
-        <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-          <TatoueurSalon
-            tatoueurs={salon.Tatoueur}
-            salonId={salonId || ""}
-            salonHours={salon.salonHours || ""}
-          />
-        </div>
-      </section>
     </div>
   );
 }
+//           />
+//         </div>
+//       </section>
+//     </div>
+//   );
+// }

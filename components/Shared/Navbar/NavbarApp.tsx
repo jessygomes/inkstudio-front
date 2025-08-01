@@ -84,26 +84,21 @@ export default function NavbarApp() {
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 mt-4 p-2 w-[300px] bg-noir-700 text-white rounded shadow-lg z-50 flex flex-col gap-2">
+            <div className="absolute right-0 mt-4 p-2 w-[300px] bg-noir-700 border border-tertiary-400 text-white rounded shadow-lg z-50 flex flex-col gap-2">
               <Link
                 href="/mon-compte"
-                className="px-4 py-2 text-xs hover:bg-noir-500 transition-colors"
+                className="px-4 py-2 text-xs font-one hover:bg-noir-500 transition-colors"
                 onClick={() => setShowMenu(false)}
               >
                 Paramètres du compte
               </Link>
-              <Link
-                href="/mon-compte"
-                className="px-4 py-2 text-xs hover:bg-noir-500 transition-colors"
+
+              <div
+                className=" py-2 text-xs font-one w-full text-left hover:bg-noir-500 transition-colors"
                 onClick={() => setShowMenu(false)}
               >
-                Mes
-              </Link>
-              <div onClick={() => setShowMenu(false)}>
                 <LogoutBtn>
-                  <span className="block text-xs w-full text-left transition-colors">
-                    Déconnexion
-                  </span>
+                  <span>Déconnexion</span>
                 </LogoutBtn>
               </div>
             </div>

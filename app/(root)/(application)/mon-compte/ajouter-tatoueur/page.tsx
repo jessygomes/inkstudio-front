@@ -1,11 +1,18 @@
-// Ce fichier peut être supprimé car il n'est plus utilisé
-// La fonctionnalité a été déplacée vers la page AddOrUpdateTatoueurPage
+"use client";
+
+import { useUser } from "@/components/Auth/Context/UserContext";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createTatoueurSchema } from "@/lib/zod/validator.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { TatoueurProps } from "./TatoueurSalon";
+import { useState, useEffect } from "react";
+import { TatoueurProps } from "@/components/Application/MonCompte/TatoueurSalon";
+import Link from "next/link";
+import TatoueurImageUploader from "@/components/Application/MonCompte/TatoueurImageUploader";
+
+import { CiUser } from "react-icons/ci";
+import { TbClockHour5 } from "react-icons/tb";
 
 type Horaire = {
   [key: string]: { start: string; end: string } | null;
@@ -21,22 +28,65 @@ const daysOfWeek = [
   { key: "sunday", label: "Dimanche" },
 ];
 
-export default function CreateTatoueurModal({
-  salonId,
-  onClose,
-  onCreated,
-  salonHours,
-  existingTatoueur,
-}: {
-  salonId: string;
-  onClose: () => void;
-  onCreated: () => void;
-  salonHours: string | null;
-  existingTatoueur?: TatoueurProps | null;
-}) {
-  const [loading, setLoading] = useState(false);
+export default function AddOrUpdateTatoueurPage() {
+  const user = useUser();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const salonId = user?.id;
 
-  //! Mettre en valeur  par défaut les horaires d'ouverture du salon
+  const tatoueurId = searchParams.get("id");
+  const isEditing = !!tatoueurId;
+
+  const [loading, setLoading] = useState(false);
+  const [existingTatoueur, setExistingTatoueur] =
+    useState<TatoueurProps | null>(null);
+  const [salonHours, setSalonHours] = useState<string | null>(null);
+
+  // Récupérer les données du salon pour les horaires par défaut
+  useEffect(() => {
+    const fetchSalonData = async () => {
+      if (!salonId) return;
+
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setSalonHours(data.salonHours);
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des données du salon:",
+          error
+        );
+      }
+    };
+
+    fetchSalonData();
+  }, [salonId]);
+
+  // Récupérer les données du tatoueur en mode édition
+  useEffect(() => {
+    const fetchTatoueur = async () => {
+      if (!tatoueurId) return;
+
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/${tatoueurId}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setExistingTatoueur(data);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération du tatoueur:", error);
+      }
+    };
+
+    fetchTatoueur();
+  }, [tatoueurId]);
+
   const initialHours: Horaire = (existingTatoueur?.hours &&
     JSON.parse(existingTatoueur.hours)) ||
     (salonHours && JSON.parse(salonHours)) || {
@@ -51,7 +101,6 @@ export default function CreateTatoueurModal({
 
   const [editingHours, setEditingHours] = useState<Horaire>(initialHours);
 
-  //! FORMULAIRE
   const form = useForm<z.infer<typeof createTatoueurSchema>>({
     resolver: zodResolver(createTatoueurSchema),
     defaultValues: {
@@ -60,76 +109,122 @@ export default function CreateTatoueurModal({
       description: existingTatoueur?.description || "",
       instagram: existingTatoueur?.instagram || "",
       hours: existingTatoueur?.hours || "",
-      userId: salonId,
+      userId: salonId || "",
     },
   });
 
+  // Mettre à jour le formulaire quand les données sont chargées
+  useEffect(() => {
+    if (existingTatoueur) {
+      form.reset({
+        name: existingTatoueur.name,
+        img: existingTatoueur.img || "",
+        description: existingTatoueur.description || "",
+        instagram: existingTatoueur.instagram || "",
+        phone: existingTatoueur.phone || "",
+        hours: existingTatoueur.hours || "",
+        userId: salonId || "",
+      });
+
+      if (existingTatoueur.hours) {
+        setEditingHours(JSON.parse(existingTatoueur.hours));
+      }
+    }
+  }, [existingTatoueur, form, salonId]);
+
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
-    console.log("values", values);
+    if (!salonId) return;
 
     const payload = {
       ...values,
-      hours: JSON.stringify(editingHours), // très important !
+      hours: JSON.stringify(editingHours),
     };
 
-    console.log("payload", payload);
     setLoading(true);
 
-    const url = existingTatoueur
-      ? `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/update/${existingTatoueur.id}`
-      : `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`;
+    try {
+      const url = isEditing
+        ? `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/update/${tatoueurId}`
+        : `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`;
 
-    const res = await fetch(url, {
-      method: existingTatoueur ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+      const res = await fetch(url, {
+        method: isEditing ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    if (res.ok) {
-      onCreated();
-      onClose();
+      if (res.ok) {
+        router.push("/mon-compte");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
+  if (!salonId) {
+    return <div className="text-white">Chargement...</div>;
+  }
+
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-noir-500 rounded-3xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
-        {/* Header fixe */}
-        <div className="p-4 border-b border-white/10 bg-white/5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white font-one tracking-wide">
-              {existingTatoueur
-                ? "Modifier le tatoueur"
-                : "Ajouter un tatoueur"}
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors"
-            >
-              <span className="cursor-pointer text-white text-xl">×</span>
-            </button>
+    <div className="min-h-screen w-full bg-noir-700">
+      <div className="container">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="w-full bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg p-6 border-b border-white/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/mon-compte"
+                  className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 border border-white/20"
+                >
+                  ←
+                </Link>
+              </div>
+              <div className="space-y-2 w-full">
+                <h1 className="text-3xl font-bold text-white font-one tracking-widest text-center">
+                  {isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
+                </h1>
+                <p className="text-white/70 font-one text-sm text-center">
+                  {isEditing
+                    ? "Modifiez les informations du tatoueur"
+                    : "Ajoutez un nouveau membre à votre équipe"}
+                </p>
+              </div>
+            </div>
           </div>
-          <p className="text-white/70 mt-2 text-sm">
-            {existingTatoueur
-              ? "Modifiez les informations du tatoueur"
-              : "Ajoutez un nouveau tatoueur à votre équipe"}
-          </p>
         </div>
 
-        {/* Form Content scrollable */}
-        <div className="flex-1 overflow-y-auto p-4">
+        {/* Form Content */}
+        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Section: Informations générales */}
             <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                👤 Informations générales
+              <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">
+                <CiUser size={20} /> Informations générales
               </h3>
 
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-xs text-white/70 font-one">Nom</label>
+                  <label className="text-xs text-white/70 font-one">
+                    Photo du tatoueur
+                  </label>
+                  <TatoueurImageUploader
+                    currentImage={form.watch("img") || existingTatoueur?.img}
+                    onImageUpload={(imageUrl) => {
+                      form.setValue("img", imageUrl);
+                    }}
+                    onImageRemove={() => {
+                      form.setValue("img", "");
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">
+                    Nom du tatoueur *
+                  </label>
                   <input
                     placeholder="Nom du tatoueur"
                     {...form.register("name")}
@@ -177,8 +272,8 @@ export default function CreateTatoueurModal({
 
             {/* Section: Horaires */}
             <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                🕒 Horaires de travail
+              <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-wide">
+                <TbClockHour5 size={20} /> Horaires de travail
               </h3>
               <p className="text-xs text-white/60 mb-4">
                 Horaires du salon par défaut. Modifiez selon les disponibilités
@@ -265,32 +360,33 @@ export default function CreateTatoueurModal({
                 })}
               </div>
             </div>
-          </form>
-        </div>
 
-        {/* Footer fixe */}
-        <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            onClick={form.handleSubmit(onSubmit)}
-            className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
-          >
-            {loading
-              ? existingTatoueur
-                ? "Modification..."
-                : "Création..."
-              : existingTatoueur
-              ? "Modifier le tatoueur"
-              : "Créer le tatoueur"}
-          </button>
+            {/* Footer avec boutons d'action */}
+            <div className="flex justify-end gap-4 pt-6 border-t border-white/10">
+              <Link
+                href="/mon-compte"
+                className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+              >
+                Annuler
+              </Link>
+              <button
+                type="submit"
+                disabled={loading}
+                className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    {isEditing ? "Modification..." : "Création..."}
+                  </div>
+                ) : isEditing ? (
+                  "Modifier le tatoueur"
+                ) : (
+                  "Créer le tatoueur"
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
