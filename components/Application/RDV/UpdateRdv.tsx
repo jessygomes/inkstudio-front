@@ -302,14 +302,14 @@ export default function UpdateRdv({
               : new Date(rdv.start).toISOString();
           form.setValue("start", startStr);
         }}
-        className="cursor-pointer bg-orange-500/20 text-orange-300 border border-orange-500/30 font-one text-[10px] px-4 py-1 rounded-[20px] hover:bg-orange-700/20 transition"
+        className="cursor-pointer px-3 py-1.5 bg-tertiary-500/20 hover:bg-tertiary-500/30 text-tertiary-400 border border-tertiary-500/30 rounded-lg text-xs font-one font-medium transition-colors flex items-center gap-1"
       >
         Modifier
       </button>
 
       {showModal && (
         <div className="fixed inset-0 z-[9999] bg-noir-700 rounded-3xl backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-noir-500 rounded-3xl w-full h-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+          <div className="bg-noir-500 rounded-3xl w-full h-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col shadow-2xl">
             {/* Header */}
             <div className="p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">

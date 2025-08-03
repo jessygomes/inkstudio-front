@@ -31,3 +31,14 @@ export async function deleteSession() {
   cookieStore.delete("session");
   cookieStore.delete("userId");
 }
+
+// Fonction utilitaire pour récupérer le token côté serveur
+export const getAuthHeaders = async () => {
+  const cookieStore = await cookies();
+  const session = cookieStore.get("session")?.value;
+
+  return {
+    "Content-Type": "application/json",
+    ...(session && { Authorization: `Bearer ${session}` }),
+  };
+};

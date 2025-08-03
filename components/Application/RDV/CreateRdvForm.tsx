@@ -294,8 +294,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   });
 
   const onSubmit = async (data: z.infer<typeof appointmentSchema>) => {
-    console.log("Début de la soumission...");
-    console.log("data", data);
     setLoading(true);
     setError("");
     setSuccess("");
@@ -332,8 +330,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       start,
       end,
     };
-
-    console.log("✅ Données envoyées :", rdvBody);
 
     try {
       const response = await fetch(

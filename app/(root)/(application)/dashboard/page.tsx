@@ -5,6 +5,7 @@ import NewClientsCount from "@/components/Application/Dashboard/NewClientsCount"
 import NotAnswerClient from "@/components/Application/Dashboard/NotAnswerClient";
 import RendezVousToday from "@/components/Application/Dashboard/RendezVousToday";
 import TotalPayed from "@/components/Application/Dashboard/TotalPayed";
+import WaitingRdv from "@/components/Application/Dashboard/WaitingRdv";
 import WeeklyFillRate from "@/components/Application/Dashboard/WeeklyFillRate";
 import { useUser } from "@/components/Auth/Context/UserContext";
 
@@ -37,11 +38,16 @@ export default function DashboardPage() {
           </div>
 
           {/* Middle Row - Main Content */}
-          <div className="col-span-12 lg:col-span-6">
+          <div className="col-span-12 lg:col-span-4">
             <RendezVousToday userId={user.id ?? ""} />
           </div>
 
-          <div className="col-span-12 lg:col-span-6">
+          <div className="col-span-12 lg:col-span-4">
+            <WaitingRdv userId={user.id ?? ""} />
+            {/* <NotAnswerClient userId={user.id ?? ""} /> */}
+          </div>
+
+          <div className="col-span-12 lg:col-span-4">
             <NotAnswerClient userId={user.id ?? ""} />
           </div>
 

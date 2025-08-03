@@ -879,7 +879,10 @@ export default function RDV() {
                     {/* Actions */}
                     <div className="flex items-center gap-2">
                       {selectedEvent.status !== "CONFIRMED" && (
-                        <ConfirmRdv rdvId={selectedEvent.id} />
+                        <ConfirmRdv
+                          rdvId={selectedEvent.id}
+                          appointment={selectedEvent}
+                        />
                       )}
                       <UpdateRdv
                         rdv={selectedEvent as unknown as UpdateRdvFormProps}
@@ -887,7 +890,10 @@ export default function RDV() {
                         onUpdate={() => handleRdvUpdated(selectedEvent.id)}
                       />
                       {selectedEvent.status !== "CANCELED" && (
-                        <CancelRdv rdvId={selectedEvent.id} />
+                        <CancelRdv
+                          rdvId={selectedEvent.id}
+                          appointment={selectedEvent}
+                        />
                       )}
                     </div>
 
