@@ -155,7 +155,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="h-[550px] bg-noir-700 rounded-xl border border-white/20 p-4 overflow-y shadow-2xl">
+    <div className="h-[550px] bg-noir-700 rounded-xl border border-white/20 p-4 overflow-y-scroll custom-scrollbar shadow-2xl">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-white font-one">RDV du jour</h3>
         <div className="px-2 py-1 bg-tertiary-500/20 text-tertiary-400 rounded-full text-xs font-medium border border-tertiary-500/50">

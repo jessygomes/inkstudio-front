@@ -137,6 +137,16 @@ export interface ClientProps {
     pregnancy: boolean; // Indique si la personne est enceinte
     tattooHistory: string | null; // Historique des tatouages
   };
+  FollowUpSubmission?: {
+    id: string;
+    appointmentId: string;
+    isAnswered: boolean;
+    isPhotoPublic: boolean;
+    rating: number; // Note de 1 à 5
+    photoUrl: string; // URL de la photo de suivi
+    review: string | null; // Commentaire du client
+    createdAt: string; // Date de création au format ISO
+  }[];
 }
 
 //! PORTFOLIO

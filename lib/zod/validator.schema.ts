@@ -195,3 +195,23 @@ export const productSalonSchema = z.object({
   price: z.number().min(0, "Le prix doit être positif"),
   userId: z.string(),
 });
+
+export const followUpSubmissionSchema = z.object({
+  photo: z
+    .instanceof(File)
+    .refine((file) => file.size <= 10 * 1024 * 1024, {
+      message: "La photo ne doit pas dépasser 10MB",
+    })
+    .refine(
+      (file) => ["image/jpeg", "image/png", "image/jpg"].includes(file.type),
+      {
+        message: "Seuls les fichiers PNG, JPG et JPEG sont acceptés",
+      }
+    ),
+  rating: z
+    .number()
+    .min(1, { message: "Veuillez donner une note" })
+    .max(5, { message: "La note doit être entre 1 et 5" }),
+  review: z.string().optional(),
+  isPhotoPublic: z.boolean().default(false),
+});

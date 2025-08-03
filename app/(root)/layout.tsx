@@ -17,8 +17,6 @@ export default async function DashboardLayout({
     email: "",
   };
 
-  console.log("user", user);
-
   try {
     const userData = await getAuthenticatedUser(); // fonctionne car côté server
 

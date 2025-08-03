@@ -5,22 +5,27 @@ const utapi = new UTApi();
 
 export async function POST(request: NextRequest) {
   try {
-    const { key } = await request.json();
+    const { fileKeys } = await request.json();
 
-    if (!key) {
+    if (!fileKeys || !Array.isArray(fileKeys)) {
       return NextResponse.json(
-        { error: "Clé de fichier requise" },
+        { error: "Le tableau fileKeys est requis" },
         { status: 400 }
       );
     }
 
-    await utapi.deleteFiles(key);
+    // Supprimer les fichiers d'UploadThing
+    const result = await utapi.deleteFiles(fileKeys);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      result,
+      message: `${fileKeys.length} fichier(s) supprimé(s)`,
+    });
   } catch (error) {
-    console.error("Erreur lors de la suppression:", error);
+    console.error("Erreur lors de la suppression UploadThing:", error);
     return NextResponse.json(
-      { error: "Erreur lors de la suppression du fichier" },
+      { error: "Erreur lors de la suppression des fichiers" },
       { status: 500 }
     );
   }
