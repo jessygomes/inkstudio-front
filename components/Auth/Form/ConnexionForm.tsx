@@ -97,13 +97,15 @@ export const LoginForm = () => {
         >
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-1 font-one">
-              <label htmlFor="mail">Email</label>
+              <label htmlFor="mail" className="text-xs">
+                Email
+              </label>
               <input
                 id="mail"
                 placeholder="johndoe@domaine.com"
                 type="text"
                 required
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
+                className="bg-white/30 py-2 px-4 rounded-lg"
                 {...form.register("email")}
               />
               {form.formState.errors.email && (
@@ -114,13 +116,15 @@ export const LoginForm = () => {
             </div>
 
             <div className="flex flex-col gap-2 font-krub">
-              <label htmlFor="password">Mot de passe</label>
+              <label htmlFor="password" className="text-xs">
+                Mot de passe
+              </label>
               <input
                 id="password"
                 placeholder="Mot de passe"
                 type="password"
                 required
-                className="bg-white/30 py-2 px-4 rounded-[20px]"
+                className="bg-white/30 py-2 px-4 rounded-lg"
                 {...form.register("password")}
               />
               {form.formState.errors.password && (
@@ -134,7 +138,7 @@ export const LoginForm = () => {
             <FormSuccess message={success} />
 
             <button
-              className="relative cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[400px] text-white font-one py-2 px-4 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
+              className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
               type="submit"
               disabled={isPending}
             >
@@ -144,7 +148,7 @@ export const LoginForm = () => {
         </form>
       </CardWrapper>
       <div className="relative flex flex-col gap-2 justify-center items-center">
-        <p className="text-white text-sm text-center font-two mt-2">
+        <p className="text-white text-xs text-center font-two mt-2">
           Pas encore de compte ?{" "}
           <Link
             className="text-tertiary-400 hover:text-tertiary-500 transition-all ease-in-out duration-150"

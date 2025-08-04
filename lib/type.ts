@@ -61,6 +61,7 @@ export type UpdateRdvFormProps = {
     reference?: string;
     sketch?: string;
     estimatedPrice?: number;
+    price?: number; // Ajout du prix réel
   };
 };
 

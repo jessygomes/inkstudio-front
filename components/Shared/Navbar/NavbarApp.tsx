@@ -86,7 +86,7 @@ export default function NavbarApp() {
           {showMenu && (
             <div className="absolute right-0 mt-4 p-2 w-[300px] bg-noir-700 border border-tertiary-400 text-white rounded shadow-lg z-50 flex flex-col gap-2">
               <Link
-                href="/mon-compte"
+                href="/parametres"
                 className="px-4 py-2 text-xs font-one hover:bg-noir-500 transition-colors"
                 onClick={() => setShowMenu(false)}
               >

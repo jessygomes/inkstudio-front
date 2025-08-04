@@ -41,7 +41,7 @@ export default function Navbar() {
           );
         })}
         <Link href={"/connexion"}>
-          <div className="text-white font-one tracking-wide text-xs font-bold bg-gradient-to-l from-tertiary-400 to-tertiary-500 px-4 py-2 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300">
+          <div className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs">
             Connexion
           </div>
         </Link>

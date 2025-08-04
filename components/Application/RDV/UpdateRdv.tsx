@@ -129,6 +129,7 @@ export default function UpdateRdv({
           reference: rdv.tattooDetail?.reference || "",
           sketch: rdv.tattooDetail?.sketch || "",
           estimatedPrice: rdv.tattooDetail?.estimatedPrice || 0,
+          price: rdv.tattooDetail?.price || 0,
         },
       });
 
@@ -693,7 +694,7 @@ export default function UpdateRdv({
                           <input
                             type="number"
                             step="0.01"
-                            {...form.register("tattooDetail.estimatedPrice", {
+                            {...form.register("tattooDetail.price", {
                               valueAsNumber: true,
                             })}
                             className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
@@ -735,7 +736,7 @@ export default function UpdateRdv({
                         <input
                           type="number"
                           step="0.01"
-                          {...form.register("tattooDetail.estimatedPrice", {
+                          {...form.register("tattooDetail.price", {
                             valueAsNumber: true,
                           })}
                           className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
@@ -776,7 +777,7 @@ export default function UpdateRdv({
                         <input
                           type="number"
                           step="0.01"
-                          {...form.register("tattooDetail.estimatedPrice", {
+                          {...form.register("tattooDetail.price", {
                             valueAsNumber: true,
                           })}
                           className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"

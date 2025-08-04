@@ -174,13 +174,11 @@ export default function ConfirmRdv({
                             {appointment.prestation}
                           </p>
                         </div>
-                        {appointment.tattooDetail?.estimatedPrice && (
+                        {appointment.tattooDetail?.price && (
                           <div>
-                            <p className="text-white/60 font-one">
-                              Prix estimé
-                            </p>
+                            <p className="text-white/60 font-one">Prix</p>
                             <p className="text-green-400 font-one font-semibold">
-                              {appointment.tattooDetail.estimatedPrice}€
+                              {appointment.tattooDetail.price}€
                             </p>
                           </div>
                         )}

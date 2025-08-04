@@ -82,6 +82,9 @@ export default function ClientList() {
   const [showTattooCare, setShowTattooCare] = useState(false);
   const [showFollowUpSubmissions, setShowFollowUpSubmissions] = useState(false);
 
+  //! Nouveau state pour les suivis non répondus
+  const [unansweredFollowUpsCount, setUnansweredFollowUpsCount] = useState(0);
+
   //! Récupère les clients avec pagination
   const fetchClients = async (
     page: number = currentPage,
@@ -132,10 +135,33 @@ export default function ClientList() {
     }
   };
 
+  //! Nouvelle fonction pour récupérer le nombre de suivis non répondus
+  const fetchUnansweredFollowUpsCount = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACK_URL}/follow-up/unanswered/${user.id}/number`,
+        {
+          cache: "no-store",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setUnansweredFollowUpsCount(data.count || 0);
+      }
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération du nombre de suivis non répondus:",
+        error
+      );
+    }
+  };
+
   // Effet pour charger les clients au changement de page ou de recherche
   useEffect(() => {
     if (user.id) {
       fetchClients(currentPage, searchTerm);
+      fetchUnansweredFollowUpsCount(); // Ajouter ici
     }
   }, [user.id, currentPage]);
 
@@ -145,19 +171,12 @@ export default function ClientList() {
       if (user.id) {
         setCurrentPage(1); // Reset à la page 1 lors d'une nouvelle recherche
         fetchClients(1, searchTerm);
+        fetchUnansweredFollowUpsCount(); // Ajouter ici aussi
       }
     }, 300);
 
     return () => clearTimeout(debounceTimer);
   }, [searchTerm, user.id]);
-
-  //! Filtre les clients en fonction du terme de recherche
-  // const filteredClients = Array.isArray(clients)
-  //   ? clients.filter((client) => {
-  //       const fullName = `${client.firstName} ${client.lastName}`.toLowerCase();
-  //       return fullName.includes(searchTerm.toLowerCase());
-  //     })
-  //   : [];
 
   //! Handler pour afficher les réservations
   const handleShowReservations = (client: ClientProps) => {
@@ -229,7 +248,6 @@ export default function ClientList() {
     });
   };
 
-  console.log("Clients:", clients);
   return (
     <section>
       <div>
@@ -247,12 +265,21 @@ export default function ClientList() {
             placeholder="Rechercher par client"
             className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
           />
-          <Link
-            href="/clients/suivi"
-            className="cursor-pointer w-[200px] text-center px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
-          >
-            Suivi de cicatrisation
-          </Link>
+          <div className="relative">
+            <Link
+              href="/clients/suivi"
+              className="cursor-pointer w-[200px] text-center px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center justify-center gap-2"
+            >
+              Suivi de cicatrisation
+              {unansweredFollowUpsCount > 0 && (
+                <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">
+                  {unansweredFollowUpsCount > 99
+                    ? "99+"
+                    : unansweredFollowUpsCount}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
 
         {/* Informations de pagination */}
@@ -285,7 +312,7 @@ export default function ClientList() {
           <p>Email</p>
           <p>Téléphone</p>
           <p>Rendez-vous</p>
-          <p>Actions</p>
+          <p className="text-center">Actions</p>
           <p></p>
         </div>
 

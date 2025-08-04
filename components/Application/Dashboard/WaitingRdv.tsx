@@ -150,6 +150,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
 
   console.log("Pending appointments:", appointments);
 
+  //! CONFIRMER OU ANNULER UN RDV
   const handleConfirmClick = (appointment: PendingAppointment) => {
     setSelectedAppointment(appointment);
     setActionType("confirm");
@@ -228,6 +229,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
     setActionMessage("");
   };
 
+  //! CHARGEMENT
   if (loading) {
     return (
       <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
@@ -248,6 +250,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
     );
   }
 
+  //! ERREUR
   if (error) {
     return (
       <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
@@ -361,20 +364,22 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                             )}
                             min
                           </span>
-                          {appointment.tattooDetail?.estimatedPrice && (
+                          <span>•</span>
+                          <span>{appointment.tatoueur.name}</span>
+                          {/* {appointment.tattooDetail?.price && (
                             <>
                               <span>•</span>
                               <span className="text-green-400">
-                                {appointment.tattooDetail.estimatedPrice}€
+                                {appointment.tattooDetail.price}€
                               </span>
                             </>
-                          )}
+                          )} */}
                         </div>
                         {daysUntil <= 1 && (
                           <div className="text-[10px] text-orange-300 mt-1 font-medium">
                             {daysUntil === 0
-                              ? "🔥 Aujourd'hui - Confirmation urgente !"
-                              : "⏰ Demain - À confirmer rapidement"}
+                              ? "Aujourd'hui - Confirmation urgente !"
+                              : "À confirmer rapidement"}
                           </div>
                         )}
                       </div>

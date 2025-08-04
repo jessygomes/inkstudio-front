@@ -18,6 +18,7 @@ export const userRegisterSchema = z
     email: z.string().email({
       message: "Votre email n'est pas valide.",
     }),
+    saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]).default("FREE"),
     password: z
       .string()
       .min(6, "Votre mot de passe doit contenir au moins 6 caractères."),
@@ -49,6 +50,7 @@ export const getAuthenticatedUserSchema = z.object({
   postalCode: z.string().nullable().optional(),
   salonHours: z.string().nullable().optional(),
   role: z.enum(["user", "admin"]),
+  saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]),
 });
 
 //! SALON

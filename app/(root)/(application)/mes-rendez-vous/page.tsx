@@ -15,11 +15,6 @@ export default function RendezVousPage() {
             suivez l&apos;historique de vos visites.
           </p>
         </div>
-        {/* <input
-          placeholder="Rechercher un rendez-vous"
-          type="text"
-          className="text-sm text-white placeholder:text-white/30 placeholder:text-xs px-4 min-w-[200px] max-w-[400px] font-one border-[1px] border-white rounded-[20px]"
-        /> */}
       </div>
       <div className="px-20 w-full">
         <div className="flex gap-4 mb-6 mt-2">

@@ -581,69 +581,209 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     </label>
                     <input
                       type="date"
+                      value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
                       className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
                     />
                   </div>
 
-                  {timeSlots.length > 0 && (
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/70 font-one">
-                        Sélectionnez les créneaux (30 min chacun)
-                      </label>
-                      <p className="text-xs text-white/50 mb-3">
-                        Cliquez sur les créneaux pour les sélectionner. Ils
-                        doivent être consécutifs.
-                      </p>
-                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                        {timeSlots.map((slot) => {
-                          const isOccupied = (start: string) => {
-                            const startDate = new Date(start).getTime();
-                            return occupiedSlots.some((rdv) => {
-                              const rdvStart = new Date(rdv.start).getTime();
-                              const rdvEnd = new Date(rdv.end).getTime();
-                              return (
-                                startDate >= rdvStart && startDate < rdvEnd
+                  {/* Affichage conditionnel des créneaux ou message de fermeture */}
+                  {selectedDate && selectedTatoueur && (
+                    <>
+                      {timeSlots.length > 0 ? (
+                        <div className="space-y-2">
+                          <label className="text-xs text-white/70 font-one">
+                            Sélectionnez les créneaux (30 min chacun)
+                          </label>
+                          <p className="text-xs text-white/50 mb-3">
+                            Cliquez sur les créneaux pour les sélectionner. Ils
+                            doivent être consécutifs.
+                          </p>
+                          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                            {timeSlots.map((slot) => {
+                              const isOccupied = (start: string) => {
+                                const startDate = new Date(start).getTime();
+                                return occupiedSlots.some((rdv) => {
+                                  const rdvStart = new Date(
+                                    rdv.start
+                                  ).getTime();
+                                  const rdvEnd = new Date(rdv.end).getTime();
+                                  return (
+                                    startDate >= rdvStart && startDate < rdvEnd
+                                  );
+                                });
+                              };
+                              const isSelected = selectedSlots.includes(
+                                slot.start
                               );
-                            });
-                          };
-                          const isSelected = selectedSlots.includes(slot.start);
-                          const startTime = format(
-                            new Date(slot.start),
-                            "HH:mm",
-                            {
-                              locale: fr,
-                            }
-                          );
-                          const endTime = format(new Date(slot.end), "HH:mm", {
-                            locale: fr,
-                          });
-                          const isTaken = isOccupied(slot.start);
+                              const startTime = format(
+                                new Date(slot.start),
+                                "HH:mm",
+                                {
+                                  locale: fr,
+                                }
+                              );
+                              const endTime = format(
+                                new Date(slot.end),
+                                "HH:mm",
+                                {
+                                  locale: fr,
+                                }
+                              );
+                              const isTaken = isOccupied(slot.start);
 
-                          return (
-                            <button
-                              key={slot.start}
-                              type="button"
-                              onClick={() =>
-                                !isTaken && handleSlotClick(slot.start)
-                              }
-                              className={`p-2 rounded-lg text-xs font-medium transition-all duration-200 ${
-                                isTaken
-                                  ? "bg-gray-500/20 text-gray-400 cursor-not-allowed border border-gray-500/30"
-                                  : isSelected
-                                  ? "bg-tertiary-500 text-white border border-tertiary-400"
-                                  : "bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-tertiary-400/50"
-                              }`}
-                            >
-                              <div className="text-center">
-                                <div>{startTime}</div>
-                                <div className="opacity-70">-</div>
-                                <div>{endTime}</div>
+                              return (
+                                <button
+                                  key={slot.start}
+                                  type="button"
+                                  onClick={() =>
+                                    !isTaken && handleSlotClick(slot.start)
+                                  }
+                                  className={`p-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+                                    isTaken
+                                      ? "bg-gray-500/20 text-gray-400 cursor-not-allowed border border-gray-500/30"
+                                      : isSelected
+                                      ? "bg-tertiary-500 text-white border border-tertiary-400"
+                                      : "bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-tertiary-400/50"
+                                  }`}
+                                >
+                                  <div className="text-center">
+                                    <div>{startTime}</div>
+                                    <div className="opacity-70">-</div>
+                                    <div>{endTime}</div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        /* Message quand le salon est fermé */
+                        <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <svg
+                                className="w-4 h-4 text-orange-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-orange-300 font-semibold font-one text-sm mb-2">
+                                🚫 Salon fermé ce jour
+                              </h4>
+                              <p className="text-orange-300/80 text-xs font-one mb-3">
+                                Le tatoueur{" "}
+                                <strong>
+                                  {
+                                    tatoueurs.find(
+                                      (t) => t.id === selectedTatoueur
+                                    )?.name
+                                  }
+                                </strong>{" "}
+                                n&apos;est pas disponible le{" "}
+                                <strong>
+                                  {new Date(selectedDate).toLocaleDateString(
+                                    "fr-FR",
+                                    {
+                                      weekday: "long",
+                                      day: "numeric",
+                                      month: "long",
+                                      year: "numeric",
+                                    }
+                                  )}
+                                </strong>
+                                .
+                              </p>
+                              <div className="space-y-2">
+                                <p className="text-orange-300/70 text-xs font-one">
+                                  💡 Suggestions :
+                                </p>
+                                <ul className="text-orange-300/60 text-xs space-y-1 font-one ml-4">
+                                  <li>• Choisissez une autre date</li>
+                                  <li>• Sélectionnez un autre tatoueur</li>
+                                  <li>
+                                    • Vérifiez les horaires d&apos;ouverture du
+                                    salon
+                                  </li>
+                                </ul>
                               </div>
-                            </button>
-                          );
-                        })}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Message d'information sur les créneaux sélectionnés */}
+                  {selectedSlots.length > 0 && (
+                    <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <svg
+                          className="w-4 h-4 text-tertiary-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        <span className="text-tertiary-400 font-semibold font-one text-sm">
+                          {selectedSlots.length} créneau
+                          {selectedSlots.length > 1 ? "x" : ""} sélectionné
+                          {selectedSlots.length > 1 ? "s" : ""}
+                        </span>
                       </div>
+                      <p className="text-tertiary-400/80 text-xs font-one">
+                        Durée totale :{" "}
+                        <strong>{selectedSlots.length * 30} minutes</strong>
+                        {selectedSlots.length > 0 && (
+                          <>
+                            {" • "}
+                            De{" "}
+                            <strong>
+                              {format(
+                                new Date(
+                                  Math.min(
+                                    ...selectedSlots.map((s) =>
+                                      new Date(s).getTime()
+                                    )
+                                  )
+                                ),
+                                "HH:mm"
+                              )}
+                            </strong>{" "}
+                            à{" "}
+                            <strong>
+                              {format(
+                                addMinutes(
+                                  new Date(
+                                    Math.max(
+                                      ...selectedSlots.map((s) =>
+                                        new Date(s).getTime()
+                                      )
+                                    )
+                                  ),
+                                  30
+                                ),
+                                "HH:mm"
+                              )}
+                            </strong>
+                          </>
+                        )}
+                      </p>
                     </div>
                   )}
                 </div>

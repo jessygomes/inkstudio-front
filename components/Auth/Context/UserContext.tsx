@@ -6,6 +6,8 @@ export interface User {
   salonName: string | null;
   role: string | null;
   email: string | null;
+  phone: string;
+  address: string;
 }
 
 const UserContext = createContext<User | null>(null);

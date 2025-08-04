@@ -28,7 +28,7 @@ export const getAuthenticatedUser = async () => {
     }
 
     const data = await response.json();
-    console.log("✅ Utilisateur récupéré :", data);
+    console.log("✅ Utilisateur récupéré (auth.server.ts) :", data);
 
     return getAuthenticatedUserSchema.parse(data);
   } catch (error) {

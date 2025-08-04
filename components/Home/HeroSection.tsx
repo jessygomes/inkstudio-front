@@ -18,7 +18,7 @@ export default function HeroSection() {
         </div>
         <Link
           href={"/inscription"}
-          className="relative cursor-pointer mx-auto bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[400px] max-w-[400px] text-center text-white font-one py-2 px-4 rounded-[20px] hover:scale-105 transition-all ease-in-out duration-300"
+          className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
         >
           Créer un compte gratuit
         </Link>

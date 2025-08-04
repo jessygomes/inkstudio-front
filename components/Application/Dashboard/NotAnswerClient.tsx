@@ -15,6 +15,9 @@ interface Appointment {
   id: string;
   title: string;
   client: Client;
+  tatoueur: {
+    name: string;
+  };
 }
 
 interface FollowUpSubmission {
@@ -319,8 +322,12 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
                       </span>
                     </div>
 
-                    <p className="text-xs text-gray-300 truncate mb-2 font-one">
+                    <p className="text-xs text-gray-300 truncate mb-2 font-one flex items-center gap-3">
                       {followUp.appointment.title}
+                      <span>•</span>
+                      <span className="text-gray-500">
+                        {followUp.appointment.tatoueur.name}
+                      </span>
                     </p>
 
                     {/* Note et évaluation */}
@@ -347,7 +354,7 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
                       </span>
                       <button
                         onClick={() => handleReplyClick(followUp)}
-                        className="text-tertiary-400 hover:text-tertiary-300 transition-colors font-one font-medium"
+                        className="cursor-pointer text-tertiary-400 hover:text-tertiary-500 transition-colors font-one font-medium"
                       >
                         Répondre →
                       </button>

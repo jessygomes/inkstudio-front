@@ -15,6 +15,7 @@ export default async function DashboardLayout({
     salonName: "",
     role: "",
     email: "",
+    saasPlan: "",
   };
 
   try {
@@ -25,8 +26,9 @@ export default async function DashboardLayout({
       salonName: userData.salonName,
       role: userData.role,
       email: userData.email,
+      saasPlan: userData.saasPlan,
     };
-    console.log("user", user);
+    console.log("user - layout", user);
   } catch (error) {
     console.error("Erreur lors de la récupération de l'utilisateur :", error);
     redirect("/connexion"); // Redirigez vers la page de connexion si l'utilisateur n'est pas authentifié
