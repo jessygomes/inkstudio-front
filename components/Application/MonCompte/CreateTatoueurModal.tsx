@@ -35,6 +35,7 @@ export default function CreateTatoueurModal({
   existingTatoueur?: TatoueurProps | null;
 }) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
 
   //! Mettre en valeur  par défaut les horaires d'ouverture du salon
   const initialHours: Horaire = (existingTatoueur?.hours &&
@@ -72,25 +73,47 @@ export default function CreateTatoueurModal({
       hours: JSON.stringify(editingHours), // très important !
     };
 
-    console.log("payload", payload);
     setLoading(true);
+    setError("");
 
     const url = existingTatoueur
       ? `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/update/${existingTatoueur.id}`
       : `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`;
 
-    const res = await fetch(url, {
-      method: existingTatoueur ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch(url, {
+        method: existingTatoueur ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    if (res.ok) {
-      onCreated();
-      onClose();
+      const result = await res.json();
+
+      // Vérifier si c'est une erreur de limite SaaS
+      if (result.error) {
+        if (
+          result.message &&
+          result.message.includes("Limite de tatoueurs atteinte")
+        ) {
+          setError("SAAS_LIMIT");
+        } else {
+          setError(result.message || "Une erreur est survenue.");
+        }
+        return;
+      }
+
+      if (res.ok) {
+        onCreated();
+        onClose();
+      } else {
+        setError("Une erreur est survenue côté serveur.");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la création du tatoueur :", error);
+      setError("Une erreur est survenue lors de la création du tatoueur.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -265,6 +288,106 @@ export default function CreateTatoueurModal({
                 })}
               </div>
             </div>
+
+            {/* Messages d'erreur */}
+            {error && error === "SAAS_LIMIT" ? (
+              /* Message spécial pour les limites SaaS */
+              <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-orange-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg
+                      className="w-4 h-4 text-orange-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-orange-300 font-semibold font-one mb-2 text-sm">
+                      👨‍🎨 Limite de tatoueurs atteinte
+                    </h3>
+
+                    <p className="text-orange-200 text-xs font-one mb-3">
+                      Vous avez atteint la limite de tatoueurs de votre plan
+                      actuel.
+                    </p>
+
+                    <div className="bg-white/10 rounded-lg p-3 mb-3">
+                      <h4 className="text-white font-semibold font-one text-xs mb-2">
+                        📈 Solutions disponibles :
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex items-start gap-2">
+                          <div className="w-4 h-4 bg-tertiary-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-tertiary-400 text-[10px] font-bold">
+                              1
+                            </span>
+                          </div>
+                          <div className="text-white/90">
+                            <span className="font-semibold text-tertiary-400">
+                              Plan PRO (29€/mois)
+                            </span>
+                            <br />
+                            <span className="text-white/70">
+                              Tatoueurs illimités + fonctionnalités avancées
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2">
+                          <div className="w-4 h-4 bg-purple-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-purple-400 text-[10px] font-bold">
+                              2
+                            </span>
+                          </div>
+                          <div className="text-white/90">
+                            <span className="font-semibold text-purple-400">
+                              Plan BUSINESS (69€/mois)
+                            </span>
+                            <br />
+                            <span className="text-white/70">
+                              Solution complète multi-salons
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          window.location.href = "/parametres";
+                        }}
+                        className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
+                      >
+                        📊 Changer de plan
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setError("")}
+                        className="cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
+                      >
+                        Fermer
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : error ? (
+              /* Message d'erreur standard */
+              <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
+                <p className="text-red-300 text-xs">{error}</p>
+              </div>
+            ) : null}
           </form>
         </div>
 

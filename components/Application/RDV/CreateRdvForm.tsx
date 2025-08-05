@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -298,7 +299,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     setError("");
     setSuccess("");
 
-    // Empêcher l’envoi si aucun créneau sélectionné
+    // Empêcher l'envoi si aucun créneau sélectionné
     if (selectedSlots.length === 0) {
       setError("Veuillez sélectionner au moins un créneau horaire.");
       setLoading(false);
@@ -346,22 +347,35 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       const result = await response.json();
 
       if (result.error) {
-        setError(result.message || "Une erreur est survenue.");
+        // Gestion spécifique des erreurs de limite SaaS
+        if (
+          result.message &&
+          result.message.includes("Limite de rendez-vous par mois atteinte")
+        ) {
+          setError("SAAS_LIMIT_APPOINTMENTS");
+        } else if (
+          result.message &&
+          result.message.includes("Limite de fiches clients atteinte")
+        ) {
+          setError("SAAS_LIMIT_CLIENTS");
+        } else {
+          setError(result.message || "Une erreur est survenue.");
+        }
         setLoading(false);
         return;
       }
 
       setSuccess("Rendez-vous créé avec succès !");
       form.reset();
+      router.push("/mes-rendez-vous");
+      setSelectedSlots([]); // Réinitialise les créneaux sélectionnés
+      setSelectedTatoueur(null); // Réinitialise le tatoueur sélectionné
+      toast.success("Rendez-vous créé avec succès !");
     } catch {
       setError("Erreur serveur. Veuillez réessayer.");
       toast.error("Erreur lors de la création du rendez-vous.");
     } finally {
       setLoading(false);
-      router.push("/mes-rendez-vous");
-      setSelectedSlots([]); // Réinitialise les créneaux sélectionnés
-      setSelectedTatoueur(null); // Réinitialise le tatoueur sélectionné
-      toast.success("Rendez-vous créé avec succès !");
     }
   };
 
@@ -1049,11 +1063,196 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {/* Messages d'erreur et de succès */}
-            {error && (
+            {error && error === "SAAS_LIMIT_APPOINTMENTS" ? (
+              /* Message spécial pour la limite de rendez-vous */
+              <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-orange-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg
+                      className="w-4 h-4 text-orange-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 2m8-2l2 2m-2-2v6a2 2 0 01-2 2H10a2 2 0 01-2-2v-6"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-orange-300 font-semibold font-one mb-2 text-sm">
+                      📅 Limite de rendez-vous atteinte
+                    </h3>
+
+                    <p className="text-orange-200 text-xs font-one mb-3">
+                      Vous avez atteint la limite de rendez-vous par mois de
+                      votre plan actuel.
+                    </p>
+
+                    <div className="bg-white/10 rounded-lg p-3 mb-3">
+                      <h4 className="text-white font-semibold font-one text-xs mb-2">
+                        📈 Solutions disponibles :
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex items-start gap-2">
+                          <div className="w-4 h-4 bg-tertiary-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-tertiary-400 text-[10px] font-bold">
+                              1
+                            </span>
+                          </div>
+                          <div className="text-white/90">
+                            <span className="font-semibold text-tertiary-400">
+                              Plan PRO (29€/mois)
+                            </span>
+                            <br />
+                            <span className="text-white/70">
+                              Rendez-vous illimités + fonctionnalités avancées
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2">
+                          <div className="w-4 h-4 bg-purple-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-purple-400 text-[10px] font-bold">
+                              2
+                            </span>
+                          </div>
+                          <div className="text-white/90">
+                            <span className="font-semibold text-purple-400">
+                              Plan BUSINESS (69€/mois)
+                            </span>
+                            <br />
+                            <span className="text-white/70">
+                              Solution complète multi-salons
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          window.location.href = "/parametres";
+                        }}
+                        className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
+                      >
+                        📊 Changer de plan
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setError("")}
+                        className="cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
+                      >
+                        Fermer
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : error && error === "SAAS_LIMIT_CLIENTS" ? (
+              /* Message spécial pour la limite de clients (lors de création automatique) */
+              <div className="bg-gradient-to-r from-red-500/20 to-purple-500/20 border border-red-500/50 rounded-2xl p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-red-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg
+                      className="w-4 h-4 text-red-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-red-300 font-semibold font-one mb-2 text-sm">
+                      👥 Impossible de créer le client
+                    </h3>
+
+                    <p className="text-red-200 text-xs font-one mb-3">
+                      Ce client n'existe pas dans votre base et vous avez
+                      atteint la limite de fiches clients de votre plan.
+                    </p>
+
+                    <div className="bg-white/10 rounded-lg p-3 mb-3">
+                      <h4 className="text-white font-semibold font-one text-xs mb-2">
+                        💡 Options disponibles :
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex items-start gap-2">
+                          <div className="w-4 h-4 bg-blue-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-blue-400 text-[10px] font-bold">
+                              1
+                            </span>
+                          </div>
+                          <div className="text-white/90">
+                            <span className="font-semibold text-blue-400">
+                              Utiliser un client existant
+                            </span>
+                            <br />
+                            <span className="text-white/70">
+                              Recherchez le client dans la liste ci-dessus
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2">
+                          <div className="w-4 h-4 bg-tertiary-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-tertiary-400 text-[10px] font-bold">
+                              2
+                            </span>
+                          </div>
+                          <div className="text-white/90">
+                            <span className="font-semibold text-tertiary-400">
+                              Plan PRO/BUSINESS
+                            </span>
+                            <br />
+                            <span className="text-white/70">
+                              Clients et rendez-vous illimités
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          window.location.href = "/parametres";
+                        }}
+                        className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
+                      >
+                        📊 Changer de plan
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setError("")}
+                        className="cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
+                      >
+                        Fermer
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : error ? (
+              /* Message d'erreur standard */
               <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
                 <p className="text-red-300 text-xs">{error}</p>
               </div>
-            )}
+            ) : null}
 
             {success && (
               <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-xl">

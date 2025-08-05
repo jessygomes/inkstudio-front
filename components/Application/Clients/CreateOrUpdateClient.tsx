@@ -68,8 +68,6 @@ export default function CreateOrUpdateClient({
       userId,
     };
 
-    console.log("Données traitées :", processedData);
-
     const url = existingClient
       ? `${process.env.NEXT_PUBLIC_BACK_URL}/clients/update/${existingClient.id}`
       : `${process.env.NEXT_PUBLIC_BACK_URL}/clients`;
@@ -83,25 +81,42 @@ export default function CreateOrUpdateClient({
         body: JSON.stringify(processedData),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.message || "Une erreur est survenue.");
+      const result = await response.json();
+
+      // Vérifier si c'est une erreur de limite SaaS
+      if (result.error) {
+        // Si le message contient "Limite de fiches clients atteinte", c'est une erreur SaaS
+        if (
+          result.message &&
+          result.message.includes("Limite de fiches clients atteinte")
+        ) {
+          setError("SAAS_LIMIT"); // Marqueur spécial pour l'erreur SaaS
+        } else {
+          setError(result.message || "Une erreur est survenue.");
+        }
         return;
       }
 
-      const result = await response.json();
+      if (!response.ok) {
+        setError("Une erreur est survenue côté serveur.");
+        return;
+      }
+
       setSuccess(result.message || "Client créé avec succès !");
+      if (!error) {
+        toast.success(
+          existingClient
+            ? "Client modifié avec succès !"
+            : "Client créé avec succès !"
+        );
+      }
+
       form.reset();
       onCreate();
     } catch (error) {
       console.error("Erreur lors de la création du client :", error);
       setError("Une erreur est survenue lors de la création du client.");
     } finally {
-      toast.success(
-        existingClient
-          ? "Client modifié avec succès !"
-          : "Client créé avec succès !"
-      );
       setLoading(false);
     }
   };
@@ -324,11 +339,105 @@ export default function CreateOrUpdateClient({
               </div>
 
               {/* Messages d'erreur et de succès */}
-              {error && (
+              {error && error === "SAAS_LIMIT" ? (
+                /* Message spécial pour les limites SaaS */
+                <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-orange-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <svg
+                        className="w-4 h-4 text-orange-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-orange-300 font-semibold font-one mb-2 text-sm">
+                        🚫 Limite de plan atteinte
+                      </h3>
+
+                      <p className="text-orange-200 text-xs font-one mb-3">
+                        Vous avez atteint la limite de fiches clients de votre
+                        plan actuel.
+                      </p>
+
+                      <div className="bg-white/10 rounded-lg p-3 mb-3">
+                        <h4 className="text-white font-semibold font-one text-xs mb-2">
+                          📈 Solutions disponibles :
+                        </h4>
+                        <div className="space-y-2 text-xs">
+                          <div className="flex items-start gap-2">
+                            <div className="w-4 h-4 bg-tertiary-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <span className="text-tertiary-400 text-[10px] font-bold">
+                                1
+                              </span>
+                            </div>
+                            <div className="text-white/90">
+                              <span className="font-semibold text-tertiary-400">
+                                Plan PRO (29€/mois)
+                              </span>
+                              <br />
+                              <span className="text-white/70">
+                                Clients illimités + fonctionnalités avancées
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-2">
+                            <div className="w-4 h-4 bg-purple-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <span className="text-purple-400 text-[10px] font-bold">
+                                2
+                              </span>
+                            </div>
+                            <div className="text-white/90">
+                              <span className="font-semibold text-purple-400">
+                                Plan BUSINESS (69€/mois)
+                              </span>
+                              <br />
+                              <span className="text-white/70">
+                                Solution complète multi-salons
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            // Rediriger vers la page des paramètres
+                            window.location.href = "/parametres";
+                          }}
+                          className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
+                        >
+                          📊 Changer de plan
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setError("")}
+                          className="cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
+                        >
+                          Fermer
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : error ? (
+                /* Message d'erreur standard */
                 <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
                   <p className="text-red-300 text-xs">{error}</p>
                 </div>
-              )}
+              ) : null}
 
               {success && (
                 <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-xl">

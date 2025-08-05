@@ -9,7 +9,10 @@ interface SalonImageUploaderProps {
   currentImage?: string;
   onImageUpload: (imageUrl: string) => void;
   onImageRemove: () => void;
-  compact?: boolean; // Nouveau prop pour le mode compact
+  compact?: boolean;
+  onFileSelect?: (file: File) => void;
+  selectedFile?: File | null;
+  previewMode?: boolean;
 }
 
 export default function SalonImageUploader({
@@ -17,9 +20,13 @@ export default function SalonImageUploader({
   onImageUpload,
   onImageRemove,
   compact = false,
-}: SalonImageUploaderProps) {
+}: // onFileSelect,
+// selectedFile,
+// previewMode = false,
+SalonImageUploaderProps) {
   const [progress, setProgress] = useState<number>(0);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false); // État pour le loader de suppression
 
   const { startUpload, isUploading } = useUploadThing("imageUploader", {
     onClientUploadComplete: (res: { url: string; key: string }[]) => {
@@ -37,30 +44,75 @@ export default function SalonImageUploader({
   // Fonction pour extraire la clé d'une URL UploadThing
   const extractKeyFromUrl = (url: string): string | null => {
     try {
-      // Format UploadThing: https://uploadthing-prod.s3.us-west-2.amazonaws.com/key
-      // ou https://utfs.io/f/key
-      const match = url.match(/\/f\/([^\/\?]+)|\/([^\/\?]+)$/);
-      return match ? match[1] || match[2] : null;
-    } catch {
+      const patterns = [
+        /\/f\/([^\/\?]+)/,
+        /uploadthing\.com\/([^\/\?]+)/,
+        /utfs\.io\/f\/([^\/\?]+)/,
+      ];
+
+      for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+          return match[1];
+        }
+      }
+
+      const urlParts = url.split("/");
+      const lastPart = urlParts[urlParts.length - 1];
+      if (lastPart && !lastPart.includes(".")) {
+        return lastPart;
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Erreur lors de l'extraction de la clé:", error);
       return null;
     }
   };
 
-  // Fonction pour supprimer une image d'UploadThing
-  const deleteFromUploadThing = async (imageUrl: string) => {
+  // Fonction pour supprimer de UploadThing
+  const deleteFromUploadThing = async (imageUrl: string): Promise<boolean> => {
     try {
       const key = extractKeyFromUrl(imageUrl);
-      if (key) {
-        await fetch("/api/uploadthing/delete", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ key }),
-        });
+      if (!key) {
+        console.warn("⚠️ Impossible d'extraire la clé de l'URL:", imageUrl);
+        return false;
       }
+
+      const response = await fetch("/api/uploadthing/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ key }),
+      });
+
+      const result = await response.json();
+      return response.ok && result.success;
+    } catch (error) {
+      console.error("❌ Erreur lors de la suppression d'UploadThing:", error);
+      return false;
+    }
+  };
+
+  // Fonction pour gérer la suppression de l'image
+  const handleImageRemove = async () => {
+    setIsDeleting(true); // Activer le loader
+
+    try {
+      if (currentImage) {
+        const deleted = await deleteFromUploadThing(currentImage);
+        if (deleted) {
+          console.log("✅ Image supprimée d'UploadThing");
+        } else {
+          console.warn("⚠️ Impossible de supprimer l'image d'UploadThing");
+        }
+      }
+      onImageRemove();
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
+    } finally {
+      setIsDeleting(false); // Désactiver le loader
     }
   };
 
@@ -96,14 +148,6 @@ export default function SalonImageUploader({
       alert("Erreur lors du traitement de l'image");
     }
   }
-
-  // Fonction pour gérer la suppression de l'image
-  const handleImageRemove = async () => {
-    if (currentImage) {
-      await deleteFromUploadThing(currentImage);
-      onImageRemove();
-    }
-  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -144,12 +188,30 @@ export default function SalonImageUploader({
             <button
               type="button"
               onClick={handleImageRemove}
-              className={`absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full ${
+              disabled={isDeleting}
+              className={`absolute top-1 right-1 bg-red-500 hover:bg-red-600 disabled:bg-red-500/50 text-white rounded-full ${
                 compact ? "w-6 h-6 text-xs" : "w-8 h-8"
-              } flex items-center justify-center transition-colors z-10`}
+              } flex items-center justify-center transition-colors z-10 disabled:cursor-not-allowed`}
             >
-              ✕
+              {isDeleting ? (
+                <div
+                  className={`animate-spin rounded-full border-b-2 border-white ${
+                    compact ? "w-3 h-3" : "w-4 h-4"
+                  }`}
+                ></div>
+              ) : (
+                "✕"
+              )}
             </button>
+
+            {/* Badge de statut de suppression */}
+            {isDeleting && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <div className="bg-black/80 rounded-lg px-2 py-1">
+                  <p className="text-white text-xs font-one">Suppression...</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -163,7 +225,9 @@ export default function SalonImageUploader({
             isDragOver
               ? "border-tertiary-400 bg-tertiary-400/10"
               : "border-white/30 bg-white/5"
-          } ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
+          } ${
+            isUploading || isDeleting ? "opacity-50 pointer-events-none" : ""
+          }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -172,7 +236,7 @@ export default function SalonImageUploader({
             type="file"
             accept="image/*"
             onChange={(e) => handleFiles(e.target.files)}
-            disabled={isUploading}
+            disabled={isUploading || isDeleting}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
 
@@ -194,6 +258,10 @@ export default function SalonImageUploader({
                       style={{ width: `${progress}%`, height: "100%" }}
                     />
                   </div>
+                </div>
+              ) : isDeleting ? (
+                <div className={compact ? "text-xs" : "text-sm"}>
+                  Suppression...
                 </div>
               ) : (
                 <div>
