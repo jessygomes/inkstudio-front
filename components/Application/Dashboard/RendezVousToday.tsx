@@ -30,7 +30,7 @@ interface RendezVous {
   start: string;
   end: string;
   allDay: boolean;
-  status: "PENDING" | "CONFIRMED" | "CANCELLED";
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "RESCHEDULING";
   prestation: string;
   client: Client;
   clientId: string;
@@ -48,21 +48,28 @@ export default function RendezVousToday({ userId }: { userId: string }) {
   const [appointments, setAppointments] = useState<RendezVous[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTodayAppointments = async () => {
+  // État pour la date actuelle
+  const [currentDate, setCurrentDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
+  const fetchTodayAppointments = async (date?: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/today/${userId}`
-      );
+      const url = date
+        ? `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/today/${userId}?date=${date}`
+        : `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/today/${userId}`;
+
+      const response = await fetch(url);
 
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération des rendez-vous");
       }
 
       const data = await response.json();
-      setAppointments(data);
+      setAppointments(data.appointments || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
@@ -95,12 +102,63 @@ export default function RendezVousToday({ userId }: { userId: string }) {
         return "En attente";
       case "CANCELLED":
         return "Annulé";
+      case "RESCHEDULING":
+        return "Reprogrammation";
       default:
         return status;
     }
   };
 
-  console.log("Appointments for today:", appointments);
+  // Navigation
+  const goToPreviousDay = () => {
+    const prevDate = new Date(currentDate);
+    prevDate.setDate(prevDate.getDate() - 1);
+    const newDate = prevDate.toISOString().split("T")[0];
+    setCurrentDate(newDate);
+    fetchTodayAppointments(newDate);
+  };
+
+  const goToNextDay = () => {
+    const nextDate = new Date(currentDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+    const newDate = nextDate.toISOString().split("T")[0];
+    setCurrentDate(newDate);
+    fetchTodayAppointments(newDate);
+  };
+
+  // Fonction pour formater la date avec les labels intelligents
+  const getDateLabel = () => {
+    // Date d'aujourd'hui
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+
+    // Date d'hier
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+    // Date de demain
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split("T")[0];
+
+    if (currentDate === todayStr) {
+      return "Aujourd'hui";
+    } else if (currentDate === yesterdayStr) {
+      return "Hier";
+    } else if (currentDate === tomorrowStr) {
+      return "Demain";
+    } else {
+      // Afficher la date au format français
+      const date = new Date(currentDate);
+      return date.toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -144,7 +202,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
           </div>
           <p className="text-red-400 mb-3 text-sm font-medium">{error}</p>
           <button
-            onClick={fetchTodayAppointments}
+            onClick={() => fetchTodayAppointments()}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
           >
             Réessayer
@@ -157,15 +215,54 @@ export default function RendezVousToday({ userId }: { userId: string }) {
   return (
     <div className="h-[550px] bg-noir-700 rounded-xl border border-white/20 p-4 overflow-y-scroll custom-scrollbar shadow-2xl">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-white font-one">RDV du jour</h3>
-        <div className="px-2 py-1 bg-tertiary-500/20 text-tertiary-400 rounded-full text-xs font-medium border border-tertiary-500/50">
+        <h3 className="text-lg font-bold text-white font-one">RDV</h3>
+        <button
+          onClick={goToPreviousDay}
+          className="cursor-pointer w-6 h-6 rounded-lg bg-tertiary-500/20 border border-tertiary-500/50 flex items-center justify-center hover:bg-tertiary-500/30 transition-colors"
+        >
+          <svg
+            className="w-3 h-3 text-tertiary-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+        <div className="text-white text-sm font-one font-medium">
+          {getDateLabel()}
+        </div>
+        <button
+          onClick={goToNextDay}
+          className="cursor-pointer w-6 h-6 rounded-lg bg-tertiary-500/20 border border-tertiary-500/50 flex items-center justify-center hover:bg-tertiary-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg
+            className="w-3 h-3 text-tertiary-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+        <div className="px-2 py-1 bg-tertiary-500/20 text-tertiary-400 rounded-lg text-xs font-medium border border-tertiary-500/50">
           {appointments.length}
         </div>
       </div>
 
       {appointments.length === 0 ? (
         <div className="text-center py-8">
-          <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-3">
             <svg
               className="w-6 h-6 text-gray-500"
               fill="none"
@@ -180,7 +277,9 @@ export default function RendezVousToday({ userId }: { userId: string }) {
               />
             </svg>
           </div>
-          <p className="text-gray-400 text-sm">Aucun RDV aujourd'hui</p>
+          <p className="text-gray-400 text-sm">
+            Aucun RDV {getDateLabel().toLowerCase()}
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -223,7 +322,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                   </div>
                 </div>
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-one font-medium border flex-shrink-0 ml-2 ${
+                  className={`px-2 py-1 rounded-lg text-xs font-one font-medium border flex-shrink-0 ml-2 ${
                     appointment.status === "CONFIRMED"
                       ? "bg-green-900/50 text-green-400 border-green-600/30"
                       : appointment.status === "PENDING"

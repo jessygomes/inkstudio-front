@@ -27,7 +27,7 @@ interface PendingAppointment {
   start: string;
   end: string;
   allDay: boolean;
-  status: "PENDING";
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "RESCHEDULING";
   prestation: string;
   client: Client;
   clientId: string;
@@ -292,14 +292,14 @@ export default function WaitingRdv({ userId }: { userId: string }) {
           <h3 className="text-lg font-bold text-white font-one">
             RDV en attente
           </h3>
-          <div className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-medium border border-orange-500/50">
+          <div className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-lg text-xs font-medium border border-orange-500/50">
             {appointments.length}
           </div>
         </div>
 
         {appointments.length === 0 ? (
           <div className="text-center py-8">
-            <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-3">
               <svg
                 className="w-6 h-6 text-gray-500"
                 fill="none"
@@ -375,7 +375,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                             </>
                           )} */}
                         </div>
-                        {daysUntil <= 1 && (
+                        {daysUntil <= 1 && appointment.status === "PENDING" && (
                           <div className="text-[10px] text-orange-300 mt-1 font-medium">
                             {daysUntil === 0
                               ? "Aujourd'hui - Confirmation urgente !"
@@ -387,44 +387,59 @@ export default function WaitingRdv({ userId }: { userId: string }) {
 
                     {/* Boutons d'action */}
                     <div className="flex flex-col gap-1 ml-2">
-                      <button
-                        onClick={() => handleConfirmClick(appointment)}
-                        className="cursor-pointer px-2 py-1 bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/30 rounded text-xs font-one font-medium transition-colors flex items-center gap-1"
-                      >
-                        <svg
-                          className="w-3 h-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        Confirmer
-                      </button>
-                      <button
-                        onClick={() => handleCancelClick(appointment)}
-                        className="cursor-pointer px-2 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded text-xs font-one font-medium transition-colors flex items-center gap-1"
-                      >
-                        <svg
-                          className="w-3 h-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                        Annuler
-                      </button>
+                      {appointment.status === "RESCHEDULING" ? (
+                        // Message pour les RDV en reprogrammation
+                        <div className="bg-blue-500/10 border border-blue-500/30 rounded p-2 text-center">
+                          <span className="text-blue-300 text-xs font-one font-medium block">
+                            Reprogrammation
+                          </span>
+                          <span className="text-blue-200/70 text-[10px] font-one">
+                            En attente client
+                          </span>
+                        </div>
+                      ) : (
+                        // Boutons normaux pour les autres statuts
+                        <>
+                          <button
+                            onClick={() => handleConfirmClick(appointment)}
+                            className="cursor-pointer px-2 py-1 bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/30 rounded text-xs font-one font-medium transition-colors flex items-center gap-1"
+                          >
+                            <svg
+                              className="w-3 h-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                            Confirmer
+                          </button>
+                          <button
+                            onClick={() => handleCancelClick(appointment)}
+                            className="cursor-pointer px-2 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded text-xs font-one font-medium transition-colors flex items-center gap-1"
+                          >
+                            <svg
+                              className="w-3 h-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                            Annuler
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

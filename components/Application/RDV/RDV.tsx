@@ -31,6 +31,7 @@ import { UpdateRdvFormProps } from "@/lib/type";
 import Image from "next/image";
 import { FaArrowLeft } from "react-icons/fa6";
 import { CiCalendar, CiCalendarDate } from "react-icons/ci";
+import ChangeRdv from "./ChangeRdv";
 
 export default function RDV() {
   const user = useUser();
@@ -641,15 +642,19 @@ export default function RDV() {
                             className="w-full cursor-pointer"
                           >
                             {event.status === "CANCELED" ? (
-                              <span className="inline-block px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-full text-xs font-medium hover:bg-red-500/30 transition-all duration-200">
+                              <span className="inline-block px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg text-xs font-medium font-one hover:bg-red-500/30 transition-all duration-200">
                                 Annulé
                               </span>
+                            ) : event.status === "RESCHEDULING" ? (
+                              <span className="inline-block px-1 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-one font-medium hover:bg-blue-500/30 transition-all duration-200">
+                                En attente de reprogrammation
+                              </span>
                             ) : event.status !== "CONFIRMED" ? (
-                              <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-full text-xs font-medium hover:bg-orange-500/30 transition-all duration-200">
+                              <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-lg text-xs font-medium font-one hover:bg-orange-500/30 transition-all duration-200">
                                 En attente
                               </span>
                             ) : (
-                              <span className="inline-block px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full text-xs font-medium hover:bg-green-500/30 transition-all duration-200">
+                              <span className="inline-block px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-lg text-xs font-medium font-one hover:bg-green-500/30 transition-all duration-200">
                                 Confirmé
                               </span>
                             )}
@@ -859,20 +864,34 @@ export default function RDV() {
                     {/* Statut avec badge */}
                     <div className="flex items-center gap-3">
                       {selectedEvent.status === "PENDING" ? (
-                        <span className="inline-flex items-center px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-full text-sm font-medium">
+                        <span className="inline-flex items-center px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-lg text-sm font-medium">
                           <span className="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
                           En attente de confirmation
                         </span>
                       ) : selectedEvent.status === "CONFIRMED" ? (
-                        <span className="inline-flex items-center px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full text-sm font-medium">
+                        <span className="inline-flex items-center px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-lg text-sm font-medium">
                           <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
                           Confirmé
                         </span>
                       ) : selectedEvent.status === "CANCELED" ? (
-                        <span className="inline-flex items-center px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-full text-sm font-medium">
+                        <span className="inline-flex items-center px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg text-sm font-medium">
                           <span className="w-2 h-2 bg-red-400 rounded-full mr-2"></span>
                           Annulé
                         </span>
+                      ) : selectedEvent.status === "RESCHEDULING" ? (
+                        <div className="w-full bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                            <span className="text-blue-300 font-semibold font-one text-sm">
+                              En attente de reprogrammation
+                            </span>
+                          </div>
+                          <p className="text-blue-200/80 text-xs font-one">
+                            Le client doit choisir un nouveau créneau. Vous
+                            recevrez une notification une fois qu'il aura fait
+                            son choix.
+                          </p>
+                        </div>
                       ) : null}
                     </div>
 
@@ -888,6 +907,11 @@ export default function RDV() {
                         rdv={selectedEvent as unknown as UpdateRdvFormProps}
                         userId={userId || ""}
                         onUpdate={() => handleRdvUpdated(selectedEvent.id)}
+                      />
+                      <ChangeRdv
+                        rdvId={selectedEvent.id}
+                        userId={userId || ""}
+                        appointment={selectedEvent}
                       />
                       {selectedEvent.status !== "CANCELED" && (
                         <CancelRdv

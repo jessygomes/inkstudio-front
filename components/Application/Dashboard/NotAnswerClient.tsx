@@ -246,7 +246,7 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
           <h3 className="text-lg font-bold text-white font-one">
             Suivis en attente
           </h3>
-          <div className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-medium border border-orange-500/50">
+          <div className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-lg text-xs font-medium border border-orange-500/50">
             {followUps.length}
           </div>
         </div>

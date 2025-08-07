@@ -1,12 +1,18 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import BlockedSlots from "./BlockedSlots";
 
 interface HoraireProps {
   isHoursVisible: boolean;
   hours: string | null;
   setIsHoursVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  salonId?: string;
+  salonId: string;
+}
+
+interface Tatoueur {
+  id: string;
+  name: string;
 }
 
 type OpeningHour = { start: string; end: string } | null;
@@ -35,7 +41,32 @@ export default function Horaire({
   isHoursVisible,
   hours,
   setIsHoursVisible,
+  salonId,
 }: HoraireProps) {
+  const [tatoueurs, setTatoueurs] = useState<Tatoueur[]>([]);
+  const [isBlockedSlotsVisible, setIsBlockedSlotsVisible] = useState(false);
+
+  // Récupérer les tatoueurs
+  useEffect(() => {
+    const fetchTatoueurs = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${salonId}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setTatoueurs(data || []);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des tatoueurs:", error);
+      }
+    };
+
+    if (salonId) {
+      fetchTatoueurs();
+    }
+  }, [salonId]);
+
   const salonHoursState: SalonHours | null = hours
     ? JSON.parse(hours)
     : {
@@ -52,15 +83,13 @@ export default function Horaire({
 
   return (
     <div className="space-y-6">
+      {/* Section horaires existante */}
       <div className="flex justify-between items-center">
         <button
           onClick={() => setIsHoursVisible(!isHoursVisible)}
           className="group flex items-center gap-3 cursor-pointer text-white hover:text-tertiary-300 transition-colors duration-200"
         >
           <div className="flex items-center gap-3">
-            {/* <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-              <span className="text-sm">{hasHours ? "📅" : "⏰"}</span>
-            </div> */}
             <div className="text-left">
               <p className="text-sm font-semibold font-one tracking-widest">
                 {hasHours ? "Horaires configurés" : "Configurer les horaires"}
@@ -143,6 +172,38 @@ export default function Horaire({
           </div>
         </div>
       )}
+
+      {/* Nouvelle section créneaux bloqués */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <button
+            onClick={() => setIsBlockedSlotsVisible(!isBlockedSlotsVisible)}
+            className="group flex items-center gap-3 cursor-pointer text-white hover:text-tertiary-300 transition-colors duration-200"
+          >
+            <div className="text-left">
+              <p className="text-sm font-semibold font-one tracking-widest">
+                🚫 Créneaux bloqués
+              </p>
+              <p className="text-xs text-white/60 font-two">
+                Gérer les indisponibilités et congés
+              </p>
+            </div>
+            <div
+              className={`transform transition-transform duration-300 ${
+                isBlockedSlotsVisible ? "rotate-180" : "rotate-0"
+              }`}
+            >
+              <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                <span className="text-xs">▼</span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        {isBlockedSlotsVisible && (
+          <BlockedSlots userId={salonId} tatoueurs={tatoueurs} />
+        )}
+      </div>
     </div>
   );
 }

@@ -32,6 +32,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   //! stocke les créneaux horaires disponibles
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]); // stocke les start ISO
   const [occupiedSlots, setOccupiedSlots] = useState<TimeSlotProps[]>([]);
+  const [blockedSlots, setBlockedSlots] = useState<any[]>([]);
 
   //! Selection de la prestation change les inputs à afficher
   const [selectedPrestation, setSelectedPrestation] = useState("");
@@ -50,27 +51,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     };
     fetchTatoueurs();
   }, []);
-
-  // console.log("tatoueurs", tatoueurs);
-
-  //! Fetch slots en fonction du tatoueur sélectionné
-  // useEffect(() => {
-  //   if (!selectedTatoueur) return;
-
-  //   const selected = tatoueurs.find((t) => t.id === selectedTatoueur);
-  //   if (selected?.hours) {
-  //     try {
-  //       const parsedHours = JSON.parse(selected.hours);
-  //       setTimeSlots(generateTimeSlots(parsedHours, selectedDate));
-  //     } catch (e) {
-  //       console.error("Erreur parsing horaires du tatoueur :", e);
-  //     }
-  //   }
-
-  // console.log("selectedTatoueur", selectedTatoueur);
-  // console.log("selectedDate", selectedDate);
-
-  // console.log("timeslot", timeSlots);
 
   useEffect(() => {
     if (!selectedDate || !selectedTatoueur) return;
@@ -107,15 +87,145 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       setOccupiedSlots(data);
     };
 
+    // NOUVELLE FONCTION : Récupérer les créneaux bloqués
+    const fetchBlockedSlots = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${selectedTatoueur}`
+        );
+        const data = await res.json();
+        if (!data.error) {
+          setBlockedSlots(data.blockedSlots || []);
+        }
+      } catch (err) {
+        console.error("Erreur lors du fetch des créneaux bloqués :", err);
+        setBlockedSlots([]);
+      }
+    };
+
     fetchTimeSlots();
     fetchOccupied();
+    fetchBlockedSlots();
   }, [selectedDate, selectedTatoueur]);
+
+  // Fonction pour vérifier si un créneau est dans une période bloquée
+  const isSlotBlocked = (slotStart: string, slotEnd?: string) => {
+    // Vérification plus stricte du tatoueur sélectionné
+    if (!selectedTatoueur) {
+      console.log(
+        "⚠️ Aucun tatoueur sélectionné, créneau considéré comme libre"
+      );
+      return false;
+    }
+
+    const slotStartDate = new Date(slotStart);
+    // Si pas de slotEnd fournie, calculer la fin du créneau (30 min après le début)
+    const slotEndDate = slotEnd
+      ? new Date(slotEnd)
+      : new Date(slotStartDate.getTime() + 30 * 60 * 1000);
+
+    const isBlocked = blockedSlots.some((blocked) => {
+      const blockedStart = new Date(blocked.startDate);
+      const blockedEnd = new Date(blocked.endDate);
+
+      console.log("📅 Comparaison avec période bloquée:", {
+        blockedStart,
+        blockedEnd,
+        blockedStartISO: blockedStart.toISOString(),
+        blockedEndISO: blockedEnd.toISOString(),
+        slotStart: slotStartDate,
+        slotEnd: slotEndDate,
+        slotStartISO: slotStartDate.toISOString(),
+        slotEndISO: slotEndDate.toISOString(),
+        blockedTatoueurId: blocked.tatoueurId,
+        selectedTatoueur,
+        blockedReason: blocked.reason,
+      });
+
+      // Normaliser toutes les dates en UTC pour la comparaison
+      const slotStartUTC = slotStartDate.getTime();
+      const slotEndUTC = slotEndDate.getTime();
+      const blockedStartUTC = blockedStart.getTime();
+      const blockedEndUTC = blockedEnd.getTime();
+
+      console.log("🕒 Timestamps UTC pour comparaison:", {
+        slotStartUTC,
+        slotEndUTC,
+        blockedStartUTC,
+        blockedEndUTC,
+        slotStartFormatted: new Date(slotStartUTC).toISOString(),
+        slotEndFormatted: new Date(slotEndUTC).toISOString(),
+        blockedStartFormatted: new Date(blockedStartUTC).toISOString(),
+        blockedEndFormatted: new Date(blockedEndUTC).toISOString(),
+      });
+
+      // Vérifier si le créneau chevauche avec la période bloquée
+      // Un créneau est bloqué si :
+      // - Il commence avant la fin du blocage ET
+      // - Il se termine après le début du blocage
+      const hasOverlap =
+        slotStartUTC < blockedEndUTC && slotEndUTC > blockedStartUTC;
+
+      // Vérifier que le blocage concerne le bon tatoueur
+      const concernsTatoueur =
+        blocked.tatoueurId === selectedTatoueur || blocked.tatoueurId === null;
+
+      return hasOverlap && concernsTatoueur;
+    });
+
+    console.log(
+      `${isBlocked ? "🚫" : "✅"} Créneau ${slotStart} ${
+        isBlocked ? "BLOQUÉ" : "LIBRE"
+      }`
+    );
+    return isBlocked;
+  };
+
+  console.log("Blocked slots:", blockedSlots);
 
   // ! Fonction pour gérer le clic sur un créneau horaire
   // Fait en sorte que les créneaux soient consécutifs
   // et que l'on puisse en sélectionner plusieurs
   // ou en désélectionner un (toggle OFF)
   const handleSlotClick = (slotStart: string) => {
+    console.log("🎯 handleSlotClick appelé pour:", slotStart);
+
+    // Vérifier si le créneau est bloqué avant de permettre la sélection
+    const isBlockedResult = isSlotBlocked(slotStart);
+    console.log(
+      "🎯 isSlotBlocked result dans handleSlotClick:",
+      isBlockedResult
+    );
+
+    if (isBlockedResult) {
+      console.log("❌ Créneau bloqué, toast affiché");
+      toast.error("Ce créneau est indisponible (période bloquée)");
+      return;
+    }
+
+    // Vérifier si le créneau est occupé
+    const isOccupied = (start: string) => {
+      return occupiedSlots.some((slot) => {
+        const slotStart = new Date(start);
+        const slotEnd = new Date(slotStart.getTime() + 30 * 60 * 1000);
+        const occupiedStart = new Date(slot.start);
+        const occupiedEnd = new Date(slot.end);
+
+        return slotStart < occupiedEnd && slotEnd > occupiedStart;
+      });
+    };
+
+    const isOccupiedResult = isOccupied(slotStart);
+    console.log("🎯 isOccupied result:", isOccupiedResult);
+
+    if (isOccupiedResult) {
+      console.log("❌ Créneau occupé, toast affiché");
+      toast.error("Ce créneau est déjà occupé");
+      return;
+    }
+
+    console.log("✅ Créneau libre, traitement de la sélection");
+
     if (selectedSlots.includes(slotStart)) {
       // Si déjà sélectionné, on l'enlève (toggle OFF)
       const newSelection = selectedSlots.filter((s) => s !== slotStart);
@@ -155,53 +265,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     }
   };
 
-  // Récupération des créneaux horaires disponibles et les créneaux horaires occupés pour la date sélectionnée
-  // useEffect(() => {
-  //   const fetchTimeSlots = async () => {
-  //     if (!selectedDate || !userId) return;
-  //     try {
-  //       const res = await fetch(
-  //         // `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/timeslots?date=${selectedDate}&salonId=${userId}`
-  //         `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/timeslots?date=${selectedDate}&tatoueurId=${selectedTatoueur}`
-  //       );
-  //       const data = await res.json();
-  //       console.log("✅ Slots reçus :", data);
-  //       setTimeSlots(data);
-  //     } catch (err) {
-  //       console.error("Erreur lors du fetch des créneaux :", err);
-  //     }
-  //   };
-
-  //   const fetchOccupiedSlots = async () => {
-  //     if (!selectedDate || !userId) return;
-
-  //     const startOfDay = new Date(selectedDate);
-  //     startOfDay.setHours(0, 0, 0, 0);
-
-  //     const endOfDay = new Date(selectedDate);
-  //     endOfDay.setHours(23, 59, 59, 999);
-
-  //     try {
-  //       const res = await fetch(
-  //         `${
-  //           process.env.NEXT_PUBLIC_BACK_URL
-  //         }/appointments/range?tatoueurId=${selectedTatoueur}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
-  //       );
-
-  //       const data = await res.json();
-  //       setOccupiedSlots(data); // [{ start: "...", end: "..." }]
-  //     } catch (err) {
-  //       console.error("Erreur fetch créneaux occupés :", err);
-  //     }
-  //   };
-
-  //   fetchTimeSlots();
-  //   fetchOccupiedSlots();
-  // }, [selectedDate, userId]);
-
-  // console.log("selectedDate", selectedDate);
-  // console.log("timeSlots", timeSlots);
-
   //! Fonction pour rechercher un client par email
   const [searchClientQuery, setSearchClientQuery] = useState("");
   const [clientResults, setClientResults] = useState<any[]>([]);
@@ -213,13 +276,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         setClientResults([]);
         return;
       }
-
-      console.log(
-        "Searching clients with query:",
-        query,
-        "for userId:",
-        userId
-      );
 
       try {
         const res = await fetch(
@@ -263,8 +319,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
     searchTimeoutRef.current = timeout;
   }, [searchClientQuery, handleClientSearch]);
-
-  console.log("clientResults", clientResults);
 
   //! Formulaire de création de rendez-vous
   const form = useForm<z.infer<typeof appointmentSchema>>({
@@ -616,59 +670,176 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                           <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
                             {timeSlots.map((slot) => {
                               const isOccupied = (start: string) => {
-                                const startDate = new Date(start).getTime();
-                                return occupiedSlots.some((rdv) => {
-                                  const rdvStart = new Date(
-                                    rdv.start
-                                  ).getTime();
-                                  const rdvEnd = new Date(rdv.end).getTime();
+                                return occupiedSlots.some((occupiedSlot) => {
+                                  const slotStart = new Date(start);
+                                  const slotEnd = new Date(
+                                    slotStart.getTime() + 30 * 60 * 1000
+                                  );
+                                  const occupiedStart = new Date(
+                                    occupiedSlot.start
+                                  );
+                                  const occupiedEnd = new Date(
+                                    occupiedSlot.end
+                                  );
+
                                   return (
-                                    startDate >= rdvStart && startDate < rdvEnd
+                                    slotStart < occupiedEnd &&
+                                    slotEnd > occupiedStart
                                   );
                                 });
                               };
+
                               const isSelected = selectedSlots.includes(
                                 slot.start
                               );
                               const startTime = format(
                                 new Date(slot.start),
                                 "HH:mm",
-                                {
-                                  locale: fr,
-                                }
+                                { locale: fr }
                               );
                               const endTime = format(
                                 new Date(slot.end),
                                 "HH:mm",
-                                {
-                                  locale: fr,
-                                }
+                                { locale: fr }
                               );
                               const isTaken = isOccupied(slot.start);
+                              const isBlocked = isSlotBlocked(
+                                slot.start,
+                                slot.end
+                              );
+
+                              // Déterminer la couleur et l'état du bouton
+                              let buttonClass =
+                                "cursor-pointer px-2 py-1 rounded text-xs text-white font-one transition-all duration-200 border ";
+                              let buttonText = `${startTime}-${endTime}`;
+                              let isDisabled = false;
+
+                              if (isBlocked) {
+                                // Créneau bloqué - rouge foncé
+                                buttonClass +=
+                                  "bg-red-900/50 text-red-300 border-red-700/50 cursor-not-allowed";
+                                buttonText += " 🚫";
+                                isDisabled = true;
+                              } else if (isTaken) {
+                                // Créneau occupé - gris
+                                buttonClass +=
+                                  "bg-gray-700/50 text-gray-400 border-gray-600/50 cursor-not-allowed";
+                                buttonText += " ❌";
+                                isDisabled = true;
+                              } else if (isSelected) {
+                                // Créneau sélectionné - vert
+                                buttonClass +=
+                                  "bg-green-600/30 text-green-300 border-green-500/50 hover:bg-green-600/50";
+                              } else {
+                                // Créneau libre - bleu
+                                buttonClass +=
+                                  "bg-tertiary-600/20 text-tertiary-300 border-tertiary-500/30 hover:bg-tertiary-600/40 hover:text-white";
+                              }
 
                               return (
                                 <button
-                                  key={slot.start}
+                                  key={`${slot.start}-${slot.end}`}
                                   type="button"
                                   onClick={() =>
-                                    !isTaken && handleSlotClick(slot.start)
+                                    !isDisabled && handleSlotClick(slot.start)
                                   }
-                                  className={`p-2 rounded-lg text-xs font-medium transition-all duration-200 ${
-                                    isTaken
-                                      ? "bg-gray-500/20 text-gray-400 cursor-not-allowed border border-gray-500/30"
+                                  disabled={isDisabled}
+                                  className={buttonClass}
+                                  title={
+                                    isBlocked
+                                      ? `Créneau bloqué - indisponible ${
+                                          blockedSlots.find((b) => {
+                                            const start = new Date(slot.start);
+                                            const end = new Date(slot.end);
+                                            const blockedStart = new Date(
+                                              b.startDate
+                                            );
+                                            const blockedEnd = new Date(
+                                              b.endDate
+                                            );
+                                            const startUTC = start.getTime();
+                                            const endUTC = end.getTime();
+                                            const blockedStartUTC =
+                                              blockedStart.getTime();
+                                            const blockedEndUTC =
+                                              blockedEnd.getTime();
+                                            return (
+                                              startUTC < blockedEndUTC &&
+                                              endUTC > blockedStartUTC &&
+                                              (b.tatoueurId ===
+                                                selectedTatoueur ||
+                                                !b.tatoueurId)
+                                            );
+                                          })?.reason
+                                            ? "(" +
+                                              blockedSlots.find((b) => {
+                                                const start = new Date(
+                                                  slot.start
+                                                );
+                                                const end = new Date(slot.end);
+                                                const blockedStart = new Date(
+                                                  b.startDate
+                                                );
+                                                const blockedEnd = new Date(
+                                                  b.endDate
+                                                );
+                                                const startUTC =
+                                                  start.getTime();
+                                                const endUTC = end.getTime();
+                                                const blockedStartUTC =
+                                                  blockedStart.getTime();
+                                                const blockedEndUTC =
+                                                  blockedEnd.getTime();
+                                                return (
+                                                  startUTC < blockedEndUTC &&
+                                                  endUTC > blockedStartUTC &&
+                                                  (b.tatoueurId ===
+                                                    selectedTatoueur ||
+                                                    !b.tatoueurId)
+                                                );
+                                              })?.reason +
+                                              ")"
+                                            : ""
+                                        }`
+                                      : isTaken
+                                      ? "Créneau déjà réservé"
                                       : isSelected
-                                      ? "bg-tertiary-500 text-white border border-tertiary-400"
-                                      : "bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-tertiary-400/50"
-                                  }`}
+                                      ? "Créneau sélectionné - cliquer pour désélectionner"
+                                      : "Créneau disponible - cliquer pour sélectionner"
+                                  }
                                 >
-                                  <div className="text-center">
-                                    <div>{startTime}</div>
-                                    <div className="opacity-70">-</div>
-                                    <div>{endTime}</div>
-                                  </div>
+                                  {buttonText}
                                 </button>
                               );
                             })}
+                          </div>
+
+                          {/* Légende des créneaux */}
+                          <div className="mt-4 flex flex-wrap gap-4 text-xs">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-tertiary-600/20 border border-tertiary-500/30 rounded"></div>
+                              <span className="text-white/70 font-one">
+                                Libre
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-green-600/30 border border-green-500/50 rounded"></div>
+                              <span className="text-white/70 font-one">
+                                Sélectionné
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-gray-700/50 border border-gray-600/50 rounded"></div>
+                              <span className="text-white/70 font-one">
+                                Occupé ❌
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-red-900/50 border border-red-700/50 rounded"></div>
+                              <span className="text-white/70 font-one">
+                                Bloqué 🚫
+                              </span>
+                            </div>
                           </div>
                         </div>
                       ) : (
@@ -1062,7 +1233,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
               </div>
             )}
 
-            {/* Messages d'erreur et de succès */}
+            {/* Messages d'erreur and de succès */}
             {error && error === "SAAS_LIMIT_APPOINTMENTS" ? (
               /* Message spécial pour la limite de rendez-vous */
               <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-4">

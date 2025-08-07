@@ -21,6 +21,8 @@ export default function CreateOrUpdateProduct({
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [loading, setLoading] = useState(false);
+  const [isClosing, setIsClosing] = useState(false); // Nouvel état pour le loader d'annulation
+  const [initialImageUrl] = useState(existingProduct?.imageUrl || ""); // Stocker l'URL initiale
 
   const form = useForm<z.infer<typeof productSalonSchema>>({
     resolver: zodResolver(productSalonSchema),
@@ -29,9 +31,104 @@ export default function CreateOrUpdateProduct({
       description: existingProduct?.description || "",
       price: existingProduct?.price || 0,
       imageUrl: existingProduct?.imageUrl || "",
-      userId: userId, // Ajout du userId dans les valeurs par défaut
+      userId: userId,
     },
   });
+
+  // Fonction pour extraire la clé d'une URL UploadThing
+  const extractKeyFromUrl = (url: string): string | null => {
+    try {
+      const patterns = [
+        /\/f\/([^\/\?]+)/,
+        /uploadthing\.com\/([^\/\?]+)/,
+        /utfs\.io\/f\/([^\/\?]+)/,
+      ];
+
+      for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+          return match[1];
+        }
+      }
+
+      const urlParts = url.split("/");
+      const lastPart = urlParts[urlParts.length - 1];
+      if (lastPart && !lastPart.includes(".")) {
+        return lastPart;
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Erreur lors de l'extraction de la clé:", error);
+      return null;
+    }
+  };
+
+  // Fonction pour supprimer une image d'UploadThing
+  const deleteFromUploadThing = async (imageUrl: string): Promise<boolean> => {
+    try {
+      console.log("🗑️ Tentative de suppression de:", imageUrl);
+
+      const key = extractKeyFromUrl(imageUrl);
+      if (!key) {
+        console.warn("⚠️ Impossible d'extraire la clé de l'URL:", imageUrl);
+        return false;
+      }
+
+      console.log("🔑 Clé extraite:", key);
+
+      const response = await fetch("/api/uploadthing/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ key }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        console.log("✅ Image supprimée avec succès d'UploadThing");
+        return true;
+      } else {
+        console.error("❌ Erreur lors de la suppression:", result);
+        return false;
+      }
+    } catch (error) {
+      console.error("❌ Erreur lors de la suppression d'UploadThing:", error);
+      return false;
+    }
+  };
+
+  // Fonction de fermeture avec nettoyage
+  const handleClose = async () => {
+    const currentImageUrl = form.watch("imageUrl");
+
+    // Si une nouvelle image a été uploadée (différente de l'image initiale), la supprimer
+    if (currentImageUrl && currentImageUrl !== initialImageUrl) {
+      setIsClosing(true); // Activer le loader
+
+      try {
+        console.log("🧹 Nettoyage: suppression de l'image temporaire");
+        const deleted = await deleteFromUploadThing(currentImageUrl);
+
+        if (deleted) {
+          console.log("✅ Image temporaire supprimée lors de l'annulation");
+        } else {
+          console.warn("⚠️ Impossible de supprimer l'image temporaire");
+        }
+      } catch (error) {
+        console.error(
+          "❌ Erreur lors de la suppression de l'image temporaire:",
+          error
+        );
+      } finally {
+        setIsClosing(false); // Désactiver le loader
+      }
+    }
+
+    setIsOpen(false);
+  };
 
   const onSubmit = async (data: z.infer<typeof productSalonSchema>) => {
     setLoading(true);
@@ -48,7 +145,7 @@ export default function CreateOrUpdateProduct({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data), // Utiliser directement data au lieu de { ...data, userId }
+        body: JSON.stringify(data),
       });
 
       console.log("Response status:", response.status);
@@ -71,8 +168,26 @@ export default function CreateOrUpdateProduct({
       setLoading(false);
     }
   };
+
   return (
     <div>
+      {/* Overlay de chargement pour l'annulation */}
+      {isClosing && (
+        <div className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-noir-500 rounded-2xl p-6 border border-white/20 shadow-2xl">
+            <div className="flex items-center gap-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tertiary-400"></div>
+              <div className="text-white font-one">
+                <p className="text-sm font-medium">Nettoyage en cours...</p>
+                <p className="text-xs text-white/60">
+                  Suppression de l&apos;image temporaire
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div className="bg-noir-500 rounded-3xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
           {/* Header fixe */}
@@ -82,10 +197,15 @@ export default function CreateOrUpdateProduct({
                 {existingProduct ? "Modifier le produit" : "Ajouter un produit"}
               </h2>
               <button
-                onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                onClick={handleClose}
+                disabled={isClosing || loading}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="cursor-pointer text-white text-xl">×</span>
+                {isClosing ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <span className="cursor-pointer text-white text-xl">×</span>
+                )}
               </button>
             </div>
             <p className="text-white/70 mt-2 text-sm">
@@ -113,7 +233,27 @@ export default function CreateOrUpdateProduct({
                   onImageUpload={(imageUrl) => {
                     form.setValue("imageUrl", imageUrl);
                   }}
-                  onImageRemove={() => {
+                  onImageRemove={async () => {
+                    const currentImageUrl = form.watch("imageUrl");
+
+                    // Si ce n'est pas l'image initiale, essayer de la supprimer d'UploadThing
+                    if (
+                      currentImageUrl &&
+                      currentImageUrl !== initialImageUrl
+                    ) {
+                      try {
+                        await deleteFromUploadThing(currentImageUrl);
+                        console.log(
+                          "✅ Image supprimée lors du retrait manuel"
+                        );
+                      } catch (error) {
+                        console.error(
+                          "❌ Erreur lors de la suppression manuelle:",
+                          error
+                        );
+                      }
+                    }
+
                     form.setValue("imageUrl", "");
                   }}
                 />
@@ -211,14 +351,22 @@ export default function CreateOrUpdateProduct({
           <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end gap-3">
             <button
               type="button"
-              onClick={() => setIsOpen(false)}
-              className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+              onClick={handleClose}
+              disabled={loading || isClosing}
+              className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              Annuler
+              {isClosing ? (
+                <>
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                  <span>Annulation...</span>
+                </>
+              ) : (
+                "Annuler"
+              )}
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isClosing}
               onClick={form.handleSubmit(onSubmit)}
               className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
             >

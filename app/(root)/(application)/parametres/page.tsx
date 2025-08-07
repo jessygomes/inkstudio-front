@@ -13,6 +13,9 @@ import {
 } from "react-icons/ci";
 import { MdOutlinePalette } from "react-icons/md";
 import { FaCheck } from "react-icons/fa";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 interface Subscription {
   id: string;
@@ -48,6 +51,20 @@ interface UserSettings {
   followUpReminders: boolean;
 }
 
+// Schéma de validation pour le changement de mot de passe
+const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Mot de passe actuel requis"),
+    newPassword: z
+      .string()
+      .min(6, "Le nouveau mot de passe doit contenir au moins 6 caractères"),
+    confirmPassword: z.string().min(1, "Confirmation requise"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  });
+
 export default function ParamPage() {
   const user = useUser();
   const [loading, setLoading] = useState(true);
@@ -73,6 +90,19 @@ export default function ParamPage() {
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [isChangingPlan, setIsChangingPlan] = useState(false);
+
+  // États pour la modale de changement de mot de passe
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const passwordForm = useForm<z.infer<typeof changePasswordSchema>>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
 
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({
@@ -302,6 +332,54 @@ export default function ParamPage() {
       // Revenir à l'ancien état en cas d'erreur
       setSettings((prev) => ({ ...prev, [setting]: !value }));
       toast.error("Erreur lors de la mise à jour");
+    }
+  };
+
+  // Fonction pour changer le mot de passe
+  const handlePasswordChange = async (
+    data: z.infer<typeof changePasswordSchema>
+  ) => {
+    if (!user?.id) return;
+
+    setIsChangingPassword(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACK_URL}/auth/change-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            currentPassword: data.currentPassword,
+            newPassword: data.newPassword,
+            confirmPassword: data.confirmPassword,
+            userId: user.id,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.message || "Erreur lors du changement de mot de passe"
+        );
+      }
+
+      toast.success("Mot de passe changé avec succès !");
+      setShowPasswordModal(false);
+      passwordForm.reset();
+    } catch (error) {
+      console.error("Erreur lors du changement de mot de passe :", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors du changement de mot de passe"
+      );
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -720,10 +798,13 @@ export default function ParamPage() {
                   <h3 className="text-white font-one font-semibold mb-2">
                     Mot de passe
                   </h3>
-                  <p className="text-white/60 text-sm font-one mb-3">
+                  {/* <p className="text-white/60 text-sm font-one mb-3">
                     Dernière modification: Il y a 2 mois
-                  </p>
-                  <button className="px-4 py-2 bg-tertiary-400/20 hover:bg-tertiary-400/30 text-tertiary-400 border border-tertiary-400/30 rounded-lg text-sm font-one font-medium transition-colors">
+                  </p> */}
+                  <button
+                    onClick={() => setShowPasswordModal(true)}
+                    className="cursor-pointer px-4 py-2 bg-tertiary-400/20 hover:bg-tertiary-400/30 text-tertiary-400 border border-tertiary-400/30 rounded-lg text-sm font-one font-medium transition-colors"
+                  >
                     Changer le mot de passe
                   </button>
                 </div>
@@ -975,6 +1056,175 @@ export default function ParamPage() {
                   </>
                 )}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale de changement de mot de passe */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-noir-500 rounded-3xl w-full max-w-md overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+            {/* Header */}
+            <div className="p-6 border-b border-white/10 bg-white/5">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white font-one tracking-wide">
+                  🔑 Changer le mot de passe
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowPasswordModal(false);
+                    passwordForm.reset();
+                  }}
+                  disabled={isChangingPassword}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50"
+                >
+                  <span className="cursor-pointer text-white text-xl">×</span>
+                </button>
+              </div>
+              <p className="text-white/70 mt-2 text-sm">
+                Modifiez votre mot de passe de connexion
+              </p>
+            </div>
+
+            {/* Contenu */}
+            <div className="p-6">
+              <form
+                onSubmit={passwordForm.handleSubmit(handlePasswordChange)}
+                className="space-y-4"
+              >
+                {/* Mot de passe actuel */}
+                <div className="space-y-2">
+                  <label className="text-sm text-white/80 font-one">
+                    Mot de passe actuel
+                  </label>
+                  <input
+                    type="password"
+                    {...passwordForm.register("currentPassword")}
+                    disabled={isChangingPassword}
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-50"
+                    placeholder="Votre mot de passe actuel"
+                  />
+                  {passwordForm.formState.errors.currentPassword && (
+                    <p className="text-red-300 text-xs">
+                      {passwordForm.formState.errors.currentPassword.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Nouveau mot de passe */}
+                <div className="space-y-2">
+                  <label className="text-sm text-white/80 font-one">
+                    Nouveau mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    {...passwordForm.register("newPassword")}
+                    disabled={isChangingPassword}
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-50"
+                    placeholder="Votre nouveau mot de passe"
+                  />
+                  {passwordForm.formState.errors.newPassword && (
+                    <p className="text-red-300 text-xs">
+                      {passwordForm.formState.errors.newPassword.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Confirmation nouveau mot de passe */}
+                <div className="space-y-2">
+                  <label className="text-sm text-white/80 font-one">
+                    Confirmer le nouveau mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    {...passwordForm.register("confirmPassword")}
+                    disabled={isChangingPassword}
+                    className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-50"
+                    placeholder="Confirmez votre nouveau mot de passe"
+                  />
+                  {passwordForm.formState.errors.confirmPassword && (
+                    <p className="text-red-300 text-xs">
+                      {passwordForm.formState.errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Règles de sécurité */}
+                <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-lg p-3 mt-4">
+                  <div className="flex items-start gap-2">
+                    <svg
+                      className="w-4 h-4 text-tertiary-400 mt-0.5 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <div>
+                      <p className="text-tertiary-400 text-xs font-semibold mb-1">
+                        Exigences du mot de passe
+                      </p>
+                      <ul className="text-tertiary-400/80 text-xs space-y-1">
+                        <li>• Au moins 6 caractères</li>
+                        <li>• Différent de votre mot de passe actuel</li>
+                        <li>
+                          • Combinaison de lettres et chiffres recommandée
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Boutons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPasswordModal(false);
+                      passwordForm.reset();
+                    }}
+                    disabled={isChangingPassword}
+                    className="cursor-pointer flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isChangingPassword}
+                    className="cursor-pointer flex-1 px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm flex items-center justify-center gap-2"
+                  >
+                    {isChangingPassword ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Changement...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                          />
+                        </svg>
+                        <span>Changer le mot de passe</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

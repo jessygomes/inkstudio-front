@@ -87,7 +87,7 @@ export default function CancelFillRate({ userId }: CancelFillRateProps) {
           Taux d'annulation
         </h3>
         <div className="text-center py-4">
-          <div className="w-8 h-8 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-2">
+          <div className="w-8 h-8 bg-red-900/50 rounded-lg flex items-center justify-center mx-auto mb-2">
             <svg
               className="w-4 h-4 text-red-400"
               fill="none"
@@ -124,7 +124,7 @@ export default function CancelFillRate({ userId }: CancelFillRateProps) {
         <h3 className="text-xs font-bold text-white font-one">
           Taux d'annulation
         </h3>
-        <div className="px-2 py-0.5 bg-tertiary-500/20 text-tertiary-400 rounded-full text-xs font-one font-medium border border-tertiary-500/50">
+        <div className="px-2 py-0.5 bg-tertiary-500/20 text-tertiary-400 rounded-lg text-xs font-one font-medium border border-tertiary-500/50">
           Global
         </div>
       </div>

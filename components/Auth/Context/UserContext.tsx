@@ -8,6 +8,7 @@ export interface User {
   email: string | null;
   phone: string;
   address: string;
+  saasPlan: string;
 }
 
 const UserContext = createContext<User | null>(null);
