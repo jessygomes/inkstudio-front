@@ -2,10 +2,10 @@
 
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { ProductSalonProps } from "@/lib/type";
-import { CSSProperties, useEffect, useState } from "react";
-import BarLoader from "react-spinners/BarLoader";
+import { useEffect, useState } from "react";
 import { IoCreateOutline } from "react-icons/io5";
 import { AiOutlineDelete } from "react-icons/ai";
+import { MdOutlineSell } from "react-icons/md";
 import Image from "next/image";
 import CreateOrUpdateProduct from "./CreateOrUpdateProduct";
 import DeleteProduct from "./DeleteProduct";
@@ -14,12 +14,6 @@ export default function ProductList() {
   const user = useUser();
 
   const [loading, setLoading] = useState(true);
-  const override: CSSProperties = {
-    display: "block",
-    margin: "0 auto",
-    borderColor: "none",
-  };
-  const color = "#ff5500";
 
   //! State
   const [products, setProducts] = useState<ProductSalonProps[]>([]);
@@ -87,30 +81,80 @@ export default function ProductList() {
 
   return (
     <section className="w-full">
-      {" "}
-      <div className="flex justify-center gap-4 items-center mt-4 mb-8">
-        <button
-          onClick={handleCreate}
-          className="cursor-pointer w-[200px] text-center px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
-        >
-          Nouveau produit
-        </button>
+      <div className="mb-6 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+            <MdOutlineSell
+              size={28}
+              className="text-tertiary-400 animate-pulse"
+            />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
+              Produits
+            </h1>
+            <p className="text-white/70 text-xs font-one mt-1">
+              Gérez vos produits, consultez les détails de chaque article et
+              proposez-les à la vente.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-center gap-4 items-center">
+          <button
+            onClick={handleCreate}
+            className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Nouveau produit
+          </button>
+        </div>
       </div>
+
       {loading ? (
-        <div className="w-full flex items-center justify-center">
-          <BarLoader
-            color={color}
-            loading={loading}
-            cssOverride={override}
-            width={300}
-            height={5}
-            aria-label="Loading Spinner"
-            data-testid="loader"
-          />
+        <div className="h-full w-full flex items-center justify-center">
+          <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+            <p className="text-white/60 font-two text-xs text-center">
+              Chargement des photos...
+            </p>
+          </div>
         </div>
       ) : products.length === 0 ? (
-        <div className="h-[350px] w-full flex justify-center items-center text-white/70">
-          Aucune photo dans votre portfolio
+        <div className="h-full w-full flex">
+          <div className="w-full rounded-2xl shadow-xl border border-white/10 p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+            <div className="w-20 h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+              <MdOutlineSell
+                size={40}
+                className="text-tertiary-400 animate-pulse"
+              />
+            </div>
+            <h2 className="text-white font-one text-xl text-center">
+              Aucun produit dans votre boutique
+            </h2>
+            <p className="text-white/60 font-two text-xs text-center">
+              Ajoutez vos produits pour montrer aux clients ce que vous proposez
+              !
+            </p>
+            <button
+              onClick={handleCreate}
+              className="mt-2 px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
+            >
+              Ajouter une photo
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">

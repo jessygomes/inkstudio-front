@@ -3,11 +3,10 @@
 
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { SalonUserProps } from "@/lib/type";
-import { CSSProperties, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Horaire from "./Horaire";
 import InfoSalon from "./InfoSalon";
 import TatoueurSalon from "./TatoueurSalon";
-import BarLoader from "react-spinners/BarLoader";
 import SalonPhoto from "./SalonPhoto";
 
 import { IoBusinessOutline } from "react-icons/io5";
@@ -20,7 +19,7 @@ export default function SalonAccount() {
   const salonId = user?.id;
 
   const [salon, setSalon] = useState<SalonUserProps>();
-  const [isHoursVisible, setIsHoursVisible] = useState(false);
+  const [isHoursVisible, setIsHoursVisible] = useState(true);
 
   useEffect(() => {
     const fetchSalon = async () => {
@@ -47,54 +46,67 @@ export default function SalonAccount() {
     }
   }, [salonId]);
 
-  const override: CSSProperties = {
-    display: "block",
-    margin: "0 auto",
-    borderColor: "none",
-  };
-  const color = "#ff5500";
-
   if (!salon) {
     return (
-      <div className="text-white mx-auto h-screen flex items-center justify-center">
-        {" "}
-        <BarLoader
-          color={color}
-          loading={!salon}
-          cssOverride={override}
-          // size={150}
-          width={300}
-          height={5}
-          aria-label="Loading Spinner"
-          data-testid="loader"
-        />
-      </div>
+      <section className="w-full">
+        <div className="mb-6 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+              <IoBusinessOutline
+                size={28}
+                className="text-tertiary-400 animate-pulse"
+              />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase mb-1">
+                Mon Compte
+              </h1>
+              <p className="text-white/60 text-xs font-one">
+                Gérez les infos du salon, horaires, équipe et galerie.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="w-full flex items-center justify-center py-20">
+          <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+            <p className="text-white/60 font-two text-xs text-center">
+              Chargement des informations...
+            </p>
+          </div>
+        </div>
+      </section>
     );
   }
 
   //! HORAIRES D'OUVERTURE
   return (
-    <div className="min-h-screen w-full bg-noir-700">
-      <div className="container">
+    <section className="w-full">
+      <div className="">
         {/* Header */}
-        <div className="mb-8">
-          <div className="w-full bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg pb-4 border-b border-white/20">
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold text-white font-one tracking-wide">
+        <div className="mb-6 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+              <IoBusinessOutline
+                size={28}
+                className="text-tertiary-400 animate-pulse"
+              />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase mb-1">
                 Mon Compte
               </h1>
-              <p className="text-white/70 text-sm">
-                Gérez les informations de votre salon, les horaires d'ouverture
-                et les tatoueurs associés
+              <p className="text-white/60 text-xs font-one">
+                Gérez les infos du salon, horaires, équipe et galerie.
               </p>
             </div>
           </div>
         </div>
 
         {/* Form Content */}
-        <div className="space-y-6 max-w-6xl mx-auto">
+        <div className="space-y-6 mx-auto">
           {/* Section INFO SALON */}
-          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl p-8 border border-white/20 shadow-2xl">
             <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
               <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">
                 <IoBusinessOutline /> Informations du salon
@@ -104,7 +116,7 @@ export default function SalonAccount() {
           </div>
 
           {/* Section HORAIRES */}
-          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+          <div className="w-full bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
             <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
               <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">
                 <TbClockHour5 size={20} /> Horaires d'ouverture
@@ -143,6 +155,6 @@ export default function SalonAccount() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

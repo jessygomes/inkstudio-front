@@ -4,6 +4,7 @@ import { deleteSession } from "@/lib/session";
 // import { logout } from "@/lib/authAction/auth.actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { AiOutlineLogout } from "react-icons/ai";
 
 interface LogoutBtnProps {
   children?: React.ReactNode;
@@ -28,8 +29,9 @@ export const LogoutBtn = ({ children }: LogoutBtnProps) => {
   return (
     <span
       onClick={onClick}
-      className="cursor-pointer px-4 py-2 text-xs hover:bg-noir-500 transition-colors"
+      className="cursor-pointer px-4 py-2 text-sm w-full flex items-center gap-2 rounded-xl hover:bg-noir-500 transition-colors"
     >
+      <AiOutlineLogout size={20} className="inline-block mr-2" />
       {children}
     </span>
   );

@@ -3,10 +3,9 @@
 "use client";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { AppointmentProps, ClientProps } from "@/lib/type";
-import React, { CSSProperties, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { IoChevronDown, IoChevronUp } from "react-icons/io5";
-import BarLoader from "react-spinners/BarLoader";
 import CreateOrUpdateClient from "./CreateOrUpdateClient";
 import DeleteClient from "./DeleteClient";
 
@@ -16,6 +15,7 @@ import { RiHealthBookLine } from "react-icons/ri";
 import { FaFilePen } from "react-icons/fa6";
 import { CiCalendarDate, CiUser } from "react-icons/ci";
 import { MdOutlineRateReview } from "react-icons/md";
+import { RiFileUserLine } from "react-icons/ri";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -39,12 +39,6 @@ export default function ClientList() {
   const user = useUser();
 
   const [loading, setLoading] = useState(true);
-  const override: CSSProperties = {
-    display: "block",
-    margin: "0 auto",
-    borderColor: "none",
-  };
-  const color = "#ff5500";
 
   //! State pour les clients et pagination
   const [clients, setClients] = useState<ClientProps[]>([]);
@@ -250,29 +244,55 @@ export default function ClientList() {
 
   return (
     <section>
-      <div>
-        <div className="flex gap-4 items-center mb-6 mt-2">
+      <div className="mb-6 mt-23 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+            <RiFileUserLine
+              size={28}
+              className="text-tertiary-400 animate-pulse"
+            />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
+              Clients
+            </h1>
+            <p className="text-white/70 text-xs font-one mt-1">
+              Gérez les informations de vos clients. Accédez à leurs données,
+              gérez les rendez-vous et consultez l&apos;historique de leurs
+              visites.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
           <button
             onClick={handleCreate}
-            className="cursor-pointer w-[200px] text-center px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+            className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
           >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
             Nouveau client
           </button>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Rechercher par client"
-            className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
-          />
+
           <div className="relative">
             <Link
               href="/clients/suivi"
-              className="cursor-pointer w-[200px] text-center px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center justify-center gap-2"
+              className="cursor-pointer text-center px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center justify-center gap-2"
             >
               Suivi de cicatrisation
               {unansweredFollowUpsCount > 0 && (
-                <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">
+                <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
                   {unansweredFollowUpsCount > 99
                     ? "99+"
                     : unansweredFollowUpsCount}
@@ -280,6 +300,18 @@ export default function ClientList() {
               )}
             </Link>
           </div>
+        </div>
+      </div>
+
+      <div>
+        <div className="flex gap-2 items-center mb-6 mt-6">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Rechercher par client"
+            className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
+          />
         </div>
 
         {/* Informations de pagination */}
@@ -317,37 +349,58 @@ export default function ClientList() {
         </div>
 
         {loading ? (
-          <div className="w-full flex items-center justify-center py-12">
-            <BarLoader
-              color={color}
-              loading={loading}
-              cssOverride={override}
-              width={300}
-              height={5}
-              aria-label="Loading Spinner"
-              data-testid="loader"
-            />
+          <div className="h-full w-full flex items-center justify-center">
+            <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+              <p className="text-white/60 font-two text-xs text-center">
+                Chargement des clients...
+              </p>
+            </div>
           </div>
         ) : error ? (
-          <div className="h-[400px] w-full flex justify-center items-center">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
-                ⚠️
+          <div className="h-full w-full flex">
+            <div className="mt-4 w-full rounded-2xl shadow-xl border border-white/10 p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+              <div className="w-20 h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+                <svg
+                  className="w-10 h-10 text-tertiary-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M16 3H8a2 2 0 00-2 2v0a2 2 0 002 2h8a2 2 0 002-2v0a2 2 0 00-2-2zM8 21h8"
+                  />
+                </svg>
               </div>
-              <p className="text-red-400 font-one">{error}</p>
+              <p className="text-white font-one text-xl text-center">{error}</p>
               <button
                 onClick={() => fetchClients(currentPage, searchTerm)}
-                className="cursor-pointer px-4 py-2 bg-tertiary-400 hover:bg-tertiary-500 text-white rounded-lg transition-colors text-sm font-one"
+                className="cursor-pointer mt-2 px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
               >
                 Réessayer
               </button>
             </div>
           </div>
         ) : clients.length === 0 ? (
-          <div className="h-[400px] w-full flex justify-center items-center">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
-                👤
+          <div className="h-full w-full flex">
+            <div className=" w-full rounded-2xl shadow-xl border border-white/10 p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+              <div className="w-20 h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+                <svg
+                  className="w-10 h-10 text-tertiary-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M16 3H8a2 2 0 00-2 2v0a2 2 0 002 2h8a2 2 0 002-2v0a2 2 0 00-2-2zM8 21h8"
+                  />
+                </svg>
               </div>
               <p className="text-white/70 font-one">
                 {searchTerm ? "Aucun client trouvé" : "Aucun client"}

@@ -118,15 +118,12 @@ export default function TatoueurSalon({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full flex flex-col">
       {/* Header avec bouton d'ajout */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-6 bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
         <div className="flex items-center gap-3">
-          {/* <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-            <span className="text-sm">👥</span>
-          </div> */}
           <div>
-            <p className="text-white font-semibold font-one text-sm tracking-widest">
+            <p className="text-white font-semibold font-one text-lg tracking-widest">
               Équipe ({tatoueurs.length} tatoueur
               {tatoueurs.length > 1 ? "s" : ""})
             </p>
@@ -135,15 +132,46 @@ export default function TatoueurSalon({
             </p>
           </div>
         </div>
-
         <Link
           href="/mon-compte/ajouter-tatoueur"
-          className="px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
+          className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
         >
-          Ajouter
+          <span>+</span>
+          Nouveau tatoueur
         </Link>
       </div>
-
+      {/* Loader */}
+      {tatoueurs === undefined && (
+        <div className="w-full flex items-center justify-center py-20">
+          <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+            <p className="text-white/60 font-two text-xs text-center">
+              Chargement des tatoueurs...
+            </p>
+          </div>
+        </div>
+      )}
+      {/* Erreur */}
+      {/* Ajoute ici une gestion d'erreur si tu as un state d'erreur */}
+      {/* {error && (
+        <div className="w-full flex items-center justify-center py-20">
+          <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+            <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <p className="text-white text-xl font-one">Erreur de chargement</p>
+            <p className="text-white/60 text-sm max-w-md text-center">
+              {error}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-tertiary-400 hover:bg-tertiary-500 text-white rounded-lg transition-colors text-sm"
+            >
+              Réessayer
+            </button>
+          </div>
+        </div>
+      )} */}
       {/* Liste des tatoueurs */}
       {tatoueurs.length > 0 ? (
         <div className="space-y-3">

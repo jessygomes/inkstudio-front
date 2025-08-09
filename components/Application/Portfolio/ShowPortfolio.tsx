@@ -2,23 +2,17 @@
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { PortfolioProps } from "@/lib/type";
 import Image from "next/image";
-import React, { CSSProperties, useEffect, useState } from "react";
-import BarLoader from "react-spinners/BarLoader";
+import React, { useEffect, useState } from "react";
 import CreateOrUpdatePhoto from "./CreateOrUpdatePhoto";
 import { IoCreateOutline } from "react-icons/io5";
 import { AiOutlineDelete } from "react-icons/ai";
 import DeletePhoto from "./DeletePhoto";
+import { FaIdCardClip } from "react-icons/fa6";
 
 export default function ShowPortfolio() {
   const user = useUser();
 
   const [loading, setLoading] = useState(true);
-  const override: CSSProperties = {
-    display: "block",
-    margin: "0 auto",
-    borderColor: "none",
-  };
-  const color = "#ff5500";
 
   //! State
   const [photos, setPhotos] = useState<PortfolioProps[]>([]);
@@ -85,47 +79,81 @@ export default function ShowPortfolio() {
     setIsModalDeleteOpen(true);
   };
 
-  console.log("Photos:", photos);
-
   return (
     <section className="w-full">
-      <div className="">
-        <div className="w-full bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg pb-4 border-b border-white/20">
-          <h1 className="text-3xl font-bold text-white font-one tracking-wide text-center">
-            Portfolio
-          </h1>
-          <p className="text-white/70 text-sm font-one text-center mt-2">
-            Gérez le portfolio de votre salon, ajoutez, modifiez ou supprimez
-            des photos de vos œuvres.
-          </p>
+      <div className="mb-6 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+            <FaIdCardClip
+              size={28}
+              className="text-tertiary-400 animate-pulse"
+            />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
+              Portfolio
+            </h1>
+            <p className="text-white/70 text-xs font-one mt-1">
+              Gérez le portfolio de votre salon, ajoutez, modifiez ou supprimez
+              des photos de vos œuvres.
+            </p>
+          </div>
         </div>
-      </div>
-
-      <div className="px-20">
-        <div className="flex justify-center gap-4 items-center my-8">
+        <div className="flex justify-center gap-4 items-center">
           <button
             onClick={handleCreate}
-            className="cursor-pointer w-[200px] text-center px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+            className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
           >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
             Nouvelle photo
           </button>
         </div>
+      </div>
 
+      <div className="w-full h-full">
         {loading ? (
-          <div className="w-full flex items-center justify-center">
-            <BarLoader
-              color={color}
-              loading={loading}
-              cssOverride={override}
-              width={300}
-              height={5}
-              aria-label="Loading Spinner"
-              data-testid="loader"
-            />
+          <div className="h-full w-full flex items-center justify-center">
+            <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+              <p className="text-white/60 font-two text-xs text-center">
+                Chargement des photos...
+              </p>
+            </div>
           </div>
         ) : photos.length === 0 ? (
-          <div className="h-[500px] w-full flex justify-center items-center text-white/70">
-            Aucune photo dans votre portfolio
+          <div className="h-full w-full flex">
+            <div className=" w-full rounded-2xl shadow-xl border border-white/10 p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+              <div className="w-20 h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+                <FaIdCardClip
+                  size={40}
+                  className="text-tertiary-400 animate-pulse"
+                />
+              </div>
+              <h2 className="text-white font-one text-xl text-center">
+                Aucun visuel dans votre portfolio
+              </h2>
+              <p className="text-white/60 font-two text-xs text-center">
+                Ajoutez vos plus belles réalisations pour inspirer vos clients !
+              </p>
+              <button
+                onClick={handleCreate}
+                className="cursor-pointer mt-2 px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
+              >
+                Ajouter une photo
+              </button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">

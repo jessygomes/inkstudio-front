@@ -9,6 +9,7 @@ import WaitingRdv from "@/components/Application/Dashboard/WaitingRdv";
 import WeeklyFillRate from "@/components/Application/Dashboard/WeeklyFillRate";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import Link from "next/link";
+import { LuLayoutDashboard } from "react-icons/lu";
 
 export default function DashboardPage() {
   const user = useUser();
@@ -17,64 +18,71 @@ export default function DashboardPage() {
   const isFreeAccount = user?.saasPlan === "FREE";
 
   return (
-    <div className="min-h-screen w-full bg-noir-700 pt-20">
-      <div className="px-6 lg:px-20 mx-auto py-4">
+    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-20">
+      <div className="flex flex-col relative gap-6 w-full mt-23">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="text-center flex-1">
-              <h1 className="text-3xl font-bold text-white font-one tracking-wide">
-                Dashboard
-              </h1>
-              <p className="text-white/70 text-sm font-one mt-2">
-                Vue d&apos;ensemble de votre activité
-              </p>
+        <div className="">
+          <div className="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+                <LuLayoutDashboard
+                  size={28}
+                  className="text-tertiary-400 animate-pulse"
+                />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
+                  Dashboard
+                </h1>
+                <p className="text-white/70 text-xs font-one mt-1">
+                  Vue d&apos;ensemble de votre activité
+                </p>
+              </div>
             </div>
 
             {/* Bouton création RDV */}
+            <div className="flex items-center justify-center gap-4">
+              <Link
+                href="/mes-rendez-vous/creer"
+                className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span>Nouveau RDV</span>
+              </Link>
+
+              <Link
+                href="/clients"
+                className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span>Nouveau client</span>
+              </Link>
+            </div>
           </div>
-        </div>
-
-        <div className="mb-8 flex items-center gap-4">
-          <Link
-            href="/mes-rendez-vous/creer"
-            className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-sm shadow-lg"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            <span>Nouveau RDV</span>
-          </Link>
-
-          <Link
-            href="/clients"
-            className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-sm shadow-lg"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            <span>Nouveau client</span>
-          </Link>
         </div>
 
         {/* Main Grid Layout */}
@@ -82,7 +90,7 @@ export default function DashboardPage() {
           {/* Top Row - Stats Cards - Seulement pour les comptes payants */}
           {!isFreeAccount && (
             <div className="col-span-12">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <WeeklyFillRate userId={user.id ?? ""} />
                 <CancelFillRate userId={user.id ?? ""} />
                 <NewClientsCount userId={user.id ?? ""} />

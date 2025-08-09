@@ -91,10 +91,10 @@ export default function Horaire({
         >
           <div className="flex items-center gap-3">
             <div className="text-left">
-              <p className="text-sm font-semibold font-one tracking-widest">
+              <p className="text-sm font-one tracking-widest">
                 {hasHours ? "Horaires configurés" : "Configurer les horaires"}
               </p>
-              <p className="text-xs text-white/60 font-two">
+              <p className="text-xs text-white/60 font-one">
                 {hasHours
                   ? "Cliquez pour voir le planning"
                   : "Définir les heures d'ouverture"}
@@ -114,64 +114,52 @@ export default function Horaire({
 
         <Link
           href="/mon-compte/horaires"
-          className="px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
+          className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
         >
-          {hasHours ? "Modifier" : "Configurer"}
+          {hasHours ? "Modifier les horaires" : "Configurer les horaires"}
         </Link>
       </div>
 
       {isHoursVisible && (
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 space-y-4">
-          <div className="flex items-center gap-2 mb-4">
+        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+          <div className="flex items-center gap-2 mb-2">
             <span className="text-lg">📋</span>
-            <h4 className="text-white font-semibold font-one text-sm">
-              Planning de la semaine
-            </h4>
+            <h4 className="text-white font-one text-sm">Horaires semaine</h4>
           </div>
-
-          <div className="grid gap-2">
-            {daysOfWeek.map((day) => {
-              const dayHours = salonHoursState?.[day.key as keyof SalonHours];
-              const isOpen = !!dayHours;
-
-              return (
-                <div
-                  key={day.key}
-                  className="flex items-center justify-between p-3 bg-white/10 rounded-lg border border-white/20"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-3 h-3 rounded-full ${
-                        isOpen ? "bg-green-400" : "bg-red-400"
-                      }`}
-                    />
-                    <span className="w-20 text-white font-medium font-one text-xs">
-                      {day.label}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className="text-white font-two text-xs min-w-[100px] text-right">
-                      {dayHours
-                        ? `${dayHours.start} - ${dayHours.end}`
-                        : "Fermé"}
-                    </span>
-                    <div
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        isOpen
-                          ? "bg-green-500/20 text-green-300 border border-green-500/30"
-                          : "bg-red-500/20 text-red-300 border border-red-500/30"
-                      }`}
-                    >
-                      {isOpen ? "Ouvert" : "Fermé"}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-white font-one">
+              <tbody>
+                {daysOfWeek.map((day) => {
+                  const dayHours =
+                    salonHoursState?.[day.key as keyof SalonHours];
+                  const isOpen = !!dayHours && dayHours.start && dayHours.end;
+                  return (
+                    <tr key={day.key} className="border-b border-white/10">
+                      <td className="py-2 pr-2">{day.label}</td>
+                      <td className="py-2 pl-2 text-right min-w-[90px]">
+                        {isOpen ? `${dayHours!.start} - ${dayHours!.end}` : ""}
+                      </td>
+                      <td className="py-2 px-2 text-right">
+                        {isOpen ? (
+                          <span className="px-6 py-1 rounded bg-green-500/20 text-green-300 border border-green-500/30">
+                            Ouvert
+                          </span>
+                        ) : (
+                          <span className="px-6 py-1 rounded bg-red-500/20 text-red-300 border border-red-500/30">
+                            Fermé
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
+
+      <div className="h-[0.5px] w-full bg-white/10"></div>
 
       {/* Nouvelle section créneaux bloqués */}
       <div className="space-y-4">
@@ -182,7 +170,7 @@ export default function Horaire({
           >
             <div className="text-left">
               <p className="text-sm font-semibold font-one tracking-widest">
-                🚫 Créneaux bloqués
+                Créneaux bloqués
               </p>
               <p className="text-xs text-white/60 font-two">
                 Gérer les indisponibilités et congés

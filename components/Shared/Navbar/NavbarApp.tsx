@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { CgProfile } from "react-icons/cg";
+import { CiSettings } from "react-icons/ci";
 
 export default function NavbarApp() {
   const user = useUser();
@@ -50,8 +51,8 @@ export default function NavbarApp() {
   ];
 
   return (
-    <nav className="flex justify-between items-center py-4 px-20 bg-noir-700 pb-6">
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-tertiary-500 to-tertiary-400"></div>{" "}
+    <nav className="flex justify-between items-center py-4 px-20 pb-6 shadow-lg backdrop-blur-md">
+      <div className="absolute bottom-0 left-0 right-0 h-2 animate-pulse bg-gradient-to-r from-tertiary-500 to-tertiary-400"></div>{" "}
       <Link
         href={"/"}
         className="font-two uppercase font-bold text-xl text-white"
@@ -75,7 +76,7 @@ export default function NavbarApp() {
             </li>
           );
         })}
-        <li className="relative">
+        <li className="relative z-[9999]">
           <button
             onClick={toggleMenu}
             className="cursor-pointer items-center text-white hover:text-white/70 transition duration-300"
@@ -84,21 +85,22 @@ export default function NavbarApp() {
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 mt-4 p-2 w-[300px] bg-noir-700 border border-tertiary-400 text-white rounded shadow-lg z-50 flex flex-col gap-2">
+            <div className="absolute right-0 mt-4 p-2 w-[400px] bg-noir-700 text-white rounded shadow-lg z-50 flex flex-col gap-2">
               <Link
                 href="/parametres"
-                className="px-4 py-2 text-xs font-one hover:bg-noir-500 transition-colors"
+                className="flex items-center px-4 h-12 text-sm font-one hover:bg-noir-500 transition-colors rounded-xl"
                 onClick={() => setShowMenu(false)}
               >
+                <CiSettings size={20} className="inline-block mr-3" />
                 Paramètres du compte
               </Link>
 
               <div
-                className=" py-2 text-xs font-one w-full text-left hover:bg-noir-500 transition-colors"
+                className="flex items-center h-12 text-sm font-one w-full text-left hover:bg-noir-500 transition-colors rounded-xl"
                 onClick={() => setShowMenu(false)}
               >
                 <LogoutBtn>
-                  <span>Déconnexion</span>
+                  <span>Se déconnecter</span>
                 </LogoutBtn>
               </div>
             </div>

@@ -176,7 +176,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
           </div>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-sm flex items-center gap-2"
+            className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
           >
             <span>+</span>
             Bloquer un créneau

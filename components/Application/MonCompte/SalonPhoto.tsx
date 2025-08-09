@@ -168,13 +168,23 @@ export default function SalonPhoto() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
+      <div className="w-full flex flex-col">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6 bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
           <div>
-            <p className="text-white font-semibold font-one text-sm tracking-widest">
+            <p className="text-white font-semibold font-one text-lg tracking-widest">
               Galerie photos
             </p>
             <p className="text-xs text-white/60 font-two">
+              Chargement des images...
+            </p>
+          </div>
+        </div>
+        {/* Loader */}
+        <div className="w-full flex items-center justify-center py-20">
+          <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+            <p className="text-white/60 font-two text-xs text-center">
               Chargement des images...
             </p>
           </div>
@@ -254,14 +264,14 @@ export default function SalonPhoto() {
       ) : (
         <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
           <div className="space-y-4">
-            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
+            {/* <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
               <span className="text-3xl">📸</span>
-            </div>
+            </div> */}
             <div>
-              <h3 className="text-white font-semibold font-one text-lg mb-2">
+              <h3 className="text-white font-one text-lg mb-2">
                 Aucune photo ajoutée
               </h3>
-              <p className="text-white/60 font-two text-sm">
+              <p className="text-white/60 font-two text-xs">
                 Commencez par ajouter des photos de votre salon pour attirer vos
                 clients
               </p>

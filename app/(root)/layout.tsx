@@ -37,8 +37,9 @@ export default async function DashboardLayout({
   return (
     <UserProvider user={user}>
       <Providers>
-        <div className="absolute top-0 left-0 w-full">
+        <div className="absolute top-0 left-0 w-full z-50">
           <HeaderApp />
+          {/* <div className="h-1 bg-gradient-to-r from-tertiary-500/50 to-tertiary-400/50 -mt-2"></div> */}
         </div>
         {/* <header>
         {user ? (

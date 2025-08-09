@@ -16,6 +16,7 @@ import { FaCheck } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { CiSettings } from "react-icons/ci";
 
 interface Subscription {
   id: string;
@@ -395,16 +396,28 @@ export default function ParamPage() {
   }
 
   return (
-    <div className="min-h-screen bg-noir-700 pb-8">
-      <div className="container mx-auto max-w-4xl px-4 py-8">
+    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-20">
+      <div className="flex flex-col relative gap-6 w-full mt-23">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white font-one tracking-wide mb-2">
-            Paramètres du compte
-          </h1>
-          <p className="text-white/70 font-one">
-            Gérez votre compte, abonnement et préférences
-          </p>
+        <div className="">
+          <div className="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+                <CiSettings
+                  size={28}
+                  className="text-tertiary-400 animate-pulse"
+                />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
+                  Paramètres du compte
+                </h1>
+                <p className="text-white/70 text-xs font-one mt-1">
+                  Gérez votre compte, abonnement et préférences
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -414,7 +427,7 @@ export default function ParamPage() {
               onClick={() => toggleSection("account")}
               className="w-full flex items-center justify-between mb-4"
             >
-              <h2 className="flex items-center gap-3 text-xl font-bold text-white font-one">
+              <h2 className="flex items-center gap-3 text-xl text-white font-one">
                 <CiUser size={24} className="text-tertiary-400" />
                 Informations du compte
               </h2>
@@ -427,41 +440,43 @@ export default function ParamPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                    <label className="text-sm font-semibold text-white/80 font-one mb-2 block">
+                    <label className="text-sm text-white/80 font-one mb-2 block">
                       Nom du salon
                     </label>
-                    <p className="text-white font-two text-lg">
+                    <p className="text-white font-one text-lg">
                       {user?.salonName || "Nom non défini"}
                     </p>
                   </div>
                   <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                    <label className="text-sm font-semibold text-white/80 font-one mb-2 block">
+                    <label className="text-sm text-white/80 font-one mb-2 block">
                       Email
                     </label>
-                    <p className="text-white font-two">
+                    <p className="text-white font-one">
                       {user?.email || "Email non défini"}
                     </p>
                   </div>
                   <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                    <label className="text-sm font-semibold text-white/80 font-one mb-2 block">
+                    <label className="text-sm text-white/80 font-one mb-2 block">
                       Téléphone
                     </label>
-                    <p className="text-white font-two">
+                    <p className="text-white font-one">
                       {user?.phone || "Non renseigné"}
                     </p>
                   </div>
                   <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                    <label className="text-sm font-semibold text-white/80 font-one mb-2 block">
+                    <label className="text-sm text-white/80 font-one mb-2 block">
                       Adresse
                     </label>
-                    <p className="text-white font-two">
+                    <p className="text-white font-one">
                       {user?.address || "Non renseignée"}
                     </p>
                   </div>
                 </div>
 
+                <div className="h-[0.5px] bg-white/10"></div>
+
                 <div className="flex justify-end">
-                  <button className="px-4 py-2 bg-tertiary-400/20 hover:bg-tertiary-400/30 text-tertiary-400 border border-tertiary-400/30 rounded-lg text-sm font-one font-medium transition-colors">
+                  <button className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg">
                     Modifier les informations
                   </button>
                 </div>
@@ -475,7 +490,7 @@ export default function ParamPage() {
               onClick={() => toggleSection("subscription")}
               className="w-full flex items-center justify-between mb-4"
             >
-              <h2 className="flex items-center gap-3 text-xl font-bold text-white font-one">
+              <h2 className="flex items-center gap-3 text-xl text-white font-one">
                 <CiCreditCard1 size={24} className="text-tertiary-400" />
                 Abonnement
               </h2>
@@ -629,15 +644,17 @@ export default function ParamPage() {
                   )}
                 </div>
 
+                <div className="h-[0.5px] bg-white/10"></div>
+
                 {/* Actions */}
-                <div className="flex gap-3">
+                <div className="flex justify-end gap-3">
                   <button
                     onClick={() => setShowPlanModal(true)}
-                    className="cursor-pointer px-4 py-2 bg-tertiary-400/20 hover:bg-tertiary-400/30 text-tertiary-400 border border-tertiary-400/30 rounded-lg text-sm font-one font-medium transition-colors"
+                    className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
                   >
                     Changer de plan
                   </button>
-                  <button className="cursor-pointer px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-sm font-one font-medium transition-colors">
+                  <button className="cursor-pointer px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors">
                     Annuler l'abonnement
                   </button>
                 </div>
@@ -651,7 +668,7 @@ export default function ParamPage() {
               onClick={() => toggleSection("notifications")}
               className="w-full flex items-center justify-between mb-4"
             >
-              <h2 className="flex items-center gap-3 text-xl font-bold text-white font-one">
+              <h2 className="flex items-center gap-3 text-xl text-white font-one">
                 <CiBellOn size={24} className="text-tertiary-400" />
                 Notifications
               </h2>
@@ -666,7 +683,7 @@ export default function ParamPage() {
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-white font-one font-semibold mb-1">
+                      <h3 className="text-white font-one mb-1">
                         Notifications par email
                       </h3>
                       <p className="text-white/60 text-sm font-one">
@@ -694,7 +711,7 @@ export default function ParamPage() {
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-white font-one font-semibold mb-1">
+                      <h3 className="text-white font-one mb-1">
                         Rappels de rendez-vous
                       </h3>
                       <p className="text-white/60 text-sm font-one">
@@ -722,7 +739,7 @@ export default function ParamPage() {
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-white font-one font-semibold mb-1">
+                      <h3 className="text-white font-one mb-1">
                         Rappels de suivi
                       </h3>
                       <p className="text-white/60 text-sm font-one">
@@ -750,7 +767,7 @@ export default function ParamPage() {
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-white font-one font-semibold mb-1">
+                      <h3 className="text-white font-one mb-1">
                         Emails marketing
                       </h3>
                       <p className="text-white/60 text-sm font-one">
@@ -783,7 +800,7 @@ export default function ParamPage() {
               onClick={() => toggleSection("security")}
               className="w-full flex items-center justify-between mb-4"
             >
-              <h2 className="flex items-center gap-3 text-xl font-bold text-white font-one">
+              <h2 className="flex items-center gap-3 text-xl text-white font-one">
                 <CiLock size={24} className="text-tertiary-400" />
                 Sécurité
               </h2>
@@ -794,29 +811,29 @@ export default function ParamPage() {
 
             {openSections.security && (
               <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-white font-one font-semibold mb-2">
-                    Mot de passe
-                  </h3>
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
+                  <h3 className="text-white font-one mb-2">Mot de passe</h3>
                   {/* <p className="text-white/60 text-sm font-one mb-3">
                     Dernière modification: Il y a 2 mois
                   </p> */}
                   <button
                     onClick={() => setShowPasswordModal(true)}
-                    className="cursor-pointer px-4 py-2 bg-tertiary-400/20 hover:bg-tertiary-400/30 text-tertiary-400 border border-tertiary-400/30 rounded-lg text-sm font-one font-medium transition-colors"
+                    className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
                   >
                     Changer le mot de passe
                   </button>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-white font-one font-semibold mb-2">
-                    Sessions actives
-                  </h3>
-                  <p className="text-white/60 text-sm font-one mb-3">
-                    Gérez les appareils connectés à votre compte
-                  </p>
-                  <button className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-sm font-one font-medium transition-colors">
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-white font-one mb-2">
+                      Sessions actives
+                    </h3>
+                    <p className="text-white/60 text-sm font-one mb-3">
+                      Gérez les appareils connectés à votre compte
+                    </p>
+                  </div>
+                  <button className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors">
                     Déconnecter tous les appareils
                   </button>
                 </div>
@@ -830,7 +847,7 @@ export default function ParamPage() {
               onClick={() => toggleSection("preferences")}
               className="w-full flex items-center justify-between mb-4"
             >
-              <h2 className="flex items-center gap-3 text-xl font-bold text-white font-one">
+              <h2 className="flex items-center gap-3 text-xl text-white font-one">
                 <MdOutlinePalette size={24} className="text-tertiary-400" />
                 Préférences
               </h2>
@@ -842,10 +859,8 @@ export default function ParamPage() {
             {openSections.preferences && (
               <div className="space-y-4">
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-white font-one font-semibold mb-2">
-                    Fuseau horaire
-                  </h3>
-                  <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-tertiary-400 transition-colors">
+                  <h3 className="text-white font-one mb-2">Fuseau horaire</h3>
+                  <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors">
                     <option value="Europe/Paris">Europe/Paris (UTC+1)</option>
                     <option value="Europe/London">Europe/London (UTC+0)</option>
                     <option value="America/New_York">
@@ -855,10 +870,8 @@ export default function ParamPage() {
                 </div>
 
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-white font-one font-semibold mb-2">
-                    Langue
-                  </h3>
-                  <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-tertiary-400 transition-colors">
+                  <h3 className="text-white font-one mb-2">Langue</h3>
+                  <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors">
                     <option value="fr">Français</option>
                     <option value="en">English</option>
                     <option value="es">Español</option>
@@ -1190,14 +1203,14 @@ export default function ParamPage() {
                       passwordForm.reset();
                     }}
                     disabled={isChangingPassword}
-                    className="cursor-pointer flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="cursor-pointer w-full flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
                     disabled={isChangingPassword}
-                    className="cursor-pointer flex-1 px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm flex items-center justify-center gap-2"
+                    className="cursor-pointer w-full flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
                   >
                     {isChangingPassword ? (
                       <>
