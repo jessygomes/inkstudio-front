@@ -67,12 +67,6 @@ export default function RendezVousToday({ userId }: { userId: string }) {
   const [selectedAppointment, setSelectedAppointment] =
     useState<RendezVous | null>(null);
 
-  //! Nouvel état pour la modale d'image - on peut le supprimer
-  // const [selectedImage, setSelectedImage] = useState<{
-  //   url: string;
-  //   alt: string;
-  // } | null>(null);
-
   const fetchTodayAppointments = async (date?: string) => {
     try {
       setLoading(true);
@@ -112,21 +106,6 @@ export default function RendezVousToday({ userId }: { userId: string }) {
     const startDate = new Date(start);
     const endDate = new Date(end);
     return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "CONFIRMED":
-        return "Confirmé";
-      case "PENDING":
-        return "En attente";
-      case "CANCELLED":
-        return "Annulé";
-      case "RESCHEDULING":
-        return "Reprogrammation";
-      default:
-        return status;
-    }
   };
 
   // Navigation
@@ -410,19 +389,43 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                     </div>
                   </div>
                 </div>
-                <span
-                  className={`px-2 py-1 rounded-lg text-xs font-one font-medium border flex-shrink-0 ml-2 ${
-                    appointment.status === "CONFIRMED"
-                      ? "bg-green-900/50 text-green-400 border-green-600/30"
-                      : appointment.status === "PENDING"
-                      ? "bg-amber-900/50 text-amber-400 border-amber-600/30"
-                      : appointment.status === "RESCHEDULING"
-                      ? "bg-blue-900/50 text-blue-400 border-blue-600/30"
-                      : "bg-red-900/50 text-red-400 border-red-600/30"
-                  }`}
-                >
-                  {getStatusLabel(appointment.status)}
-                </span>
+                {appointment.status === "PENDING" ? (
+                  <div className="bg-gradient-to-r from-orange-500/15 to-orange-500/15 border border-orange-400/30 rounded-lg p-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                      <span className="text-orange-300 font-medium font-one text-xs">
+                        En attente
+                      </span>
+                    </div>
+                  </div>
+                ) : appointment.status === "RESCHEDULING" ? (
+                  <div className="bg-gradient-to-r from-blue-500/15 to-blue-500/15 border border-blue-400/30 rounded-lg p-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                      <span className="text-blue-300 font-medium font-one text-xs">
+                        Reprogrammation
+                      </span>
+                    </div>
+                  </div>
+                ) : appointment.status === "CONFIRMED" ? (
+                  <div className="bg-gradient-to-r from-green-500/15 to-green-500/15 border border-green-400/30 rounded-lg p-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-green-300 font-medium font-one text-xs">
+                        Confirmé
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-gradient-to-r from-red-500/15 to-red-500/15 border border-red-400/30 rounded-lg p-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                      <span className="text-red-300 font-medium font-one text-xs">
+                        Annulé
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}

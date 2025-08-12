@@ -64,7 +64,7 @@ export default function UpdateRdv({
   useEffect(() => {
     const fetchTatoueurs = async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`
+        `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${userId}`
       );
       const data = await response.json();
       setTatoueurs(data);

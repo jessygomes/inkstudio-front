@@ -167,8 +167,6 @@ export default function WaitingRdv({ userId }: { userId: string }) {
     return diffDays;
   };
 
-  console.log("Pending appointments:", appointments);
-
   //! Gérer le statut de paiement
   const handlePaymentStatusChange = async (rdvId: string, isPayed: boolean) => {
     try {
@@ -307,8 +305,6 @@ export default function WaitingRdv({ userId }: { userId: string }) {
     setSelectedAppointment(null);
     setActionMessage("");
   };
-
-  console.log("Selected appointment details:", selectedAppointmentDetails);
 
   //! CHARGEMENT
   if (loading) {

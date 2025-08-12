@@ -151,6 +151,14 @@ export const updateAppointmentSchema = z.object({
     .optional(),
 });
 
+export const proposeCreneauSchema = z.object({
+  proposedDate: z.string().min(10, "La date est requise."),
+  proposedFrom: z.string().min(5, "L'heure de début est requise."),
+  proposedTo: z.string().min(5, "L'heure de fin est requise."),
+  tatoueurId: z.string().min(1, "Le tatoueur est requis."),
+  message: z.string().optional(),
+});
+
 //! CLIENT
 export const clientSchema = z.object({
   firstName: z.string().min(1, "Le prénom est requis."),

@@ -1,6 +1,7 @@
 "use client";
 
 import CancelFillRate from "@/components/Application/Dashboard/CancelFillRate";
+import DemandeRdvClient from "@/components/Application/Dashboard/DemandeRdvClient";
 import NewClientsCount from "@/components/Application/Dashboard/NewClientsCount";
 import NotAnswerClient from "@/components/Application/Dashboard/NotAnswerClient";
 import RendezVousToday from "@/components/Application/Dashboard/RendezVousToday";
@@ -108,8 +109,18 @@ export default function DashboardPage() {
             <WaitingRdv userId={user.id ?? ""} />
           </div>
 
+          <div className="col-span-12 lg:col-span-4">
+            <DemandeRdvClient userId={user.id ?? ""} />
+          </div>
+
           {!isFreeAccount && (
-            <div className="col-span-12 lg:col-span-4">
+            <div className="col-span-12 lg:col-span-6">
+              <NotAnswerClient userId={user.id ?? ""} />
+            </div>
+          )}
+
+          {!isFreeAccount && (
+            <div className="col-span-12 lg:col-span-6">
               <NotAnswerClient userId={user.id ?? ""} />
             </div>
           )}

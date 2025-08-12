@@ -317,9 +317,14 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
                         {followUp.appointment.client.firstName}{" "}
                         {followUp.appointment.client.lastName}
                       </h4>
-                      <span className="text-orange-400 text-xs bg-orange-500/20 px-2 py-0.5 rounded-full border border-orange-500/30 flex-shrink-0 ml-2">
-                        En attente
-                      </span>
+                      <div className="bg-gradient-to-r from-orange-500/15 to-orange-500/15 border border-orange-400/30 rounded-lg p-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                          <span className="text-orange-300 font-medium font-one text-xs">
+                            En attente
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
                     <p className="text-xs text-gray-300 truncate mb-2 font-one flex items-center gap-3">
