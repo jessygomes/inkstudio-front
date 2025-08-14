@@ -256,7 +256,7 @@ export default function ProposeCreneau({
           setShowModal(true);
         }}
         disabled={loading || mutation.isPending}
-        className="cursor-pointer px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-600/30 rounded text-xs font-one font-medium transition-colors flex items-center gap-1 disabled:opacity-60"
+        className="cursor-pointer px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-600/30 rounded-lg text-xs font-one font-medium transition-colors flex items-center gap-1 disabled:opacity-60"
       >
         <svg
           className="w-3 h-3"
@@ -275,8 +275,8 @@ export default function ProposeCreneau({
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 z-[9999] bg-noir-700 rounded-3xl backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-noir-500 h-full rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div className="fixed inset-0 z-[9999] bg-noir-700 rounded-lg backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-noir-500 h-full rounded-lg w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             {/* Header */}
             <div className="p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
@@ -296,7 +296,7 @@ export default function ProposeCreneau({
               </p>
             </div>
 
-            {/* Contenu */}
+            {/* Contenu scrollable */}
             <div className="flex-1 overflow-y-auto p-4">
               {/* Récap client */}
               {demande && (
@@ -387,7 +387,10 @@ export default function ProposeCreneau({
                 </div>
               )}
 
-              <form onSubmit={form.handleSubmit(onSubmit)}>
+              <form
+                id="propose-creneau-form"
+                onSubmit={form.handleSubmit(onSubmit)}
+              >
                 {/* Tatoueur */}
                 <div className="space-y-1 mb-4">
                   <label className="text-xs text-white/70 font-one">
@@ -545,54 +548,55 @@ export default function ProposeCreneau({
                     <p className="text-red-300 text-xs">{error}</p>
                   </div>
                 )}
-
-                {/* Footer */}
-                <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    disabled={mutation.isPending}
-                    className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={
-                      mutation.isPending ||
-                      loading ||
-                      !watchTatoueurId ||
-                      !selectedSlots.length ||
-                      !selectedDateStr
-                    }
-                    className="cursor-pointer px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {mutation.isPending || loading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                        <span>Envoi de la proposition...</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg
-                          className="w-3 h-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        <span>Envoyer la proposition</span>
-                      </>
-                    )}
-                  </button>
-                </div>
               </form>
+            </div>
+
+            {/* Footer fixé en bas */}
+            <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                disabled={mutation.isPending}
+                className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                form="propose-creneau-form"
+                disabled={
+                  mutation.isPending ||
+                  loading ||
+                  !watchTatoueurId ||
+                  !selectedSlots.length ||
+                  !selectedDateStr
+                }
+                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {mutation.isPending || loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                    <span>Envoi de la proposition...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>Envoyer la proposition</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -600,3 +604,5 @@ export default function ProposeCreneau({
     </div>
   );
 }
+
+// Remarque : Ajoutez l'attribut id="propose-creneau-form" au <form> pour que le bouton submit fonctionne même en dehors du scrollable.

@@ -111,7 +111,7 @@ export default function ChangeRdv({
       {/* Modale de proposition */}
       {showModal && (
         <div className="fixed inset-0 z-[9999] bg-noir-700 rounded-xl backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-noir-500 h-full rounded-xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+          <div className="bg-noir-500 h-full rounded-lg w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             {/* Header */}
             <div className="p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">

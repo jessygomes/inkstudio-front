@@ -5,6 +5,7 @@ import ProposeCreneau from "./DemandeRdvBtn/ProposeCreneau";
 import CreateRdvViaDemande from "./DemandeRdvBtn/CreateRdvViaDemande";
 import { fr } from "date-fns/locale";
 import { format as formatDateFns } from "date-fns";
+import DeclinedDemande from "./DemandeRdvBtn/DeclinedDemande";
 
 /* =====================
   Types (alignés sur ton style)
@@ -38,6 +39,7 @@ export interface AppointmentRequest {
     | "DECLINED"
     | "EXPIRED"
     | "CANCELED"
+    | "CLOSED"
     | string;
   clientFirstname: string;
   clientLastname: string;
@@ -322,6 +324,15 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                           </span>
                         </div>
                       </div>
+                    ) : d.status === "CLOSED" ? (
+                      <div className="bg-gradient-to-r from-red-500/15 to-red-500/15 border border-red-400/30 rounded-lg p-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                          <span className="text-red-300 font-medium font-one text-xs">
+                            Demande clôturée
+                          </span>
+                        </div>
+                      </div>
                     ) : (
                       <div className="bg-gradient-to-r from-green-500/15 to-green-500/15 border border-green-400/30 rounded-lg p-2">
                         <div className="flex items-center gap-2">
@@ -435,6 +446,15 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                           </span>
                         </div>
                       </div>
+                    ) : selected.status === "CLOSED" ? (
+                      <div className="bg-gradient-to-r from-red-500/15 to-red-500/15 border border-red-400/30 rounded-lg p-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                          <span className="text-red-300 font-medium font-one text-xs">
+                            Demande clôturée
+                          </span>
+                        </div>
+                      </div>
                     ) : (
                       <div className="bg-gradient-to-r from-green-500/15 to-green-500/15 border border-green-400/30 rounded-lg p-2">
                         <div className="flex items-center gap-2">
@@ -456,34 +476,54 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                   <div className="flex items-center gap-1 flex-wrap">
                     {selected.status === "ACCEPTED" && <CreateRdvViaDemande />}
 
-                    {selected.status === "PENDING" ||
-                      (selected.status !== "DECLINED" &&
-                        selected.status !== "ACCEPTED" && (
-                          <ProposeCreneau
-                            userId={userId}
-                            demande={selected}
-                            onUpdate={() => {
-                              fetchPendingDemandes();
-                            }}
-                          />
-                        ))}
+                    {selected.status === "PENDING" && (
+                      <>
+                        <ProposeCreneau
+                          userId={userId}
+                          demande={selected}
+                          onUpdate={() => {
+                            fetchPendingDemandes();
+                          }}
+                        />
+
+                        <DeclinedDemande
+                          userId={userId}
+                          demande={selected}
+                          onDeclined={() => {
+                            fetchPendingDemandes();
+                          }}
+                        />
+                      </>
+                    )}
 
                     {selected.status === "DECLINED" && (
-                      <ProposeCreneau
+                      <>
+                        <ProposeCreneau
+                          userId={userId}
+                          demande={selected}
+                          onUpdate={() => {
+                            fetchPendingDemandes();
+                          }}
+                        />
+
+                        <DeclinedDemande
+                          userId={userId}
+                          demande={selected}
+                          onDeclined={() => {
+                            fetchPendingDemandes();
+                          }}
+                        />
+                      </>
+                    )}
+
+                    {selected.status === "PROPOSED" && (
+                      <DeclinedDemande
                         userId={userId}
                         demande={selected}
-                        onUpdate={() => {
+                        onDeclined={() => {
                           fetchPendingDemandes();
                         }}
                       />
-
-                      // <CloturerDemande
-                      //   userId={userId}
-                      //   demande={selected}
-                      //   onUpdate={() => {
-                      //     fetchPendingDemandes();
-                      //   }}
-                      // />
                     )}
                   </div>
                 </div>
