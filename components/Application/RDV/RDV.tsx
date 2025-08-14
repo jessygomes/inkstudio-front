@@ -357,25 +357,44 @@ export default function RDV() {
                 </p>
               </div>
             </div>
-            <Link
-              href={"/mes-rendez-vous/creer"}
-              className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+
+            <div className="flex gap-2">
+              <Link
+                href={"/mes-rendez-vous/creer"}
+                className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Créer un rendez-vous
-            </Link>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Créer un rendez-vous
+              </Link>
+
+              <div className="relative">
+                <Link
+                  href="/mes-rendez-vous/demandes"
+                  className="cursor-pointer text-center px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center justify-center gap-2"
+                >
+                  Demandes de rdv
+                  {/* {unansweredFollowUpsCount > 0 && (
+                <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                  {unansweredFollowUpsCount > 99
+                    ? "99+"
+                    : unansweredFollowUpsCount}
+                </span>
+              )} */}
+                </Link>
+              </div>
+            </div>
           </div>
 
           <Search />

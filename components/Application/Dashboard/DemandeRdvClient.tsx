@@ -2,7 +2,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import ProposeCreneau from "./DemandeRdvBtn/ProposeCreneau";
-import CreateRdvViaDemande from "./DemandeRdvBtn/CreateRdvViaDemande";
 import { fr } from "date-fns/locale";
 import { format as formatDateFns } from "date-fns";
 import DeclinedDemande from "./DemandeRdvBtn/DeclinedDemande";
@@ -269,31 +268,35 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                       <p className="text-[10px] font-one text-gray-300 truncate">
                         {d.prestation}
                       </p>
-                      <div className="flex items-center gap-3 text-xs font-one text-gray-400 mt-1">
-                        <div className="w-full">
-                          <span>
-                            {primary?.date
-                              ? formatFancySlot(
-                                  primary.date,
-                                  primary.from,
-                                  primary.to
-                                )
-                              : "Sans date"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="w-full text-xs font-one text-gray-400">
-                        {alternative?.date && (
-                          <span>
-                            <span className="text-white">OU</span>{" "}
-                            {formatFancySlot(
-                              alternative.date,
-                              alternative.from,
-                              alternative.to
+                      {d.status !== "ACCEPTED" && (
+                        <>
+                          <div className="flex items-center gap-3 text-xs font-one text-gray-400 mt-1">
+                            <div className="w-full">
+                              <span>
+                                {primary?.date
+                                  ? formatFancySlot(
+                                      primary.date,
+                                      primary.from,
+                                      primary.to
+                                    )
+                                  : "Sans date"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="w-full text-xs font-one text-gray-400">
+                            {alternative?.date && (
+                              <span>
+                                <span className="text-white">OU</span>{" "}
+                                {formatFancySlot(
+                                  alternative.date,
+                                  alternative.from,
+                                  alternative.to
+                                )}
+                              </span>
                             )}
-                          </span>
-                        )}
-                      </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div>
@@ -338,7 +341,7 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                           <span className="text-green-300 font-medium font-one text-xs">
-                            Demande acceptée
+                            Demande acceptée - RDV Créé
                           </span>
                         </div>
                       </div>
@@ -474,8 +477,6 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                 {/* Actions */}
                 <div className="border-white/10">
                   <div className="flex items-center gap-1 flex-wrap">
-                    {selected.status === "ACCEPTED" && <CreateRdvViaDemande />}
-
                     {selected.status === "PENDING" && (
                       <>
                         <ProposeCreneau

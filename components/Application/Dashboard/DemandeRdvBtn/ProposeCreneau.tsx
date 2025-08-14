@@ -496,14 +496,14 @@ export default function ProposeCreneau({
                 {/* Message */}
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-4">
                   <h3 className="text-white font-semibold font-one mb-3 text-sm">
-                    💬 Message de confirmation
+                    💬 Message
                   </h3>
                   <div className="space-y-3">
                     <textarea
                       {...form.register("message")}
                       value={watchMessage}
-                      placeholder="Message personnalisé de confirmation (optionnel)..."
-                      className="w-full h-20 p-3 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-tertiary-400 focus:border-transparent resize-none transition-colors"
+                      placeholder="Message personnalisé (optionnel)..."
+                      className="w-full h-20 p-3 bg-white/10 border border-white/20 rounded-lg text-white text-xs placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-tertiary-400 focus:border-transparent resize-none transition-colors"
                       maxLength={300}
                       disabled={mutation.isPending}
                       onChange={(e) => form.setValue("message", e.target.value)}
