@@ -53,6 +53,22 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
             </div>
           )}
 
+          {salon.prestations && salon.prestations.length > 0 && (
+            <div>
+              <p className="text-white/60 font-one text-xs mb-1">Prestations</p>
+              <ul className="text-white font-one flex gap-2 text-xs">
+                {salon.prestations.map((prestation) => (
+                  <li
+                    className="bg-white/5 px-2 py-1 rounded-lg"
+                    key={prestation}
+                  >
+                    {prestation}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Réseaux sociaux */}
           {(salon.instagram ||
             salon.facebook ||
@@ -65,7 +81,7 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
                   <Link
                     href={salon.instagram}
                     target="_blank"
-                    className="flex items-center gap-2 font-one px-2 py-1 bg-pink-500/20 text-white border border-pink-500/30 rounded-full text-xs hover:bg-pink-500/30 transition-colors"
+                    className="flex items-center gap-2 font-one px-2 py-1 bg-pink-500/20 text-white border border-pink-500/30 rounded-lg text-xs hover:bg-pink-500/30 transition-colors"
                   >
                     <CiInstagram size={15} /> Instagram
                   </Link>
@@ -74,7 +90,7 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
                   <Link
                     href={salon.facebook}
                     target="_blank"
-                    className="flex items-center gap-2 font-one px-2 py-1 bg-blue-500/20 text-white border border-blue-500/30 rounded-full text-xs hover:bg-blue-500/30 transition-colors"
+                    className="flex items-center gap-2 font-one px-2 py-1 bg-blue-500/20 text-white border border-blue-500/30 rounded-lg text-xs hover:bg-blue-500/30 transition-colors"
                   >
                     <CiFacebook size={15} /> Facebook
                   </Link>
@@ -83,7 +99,7 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
                   <Link
                     href={salon.tiktok}
                     target="_blank"
-                    className="flex items-center gap-2 font-one px-2 py-1 bg-gray-500/20 text-white border border-gray-500/30 rounded-full text-xs hover:bg-gray-500/30 transition-colors"
+                    className="flex items-center gap-2 font-one px-2 py-1 bg-gray-500/20 text-white border border-gray-500/30 rounded-lg text-xs hover:bg-gray-500/30 transition-colors"
                   >
                     <PiTiktokLogoThin size={15} /> TikTok
                   </Link>
@@ -92,7 +108,7 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
                   <Link
                     href={salon.website}
                     target="_blank"
-                    className="flex items-center gap-2 font-one px-2 py-1 bg-green-500/20 text-white border border-green-500/30 rounded-full text-xs hover:bg-green-500/30 transition-colors"
+                    className="flex items-center gap-2 font-one px-2 py-1 bg-green-500/20 text-white border border-green-500/30 rounded-lg text-xs hover:bg-green-500/30 transition-colors"
                   >
                     <TfiWorld size={14} /> Site Web
                   </Link>

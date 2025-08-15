@@ -54,6 +54,13 @@ export const getAuthenticatedUserSchema = z.object({
 });
 
 //! SALON
+export const prestationEnum = z.enum([
+  "TATTOO",
+  "RETOUCHE",
+  "PROJET",
+  "PIERCING",
+]);
+
 export const updateSalonSchema = z.object({
   salonName: z.string().min(2, "Nom requis"),
   firstName: z.string().min(1, "Prénom requis"),
@@ -68,6 +75,7 @@ export const updateSalonSchema = z.object({
   website: z.string().optional(),
   description: z.string().optional(),
   image: z.string().optional(),
+  prestations: z.array(prestationEnum).optional().default([]),
 });
 
 //! TATOUEUR
@@ -79,6 +87,8 @@ export const createTatoueurSchema = z.object({
   instagram: z.string().optional(),
   hours: z.string().optional(),
   userId: z.string(),
+  style: z.array(z.string()).optional(),
+  skills: z.array(z.string()).optional(),
 });
 
 //! RDV

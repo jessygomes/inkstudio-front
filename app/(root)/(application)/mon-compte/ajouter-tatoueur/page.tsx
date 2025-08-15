@@ -13,6 +13,7 @@ import TatoueurImageUploader from "@/components/Application/MonCompte/TatoueurIm
 
 import { CiUser } from "react-icons/ci";
 import { TbClockHour5 } from "react-icons/tb";
+import { IoClose } from "react-icons/io5";
 
 type Horaire = {
   [key: string]: { start: string; end: string } | null;
@@ -111,6 +112,8 @@ export default function AddOrUpdateTatoueurPage() {
       instagram: existingTatoueur?.instagram || "",
       hours: existingTatoueur?.hours || "",
       userId: salonId || "",
+      style: existingTatoueur?.style || [],
+      skills: existingTatoueur?.skills || [],
     },
   });
 
@@ -125,6 +128,8 @@ export default function AddOrUpdateTatoueurPage() {
         phone: existingTatoueur.phone || "",
         hours: existingTatoueur.hours || "",
         userId: salonId || "",
+        style: existingTatoueur.style || [],
+        skills: existingTatoueur.skills || [],
       });
 
       if (existingTatoueur.hours) {
@@ -132,6 +137,58 @@ export default function AddOrUpdateTatoueurPage() {
       }
     }
   }, [existingTatoueur, form, salonId]);
+
+  // Pour gérer les badges style et skills
+  const [styleInput, setStyleInput] = useState("");
+  const [skillsInput, setSkillsInput] = useState("");
+  const [styleBadges, setStyleBadges] = useState<string[]>(
+    form.watch("style") || []
+  );
+  const [skillsBadges, setSkillsBadges] = useState<string[]>(
+    form.watch("skills") || []
+  );
+
+  // Synchronise badges avec form (utile en édition)
+  useEffect(() => {
+    setStyleBadges(form.watch("style") || []);
+    setSkillsBadges(form.watch("skills") || []);
+  }, [existingTatoueur]);
+
+  // Ajout badge style
+  const handleAddStyle = () => {
+    const val = styleInput.trim();
+    if (val && !styleBadges.includes(val)) {
+      const updated = [...styleBadges, val];
+      setStyleBadges(updated);
+      form.setValue("style", updated);
+    }
+    setStyleInput("");
+  };
+
+  // Ajout badge skill
+  const handleAddSkill = () => {
+    const val = skillsInput.trim();
+    if (val && !skillsBadges.includes(val)) {
+      const updated = [...skillsBadges, val];
+      setSkillsBadges(updated);
+      form.setValue("skills", updated);
+    }
+    setSkillsInput("");
+  };
+
+  // Suppression badge style
+  const handleRemoveStyle = (val: string) => {
+    const updated = styleBadges.filter((s) => s !== val);
+    setStyleBadges(updated);
+    form.setValue("style", updated);
+  };
+
+  // Suppression badge skill
+  const handleRemoveSkill = (val: string) => {
+    const updated = skillsBadges.filter((s) => s !== val);
+    setSkillsBadges(updated);
+    form.setValue("skills", updated);
+  };
 
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
     if (!salonId) return;
@@ -189,30 +246,26 @@ export default function AddOrUpdateTatoueurPage() {
 
   return (
     <div className="min-h-screen w-full bg-noir-700">
-      <div className="container">
+      <div className="container pt-24">
         {/* Header */}
-        <div className="mb-8">
-          <div className="w-full bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg p-6 border-b border-white/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/mon-compte"
-                  className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 border border-white/20"
-                >
-                  ←
-                </Link>
-              </div>
-              <div className="space-y-2 w-full">
-                <h1 className="text-3xl font-bold text-white font-one tracking-widest text-center">
-                  {isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
-                </h1>
-                <p className="text-white/70 font-one text-sm text-center">
-                  {isEditing
-                    ? "Modifiez les informations du tatoueur"
-                    : "Ajoutez un nouveau membre à votre équipe"}
-                </p>
-              </div>
-            </div>
+        <div className="flex items-center gap-4 max-w-6xl mx-auto mb-8">
+          <div className="w-12 h-12 flex items-center justify-center ">
+            <Link
+              href="/mon-compte"
+              className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 border border-white/20"
+            >
+              ←
+            </Link>
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-white font-one tracking-widest text-center">
+              {isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
+            </h1>
+            <p className="text-white/70 text-xs font-one mt-1">
+              {isEditing
+                ? "Modifiez les informations du tatoueur"
+                : "Ajoutez un nouveau membre à votre équipe"}
+            </p>
           </div>
         </div>
 
@@ -287,6 +340,101 @@ export default function AddOrUpdateTatoueurPage() {
                     />
                   </div>
                 </div>
+
+                {/* Ajouté : Compétences (badges) */}
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">
+                    Compétences (ex: Tatouage, Piercing)
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={skillsInput}
+                      onChange={(e) => setSkillsInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddSkill();
+                        }
+                      }}
+                      placeholder="Ajouter une compétence et appuyer sur Entrée"
+                      className="flex-1 p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddSkill}
+                      className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+                    >
+                      Ajouter
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {skillsBadges.map((skill) => (
+                      <span
+                        key={skill}
+                        className="bg-tertiary-400/20 text-tertiary-400 px-2 py-1 rounded-lg font-one text-xs flex items-center gap-1"
+                      >
+                        {skill}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSkill(skill)}
+                          className="ml-1 text-tertiary-400 hover:text-red-400"
+                          title="Supprimer"
+                        >
+                          <IoClose size={14} className="cursor-pointer" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Ajouté : Styles (badges) */}
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">
+                    Styles (ex: Japonais, Old School)
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={styleInput}
+                      onChange={(e) => setStyleInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddStyle();
+                        }
+                      }}
+                      placeholder="Ajouter un style et appuyer sur Entrée"
+                      className="flex-1 p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddStyle}
+                      className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+                    >
+                      Ajouter
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {styleBadges.map((style) => (
+                      <span
+                        key={style}
+                        className="bg-tertiary-400/20 text-tertiary-400 px-2 py-1 rounded-lg font-one text-xs flex items-center gap-1"
+                      >
+                        {style}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveStyle(style)}
+                          className="ml-1 text-tertiary-400 hover:text-red-400"
+                          title="Supprimer"
+                        >
+                          <IoClose size={14} className="cursor-pointer" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                {/* ...existing code... */}
               </div>
             </div>
 

@@ -105,6 +105,7 @@ export interface UpdateSalonUserProps {
   tiktok: string | null;
   website: string | null;
   image: string | null;
+  prestations: string[]; // Liste des prestations
 }
 
 //! TATTOO HISTORY

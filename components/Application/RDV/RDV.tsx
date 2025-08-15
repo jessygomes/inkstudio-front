@@ -56,6 +56,9 @@ export default function RDV() {
   const [prestationFilter, setPrestationFilter] = useState<string>("all");
   const [tatoueurFilter, setTatoueurFilter] = useState<string>("all");
 
+  //! Nouveau state pour les demandes non répondus
+  const [unansweredDemandesCount, setUnansweredDemandesCount] = useState(0);
+
   //! Afficher les infos d'un RDV
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
@@ -67,8 +70,10 @@ export default function RDV() {
     setSelectedEvent(null);
   };
 
-  //! Loader
-  // const [loading, setLoading] = useState(false);
+  //! OUVRIR L'IMAGE EN GRAND
+  const openImageInNewTab = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   //! Déterminer la plage de dates en fonction de la vue
   const getDateRange = (view: string, date: Date) => {
@@ -302,9 +307,31 @@ export default function RDV() {
     }
   };
 
-  const openImageInNewTab = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
+  //! Nouvelle fonction pour récupérer le nombre de suivis non répondus
+  const fetchUnansweredDemandesCount = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/appointment-requests/not-confirmed/count/${user.id}`,
+        {
+          cache: "no-store",
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setUnansweredDemandesCount(data.count || 0);
+      }
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération du nombre de suivis non répondus:",
+        error
+      );
+    }
   };
+
+  useEffect(() => {
+    fetchUnansweredDemandesCount();
+  }, [user.id]);
 
   return (
     <div className="w-full flex gap-6">
@@ -385,13 +412,13 @@ export default function RDV() {
                   className="cursor-pointer text-center px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center justify-center gap-2"
                 >
                   Demandes de rdv
-                  {/* {unansweredFollowUpsCount > 0 && (
-                <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
-                  {unansweredFollowUpsCount > 99
-                    ? "99+"
-                    : unansweredFollowUpsCount}
-                </span>
-              )} */}
+                  {unansweredDemandesCount > 0 && (
+                    <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                      {unansweredDemandesCount > 99
+                        ? "99+"
+                        : unansweredDemandesCount}
+                    </span>
+                  )}
                 </Link>
               </div>
             </div>

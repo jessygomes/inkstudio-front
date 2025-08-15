@@ -13,6 +13,8 @@ export type TatoueurProps = {
   phone?: string;
   instagram?: string;
   hours?: string | null;
+  style: string[];
+  skills: string[];
 };
 
 export default function TatoueurSalon({
@@ -117,6 +119,8 @@ export default function TatoueurSalon({
     }
   };
 
+  console.log(tatoueurs);
+
   return (
     <div className="w-full flex flex-col">
       {/* Header avec bouton d'ajout */}
@@ -213,6 +217,43 @@ export default function TatoueurSalon({
                         📞 {tatoueur.phone}
                       </p>
                     )}
+                    <div className="flex items-center gap-1 flex-wrap mt-1">
+                      <p className="text-xs font-one text-white/50">
+                        Compétences :
+                      </p>
+                      {tatoueur.skills && tatoueur.skills.length > 0 ? (
+                        tatoueur.skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className="bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/20 text-tertiary-400 px-2 py-1 rounded-lg text-xs font-one"
+                          >
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-white/50 text-xs">
+                          Aucune compétence
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1 flex-wrap mt-1">
+                      <p className="text-xs font-one text-white/50">Style :</p>
+                      {tatoueur.style && tatoueur.style.length > 0 ? (
+                        tatoueur.style.map((style) => (
+                          <span
+                            key={style}
+                            className="bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/20 text-tertiary-400 px-2 py-1 rounded-lg text-xs font-one"
+                          >
+                            {style}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-white/50 text-xs">
+                          Aucun style
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 

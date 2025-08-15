@@ -120,7 +120,7 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
       setLoading(true);
       setError(null);
       const res = await fetch(
-        `${BACK_URL}/appointments/appointment-requests/${userId}`,
+        `${BACK_URL}/appointments/appointment-requests/not-confirmed/${userId}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },

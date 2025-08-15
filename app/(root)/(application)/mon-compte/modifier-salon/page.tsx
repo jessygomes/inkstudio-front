@@ -46,6 +46,7 @@ export default function UpdateAccountPage() {
           website: data.website ?? undefined,
           description: data.description ?? undefined,
           image: data.image ?? undefined,
+          prestations: data.prestations ?? [],
         });
       } catch (error) {
         console.error("Error fetching salon data:", error);
@@ -57,6 +58,8 @@ export default function UpdateAccountPage() {
 
   const onSubmit = async (data: z.infer<typeof updateSalonSchema>) => {
     if (!salon) return;
+
+    console.log("Submitting data:", data);
 
     setIsSubmitting(true);
     try {
@@ -104,34 +107,31 @@ export default function UpdateAccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-noir-700">
-      <div className="container mx-auto ">
+    <div className="min-h-screen w-full bg-noir-700">
+      <div className="container pt-24">
         {/* Header */}
-        <div className="mb-8">
-          <div className="w-full bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg p-6 border-b border-white/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/mon-compte"
-                  className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 border border-white/20"
-                >
-                  ←
-                </Link>
-              </div>
-              <div className="space-y-2 w-full">
-                <h1 className="text-3xl font-bold text-white font-one tracking-widest text-center">
-                  Modifier le salon
-                </h1>
-                <p className="text-white/70 font-one text-sm text-center">
-                  Mettez à jour les informations de votre salon
-                </p>
-              </div>
-            </div>
+
+        <div className="flex items-center gap-4 max-w-6xl mx-auto mb-8">
+          <div className="w-12 h-12 flex items-center justify-center ">
+            <Link
+              href="/mon-compte"
+              className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 border border-white/20"
+            >
+              ←
+            </Link>
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-white font-one tracking-widest text-center">
+              Modifier le salon
+            </h1>
+            <p className="text-white/70 text-xs font-one mt-1">
+              Mettez à jour les informations de votre salon
+            </p>
           </div>
         </div>
 
         {/* Form Content */}
-        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border-white/20 shadow-2xl">
+        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Section: Informations générales */}
             <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
@@ -296,6 +296,54 @@ export default function UpdateAccountPage() {
                   className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
                 />
               </div>
+            </div>
+
+            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                💼 Prestations proposées
+              </h3>
+
+              <p className="text-[11px] text-white/60 mb-3">
+                Sélectionnez une ou plusieurs prestations proposées par le
+                salon.
+              </p>
+
+              {(() => {
+                const options = [
+                  "TATTOO",
+                  "RETOUCHE",
+                  "PROJET",
+                  "PIERCING",
+                ] as const;
+                const selected = form.watch("prestations") ?? [];
+
+                return (
+                  <div className="flex flex-wrap gap-2">
+                    {options.map((opt) => {
+                      const isActive = selected.includes(opt);
+                      return (
+                        <label
+                          key={opt}
+                          className={`cursor-pointer px-3 py-1.5 rounded-lg text-[11px] font-one border transition
+                ${
+                  isActive
+                    ? "bg-tertiary-500/20 text-tertiary-200 border-tertiary-400/40 text-tertiary-400"
+                    : "bg-white/10 text-white/80 border-white/15 hover:bg-white/15"
+                }`}
+                        >
+                          <input
+                            type="checkbox"
+                            value={opt}
+                            {...form.register("prestations")}
+                            className="sr-only"
+                          />
+                          {opt}
+                        </label>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Section: Image */}
