@@ -1052,31 +1052,31 @@ export default function RDV() {
                       </div>
 
                       {/* Actions compactes */}
-                      <div className="border-t border-white/10 pt-2">
-                        <div className="flex items-center gap-1 flex-wrap">
-                          {selectedEvent.status !== "CONFIRMED" && (
-                            <ConfirmRdv
-                              rdvId={selectedEvent.id}
-                              appointment={selectedEvent}
-                            />
-                          )}
-                          <UpdateRdv
-                            rdv={selectedEvent as unknown as UpdateRdvFormProps}
-                            userId={userId || ""}
-                            onUpdate={() => handleRdvUpdated(selectedEvent.id)}
-                          />
-                          <ChangeRdv
+                    </div>
+                    <div className="">
+                      <div className="flex items-center gap-1 flex-wrap">
+                        {selectedEvent.status !== "CONFIRMED" && (
+                          <ConfirmRdv
                             rdvId={selectedEvent.id}
-                            userId={userId || ""}
                             appointment={selectedEvent}
                           />
-                          {selectedEvent.status !== "CANCELED" && (
-                            <CancelRdv
-                              rdvId={selectedEvent.id}
-                              appointment={selectedEvent}
-                            />
-                          )}
-                        </div>
+                        )}
+                        <UpdateRdv
+                          rdv={selectedEvent as unknown as UpdateRdvFormProps}
+                          userId={userId || ""}
+                          onUpdate={() => handleRdvUpdated(selectedEvent.id)}
+                        />
+                        <ChangeRdv
+                          rdvId={selectedEvent.id}
+                          userId={userId || ""}
+                          appointment={selectedEvent}
+                        />
+                        {selectedEvent.status !== "CANCELED" && (
+                          <CancelRdv
+                            rdvId={selectedEvent.id}
+                            appointment={selectedEvent}
+                          />
+                        )}
                       </div>
                     </div>
 

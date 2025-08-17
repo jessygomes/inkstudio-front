@@ -14,6 +14,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatTime, formatDate } from "@/lib/utils";
 
+type ProposeDto = z.infer<typeof proposeCreneauSchema>;
+
 export default function ProposeCreneau({
   userId,
   demande,
@@ -28,18 +30,29 @@ export default function ProposeCreneau({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Liste & sélection tatoueur
+  // Liste tatoueurs
   const [tatoueurs, setTatoueurs] = useState<TatoueurProps[]>([]);
 
-  // Créneaux
-  const [timeSlots, setTimeSlots] = useState<{ start: string; end: string }[]>(
-    []
-  );
-  const [occupiedSlots, setOccupiedSlots] = useState<TimeSlotProps[]>([]);
-  const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
+  // ====== SLOT #1 ======
+  const [selectedDateStr1, setSelectedDateStr1] = useState("");
+  const [timeSlots1, setTimeSlots1] = useState<
+    { start: string; end: string }[]
+  >([]);
+  const [occupiedSlots1, setOccupiedSlots1] = useState<TimeSlotProps[]>([]);
+  const [proposedSlots1, setProposedSlots1] = useState<any[]>([]);
+  const [selectedSlots1, setSelectedSlots1] = useState<string[]>([]);
 
-  // Date UI (yyyy-MM-dd) pour l'input et les fetch
-  const [selectedDateStr, setSelectedDateStr] = useState("");
+  // ====== SLOT #2 ======
+  const [selectedDateStr2, setSelectedDateStr2] = useState("");
+  const [timeSlots2, setTimeSlots2] = useState<
+    { start: string; end: string }[]
+  >([]);
+  const [occupiedSlots2, setOccupiedSlots2] = useState<TimeSlotProps[]>([]);
+  const [proposedSlots2, setProposedSlots2] = useState<any[]>([]);
+  const [selectedSlots2, setSelectedSlots2] = useState<string[]>([]);
+
+  // Bloqués (par tatoueur, toutes dates)
+  const [blockedSlots, setBlockedSlots] = useState<any[]>([]);
 
   // -------- utils
   const toObject = <T extends object>(val: unknown): T => {
@@ -59,113 +72,244 @@ export default function ProposeCreneau({
   const alternative = av?.alternative;
 
   // -------- form
-  const form = useForm<z.infer<typeof proposeCreneauSchema>>({
+  const form = useForm<ProposeDto>({
     resolver: zodResolver(proposeCreneauSchema),
     defaultValues: {
-      proposedDate: "", // sera set en ISO lors du change de date
-      proposedFrom: "", // sera set par selectedSlots
-      proposedTo: "", // sera set par selectedSlots
       tatoueurId: "",
       message: "",
+      slots: [],
     },
   });
 
   const watchTatoueurId = form.watch("tatoueurId");
-  const watchMessage = form.watch("message");
+  const watchMessage = form.watch("message") || "";
 
   // fetch tatoueurs
   useEffect(() => {
     const fetchTatoueurs = async () => {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${userId}`
-      );
-      const data = await response.json();
-      setTatoueurs(data);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${userId}`
+        );
+        const data = await response.json();
+        setTatoueurs(data);
+      } catch {
+        setTatoueurs([]);
+      }
     };
     fetchTatoueurs();
   }, [userId]);
 
-  // Fetch créneaux horaires quand tatoueur + date changent
+  // fetch slots dispo + occupés + déjà proposés pour UNE journée
+  async function fetchDayData(
+    dateStr: string,
+    tatoueurId: string,
+    setDaySlots: (v: { start: string; end: string }[]) => void,
+    setOccupied: (v: TimeSlotProps[]) => void,
+    setProposed: (v: any[]) => void
+  ) {
+    // 1) Disponibles
+    const slotsRes = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${dateStr}&tatoueurId=${tatoueurId}`
+    );
+    const slotsData = await slotsRes.json();
+    setDaySlots(slotsData);
+
+    // 2) Occupés
+    const startOfDay = new Date(`${dateStr}T00:00:00`);
+    const endOfDay = new Date(`${dateStr}T23:59:59`);
+    const occRes = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_BACK_URL
+      }/appointments/tatoueur-range?tatoueurId=${tatoueurId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
+    );
+    const occData = await occRes.json();
+    setOccupied(occData);
+
+    // 3) Déjà proposés (overlaps jour)
+    const proposeUrl = `${
+      process.env.NEXT_PUBLIC_BACK_URL
+    }/blocked-slots/propose-creneau?tatoueurId=${tatoueurId}&start=${encodeURIComponent(
+      startOfDay.toISOString()
+    )}&end=${encodeURIComponent(endOfDay.toISOString())}`;
+    const proposedRes = await fetch(proposeUrl);
+    const proposedData = await proposedRes.json();
+    setProposed(Array.isArray(proposedData) ? proposedData : []);
+  }
+
+  // fetch créneaux bloqués pour le tatoueur sélectionné
   useEffect(() => {
-    if (!selectedDateStr || !watchTatoueurId) {
-      setTimeSlots([]);
-      setOccupiedSlots([]);
+    if (!watchTatoueurId) {
+      setBlockedSlots([]);
       return;
     }
-
-    const fetchSlots = async () => {
+    const run = async () => {
       try {
-        // 1) créneaux dispo
-        const slotsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDateStr}&tatoueurId=${watchTatoueurId}`
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${watchTatoueurId}`
         );
-        const slotsData = await slotsRes.json();
-        setTimeSlots(slotsData);
-
-        // 2) créneaux occupés de la journée
-        const startOfDay = new Date(`${selectedDateStr}T00:00:00`);
-        const endOfDay = new Date(`${selectedDateStr}T23:59:59`);
-        const occupiedRes = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_BACK_URL
-          }/appointments/tatoueur-range?tatoueurId=${watchTatoueurId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
-        );
-        const occupiedData = await occupiedRes.json();
-        setOccupiedSlots(occupiedData);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des créneaux :", error);
-        setTimeSlots([]);
-        setOccupiedSlots([]);
+        const data = await res.json();
+        setBlockedSlots(!data?.error ? data.blockedSlots || [] : []);
+      } catch {
+        setBlockedSlots([]);
       }
     };
+    run();
+  }, [watchTatoueurId]);
 
-    fetchSlots();
-  }, [selectedDateStr, watchTatoueurId]);
-
-  // Mettre à jour proposedFrom / proposedTo quand les slots changent
+  // Fetch pour SLOT #1
   useEffect(() => {
-    if (selectedSlots.length === 0) {
-      form.setValue("proposedFrom", "", { shouldValidate: true });
-      form.setValue("proposedTo", "", { shouldValidate: true });
+    if (!selectedDateStr1 || !watchTatoueurId) {
+      setTimeSlots1([]);
+      setOccupiedSlots1([]);
+      setProposedSlots1([]);
       return;
     }
+    fetchDayData(
+      selectedDateStr1,
+      watchTatoueurId,
+      setTimeSlots1,
+      setOccupiedSlots1,
+      setProposedSlots1
+    ).catch(() => {
+      setTimeSlots1([]);
+      setOccupiedSlots1([]);
+      setProposedSlots1([]);
+    });
+  }, [selectedDateStr1, watchTatoueurId]);
 
-    const sorted = selectedSlots
-      .map((s) => new Date(s))
-      .sort((a, b) => a.getTime() - b.getTime());
-
-    const newStart = sorted[0].toISOString();
-    const newEnd = addMinutes(sorted[sorted.length - 1], 30).toISOString();
-
-    form.setValue("proposedFrom", newStart, { shouldValidate: true });
-    form.setValue("proposedTo", newEnd, { shouldValidate: true });
-  }, [selectedSlots, form]);
+  // Fetch pour SLOT #2
+  useEffect(() => {
+    if (!selectedDateStr2 || !watchTatoueurId) {
+      setTimeSlots2([]);
+      setOccupiedSlots2([]);
+      setProposedSlots2([]);
+      return;
+    }
+    fetchDayData(
+      selectedDateStr2,
+      watchTatoueurId,
+      setTimeSlots2,
+      setOccupiedSlots2,
+      setProposedSlots2
+    ).catch(() => {
+      setTimeSlots2([]);
+      setOccupiedSlots2([]);
+      setProposedSlots2([]);
+    });
+  }, [selectedDateStr2, watchTatoueurId]);
 
   // Reset quand la demande change
   useEffect(() => {
     if (demande) {
-      form.reset({
-        proposedDate: "",
-        proposedFrom: "",
-        proposedTo: "",
-        tatoueurId: "",
-        message: "",
-      });
-      setSelectedSlots([]);
-      setSelectedDateStr("");
+      form.reset({ tatoueurId: "", message: "", slots: [] });
+      setSelectedDateStr1("");
+      setSelectedDateStr2("");
+      setSelectedSlots1([]);
+      setSelectedSlots2([]);
+      setProposedSlots1([]);
+      setProposedSlots2([]);
+      setBlockedSlots([]);
       setError(null);
     }
   }, [demande, form]);
 
+  // -------- helpers sélection
+  function areConsecutive(ts: number[]) {
+    return ts.every((time, i) =>
+      i === 0 ? true : time - ts[i - 1] === 30 * 60 * 1000
+    );
+  }
+
+  function handleSlotClick(slotStart: string, group: 1 | 2) {
+    const [sel, setSel] =
+      group === 1
+        ? [selectedSlots1, setSelectedSlots1]
+        : [selectedSlots2, setSelectedSlots2];
+
+    if (sel.includes(slotStart)) {
+      const ns = sel.filter((s) => s !== slotStart);
+      const times = ns.map((s) => new Date(s).getTime()).sort((a, b) => a - b);
+      if (areConsecutive(times) || ns.length <= 1) setSel(ns);
+      else alert("Les créneaux restants ne sont plus consécutifs.");
+      return;
+    }
+
+    const ns = [...sel, slotStart]
+      .filter((s, i, arr) => arr.indexOf(s) === i)
+      .sort();
+    const times = ns.map((s) => new Date(s).getTime());
+    if (areConsecutive(times)) setSel(ns);
+    else alert("Les créneaux doivent être consécutifs.");
+  }
+
+  function toInterval(selected: string[]) {
+    if (!selected.length) return null;
+    const sorted = selected
+      .map((s) => new Date(s))
+      .sort((a, b) => a.getTime() - b.getTime());
+    return {
+      from: sorted[0].toISOString(),
+      to: addMinutes(sorted[sorted.length - 1], 30).toISOString(),
+    };
+  }
+
+  const interval1 = toInterval(selectedSlots1);
+  const interval2 = toInterval(selectedSlots2);
+  const slotsPayload = [interval1, interval2]
+    .filter(
+      (interval): interval is { from: string; to: string } => interval !== null
+    )
+    .map(({ from, to }) => ({ from, to, tatoueurId: watchTatoueurId! })) as {
+    from: string;
+    to: string;
+    tatoueurId: string;
+  }[];
+
+  // -------- helpers état slots (bloqué / proposé)
+  const isSlotBlocked = (slotStart: string, slotEnd?: string) => {
+    if (!watchTatoueurId) return false;
+
+    const start = new Date(slotStart);
+    const end = slotEnd
+      ? new Date(slotEnd)
+      : new Date(start.getTime() + 30 * 60 * 1000);
+    const s = start.getTime();
+    const e = end.getTime();
+
+    return blockedSlots.some((b) => {
+      const bs = new Date(b.startDate).getTime();
+      const be = new Date(b.endDate).getTime();
+      const overlaps = s < be && e > bs;
+      const concernsTatoueur =
+        b.tatoueurId === watchTatoueurId || b.tatoueurId === null;
+      return overlaps && concernsTatoueur;
+    });
+  };
+
+  const getProposedSlot = (
+    slotStart: string,
+    slotEnd: string,
+    proposedArr: any[]
+  ) => {
+    const s = new Date(slotStart).getTime();
+    const e = new Date(slotEnd).getTime();
+    return proposedArr.find((p: any) => {
+      const from = new Date(p.from).getTime();
+      const to = new Date(p.to).getTime();
+      return s < to && e > from;
+    });
+  };
+
   // -------- submit
   const mutation = useMutation({
-    mutationFn: async (proposeData: z.infer<typeof proposeCreneauSchema>) => {
+    mutationFn: async (payload: ProposeDto) => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/appointment-request/propose-slot/${demande.id}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(proposeData),
+          body: JSON.stringify(payload),
         }
       );
       const data = await res.json();
@@ -180,34 +324,44 @@ export default function ProposeCreneau({
       toast.success("Proposition envoyée avec succès !");
       onUpdate?.();
     },
-    onError: (error: any) => {
-      setError(error.message);
+    onError: (err: any) => {
+      setError(err.message);
       setLoading(false);
-      toast.error(`Erreur : ${error.message}`);
+      toast.error(`Erreur : ${err.message}`);
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof proposeCreneauSchema>) => {
+  const onSubmit = async () => {
     if (loading || mutation.isPending) return;
     setError(null);
     setLoading(true);
 
-    try {
-      // À ce stade, proposedFrom/proposedTo/proposedDate sont déjà set dans le form
-      // (grâce aux useEffect ci-dessus). On peut envoyer tel quel.
-      // Si besoin, on peut forcer un reformatage ici.
+    if (!interval1) {
+      const msg = "Merci de sélectionner un créneau (date et heure).";
+      setError(msg);
+      setLoading(false);
+      toast.error(msg);
+      return;
+    }
 
-      // Validation finale (facultative car handleSubmit a déjà validé)
-      const isValid = await form.trigger();
-      if (!isValid) {
+    try {
+      form.setValue("slots", slotsPayload as any, { shouldValidate: true });
+
+      const ok = await form.trigger(["tatoueurId", "slots"]);
+      if (!ok) {
         setError("Merci de corriger les erreurs.");
         setLoading(false);
         return;
       }
 
-      mutation.mutate(data);
+      const payload: ProposeDto = {
+        tatoueurId: watchTatoueurId!,
+        message: watchMessage,
+        slots: slotsPayload,
+      };
+
+      mutation.mutate(payload);
     } catch (err: unknown) {
-      console.error("❌ Erreur dans onSubmit :", err);
       const msg =
         err instanceof Error ? err.message : "Une erreur est survenue.";
       setError(msg);
@@ -216,36 +370,141 @@ export default function ProposeCreneau({
     }
   };
 
-  // Slots consécutifs
-  const handleSlotClick = (slotStart: string) => {
-    if (selectedSlots.includes(slotStart)) {
-      const newSelection = selectedSlots.filter((s) => s !== slotStart);
-      const timestamps = newSelection.map((s) => new Date(s).getTime()).sort();
-      const areConsecutive = timestamps.every((time, i) => {
-        if (i === 0) return true;
-        return time - timestamps[i - 1] === 30 * 60 * 1000;
-      });
-      if (areConsecutive || newSelection.length <= 1) {
-        setSelectedSlots(newSelection);
-      } else {
-        alert("Les créneaux restants ne sont plus consécutifs.");
-      }
-      return;
-    }
-    const newSelection = [...selectedSlots, slotStart]
-      .filter((s, i, arr) => arr.indexOf(s) === i)
-      .sort();
-    const timestamps = newSelection.map((s) => new Date(s).getTime());
-    const areConsecutive = timestamps.every((time, i) => {
-      if (i === 0) return true;
-      return time - timestamps[i - 1] === 30 * 60 * 1000;
-    });
-    if (areConsecutive) {
-      setSelectedSlots(newSelection);
-    } else {
-      alert("Les créneaux doivent être consécutifs.");
-    }
-  };
+  // ====== UI SlotPicker interne
+  function SlotPicker({
+    label,
+    selectedDateStr,
+    setSelectedDateStr,
+    timeSlots,
+    occupiedSlots,
+    selectedSlots,
+    proposedArr,
+    group,
+  }: {
+    label: string;
+    selectedDateStr: string;
+    setSelectedDateStr: (v: string) => void;
+    timeSlots: { start: string; end: string }[];
+    occupiedSlots: TimeSlotProps[];
+    selectedSlots: string[];
+    proposedArr: any[];
+    group: 1 | 2;
+  }) {
+    return (
+      <div className="bg-white/5 rounded-2xl p-4 border border-white/10 mb-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-white font-semibold font-one mb-3 text-sm">
+            {label}
+          </h3>
+          {!!selectedSlots.length && (
+            <button
+              type="button"
+              onClick={() =>
+                group === 1 ? setSelectedSlots1([]) : setSelectedSlots2([])
+              }
+              className="cursor-pointer px-2 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one"
+            >
+              Tout désélectionner
+            </button>
+          )}
+        </div>
+
+        <div className="space-y-1 mb-3">
+          <label className="text-xs text-white/70 font-one">Date</label>
+          <input
+            type="date"
+            value={selectedDateStr}
+            onChange={(e) => {
+              setSelectedDateStr(e.target.value);
+              if (group === 1) setSelectedSlots1([]);
+              else setSelectedSlots2([]);
+            }}
+            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+          />
+        </div>
+
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          {timeSlots.map((slot) => {
+            const t = new Date(slot.start).getTime();
+
+            const isTaken = occupiedSlots.some((o) => {
+              const s = new Date(o.start).getTime();
+              const e = new Date(o.end).getTime();
+              return t >= s && t < e;
+            });
+
+            const isBlocked = isSlotBlocked(slot.start, slot.end);
+
+            const proposed = getProposedSlot(slot.start, slot.end, proposedArr);
+            const isProposed = !!proposed;
+
+            const isSelected = selectedSlots.includes(slot.start);
+            const disabled =
+              isTaken || isBlocked || isProposed || !selectedDateStr;
+
+            // classes + texte + tooltip (mêmes codes que CreateRdv)
+            let buttonClass =
+              "cursor-pointer px-2 py-1 rounded text-xs text-white font-one transition-all duration-200 border ";
+            let buttonText = `${format(new Date(slot.start), "HH:mm", {
+              locale: fr,
+            })}-${format(new Date(slot.end), "HH:mm", { locale: fr })}`;
+
+            if (isProposed) {
+              buttonClass +=
+                "bg-blue-900/40 text-blue-300 border-blue-700/50 cursor-not-allowed";
+              buttonText += " ⏳";
+            } else if (isBlocked) {
+              buttonClass +=
+                "bg-red-900/50 text-red-300 border-red-700/50 cursor-not-allowed";
+              buttonText += " 🚫";
+            } else if (isTaken) {
+              buttonClass +=
+                "bg-gray-700/50 text-gray-400 border-gray-600/50 cursor-not-allowed";
+              buttonText += " ❌";
+            } else if (isSelected) {
+              buttonClass +=
+                "bg-green-600/30 text-green-300 border-green-500/50 hover:bg-green-600/50";
+            } else {
+              buttonClass +=
+                "bg-tertiary-600/20 text-tertiary-300 border-tertiary-500/30 hover:bg-tertiary-600/40 hover:text-white";
+            }
+
+            let title = "";
+            if (isProposed) {
+              title = `Déjà proposé à ${
+                proposed?.appointmentRequest?.clientFirstname || ""
+              } ${proposed?.appointmentRequest?.clientLastname || ""} (${
+                proposed?.appointmentRequest?.clientEmail || ""
+              })\nPrestation: ${
+                proposed?.appointmentRequest?.prestation || ""
+              }`;
+            } else if (isBlocked) {
+              title = "Créneau bloqué - indisponible";
+            } else if (isTaken) {
+              title = "Créneau déjà réservé";
+            } else if (isSelected) {
+              title = "Créneau sélectionné - cliquer pour désélectionner";
+            } else {
+              title = "Créneau disponible - cliquer pour sélectionner";
+            }
+
+            return (
+              <button
+                key={`${label}-${slot.start}`}
+                type="button"
+                disabled={disabled}
+                onClick={() => !disabled && handleSlotClick(slot.start, group)}
+                className={buttonClass}
+                title={title}
+              >
+                {buttonText}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -281,7 +540,7 @@ export default function ProposeCreneau({
             <div className="p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-white font-one tracking-wide">
-                  Proposer un créneau
+                  Proposer des créneaux
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
@@ -291,7 +550,7 @@ export default function ProposeCreneau({
                 </button>
               </div>
               <p className="text-white/70 mt-1 text-sm">
-                Proposer un créneau pour {demande.clientFirstname}{" "}
+                Proposer deux créneaux à {demande.clientFirstname}{" "}
                 {demande.clientLastname}
               </p>
             </div>
@@ -389,7 +648,10 @@ export default function ProposeCreneau({
 
               <form
                 id="propose-creneau-form"
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  onSubmit();
+                }}
               >
                 {/* Tatoueur */}
                 <div className="space-y-1 mb-4">
@@ -419,82 +681,56 @@ export default function ProposeCreneau({
                   </select>
                 </div>
 
-                {/* Date */}
-                <div className="space-y-1 mb-4">
-                  <label className="text-xs text-white/70 font-one">Date</label>
-                  <input
-                    type="date"
-                    value={selectedDateStr}
-                    onChange={(e) => {
-                      const val = e.target.value; // yyyy-MM-dd
-                      setSelectedDateStr(val);
-                      // On stocke en ISO dans le form (comme UpdateRdv)
-                      const iso = new Date(`${val}T00:00:00`).toISOString();
-                      form.setValue("proposedDate", iso, {
-                        shouldValidate: true,
-                      });
-                      setSelectedSlots([]);
-                    }}
-                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    required
-                  />
-                </div>
+                {/* Créneau #1 */}
+                <SlotPicker
+                  label="Créneau #1"
+                  selectedDateStr={selectedDateStr1}
+                  setSelectedDateStr={setSelectedDateStr1}
+                  timeSlots={timeSlots1}
+                  occupiedSlots={occupiedSlots1}
+                  selectedSlots={selectedSlots1}
+                  proposedArr={proposedSlots1}
+                  group={1}
+                />
 
-                {/* Sélection des créneaux */}
-                <div className="space-y-1 my-4">
-                  <label className="text-xs text-white/70 font-one">
-                    Sélectionnez les créneaux (30 min)
-                  </label>
-                  <p className="text-xs text-white/50">
-                    Cliquez sur les créneaux pour les sélectionner. Ils doivent
-                    être consécutifs.
-                  </p>
-                </div>
+                {/* Créneau #2 */}
+                <SlotPicker
+                  label="Créneau #2"
+                  selectedDateStr={selectedDateStr2}
+                  setSelectedDateStr={setSelectedDateStr2}
+                  timeSlots={timeSlots2}
+                  occupiedSlots={occupiedSlots2}
+                  selectedSlots={selectedSlots2}
+                  proposedArr={proposedSlots2}
+                  group={2}
+                />
 
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
-                  {timeSlots.map((slot) => {
-                    const slotTime = new Date(slot.start).getTime();
-                    const isTaken = occupiedSlots.some((rdvOcc) => {
-                      const start = new Date(rdvOcc.start).getTime();
-                      const end = new Date(rdvOcc.end).getTime();
-                      return slotTime >= start && slotTime < end;
-                    });
-                    const isSelected = selectedSlots.includes(slot.start);
-                    const disabled = isTaken;
-                    return (
-                      <button
-                        key={slot.start}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => handleSlotClick(slot.start)}
-                        className={`p-2 rounded-lg text-xs font-medium transition-all duration-200 ${
-                          disabled
-                            ? "bg-gray-500/20 text-gray-400 cursor-not-allowed border border-gray-500/30"
-                            : isSelected
-                            ? "bg-tertiary-500 text-white border border-tertiary-400"
-                            : "bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-tertiary-400/50"
-                        }`}
-                      >
-                        <div className="text-center">
-                          <div className="text-xs">
-                            {format(new Date(slot.start), "HH:mm", {
-                              locale: fr,
-                            })}
-                          </div>
-                          <div className="text-xs opacity-70">-</div>
-                          <div className="text-xs">
-                            {format(new Date(slot.end), "HH:mm", {
-                              locale: fr,
-                            })}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
+                {/* Légende commune */}
+                <div className="mt-2 flex flex-wrap gap-4 text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-tertiary-600/20 border border-tertiary-500/30 rounded"></div>
+                    <span className="text-white/70 font-one">Libre</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-600/30 border border-green-500/50 rounded"></div>
+                    <span className="text-white/70 font-one">Sélectionné</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-gray-700/50 border border-gray-600/50 rounded"></div>
+                    <span className="text-white/70 font-one">Occupé ❌</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-red-900/50 border border-red-700/50 rounded"></div>
+                    <span className="text-white/70 font-one">Bloqué 🚫</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-blue-900/40 border border-blue-700/50 rounded"></div>
+                    <span className="text-white/70 font-one">Proposé ⏳</span>
+                  </div>
                 </div>
 
                 {/* Message */}
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-4">
+                <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-4 mt-4">
                   <h3 className="text-white font-semibold font-one mb-3 text-sm">
                     💬 Message
                   </h3>
@@ -510,10 +746,10 @@ export default function ProposeCreneau({
                     />
                     <div className="flex justify-between items-center">
                       <p className="text-xs text-white/50 font-one">
-                        Le client recevra un email de confirmation
+                        Le client recevra un email avec le lien.
                       </p>
                       <p className="text-xs text-white/50 font-one">
-                        {(watchMessage || "").length}/300
+                        {watchMessage.length}/300
                       </p>
                     </div>
                     <div className="space-y-1">
@@ -538,10 +774,6 @@ export default function ProposeCreneau({
                     </div>
                   </div>
                 </div>
-
-                {/* champs cachés pour satisfaire le schéma si besoin */}
-                <input type="hidden" {...form.register("proposedFrom")} />
-                <input type="hidden" {...form.register("proposedTo")} />
 
                 {error && (
                   <div className="mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
@@ -568,8 +800,7 @@ export default function ProposeCreneau({
                   mutation.isPending ||
                   loading ||
                   !watchTatoueurId ||
-                  !selectedSlots.length ||
-                  !selectedDateStr
+                  !interval1
                 }
                 className="cursor-pointer px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -604,5 +835,3 @@ export default function ProposeCreneau({
     </div>
   );
 }
-
-// Remarque : Ajoutez l'attribut id="propose-creneau-form" au <form> pour que le bouton submit fonctionne même en dehors du scrollable.

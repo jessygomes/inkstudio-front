@@ -33,6 +33,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]); // stocke les start ISO
   const [occupiedSlots, setOccupiedSlots] = useState<TimeSlotProps[]>([]);
   const [blockedSlots, setBlockedSlots] = useState<any[]>([]);
+  const [proposeCreneau, setProposeCreneau] = useState<any[]>([]);
 
   //! Selection de la prestation change les inputs à afficher
   const [selectedPrestation, setSelectedPrestation] = useState("");
@@ -44,7 +45,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   useEffect(() => {
     const fetchTatoueurs = async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`
+        `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${userId}`
       );
       const data = await response.json();
       setTatoueurs(data);
@@ -103,18 +104,52 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       }
     };
 
+    // Correction ici : bien formatter start et end en ISO et appeler la bonne route
+    const fetchProposeCreneau = async () => {
+      console.log(
+        "Fetching proposed time slots...",
+        selectedTatoueur,
+        selectedDate
+      );
+      const startOfDay = new Date(selectedDate);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(selectedDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      try {
+        const url = `${
+          process.env.NEXT_PUBLIC_BACK_URL
+        }/blocked-slots/propose-creneau?tatoueurId=${selectedTatoueur}&start=${encodeURIComponent(
+          startOfDay.toISOString()
+        )}&end=${encodeURIComponent(endOfDay.toISOString())}`;
+
+        console.log("Fetching proposed time slots from:", url);
+
+        const res = await fetch(url);
+
+        const data = await res.json();
+
+        // Ici, data doit être un tableau (cf. service)
+        setProposeCreneau(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Erreur lors du fetch des créneaux proposés :", err);
+        setProposeCreneau([]);
+      }
+    };
+
     fetchTimeSlots();
     fetchOccupied();
     fetchBlockedSlots();
+    fetchProposeCreneau();
   }, [selectedDate, selectedTatoueur]);
+
+  console.log("Créneaux proposés :", proposeCreneau);
 
   // Fonction pour vérifier si un créneau est dans une période bloquée
   const isSlotBlocked = (slotStart: string, slotEnd?: string) => {
     // Vérification plus stricte du tatoueur sélectionné
     if (!selectedTatoueur) {
-      console.log(
-        "⚠️ Aucun tatoueur sélectionné, créneau considéré comme libre"
-      );
       return false;
     }
 
@@ -128,36 +163,11 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       const blockedStart = new Date(blocked.startDate);
       const blockedEnd = new Date(blocked.endDate);
 
-      console.log("📅 Comparaison avec période bloquée:", {
-        blockedStart,
-        blockedEnd,
-        blockedStartISO: blockedStart.toISOString(),
-        blockedEndISO: blockedEnd.toISOString(),
-        slotStart: slotStartDate,
-        slotEnd: slotEndDate,
-        slotStartISO: slotStartDate.toISOString(),
-        slotEndISO: slotEndDate.toISOString(),
-        blockedTatoueurId: blocked.tatoueurId,
-        selectedTatoueur,
-        blockedReason: blocked.reason,
-      });
-
       // Normaliser toutes les dates en UTC pour la comparaison
       const slotStartUTC = slotStartDate.getTime();
       const slotEndUTC = slotEndDate.getTime();
       const blockedStartUTC = blockedStart.getTime();
       const blockedEndUTC = blockedEnd.getTime();
-
-      console.log("🕒 Timestamps UTC pour comparaison:", {
-        slotStartUTC,
-        slotEndUTC,
-        blockedStartUTC,
-        blockedEndUTC,
-        slotStartFormatted: new Date(slotStartUTC).toISOString(),
-        slotEndFormatted: new Date(slotEndUTC).toISOString(),
-        blockedStartFormatted: new Date(blockedStartUTC).toISOString(),
-        blockedEndFormatted: new Date(blockedEndUTC).toISOString(),
-      });
 
       // Vérifier si le créneau chevauche avec la période bloquée
       // Un créneau est bloqué si :
@@ -172,30 +182,16 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
       return hasOverlap && concernsTatoueur;
     });
-
-    console.log(
-      `${isBlocked ? "🚫" : "✅"} Créneau ${slotStart} ${
-        isBlocked ? "BLOQUÉ" : "LIBRE"
-      }`
-    );
     return isBlocked;
   };
-
-  console.log("Blocked slots:", blockedSlots);
 
   // ! Fonction pour gérer le clic sur un créneau horaire
   // Fait en sorte que les créneaux soient consécutifs
   // et que l'on puisse en sélectionner plusieurs
   // ou en désélectionner un (toggle OFF)
   const handleSlotClick = (slotStart: string) => {
-    console.log("🎯 handleSlotClick appelé pour:", slotStart);
-
     // Vérifier si le créneau est bloqué avant de permettre la sélection
     const isBlockedResult = isSlotBlocked(slotStart);
-    console.log(
-      "🎯 isSlotBlocked result dans handleSlotClick:",
-      isBlockedResult
-    );
 
     if (isBlockedResult) {
       console.log("❌ Créneau bloqué, toast affiché");
@@ -216,15 +212,11 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     };
 
     const isOccupiedResult = isOccupied(slotStart);
-    console.log("🎯 isOccupied result:", isOccupiedResult);
 
     if (isOccupiedResult) {
-      console.log("❌ Créneau occupé, toast affiché");
       toast.error("Ce créneau est déjà occupé");
       return;
     }
-
-    console.log("✅ Créneau libre, traitement de la sélection");
 
     if (selectedSlots.includes(slotStart)) {
       // Si déjà sélectionné, on l'enlève (toggle OFF)
@@ -431,6 +423,19 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Ajout d'un helper pour savoir si un créneau est déjà proposé
+  const getProposedSlot = (slotStart: string, slotEnd: string) => {
+    // On cherche un créneau proposé qui chevauche ce slot
+    return proposeCreneau.find((proposed: any) => {
+      const from = new Date(proposed.from).getTime();
+      const to = new Date(proposed.to).getTime();
+      const slotStartTime = new Date(slotStart).getTime();
+      const slotEndTime = new Date(slotEnd).getTime();
+      // chevauchement strict
+      return slotStartTime < to && slotEndTime > from;
+    });
   };
 
   //! Affichage du formulaire de création de rendez-vous
@@ -708,32 +713,66 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                 slot.end
                               );
 
+                              // Ajout : check si déjà proposé
+                              const proposed = getProposedSlot(
+                                slot.start,
+                                slot.end
+                              );
+                              const isProposed = !!proposed;
+
                               // Déterminer la couleur et l'état du bouton
                               let buttonClass =
                                 "cursor-pointer px-2 py-1 rounded text-xs text-white font-one transition-all duration-200 border ";
                               let buttonText = `${startTime}-${endTime}`;
                               let isDisabled = false;
 
-                              if (isBlocked) {
-                                // Créneau bloqué - rouge foncé
+                              if (isProposed) {
+                                buttonClass +=
+                                  "bg-blue-900/40 text-blue-300 border-blue-700/50 cursor-not-allowed";
+                                buttonText += " ⏳";
+                                isDisabled = true;
+                              } else if (isBlocked) {
                                 buttonClass +=
                                   "bg-red-900/50 text-red-300 border-red-700/50 cursor-not-allowed";
                                 buttonText += " 🚫";
                                 isDisabled = true;
                               } else if (isTaken) {
-                                // Créneau occupé - gris
                                 buttonClass +=
                                   "bg-gray-700/50 text-gray-400 border-gray-600/50 cursor-not-allowed";
                                 buttonText += " ❌";
                                 isDisabled = true;
                               } else if (isSelected) {
-                                // Créneau sélectionné - vert
                                 buttonClass +=
                                   "bg-green-600/30 text-green-300 border-green-500/50 hover:bg-green-600/50";
                               } else {
-                                // Créneau libre - bleu
                                 buttonClass +=
                                   "bg-tertiary-600/20 text-tertiary-300 border-tertiary-500/30 hover:bg-tertiary-600/40 hover:text-white";
+                              }
+
+                              // Ajout du tooltip pour les créneaux proposés
+                              let buttonTitle = "";
+                              if (isProposed) {
+                                buttonTitle = `Déjà proposé à ${
+                                  proposed.appointmentRequest
+                                    ?.clientFirstname || ""
+                                } ${
+                                  proposed.appointmentRequest?.clientLastname ||
+                                  ""
+                                } (${
+                                  proposed.appointmentRequest?.clientEmail || ""
+                                })\nPrestation: ${
+                                  proposed.appointmentRequest?.prestation || ""
+                                }`;
+                              } else if (isBlocked) {
+                                buttonTitle = "Créneau bloqué - indisponible";
+                              } else if (isTaken) {
+                                buttonTitle = "Créneau déjà réservé";
+                              } else if (isSelected) {
+                                buttonTitle =
+                                  "Créneau sélectionné - cliquer pour désélectionner";
+                              } else {
+                                buttonTitle =
+                                  "Créneau disponible - cliquer pour sélectionner";
                               }
 
                               return (
@@ -745,68 +784,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                   }
                                   disabled={isDisabled}
                                   className={buttonClass}
-                                  title={
-                                    isBlocked
-                                      ? `Créneau bloqué - indisponible ${
-                                          blockedSlots.find((b) => {
-                                            const start = new Date(slot.start);
-                                            const end = new Date(slot.end);
-                                            const blockedStart = new Date(
-                                              b.startDate
-                                            );
-                                            const blockedEnd = new Date(
-                                              b.endDate
-                                            );
-                                            const startUTC = start.getTime();
-                                            const endUTC = end.getTime();
-                                            const blockedStartUTC =
-                                              blockedStart.getTime();
-                                            const blockedEndUTC =
-                                              blockedEnd.getTime();
-                                            return (
-                                              startUTC < blockedEndUTC &&
-                                              endUTC > blockedStartUTC &&
-                                              (b.tatoueurId ===
-                                                selectedTatoueur ||
-                                                !b.tatoueurId)
-                                            );
-                                          })?.reason
-                                            ? "(" +
-                                              blockedSlots.find((b) => {
-                                                const start = new Date(
-                                                  slot.start
-                                                );
-                                                const end = new Date(slot.end);
-                                                const blockedStart = new Date(
-                                                  b.startDate
-                                                );
-                                                const blockedEnd = new Date(
-                                                  b.endDate
-                                                );
-                                                const startUTC =
-                                                  start.getTime();
-                                                const endUTC = end.getTime();
-                                                const blockedStartUTC =
-                                                  blockedStart.getTime();
-                                                const blockedEndUTC =
-                                                  blockedEnd.getTime();
-                                                return (
-                                                  startUTC < blockedEndUTC &&
-                                                  endUTC > blockedStartUTC &&
-                                                  (b.tatoueurId ===
-                                                    selectedTatoueur ||
-                                                    !b.tatoueurId)
-                                                );
-                                              })?.reason +
-                                              ")"
-                                            : ""
-                                        }`
-                                      : isTaken
-                                      ? "Créneau déjà réservé"
-                                      : isSelected
-                                      ? "Créneau sélectionné - cliquer pour désélectionner"
-                                      : "Créneau disponible - cliquer pour sélectionner"
-                                  }
+                                  title={buttonTitle}
                                 >
                                   {buttonText}
                                 </button>
@@ -838,6 +816,12 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               <div className="w-3 h-3 bg-red-900/50 border border-red-700/50 rounded"></div>
                               <span className="text-white/70 font-one">
                                 Bloqué 🚫
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-blue-900/40 border border-blue-700/50 rounded"></div>
+                              <span className="text-white/70 font-one">
+                                Proposé ⏳
                               </span>
                             </div>
                           </div>

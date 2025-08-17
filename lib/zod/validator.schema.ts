@@ -162,11 +162,19 @@ export const updateAppointmentSchema = z.object({
 });
 
 export const proposeCreneauSchema = z.object({
-  proposedDate: z.string().min(10, "La date est requise."),
-  proposedFrom: z.string().min(5, "L'heure de début est requise."),
-  proposedTo: z.string().min(5, "L'heure de fin est requise."),
-  tatoueurId: z.string().min(1, "Le tatoueur est requis."),
-  message: z.string().optional(),
+  tatoueurId: z.string().min(1, "Tatoueur requis"),
+  message: z.string().max(300).optional(),
+  // ⚠️ Ici on impose exactement 2 créneaux (change en .min(1).max(2) si tu veux autoriser 1 ou 2)
+  slots: z
+    .array(
+      z.object({
+        from: z.string().datetime(),
+        to: z.string().datetime(),
+        tatoueurId: z.string().optional(),
+      })
+    )
+    .min(1, "Au moins un créneau est requis")
+    .max(2, "Deux créneaux maximum"),
 });
 
 //! CLIENT

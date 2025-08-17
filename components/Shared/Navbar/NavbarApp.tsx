@@ -51,8 +51,8 @@ export default function NavbarApp() {
   ];
 
   return (
-    <nav className="flex justify-between items-center py-4 px-20 pb-6 shadow-lg backdrop-blur-md">
-      <div className="absolute bottom-0 left-0 right-0 h-2 animate-pulse bg-gradient-to-r from-tertiary-500 to-tertiary-400"></div>{" "}
+    <nav className="flex justify-between items-center py-4 pb-6 shadow-lg backdrop-blur-md mx-20">
+      <div className="absolute bottom-0 left-0 right-0 h-1 animate-pulse bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-2xl"></div>{" "}
       <Link
         href={"/"}
         className="font-two uppercase font-bold text-xl text-white"
