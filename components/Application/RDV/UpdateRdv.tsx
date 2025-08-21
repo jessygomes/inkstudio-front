@@ -11,6 +11,7 @@ import { addMinutes, format, isValid } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
+import { updateAppointment } from "@/lib/queries/appointment";
 
 export default function UpdateRdv({
   rdv,
@@ -240,15 +241,8 @@ export default function UpdateRdv({
     mutationFn: async (
       updatedData: z.infer<typeof updateAppointmentSchema>
     ) => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/update/${rdv.id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedData),
-        }
-      );
-      const data = await res.json();
+      const data = await updateAppointment(rdv.id, updatedData);
+
       if (data.error) throw new Error(data.message || "Erreur inconnue");
       return data;
     },

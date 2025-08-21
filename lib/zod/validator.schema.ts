@@ -93,7 +93,6 @@ export const createTatoueurSchema = z.object({
 
 //! RDV
 export const appointmentSchema = z.object({
-  userId: z.string(),
   title: z.string().min(1, "Le titre est requis."),
   clientFirstname: z.string().min(1, "Le prénom est requis."),
   clientLastname: z.string().min(1, "Le nom est requis."),

@@ -1,6 +1,7 @@
 "use client";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import { ProductSalonProps } from "@/lib/type";
+import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
 import { productSalonSchema } from "@/lib/zod/validator.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -35,47 +36,14 @@ export default function CreateOrUpdateProduct({
     },
   });
 
-  // Fonction pour extraire la clé d'une URL UploadThing
-  const extractKeyFromUrl = (url: string): string | null => {
-    try {
-      const patterns = [
-        /\/f\/([^\/\?]+)/,
-        /uploadthing\.com\/([^\/\?]+)/,
-        /utfs\.io\/f\/([^\/\?]+)/,
-      ];
-
-      for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match && match[1]) {
-          return match[1];
-        }
-      }
-
-      const urlParts = url.split("/");
-      const lastPart = urlParts[urlParts.length - 1];
-      if (lastPart && !lastPart.includes(".")) {
-        return lastPart;
-      }
-
-      return null;
-    } catch (error) {
-      console.error("Erreur lors de l'extraction de la clé:", error);
-      return null;
-    }
-  };
-
   // Fonction pour supprimer une image d'UploadThing
   const deleteFromUploadThing = async (imageUrl: string): Promise<boolean> => {
     try {
-      console.log("🗑️ Tentative de suppression de:", imageUrl);
-
       const key = extractKeyFromUrl(imageUrl);
       if (!key) {
         console.warn("⚠️ Impossible d'extraire la clé de l'URL:", imageUrl);
         return false;
       }
-
-      console.log("🔑 Clé extraite:", key);
 
       const response = await fetch("/api/uploadthing/delete", {
         method: "POST",
@@ -88,7 +56,6 @@ export default function CreateOrUpdateProduct({
       const result = await response.json();
 
       if (response.ok && result.success) {
-        console.log("✅ Image supprimée avec succès d'UploadThing");
         return true;
       } else {
         console.error("❌ Erreur lors de la suppression:", result);
@@ -147,8 +114,6 @@ export default function CreateOrUpdateProduct({
         },
         body: JSON.stringify(data),
       });
-
-      console.log("Response status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json();

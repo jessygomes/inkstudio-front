@@ -6,6 +6,7 @@ import { AppointmentRequest, Availability } from "../DemandeRdvClient";
 import { formatTime, formatDate } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { declineRequestAction } from "@/lib/queries/appointment";
 
 export default function DeclinedDemande({
   // userId,
@@ -24,22 +25,8 @@ export default function DeclinedDemande({
   //! FETCH
   const mutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/decline-appointment-request`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            appointmentRequestId: demande.id,
-            reason: actionMessage.trim() || undefined,
-          }),
-        }
-      );
-      const data = await res.json();
-      if (data.error) throw new Error(data.message || "Erreur inconnue");
-      return data;
+      const res = await declineRequestAction(demande.id, actionMessage);
+      if (res.error) throw new Error(res.message || "Erreur inconnue");
     },
     onSuccess: () => {
       toast.success(

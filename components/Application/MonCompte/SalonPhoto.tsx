@@ -6,6 +6,7 @@ import Image from "next/image";
 import SalonGalleryUploader from "./SalonGalleryUploader";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useUser } from "@/components/Auth/Context/UserContext";
+import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
 
 interface SalonImage {
   id: string;
@@ -22,15 +23,15 @@ export default function SalonPhoto() {
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  //! Fonction pour extraire la clé d'une URL UploadThing
-  const extractKeyFromUrl = (url: string): string | null => {
-    try {
-      const match = url.match(/\/f\/([^\/\?]+)|\/([^\/\?]+)$/);
-      return match ? match[1] || match[2] : null;
-    } catch {
-      return null;
-    }
-  };
+  // //! Fonction pour extraire la clé d'une URL UploadThing
+  // const extractKeyFromUrl = (url: string): string | null => {
+  //   try {
+  //     const match = url.match(/\/f\/([^\/\?]+)|\/([^\/\?]+)$/);
+  //     return match ? match[1] || match[2] : null;
+  //   } catch {
+  //     return null;
+  //   }
+  // };
 
   //! Fonction pour supprimer une image d'UploadThing
   const deleteFromUploadThing = async (imageUrl: string) => {

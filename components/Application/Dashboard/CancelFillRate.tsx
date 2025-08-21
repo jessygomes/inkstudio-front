@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+import { cancelRateAction } from "@/lib/queries/appointment";
 import React, { useState, useEffect } from "react";
 
 interface CancellationRateData {
@@ -29,21 +30,13 @@ export default function CancelFillRate({ userId }: CancelFillRateProps) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/cancellation-rate/${userId}`
-      );
+      const data = await cancelRateAction();
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération du taux d'annulation");
+      if (data.error) {
+        throw new Error(data.message);
       }
 
-      const result = await response.json();
-
-      if (result.error) {
-        throw new Error(result.message);
-      }
-
-      setData(result);
+      setData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {

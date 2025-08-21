@@ -62,10 +62,10 @@ export const LoginForm = () => {
       setSuccess("Connexion réussie !");
       setIsPending(false);
 
+      // Créez une session pour l'utilisateur connecté
       console.log("Infos de l'utilisateur connecté :", infos);
 
-      // Créez une session pour l'utilisateur connecté
-      await createSession(infos.userId);
+      await createSession(infos);
 
       // Appeler l'API pour récupérer l'utilisateur authentifié
       // const userResponse = await fetch("/api/auth");

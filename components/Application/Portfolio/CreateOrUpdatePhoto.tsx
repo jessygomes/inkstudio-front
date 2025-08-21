@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { PortfolioProps } from "@/lib/type";
 import { portfolioSchema } from "@/lib/zod/validator.schema";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
+import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
 
 export default function CreateOrUpdatePhoto({
   userId,
@@ -35,49 +36,14 @@ export default function CreateOrUpdatePhoto({
     },
   });
 
-  // Fonction pour extraire la clé d'une URL UploadThing
-  const extractKeyFromUrl = (url: string): string | null => {
-    try {
-      // Patterns courants d'UploadThing
-      const patterns = [
-        /\/f\/([^\/\?]+)/,  // Format: .../f/[key]
-        /uploadthing\.com\/([^\/\?]+)/,  // Format: uploadthing.com/[key]
-        /utfs\.io\/f\/([^\/\?]+)/,  // Format: utfs.io/f/[key]
-      ];
-
-      for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match && match[1]) {
-          return match[1];
-        }
-      }
-
-      // Fallback: prendre la dernière partie de l'URL
-      const urlParts = url.split('/');
-      const lastPart = urlParts[urlParts.length - 1];
-      if (lastPart && !lastPart.includes('.')) {
-        return lastPart;
-      }
-
-      return null;
-    } catch (error) {
-      console.error('Erreur lors de l\'extraction de la clé:', error);
-      return null;
-    }
-  };
-
   // Fonction pour supprimer une image d'UploadThing
   const deleteFromUploadThing = async (imageUrl: string): Promise<boolean> => {
     try {
-      console.log("🗑️ Tentative de suppression de:", imageUrl);
-      
       const key = extractKeyFromUrl(imageUrl);
       if (!key) {
         console.warn("⚠️ Impossible d'extraire la clé de l'URL:", imageUrl);
         return false;
       }
-
-      console.log("🔑 Clé extraite:", key);
 
       const response = await fetch("/api/uploadthing/delete", {
         method: "POST",
@@ -88,7 +54,7 @@ export default function CreateOrUpdatePhoto({
       });
 
       const result = await response.json();
-      
+
       if (response.ok && result.success) {
         console.log("✅ Image supprimée avec succès d'UploadThing");
         return true;
@@ -105,28 +71,29 @@ export default function CreateOrUpdatePhoto({
   // Fonction de fermeture avec nettoyage
   const handleClose = async () => {
     const currentImageUrl = form.watch("imageUrl");
-    
+
     // Si une nouvelle image a été uploadée (différente de l'image initiale), la supprimer
     if (currentImageUrl && currentImageUrl !== initialImageUrl) {
       setIsClosing(true); // Activer le loader
-      
+
       try {
-        console.log("🧹 Nettoyage: suppression de l'image temporaire");
         const deleted = await deleteFromUploadThing(currentImageUrl);
-        
+
         if (deleted) {
-          console.log("✅ Image temporaire supprimée lors de l'annulation");
           toast.success("Image temporaire supprimée");
         } else {
           console.warn("⚠️ Impossible de supprimer l'image temporaire");
         }
       } catch (error) {
-        console.error("❌ Erreur lors de la suppression de l'image temporaire:", error);
+        console.error(
+          "❌ Erreur lors de la suppression de l'image temporaire:",
+          error
+        );
       } finally {
         setIsClosing(false); // Désactiver le loader
       }
     }
-    
+
     setIsOpen(false);
   };
 
@@ -193,7 +160,9 @@ export default function CreateOrUpdatePhoto({
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tertiary-400"></div>
               <div className="text-white font-one">
                 <p className="text-sm font-medium">Nettoyage en cours...</p>
-                <p className="text-xs text-white/60">Suppression de l'image temporaire</p>
+                <p className="text-xs text-white/60">
+                  Suppression de l'image temporaire
+                </p>
               </div>
             </div>
           </div>
@@ -247,17 +216,25 @@ export default function CreateOrUpdatePhoto({
                   }}
                   onImageRemove={async () => {
                     const currentImageUrl = form.watch("imageUrl");
-                    
+
                     // Si ce n'est pas l'image initiale, essayer de la supprimer d'UploadThing
-                    if (currentImageUrl && currentImageUrl !== initialImageUrl) {
+                    if (
+                      currentImageUrl &&
+                      currentImageUrl !== initialImageUrl
+                    ) {
                       try {
                         await deleteFromUploadThing(currentImageUrl);
-                        console.log("✅ Image supprimée lors du retrait manuel");
+                        console.log(
+                          "✅ Image supprimée lors du retrait manuel"
+                        );
                       } catch (error) {
-                        console.error("❌ Erreur lors de la suppression manuelle:", error);
+                        console.error(
+                          "❌ Erreur lors de la suppression manuelle:",
+                          error
+                        );
                       }
                     }
-                    
+
                     form.setValue("imageUrl", "");
                   }}
                 />

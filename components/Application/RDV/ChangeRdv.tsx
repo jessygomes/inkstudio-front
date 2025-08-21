@@ -4,6 +4,10 @@
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import {
+  calculateDurationForModal,
+  formatDateForModal,
+} from "@/lib/utils/date-format/format-date-for-modal";
 
 export default function ChangeRdv({
   rdvId,
@@ -21,6 +25,10 @@ export default function ChangeRdv({
 
   const mutation = useMutation({
     mutationFn: async () => {
+      //   const res = await proposeRescheduleAppointmentAction(
+      //   rdvId,
+      //   actionMessage
+      // );
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/propose-reschedule/${userId}`,
         {
@@ -51,40 +59,6 @@ export default function ChangeRdv({
       toast.error(`Erreur lors de la proposition: ${error.message}`);
     },
   });
-
-  const formatDateForModal = (dateString: string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    if (date.toDateString() === today.toDateString()) {
-      return `Aujourd'hui ${date.toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })}`;
-    }
-
-    if (date.toDateString() === tomorrow.toDateString()) {
-      return `Demain ${date.toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })}`;
-    }
-
-    return date.toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const calculateDurationForModal = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
-  };
 
   return (
     <>

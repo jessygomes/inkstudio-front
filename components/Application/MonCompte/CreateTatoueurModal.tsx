@@ -66,8 +66,6 @@ export default function CreateTatoueurModal({
   });
 
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
-    console.log("values", values);
-
     const payload = {
       ...values,
       hours: JSON.stringify(editingHours), // très important !

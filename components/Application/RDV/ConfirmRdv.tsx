@@ -1,86 +1,48 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import {
+  calculateDurationForModal,
+  formatDateForModal,
+} from "@/lib/utils/date-format/format-date-for-modal";
+import { confirmAppointmentAction } from "@/lib/queries/appointment";
 
 export default function ConfirmRdv({
   rdvId,
   appointment,
+  onConfirm,
 }: {
   rdvId: string;
   appointment?: any; // Pour passer les détails du RDV
+  onConfirm: () => void;
 }) {
-  const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [actionMessage, setActionMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/confirm/${rdvId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: actionMessage.trim() || undefined,
-          }),
-        }
+      const res = await confirmAppointmentAction(
+        rdvId,
+        "confirm",
+        actionMessage
       );
-      const data = await res.json();
-      if (data.error) throw new Error(data.message || "Erreur inconnue");
-      return data;
-    },
-    onSuccess: () => {
-      toast.success(
-        "Rendez-vous confirmé avec succès ! Le client va recevoir un email."
-      );
-      queryClient.invalidateQueries({ queryKey: ["appointments"] });
-      setShowModal(false);
-      setActionMessage("");
-    },
-    onError: (error: any) => {
-      setError(error.message);
-      toast.error(`Erreur lors de la confirmation: ${error.message}`);
+
+      if (res) {
+        toast.success(
+          "Rendez-vous confirmé avec succès ! Le client va recevoir un email."
+        );
+        onConfirm();
+        setShowModal(false);
+        setActionMessage("");
+      } else {
+        setError(res.message);
+        toast.error(`Erreur lors de la confirmation: ${res.message}`);
+      }
     },
   });
-
-  const formatDateForModal = (dateString: string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    if (date.toDateString() === today.toDateString()) {
-      return `Aujourd'hui ${date.toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })}`;
-    }
-
-    if (date.toDateString() === tomorrow.toDateString()) {
-      return `Demain ${date.toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })}`;
-    }
-
-    return date.toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const calculateDurationForModal = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
-  };
 
   return (
     <>

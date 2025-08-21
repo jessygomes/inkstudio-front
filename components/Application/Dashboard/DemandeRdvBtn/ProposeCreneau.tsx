@@ -13,6 +13,7 @@ import { fr } from "date-fns/locale/fr";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatTime, formatDate } from "@/lib/utils";
+import { proposeAppointment } from "@/lib/queries/appointment";
 
 type ProposeDto = z.infer<typeof proposeCreneauSchema>;
 
@@ -304,15 +305,8 @@ export default function ProposeCreneau({
   // -------- submit
   const mutation = useMutation({
     mutationFn: async (payload: ProposeDto) => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/appointment-request/propose-slot/${demande.id}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-      const data = await res.json();
+      const data = await proposeAppointment(demande.id, payload);
+
       if (data.error) throw new Error(data.message || "Erreur inconnue");
       return data;
     },

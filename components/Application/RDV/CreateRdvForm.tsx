@@ -14,6 +14,7 @@ import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
 import Link from "next/link";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
+import { createAppointment } from "@/lib/queries/appointment";
 
 export default function CreateRdvForm({ userId }: { userId: string }) {
   const router = useRouter();
@@ -106,11 +107,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
     // Correction ici : bien formatter start et end en ISO et appeler la bonne route
     const fetchProposeCreneau = async () => {
-      console.log(
-        "Fetching proposed time slots...",
-        selectedTatoueur,
-        selectedDate
-      );
       const startOfDay = new Date(selectedDate);
       startOfDay.setHours(0, 0, 0, 0);
 
@@ -123,8 +119,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         }/blocked-slots/propose-creneau?tatoueurId=${selectedTatoueur}&start=${encodeURIComponent(
           startOfDay.toISOString()
         )}&end=${encodeURIComponent(endOfDay.toISOString())}`;
-
-        console.log("Fetching proposed time slots from:", url);
 
         const res = await fetch(url);
 
@@ -143,8 +137,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     fetchBlockedSlots();
     fetchProposeCreneau();
   }, [selectedDate, selectedTatoueur]);
-
-  console.log("Créneaux proposés :", proposeCreneau);
 
   // Fonction pour vérifier si un créneau est dans une période bloquée
   const isSlotBlocked = (slotStart: string, slotEnd?: string) => {
@@ -194,7 +186,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     const isBlockedResult = isSlotBlocked(slotStart);
 
     if (isBlockedResult) {
-      console.log("❌ Créneau bloqué, toast affiché");
       toast.error("Ce créneau est indisponible (période bloquée)");
       return;
     }
@@ -280,11 +271,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
           throw new Error("Erreur lors de la recherche de clients");
         }
         const results = await res.json();
-        console.log("Client search results:", results);
 
         // Gérer la structure de réponse du backend
         if (results.error) {
-          console.log("Erreur backend:", results.message);
           setClientResults([]);
         } else {
           setClientResults(results.clients || []);
@@ -336,7 +325,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       sketch: "",
       price: 1,
       estimatedPrice: 1,
-      userId: userId,
     },
   });
 
@@ -373,26 +361,14 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
     const rdvBody = {
       ...data,
-      userId,
       start,
       end,
     };
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(rdvBody),
-        }
-      );
+      const result = await createAppointment(rdvBody);
 
-      const result = await response.json();
-
-      if (result.error) {
+      if (result.error === true) {
         // Gestion spécifique des erreurs de limite SaaS
         if (
           result.message &&

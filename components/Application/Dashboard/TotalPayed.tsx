@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+import { totalPaidAppointmentsAction } from "@/lib/queries/appointment";
 import React, { useState, useEffect } from "react";
 
 interface TotalPayedData {
@@ -38,23 +39,15 @@ export default function TotalPayed({ userId }: TotalPayedProps) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/total-paid-appointments/${userId}?month=${month}&year=${year}`
-      );
+      const data = await totalPaidAppointmentsAction(month, year);
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération du total payé");
+      if (data.error) {
+        throw new Error("Une erreur est survenue");
       }
 
-      const result = await response.json();
-
-      if (result.error) {
-        throw new Error(result.message);
-      }
-
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setData(data);
+    } catch {
+      setError("Une erreur est survenue");
     } finally {
       setLoading(false);
     }

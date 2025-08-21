@@ -1,4 +1,5 @@
 "use client";
+import { weeklyFillRateAction } from "@/lib/queries/appointment";
 import React, { useState, useEffect } from "react";
 
 interface WeeklyFillRateData {
@@ -15,7 +16,7 @@ interface WeeklyFillRateProps {
   userId: string;
 }
 
-export default function WeeklyFillRate({ userId }: WeeklyFillRateProps) {
+export default function WeeklyFillRate({}: WeeklyFillRateProps) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<WeeklyFillRateData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -47,27 +48,14 @@ export default function WeeklyFillRate({ userId }: WeeklyFillRateProps) {
       setError(null);
 
       const { start, end } = getWeekDates(weekStart);
-      const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_BACK_URL
-        }/appointments/weekly-fill-rate/${userId}?start=${encodeURIComponent(
-          start
-        )}&end=${encodeURIComponent(end)}`
-      );
 
-      if (!response.ok) {
-        throw new Error(
-          "Erreur lors de la récupération du taux de remplissage"
-        );
+      const data = await weeklyFillRateAction(start, end);
+
+      if (data.error) {
+        throw new Error(data.message);
       }
 
-      const result = await response.json();
-
-      if (result.error) {
-        throw new Error(result.message);
-      }
-
-      setData(result);
+      setData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
@@ -77,7 +65,7 @@ export default function WeeklyFillRate({ userId }: WeeklyFillRateProps) {
 
   useEffect(() => {
     fetchWeeklyFillRate(selectedWeekStart);
-  }, [userId, selectedWeekStart]);
+  }, [selectedWeekStart]);
 
   const navigateWeek = (direction: "prev" | "next") => {
     const newWeekStart = new Date(selectedWeekStart);

@@ -1,44 +1,48 @@
 "use server";
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
-export async function createSession(userId: string) {
-  const secret = process.env.JWT_SECRET!;
-
-  const token = jwt.sign({ userId }, secret, { expiresIn: "1d" });
-
+export async function createSession(infos: {
+  userId: string;
+  access_token: string;
+}) {
   const cookieStore = await cookies();
-  cookieStore.set("session", token, {
+
+  // ✅ Stockez directement le token du backend (celui qui fonctionne avec votre JwtStrategy)
+  cookieStore.set("access_token", infos.access_token, {
     httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  });
-  cookieStore.set("userId", userId, {
-    httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
 
-  console.log("✅ Nouveau JWT session token (jsonwebtoken) :", token);
+  // ✅ Stockez aussi l'userId pour un accès rapide
+  cookieStore.set("userId", infos.userId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+
+  console.log("✅ Token backend stocké :", infos.access_token);
 }
 
 export async function deleteSession() {
   const cookieStore = await cookies();
-  cookieStore.delete("session");
+  cookieStore.delete("access_token");
   cookieStore.delete("userId");
 }
 
 // Fonction utilitaire pour récupérer le token côté serveur
+// ✅ Fonction pour récupérer les headers d'authentification
 export const getAuthHeaders = async () => {
   const cookieStore = await cookies();
-  const session = cookieStore.get("session")?.value;
+  const accessToken = cookieStore.get("access_token")?.value;
 
   return {
     "Content-Type": "application/json",
-    ...(session && { Authorization: `Bearer ${session}` }),
+    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
   };
 };

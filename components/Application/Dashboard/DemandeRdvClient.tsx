@@ -1,10 +1,11 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import ProposeCreneau from "./DemandeRdvBtn/ProposeCreneau";
 import { fr } from "date-fns/locale";
 import { format as formatDateFns } from "date-fns";
 import DeclinedDemande from "./DemandeRdvBtn/DeclinedDemande";
+import { fetchPendingAppointmentsAction } from "@/lib/queries/appointment";
 
 /* =====================
   Types (alignés sur ton style)
@@ -50,8 +51,6 @@ export interface AppointmentRequest {
   message?: string;
   createdAt: string;
 }
-
-const BACK_URL = process.env.NEXT_PUBLIC_BACK_URL;
 
 export default function DemandeRdvClient({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
@@ -110,41 +109,25 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
   }
 
   //! ===== API =====
-  const fetchPendingDemandes = useCallback(async () => {
-    if (!BACK_URL) {
-      setError("NEXT_PUBLIC_BACK_URL manquant");
-      setLoading(false);
-      return;
-    }
+  const fetchPendingDemandes = async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(
-        `${BACK_URL}/appointments/appointment-requests/not-confirmed/${userId}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          cache: "no-store",
-        }
-      );
-      if (!res.ok)
-        throw new Error("Erreur lors de la récupération des demandes");
-      const data = await res.json();
+
+      const data = await fetchPendingAppointmentsAction();
       setDemandes(
         Array.isArray(data?.appointmentRequests) ? data.appointmentRequests : []
       );
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Une erreur est survenue");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  };
 
   useEffect(() => {
-    if (userId) fetchPendingDemandes();
-  }, [userId, fetchPendingDemandes]);
-
-  console.log(selected);
+    fetchPendingDemandes();
+  }, []);
 
   // =====================
   // Rendu

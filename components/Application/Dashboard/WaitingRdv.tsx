@@ -8,6 +8,12 @@ import CancelRdv from "../RDV/CancelRdv";
 import UpdateRdv from "../RDV/UpdateRdv";
 import ChangeRdv from "../RDV/ChangeRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
+import { openImageInNewTab } from "@/lib/utils/openImage";
+import {
+  confirmAppointmentAction,
+  paidAppointmentsAction,
+  waitingConfirmationAppointmentsAction,
+} from "@/lib/queries/appointment";
 
 interface Client {
   firstName: string;
@@ -49,12 +55,12 @@ interface PendingAppointment {
   isPayed?: boolean; // Champ optionnel pour le statut de paiement
 }
 
-interface PendingAppointmentsResponse {
-  error: boolean;
-  appointments?: PendingAppointment[];
-  totalAppointments?: number;
-  message?: string;
-}
+// interface PendingAppointmentsResponse {
+//   error: boolean;
+//   appointments?: PendingAppointment[];
+//   totalAppointments?: number;
+//   message?: string;
+// }
 
 export default function WaitingRdv({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
@@ -73,39 +79,15 @@ export default function WaitingRdv({ userId }: { userId: string }) {
   const [selectedAppointmentDetails, setSelectedAppointmentDetails] =
     useState<PendingAppointment | null>(null);
 
-  //! Fonction pour ouvrir l'image dans un nouvel onglet
-  const openImageInNewTab = (url: string) => {
-    console.log("Opening image in new tab:", url);
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
   const fetchPendingAppointments = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/pending-confirmation/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Erreur lors de la récupération des rendez-vous en attente"
-        );
-      }
-
-      const data: PendingAppointmentsResponse = await response.json();
+      const data = await waitingConfirmationAppointmentsAction();
 
       if (data.error) {
-        throw new Error(
-          data.message || "Erreur lors de la récupération des données"
-        );
+        throw new Error("Erreur lors de la récupération des données");
       }
 
       setAppointments(data.appointments || []);
@@ -170,20 +152,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
   //! Gérer le statut de paiement
   const handlePaymentStatusChange = async (rdvId: string, isPayed: boolean) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/payed/${rdvId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ isPayed }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la mise à jour du statut de paiement");
-      }
+      await paidAppointmentsAction(rdvId, isPayed);
 
       // Mettre à jour l'appointment sélectionné si c'est celui qui a été modifié
       if (
@@ -250,28 +219,11 @@ export default function WaitingRdv({ userId }: { userId: string }) {
     try {
       const endpoint = actionType === "confirm" ? "confirm" : "cancel";
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/${endpoint}/${selectedAppointment.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: actionMessage.trim() || undefined,
-          }),
-        }
+      await confirmAppointmentAction(
+        selectedAppointment.id,
+        endpoint,
+        actionMessage
       );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message ||
-            `Erreur lors de la ${
-              actionType === "confirm" ? "confirmation" : "annulation"
-            }`
-        );
-      }
 
       toast.success(
         actionType === "confirm"
@@ -636,6 +588,9 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                           <ConfirmRdv
                             rdvId={selectedAppointmentDetails.id}
                             appointment={selectedAppointmentDetails}
+                            onConfirm={() =>
+                              handleRdvUpdated(selectedAppointmentDetails.id)
+                            }
                           />
                         )}
                         <UpdateRdv
@@ -656,6 +611,9 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                           <CancelRdv
                             rdvId={selectedAppointmentDetails.id}
                             appointment={selectedAppointmentDetails}
+                            onCancel={() =>
+                              handleRdvUpdated(selectedAppointmentDetails.id)
+                            }
                           />
                         )}
                       </div>

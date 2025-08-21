@@ -106,18 +106,18 @@ export default function DashboardPage() {
           </div>
 
           <div className="col-span-12 lg:col-span-4">
-            <WaitingRdv userId={user.id ?? ""} />
-          </div>
-
-          <div className="col-span-12 lg:col-span-4">
             <DemandeRdvClient userId={user.id ?? ""} />
           </div>
 
           {!isFreeAccount && (
-            <div className="col-span-12 lg:col-span-6">
+            <div className="col-span-12 lg:col-span-4">
               <NotAnswerClient userId={user.id ?? ""} />
             </div>
           )}
+
+          <div className="col-span-12 lg:col-span-4">
+            <WaitingRdv userId={user.id ?? ""} />
+          </div>
 
           {!isFreeAccount && (
             <div className="col-span-12 lg:col-span-6">

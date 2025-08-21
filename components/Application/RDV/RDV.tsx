@@ -35,6 +35,7 @@ import { Search } from "@/components/Shared/Search";
 import Link from "next/link";
 import { toast } from "sonner";
 import { FaRegCalendarTimes } from "react-icons/fa";
+import { openImageInNewTab } from "@/lib/utils/openImage";
 
 export default function RDV() {
   const user = useUser();
@@ -68,11 +69,6 @@ export default function RDV() {
   };
   const closeEventDetails = () => {
     setSelectedEvent(null);
-  };
-
-  //! OUVRIR L'IMAGE EN GRAND
-  const openImageInNewTab = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   //! Déterminer la plage de dates en fonction de la vue
@@ -334,7 +330,67 @@ export default function RDV() {
   }, [user.id]);
 
   return (
-    <div className="w-full flex gap-6">
+    <div className="w-full gap-6">
+      {/* Header toujours affiché */}
+      <div className="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10 mb-6 w-full">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+            <FaRegCalendarTimes
+              size={28}
+              className="text-tertiary-400 animate-pulse"
+            />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
+              Mes rendez-vous
+            </h1>
+            <p className="text-white/70 text-xs font-one mt-1">
+              Gérez vos rendez-vous, consultez les détails de chaque client et
+              suivez l&apos;historique de vos visites.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <Link
+            href={"/mes-rendez-vous/creer"}
+            className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Créer un rendez-vous
+          </Link>
+
+          <div className="relative">
+            <Link
+              href="/mes-rendez-vous/demandes"
+              className="cursor-pointer text-center px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center justify-center gap-2"
+            >
+              Demandes de rdv
+              {unansweredDemandesCount > 0 && (
+                <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                  {unansweredDemandesCount > 99
+                    ? "99+"
+                    : unansweredDemandesCount}
+                </span>
+              )}
+            </Link>
+          </div>
+        </div>
+      </div>
+      {/* Fin header toujours affiché */}
+
       {isLoading ? (
         <div className="h-full w-full flex items-center justify-center">
           <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
@@ -366,64 +422,6 @@ export default function RDV() {
         </div>
       ) : (
         <div className="flex flex-col gap-6 w-full">
-          <div className="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
-                <FaRegCalendarTimes
-                  size={28}
-                  className="text-tertiary-400 animate-pulse"
-                />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
-                  Mes rendez-vous
-                </h1>
-                <p className="text-white/70 text-xs font-one mt-1">
-                  Gérez vos rendez-vous, consultez les détails de chaque client
-                  et suivez l&apos;historique de vos visites.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Link
-                href={"/mes-rendez-vous/creer"}
-                className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Créer un rendez-vous
-              </Link>
-
-              <div className="relative">
-                <Link
-                  href="/mes-rendez-vous/demandes"
-                  className="cursor-pointer text-center px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center justify-center gap-2"
-                >
-                  Demandes de rdv
-                  {unansweredDemandesCount > 0 && (
-                    <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
-                      {unansweredDemandesCount > 99
-                        ? "99+"
-                        : unansweredDemandesCount}
-                    </span>
-                  )}
-                </Link>
-              </div>
-            </div>
-          </div>
-
           <Search />
 
           <div className="flex gap-4 w-full">
@@ -1059,6 +1057,7 @@ export default function RDV() {
                           <ConfirmRdv
                             rdvId={selectedEvent.id}
                             appointment={selectedEvent}
+                            onConfirm={() => handleRdvUpdated(selectedEvent.id)}
                           />
                         )}
                         <UpdateRdv
@@ -1068,13 +1067,15 @@ export default function RDV() {
                         />
                         <ChangeRdv
                           rdvId={selectedEvent.id}
-                          userId={userId || ""}
                           appointment={selectedEvent}
+                          userId={userId || ""}
+                          // onUpdate={() => handleRdvUpdated(selectedEvent.id)}
                         />
                         {selectedEvent.status !== "CANCELED" && (
                           <CancelRdv
                             rdvId={selectedEvent.id}
                             appointment={selectedEvent}
+                            onCancel={() => handleRdvUpdated(selectedEvent.id)}
                           />
                         )}
                       </div>

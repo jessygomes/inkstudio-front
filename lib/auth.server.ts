@@ -1,16 +1,14 @@
 "use server";
 import { cookies } from "next/headers";
 import { getAuthenticatedUserSchema } from "./zod/validator.schema";
-// import { deleteSession } from "./session";
-import jwt from "jsonwebtoken";
 
 export const getAuthenticatedUser = async () => {
   const cookieStore = cookies();
-  const sessionToken = (await cookieStore).get("session")?.value;
+  const accessToken = (await cookieStore).get("access_token")?.value;
 
-  if (!sessionToken) {
+  if (!accessToken) {
     throw new Error(
-      "Aucune session trouvée. L'utilisateur n'est pas authentifié."
+      "Aucun token d'accès trouvé. L'utilisateur n'est pas authentifié."
     );
   }
 
@@ -19,7 +17,7 @@ export const getAuthenticatedUser = async () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionToken}`,
+        Authorization: `Bearer ${accessToken}`, // ✅ Utilise le token du backend
       },
     });
 
@@ -33,18 +31,18 @@ export const getAuthenticatedUser = async () => {
     return getAuthenticatedUserSchema.parse(data);
   } catch (error) {
     console.error("Erreur lors de la récupération de l'utilisateur :", error);
-    // await deleteSession(); // Supprimez la session si une erreur se produit
     throw new Error("Erreur lors de la récupération de l'utilisateur.");
   }
 };
 
 export const currentUser = async () => {
-  const token = (await cookies()).get("session")?.value;
-  if (!token) return null;
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("access_token")?.value;
+  const userId = cookieStore.get("userId")?.value;
 
-  try {
-    return jwt.verify(token, process.env.JWT_SECRET!);
-  } catch {
-    return null;
-  }
+  if (!accessToken || !userId) return null;
+
+  // ✅ Retourne les informations utilisateur depuis les cookies
+  // Le token est validé côté backend quand nécessaire
+  return { userId };
 };

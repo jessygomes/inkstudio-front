@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { PortfolioProps } from "@/lib/type";
+import { extractUploadThingKey } from "@/lib/utils/uploadImg/extractUploadThingKey";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
@@ -24,21 +25,6 @@ export default function DeletePhoto({
       </div>
     );
   }
-
-  // Extraire la clé UploadThing de l'URL
-  const extractUploadThingKey = (url: string): string | null => {
-    try {
-      // Format UploadThing: https://utfs.io/f/[key]
-      const match = url.match(/\/f\/([^\/\?]+)/);
-      return match ? match[1] : null;
-    } catch (error) {
-      console.error(
-        "Erreur lors de l'extraction de la clé UploadThing:",
-        error
-      );
-      return null;
-    }
-  };
 
   const deleteFromUploadThing = async (fileKey: string): Promise<boolean> => {
     try {

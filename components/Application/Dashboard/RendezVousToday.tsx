@@ -7,6 +7,11 @@ import CancelRdv from "../RDV/CancelRdv";
 import UpdateRdv from "../RDV/UpdateRdv";
 import ChangeRdv from "../RDV/ChangeRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
+import {
+  fetchTodayAppointmentsAction,
+  paidAppointmentsAction,
+} from "@/lib/queries/appointment";
+import { openImageInNewTab } from "@/lib/utils/openImage";
 
 interface Client {
   firstName: string;
@@ -72,17 +77,8 @@ export default function RendezVousToday({ userId }: { userId: string }) {
       setLoading(true);
       setError(null);
 
-      const url = date
-        ? `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/today/${userId}?date=${date}`
-        : `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/today/${userId}`;
+      const data = await fetchTodayAppointmentsAction(date);
 
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des rendez-vous");
-      }
-
-      const data = await response.json();
       setAppointments(data.appointments || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
@@ -162,20 +158,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
   //! Gérer le statut de paiement
   const handlePaymentStatusChange = async (rdvId: string, isPayed: boolean) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/payed/${rdvId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ isPayed }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la mise à jour du statut de paiement");
-      }
+      await paidAppointmentsAction(rdvId, isPayed);
 
       // Mettre à jour l'appointment sélectionné si c'est celui qui a été modifié
       if (selectedAppointment && selectedAppointment.id === rdvId) {
@@ -212,14 +195,6 @@ export default function RendezVousToday({ userId }: { userId: string }) {
   const closeAppointmentDetails = () => {
     setSelectedAppointment(null);
   };
-
-  const openImageInNewTab = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
-  // const closeImageModal = () => {
-  //   setSelectedImage(null);
-  // };
 
   if (loading) {
     return (
@@ -549,6 +524,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                   <ConfirmRdv
                     rdvId={selectedAppointment.id}
                     appointment={selectedAppointment}
+                    onConfirm={() => handleRdvUpdated(selectedAppointment.id)}
                   />
                 )}
                 <UpdateRdv
@@ -565,6 +541,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                   <CancelRdv
                     rdvId={selectedAppointment.id}
                     appointment={selectedAppointment}
+                    onCancel={() => handleRdvUpdated(selectedAppointment.id)}
                   />
                 )}
               </div>

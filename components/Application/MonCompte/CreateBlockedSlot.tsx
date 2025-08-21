@@ -81,26 +81,6 @@ export default function CreateBlockedSlot({
       const startDateTime = new Date(startDateTimeString);
       const endDateTime = new Date(endDateTimeString);
 
-      console.log("🕒 Debug création de dates:", {
-        input: {
-          startDate: data.startDate,
-          startTime: data.startTime,
-          endDate: data.endDate,
-          endTime: data.endTime,
-        },
-        strings: {
-          startDateTimeString,
-          endDateTimeString,
-        },
-        objects: {
-          startDateTime: startDateTime.toISOString(),
-          endDateTime: endDateTime.toISOString(),
-          startLocal: startDateTime.toLocaleString("fr-FR"),
-          endLocal: endDateTime.toLocaleString("fr-FR"),
-          timezoneOffset: startDateTime.getTimezoneOffset(),
-        },
-      });
-
       // Vérification de la validité des dates
       if (isNaN(startDateTime.getTime())) {
         return { isValid: false, error: "Date/heure de début invalide" };
@@ -215,14 +195,7 @@ export default function CreateBlockedSlot({
         }
       );
 
-      console.log("📡 Réponse du serveur - Status:", response.status);
-      console.log("📡 Headers de la requête:", {
-        "Content-Type": "application/json",
-        "Content-Length": JSON.stringify(payload).length,
-      });
-
       const result = await response.json();
-      console.log("📡 Réponse du serveur - Data:", result);
 
       if (result.error) {
         setError(result.message || "Erreur lors de la création du blocage");

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
+import { extractUploadThingKey } from "@/lib/utils/uploadImg/extractUploadThingKey";
 
 export type TatoueurProps = {
   id: string;
@@ -29,20 +30,20 @@ export default function TatoueurSalon({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Extraire la clé UploadThing de l'URL
-  const extractUploadThingKey = (url: string): string | null => {
-    try {
-      // Format UploadThing: https://utfs.io/f/[key]
-      const match = url.match(/\/f\/([^\/\?]+)/);
-      return match ? match[1] : null;
-    } catch (error) {
-      console.error(
-        "Erreur lors de l'extraction de la clé UploadThing:",
-        error
-      );
-      return null;
-    }
-  };
+  // // Extraire la clé UploadThing de l'URL
+  // const extractUploadThingKey = (url: string): string | null => {
+  //   try {
+  //     // Format UploadThing: https://utfs.io/f/[key]
+  //     const match = url.match(/\/f\/([^\/\?]+)/);
+  //     return match ? match[1] : null;
+  //   } catch (error) {
+  //     console.error(
+  //       "Erreur lors de l'extraction de la clé UploadThing:",
+  //       error
+  //     );
+  //     return null;
+  //   }
+  // };
 
   const deleteFromUploadThing = async (fileKey: string): Promise<boolean> => {
     try {

@@ -6,6 +6,7 @@ import Image from "next/image";
 import imageCompression from "browser-image-compression";
 import { useUploadThing } from "@/lib/utils/uploadthing";
 import { CiUser } from "react-icons/ci";
+import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
 
 interface TatoueurImageUploaderProps {
   currentImage?: string;
@@ -37,16 +38,16 @@ export default function TatoueurImageUploader({
   });
 
   // Fonction pour extraire la clé d'une URL UploadThing
-  const extractKeyFromUrl = (url: string): string | null => {
-    try {
-      // Format UploadThing: https://uploadthing-prod.s3.us-west-2.amazonaws.com/key
-      // ou https://utfs.io/f/key
-      const match = url.match(/\/f\/([^\/\?]+)|\/([^\/\?]+)$/);
-      return match ? match[1] || match[2] : null;
-    } catch {
-      return null;
-    }
-  };
+  // const extractKeyFromUrl = (url: string): string | null => {
+  //   try {
+  //     // Format UploadThing: https://uploadthing-prod.s3.us-west-2.amazonaws.com/key
+  //     // ou https://utfs.io/f/key
+  //     const match = url.match(/\/f\/([^\/\?]+)|\/([^\/\?]+)$/);
+  //     return match ? match[1] || match[2] : null;
+  //   } catch {
+  //     return null;
+  //   }
+  // };
 
   // Fonction pour supprimer une image d'UploadThing
   const deleteFromUploadThing = async (imageUrl: string) => {
