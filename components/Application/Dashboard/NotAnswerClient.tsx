@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { getUnansweredFollowUpsAction } from "@/lib/queries/followUp";
 
 interface Client {
   firstName: string;
@@ -49,21 +50,13 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/follow-up/unanswered/${userId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await getUnansweredFollowUpsAction();
 
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération des suivis");
       }
 
-      const data = await response.json();
-      setFollowUps(data.followUps || []);
+      setFollowUps(response.data.followUps || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {

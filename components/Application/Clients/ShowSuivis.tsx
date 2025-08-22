@@ -10,6 +10,11 @@ import { IoChevronDown } from "react-icons/io5";
 import { toast } from "sonner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RiFileUserLine } from "react-icons/ri";
+import {
+  deleteSuiviAction,
+  getFollowUpAction,
+  replySuiviAction,
+} from "@/lib/queries/followUp";
 
 interface Client {
   id: string;
@@ -108,6 +113,7 @@ export default function ShowSuivis() {
     }
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
+
   const goToPage = (p: number) => updateParam("page", String(p));
 
   // Fetch tatoueurs (liste complète pour le select)
@@ -162,24 +168,15 @@ export default function ShowSuivis() {
     setLoading(true);
     setError(null);
     try {
-      const base = process.env.NEXT_PUBLIC_BACK_URL!;
-      const url = new URL(`${base}/follow-up/all/${user.id}`);
-      url.searchParams.set("page", String(page));
-      url.searchParams.set("limit", String(limit));
-      if (status && status !== "all") url.searchParams.set("status", status);
-      if (tatoueurId && tatoueurId !== "all")
-        url.searchParams.set("tatoueurId", tatoueurId);
-      if (q && q.trim() !== "") url.searchParams.set("q", q.trim());
+      const res = await getFollowUpAction(page, limit, status, tatoueurId, q);
 
-      const res = await fetch(url.toString(), {
-        method: "GET",
-        cache: "no-store",
-      });
       if (!res.ok) throw new Error("Erreur lors de la récupération des suivis");
 
-      const data = await res.json();
-      setFollowUps(Array.isArray(data?.followUps) ? data.followUps : []);
-      setPagination(data?.pagination ?? null);
+      setFollowUps(
+        Array.isArray(res.data?.followUps) ? res.data.followUps : []
+      );
+
+      setPagination(res.data?.pagination ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
@@ -209,6 +206,19 @@ export default function ShowSuivis() {
     if (user?.id) fetchTatoueurs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, followUps]);
+
+  // Debounce pour la recherche client
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      // Met à jour l'URL seulement si différent
+      if (searchTerm !== queryFromUrl) {
+        updateParam("q", searchTerm || undefined);
+      }
+    }, 500); // 500ms de délai
+
+    return () => clearTimeout(handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
 
   // Utils
   const getRatingStars = (rating: number) =>
@@ -247,6 +257,7 @@ export default function ShowSuivis() {
     setReplyText("");
     setIsReplyModalOpen(true);
   };
+
   const handleReplySubmit = async () => {
     if (!selectedFollowUp || !replyText.trim()) {
       toast.error("Veuillez saisir une réponse");
@@ -254,20 +265,17 @@ export default function ShowSuivis() {
     }
     setIsReplying(true);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/follow-up/reply/${selectedFollowUp.id}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ response: replyText }),
-        }
-      );
+      const res = await replySuiviAction(selectedFollowUp.id, replyText);
+
       if (!res.ok)
         throw new Error(
-          (await res.json())?.message || "Erreur lors de l'envoi de la réponse"
+          res.message === "Unauthorized"
+            ? "Vous n'êtes pas autorisé à répondre à ce suivi"
+            : "Erreur lors de l'envoi de la réponse"
         );
 
       toast.success("Réponse envoyée avec succès !");
+
       await fetchFollowUps({
         page: pageFromUrl,
         limit: limitFromUrl,
@@ -275,6 +283,7 @@ export default function ShowSuivis() {
         tatoueurId: tatoueurFromUrl,
         q: queryFromUrl,
       });
+
       setIsReplyModalOpen(false);
       setSelectedFollowUp(null);
       setReplyText("");
@@ -286,6 +295,7 @@ export default function ShowSuivis() {
       setIsReplying(false);
     }
   };
+
   const handleDeleteClick = (f: FollowUpSubmission) => {
     setFollowUpToDelete(f);
     setIsDeleteModalOpen(true);
@@ -300,6 +310,7 @@ export default function ShowSuivis() {
       return null;
     }
   };
+
   const deleteFromUploadThing = async (fileKey: string) => {
     try {
       const res = await fetch("/api/uploadthing/delete", {
@@ -314,23 +325,27 @@ export default function ShowSuivis() {
       return false;
     }
   };
+
   const handleDeleteConfirm = async () => {
     if (!followUpToDelete) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/follow-up/delete/${followUpToDelete.id}`,
-        { method: "POST", headers: { "Content-Type": "application/json" } }
-      );
+      const res = await deleteSuiviAction(followUpToDelete.id);
+
       if (!res.ok)
         throw new Error(
-          (await res.json())?.message || "Erreur lors de la suppression"
+          res.message === "Unauthorized"
+            ? "Vous n'êtes pas autorisé à répondre à ce suivi"
+            : "Erreur lors de l'envoi de la réponse"
         );
+
       if (followUpToDelete.photoUrl?.includes("utfs.io")) {
         const key = extractUploadThingKey(followUpToDelete.photoUrl);
         if (key) await deleteFromUploadThing(key);
       }
+
       toast.success("Suivi supprimé avec succès");
+
       await fetchFollowUps({
         page: pageFromUrl,
         limit: limitFromUrl,
@@ -338,6 +353,7 @@ export default function ShowSuivis() {
         tatoueurId: tatoueurFromUrl,
         q: queryFromUrl,
       });
+
       setIsDeleteModalOpen(false);
       setFollowUpToDelete(null);
     } catch (e) {
@@ -396,7 +412,7 @@ export default function ShowSuivis() {
                 disabled={loading}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  updateParam("q", e.target.value || undefined);
+                  // NE PAS appeler updateParam ici
                 }}
                 placeholder="Nom du client..."
                 className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 py-2 px-3 font-one border border-white/20 rounded-lg focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-60"

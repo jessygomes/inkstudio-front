@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import CreateBlockedSlot from "./CreateBlockedSlot";
+import { deleteBlockedTimeSlotAction } from "@/lib/queries/blocked-time-slots";
 
 interface Tatoueur {
   id: string;
@@ -75,17 +76,15 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
     setIsDeleting(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/${slotToDelete.id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const res = await deleteBlockedTimeSlotAction(slotToDelete.id);
 
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.message || "Erreur lors de la suppression");
+      if (!res.ok) {
+        toast.error(
+          res.message === "Unauthorized"
+            ? "Non autorisé"
+            : "Erreur lors de la suppression"
+        );
+        return;
       }
 
       toast.success("Créneau débloqué avec succès");

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { deleteProductAction } from "@/lib/queries/productSalon";
 import { ProductSalonProps } from "@/lib/type";
 import { extractUploadThingKey } from "@/lib/utils/uploadImg/extractUploadThingKey";
 import React, { useState } from "react";
@@ -63,17 +64,7 @@ export default function DeleteProduct({
 
     try {
       // 1. Supprimer de la base de données
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/product-salon/${product.id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Erreur lors de la suppression");
-      }
+      await deleteProductAction(product.id);
 
       // 2. Supprimer de UploadThing si l'URL provient d'UploadThing
       if (product.imageUrl && product.imageUrl.includes("utfs.io")) {

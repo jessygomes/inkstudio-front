@@ -1,5 +1,6 @@
 "use client";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
+import { createOrUpdateProductAction } from "@/lib/queries/productSalon";
 import { ProductSalonProps } from "@/lib/type";
 import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
 import { productSalonSchema } from "@/lib/zod/validator.schema";
@@ -107,22 +108,30 @@ export default function CreateOrUpdateProduct({
       : `${process.env.NEXT_PUBLIC_BACK_URL}/product-salon`;
 
     try {
-      const response = await fetch(url, {
-        method: existingProduct ? "PATCH" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const result = await createOrUpdateProductAction(
+        { ...data },
+        existingProduct ? "PATCH" : "POST",
+        url
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.log("Error data:", errorData);
-        setError(errorData.message || "Une erreur est survenue.");
+      // Vérifier si c'est une erreur de limite SaaS
+      if (result.error) {
+        if (
+          result.message &&
+          result.message.includes("Limite de produits atteinte")
+        ) {
+          setError("SAAS_LIMIT");
+        } else {
+          setError(result.message || "Une erreur est survenue.");
+        }
         return;
       }
 
-      await response.json();
+      if (!result.ok) {
+        setError("Une erreur est survenue côté serveur.");
+        return;
+      }
+
       setSuccess("Produit enregistré avec succès !");
       onCreate();
       setIsOpen(false);

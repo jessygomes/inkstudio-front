@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CiSettings } from "react-icons/ci";
+import { changePasswordAction } from "@/lib/queries/user";
 
 interface Subscription {
   id: string;
@@ -345,27 +346,32 @@ export default function ParamPage() {
     setIsChangingPassword(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/auth/change-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            currentPassword: data.currentPassword,
-            newPassword: data.newPassword,
-            confirmPassword: data.confirmPassword,
-            userId: user.id,
-          }),
-        }
-      );
+      // const response = await fetch(
+      //   `${process.env.NEXT_PUBLIC_BACK_URL}/auth/change-password`,
+      //   {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify({
+      //       currentPassword: data.currentPassword,
+      //       newPassword: data.newPassword,
+      //       confirmPassword: data.confirmPassword,
+      //     }),
+      //   }
+      // );
 
-      const result = await response.json();
+      // const result = await response.json();
+
+      const response = await changePasswordAction({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+        confirmPassword: data.confirmPassword,
+      });
 
       if (!response.ok) {
         throw new Error(
-          result.message || "Erreur lors du changement de mot de passe"
+          response.message || "Erreur lors du changement de mot de passe"
         );
       }
 

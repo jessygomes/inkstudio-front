@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { createBlockedTimeSlotAction } from "@/lib/queries/blocked-time-slots";
 
 const createBlockedSlotSchema = z.object({
   startDate: z.string().min(1, "Date de début requise"),
@@ -184,27 +185,16 @@ export default function CreateBlockedSlot({
         return;
       }
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      const result = await response.json();
+      const result = await createBlockedTimeSlotAction(payload);
 
       if (result.error) {
         setError(result.message || "Erreur lors de la création du blocage");
         return;
       }
 
-      if (!response.ok) {
+      if (!result.ok) {
         setError(
-          `Erreur serveur: ${response.status} - ${
+          `Erreur serveur: ${result.status} - ${
             result.message || "Erreur inconnue"
           }`
         );
