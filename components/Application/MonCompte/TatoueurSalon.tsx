@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { extractUploadThingKey } from "@/lib/utils/uploadImg/extractUploadThingKey";
+import { deleteTatoueurAction } from "@/lib/queries/tatoueur";
 
 export type TatoueurProps = {
   id: string;
@@ -80,15 +81,9 @@ export default function TatoueurSalon({
     setIsDeleting(true);
 
     try {
-      // 1. Supprimer de la base de données
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/delete/${selectedTatoueur.id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await deleteTatoueurAction(selectedTatoueur.id);
 
-      if (!res.ok) {
+      if (!response.ok) {
         throw new Error("Erreur lors de la suppression du tatoueur");
       }
 
@@ -119,8 +114,6 @@ export default function TatoueurSalon({
       setSelectedTatoueur(null);
     }
   };
-
-  console.log(tatoueurs);
 
   return (
     <div className="w-full flex flex-col">

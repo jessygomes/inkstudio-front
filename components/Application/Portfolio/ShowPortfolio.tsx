@@ -241,7 +241,6 @@ export default function ShowPortfolio() {
 
       {isModalOpen && (
         <CreateOrUpdatePhoto
-          userId={user.id ?? ""}
           onCreate={() => {
             fetchPhotos();
             setIsModalOpen(false);

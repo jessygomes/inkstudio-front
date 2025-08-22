@@ -18,6 +18,7 @@ import { MdOutlineRateReview } from "react-icons/md";
 import { RiFileUserLine } from "react-icons/ri";
 import Image from "next/image";
 import Link from "next/link";
+import { getSalonClientsAction } from "@/lib/queries/client";
 
 interface PaginationInfo {
   currentPage: number;
@@ -28,12 +29,12 @@ interface PaginationInfo {
   hasPreviousPage: boolean;
 }
 
-interface ClientsResponse {
-  error: boolean;
-  clients: ClientProps[];
-  pagination?: PaginationInfo;
-  message?: string;
-}
+// interface ClientsResponse {
+//   error: boolean;
+//   clients: ClientProps[];
+//   pagination?: PaginationInfo;
+//   message?: string;
+// }
 
 export default function ClientList() {
   const user = useUser();
@@ -88,22 +89,7 @@ export default function ClientList() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/clients/salon/${
-          user.id
-        }?page=${page}&limit=${ITEMS_PER_PAGE}&search=${encodeURIComponent(
-          search
-        )}`,
-        {
-          cache: "no-store",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-      }
-
-      const data: ClientsResponse = await response.json();
+      const data = await getSalonClientsAction(page, search);
 
       if (data.error) {
         throw new Error(
@@ -1018,7 +1004,6 @@ export default function ClientList() {
 
       {isModalOpen && (
         <CreateOrUpdateClient
-          userId={user.id ?? ""}
           onCreate={() => {
             fetchClients(currentPage, searchTerm);
             setIsModalOpen(false);

@@ -14,6 +14,8 @@ import TatoueurImageUploader from "@/components/Application/MonCompte/TatoueurIm
 import { CiUser } from "react-icons/ci";
 import { TbClockHour5 } from "react-icons/tb";
 import { IoClose } from "react-icons/io5";
+import { createOrUpdateTatoueur } from "@/lib/queries/tatoueur";
+import { toast } from "sonner";
 
 type Horaire = {
   [key: string]: { start: string; end: string } | null;
@@ -111,7 +113,6 @@ export default function AddOrUpdateTatoueurPage() {
       description: existingTatoueur?.description || "",
       instagram: existingTatoueur?.instagram || "",
       hours: existingTatoueur?.hours || "",
-      userId: salonId || "",
       style: existingTatoueur?.style || [],
       skills: existingTatoueur?.skills || [],
     },
@@ -127,7 +128,6 @@ export default function AddOrUpdateTatoueurPage() {
         instagram: existingTatoueur.instagram || "",
         phone: existingTatoueur.phone || "",
         hours: existingTatoueur.hours || "",
-        userId: salonId || "",
         style: existingTatoueur.style || [],
         skills: existingTatoueur.skills || [],
       });
@@ -206,13 +206,11 @@ export default function AddOrUpdateTatoueurPage() {
         ? `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/update/${tatoueurId}`
         : `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`;
 
-      const res = await fetch(url, {
-        method: isEditing ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await res.json();
+      const result = await createOrUpdateTatoueur(
+        payload,
+        isEditing ? "PATCH" : "POST",
+        url
+      );
 
       // Vérifier si c'est une erreur de limite SaaS
       if (result.error) {
@@ -227,7 +225,8 @@ export default function AddOrUpdateTatoueurPage() {
         return;
       }
 
-      if (res.ok) {
+      if (result.ok) {
+        toast.success("Tatoueur créé/modifié avec succès !");
         router.push("/mon-compte");
       } else {
         setError("Une erreur est survenue côté serveur.");

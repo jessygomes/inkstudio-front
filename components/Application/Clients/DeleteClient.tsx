@@ -1,5 +1,6 @@
 import { FormError } from "@/components/Shared/FormError";
 import { FormSuccess } from "@/components/Shared/FormSuccess";
+import { deleteClient } from "@/lib/queries/client";
 import { ClientProps } from "@/lib/type";
 import React, { useState } from "react";
 
@@ -31,17 +32,7 @@ export default function DeleteClient({
     setError("");
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/clients/delete/${client.id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Erreur lors de la suppression");
-      }
+      await deleteClient(client.id);
 
       setSuccess("Client supprimé avec succès");
       setIsOpen(false);

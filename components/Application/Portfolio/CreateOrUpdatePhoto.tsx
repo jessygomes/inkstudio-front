@@ -9,14 +9,13 @@ import { PortfolioProps } from "@/lib/type";
 import { portfolioSchema } from "@/lib/zod/validator.schema";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
+import { createOrUpdatePortfolioAction } from "@/lib/queries/portfolio";
 
 export default function CreateOrUpdatePhoto({
-  userId,
   onCreate,
   existingPhoto,
   setIsOpen = () => {},
 }: {
-  userId: string;
   onCreate: () => void;
   existingPhoto?: PortfolioProps | null;
   setIsOpen?: (isOpen: boolean) => void;
@@ -107,15 +106,11 @@ export default function CreateOrUpdatePhoto({
       : `${process.env.NEXT_PUBLIC_BACK_URL}/portfolio`;
 
     try {
-      const response = await fetch(url, {
-        method: existingPhoto ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...data, userId }),
-      });
-
-      const result = await response.json();
+      const result = await createOrUpdatePortfolioAction(
+        { ...data },
+        existingPhoto ? "PUT" : "POST",
+        url
+      );
 
       // Vérifier si c'est une erreur de limite SaaS
       if (result.error) {
@@ -130,7 +125,7 @@ export default function CreateOrUpdatePhoto({
         return;
       }
 
-      if (!response.ok) {
+      if (!result.ok) {
         setError("Une erreur est survenue côté serveur.");
         return;
       }

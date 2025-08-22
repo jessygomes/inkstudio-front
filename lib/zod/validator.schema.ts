@@ -86,7 +86,6 @@ export const createTatoueurSchema = z.object({
   phone: z.string().optional(),
   instagram: z.string().optional(),
   hours: z.string().optional(),
-  userId: z.string(),
   style: z.array(z.string()).optional(),
   skills: z.array(z.string()).optional(),
 });

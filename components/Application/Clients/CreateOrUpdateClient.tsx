@@ -11,14 +11,13 @@ import { ClientProps } from "@/lib/type";
 import { IoChevronDown, IoChevronUp } from "react-icons/io5";
 import { RiHealthBookLine } from "react-icons/ri";
 import { CiUser } from "react-icons/ci";
+import { createOrUpdateClient } from "@/lib/queries/client";
 
 export default function CreateOrUpdateClient({
-  userId,
   onCreate,
   existingClient,
   setIsOpen = () => {},
 }: {
-  userId: string;
   onCreate: () => void;
   existingClient?: ClientProps | null;
   setIsOpen?: (isOpen: boolean) => void;
@@ -56,16 +55,12 @@ export default function CreateOrUpdateClient({
     setError("");
     setSuccess("");
 
-    console.log("USER ID :", userId);
-    console.log("Données du formulaire :", data, userId);
-
     // Convertir la date de naissance au format ISO si elle existe
     const processedData = {
       ...data,
       birthDate: data.birthDate
         ? new Date(data.birthDate).toISOString()
         : undefined,
-      userId,
     };
 
     const url = existingClient
@@ -73,15 +68,11 @@ export default function CreateOrUpdateClient({
       : `${process.env.NEXT_PUBLIC_BACK_URL}/clients`;
 
     try {
-      const response = await fetch(url, {
-        method: existingClient ? "PATCH" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(processedData),
-      });
-
-      const result = await response.json();
+      const result = await createOrUpdateClient(
+        processedData,
+        existingClient ? "PATCH" : "POST",
+        url
+      );
 
       // Vérifier si c'est une erreur de limite SaaS
       if (result.error) {
@@ -97,7 +88,7 @@ export default function CreateOrUpdateClient({
         return;
       }
 
-      if (!response.ok) {
+      if (!result.ok) {
         setError("Une erreur est survenue côté serveur.");
         return;
       }
