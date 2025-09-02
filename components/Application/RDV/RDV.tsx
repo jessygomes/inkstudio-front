@@ -46,8 +46,8 @@ export default function RDV() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<View>("week");
 
-  //! Nouvelle state pour la vue liste
-  const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
+  // Définir le mode par défaut selon la taille d'écran
+  const [viewMode, setViewMode] = useState<"calendar" | "list">("list"); // Changé à "list" par défaut
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 5;
 
@@ -64,11 +64,15 @@ export default function RDV() {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
   );
+  const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
+
   const openEventDetails = (event: CalendarEvent) => {
     setSelectedEvent(event);
+    setIsMobileDetailOpen(true); // Pour mobile
   };
   const closeEventDetails = () => {
     setSelectedEvent(null);
+    setIsMobileDetailOpen(false);
   };
 
   //! Déterminer la plage de dates en fonction de la vue
@@ -332,9 +336,9 @@ export default function RDV() {
   return (
     <div className="w-full gap-6">
       {/* Header toujours affiché */}
-      <div className="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10 mb-6 w-full">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+      <div className="flex flex-col md:flex-row sm:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10 mb-6 w-full">
+        <div className="w-full flex items-center gap-4 mb-4 sm:mb-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
             <FaRegCalendarTimes
               size={28}
               className="text-tertiary-400 animate-pulse"
@@ -424,18 +428,24 @@ export default function RDV() {
         <div className="flex flex-col gap-6 w-full">
           <Search />
 
-          <div className="flex gap-4 w-full">
-            <section className="w-3/5 bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl p-6 border border-white/20 shadow-2xl">
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-white font-one text-xl tracking-wide">
-                    {viewMode === "calendar"
-                      ? getFormattedLabel()
-                      : "Tous les rendez-vous"}
+          {/* Layout responsive : flex-col sur mobile, flex-row sur desktop */}
+          <div className="flex flex-col lg:flex-row gap-4 w-full">
+            {/* Section principale - prend toute la largeur sur mobile */}
+            <section className="w-full lg:w-3/5 bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl p-3 sm:p-6 border border-white/20 shadow-2xl">
+              <div className="mb-4 sm:mb-6">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
+                  {/* Titre adaptatif : "Tous les rendez-vous" sur mobile, titre dynamique sur desktop */}
+                  <h2 className="text-white font-one text-lg sm:text-xl tracking-wide">
+                    <span className="sm:hidden">Tous les rendez-vous</span>
+                    <span className="hidden sm:block">
+                      {viewMode === "calendar"
+                        ? getFormattedLabel()
+                        : "Tous les rendez-vous"}
+                    </span>
                   </h2>
 
-                  {/* Boutons de basculement de vue */}
-                  <div className="flex bg-white/10 rounded-xl border border-white/20 overflow-hidden">
+                  {/* Boutons de basculement de vue - masqués sur mobile */}
+                  <div className="hidden sm:flex bg-white/10 rounded-xl border border-white/20 overflow-hidden">
                     <button
                       onClick={() => handleViewModeChange("calendar")}
                       className={`cursor-pointer px-4 py-2 text-xs font-medium transition-all duration-200 flex gap-2 items-center font-one ${
@@ -444,7 +454,8 @@ export default function RDV() {
                           : "text-white/70 hover:text-white hover:bg-white/10"
                       }`}
                     >
-                      <CiCalendarDate size={20} /> Calendrier
+                      <CiCalendarDate size={20} />
+                      Calendrier
                     </button>
                     <button
                       onClick={() => handleViewModeChange("list")}
@@ -454,22 +465,23 @@ export default function RDV() {
                           : "text-white/70 hover:text-white hover:bg-white/10"
                       }`}
                     >
-                      <CiCalendar size={20} /> Tous les RDV
+                      <CiCalendar size={20} />
+                      Tous les RDV
                     </button>
                   </div>
                 </div>
 
-                {/* Filtres */}
-                <div className="flex flex-wrap gap-3 mb-4">
-                  {/* Filtre par statut - pour les deux vues */}
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs text-white/70 font-one">
+                {/* Filtres - responsive avec scroll horizontal sur mobile */}
+                <div className="flex flex-nowrap sm:flex-wrap gap-2 sm:gap-3 mb-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                  {/* Filtre par statut */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <label className="text-xs text-white/70 font-one whitespace-nowrap">
                       Statut :
                     </label>
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
-                      className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                      className="px-2 sm:px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors min-w-[80px]"
                     >
                       <option value="all" className="bg-noir-500">
                         Tous
@@ -487,14 +499,14 @@ export default function RDV() {
                   </div>
 
                   {/* Filtre par type de prestation */}
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs text-white/70 font-one">
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <label className="text-xs text-white/70 font-one whitespace-nowrap">
                       Type :
                     </label>
                     <select
                       value={prestationFilter}
                       onChange={(e) => setPrestationFilter(e.target.value)}
-                      className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                      className="px-2 sm:px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors min-w-[80px]"
                     >
                       <option value="all" className="bg-noir-500">
                         Tous
@@ -512,14 +524,14 @@ export default function RDV() {
                   </div>
 
                   {/* Filtre par tatoueur */}
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs text-white/70 font-one">
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <label className="text-xs text-white/70 font-one whitespace-nowrap">
                       Tatoueur :
                     </label>
                     <select
                       value={tatoueurFilter}
                       onChange={(e) => setTatoueurFilter(e.target.value)}
-                      className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                      className="px-2 sm:px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors min-w-[80px]"
                     >
                       <option value="all" className="bg-noir-500">
                         Tous
@@ -536,16 +548,38 @@ export default function RDV() {
                     </select>
                   </div>
 
-                  {/* Filtre par date - seulement en mode "Tous les RDV" */}
+                  {/* Filtre par date - toujours affiché sur mobile (mode liste forcé) */}
+                  <div className="flex items-center gap-2 flex-shrink-0 sm:hidden">
+                    <label className="text-xs text-white/70 font-one whitespace-nowrap">
+                      Période :
+                    </label>
+                    <select
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="px-2 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors min-w-[80px]"
+                    >
+                      <option value="all" className="bg-noir-500">
+                        Tous
+                      </option>
+                      <option value="upcoming" className="bg-noir-500">
+                        À venir
+                      </option>
+                      <option value="past" className="bg-noir-500">
+                        Passés
+                      </option>
+                    </select>
+                  </div>
+
+                  {/* Filtre par date - seulement en mode "Tous les RDV" sur desktop */}
                   {viewMode === "list" && (
-                    <div className="flex items-center gap-2">
-                      <label className="text-xs text-white/70 font-one">
+                    <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+                      <label className="text-xs text-white/70 font-one whitespace-nowrap">
                         Période :
                       </label>
                       <select
                         value={dateFilter}
                         onChange={(e) => setDateFilter(e.target.value)}
-                        className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors min-w-[80px]"
                       >
                         <option value="all" className="bg-noir-500">
                           Tous
@@ -560,72 +594,79 @@ export default function RDV() {
                     </div>
                   )}
 
-                  {/* Indicateur des filtres actifs */}
+                  {/* Bouton effacer filtres */}
                   {(statusFilter !== "all" ||
                     prestationFilter !== "all" ||
                     tatoueurFilter !== "all" ||
-                    (viewMode === "list" && dateFilter !== "all")) && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-white/50">
-                        Filtres actifs :
-                      </span>
-                      {statusFilter !== "all" && (
-                        <span className="px-2 py-1 bg-tertiary-400/20 text-tertiary-300 rounded-full text-xs border border-tertiary-400/30">
-                          {statusFilter === "PENDING"
-                            ? "En attente"
-                            : statusFilter === "CONFIRMED"
-                            ? "Confirmés"
-                            : statusFilter === "CANCELED"
-                            ? "Annulés"
-                            : statusFilter}
-                        </span>
-                      )}
-                      {prestationFilter !== "all" && (
-                        <span className="px-2 py-1 bg-purple-400/20 text-purple-300 rounded-full text-xs border border-purple-400/30">
-                          {prestationFilter}
-                        </span>
-                      )}
-                      {tatoueurFilter !== "all" && (
-                        <span className="px-2 py-1 bg-cyan-400/20 text-cyan-300 rounded-full text-xs border border-cyan-400/30">
-                          {
-                            uniqueTatoueurs.find(
-                              (t: any) => t.id === tatoueurFilter
-                            )?.name
-                          }
-                        </span>
-                      )}
-                      {viewMode === "list" && dateFilter !== "all" && (
-                        <span className="px-2 py-1 bg-blue-400/20 text-blue-300 rounded-full text-xs border border-blue-400/30">
-                          {dateFilter === "upcoming"
-                            ? "À venir"
-                            : dateFilter === "past"
-                            ? "Passés"
-                            : dateFilter}
-                        </span>
-                      )}
-                      <button
-                        onClick={() => {
-                          setStatusFilter("all");
-                          setDateFilter("all");
-                          setPrestationFilter("all");
-                          setTatoueurFilter("all");
-                        }}
-                        className="cursor-pointer px-2 py-1 bg-red-400/20 text-red-300 rounded-full text-xs border border-red-400/30 hover:bg-red-400/30 transition-colors"
-                      >
-                        ✕ Effacer
-                      </button>
-                    </div>
+                    dateFilter !== "all") && ( // Condition simplifiée pour mobile
+                    <button
+                      onClick={() => {
+                        setStatusFilter("all");
+                        setDateFilter("all");
+                        setPrestationFilter("all");
+                        setTatoueurFilter("all");
+                      }}
+                      className="cursor-pointer px-2 sm:px-3 py-1 bg-red-400/20 text-red-300 rounded-lg text-xs border border-red-400/30 hover:bg-red-400/30 transition-colors flex-shrink-0 whitespace-nowrap"
+                    >
+                      ✕ Effacer
+                    </button>
                   )}
                 </div>
+
+                {/* Indicateurs de filtres actifs - masqués sur mobile pour économiser l'espace */}
+                {(statusFilter !== "all" ||
+                  prestationFilter !== "all" ||
+                  tatoueurFilter !== "all" ||
+                  (viewMode === "list" && dateFilter !== "all")) && (
+                  <div className="hidden sm:flex items-center gap-2 mb-4 flex-wrap">
+                    <span className="text-xs text-white/50">
+                      Filtres actifs :
+                    </span>
+                    {statusFilter !== "all" && (
+                      <span className="px-2 py-1 bg-tertiary-400/20 text-tertiary-300 rounded-full text-xs border border-tertiary-400/30">
+                        {statusFilter === "PENDING"
+                          ? "En attente"
+                          : statusFilter === "CONFIRMED"
+                          ? "Confirmés"
+                          : statusFilter === "CANCELED"
+                          ? "Annulés"
+                          : statusFilter}
+                      </span>
+                    )}
+                    {prestationFilter !== "all" && (
+                      <span className="px-2 py-1 bg-purple-400/20 text-purple-300 rounded-full text-xs border border-purple-400/30">
+                        {prestationFilter}
+                      </span>
+                    )}
+                    {tatoueurFilter !== "all" && (
+                      <span className="px-2 py-1 bg-cyan-400/20 text-cyan-300 rounded-full text-xs border border-cyan-400/30">
+                        {
+                          uniqueTatoueurs.find(
+                            (t: any) => t.id === tatoueurFilter
+                          )?.name
+                        }
+                      </span>
+                    )}
+                    {viewMode === "list" && dateFilter !== "all" && (
+                      <span className="px-2 py-1 bg-blue-400/20 text-blue-300 rounded-full text-xs border border-blue-400/30">
+                        {dateFilter === "upcoming"
+                          ? "À venir"
+                          : dateFilter === "past"
+                          ? "Passés"
+                          : dateFilter}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 <div className="h-[1px] w-full bg-gradient-to-r from-tertiary-400/50 via-white/30 to-transparent" />
               </div>
 
-              {/* Affichage conditionnel selon la vue - maintenant paginatedEvents pour les deux */}
+              {/* Affichage conditionnel selon la vue */}
               {paginatedEvents.length > 0 ? (
                 <div className="space-y-4">
-                  {/* Header de la table */}
-                  <div className="grid grid-cols-7 gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                  {/* Header de la table - masqué sur mobile */}
+                  <div className="hidden sm:grid grid-cols-7 gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
                     <p className="text-white/80 text-xs font-one font-semibold tracking-widest">
                       Date & Heure
                     </p>
@@ -649,15 +690,12 @@ export default function RDV() {
                     </p>
                   </div>
 
-                  {/* Liste des rendez-vous - maintenant toujours paginatedEvents */}
+                  {/* Liste des rendez-vous - layout adaptatif */}
                   <div className="space-y-2 max-h-[55vh] overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                     {paginatedEvents.map((event: CalendarEvent) => {
-                      // Calcul de la durée en millisecondes
                       const start = new Date(event.start ?? "").getTime();
                       const end = new Date(event.end ?? "").getTime();
                       const durationMs = end - start;
-
-                      // Conversion en heures et minutes
                       const durationHours = Math.floor(
                         durationMs / (1000 * 60 * 60)
                       );
@@ -666,122 +704,169 @@ export default function RDV() {
                       );
 
                       return (
-                        <div
-                          key={event.id}
-                          className="grid grid-cols-7 items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 group"
-                        >
-                          {/* DATE ET HEURE */}
-                          <div className="text-white font-two text-sm">
-                            <p className="font-bold">
-                              {new Date(event.start ?? "").toLocaleDateString(
-                                "fr-FR",
-                                {
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "2-digit",
-                                }
-                              )}
+                        <div key={event.id}>
+                          {/* Vue desktop - grille */}
+                          <div className="hidden sm:grid grid-cols-7 items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 group">
+                            <div className="text-white font-two text-sm">
+                              <p className="font-bold">
+                                {new Date(event.start ?? "").toLocaleDateString(
+                                  "fr-FR",
+                                  {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "2-digit",
+                                  }
+                                )}
+                              </p>
+                              <p className="text-xs text-white/70">
+                                {new Date(event.start ?? "").toLocaleTimeString(
+                                  "fr-FR",
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </p>
+                            </div>
+                            <p className="text-white font-two text-sm truncate">
+                              {event.title}
                             </p>
-                            <p className="text-xs text-white/70">
-                              {new Date(event.start ?? "").toLocaleTimeString(
-                                "fr-FR",
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
+                            <button className="text-left text-white font-two text-sm hover:text-tertiary-400 transition-colors duration-200 truncate">
+                              {event.client.firstName} {event.client.lastName}
+                            </button>
+                            <p className="text-white font-two text-sm">
+                              {durationHours}h
+                              {durationMinutes > 0 ? `${durationMinutes}m` : ""}
                             </p>
+                            <p className="text-white font-two text-sm truncate">
+                              {event.prestation}
+                            </p>
+                            <p className="text-white font-two text-sm truncate">
+                              {event.tatoueur.name}
+                            </p>
+                            <div className="text-center">
+                              <button
+                                onClick={() => openEventDetails(event)}
+                                className="w-full cursor-pointer"
+                              >
+                                {event.status === "CANCELED" ? (
+                                  <span className="inline-block px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg text-xs font-medium font-one hover:bg-red-500/30 transition-all duration-200">
+                                    Annulé
+                                  </span>
+                                ) : event.status === "RESCHEDULING" ? (
+                                  <span className="inline-block px-1 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-one font-medium hover:bg-blue-500/30 transition-all duration-200">
+                                    En attente de reprogrammation
+                                  </span>
+                                ) : event.status !== "CONFIRMED" ? (
+                                  <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-lg text-xs font-medium font-one hover:bg-orange-500/30 transition-all duration-200">
+                                    En attente
+                                  </span>
+                                ) : (
+                                  <span className="inline-block px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-lg text-xs font-medium font-one hover:bg-green-500/30 transition-all duration-200">
+                                    Confirmé
+                                  </span>
+                                )}
+                              </button>
+                            </div>
                           </div>
 
-                          {/* TITRE DU RDV */}
-                          <p className="text-white font-two text-sm truncate">
-                            {event.title}
-                          </p>
+                          {/* Vue mobile - format carte (toujours en mode liste) */}
+                          <div
+                            className="sm:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 cursor-pointer"
+                            onClick={() => openEventDetails(event)}
+                          >
+                            <div className="flex justify-between items-start mb-3">
+                              <div className="flex-1">
+                                <h3 className="text-white font-one font-semibold text-sm mb-1">
+                                  {event.title}
+                                </h3>
+                                <p className="text-white/80 font-two text-sm">
+                                  {event.client.firstName}{" "}
+                                  {event.client.lastName}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                {event.status === "CANCELED" ? (
+                                  <span className="inline-block px-2 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg text-xs font-medium font-one">
+                                    Annulé
+                                  </span>
+                                ) : event.status === "RESCHEDULING" ? (
+                                  <span className="inline-block px-2 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-medium font-one">
+                                    Reprogrammation
+                                  </span>
+                                ) : event.status !== "CONFIRMED" ? (
+                                  <span className="inline-block px-2 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-lg text-xs font-medium font-one">
+                                    En attente
+                                  </span>
+                                ) : (
+                                  <span className="inline-block px-2 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-lg text-xs font-medium font-one">
+                                    Confirmé
+                                  </span>
+                                )}
+                              </div>
+                            </div>
 
-                          {/* CLIENT */}
-                          <button className="text-left text-white font-two text-sm hover:text-tertiary-400 transition-colors duration-200 truncate">
-                            {event.client.firstName} {event.client.lastName}
-                          </button>
-
-                          {/* DUREE */}
-                          <p className="text-white font-two text-sm">
-                            {durationHours}h
-                            {durationMinutes > 0 ? `${durationMinutes}m` : ""}
-                          </p>
-
-                          {/* PRESTATION */}
-                          <p className="text-white font-two text-sm truncate">
-                            {event.prestation}
-                          </p>
-
-                          {/* NOM DU TATOUEUR */}
-                          <p className="text-white font-two text-sm truncate">
-                            {event.tatoueur.name}
-                          </p>
-
-                          {/* STATUT */}
-                          <div className="text-center">
-                            <button
-                              onClick={() => openEventDetails(event)}
-                              className="w-full cursor-pointer"
-                            >
-                              {event.status === "CANCELED" ? (
-                                <span className="inline-block px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg text-xs font-medium font-one hover:bg-red-500/30 transition-all duration-200">
-                                  Annulé
-                                </span>
-                              ) : event.status === "RESCHEDULING" ? (
-                                <span className="inline-block px-1 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-one font-medium hover:bg-blue-500/30 transition-all duration-200">
-                                  En attente de reprogrammation
-                                </span>
-                              ) : event.status !== "CONFIRMED" ? (
-                                <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-lg text-xs font-medium font-one hover:bg-orange-500/30 transition-all duration-200">
-                                  En attente
-                                </span>
-                              ) : (
-                                <span className="inline-block px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-lg text-xs font-medium font-one hover:bg-green-500/30 transition-all duration-200">
-                                  Confirmé
-                                </span>
-                              )}
-                            </button>
+                            <div className="flex justify-between items-center text-xs text-white/70 font-one">
+                              <span>
+                                {new Date(event.start ?? "").toLocaleDateString(
+                                  "fr-FR"
+                                )}{" "}
+                                -
+                                {new Date(event.start ?? "").toLocaleTimeString(
+                                  "fr-FR",
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </span>
+                              <span className="flex items-center gap-2">
+                                <span>{event.prestation}</span>
+                                <span>•</span>
+                                <span>{event.tatoueur.name}</span>
+                              </span>
+                            </div>
                           </div>
                         </div>
                       );
                     })}
                   </div>
 
-                  {/* Pagination - maintenant pour les deux vues */}
+                  {/* Pagination - responsive */}
                   {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-4 pt-4 border-t border-white/10">
+                    <div className="flex justify-center items-center gap-2 sm:gap-4 pt-4 border-t border-white/10">
                       <button
                         onClick={() =>
                           setCurrentPage((prev) => Math.max(prev - 1, 1))
                         }
                         disabled={currentPage === 1}
-                        className="cursor-pointer px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                        className="cursor-pointer px-2 sm:px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
                       >
-                        Précédent
+                        <span className="hidden sm:inline">Précédent</span>
+                        <span className="sm:hidden">‹</span>
                       </button>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 sm:gap-2">
                         {Array.from(
-                          { length: Math.min(totalPages, 5) },
+                          { length: Math.min(totalPages, 3) },
                           (_, i) => {
+                            // Moins de boutons sur mobile
                             let pageNumber;
-                            if (totalPages <= 5) {
+                            if (totalPages <= 3) {
                               pageNumber = i + 1;
-                            } else if (currentPage <= 3) {
+                            } else if (currentPage <= 2) {
                               pageNumber = i + 1;
-                            } else if (currentPage >= totalPages - 2) {
-                              pageNumber = totalPages - 4 + i;
+                            } else if (currentPage >= totalPages - 1) {
+                              pageNumber = totalPages - 2 + i;
                             } else {
-                              pageNumber = currentPage - 2 + i;
+                              pageNumber = currentPage - 1 + i;
                             }
 
                             return (
                               <button
                                 key={pageNumber}
                                 onClick={() => setCurrentPage(pageNumber)}
-                                className={`cursor-pointer w-8 h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
+                                className={`cursor-pointer w-6 h-6 sm:w-8 sm:h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
                                   currentPage === pageNumber
                                     ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
                                     : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
@@ -801,93 +886,49 @@ export default function RDV() {
                           )
                         }
                         disabled={currentPage === totalPages}
-                        className="cursor-pointer px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                        className="cursor-pointer px-2 sm:px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
                       >
-                        Suivant
+                        <span className="hidden sm:inline">Suivant</span>
+                        <span className="sm:hidden">›</span>
                       </button>
                     </div>
                   )}
 
-                  {/* Informations de pagination - pour les deux vues */}
+                  {/* Informations de pagination - condensées sur mobile */}
                   <div className="text-center text-white/60 text-xs mt-2 font-one">
-                    Affichage de{" "}
-                    {Math.min(
-                      (currentPage - 1) * ITEMS_PER_PAGE + 1,
-                      filteredEvents.length
-                    )}{" "}
-                    à{" "}
-                    {Math.min(
-                      currentPage * ITEMS_PER_PAGE,
-                      filteredEvents.length
-                    )}{" "}
-                    sur {filteredEvents.length} rendez-vous
-                    {(query ||
-                      statusFilter !== "all" ||
-                      prestationFilter !== "all" ||
-                      tatoueurFilter !== "all" ||
-                      (viewMode === "list" && dateFilter !== "all")) && (
-                      <span className="ml-2">
-                        (
-                        {[
-                          query ? `recherche: "${query}"` : null,
-                          statusFilter !== "all"
-                            ? `statut: ${
-                                statusFilter === "PENDING"
-                                  ? "en attente"
-                                  : statusFilter === "CONFIRMED"
-                                  ? "confirmés"
-                                  : statusFilter === "CANCELED"
-                                  ? "annulés"
-                                  : statusFilter
-                              }`
-                            : null,
-                          prestationFilter !== "all"
-                            ? `type: ${prestationFilter}`
-                            : null,
-                          tatoueurFilter !== "all"
-                            ? `tatoueur: ${
-                                (
-                                  uniqueTatoueurs as {
-                                    id: string;
-                                    name: string;
-                                  }[]
-                                ).find((t) => t.id === tatoueurFilter)?.name ??
-                                tatoueurFilter
-                              }`
-                            : null,
-                          viewMode === "list" && dateFilter !== "all"
-                            ? `période: ${
-                                dateFilter === "upcoming"
-                                  ? "à venir"
-                                  : dateFilter === "past"
-                                  ? "passés"
-                                  : dateFilter
-                              }`
-                            : null,
-                        ]
-                          .filter(Boolean)
-                          .join(", ")}
-                        )
-                      </span>
-                    )}
-                    {viewMode === "calendar" && (
-                      <span className="ml-2">
-                        pour{" "}
-                        {currentView === "day"
-                          ? "la journée"
-                          : currentView === "week"
-                          ? "la semaine"
-                          : "le mois"}{" "}
-                        sélectionné(e)
-                      </span>
-                    )}
+                    <span className="sm:hidden">
+                      {Math.min(
+                        (currentPage - 1) * ITEMS_PER_PAGE + 1,
+                        filteredEvents.length
+                      )}
+                      -
+                      {Math.min(
+                        currentPage * ITEMS_PER_PAGE,
+                        filteredEvents.length
+                      )}{" "}
+                      sur {filteredEvents.length}
+                    </span>
+                    <span className="hidden sm:inline">
+                      Affichage de{" "}
+                      {Math.min(
+                        (currentPage - 1) * ITEMS_PER_PAGE + 1,
+                        filteredEvents.length
+                      )}{" "}
+                      à{" "}
+                      {Math.min(
+                        currentPage * ITEMS_PER_PAGE,
+                        filteredEvents.length
+                      )}{" "}
+                      sur {filteredEvents.length} rendez-vous
+                      {/* ...existing filtering info... */}
+                    </span>
                   </div>
                 </div>
               ) : (
                 <div className="h-[60vh] flex items-center justify-center">
                   <div className="text-center space-y-4">
                     <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
-                      <span className="text-3xl">📅</span>
+                      <span className="text-3xl text-white">📅</span>
                     </div>
                     <p className="font-two text-xl text-white">
                       {query ||
@@ -937,7 +978,8 @@ export default function RDV() {
               )}
             </section>
 
-            <section className="w-2/5 h-[85vh] relative">
+            {/* Section détails - visible seulement sur desktop */}
+            <section className="hidden lg:block w-2/5 h-[85vh] relative">
               {selectedEvent ? (
                 <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl border border-white/20 shadow-2xl h-full flex flex-col">
                   {/* Header du panneau avec design compact */}
@@ -1069,7 +1111,6 @@ export default function RDV() {
                           rdvId={selectedEvent.id}
                           appointment={selectedEvent}
                           userId={userId || ""}
-                          // onUpdate={() => handleRdvUpdated(selectedEvent.id)}
                         />
                         {selectedEvent.status !== "CANCELED" && (
                           <CancelRdv
@@ -1511,10 +1552,290 @@ export default function RDV() {
         </div>
       )}
 
-      {/* Supprimer toute la modale d'affichage d'image */}
-      {/* {selectedImage && (
-        // ... toute la modale
-      )} */}
+      {/* Modale mobile pour les détails du RDV */}
+      {selectedEvent && isMobileDetailOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm">
+          <div className="absolute inset-0 flex items-end sm:items-center justify-center p-4">
+            <div className="bg-gradient-to-br from-noir-500 to-noir-600 rounded-t-3xl sm:rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+              {/* Header mobile */}
+              <div className="relative p-4 border-b border-white/10 bg-gradient-to-r from-noir-700/80 to-noir-500/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500 to-primary-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <span className="text-white font-bold text-sm">
+                        {selectedEvent.client.firstName.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold font-one text-white tracking-wide">
+                        {selectedEvent.client.firstName}{" "}
+                        {selectedEvent.client.lastName}
+                      </h4>
+                      <p className="text-white/70 text-xs font-one">
+                        {selectedEvent.title}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={closeEventDetails}
+                    className="cursor-pointer p-2 hover:bg-white/10 rounded-full transition-colors"
+                  >
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Contenu scrollable mobile */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {/* Statut */}
+                <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10">
+                  <h5 className="text-white font-one text-sm mb-2">Statut</h5>
+                  {selectedEvent.status === "PENDING" ? (
+                    <div className="bg-gradient-to-r from-orange-500/15 to-amber-500/15 border border-orange-400/30 rounded-lg p-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                        <span className="text-orange-300 font-medium font-one text-xs">
+                          En attente de confirmation
+                        </span>
+                      </div>
+                    </div>
+                  ) : selectedEvent.status === "CONFIRMED" ? (
+                    <div className="bg-gradient-to-r from-green-500/15 to-emerald-500/15 border border-green-400/30 rounded-lg p-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span className="text-green-300 font-medium font-one text-xs">
+                          Confirmé
+                        </span>
+                      </div>
+                    </div>
+                  ) : selectedEvent.status === "CANCELED" ? (
+                    <div className="bg-gradient-to-r from-red-500/15 to-rose-500/15 border border-red-400/30 rounded-lg p-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                        <span className="text-red-300 font-medium font-one text-xs">
+                          Annulé
+                        </span>
+                      </div>
+                    </div>
+                  ) : selectedEvent.status === "RESCHEDULING" ? (
+                    <div className="bg-gradient-to-r from-blue-500/15 to-cyan-500/15 border border-blue-400/30 rounded-lg p-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                        <span className="text-blue-300 font-medium font-one text-xs">
+                          En attente de reprogrammation
+                        </span>
+                      </div>
+                      <p className="text-blue-200/80 text-xs font-one mt-1">
+                        Le client doit choisir un nouveau créneau
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Actions mobiles */}
+                <div className="flex flex-wrap gap-2">
+                  {selectedEvent.status !== "CONFIRMED" && (
+                    <ConfirmRdv
+                      rdvId={selectedEvent.id}
+                      appointment={selectedEvent}
+                      onConfirm={() => handleRdvUpdated(selectedEvent.id)}
+                    />
+                  )}
+                  <UpdateRdv
+                    rdv={selectedEvent as unknown as UpdateRdvFormProps}
+                    userId={userId || ""}
+                    onUpdate={() => handleRdvUpdated(selectedEvent.id)}
+                  />
+                  <ChangeRdv
+                    rdvId={selectedEvent.id}
+                    appointment={selectedEvent}
+                    userId={userId || ""}
+                  />
+                  {selectedEvent.status !== "CANCELED" && (
+                    <CancelRdv
+                      rdvId={selectedEvent.id}
+                      appointment={selectedEvent}
+                      onCancel={() => handleRdvUpdated(selectedEvent.id)}
+                    />
+                  )}
+                </div>
+
+                {/* Informations principales */}
+                <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10">
+                  <h5 className="text-white font-one text-sm mb-3">
+                    Informations
+                  </h5>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-white/60 text-xs font-one">
+                        Date & Heure
+                      </span>
+                      <span className="text-white font-one text-xs text-right">
+                        {new Date(selectedEvent.start).toLocaleDateString(
+                          "fr-FR"
+                        )}
+                        <br />
+                        {new Date(selectedEvent.start).toLocaleTimeString(
+                          "fr-FR",
+                          { hour: "2-digit", minute: "2-digit" }
+                        )}{" "}
+                        -
+                        {new Date(selectedEvent.end).toLocaleTimeString(
+                          "fr-FR",
+                          { hour: "2-digit", minute: "2-digit" }
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60 text-xs font-one">
+                        Durée
+                      </span>
+                      <span className="text-white font-one text-xs">
+                        {Math.round(
+                          (new Date(selectedEvent.end).getTime() -
+                            new Date(selectedEvent.start).getTime()) /
+                            (1000 * 60)
+                        )}{" "}
+                        min
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60 text-xs font-one">
+                        Prestation
+                      </span>
+                      <span className="text-white font-one text-xs">
+                        {selectedEvent.prestation}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60 text-xs font-one">
+                        Tatoueur
+                      </span>
+                      <span className="text-white font-one text-xs">
+                        {selectedEvent.tatoueur.name}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Paiement mobile si applicable */}
+                {(selectedEvent.prestation === "RETOUCHE" ||
+                  selectedEvent.prestation === "TATTOO" ||
+                  selectedEvent.prestation === "PIERCING") && (
+                  <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10">
+                    <h5 className="text-white font-one text-sm mb-3">
+                      Paiement
+                    </h5>
+                    <div className="flex gap-2">
+                      <label className="flex items-center gap-2 cursor-pointer bg-white/5 rounded-lg p-2 border border-white/10 flex-1">
+                        <input
+                          type="radio"
+                          name={`payment-mobile-${selectedEvent.id}`}
+                          checked={selectedEvent.isPayed === false}
+                          onChange={() =>
+                            handlePaymentStatusChange(selectedEvent.id, false)
+                          }
+                          className="w-3 h-3 text-red-500"
+                        />
+                        <span className="text-red-400 text-xs font-one">
+                          Non payé
+                        </span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer bg-white/5 rounded-lg p-2 border border-white/10 flex-1">
+                        <input
+                          type="radio"
+                          name={`payment-mobile-${selectedEvent.id}`}
+                          checked={selectedEvent.isPayed === true}
+                          onChange={() =>
+                            handlePaymentStatusChange(selectedEvent.id, true)
+                          }
+                          className="w-3 h-3 text-green-500"
+                        />
+                        <span className="text-green-400 text-xs font-one">
+                          Payé
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Détails tattoo mobiles */}
+                {selectedEvent.tattooDetail && (
+                  <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10">
+                    <h5 className="text-white font-one text-sm mb-3">
+                      Détails tatouage
+                    </h5>
+                    <div className="space-y-2">
+                      {selectedEvent.tattooDetail.description && (
+                        <div>
+                          <p className="text-white/60 text-xs font-one mb-1">
+                            Description
+                          </p>
+                          <p className="text-white font-one text-xs leading-relaxed">
+                            {selectedEvent.tattooDetail.description}
+                          </p>
+                        </div>
+                      )}
+                      <div className="grid grid-cols-2 gap-2">
+                        {selectedEvent.tattooDetail.zone && (
+                          <div>
+                            <p className="text-white/60 text-xs font-one">
+                              Zone
+                            </p>
+                            <p className="text-white font-one text-xs">
+                              {selectedEvent.tattooDetail.zone}
+                            </p>
+                          </div>
+                        )}
+                        {selectedEvent.tattooDetail.size && (
+                          <div>
+                            <p className="text-white/60 text-xs font-one">
+                              Taille
+                            </p>
+                            <p className="text-white font-one text-xs">
+                              {selectedEvent.tattooDetail.size}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      {selectedEvent.tattooDetail.estimatedPrice && (
+                        <div className="bg-gradient-to-r from-tertiary-500/10 to-primary-500/10 rounded-lg p-2 border border-tertiary-400/20">
+                          <p className="text-orange-400 font-one font-semibold text-xs">
+                            💰 Estimé:{" "}
+                            {selectedEvent.tattooDetail.estimatedPrice}€
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer mobile */}
+              <div className="p-4 border-t border-white/10 bg-white/5">
+                <button
+                  onClick={closeEventDetails}
+                  className="cursor-pointer w-full py-3 text-sm bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -175,10 +175,12 @@ export default function SuiviPage({ params }: SuiviPageProps) {
   // Loading state
   if (tokenValidation.isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-noir-700 to-noir-500 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-noir-700 to-noir-500 flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
-          <p className="text-white font-one">Vérification du lien...</p>
+          <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+          <p className="text-white font-one text-sm sm:text-base">
+            Vérification du lien...
+          </p>
         </div>
       </div>
     );
@@ -187,11 +189,11 @@ export default function SuiviPage({ params }: SuiviPageProps) {
   // Error state
   if (!tokenValidation.isValid) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-noir-700 to-noir-500 flex items-center justify-center">
-        <div className="max-w-md mx-auto text-center bg-white/5 rounded-2xl p-8 border border-red-500/30">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="min-h-screen bg-gradient-to-br from-noir-700 to-noir-500 flex items-center justify-center px-4">
+        <div className="max-w-md mx-auto text-center bg-white/5 rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-red-500/30">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-8 h-8 text-red-400"
+              className="w-6 h-6 sm:w-8 sm:h-8 text-red-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -204,11 +206,13 @@ export default function SuiviPage({ params }: SuiviPageProps) {
               />
             </svg>
           </div>
-          <h1 className="text-xl font-bold text-white font-one mb-4">
+          <h1 className="text-lg sm:text-xl font-bold text-white font-one mb-4">
             Accès refusé
           </h1>
-          <p className="text-red-300 font-one mb-6">{tokenValidation.error}</p>
-          <div className="text-white/70 text-sm font-one">
+          <p className="text-red-300 font-one mb-4 sm:mb-6 text-sm sm:text-base">
+            {tokenValidation.error}
+          </p>
+          <div className="text-white/70 text-xs sm:text-sm font-one">
             {tokenValidation.error === "Déjà soumis" && (
               <p>Vous avez déjà envoyé votre suivi de cicatrisation.</p>
             )}
@@ -227,12 +231,12 @@ export default function SuiviPage({ params }: SuiviPageProps) {
   // Success state - Afficher le message de confirmation
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-noir-700 to-noir-500 flex items-center justify-center">
-        <div className="max-w-2xl mx-auto text-center bg-gradient-to-br from-noir-500/20 to-noir-500/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+      <div className="min-h-screen bg-gradient-to-br from-noir-700 to-noir-500 flex items-center justify-center px-4">
+        <div className="max-w-2xl mx-auto text-center bg-gradient-to-br from-noir-500/20 to-noir-500/10 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl">
           {/* Icône de succès */}
-          <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
             <svg
-              className="w-10 h-10 text-green-400"
+              className="w-8 h-8 sm:w-10 sm:h-10 text-green-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -247,23 +251,23 @@ export default function SuiviPage({ params }: SuiviPageProps) {
           </div>
 
           {/* Message principal */}
-          <h1 className="text-2xl font-bold text-white font-one tracking-wide mb-4">
+          <h1 className="text-xl sm:text-2xl font-bold text-white font-one tracking-wide mb-4">
             Suivi envoyé avec succès !
           </h1>
 
-          <div className="space-y-4 text-white/80 font-one">
-            <p className="text-base">
+          <div className="space-y-3 sm:space-y-4 text-white/80 font-one">
+            <p className="text-sm sm:text-base">
               Merci d'avoir partagé votre photo de cicatrisation et votre avis
               avec nous.
             </p>
 
-            <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-              <h2 className="text-lg font-semibold text-white mb-3">
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10">
+              <h2 className="text-base sm:text-lg font-semibold text-white mb-3">
                 📋 Prochaines étapes
               </h2>
-              <div className="space-y-3 text-sm text-left">
+              <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-left">
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-tertiary-400 text-xs font-bold">
                       1
                     </span>
@@ -271,7 +275,7 @@ export default function SuiviPage({ params }: SuiviPageProps) {
                   <p>Notre équipe va examiner votre photo et votre avis</p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-tertiary-400 text-xs font-bold">
                       2
                     </span>
@@ -282,7 +286,7 @@ export default function SuiviPage({ params }: SuiviPageProps) {
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-tertiary-400 text-xs font-bold">
                       3
                     </span>
@@ -292,11 +296,11 @@ export default function SuiviPage({ params }: SuiviPageProps) {
               </div>
             </div>
 
-            <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-2xl p-4">
+            <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-xl sm:rounded-2xl p-3 sm:p-4">
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                   <svg
-                    className="w-3 h-3 text-tertiary-400"
+                    className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-tertiary-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -310,7 +314,7 @@ export default function SuiviPage({ params }: SuiviPageProps) {
                   </svg>
                 </div>
                 <div className="text-left">
-                  <h3 className="text-white font-medium mb-2 text-sm">
+                  <h3 className="text-white font-medium mb-2 text-xs sm:text-sm">
                     💡 En attendant notre réponse
                   </h3>
                   <ul className="text-white/70 text-xs space-y-1">
@@ -326,7 +330,7 @@ export default function SuiviPage({ params }: SuiviPageProps) {
               </div>
             </div>
 
-            <p className="text-sm text-white/60 mt-6">
+            <p className="text-xs sm:text-sm text-white/60 mt-4 sm:mt-6">
               Merci de votre confiance et à bientôt ! 🎨
             </p>
           </div>
@@ -337,21 +341,24 @@ export default function SuiviPage({ params }: SuiviPageProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-noir-700 to-noir-500">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white font-one tracking-wide mb-4">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white font-one tracking-wide mb-2 sm:mb-4">
               Suivi de Cicatrisation
             </h1>
-            <p className="text-white/70 text-base font-one">
+            <p className="text-white/70 text-sm sm:text-base font-one">
               Partagez une photo de votre tatouage et donnez-nous votre avis
             </p>
           </div>
 
           {/* Main Form */}
-          <div className="bg-gradient-to-br from-noir-500/20 to-noir-500/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <div className="bg-gradient-to-br from-noir-500/20 to-noir-500/10 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-6 sm:space-y-8"
+            >
               {/* Photo Upload Section */}
               <SinglePhotoUploader
                 onFileSelect={(file) => {
@@ -369,18 +376,18 @@ export default function SuiviPage({ params }: SuiviPageProps) {
               {/* Error message for photo */}
               {form.formState.errors.photo && (
                 <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-                  <p className="text-red-300 text-xs">
+                  <p className="text-red-300 text-xs sm:text-sm">
                     {form.formState.errors.photo.message}
                   </p>
                 </div>
               )}
 
               {/* Rating Section */}
-              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                <h2 className="text-lg font-semibold font-one tracking-widest text-white mb-6">
+              <div className="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10">
+                <h2 className="text-base sm:text-lg font-semibold font-one tracking-widest text-white mb-4 sm:mb-6">
                   ⭐ Votre satisfaction
                 </h2>
-                <div className="flex justify-center space-x-2">
+                <div className="flex justify-center space-x-1 sm:space-x-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
@@ -389,7 +396,7 @@ export default function SuiviPage({ params }: SuiviPageProps) {
                         form.setValue("rating", star);
                         form.clearErrors("rating");
                       }}
-                      className={`cursor-pointer text-2xl transition-colors ${
+                      className={`cursor-pointer text-xl sm:text-2xl transition-colors ${
                         star <= form.watch("rating")
                           ? "text-yellow-400"
                           : "text-white/30"
@@ -400,7 +407,7 @@ export default function SuiviPage({ params }: SuiviPageProps) {
                   ))}
                 </div>
                 {form.watch("rating") > 0 && (
-                  <p className="text-center text-white/70 mt-4 font-one">
+                  <p className="text-center text-white/70 mt-3 sm:mt-4 font-one text-sm">
                     {form.watch("rating") === 1 && "Très insatisfait"}
                     {form.watch("rating") === 2 && "Insatisfait"}
                     {form.watch("rating") === 3 && "Neutre"}
@@ -416,44 +423,44 @@ export default function SuiviPage({ params }: SuiviPageProps) {
               </div>
 
               {/* Review Section */}
-              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                <h2 className="text-lg font-semibold font-one tracking-widest text-white mb-6">
+              <div className="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10">
+                <h2 className="text-base sm:text-lg font-semibold font-one tracking-widest text-white mb-4 sm:mb-6">
                   💬 Votre avis
                 </h2>
                 <div className="space-y-2">
-                  <label className="text-sm text-white/70 font-one">
+                  <label className="text-xs sm:text-sm text-white/70 font-one">
                     Partagez votre expérience avec nous
                   </label>
                   <textarea
                     {...form.register("review")}
                     placeholder="Comment s'est passé votre expérience ? Comment se déroule la cicatrisation ?"
-                    className="w-full h-32 mt-2 p-4 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-tertiary-400 focus:border-transparent resize-none transition-colors"
+                    className="w-full h-24 sm:h-32 mt-2 p-3 sm:p-4 bg-white/10 border border-white/20 rounded-lg text-white text-xs sm:text-sm placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-tertiary-400 focus:border-transparent resize-none transition-colors"
                   />
                 </div>
               </div>
 
               {/* Privacy Section */}
-              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                <h2 className="text-lg font-semibold font-one tracking-widest text-white mb-6">
+              <div className="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10">
+                <h2 className="text-base sm:text-lg font-semibold font-one tracking-widest text-white mb-4 sm:mb-6">
                   🔒 Confidentialité de votre photo
                 </h2>
-                <div className="space-y-4">
-                  <p className="text-white/70 text-sm font-one">
+                <div className="space-y-3 sm:space-y-4">
+                  <p className="text-white/70 text-xs sm:text-sm font-one">
                     Souhaitez-vous que votre photo de cicatrisation puisse être
                     utilisée publiquement par le salon ?
                   </p>
 
-                  <div className="space-y-3">
-                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-white/5 transition-colors">
+                  <div className="space-y-2 sm:space-y-3">
+                    <label className="flex items-start gap-3 cursor-pointer p-2 sm:p-3 rounded-lg hover:bg-white/5 transition-colors">
                       <input
                         type="radio"
                         value="false"
                         checked={form.watch("isPhotoPublic") === false}
                         onChange={() => form.setValue("isPhotoPublic", false)}
-                        className="mt-1 w-4 h-4 text-tertiary-400 bg-white/10 border-white/30 focus:ring-tertiary-400 focus:ring-1"
+                        className="mt-1 w-3 h-3 sm:w-4 sm:h-4 text-tertiary-400 bg-white/10 border-white/30 focus:ring-tertiary-400 focus:ring-1"
                       />
                       <div>
-                        <div className="text-white font-medium text-sm font-one mb-1">
+                        <div className="text-white font-medium text-xs sm:text-sm font-one mb-1">
                           🔒 Privée (recommandé)
                         </div>
                         <div className="text-white/60 text-xs font-one">
@@ -463,16 +470,16 @@ export default function SuiviPage({ params }: SuiviPageProps) {
                       </div>
                     </label>
 
-                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <label className="flex items-start gap-3 cursor-pointer p-2 sm:p-3 rounded-lg hover:bg-white/5 transition-colors">
                       <input
                         type="radio"
                         value="true"
                         checked={form.watch("isPhotoPublic") === true}
                         onChange={() => form.setValue("isPhotoPublic", true)}
-                        className="mt-1 w-4 h-4 text-tertiary-400 bg-white/10 border-white/30 focus:ring-tertiary-400 focus:ring-1"
+                        className="mt-1 w-3 h-3 sm:w-4 sm:h-4 text-tertiary-400 bg-white/10 border-white/30 focus:ring-tertiary-400 focus:ring-1"
                       />
                       <div>
-                        <div className="text-white font-medium text-sm font-one mb-1">
+                        <div className="text-white font-medium text-xs sm:text-sm font-one mb-1">
                           🌐 Publique
                         </div>
                         <div className="text-white/60 text-xs font-one">
@@ -483,10 +490,10 @@ export default function SuiviPage({ params }: SuiviPageProps) {
                     </label>
                   </div>
 
-                  <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-lg p-3 mt-4">
+                  <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-lg p-3 mt-3 sm:mt-4">
                     <div className="flex items-start gap-2">
                       <svg
-                        className="w-4 h-4 text-tertiary-400 mt-0.5 flex-shrink-0"
+                        className="w-3 h-3 sm:w-4 sm:h-4 text-tertiary-400 mt-0.5 flex-shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -515,15 +522,15 @@ export default function SuiviPage({ params }: SuiviPageProps) {
               </div>
 
               {/* Submit Button */}
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center pt-2 sm:pt-4">
                 <button
                   type="submit"
                   disabled={isSubmitting || !selectedPhoto || isUploading}
-                  className="cursor-pointer flex gap-2 px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm"
+                  className="cursor-pointer flex gap-2 px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm"
                 >
                   {isSubmitting || isUploading ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
                       <span>
                         {isUploading ? "Upload..." : "Envoi en cours..."}
                       </span>
@@ -531,7 +538,7 @@ export default function SuiviPage({ params }: SuiviPageProps) {
                   ) : (
                     <>
                       <svg
-                        className="w-5 h-5"
+                        className="w-4 h-4 sm:w-5 sm:h-5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -552,11 +559,11 @@ export default function SuiviPage({ params }: SuiviPageProps) {
           </div>
 
           {/* Info Section */}
-          <div className="mt-8 bg-tertiary-500/10 border border-tertiary-500/20 rounded-2xl p-6">
-            <div className="flex items-start space-x-4">
-              <div className="w-8 h-8 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+          <div className="mt-6 sm:mt-8 bg-tertiary-500/10 border border-tertiary-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+            <div className="flex items-start space-x-3 sm:space-x-4">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                 <svg
-                  className="w-4 h-4 text-tertiary-400"
+                  className="w-3 h-3 sm:w-4 sm:h-4 text-tertiary-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -570,10 +577,10 @@ export default function SuiviPage({ params }: SuiviPageProps) {
                 </svg>
               </div>
               <div>
-                <h3 className="text-white font-semibold font-one mb-3">
+                <h3 className="text-white font-semibold font-one mb-2 sm:mb-3 text-sm sm:text-base">
                   Conseils pour la photo
                 </h3>
-                <ul className="text-white/70 text-sm space-y-2 font-one">
+                <ul className="text-white/70 text-xs sm:text-sm space-y-1 sm:space-y-2 font-one">
                   <li>
                     • Photo dans un endroit bien éclairé (lumière naturelle de
                     préférence)

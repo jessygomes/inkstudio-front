@@ -168,16 +168,18 @@ SalonImageUploaderProps) {
 
   return (
     <div className={`w-full space-y-${compact ? "2" : "4"}`}>
-      {/* Zone d'affichage et d'upload */}
-      <div className={compact ? "space-y-2" : "flex gap-4"}>
-        {/* Zone d'affichage de l'image actuelle */}
+      {/* Zone d'affichage et d'upload responsive */}
+      <div
+        className={compact ? "space-y-2" : "flex flex-col sm:flex-row gap-4"}
+      >
+        {/* Zone d'affichage de l'image actuelle responsive */}
         {currentImage && (
           <div
             className={`relative ${
-              compact ? "w-full h-24" : "w-[250px] h-[250px]"
-            } rounded-${compact ? "lg" : "3xl"} overflow-hidden bg-white/10 ${
-              compact ? "" : "flex-shrink-0"
-            }`}
+              compact ? "w-full h-24" : "w-full sm:w-[250px] h-48 sm:h-[250px]"
+            } rounded-${
+              compact ? "lg" : "xl sm:rounded-3xl"
+            } overflow-hidden bg-white/10 ${compact ? "" : "sm:flex-shrink-0"}`}
           >
             <Image
               src={currentImage}
@@ -190,13 +192,13 @@ SalonImageUploaderProps) {
               onClick={handleImageRemove}
               disabled={isDeleting}
               className={`absolute top-1 right-1 bg-red-500 hover:bg-red-600 disabled:bg-red-500/50 text-white rounded-full ${
-                compact ? "w-6 h-6 text-xs" : "w-8 h-8"
+                compact ? "w-6 h-6 text-xs" : "w-7 h-7 sm:w-8 sm:h-8"
               } flex items-center justify-center transition-colors z-10 disabled:cursor-not-allowed`}
             >
               {isDeleting ? (
                 <div
                   className={`animate-spin rounded-full border-b-2 border-white ${
-                    compact ? "w-3 h-3" : "w-4 h-4"
+                    compact ? "w-3 h-3" : "w-3 h-3 sm:w-4 sm:h-4"
                   }`}
                 ></div>
               ) : (
@@ -215,12 +217,14 @@ SalonImageUploaderProps) {
           </div>
         )}
 
-        {/* Zone d'upload */}
+        {/* Zone d'upload responsive */}
         <div
           className={`relative border-2 border-dashed rounded-${
-            compact ? "lg" : "[20px]"
-          } ${compact ? "p-3" : "p-6"} text-center transition-colors ${
-            compact ? "flex-1 min-h-[80px]" : "flex-1 min-h-[192px]"
+            compact ? "lg" : "xl sm:rounded-[20px]"
+          } ${compact ? "p-3" : "p-4 sm:p-6"} text-center transition-colors ${
+            compact
+              ? "flex-1 min-h-[80px]"
+              : "flex-1 min-h-[140px] sm:min-h-[192px]"
           } flex items-center justify-center ${
             isDragOver
               ? "border-tertiary-400 bg-tertiary-400/10"
@@ -241,7 +245,9 @@ SalonImageUploaderProps) {
           />
 
           <div className={`space-y-${compact ? "1" : "2"}`}>
-            <div className={compact ? "text-2xl" : "text-4xl"}>📸</div>
+            <div className={compact ? "text-2xl" : "text-3xl sm:text-4xl"}>
+              📸
+            </div>
             <div className="text-white/80">
               {isUploading ? (
                 <div>
@@ -268,20 +274,38 @@ SalonImageUploaderProps) {
                   <div
                     className={`font-medium ${compact ? "text-xs" : "text-sm"}`}
                   >
-                    {currentImage
-                      ? "Remplacer"
-                      : compact
-                      ? "Glissez ou cliquez"
-                      : "Glissez une image ici ou cliquez pour sélectionner"}
+                    {currentImage ? (
+                      "Remplacer"
+                    ) : compact ? (
+                      "Glissez ou cliquez"
+                    ) : (
+                      <>
+                        <span className="hidden sm:inline">
+                          Glissez une image ici ou cliquez pour sélectionner
+                        </span>
+                        <span className="sm:hidden">
+                          Touchez pour sélectionner une image
+                        </span>
+                      </>
+                    )}
                   </div>
                   <div
                     className={`${
                       compact ? "text-[10px]" : "text-xs"
                     } text-white/60 mt-1`}
                   >
-                    {compact
-                      ? "JPG, PNG, WebP"
-                      : "Formats acceptés: JPG, PNG, WebP (max 8MB)"}
+                    {compact ? (
+                      "JPG, PNG, WebP"
+                    ) : (
+                      <>
+                        <span className="hidden sm:inline">
+                          Formats acceptés: JPG, PNG, WebP (max 8MB)
+                        </span>
+                        <span className="sm:hidden">
+                          JPG, PNG, WebP (max 8MB)
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -290,18 +314,21 @@ SalonImageUploaderProps) {
         </div>
       </div>
 
-      {/* Messages d'aide - adaptés au mode compact */}
+      {/* Messages d'aide - adaptés au mode compact et responsive */}
       {compact && currentImage && (
         <div className="text-[10px] text-white/60">Image sélectionnée</div>
       )}
 
       {!compact && currentImage && (
         <div className="text-xs text-white/60">
-          Aperçu : Cette image sera affichée dans votre profil
+          <span className="hidden sm:inline">
+            Aperçu : Cette image sera affichée dans votre profil
+          </span>
+          <span className="sm:hidden">Image pour votre profil</span>
         </div>
       )}
 
-      {/* Bouton de sélection alternatif - seulement en mode normal et sans image */}
+      {/* Bouton de sélection alternatif - responsive */}
       {!compact && !currentImage && !isUploading && (
         <button
           type="button"
@@ -315,9 +342,10 @@ SalonImageUploaderProps) {
             };
             input.click();
           }}
-          className="w-full py-3 px-4 bg-tertiary-400/20 hover:bg-tertiary-400/30 text-white rounded-[20px] border border-tertiary-400/50 transition-colors"
+          className="w-full py-3 px-4 bg-tertiary-400/20 hover:bg-tertiary-400/30 text-white rounded-xl sm:rounded-[20px] border border-tertiary-400/50 transition-colors"
         >
-          📷 Choisir une image
+          <span className="hidden sm:inline">📷 Choisir une image</span>
+          <span className="sm:hidden">📷 Sélectionner</span>
         </button>
       )}
     </div>

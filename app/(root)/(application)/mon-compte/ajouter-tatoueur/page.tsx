@@ -245,10 +245,10 @@ export default function AddOrUpdateTatoueurPage() {
 
   return (
     <div className="min-h-screen w-full bg-noir-700">
-      <div className="container pt-24">
-        {/* Header */}
-        <div className="flex items-center gap-4 max-w-6xl mx-auto mb-8">
-          <div className="w-12 h-12 flex items-center justify-center ">
+      <div className="container pt-24 px-3 sm:px-6 lg:px-8">
+        {/* Header responsive */}
+        <div className="flex items-center gap-3 sm:gap-4 max-w-6xl mx-auto mb-6 sm:mb-8">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
             <Link
               href="/mon-compte"
               className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 border border-white/20"
@@ -257,27 +257,42 @@ export default function AddOrUpdateTatoueurPage() {
             </Link>
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white font-one tracking-widest text-center">
-              {isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white font-one tracking-widest">
+              <span className="hidden sm:inline">
+                {isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
+              </span>
+              <span className="sm:hidden">
+                {isEditing ? "Modifier" : "Ajouter"}
+              </span>
             </h1>
             <p className="text-white/70 text-xs font-one mt-1">
-              {isEditing
-                ? "Modifiez les informations du tatoueur"
-                : "Ajoutez un nouveau membre à votre équipe"}
+              <span className="hidden sm:inline">
+                {isEditing
+                  ? "Modifiez les informations du tatoueur"
+                  : "Ajoutez un nouveau membre à votre équipe"}
+              </span>
+              <span className="sm:hidden">
+                {isEditing ? "Modifier les infos" : "Nouveau membre"}
+              </span>
             </p>
           </div>
         </div>
 
-        {/* Form Content */}
-        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Section: Informations générales */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+        {/* Form Content responsive */}
+        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 sm:space-y-6"
+          >
+            {/* Section: Informations générales responsive */}
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
               <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">
-                <CiUser size={20} /> Informations générales
+                <CiUser size={16} className="sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Informations générales</span>
+                <span className="sm:hidden">Infos générales</span>
               </h3>
 
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
                     Photo du tatoueur
@@ -316,7 +331,7 @@ export default function AddOrUpdateTatoueurPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-1">
                     <label className="text-xs text-white/70 font-one">
                       Téléphone
@@ -340,12 +355,15 @@ export default function AddOrUpdateTatoueurPage() {
                   </div>
                 </div>
 
-                {/* Ajouté : Compétences (badges) */}
+                {/* Compétences responsive */}
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
-                    Compétences (ex: Tatouage, Piercing)
+                    <span className="hidden sm:inline">
+                      Compétences (ex: Tatouage, Piercing)
+                    </span>
+                    <span className="sm:hidden">Compétences</span>
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={skillsInput}
@@ -356,13 +374,13 @@ export default function AddOrUpdateTatoueurPage() {
                           handleAddSkill();
                         }
                       }}
-                      placeholder="Ajouter une compétence et appuyer sur Entrée"
+                      placeholder="Ajouter une compétence"
                       className="flex-1 p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                     <button
                       type="button"
                       onClick={handleAddSkill}
-                      className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+                      className="cursor-pointer px-6 sm:px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
                     >
                       Ajouter
                     </button>
@@ -387,12 +405,15 @@ export default function AddOrUpdateTatoueurPage() {
                   </div>
                 </div>
 
-                {/* Ajouté : Styles (badges) */}
+                {/* Styles responsive */}
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
-                    Styles (ex: Japonais, Old School)
+                    <span className="hidden sm:inline">
+                      Styles (ex: Japonais, Old School)
+                    </span>
+                    <span className="sm:hidden">Styles</span>
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       value={styleInput}
@@ -403,13 +424,13 @@ export default function AddOrUpdateTatoueurPage() {
                           handleAddStyle();
                         }
                       }}
-                      placeholder="Ajouter un style et appuyer sur Entrée"
+                      placeholder="Ajouter un style"
                       className="flex-1 p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                     <button
                       type="button"
                       onClick={handleAddStyle}
-                      className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+                      className="cursor-pointer px-6 sm:px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
                     >
                       Ajouter
                     </button>
@@ -433,35 +454,41 @@ export default function AddOrUpdateTatoueurPage() {
                     ))}
                   </div>
                 </div>
-                {/* ...existing code... */}
               </div>
             </div>
 
-            {/* Section: Horaires */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+            {/* Section: Horaires responsive */}
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
               <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-wide">
-                <TbClockHour5 size={20} /> Horaires de travail
+                <TbClockHour5 size={16} className="sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Horaires de travail</span>
+                <span className="sm:hidden">Horaires</span>
               </h3>
-              <p className="text-xs text-white/60 mb-4">
-                Horaires du salon par défaut. Modifiez selon les disponibilités
-                du tatoueur.
+              <p className="text-xs text-white/60 mb-3 sm:mb-4">
+                <span className="hidden sm:inline">
+                  Horaires du salon par défaut. Modifiez selon les
+                  disponibilités du tatoueur.
+                </span>
+                <span className="sm:hidden">
+                  Modifiez selon les disponibilités
+                </span>
               </p>
 
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {daysOfWeek.map(({ key, label }) => {
                   const value = editingHours[key];
                   return (
                     <div
                       key={key}
-                      className="bg-white/10 p-3 rounded-lg border border-white/20"
+                      className="bg-white/10 p-2 sm:p-3 rounded-lg border border-white/20"
                     >
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="w-20 text-xs text-white font-one">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                        <span className="w-full sm:w-20 text-xs text-white font-one">
                           {label}
                         </span>
 
                         {value ? (
-                          <div className="flex items-center gap-2 flex-1">
+                          <div className="flex items-center gap-2 w-full sm:flex-1">
                             <input
                               type="time"
                               value={value.start}
@@ -474,7 +501,7 @@ export default function AddOrUpdateTatoueurPage() {
                                   },
                                 }))
                               }
-                              className="p-1 bg-white/10 border border-white/20 rounded text-white text-xs focus:outline-none focus:border-tertiary-400"
+                              className="flex-1 p-1 bg-white/10 border border-white/20 rounded text-white text-xs focus:outline-none focus:border-tertiary-400"
                             />
                             <span className="text-white/70 text-xs">à</span>
                             <input
@@ -489,7 +516,7 @@ export default function AddOrUpdateTatoueurPage() {
                                   },
                                 }))
                               }
-                              className="p-1 bg-white/10 border border-white/20 rounded text-white text-xs focus:outline-none focus:border-tertiary-400"
+                              className="flex-1 p-1 bg-white/10 border border-white/20 rounded text-white text-xs focus:outline-none focus:border-tertiary-400"
                             />
                             <button
                               type="button"
@@ -499,13 +526,13 @@ export default function AddOrUpdateTatoueurPage() {
                                   [key]: null,
                                 }))
                               }
-                              className="cursor-pointer px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded text-xs hover:bg-red-500/30 transition-colors"
+                              className="cursor-pointer px-2 sm:px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded text-xs hover:bg-red-500/30 transition-colors"
                             >
                               Fermé
                             </button>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 flex-1 justify-end">
+                          <div className="flex items-center gap-2 w-full sm:flex-1 justify-between sm:justify-end">
                             <span className="text-red-300 text-xs">Fermé</span>
                             <button
                               type="button"
@@ -515,7 +542,7 @@ export default function AddOrUpdateTatoueurPage() {
                                   [key]: { start: "09:00", end: "18:00" },
                                 }))
                               }
-                              className="cursor-pointer px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded text-xs hover:bg-green-500/30 transition-colors"
+                              className="cursor-pointer px-2 sm:px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded text-xs hover:bg-green-500/30 transition-colors"
                             >
                               Ouvrir
                             </button>
@@ -528,10 +555,9 @@ export default function AddOrUpdateTatoueurPage() {
               </div>
             </div>
 
-            {/* Messages d'erreur */}
+            {/* Messages d'erreur responsive */}
             {error && error === "SAAS_LIMIT" ? (
-              /* Message spécial pour les limites SaaS */
-              <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-4">
+              <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-xl sm:rounded-2xl p-3 sm:p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-orange-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <svg
@@ -560,7 +586,7 @@ export default function AddOrUpdateTatoueurPage() {
 
                     <div className="bg-white/10 rounded-lg p-3 mb-3">
                       <h4 className="text-white font-semibold font-one text-xs mb-2">
-                        📈 Solutions disponables :
+                        📈 Solutions disponibles :
                       </h4>
                       <div className="space-y-2 text-xs">
                         <div className="flex items-start gap-2">
@@ -575,7 +601,12 @@ export default function AddOrUpdateTatoueurPage() {
                             </span>
                             <br />
                             <span className="text-white/70">
-                              Tatoueurs illimités + fonctionnalités avancées
+                              <span className="hidden sm:inline">
+                                Tatoueurs illimités + fonctionnalités avancées
+                              </span>
+                              <span className="sm:hidden">
+                                Tatoueurs illimités
+                              </span>
                             </span>
                           </div>
                         </div>
@@ -592,14 +623,17 @@ export default function AddOrUpdateTatoueurPage() {
                             </span>
                             <br />
                             <span className="text-white/70">
-                              Solution complète multi-salons
+                              <span className="hidden sm:inline">
+                                Solution complète multi-salons
+                              </span>
+                              <span className="sm:hidden">Multi-salons</span>
                             </span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <button
                         type="button"
                         onClick={() => {
@@ -622,34 +656,43 @@ export default function AddOrUpdateTatoueurPage() {
                 </div>
               </div>
             ) : error ? (
-              /* Message d'erreur standard */
               <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
                 <p className="text-red-300 text-xs">{error}</p>
               </div>
             ) : null}
 
-            {/* Footer avec boutons d'action */}
-            <div className="flex justify-end gap-4 pt-6 border-t border-white/10">
+            {/* Footer avec boutons d'action responsive */}
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-white/10">
               <Link
                 href="/mon-compte"
-                className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs text-center"
               >
                 Annuler
               </Link>
               <button
                 type="submit"
                 disabled={loading}
-                className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+                className="cursor-pointer px-6 sm:px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
               >
                 {loading ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    {isEditing ? "Modification..." : "Création..."}
+                    <span className="hidden sm:inline">
+                      {isEditing ? "Modification..." : "Création..."}
+                    </span>
+                    <span className="sm:hidden">
+                      {isEditing ? "Modif..." : "Création..."}
+                    </span>
                   </div>
-                ) : isEditing ? (
-                  "Modifier le tatoueur"
                 ) : (
-                  "Créer le tatoueur"
+                  <>
+                    <span className="hidden sm:inline">
+                      {isEditing ? "Modifier le tatoueur" : "Créer le tatoueur"}
+                    </span>
+                    <span className="sm:hidden">
+                      {isEditing ? "Modifier" : "Créer"}
+                    </span>
+                  </>
                 )}
               </button>
             </div>

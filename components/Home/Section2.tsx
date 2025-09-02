@@ -41,10 +41,10 @@ export const projects = [
 export default function Section2() {
   return (
     <section className="px-4 sm:px-20 py-16 bg-noir-700">
-      <h2 className="text-white font-two tracking-wide text-3xl font-bold py-2">
+      <h2 className="text-white font-two tracking-wide text-2xl sm:text-3xl font-bold py-2">
         Moins d’administratif, plus de tatouages.{" "}
         <span
-          className="font-bold uppercase bg-gradient-to-l from-tertiary-400 to-tertiary-500 bg-clip-text text-transparent"
+          className="font-bold text-xl sm:text-2xl uppercase bg-gradient-to-l from-tertiary-400 to-tertiary-500 bg-clip-text text-transparent"
           // style={{
           //   background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
           //   WebkitBackgroundClip: "text",

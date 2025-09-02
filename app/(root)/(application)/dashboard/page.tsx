@@ -6,7 +6,7 @@ import NewClientsCount from "@/components/Application/Dashboard/NewClientsCount"
 import NotAnswerClient from "@/components/Application/Dashboard/NotAnswerClient";
 import RendezVousToday from "@/components/Application/Dashboard/RendezVousToday";
 import TotalPayed from "@/components/Application/Dashboard/TotalPayed";
-import WaitingRdv from "@/components/Application/Dashboard/WaitingRdv";
+// import WaitingRdv from "@/components/Application/Dashboard/WaitingRdv";
 import WeeklyFillRate from "@/components/Application/Dashboard/WeeklyFillRate";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import Link from "next/link";
@@ -19,13 +19,13 @@ export default function DashboardPage() {
   const isFreeAccount = user?.saasPlan === "FREE";
 
   return (
-    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-20">
+    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 sm:px-20">
       <div className="flex flex-col relative gap-6 w-full mt-23">
         {/* Header */}
         <div className="">
-          <div className="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+          <div className="flex flex-col md:flex-row sm:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+            <div className="flex items-center gap-4 mb-4 sm:mb-0">
+              <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
                 <LuLayoutDashboard
                   size={28}
                   className="text-tertiary-400 animate-pulse"
@@ -115,15 +115,15 @@ export default function DashboardPage() {
             </div>
           )}
 
-          <div className="col-span-12 lg:col-span-4">
+          {/* <div className="col-span-12 lg:col-span-4">
             <WaitingRdv userId={user.id ?? ""} />
-          </div>
+          </div> */}
 
-          {!isFreeAccount && (
+          {/* {!isFreeAccount && (
             <div className="col-span-12 lg:col-span-6">
               <NotAnswerClient userId={user.id ?? ""} />
             </div>
-          )}
+          )} */}
 
           {/* Message pour les comptes Free */}
           {isFreeAccount && (

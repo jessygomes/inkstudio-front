@@ -219,9 +219,9 @@ export default function CreateOrUpdatePhoto({
                     ) {
                       try {
                         await deleteFromUploadThing(currentImageUrl);
-                        console.log(
-                          "✅ Image supprimée lors du retrait manuel"
-                        );
+                        // console.log(
+                        //   "✅ Image supprimée lors du retrait manuel"
+                        // );
                       } catch (error) {
                         console.error(
                           "❌ Erreur lors de la suppression manuelle:",

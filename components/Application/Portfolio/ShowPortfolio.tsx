@@ -81,28 +81,34 @@ export default function ShowPortfolio() {
 
   return (
     <section className="w-full">
-      <div className="mb-6 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+      {/* Header responsive */}
+      <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+        <div className="flex items-center gap-3 sm:gap-4 mb-4 md:mb-0 w-full md:w-auto">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
             <FaIdCardClip
-              size={28}
-              className="text-tertiary-400 animate-pulse"
+              size={20}
+              className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
             />
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
+          <div className="flex-1">
+            <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
               Portfolio
             </h1>
             <p className="text-white/70 text-xs font-one mt-1">
-              Gérez le portfolio de votre salon, ajoutez, modifiez ou supprimez
-              des photos de vos œuvres.
+              <span className="hidden sm:inline">
+                Gérez le portfolio de votre salon, ajoutez, modifiez ou
+                supprimez des photos de vos œuvres.
+              </span>
+              <span className="sm:hidden">
+                Gérez vos photos de réalisations
+              </span>
             </p>
           </div>
         </div>
-        <div className="flex justify-center gap-4 items-center">
+        <div className="flex justify-center gap-4 items-center w-full md:w-auto">
           <button
             onClick={handleCreate}
-            className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+            className="cursor-pointer w-full md:w-[175px] flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
           >
             <svg
               className="w-4 h-4"
@@ -117,7 +123,8 @@ export default function ShowPortfolio() {
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            Nouvelle photo
+            <span className="hidden sm:inline">Nouvelle photo</span>
+            <span className="sm:hidden">Ajouter photo</span>
           </button>
         </div>
       </div>
@@ -125,8 +132,8 @@ export default function ShowPortfolio() {
       <div className="w-full h-full">
         {loading ? (
           <div className="h-full w-full flex items-center justify-center">
-            <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+            <div className="w-full rounded-2xl p-8 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
               <p className="text-white/60 font-two text-xs text-center">
                 Chargement des photos...
               </p>
@@ -134,14 +141,14 @@ export default function ShowPortfolio() {
           </div>
         ) : photos.length === 0 ? (
           <div className="h-full w-full flex">
-            <div className=" w-full rounded-2xl shadow-xl border border-white/10 p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-              <div className="w-20 h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+            <div className="w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
                 <FaIdCardClip
-                  size={40}
-                  className="text-tertiary-400 animate-pulse"
+                  size={32}
+                  className="sm:w-10 sm:h-10 text-tertiary-400 animate-pulse"
                 />
               </div>
-              <h2 className="text-white font-one text-xl text-center">
+              <h2 className="text-white font-one text-lg sm:text-xl text-center">
                 Aucun visuel dans votre portfolio
               </h2>
               <p className="text-white/60 font-two text-xs text-center">
@@ -156,11 +163,11 @@ export default function ShowPortfolio() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
             {photos.map((photo) => (
               <div
                 key={photo.id}
-                className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 hover:border-tertiary-400/50 transition-all duration-300 shadow-xl hover:shadow-2xl group"
+                className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-2xl overflow-hidden border border-white/20 hover:border-tertiary-400/50 transition-all duration-300 shadow-xl hover:shadow-2xl group"
               >
                 <div className="aspect-square relative overflow-hidden">
                   <Image
@@ -171,8 +178,8 @@ export default function ShowPortfolio() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
 
-                  {/* Overlay avec actions */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  {/* Overlay avec actions - masqué sur mobile */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden sm:flex">
                     <div className="flex gap-3">
                       <button
                         className="cursor-pointer p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
@@ -196,7 +203,7 @@ export default function ShowPortfolio() {
                   </div>
                 </div>
 
-                <div className="p-4 space-y-3">
+                <div className="p-3 sm:p-4 space-y-3">
                   {/* Header avec titre */}
                   <div className="space-y-1">
                     <h3 className="text-white font-one text-sm font-bold tracking-wide truncate">
@@ -206,13 +213,13 @@ export default function ShowPortfolio() {
 
                   {/* Description */}
                   <div className="border-t border-white/10 pt-2">
-                    <p className="text-white/70 text-xs font-one line-clamp-3 leading-relaxed">
+                    <p className="text-white/70 text-xs font-one line-clamp-2 sm:line-clamp-3 leading-relaxed">
                       {photo.description}
                     </p>
                   </div>
 
-                  {/* Actions au bas (version alternative pour mobile) */}
-                  <div className="flex gap-2 justify-end pt-2 lg:hidden">
+                  {/* Actions au bas - toujours visibles sur mobile */}
+                  <div className="flex gap-2 justify-end pt-2 sm:hidden">
                     <button
                       className="cursor-pointer p-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-all duration-200"
                       onClick={() => handleEdit(photo)}
@@ -239,6 +246,7 @@ export default function ShowPortfolio() {
         )}
       </div>
 
+      {/* Modales existantes */}
       {isModalOpen && (
         <CreateOrUpdatePhoto
           onCreate={() => {

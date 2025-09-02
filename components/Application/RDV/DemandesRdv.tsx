@@ -72,7 +72,7 @@ export default function DemandesRdv() {
   const [error, setError] = useState<string | null>(null);
   const [demandes, setDemandes] = useState<Demande[]>([]);
   const [filtered, setFiltered] = useState<Demande[]>([]);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("PENDING"); // <-- valeur par défaut modifiée
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("PENDING");
   const [openDetailsId, setOpenDetailsId] = useState<string | null>(null);
 
   // Fetch demandes
@@ -118,13 +118,13 @@ export default function DemandesRdv() {
 
   return (
     <div className="min-h-screen w-full bg-noir-700">
-      <div className="px-6 lg:px-20 mx-auto">
-        {/* Header toujours affiché */}
-        <div className="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10 mb-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+      <div className="px-3 sm:px-6 lg:px-20 mx-auto">
+        {/* Header responsive */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10 mb-4 sm:mb-6">
+          <div className="flex items-center gap-3 sm:gap-4 w-full md:w-auto">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
               <svg
-                className="w-7 h-7 text-tertiary-400 animate-pulse"
+                className="w-5 h-5 sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -137,26 +137,27 @@ export default function DemandesRdv() {
                 />
               </svg>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
-                Mes demandes de rendez-vous
+            <div className="flex-1">
+              <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
+                Demandes de RDV
               </h1>
               <p className="text-white/70 text-xs font-one mt-1">
-                Répondez aux demandes de rendez-vous et assurez un suivi
-                optimal.
+                Répondez aux demandes et assurez un suivi optimal.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Filtres */}
-        <div className="bg-noir-500 rounded-xl border border-white/20 p-6 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <MdFilterList className="text-white w-5 h-5" />
-            <h2 className="text-white font-one font-semibold">Filtres</h2>
+        {/* Filtres responsive */}
+        <div className="bg-noir-500 rounded-xl border border-white/20 p-3 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 mb-3 sm:mb-4">
+            <MdFilterList className="text-white w-4 h-4 sm:w-5 sm:h-5" />
+            <h2 className="text-white font-one font-semibold text-sm sm:text-base">
+              Filtres
+            </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+            <div className="col-span-1 sm:col-span-2">
               <label className="block text-xs text-white/70 font-one mb-2">
                 Statut de la demande
               </label>
@@ -165,7 +166,7 @@ export default function DemandesRdv() {
                 onChange={(e) =>
                   setStatusFilter(e.target.value as StatusFilter)
                 }
-                className="w-full text-sm text-white bg-noir-500/80 py-2 px-3 font-one border border-white/20 rounded-lg focus:outline-none focus:border-tertiary-400 transition-colors appearance-none cursor-pointer"
+                className="w-full text-sm text-white bg-noir-500/80 py-2 sm:py-2 px-3 font-one border border-white/20 rounded-lg focus:outline-none focus:border-tertiary-400 transition-colors appearance-none cursor-pointer"
               >
                 {statusOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -174,8 +175,8 @@ export default function DemandesRdv() {
                 ))}
               </select>
             </div>
-            <div className="flex items-end">
-              <div className="text-center">
+            <div className="flex items-end col-span-1">
+              <div className="text-center w-full sm:w-auto">
                 <p className="text-xs text-white/70 font-one">Résultats</p>
                 <p className="text-lg font-bold text-tertiary-400 font-one">
                   {filtered.length}
@@ -185,24 +186,28 @@ export default function DemandesRdv() {
           </div>
         </div>
 
-        {/* Liste des demandes */}
+        {/* Liste des demandes responsive */}
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="w-16 h-16 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
+            <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
           </div>
         ) : error ? (
-          <div className="bg-noir-500 rounded-xl border border-white/20 p-12 text-center">
-            <p className="text-red-400 mb-4 text-lg font-medium">{error}</p>
+          <div className="bg-noir-500 rounded-xl border border-white/20 p-6 sm:p-12 text-center">
+            <p className="text-red-400 mb-4 text-base sm:text-lg font-medium">
+              {error}
+            </p>
             <button
               onClick={fetchDemandes}
-              className="px-6 py-3 bg-tertiary-500 text-white rounded-lg hover:bg-tertiary-600 transition-colors font-medium"
+              className="px-4 sm:px-6 py-2 sm:py-3 bg-tertiary-500 text-white rounded-lg hover:bg-tertiary-600 transition-colors font-medium text-sm sm:text-base"
             >
               Réessayer
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-noir-500 rounded-xl border border-white/20 p-12 text-center">
-            <p className="text-white/60 text-lg mb-2">Aucune demande trouvée</p>
+          <div className="bg-noir-500 rounded-xl border border-white/20 p-6 sm:p-12 text-center">
+            <p className="text-white/60 text-base sm:text-lg mb-2">
+              Aucune demande trouvée
+            </p>
             <p className="text-white/40 text-sm">
               {demandes.length === 0
                 ? "Aucune demande n'a encore été enregistrée"
@@ -210,7 +215,7 @@ export default function DemandesRdv() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-3 sm:gap-4">
             {filtered.map((demande) => {
               const av = toObject<any>(demande.availability);
               const primary = av?.primary;
@@ -220,38 +225,41 @@ export default function DemandesRdv() {
               return (
                 <div
                   key={demande.id}
-                  className="bg-noir-500 rounded-xl border border-white/20 p-6 hover:border-tertiary-400/30 transition-all duration-300"
+                  className="bg-noir-500 rounded-xl border border-white/20 p-4 sm:p-6 hover:border-tertiary-400/30 transition-all duration-300"
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Avatar */}
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 flex items-center justify-center text-white font-bold text-xl font-one">
+                  <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                    {/* Avatar responsive */}
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 flex items-center justify-center text-white font-bold text-lg sm:text-xl font-one flex-shrink-0">
                       {demande.clientFirstname?.[0]?.toUpperCase() || "?"}
                     </div>
-                    {/* Infos */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="text-white font-semibold font-one text-lg mb-1">
+
+                    {/* Contenu principal responsive */}
+                    <div className="flex-1 min-w-0 w-full">
+                      {/* Header avec nom et statut */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
+                        <div className="flex-1">
+                          <h3 className="text-white font-semibold font-one text-base sm:text-lg mb-1">
                             {demande.clientFirstname} {demande.clientLastname}
                           </h3>
                           <p className="text-white/70 text-sm font-one mb-1">
                             {demande.prestation}
                           </p>
-                          <p className="text-white/50 text-xs font-one">
-                            {demande.clientEmail}
+                          <div className="text-white/50 text-xs font-one">
+                            <p className="break-all">{demande.clientEmail}</p>
                             {demande.clientPhone && (
-                              <> · {demande.clientPhone}</>
+                              <p className="mt-1">{demande.clientPhone}</p>
                             )}
-                          </p>
+                          </div>
                         </div>
 
-                        <div>
+                        {/* Statut responsive */}
+                        <div className="flex-shrink-0">
                           {demande.status === "PENDING" ? (
                             <div className="bg-gradient-to-r from-orange-500/15 to-orange-500/15 border border-orange-400/30 rounded-lg p-2">
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
                                 <span className="text-orange-300 font-medium font-one text-xs">
-                                  Demande en attente
+                                  En attente
                                 </span>
                               </div>
                             </div>
@@ -260,7 +268,7 @@ export default function DemandesRdv() {
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                                 <span className="text-blue-300 font-medium font-one text-xs">
-                                  Demande proposée
+                                  Proposée
                                 </span>
                               </div>
                             </div>
@@ -269,7 +277,7 @@ export default function DemandesRdv() {
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
                                 <span className="text-red-300 font-medium font-one text-xs">
-                                  Demande refusée
+                                  Refusée
                                 </span>
                               </div>
                             </div>
@@ -278,7 +286,7 @@ export default function DemandesRdv() {
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
                                 <span className="text-red-300 font-medium font-one text-xs">
-                                  Demande clôturée
+                                  Clôturée
                                 </span>
                               </div>
                             </div>
@@ -287,44 +295,50 @@ export default function DemandesRdv() {
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                                 <span className="text-green-300 font-medium font-one text-xs">
-                                  Demande acceptée - RDV Créé
+                                  Acceptée
                                 </span>
                               </div>
                             </div>
                           )}
                         </div>
                       </div>
-                      {/* Disponibilités */}
-                      <div className="flex flex-col md:flex-row gap-2 mb-2">
+
+                      {/* Disponibilités responsive */}
+                      <div className="space-y-2 mb-3">
                         {primary?.date && (
-                          <div className="text-xs text-white/80 font-one">
-                            <span className="font-semibold text-blue-400">
+                          <div className="text-xs text-white/80 font-one bg-white/5 rounded-lg p-2">
+                            <span className="font-semibold text-blue-400 block sm:inline">
                               Primaire :
                             </span>{" "}
-                            {formatFancySlot(
-                              primary.date,
-                              primary.from,
-                              primary.to
-                            )}
+                            <span className="block sm:inline mt-1 sm:mt-0">
+                              {formatFancySlot(
+                                primary.date,
+                                primary.from,
+                                primary.to
+                              )}
+                            </span>
                           </div>
                         )}
                         {alternative?.date && (
-                          <div className="text-xs text-white/80 font-one">
-                            <span className="font-semibold text-purple-400">
+                          <div className="text-xs text-white/80 font-one bg-white/5 rounded-lg p-2">
+                            <span className="font-semibold text-purple-400 block sm:inline">
                               Alternative :
                             </span>{" "}
-                            {formatFancySlot(
-                              alternative.date,
-                              alternative.from,
-                              alternative.to
-                            )}
+                            <span className="block sm:inline mt-1 sm:mt-0">
+                              {formatFancySlot(
+                                alternative.date,
+                                alternative.from,
+                                alternative.to
+                              )}
+                            </span>
                           </div>
                         )}
                       </div>
+
                       {/* Message */}
                       {demande.message && (
-                        <div className="bg-white/5 p-3 rounded-lg border border-white/10 mb-2">
-                          <p className="text-white/90 text-xs font-one italic">
+                        <div className="bg-white/5 p-3 rounded-lg border border-white/10 mb-3">
+                          <p className="text-white/90 text-xs sm:text-sm font-one italic break-words">
                             "{demande.message}"
                           </p>
                         </div>
@@ -337,42 +351,56 @@ export default function DemandesRdv() {
                           onClick={() =>
                             setOpenDetailsId(isOpen ? null : demande.id)
                           }
-                          className="cursor-pointer flex items-center gap-1 text-xs text-white/70 font-one hover:text-tertiary-400 transition-colors"
+                          className="cursor-pointer flex items-center gap-2 text-xs sm:text-sm text-white/70 font-one hover:text-tertiary-400 transition-colors w-full text-left"
                         >
                           {isOpen ? (
-                            <IoChevronUp className="w-4 h-4" />
+                            <IoChevronUp className="w-4 h-4 flex-shrink-0" />
                           ) : (
-                            <IoChevronDown className="w-4 h-4" />
+                            <IoChevronDown className="w-4 h-4 flex-shrink-0" />
                           )}
                           <span>Détails ajoutés par le client</span>
                         </button>
+
                         {isOpen && (
-                          <div className="bg-white/5 rounded-lg p-3 border border-white/10 mt-2 text-xs text-white font-one space-y-2">
+                          <div className="bg-white/5 rounded-lg p-3 border border-white/10 mt-3 text-xs sm:text-sm text-white font-one space-y-3">
                             <div>
-                              <span className="text-white/60">
+                              <span className="text-white/60 font-semibold block sm:inline">
                                 Description :
                               </span>{" "}
-                              {details?.description || "N/A"}
+                              <span className="block sm:inline mt-1 sm:mt-0 break-words">
+                                {details?.description || "N/A"}
+                              </span>
                             </div>
                             <div>
-                              <span className="text-white/60">Zone :</span>{" "}
-                              {details?.zone || "N/A"}
+                              <span className="text-white/60 font-semibold block sm:inline">
+                                Zone :
+                              </span>{" "}
+                              <span className="block sm:inline mt-1 sm:mt-0">
+                                {details?.zone || "N/A"}
+                              </span>
                             </div>
                             <div>
-                              <span className="text-white/60">
+                              <span className="text-white/60 font-semibold block sm:inline">
                                 Style / Couleurs :
                               </span>{" "}
-                              {details?.colorStyle || "N/A"}
+                              <span className="block sm:inline mt-1 sm:mt-0 break-words">
+                                {details?.colorStyle || "N/A"}
+                              </span>
                             </div>
                             <div>
-                              <span className="text-white/60">Taille :</span>{" "}
-                              {details?.size || "N/A"}
+                              <span className="text-white/60 font-semibold block sm:inline">
+                                Taille :
+                              </span>{" "}
+                              <span className="block sm:inline mt-1 sm:mt-0">
+                                {details?.size || "N/A"}
+                              </span>
                             </div>
+
                             {(details?.reference || details?.sketch) && (
                               <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
                                 <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
                                   <svg
-                                    className="w-4 h-4 text-orange-500"
+                                    className="w-4 h-4 text-orange-500 flex-shrink-0"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -386,7 +414,7 @@ export default function DemandesRdv() {
                                   </svg>
                                   Références
                                 </h5>
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                   {details?.reference && (
                                     <ThumbImage
                                       label="Image de référence"
@@ -412,9 +440,9 @@ export default function DemandesRdv() {
                         )}
                       </div>
 
-                      {/* Création */}
-                      <div className="flex items-center justify-between text-xs text-white/50 font-one mt-4">
-                        <div className="flex items-center gap-1 flex-wrap">
+                      {/* Actions et date de création responsive */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4 pt-3 border-t border-white/10">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-1">
                           {demande.status === "PENDING" && (
                             <>
                               <ProposeCreneau
@@ -424,7 +452,6 @@ export default function DemandesRdv() {
                                   fetchDemandes();
                                 }}
                               />
-
                               <DeclinedDemande
                                 userId={user.id ?? ""}
                                 demande={demande}
@@ -444,7 +471,6 @@ export default function DemandesRdv() {
                                   fetchDemandes();
                                 }}
                               />
-
                               <DeclinedDemande
                                 userId={user.id ?? ""}
                                 demande={demande}
@@ -466,7 +492,9 @@ export default function DemandesRdv() {
                           )}
                         </div>
 
-                        <span>Créée le {formatDate(demande.createdAt)}</span>
+                        <span className="text-xs text-white/50 font-one text-right sm:text-left">
+                          Créée le {formatDate(demande.createdAt)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -494,7 +522,7 @@ function ThumbImage({
     <div className="bg-white/5 rounded-lg p-2 border border-white/5">
       <p className="text-white/60 text-xs font-one mb-2">{label}</p>
       <div
-        className="relative w-full h-32 bg-white/5 rounded-md border border-white/10 overflow-hidden group cursor-pointer"
+        className="relative w-full h-24 sm:h-32 bg-white/5 rounded-md border border-white/10 overflow-hidden group cursor-pointer"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();

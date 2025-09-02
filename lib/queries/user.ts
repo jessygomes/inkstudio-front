@@ -34,3 +34,35 @@ export const changePasswordAction = async (payload: any) => {
     throw error;
   }
 };
+
+//! ----------------------------------------------------------------------------
+
+//! RECUPERER LES PHOTOS DU SALON
+
+//! ----------------------------------------------------------------------------
+export const fetchSalonPhotosAction = async (salonId: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}/photos`,
+      {
+        method: "GET",
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || (data && data.error)) {
+      const message =
+        data?.message || `Erreur lors de l'opération (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return { ok: true, error: false, status: response.status, data };
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des photos du salon :",
+      error
+    );
+    throw error;
+  }
+};

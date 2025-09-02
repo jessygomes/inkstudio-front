@@ -230,30 +230,31 @@ export default function ClientList() {
 
   return (
     <section>
-      <div className="mb-6 mt-23 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+      {/* Header responsive */}
+      <div className="mb-6 mt-23 flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+        <div className="w-full flex items-center gap-3 sm:gap-4 mb-4 md:mb-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
             <RiFileUserLine
-              size={28}
-              className="text-tertiary-400 animate-pulse"
+              size={20}
+              className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
             />
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
+          <div className="flex-1">
+            <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
               Clients
             </h1>
             <p className="text-white/70 text-xs font-one mt-1">
-              Gérez les informations de vos clients. Accédez à leurs données,
-              gérez les rendez-vous et consultez l&apos;historique de leurs
-              visites.
+              Gérez les informations de vos clients et consultez leur
+              historique.
             </p>
           </div>
         </div>
 
-        <div className="flex gap-2">
+        {/* Boutons d'action responsive */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
           <button
             onClick={handleCreate}
-            className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+            className="cursor-pointer flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
           >
             <svg
               className="w-4 h-4"
@@ -274,9 +275,10 @@ export default function ClientList() {
           <div className="relative">
             <Link
               href="/clients/suivi"
-              className="cursor-pointer text-center px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center justify-center gap-2"
+              className="cursor-pointer text-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center justify-center gap-2"
             >
-              Suivi de cicatrisation
+              <span className="hidden sm:inline">Suivi de cicatrisation</span>
+              <span className="sm:hidden">Suivi cicatrisation</span>
               {unansweredFollowUpsCount > 0 && (
                 <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
                   {unansweredFollowUpsCount > 99
@@ -290,19 +292,20 @@ export default function ClientList() {
       </div>
 
       <div>
-        <div className="flex gap-2 items-center mb-6 mt-6">
+        {/* Barre de recherche responsive */}
+        <div className="flex gap-2 items-center mb-4 sm:mb-6 mt-4 sm:mt-6">
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Rechercher par client"
-            className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
+            className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-2 sm:py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
           />
         </div>
 
-        {/* Informations de pagination */}
+        {/* Informations de pagination responsive */}
         {!loading && !error && (
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
             <div className="text-white/70 text-xs font-one">
               Affichage de{" "}
               {Math.min(
@@ -314,7 +317,7 @@ export default function ClientList() {
               sur {pagination.totalClients} client
               {pagination.totalClients > 1 ? "s" : ""}
               {searchTerm && (
-                <span className="ml-2 text-tertiary-400">
+                <span className="block sm:inline sm:ml-2 text-tertiary-400 mt-1 sm:mt-0">
                   (recherche: "{searchTerm}")
                 </span>
               )}
@@ -325,7 +328,8 @@ export default function ClientList() {
           </div>
         )}
 
-        <div className="grid grid-cols-6 gap-2 px-4 py-2 mb-2 bg-white/10 rounded-lg text-white font-one text-xs font-semibold tracking-widest">
+        {/* Header de tableau - masqué sur mobile */}
+        <div className="hidden sm:grid grid-cols-6 gap-2 px-4 py-2 mb-2 bg-white/10 rounded-lg text-white font-one text-xs font-semibold tracking-widest">
           <p>Nom & Prénom</p>
           <p>Email</p>
           <p>Téléphone</p>
@@ -345,10 +349,10 @@ export default function ClientList() {
           </div>
         ) : error ? (
           <div className="h-full w-full flex">
-            <div className="mt-4 w-full rounded-2xl shadow-xl border border-white/10 p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-              <div className="w-20 h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+            <div className="mt-4 w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
                 <svg
-                  className="w-10 h-10 text-tertiary-400"
+                  className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -361,10 +365,12 @@ export default function ClientList() {
                   />
                 </svg>
               </div>
-              <p className="text-white font-one text-xl text-center">{error}</p>
+              <p className="text-white font-one text-lg sm:text-xl text-center">
+                {error}
+              </p>
               <button
                 onClick={() => fetchClients(currentPage, searchTerm)}
-                className="cursor-pointer mt-2 px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
+                className="cursor-pointer mt-2 px-4 sm:px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
               >
                 Réessayer
               </button>
@@ -372,10 +378,10 @@ export default function ClientList() {
           </div>
         ) : clients.length === 0 ? (
           <div className="h-full w-full flex">
-            <div className=" w-full rounded-2xl shadow-xl border border-white/10 p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-              <div className="w-20 h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+            <div className="w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
                 <svg
-                  className="w-10 h-10 text-tertiary-400"
+                  className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -388,10 +394,10 @@ export default function ClientList() {
                   />
                 </svg>
               </div>
-              <p className="text-white/70 font-one">
+              <p className="text-white/70 font-one text-base sm:text-lg text-center">
                 {searchTerm ? "Aucun client trouvé" : "Aucun client"}
               </p>
-              <p className="text-white/50 text-sm font-one">
+              <p className="text-white/50 text-sm font-one text-center">
                 {searchTerm
                   ? `Aucun client ne correspond à "${searchTerm}"`
                   : "Commencez par ajouter votre premier client"}
@@ -400,84 +406,149 @@ export default function ClientList() {
           </div>
         ) : (
           <>
-            {/* Liste des clients */}
+            {/* Liste des clients responsive */}
             <div className="space-y-2 mb-6">
               {clients.map((client) => (
-                <div
-                  key={client.id}
-                  className="grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300"
-                >
-                  <p className="text-white font-one text-xs">
-                    {client.lastName} {client.firstName}
-                  </p>
-                  <p className="text-white font-one text-xs">{client.email}</p>
-                  <p className="text-white font-one text-xs">
-                    {client.phone ? client.phone : "Non renseigné"}
-                  </p>
-                  <p className="text-white font-one text-xs text-left">
-                    {client.appointments.length} rendez-vous
-                  </p>
-                  <button
-                    onClick={() => handleShowReservations(client)}
-                    className="cursor-pointer text-white font-one text-xs mx-auto border w-[60px] hover:underline hover:bg-white/10 duration-200 px-2 py-1 rounded-3xl"
-                  >
-                    <p>Infos</p>
-                  </button>
-                  <div className="flex gap-8 text-xs items-center justify-center">
+                <div key={client.id}>
+                  {/* Vue desktop - grille */}
+                  <div className="hidden sm:grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
+                    <p className="text-white font-one text-xs">
+                      {client.lastName} {client.firstName}
+                    </p>
+                    <p className="text-white font-one text-xs break-all">
+                      {client.email}
+                    </p>
+                    <p className="text-white font-one text-xs">
+                      {client.phone ? client.phone : "Non renseigné"}
+                    </p>
+                    <p className="text-white font-one text-xs text-left">
+                      {client.appointments.length} rendez-vous
+                    </p>
                     <button
-                      className="cursor-pointer text-black"
-                      onClick={() => handleEdit(client)}
+                      onClick={() => handleShowReservations(client)}
+                      className="cursor-pointer text-white font-one text-xs mx-auto border w-[60px] hover:underline hover:bg-white/10 duration-200 px-2 py-1 rounded-3xl"
                     >
-                      <IoCreateOutline
-                        size={20}
-                        className="text-white hover:text-secondary-500 duration-200"
-                      />
+                      <p>Infos</p>
                     </button>
-                    <button
-                      className="cursor-pointer text-black"
-                      onClick={() => handleDelete(client)}
-                    >
-                      <AiOutlineDelete
-                        size={20}
-                        className="text-white hover:text-secondary-500 duration-200"
-                      />
-                    </button>
+                    <div className="flex gap-8 text-xs items-center justify-center">
+                      <button
+                        className="cursor-pointer text-black"
+                        onClick={() => handleEdit(client)}
+                      >
+                        <IoCreateOutline
+                          size={20}
+                          className="text-white hover:text-secondary-500 duration-200"
+                        />
+                      </button>
+                      <button
+                        className="cursor-pointer text-black"
+                        onClick={() => handleDelete(client)}
+                      >
+                        <AiOutlineDelete
+                          size={20}
+                          className="text-white hover:text-secondary-500 duration-200"
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Vue mobile - format carte */}
+                  <div className="sm:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 mb-2">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-white font-one font-semibold text-sm mb-1">
+                          {client.firstName} {client.lastName}
+                        </h3>
+                        <p className="text-white/80 font-one text-xs break-all mb-1">
+                          {client.email}
+                        </p>
+                        <p className="text-white/70 font-one text-xs">
+                          {client.phone ? client.phone : "Tel. non renseigné"}
+                        </p>
+                        <p className="text-white/70 font-one text-xs mt-2">
+                          {client.appointments.length} rendez-vous
+                        </p>
+                      </div>
+
+                      {/* Actions mobiles */}
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => handleShowReservations(client)}
+                          className="cursor-pointer text-white font-one text-xs border px-3 py-1 rounded-lg hover:bg-white/10 duration-200"
+                        >
+                          Infos
+                        </button>
+                        <div className="flex gap-3 justify-center">
+                          <button
+                            className="cursor-pointer"
+                            onClick={() => handleEdit(client)}
+                          >
+                            <IoCreateOutline
+                              size={18}
+                              className="text-white hover:text-secondary-500 duration-200"
+                            />
+                          </button>
+                          <button
+                            className="cursor-pointer"
+                            onClick={() => handleDelete(client)}
+                          >
+                            <AiOutlineDelete
+                              size={18}
+                              className="text-white hover:text-secondary-500 duration-200"
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Pagination */}
+            {/* Pagination responsive */}
             {pagination.totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 py-4">
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4">
                 <button
                   onClick={handlePreviousPage}
                   disabled={!pagination.hasPreviousPage}
-                  className="cursor-pointer px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                  className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
                 >
                   Précédent
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2 order-first sm:order-none">
                   {Array.from(
-                    { length: Math.min(pagination.totalPages, 5) },
+                    {
+                      length: Math.min(
+                        pagination.totalPages,
+                        window.innerWidth < 640 ? 3 : 5
+                      ),
+                    },
                     (_, i) => {
+                      const maxButtons = window.innerWidth < 640 ? 3 : 5;
                       let pageNumber;
-                      if (pagination.totalPages <= 5) {
+                      if (pagination.totalPages <= maxButtons) {
                         pageNumber = i + 1;
-                      } else if (currentPage <= 3) {
+                      } else if (
+                        currentPage <=
+                        Math.floor(maxButtons / 2) + 1
+                      ) {
                         pageNumber = i + 1;
-                      } else if (currentPage >= pagination.totalPages - 2) {
-                        pageNumber = pagination.totalPages - 4 + i;
+                      } else if (
+                        currentPage >=
+                        pagination.totalPages - Math.floor(maxButtons / 2)
+                      ) {
+                        pageNumber = pagination.totalPages - maxButtons + 1 + i;
                       } else {
-                        pageNumber = currentPage - 2 + i;
+                        pageNumber =
+                          currentPage - Math.floor(maxButtons / 2) + i;
                       }
 
                       return (
                         <button
                           key={pageNumber}
                           onClick={() => handlePageChange(pageNumber)}
-                          className={`cursor-pointer w-8 h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
+                          className={`cursor-pointer w-6 h-6 sm:w-8 sm:h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
                             currentPage === pageNumber
                               ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
                               : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
@@ -493,7 +564,7 @@ export default function ClientList() {
                 <button
                   onClick={handleNextPage}
                   disabled={!pagination.hasNextPage}
-                  className="cursor-pointer px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                  className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
                 >
                   Suivant
                 </button>
@@ -502,40 +573,43 @@ export default function ClientList() {
           </>
         )}
 
-        {/* Modal INFOS CLIENT */}
+        {/* Modal INFOS CLIENT responsive */}
         {isFullInfoModalOpen && clientForInfos && (
-          <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-noir-500 rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
-              {/* Header fixe */}
-              <div className="p-4 border-b border-white/10 bg-white/5">
+          <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+            <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+              {/* Header fixe responsive */}
+              <div className="p-3 sm:p-4 border-b border-white/10 bg-white/5">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-white font-one tracking-wide">
-                    {clientForInfos.firstName} {clientForInfos.lastName}
-                  </h2>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide truncate">
+                      {clientForInfos.firstName} {clientForInfos.lastName}
+                    </h2>
+                    <p className="text-white/70 mt-1 sm:mt-2 text-xs sm:text-sm">
+                      Informations détaillées du client
+                    </p>
+                  </div>
                   <button
                     onClick={() => setIsFullInfoModalOpen(false)}
-                    className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                    className="p-1 hover:bg-white/10 rounded-full transition-colors ml-2"
                   >
                     <span className="cursor-pointer text-white text-xl">×</span>
                   </button>
                 </div>
-                <p className="text-white/70 mt-2 text-sm">
-                  Informations détaillées du client
-                </p>
               </div>
 
-              {/* Contenu scrollable */}
-              <div className="flex-1 overflow-y-auto p-4">
-                <div className="space-y-6">
-                  {/* Informations de base */}
-                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                    <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide mb-2">
-                      <CiUser size={20} /> Informations personnelles
+              {/* Contenu scrollable responsive */}
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+                <div className="space-y-4 sm:space-y-6">
+                  {/* Informations de base responsive */}
+                  <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide mb-3">
+                      <CiUser size={18} className="sm:w-5 sm:h-5" />{" "}
+                      Informations personnelles
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div className="space-y-1">
                         <p className="text-xs text-white/70 font-one">Email</p>
-                        <p className="text-white font-two text-sm">
+                        <p className="text-white font-two text-sm break-all">
                           {clientForInfos.email}
                         </p>
                       </div>
@@ -563,27 +637,29 @@ export default function ClientList() {
                         <p className="text-xs text-white/70 font-one">
                           Adresse
                         </p>
-                        <p className="text-white font-two text-sm">
+                        <p className="text-white font-two text-sm break-words">
                           {clientForInfos.address || "Non renseignée"}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Section Rendez-vous */}
-                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  {/* Section Rendez-vous responsive */}
+                  <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
                     <button
                       onClick={() => setShowAppointments(!showAppointments)}
                       className="w-full flex items-center justify-between mb-4"
                     >
                       <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide">
-                        <CiCalendarDate size={20} /> Rendez-vous (
-                        {clientForInfos.appointments.length})
+                        <CiCalendarDate size={18} className="sm:w-5 sm:h-5" />
+                        <span className="truncate">
+                          Rendez-vous ({clientForInfos.appointments.length})
+                        </span>
                       </h3>
                       {showAppointments ? (
-                        <IoChevronUp className="text-white/70" />
+                        <IoChevronUp className="text-white/70 flex-shrink-0" />
                       ) : (
-                        <IoChevronDown className="text-white/70" />
+                        <IoChevronDown className="text-white/70 flex-shrink-0" />
                       )}
                     </button>
 
@@ -600,7 +676,7 @@ export default function ClientList() {
                                 key={index}
                                 className="bg-white/10 p-3 rounded-lg border border-white/20"
                               >
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                   <div className="space-y-1">
                                     <p className="text-xs text-white/70 font-one">
                                       Date
@@ -645,7 +721,7 @@ export default function ClientList() {
                                     <p className="text-xs text-white/70 font-one">
                                       Titre
                                     </p>
-                                    <p className="text-white font-two text-sm">
+                                    <p className="text-white font-two text-sm break-words">
                                       {rdv.title}
                                     </p>
                                   </div>
@@ -655,7 +731,7 @@ export default function ClientList() {
                                     <p className="text-xs text-white/70 font-one">
                                       Description
                                     </p>
-                                    <p className="text-tertiary-300 font-two text-sm">
+                                    <p className="text-tertiary-300 font-two text-sm break-words">
                                       {rdv.description}
                                     </p>
                                   </div>
@@ -669,18 +745,21 @@ export default function ClientList() {
                   </div>
 
                   {/* Section Historique des tatouages */}
-                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
                     <button
                       onClick={() => setShowTattooHistory(!showTattooHistory)}
                       className="w-full flex items-center justify-between mb-4"
                     >
                       <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide">
-                        <FaFilePen size={20} /> Historique des tatouages (0)
+                        <FaFilePen size={16} className="sm:w-5 sm:h-5" />
+                        <span className="truncate">
+                          Historique tatouages (0)
+                        </span>
                       </h3>
                       {showTattooHistory ? (
-                        <IoChevronUp className="text-white/70" />
+                        <IoChevronUp className="text-white/70 flex-shrink-0" />
                       ) : (
-                        <IoChevronDown className="text-white/70" />
+                        <IoChevronDown className="text-white/70 flex-shrink-0" />
                       )}
                     </button>
 
@@ -689,24 +768,24 @@ export default function ClientList() {
                         <p className="text-white/60 text-sm">
                           Aucun historique de tatouage disponible
                         </p>
-                        {/* TODO: Ajouter la logique pour afficher les tatouages */}
                       </div>
                     )}
                   </div>
 
-                  {/* Section Historique médical */}
-                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  {/* Section Historique médical responsive */}
+                  <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
                     <button
                       onClick={() => setShowTattooCare(!showTattooCare)}
                       className="w-full flex items-center justify-between mb-4"
                     >
                       <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide">
-                        <RiHealthBookLine size={20} /> Historique médical
+                        <RiHealthBookLine size={16} className="sm:w-5 sm:h-5" />
+                        <span className="truncate">Historique médical</span>
                       </h3>
                       {showTattooCare ? (
-                        <IoChevronUp className="text-white/70" />
+                        <IoChevronUp className="text-white/70 flex-shrink-0" />
                       ) : (
-                        <IoChevronDown className="text-white/70" />
+                        <IoChevronDown className="text-white/70 flex-shrink-0" />
                       )}
                     </button>
 
@@ -714,12 +793,12 @@ export default function ClientList() {
                       <div className="space-y-4">
                         {clientForInfos.medicalHistory ? (
                           <div className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                               <div className="bg-white/10 p-3 rounded-lg border border-white/20">
                                 <p className="text-xs text-white/70 font-one mb-1">
                                   Allergies
                                 </p>
-                                <p className="text-white font-two text-sm">
+                                <p className="text-white font-two text-sm break-words">
                                   {clientForInfos.medicalHistory.allergies ||
                                     "Aucune allergie connue"}
                                 </p>
@@ -729,7 +808,7 @@ export default function ClientList() {
                                 <p className="text-xs text-white/70 font-one mb-1">
                                   Problèmes de santé
                                 </p>
-                                <p className="text-white font-two text-sm">
+                                <p className="text-white font-two text-sm break-words">
                                   {clientForInfos.medicalHistory.healthIssues ||
                                     "Aucun problème de santé signalé"}
                                 </p>
@@ -739,7 +818,7 @@ export default function ClientList() {
                                 <p className="text-xs text-white/70 font-one mb-1">
                                   Médicaments
                                 </p>
-                                <p className="text-white font-two text-sm">
+                                <p className="text-white font-two text-sm break-words">
                                   {clientForInfos.medicalHistory.medications ||
                                     "Aucun médicament"}
                                 </p>
@@ -749,7 +828,7 @@ export default function ClientList() {
                                 <p className="text-xs text-white/70 font-one mb-1">
                                   Historique tatouages
                                 </p>
-                                <p className="text-white font-two text-sm">
+                                <p className="text-white font-two text-sm break-words">
                                   {clientForInfos.medicalHistory
                                     .tattooHistory ||
                                     "Aucun historique de tatouage"}
@@ -757,7 +836,6 @@ export default function ClientList() {
                               </div>
                             </div>
 
-                            {/* Grossesse - affiché séparément avec style différent */}
                             <div
                               className={`p-3 rounded-lg border ${
                                 clientForInfos.medicalHistory.pregnancy
@@ -790,34 +868,8 @@ export default function ClientList() {
                     )}
                   </div>
 
-                  {/* Section Soins reçus */}
-                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                    <button
-                      onClick={() => setShowTattooHistory(!showTattooHistory)}
-                      className="w-full flex items-center justify-between mb-4"
-                    >
-                      <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide">
-                        <RiHealthBookLine size={20} /> Soins reçus (0)
-                      </h3>
-                      {showTattooHistory ? (
-                        <IoChevronUp className="text-white/70" />
-                      ) : (
-                        <IoChevronDown className="text-white/70" />
-                      )}
-                    </button>
-
-                    {showTattooHistory && (
-                      <div className="space-y-3">
-                        <p className="text-white/60 text-sm">
-                          Aucun soin reçu disponible
-                        </p>
-                        {/* TODO: Ajouter la logique pour afficher les soins */}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Section Suivis de cicatrisation */}
-                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  {/* Section Suivis de cicatrisation responsive */}
+                  <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
                     <button
                       onClick={() =>
                         setShowFollowUpSubmissions(!showFollowUpSubmissions)
@@ -825,14 +877,19 @@ export default function ClientList() {
                       className="w-full flex items-center justify-between mb-4"
                     >
                       <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide">
-                        <MdOutlineRateReview size={20} /> Suivis de
-                        cicatrisation (
-                        {clientForInfos.FollowUpSubmission?.length || 0})
+                        <MdOutlineRateReview
+                          size={16}
+                          className="sm:w-5 sm:h-5"
+                        />
+                        <span className="truncate">
+                          Suivis cicatrisation (
+                          {clientForInfos.FollowUpSubmission?.length || 0})
+                        </span>
                       </h3>
                       {showFollowUpSubmissions ? (
-                        <IoChevronUp className="text-white/70" />
+                        <IoChevronUp className="text-white/70 flex-shrink-0" />
                       ) : (
-                        <IoChevronDown className="text-white/70" />
+                        <IoChevronDown className="text-white/70 flex-shrink-0" />
                       )}
                     </button>
 
@@ -844,11 +901,11 @@ export default function ClientList() {
                             (followUp: any, index: number) => (
                               <div
                                 key={followUp.id}
-                                className="bg-white/10 p-4 rounded-lg border border-white/20"
+                                className="bg-white/10 p-3 sm:p-4 rounded-lg border border-white/20"
                               >
-                                <div className="flex items-start justify-between mb-3">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10 border border-white/20">
+                                <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-3">
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10 border border-white/20 flex-shrink-0">
                                       {followUp.photoUrl ? (
                                         <Image
                                           width={48}
@@ -875,13 +932,13 @@ export default function ClientList() {
                                         </div>
                                       )}
                                     </div>
-                                    <div>
-                                      <div className="flex items-center gap-3 mb-1">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-1">
                                         <p className="text-white font-one text-sm font-semibold">
                                           Suivi #{index + 1}
                                         </p>
                                         <span
-                                          className={`px-2 py-1 rounded-full text-xs font-medium border ${
+                                          className={`px-2 py-1 rounded-full text-xs font-medium border w-fit ${
                                             followUp.isAnswered
                                               ? "bg-green-500/20 text-green-400 border-green-500/30"
                                               : "bg-orange-500/20 text-orange-400 border-orange-500/30"
@@ -910,8 +967,7 @@ export default function ClientList() {
                                   )}
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  {/* Évaluation */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <div className="space-y-2">
                                     <p className="text-xs text-white/70 font-one">
                                       Satisfaction
@@ -926,7 +982,6 @@ export default function ClientList() {
                                     </div>
                                   </div>
 
-                                  {/* Visibilité de la photo */}
                                   <div className="space-y-2">
                                     <p className="text-xs text-white/70 font-one">
                                       Visibilité photo
@@ -945,23 +1000,21 @@ export default function ClientList() {
                                   </div>
                                 </div>
 
-                                {/* Avis du client */}
                                 {followUp.review && (
                                   <div className="mt-4 space-y-2">
                                     <p className="text-xs text-white/70 font-one">
                                       Avis du client
                                     </p>
                                     <div className="bg-white/5 p-3 rounded-lg border border-white/10">
-                                      <p className="text-white/90 text-sm font-one italic">
+                                      <p className="text-white/90 text-sm font-one italic break-words">
                                         "{followUp.review}"
                                       </p>
                                     </div>
                                   </div>
                                 )}
 
-                                {/* Rendez-vous associé */}
                                 <div className="mt-4 pt-3 border-t border-white/10">
-                                  <p className="text-xs text-white/50 font-one">
+                                  <p className="text-xs text-white/50 font-one break-all">
                                     Rendez-vous associé:{" "}
                                     {followUp.appointmentId}
                                   </p>
@@ -988,11 +1041,11 @@ export default function ClientList() {
                 </div>
               </div>
 
-              {/* Footer fixe */}
-              <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end">
+              {/* Footer fixe responsive */}
+              <div className="p-3 sm:p-4 border-t border-white/10 bg-white/5 flex justify-end">
                 <button
                   onClick={() => setIsFullInfoModalOpen(false)}
-                  className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
+                  className="cursor-pointer px-4 sm:px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
                 >
                   Fermer
                 </button>

@@ -1,11 +1,15 @@
 //! TATOUEUR
-export interface TatoueurProps {
+export type TatoueurProps = {
   id: string;
   name: string;
   img?: string;
   description: string | null;
-  hours: string | null;
-}
+  phone?: string;
+  instagram?: string;
+  hours?: string | null;
+  style: string[]; // Ajoutez cette propriété
+  skills: string[]; // Ajoutez cette propriété
+};
 
 export interface TimeSlotProps {
   id: string;
@@ -85,6 +89,7 @@ export interface SalonUserProps {
   website: string | null;
   image: string | null;
   Tatoueur: TatoueurProps[];
+  prestations: string[]; // Liste des prestations
 }
 
 export interface UpdateSalonUserProps {

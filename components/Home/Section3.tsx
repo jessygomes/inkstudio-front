@@ -4,6 +4,7 @@ import React from "react";
 export default function Section3() {
   return (
     <section className="bg-primary-500 flex flex-col-reverse sm:flex-row sm:h-screen">
+      {/* Section image - responsive */}
       <div className="w-full h-[50vh] sm:h-full flex justify-center items-center">
         <div className="flex flex-col items-center justify-center">
           <Image
@@ -45,7 +46,7 @@ export default function Section3() {
           clients.
         </p>
         <p className="px-4 sm:px-20 text-white font-one relative z-10">
-          InkStudio a été conçu main dans la main avec des tatoueurs. Chaque
+          InkStudio a été conçu main dans la main avec des tatoueurs. Chaque
           fonctionnalité répond à un vrai besoin du terrain.
         </p>
       </div>

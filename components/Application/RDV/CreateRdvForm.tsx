@@ -417,17 +417,17 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   //! Affichage du formulaire de création de rendez-vous
   return (
     <div className="min-h-screen bg-noir-700 pb-8">
-      <div className="container mx-auto max-w-6xl">
+      <div className="container mx-auto w-full">
         {/* Form Content */}
-        <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+        <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl p-4 sm:p-8 border border-white/20 shadow-2xl">
           <form
             onSubmit={form.handleSubmit(onSubmit, (errors) => {
               console.log("❌ Erreurs de validation", errors);
             })}
-            className="space-y-6"
+            className="space-y-4 sm:space-y-6"
           >
             {/* Section: Recherche client */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
               <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
                 🔍 Recherche client
               </h3>
@@ -440,17 +440,17 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     type="text"
                     value={searchClientQuery}
                     onChange={(e) => setSearchClientQuery(e.target.value)}
-                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     placeholder="Rechercher par nom ou email..."
                   />
                 </div>
 
                 {clientResults.length > 0 && (
-                  <div className="bg-white/10 border border-white/20 rounded-lg max-h-40 overflow-auto">
+                  <div className="bg-white/10 border border-white/20 rounded-lg max-h-48 sm:max-h-40 overflow-auto">
                     {clientResults.map((client) => (
                       <div
                         key={client.id}
-                        className="cursor-pointer px-3 py-2 text-white text-xs hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
+                        className="cursor-pointer px-3 py-3 sm:py-2 text-white text-sm sm:text-xs hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
                         onClick={() => {
                           form.setValue("clientLastname", client.lastName);
                           form.setValue("clientFirstname", client.firstName);
@@ -460,11 +460,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                           setClientResults([]);
                         }}
                       >
-                        <div className="flex justify-between items-center">
-                          <span>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                          <span className="font-medium">
                             {client.firstName} {client.lastName}
                           </span>
-                          <span className="text-white/60">{client.email}</span>
+                          <span className="text-white/60 text-xs">
+                            {client.email}
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -474,17 +476,17 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             </div>
 
             {/* Section: Informations client */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
               <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
                 👤 Informations client
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">Nom</label>
                   <input
                     placeholder="Nom du client"
                     {...form.register("clientLastname")}
-                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                   {form.formState.errors.clientLastname && (
                     <p className="text-red-300 text-xs">
@@ -500,7 +502,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   <input
                     placeholder="Prénom du client"
                     {...form.register("clientFirstname")}
-                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                   {form.formState.errors.clientFirstname && (
                     <p className="text-red-300 text-xs">
@@ -516,7 +518,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   <input
                     placeholder="Email du client"
                     {...form.register("clientEmail")}
-                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                   {form.formState.errors.clientEmail && (
                     <p className="text-red-300 text-xs">
@@ -532,18 +534,18 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   <input
                     placeholder="Téléphone du client"
                     {...form.register("clientPhone")}
-                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
               </div>
             </div>
 
             {/* Section: Informations générales */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
               <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
                 📋 Détails du rendez-vous
               </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4">
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
                     Titre
@@ -551,7 +553,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   <input
                     placeholder="Titre du rendez-vous"
                     {...form.register("title")}
-                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                   {form.formState.errors.title && (
                     <p className="text-red-300 text-xs">
@@ -569,7 +571,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     onChange={(e) => {
                       setSelectedTatoueur(e.target.value);
                     }}
-                    className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
                   >
                     <option value="" className="bg-noir-500">
                       -- Choisissez un tatoueur --
@@ -596,7 +598,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   onChange={(e) => {
                     setSelectedPrestation(e.target.value);
                   }}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                  className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
                 >
                   <option value="" className="bg-noir-500">
                     -- Choisissez le type du rendez-vous --
@@ -619,7 +621,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
             {/* Section: Créneaux horaires */}
             {selectedTatoueur && (
-              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                 <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
                   🕒 Créneaux horaires
                 </h3>
@@ -632,7 +634,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       type="date"
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
                     />
                   </div>
 
@@ -648,7 +650,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                             Cliquez sur les créneaux pour les sélectionner. Ils
                             doivent être consécutifs.
                           </p>
-                          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
                             {timeSlots.map((slot) => {
                               const isOccupied = (start: string) => {
                                 return occupiedSlots.some((occupiedSlot) => {
@@ -698,7 +700,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
                               // Déterminer la couleur et l'état du bouton
                               let buttonClass =
-                                "cursor-pointer px-2 py-1 rounded text-xs text-white font-one transition-all duration-200 border ";
+                                "cursor-pointer px-2 py-2 sm:py-1 rounded text-xs text-white font-one transition-all duration-200 border text-center ";
                               let buttonText = `${startTime}-${endTime}`;
                               let isDisabled = false;
 
@@ -768,8 +770,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                             })}
                           </div>
 
-                          {/* Légende des créneaux */}
-                          <div className="mt-4 flex flex-wrap gap-4 text-xs">
+                          {/* Légende des créneaux - responsive */}
+                          <div className="mt-4 grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4 text-xs">
                             <div className="flex items-center gap-2">
                               <div className="w-3 h-3 bg-tertiary-600/20 border border-tertiary-500/30 rounded"></div>
                               <span className="text-white/70 font-one">
@@ -825,7 +827,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               <h4 className="text-orange-300 font-semibold font-one text-sm mb-2">
                                 🚫 Salon fermé ce jour
                               </h4>
-                              <p className="text-orange-300/80 text-xs font-one mb-3">
+                              <p className="text-orange-300/80 text-xs sm:text-sm font-one mb-3">
                                 Le tatoueur{" "}
                                 <strong>
                                   {
@@ -873,7 +875,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-2">
                         <svg
-                          className="w-4 h-4 text-tertiary-400"
+                          className="w-4 h-4 text-tertiary-400 flex-shrink-0"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -891,12 +893,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                           {selectedSlots.length > 1 ? "s" : ""}
                         </span>
                       </div>
-                      <p className="text-tertiary-400/80 text-xs font-one">
-                        Durée totale :{" "}
-                        <strong>{selectedSlots.length * 30} minutes</strong>
+                      <div className="text-tertiary-400/80 text-xs font-one">
+                        <p className="mb-1">
+                          Durée totale :{" "}
+                          <strong>{selectedSlots.length * 30} minutes</strong>
+                        </p>
                         {selectedSlots.length > 0 && (
-                          <>
-                            {" • "}
+                          <p>
                             De{" "}
                             <strong>
                               {format(
@@ -926,18 +929,18 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                 "HH:mm"
                               )}
                             </strong>
-                          </>
+                          </p>
                         )}
-                      </p>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
             )}
 
-            {/* Sections conditionnelles selon le type de prestation */}
+            {/* Sections conditionnelles selon le type de prestation - responsive */}
             {selectedPrestation === "PROJET" && (
-              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                 <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
                   🎨 Détails du projet
                 </h3>
@@ -950,10 +953,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       placeholder="Description du projet"
                       {...form.register("description")}
                       rows={3}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
+                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     <div className="space-y-1">
                       <label className="text-xs text-white/70 font-one">
                         Zone du corps
@@ -961,7 +964,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       <input
                         placeholder="Bras avant droit"
                         {...form.register("zone")}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                     <div className="space-y-1">
@@ -971,7 +974,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       <input
                         placeholder="20cm x 30cm"
                         {...form.register("size")}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                     <div className="space-y-1">
@@ -981,7 +984,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       <input
                         placeholder="Style gothique, rouge et noir"
                         {...form.register("colorStyle")}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                     <div className="space-y-1">
@@ -995,12 +998,12 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         {...form.register("estimatedPrice", {
                           valueAsNumber: true,
                         })}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                   </div>
 
-                  {/* Section Upload des images de référence */}
+                  {/* Section Upload des images de référence - responsive */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-xs text-white/70 font-one">
@@ -1043,7 +1046,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {selectedPrestation === "TATTOO" && (
-              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                 <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
                   🖋️ Détails du tatouage
                 </h3>
@@ -1055,10 +1058,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     <input
                       placeholder="Description du tatouage"
                       {...form.register("description")}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     <div className="space-y-1">
                       <label className="text-xs text-white/70 font-one">
                         Zone du corps
@@ -1066,7 +1069,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       <input
                         placeholder="Avant bras droit"
                         {...form.register("zone")}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                     <div className="space-y-1">
@@ -1076,7 +1079,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       <input
                         placeholder="30cm x 20cm"
                         {...form.register("size")}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                     <div className="space-y-1">
@@ -1086,7 +1089,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       <input
                         placeholder="Style gothique, rouge et noir"
                         {...form.register("colorStyle")}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                     <div className="space-y-1">
@@ -1100,7 +1103,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         {...form.register("price", {
                           valueAsNumber: true,
                         })}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                   </div>
@@ -1109,7 +1112,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {selectedPrestation === "PIERCING" && (
-              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                 <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
                   💎 Détails du piercing
                 </h3>
@@ -1122,7 +1125,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       placeholder="Description"
                       {...form.register("description")}
                       rows={3}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
+                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1133,7 +1136,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       <input
                         placeholder="Zone du piercing"
                         {...form.register("zone")}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                     <div className="space-y-1">
@@ -1144,7 +1147,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         type="number"
                         placeholder="Prix"
                         {...form.register("price")}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                   </div>
@@ -1153,7 +1156,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {selectedPrestation === "RETOUCHE" && (
-              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                 <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
                   🔧 Détails de la retouche
                 </h3>
@@ -1165,7 +1168,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     <input
                       placeholder="Description de la retouche"
                       {...form.register("description")}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                   </div>
                   <div className="space-y-1">
@@ -1175,7 +1178,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     <input
                       placeholder="Mollet gauche"
                       {...form.register("zone")}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                   </div>
                   <div className="space-y-1">
@@ -1186,14 +1189,14 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       type="number"
                       placeholder="Prix"
                       {...form.register("price")}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Messages d'erreur and de succès */}
+            {/* Messages d'erreur and de succès - responsive */}
             {error && error === "SAAS_LIMIT_APPOINTMENTS" ? (
               /* Message spécial pour la limite de rendez-vous */
               <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-4">
@@ -1391,18 +1394,18 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
               </div>
             )}
 
-            {/* Footer avec boutons d'action */}
-            <div className="flex justify-end gap-4 pt-6 border-t border-white/10">
+            {/* Footer avec boutons d'action - responsive */}
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-white/10">
               <Link
                 href={"/mes-rendez-vous"}
-                className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                className="cursor-pointer px-6 py-3 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm sm:text-xs text-center"
               >
                 Annuler
               </Link>
               <button
                 type="submit"
                 disabled={loading}
-                className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+                className="cursor-pointer px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm sm:text-xs"
               >
                 {loading ? "Création..." : "Créer le rendez-vous"}
               </button>

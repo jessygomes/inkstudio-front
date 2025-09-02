@@ -11,7 +11,7 @@ import Header from "@/components/Shared/Header";
 export default function Home() {
   return (
     <>
-      <div className="absolute top-0 left-0 w-full h-screen">
+      <div className="absolute top-0 left-0 w-full h-screen z-50">
         <Header />
       </div>
       <div
@@ -26,14 +26,20 @@ export default function Home() {
       </div>
 
       <div
-        className="sm:hidden h-screen w-full bg-cover bg-center flex items-center justify-center"
+        className="sm:hidden h-screen w-full bg-cover bg-center flex items-center justify-center relative"
         style={{
           backgroundImage: "url('/images/bvp.png')",
           backgroundSize: "cover",
+          backgroundPosition: "right center", // Décale l'image vers la droite
         }}
       >
-        {/* Ajoutez ici d'autres éléments si nécessaire */}
-        <HeroSection />
+        {/* Overlay semi-transparent */}
+        <div className="absolute inset-0 bg-noir-700/80"></div>
+
+        {/* Contenu par-dessus l'overlay */}
+        <div className="relative z-10">
+          <HeroSection />
+        </div>
       </div>
       {/* <div className="relative w-full h-screen sm:hidden">
         <Image

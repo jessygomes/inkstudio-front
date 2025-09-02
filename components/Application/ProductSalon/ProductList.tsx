@@ -82,7 +82,7 @@ export default function ProductList() {
   return (
     <section className="w-full">
       <div className="mb-6 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 mb-4 md:mb-0 w-full md:w-auto">
           <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
             <MdOutlineSell
               size={28}
@@ -90,7 +90,7 @@ export default function ProductList() {
             />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
+            <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
               Produits
             </h1>
             <p className="text-white/70 text-xs font-one mt-1">
@@ -100,10 +100,10 @@ export default function ProductList() {
           </div>
         </div>
 
-        <div className="flex justify-center gap-4 items-center">
+        <div className="flex justify-center gap-4 items-center w-full md:w-auto">
           <button
             onClick={handleCreate}
-            className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+            className="cursor-pointer w-full md:w-[175px] flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
           >
             <svg
               className="w-4 h-4"
@@ -157,7 +157,7 @@ export default function ProductList() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
           {products.map((product) => (
             <div
               key={product.id}

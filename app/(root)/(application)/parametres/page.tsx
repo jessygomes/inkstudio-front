@@ -394,48 +394,58 @@ export default function ParamPage() {
     return (
       <div className="min-h-screen bg-noir-700 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
-          <p className="text-white font-one">Chargement des paramètres...</p>
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+          <p className="text-white font-one">
+            <span className="hidden sm:inline">
+              Chargement des paramètres...
+            </span>
+            <span className="sm:hidden">Chargement...</span>
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-20">
-      <div className="flex flex-col relative gap-6 w-full mt-23">
-        {/* Header */}
+    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 sm:px-6 lg:px-20">
+      <div className="flex flex-col relative gap-4 sm:gap-6 w-full mt-23">
+        {/* Header responsive */}
         <div className="">
-          <div className="flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
                 <CiSettings
-                  size={28}
-                  className="text-tertiary-400 animate-pulse"
+                  size={20}
+                  className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
                 />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white font-one tracking-wide uppercase">
-                  Paramètres du compte
+                <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
+                  <span className="hidden sm:inline">Paramètres du compte</span>
+                  <span className="sm:hidden">Paramètres</span>
                 </h1>
                 <p className="text-white/70 text-xs font-one mt-1">
-                  Gérez votre compte, abonnement et préférences
+                  <span className="hidden sm:inline">
+                    Gérez votre compte, abonnement et préférences
+                  </span>
+                  <span className="sm:hidden">Compte et préférences</span>
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="space-y-6">
-          {/* Section Informations du compte */}
-          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl">
+        <div className="space-y-4 sm:space-y-6">
+          {/* Section Informations du compte responsive */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
             <button
               onClick={() => toggleSection("account")}
-              className="w-full flex items-center justify-between mb-4"
+              className="w-full flex items-center justify-between mb-3 sm:mb-4"
             >
-              <h2 className="flex items-center gap-3 text-xl text-white font-one">
-                <CiUser size={24} className="text-tertiary-400" />
-                Informations du compte
+              <h2 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl text-white font-one">
+                <CiUser size={20} className="sm:w-6 sm:h-6 text-tertiary-400" />
+                <span className="hidden sm:inline">Informations du compte</span>
+                <span className="sm:hidden">Compte</span>
               </h2>
               <div className="text-white/50">
                 {openSections.account ? "−" : "+"}
@@ -444,24 +454,25 @@ export default function ParamPage() {
 
             {openSections.account && (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                     <label className="text-sm text-white/80 font-one mb-2 block">
-                      Nom du salon
+                      <span className="hidden sm:inline">Nom du salon</span>
+                      <span className="sm:hidden">Salon</span>
                     </label>
-                    <p className="text-white font-one text-lg">
+                    <p className="text-white font-one text-base sm:text-lg break-words">
                       {user?.salonName || "Nom non défini"}
                     </p>
                   </div>
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                     <label className="text-sm text-white/80 font-one mb-2 block">
                       Email
                     </label>
-                    <p className="text-white font-one">
+                    <p className="text-white font-one text-sm sm:text-base break-words">
                       {user?.email || "Email non défini"}
                     </p>
                   </div>
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                     <label className="text-sm text-white/80 font-one mb-2 block">
                       Téléphone
                     </label>
@@ -469,11 +480,11 @@ export default function ParamPage() {
                       {user?.phone || "Non renseigné"}
                     </p>
                   </div>
-                  <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                  <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                     <label className="text-sm text-white/80 font-one mb-2 block">
                       Adresse
                     </label>
-                    <p className="text-white font-one">
+                    <p className="text-white font-one text-sm break-words">
                       {user?.address || "Non renseignée"}
                     </p>
                   </div>
@@ -482,22 +493,28 @@ export default function ParamPage() {
                 <div className="h-[0.5px] bg-white/10"></div>
 
                 <div className="flex justify-end">
-                  <button className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg">
-                    Modifier les informations
+                  <button className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg">
+                    <span className="hidden sm:inline">
+                      Modifier les informations
+                    </span>
+                    <span className="sm:hidden">Modifier</span>
                   </button>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Section Abonnement */}
-          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl">
+          {/* Section Abonnement responsive */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
             <button
               onClick={() => toggleSection("subscription")}
-              className="w-full flex items-center justify-between mb-4"
+              className="w-full flex items-center justify-between mb-3 sm:mb-4"
             >
-              <h2 className="flex items-center gap-3 text-xl text-white font-one">
-                <CiCreditCard1 size={24} className="text-tertiary-400" />
+              <h2 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl text-white font-one">
+                <CiCreditCard1
+                  size={20}
+                  className="sm:w-6 sm:h-6 text-tertiary-400"
+                />
                 Abonnement
               </h2>
               <div className="text-white/50">
@@ -507,18 +524,18 @@ export default function ParamPage() {
 
             {openSections.subscription && subscription && (
               <div className="space-y-4">
-                {/* Plan actuel */}
+                {/* Plan actuel responsive */}
                 <div
                   className={`${
                     getPlanDetails(subscription.currentPlan).bgColor
-                  } rounded-xl p-6 border ${
+                  } rounded-xl p-4 sm:p-6 border ${
                     getPlanDetails(subscription.currentPlan).borderColor
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
                     <div>
                       <h3
-                        className={`text-xl font-bold ${
+                        className={`text-lg sm:text-xl font-bold ${
                           getPlanDetails(subscription.currentPlan).color
                         } font-one`}
                       >
@@ -535,15 +552,15 @@ export default function ParamPage() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-white font-one">
+                      <p className="text-xl sm:text-2xl font-bold text-white font-one">
                         {subscription.monthlyPrice || 0}€
                       </p>
                       <p className="text-white/60 text-sm font-one">/mois</p>
                     </div>
                   </div>
 
-                  {/* Fonctionnalités */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+                  {/* Fonctionnalités responsive */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                     {getPlanDetails(subscription.currentPlan).features.map(
                       (feature, index) => (
                         <div key={index} className="flex items-center gap-2">
@@ -556,12 +573,16 @@ export default function ParamPage() {
                     )}
                   </div>
 
-                  {/* Limites du plan */}
-                  <div className="bg-white/10 rounded-lg p-4 mb-4">
+                  {/* Limites du plan responsive */}
+                  <div className="bg-white/10 rounded-lg p-3 sm:p-4 mb-4">
                     <h4 className="text-white font-one mb-3 text-sm">
-                      📊 Limites de votre plan
+                      📊{" "}
+                      <span className="hidden sm:inline">
+                        Limites de votre plan
+                      </span>
+                      <span className="sm:hidden">Limites</span>
                     </h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-xs">
                       <div className="text-center">
                         <p className="text-white/60 font-one mb-1">Clients</p>
                         <p className="text-white font-one font-bold">
@@ -571,7 +592,10 @@ export default function ParamPage() {
                         </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-white/60 font-one mb-1">RDV/mois</p>
+                        <p className="text-white/60 font-one mb-1">
+                          <span className="hidden sm:inline">RDV/mois</span>
+                          <span className="sm:hidden">RDV</span>
+                        </p>
                         <p className="text-white font-one font-bold">
                           {subscription.maxAppointments === -1
                             ? "∞"
@@ -579,7 +603,10 @@ export default function ParamPage() {
                         </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-white/60 font-one mb-1">Tatoueurs</p>
+                        <p className="text-white/60 font-one mb-1">
+                          <span className="hidden sm:inline">Tatoueurs</span>
+                          <span className="sm:hidden">Tat.</span>
+                        </p>
                         <p className="text-white font-one font-bold">
                           {subscription.maxTattooeurs === -1
                             ? "∞"
@@ -588,7 +615,10 @@ export default function ParamPage() {
                       </div>
                       <div className="text-center">
                         <p className="text-white/60 font-one mb-1">
-                          Images portfolio
+                          <span className="hidden sm:inline">
+                            Images portfolio
+                          </span>
+                          <span className="sm:hidden">Images</span>
                         </p>
                         <p className="text-white font-one font-bold">
                           {subscription.maxPortfolioImages === -1
@@ -599,10 +629,13 @@ export default function ParamPage() {
                     </div>
                   </div>
 
-                  {/* Dates */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  {/* Dates responsive */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                     <div>
-                      <p className="text-white/60 font-one">Date de début</p>
+                      <p className="text-white/60 font-one">
+                        <span className="hidden sm:inline">Date de début</span>
+                        <span className="sm:hidden">Début</span>
+                      </p>
                       <p className="text-white font-one">
                         {new Date(subscription.startDate).toLocaleDateString(
                           "fr-FR"
@@ -611,9 +644,14 @@ export default function ParamPage() {
                     </div>
                     <div>
                       <p className="text-white/60 font-one">
-                        {subscription.nextPaymentDate
-                          ? "Prochaine facturation"
-                          : "Fin d'abonnement"}
+                        <span className="hidden sm:inline">
+                          {subscription.nextPaymentDate
+                            ? "Prochaine facturation"
+                            : "Fin d'abonnement"}
+                        </span>
+                        <span className="sm:hidden">
+                          {subscription.nextPaymentDate ? "Facture" : "Fin"}
+                        </span>
                       </p>
                       <p className="text-white font-one">
                         {subscription.nextPaymentDate
@@ -636,7 +674,10 @@ export default function ParamPage() {
                         <span className="text-tertiary-400">🎁</span>
                         <div>
                           <p className="text-tertiary-400 text-sm font-one font-semibold">
-                            Période d'essai active
+                            <span className="hidden sm:inline">
+                              Période d'essai active
+                            </span>
+                            <span className="sm:hidden">Essai actif</span>
                           </p>
                           <p className="text-tertiary-400/80 text-xs font-one">
                             Expire le{" "}
@@ -652,30 +693,37 @@ export default function ParamPage() {
 
                 <div className="h-[0.5px] bg-white/10"></div>
 
-                {/* Actions */}
-                <div className="flex justify-end gap-3">
+                {/* Actions responsive */}
+                <div className="flex flex-col sm:flex-row justify-end gap-3">
                   <button
                     onClick={() => setShowPlanModal(true)}
-                    className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+                    className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
                   >
-                    Changer de plan
+                    <span className="hidden sm:inline">Changer de plan</span>
+                    <span className="sm:hidden">Changer plan</span>
                   </button>
                   <button className="cursor-pointer px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors">
-                    Annuler l'abonnement
+                    <span className="hidden sm:inline">
+                      Annuler l'abonnement
+                    </span>
+                    <span className="sm:hidden">Annuler</span>
                   </button>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Section Notifications */}
-          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl">
+          {/* Section Notifications responsive */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
             <button
               onClick={() => toggleSection("notifications")}
-              className="w-full flex items-center justify-between mb-4"
+              className="w-full flex items-center justify-between mb-3 sm:mb-4"
             >
-              <h2 className="flex items-center gap-3 text-xl text-white font-one">
-                <CiBellOn size={24} className="text-tertiary-400" />
+              <h2 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl text-white font-one">
+                <CiBellOn
+                  size={20}
+                  className="sm:w-6 sm:h-6 text-tertiary-400"
+                />
                 Notifications
               </h2>
               <div className="text-white/50">
@@ -685,15 +733,21 @@ export default function ParamPage() {
 
             {openSections.notifications && (
               <div className="space-y-4">
-                {/* Email Notifications */}
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                {/* Email Notifications responsive */}
+                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-white font-one mb-1">
-                        Notifications par email
+                      <h3 className="text-white font-one mb-1 text-sm sm:text-base">
+                        <span className="hidden sm:inline">
+                          Notifications par email
+                        </span>
+                        <span className="sm:hidden">Email</span>
                       </h3>
-                      <p className="text-white/60 text-sm font-one">
-                        Recevez des emails pour les événements importants
+                      <p className="text-white/60 text-xs sm:text-sm font-one">
+                        <span className="hidden sm:inline">
+                          Recevez des emails pour les événements importants
+                        </span>
+                        <span className="sm:hidden">Emails importants</span>
                       </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -713,15 +767,21 @@ export default function ParamPage() {
                   </div>
                 </div>
 
-                {/* Rappels RDV */}
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                {/* Rappels RDV responsive */}
+                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-white font-one mb-1">
-                        Rappels de rendez-vous
+                      <h3 className="text-white font-one mb-1 text-sm sm:text-base">
+                        <span className="hidden sm:inline">
+                          Rappels de rendez-vous
+                        </span>
+                        <span className="sm:hidden">Rappels RDV</span>
                       </h3>
-                      <p className="text-white/60 text-sm font-one">
-                        Notifications avant les rendez-vous
+                      <p className="text-white/60 text-xs sm:text-sm font-one">
+                        <span className="hidden sm:inline">
+                          Notifications avant les rendez-vous
+                        </span>
+                        <span className="sm:hidden">Avant les RDV</span>
                       </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -741,15 +801,21 @@ export default function ParamPage() {
                   </div>
                 </div>
 
-                {/* Suivis de cicatrisation */}
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                {/* Suivis de cicatrisation responsive */}
+                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-white font-one mb-1">
-                        Rappels de suivi
+                      <h3 className="text-white font-one mb-1 text-sm sm:text-base">
+                        <span className="hidden sm:inline">
+                          Rappels de suivi
+                        </span>
+                        <span className="sm:hidden">Rappels suivi</span>
                       </h3>
-                      <p className="text-white/60 text-sm font-one">
-                        Notifications pour les suivis de cicatrisation
+                      <p className="text-white/60 text-xs sm:text-sm font-one">
+                        <span className="hidden sm:inline">
+                          Notifications pour les suivis de cicatrisation
+                        </span>
+                        <span className="sm:hidden">Suivis cicatrisation</span>
                       </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -769,15 +835,21 @@ export default function ParamPage() {
                   </div>
                 </div>
 
-                {/* Marketing */}
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                {/* Marketing responsive */}
+                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-white font-one mb-1">
-                        Emails marketing
+                      <h3 className="text-white font-one mb-1 text-sm sm:text-base">
+                        <span className="hidden sm:inline">
+                          Emails marketing
+                        </span>
+                        <span className="sm:hidden">Marketing</span>
                       </h3>
-                      <p className="text-white/60 text-sm font-one">
-                        Actualités et offres spéciales
+                      <p className="text-white/60 text-xs sm:text-sm font-one">
+                        <span className="hidden sm:inline">
+                          Actualités et offres spéciales
+                        </span>
+                        <span className="sm:hidden">Actualités et offres</span>
                       </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -800,14 +872,14 @@ export default function ParamPage() {
             )}
           </div>
 
-          {/* Section Sécurité */}
-          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl">
+          {/* Section Sécurité responsive */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
             <button
               onClick={() => toggleSection("security")}
-              className="w-full flex items-center justify-between mb-4"
+              className="w-full flex items-center justify-between mb-3 sm:mb-4"
             >
-              <h2 className="flex items-center gap-3 text-xl text-white font-one">
-                <CiLock size={24} className="text-tertiary-400" />
+              <h2 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl text-white font-one">
+                <CiLock size={20} className="sm:w-6 sm:h-6 text-tertiary-400" />
                 Sécurité
               </h2>
               <div className="text-white/50">
@@ -817,44 +889,54 @@ export default function ParamPage() {
 
             {openSections.security && (
               <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
-                  <h3 className="text-white font-one mb-2">Mot de passe</h3>
-                  {/* <p className="text-white/60 text-sm font-one mb-3">
-                    Dernière modification: Il y a 2 mois
-                  </p> */}
+                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <h3 className="text-white font-one">Mot de passe</h3>
                   <button
                     onClick={() => setShowPasswordModal(true)}
-                    className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+                    className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
                   >
-                    Changer le mot de passe
+                    <span className="hidden sm:inline">
+                      Changer le mot de passe
+                    </span>
+                    <span className="sm:hidden">Changer</span>
                   </button>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
+                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-white font-one mb-2">
-                      Sessions actives
+                    <h3 className="text-white font-one mb-2 text-sm sm:text-base">
+                      <span className="hidden sm:inline">Sessions actives</span>
+                      <span className="sm:hidden">Sessions</span>
                     </h3>
-                    <p className="text-white/60 text-sm font-one mb-3">
-                      Gérez les appareils connectés à votre compte
+                    <p className="text-white/60 text-xs sm:text-sm font-one mb-3">
+                      <span className="hidden sm:inline">
+                        Gérez les appareils connectés à votre compte
+                      </span>
+                      <span className="sm:hidden">Appareils connectés</span>
                     </p>
                   </div>
-                  <button className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors">
-                    Déconnecter tous les appareils
+                  <button className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors w-full sm:w-auto">
+                    <span className="hidden sm:inline">
+                      Déconnecter tous les appareils
+                    </span>
+                    <span className="sm:hidden">Déconnecter</span>
                   </button>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Section Préférences */}
-          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl">
+          {/* Section Préférences responsive */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
             <button
               onClick={() => toggleSection("preferences")}
-              className="w-full flex items-center justify-between mb-4"
+              className="w-full flex items-center justify-between mb-3 sm:mb-4"
             >
-              <h2 className="flex items-center gap-3 text-xl text-white font-one">
-                <MdOutlinePalette size={24} className="text-tertiary-400" />
+              <h2 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl text-white font-one">
+                <MdOutlinePalette
+                  size={20}
+                  className="sm:w-6 sm:h-6 text-tertiary-400"
+                />
                 Préférences
               </h2>
               <div className="text-white/50">
@@ -864,8 +946,11 @@ export default function ParamPage() {
 
             {openSections.preferences && (
               <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-white font-one mb-2">Fuseau horaire</h3>
+                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
+                  <h3 className="text-white font-one mb-2 text-sm sm:text-base">
+                    <span className="hidden sm:inline">Fuseau horaire</span>
+                    <span className="sm:hidden">Fuseau</span>
+                  </h3>
                   <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors">
                     <option value="Europe/Paris">Europe/Paris (UTC+1)</option>
                     <option value="Europe/London">Europe/London (UTC+0)</option>
@@ -875,8 +960,10 @@ export default function ParamPage() {
                   </select>
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                  <h3 className="text-white font-one mb-2">Langue</h3>
+                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
+                  <h3 className="text-white font-one mb-2 text-sm sm:text-base">
+                    Langue
+                  </h3>
                   <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors">
                     <option value="fr">Français</option>
                     <option value="en">English</option>
@@ -889,10 +976,10 @@ export default function ParamPage() {
         </div>
       </div>
 
-      {/* Modale de changement de plan */}
+      {/* Modales avec responsive... */}
       {showPlanModal && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-noir-500 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
             {/* Header */}
             <div className="p-6 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
@@ -1082,8 +1169,8 @@ export default function ParamPage() {
 
       {/* Modale de changement de mot de passe */}
       {showPasswordModal && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-noir-500 rounded-3xl w-full max-w-md overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-md overflow-hidden flex flex-col border border-white/20 shadow-2xl">
             {/* Header */}
             <div className="p-6 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">

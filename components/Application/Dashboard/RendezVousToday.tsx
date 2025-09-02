@@ -5,7 +5,7 @@ import Image from "next/image";
 import ConfirmRdv from "../RDV/ConfirmRdv";
 import CancelRdv from "../RDV/CancelRdv";
 import UpdateRdv from "../RDV/UpdateRdv";
-import ChangeRdv from "../RDV/ChangeRdv";
+// import ChangeRdv from "../RDV/ChangeRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import {
   fetchTodayAppointmentsAction,
@@ -532,11 +532,11 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                   userId={userId}
                   onUpdate={() => handleRdvUpdated(selectedAppointment.id)}
                 />
-                <ChangeRdv
+                {/* <ChangeRdv
                   rdvId={selectedAppointment.id}
                   userId={userId}
                   appointment={selectedAppointment}
-                />
+                /> */}
                 {selectedAppointment.status !== "CANCELED" && (
                   <CancelRdv
                     rdvId={selectedAppointment.id}

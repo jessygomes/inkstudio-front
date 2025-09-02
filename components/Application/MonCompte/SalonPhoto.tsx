@@ -7,6 +7,7 @@ import SalonGalleryUploader from "./SalonGalleryUploader";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
+import { fetchSalonPhotosAction } from "@/lib/queries/user";
 
 interface SalonImage {
   id: string;
@@ -56,12 +57,10 @@ export default function SalonPhoto() {
     if (!salonId) return;
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}/photos`
-      );
+      const response = await fetchSalonPhotosAction(salonId);
 
       if (response.ok) {
-        const data = await response.json();
+        const data = response.data;
 
         // Si le backend retourne un tableau de strings, on les convertit en objets
         if (data.salonPhotos && Array.isArray(data.salonPhotos)) {
@@ -77,7 +76,6 @@ export default function SalonPhoto() {
           setImages([]);
         }
       } else {
-        console.log("Aucune image trouvée ou erreur API");
         setImages([]);
       }
     } catch (error) {
@@ -170,21 +168,20 @@ export default function SalonPhoto() {
   if (isLoading) {
     return (
       <div className="w-full flex flex-col">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6 bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+        {/* Header responsive */}
+        <div className="flex justify-between items-center mb-4 sm:mb-6 bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-3 sm:p-4 rounded-xl shadow-xl border border-white/10">
           <div>
-            <p className="text-white font-semibold font-one text-lg tracking-widest">
-              Galerie photos
+            <p className="text-white font-semibold font-one text-sm sm:text-lg tracking-widest">
+              <span className="hidden sm:inline">Galerie photos</span>
+              <span className="sm:hidden">Photos</span>
             </p>
-            <p className="text-xs text-white/60 font-two">
-              Chargement des images...
-            </p>
+            <p className="text-xs text-white/60 font-two">Chargement...</p>
           </div>
         </div>
-        {/* Loader */}
-        <div className="w-full flex items-center justify-center py-20">
-          <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+        {/* Loader responsive */}
+        <div className="w-full flex items-center justify-center py-16 sm:py-20">
+          <div className="w-full rounded-2xl p-8 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
             <p className="text-white/60 font-two text-xs text-center">
               Chargement des images...
             </p>
@@ -195,40 +192,47 @@ export default function SalonPhoto() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header avec compteur */}
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header avec compteur responsive */}
       <div className="flex justify-between items-center">
         <div>
           <p className="text-white font-semibold font-one text-sm tracking-widest">
-            Galerie photos ({images.length}/6 photos)
+            <span className="hidden sm:inline">
+              Galerie photos ({images.length}/6 photos)
+            </span>
+            <span className="sm:hidden">Photos ({images.length}/6)</span>
           </p>
           <p className="text-xs text-white/60 font-two">
-            Gérez les photos de votre salon (maximum 6 images)
+            <span className="hidden sm:inline">
+              Gérez les photos de votre salon (maximum 6 images)
+            </span>
+            <span className="sm:hidden">Maximum 6 images</span>
           </p>
         </div>
       </div>
 
-      {/* Zone d'ajout d'images avec le composant */}
+      {/* Zone d'ajout d'images responsive */}
       {images.length < 6 && (
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-          <h4 className="text-white font-medium font-one text-sm mb-4">
-            Ajouter des photos
+        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10">
+          <h4 className="text-white font-medium font-one text-sm mb-3 sm:mb-4">
+            <span className="hidden sm:inline">Ajouter des photos</span>
+            <span className="sm:hidden">Ajouter</span>
           </h4>
           <SalonGalleryUploader
             onImagesUploaded={handleMultipleImagesUploaded}
             maxImages={6}
-            currentImageCount={images.length} // Passer la longueur actuelle du tableau
+            currentImageCount={images.length}
           />
         </div>
       )}
 
-      {/* Galerie d'images */}
+      {/* Galerie d'images responsive */}
       {images.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {images.map((image) => (
             <div
               key={image.id}
-              className="relative bg-white/5 backdrop-blur-sm rounded-xl overflow-hidden border border-white/10 hover:bg-white/10 transition-all duration-200 group"
+              className="relative bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl overflow-hidden border border-white/10 hover:bg-white/10 transition-all duration-200 group"
             >
               <div className="aspect-square relative">
                 <Image
@@ -238,50 +242,61 @@ export default function SalonPhoto() {
                   className="object-cover"
                 />
 
-                {/* Overlay avec bouton de suppression */}
+                {/* Overlay avec bouton de suppression responsive */}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                   <button
                     onClick={() => {
                       setSelectedImageId(image.id);
                       setIsDeleteModalOpen(true);
                     }}
-                    className="cursor-pointer px-4 py-2 bg-red-500/80 hover:bg-red-500 text-white rounded-lg text-xs font-one transition-colors"
+                    className="cursor-pointer px-3 sm:px-4 py-2 bg-red-500/80 hover:bg-red-500 text-white rounded-lg text-xs font-one transition-colors"
                   >
-                    Supprimer
+                    <span className="hidden sm:inline">Supprimer</span>
+                    <span className="sm:hidden">✕</span>
                   </button>
                 </div>
               </div>
 
-              {/* Informations sur l'image */}
-              <div className="p-3">
+              {/* Informations sur l'image responsive */}
+              <div className="p-2 sm:p-3">
                 <p className="text-xs text-white/50 font-two">
-                  Ajoutée le{" "}
-                  {new Date(image.createdAt).toLocaleDateString("fr-FR")}
+                  <span className="hidden sm:inline">
+                    Ajoutée le{" "}
+                    {new Date(image.createdAt).toLocaleDateString("fr-FR")}
+                  </span>
+                  <span className="sm:hidden">
+                    {new Date(image.createdAt).toLocaleDateString("fr-FR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                    })}
+                  </span>
                 </p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
+        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 sm:p-8 border border-white/10 text-center">
           <div className="space-y-4">
-            {/* <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-3xl">📸</span>
-            </div> */}
             <div>
-              <h3 className="text-white font-one text-lg mb-2">
+              <h3 className="text-white font-one text-base sm:text-lg mb-2">
                 Aucune photo ajoutée
               </h3>
               <p className="text-white/60 font-two text-xs">
-                Commencez par ajouter des photos de votre salon pour attirer vos
-                clients
+                <span className="hidden sm:inline">
+                  Commencez par ajouter des photos de votre salon pour attirer
+                  vos clients
+                </span>
+                <span className="sm:hidden">
+                  Ajoutez des photos de votre salon
+                </span>
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modale de confirmation de suppression */}
+      {/* Modale de confirmation responsive */}
       {isDeleteModalOpen && selectedImageId && (
         <DeleteConfirmationModal
           tatoueurName="cette image"

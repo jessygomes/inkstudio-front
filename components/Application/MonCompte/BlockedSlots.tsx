@@ -142,10 +142,11 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
 
   if (loading) {
     return (
-      <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+      <div className="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white font-one">
-            🚫 Créneaux bloqués
+          <h3 className="text-base sm:text-lg font-semibold text-white font-one">
+            <span className="hidden sm:inline">🚫 Créneaux bloqués</span>
+            <span className="sm:hidden">🚫 Créneaux</span>
           </h3>
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-tertiary-400"></div>
         </div>
@@ -163,35 +164,41 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
 
   return (
     <>
-      <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10">
+        {/* Header responsive */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
           <div>
-            <h3 className="text-lg font-semibold text-white font-one">
-              🚫 Créneaux bloqués
+            <h3 className="text-base sm:text-lg font-semibold text-white font-one">
+              <span className="hidden sm:inline">🚫 Créneaux bloqués</span>
+              <span className="sm:hidden">🚫 Créneaux</span>
             </h3>
             <p className="text-white/60 text-sm font-one mt-1">
-              Gérez les indisponibilités et congés
+              <span className="hidden sm:inline">
+                Gérez les indisponibilités et congés
+              </span>
+              <span className="sm:hidden">Gérez les indisponibilités</span>
             </p>
           </div>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+            className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
           >
             <span>+</span>
-            Bloquer un créneau
+            <span className="hidden sm:inline">Bloquer un créneau</span>
+            <span className="sm:hidden">Bloquer</span>
           </button>
         </div>
 
-        {/* Filtres */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="flex items-center gap-2">
+        {/* Filtres responsive */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <label className="text-xs text-white/70 font-one">
               Filtrer par :
             </label>
             <select
               value={selectedTatoueur}
               onChange={(e) => setSelectedTatoueur(e.target.value)}
-              className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+              className="flex-1 sm:flex-none px-3 py-2 sm:py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
             >
               <option value="all" className="bg-noir-500">
                 Tous les créneaux
@@ -218,7 +225,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
         </div>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 mb-4">
+          <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 sm:p-4 mb-4">
             <p className="text-red-300 text-sm">{error}</p>
             <button
               onClick={fetchBlockedSlots}
@@ -230,11 +237,11 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
         )}
 
         {filteredSlots.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">🔓</span>
+          <div className="text-center py-6 sm:py-8">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-xl sm:text-2xl">🔓</span>
             </div>
-            <p className="text-white/60 font-one">
+            <p className="text-white/60 font-one text-sm sm:text-base">
               {selectedTatoueur === "all"
                 ? "Aucun créneau bloqué"
                 : selectedTatoueur === "salon"
@@ -245,7 +252,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
             </p>
           </div>
         ) : (
-          <div className="space-y-4 max-h-96 overflow-y-auto">
+          <div className="space-y-3 sm:space-y-4 max-h-80 sm:max-h-96 overflow-y-auto">
             {Object.entries(groupedSlots)
               .sort(
                 ([dateA], [dateB]) =>
@@ -262,17 +269,17 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
                   {slots.map((slot) => (
                     <div
                       key={slot.id}
-                      className="bg-white/10 rounded-lg p-4 border border-white/20 hover:bg-white/15 transition-colors"
+                      className="bg-white/10 rounded-lg p-3 sm:p-4 border border-white/20 hover:bg-white/15 transition-colors"
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
+                      <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                        <div className="flex-1 w-full">
+                          <div className="flex items-center gap-2 sm:gap-3 mb-2">
                             <div
                               className={`w-3 h-3 rounded-full ${
                                 slot.tatoueurId ? "bg-orange-400" : "bg-red-400"
                               }`}
                             />
-                            <span className="text-white font-medium text-sm font-one">
+                            <span className="text-white font-medium text-sm font-one truncate">
                               {slot.tatoueur
                                 ? slot.tatoueur.name
                                 : "Salon complet"}
@@ -283,16 +290,17 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
                           </div>
 
                           <div className="space-y-1 text-xs text-white/80 font-one">
-                            <div className="flex items-center gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                               <span>⏰ {formatDateTime(slot.startDate)}</span>
-                              <span>→</span>
+                              <span className="hidden sm:inline">→</span>
+                              <span className="sm:hidden">↓</span>
                               <span>{formatDateTime(slot.endDate)}</span>
                             </div>
 
                             {slot.reason && (
                               <div className="flex items-start gap-2 mt-2">
                                 <span>💬</span>
-                                <span className="text-white/70">
+                                <span className="text-white/70 break-words">
                                   {slot.reason}
                                 </span>
                               </div>
@@ -302,7 +310,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
 
                         <button
                           onClick={() => openDeleteModal(slot)}
-                          className="cursor-pointer ml-4 px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded text-xs border border-red-500/30 transition-colors"
+                          className="cursor-pointer w-full sm:w-auto sm:ml-4 px-3 py-2 sm:py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded text-xs border border-red-500/30 transition-colors"
                         >
                           Débloquer
                         </button>
@@ -328,66 +336,71 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
         />
       )}
 
-      {/* Modal de déblocage */}
+      {/* Modal de déblocage responsive */}
       {isDeleteModalOpen && slotToDelete && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-noir-500 rounded-3xl w-full max-w-lg overflow-hidden flex flex-col border border-white/20 shadow-2xl">
-            {/* Header */}
-            <div className="p-4 border-b border-white/10 bg-white/5">
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-lg max-h-[95vh] sm:max-h-none overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+            {/* Header responsive */}
+            <div className="p-3 sm:p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white font-one tracking-wide">
-                  🔓 Débloquer le créneau
-                </h2>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base sm:text-lg font-bold text-white font-one tracking-wide">
+                    <span className="hidden sm:inline">
+                      🔓 Débloquer le créneau
+                    </span>
+                    <span className="sm:hidden">🔓 Débloquer</span>
+                  </h2>
+                  <p className="text-white/70 mt-1 text-sm truncate">
+                    Confirmer le déblocage de ce créneau
+                  </p>
+                </div>
                 <button
                   onClick={closeDeleteModal}
                   disabled={isDeleting}
-                  className="p-1 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50"
+                  className="p-1 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50 ml-2"
                 >
                   <span className="cursor-pointer text-white text-xl">×</span>
                 </button>
               </div>
-              <p className="text-white/70 mt-1 text-sm">
-                Confirmer le déblocage de ce créneau
-              </p>
             </div>
 
-            {/* Contenu */}
-            <div className="p-4">
+            {/* Contenu responsive */}
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4">
               {/* Récapitulatif du créneau */}
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-4">
+              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 mb-4">
                 <div className="flex items-start gap-3">
                   <div
-                    className={`w-3 h-3 rounded-full mt-1.5 ${
+                    className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${
                       slotToDelete.tatoueurId ? "bg-orange-400" : "bg-red-400"
                     }`}
                   />
 
-                  <div className="flex-1">
-                    <h3 className="text-white font-one font-semibold mb-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-one font-semibold mb-2 truncate">
                       {slotToDelete.tatoueur
                         ? slotToDelete.tatoueur.name
                         : "Salon complet"}
                     </h3>
 
                     <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-white/80">
-                        <span>📅</span>
-                        <span className="font-one">
+                      <div className="flex items-start gap-2 text-white/80">
+                        <span className="flex-shrink-0">📅</span>
+                        <span className="font-one break-words">
                           {formatDateTime(slotToDelete.startDate)}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2 text-white/80">
-                        <span>⏰</span>
-                        <span className="font-one">
+                      <div className="flex items-start gap-2 text-white/80">
+                        <span className="flex-shrink-0">⏰</span>
+                        <span className="font-one break-words">
                           Jusqu&apos;au {formatDateTime(slotToDelete.endDate)}
                         </span>
                       </div>
 
                       {slotToDelete.reason && (
                         <div className="flex items-start gap-2 text-white/80">
-                          <span>💬</span>
-                          <span className="font-one italic">
+                          <span className="flex-shrink-0">💬</span>
+                          <span className="font-one italic break-words">
                             "{slotToDelete.reason}"
                           </span>
                         </div>
@@ -397,7 +410,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
                 </div>
               </div>
 
-              {/* Message d'avertissement */}
+              {/* Message d'avertissement responsive */}
               <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 mb-4">
                 <div className="flex items-start gap-2">
                   <svg
@@ -418,18 +431,23 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
                       ⚠️ Attention
                     </p>
                     <p className="text-orange-400/80 text-xs">
-                      En débloquant ce créneau, il redeviendra disponible pour
-                      la prise de rendez-vous.
-                      {slotToDelete.tatoueurId === null &&
-                        " Cela débloquera le salon complet pour cette période."}
+                      <span className="hidden sm:inline">
+                        En débloquant ce créneau, il redeviendra disponible pour
+                        la prise de rendez-vous.
+                        {slotToDelete.tatoueurId === null &&
+                          " Cela débloquera le salon complet pour cette période."}
+                      </span>
+                      <span className="sm:hidden">
+                        Le créneau redeviendra disponible.
+                      </span>
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end gap-2">
+            {/* Footer responsive */}
+            <div className="p-3 sm:p-4 border-t border-white/10 bg-white/5 flex flex-col sm:flex-row justify-end gap-2">
               <button
                 onClick={closeDeleteModal}
                 disabled={isDeleting}
@@ -440,7 +458,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
               <button
                 onClick={handleDeleteSlot}
                 disabled={isDeleting}
-                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isDeleting ? (
                   <>

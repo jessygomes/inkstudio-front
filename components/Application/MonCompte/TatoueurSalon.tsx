@@ -6,18 +6,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { extractUploadThingKey } from "@/lib/utils/uploadImg/extractUploadThingKey";
 import { deleteTatoueurAction } from "@/lib/queries/tatoueur";
-
-export type TatoueurProps = {
-  id: string;
-  name: string;
-  img?: string;
-  description: string | null;
-  phone?: string;
-  instagram?: string;
-  hours?: string | null;
-  style: string[];
-  skills: string[];
-};
+import { TatoueurProps } from "@/lib/type"; // Utiliser le type centralisé
 
 export default function TatoueurSalon({
   tatoueurs,
@@ -30,21 +19,6 @@ export default function TatoueurSalon({
     useState<TatoueurProps | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // // Extraire la clé UploadThing de l'URL
-  // const extractUploadThingKey = (url: string): string | null => {
-  //   try {
-  //     // Format UploadThing: https://utfs.io/f/[key]
-  //     const match = url.match(/\/f\/([^\/\?]+)/);
-  //     return match ? match[1] : null;
-  //   } catch (error) {
-  //     console.error(
-  //       "Erreur lors de l'extraction de la clé UploadThing:",
-  //       error
-  //     );
-  //     return null;
-  //   }
-  // };
 
   const deleteFromUploadThing = async (fileKey: string): Promise<boolean> => {
     try {
@@ -117,32 +91,40 @@ export default function TatoueurSalon({
 
   return (
     <div className="w-full flex flex-col">
-      {/* Header avec bouton d'ajout */}
-      <div className="flex justify-between items-center mb-6 bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+      {/* Header responsive avec bouton d'ajout */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10 gap-3">
         <div className="flex items-center gap-3">
           <div>
-            <p className="text-white font-semibold font-one text-lg tracking-widest">
-              Équipe ({tatoueurs.length} tatoueur
-              {tatoueurs.length > 1 ? "s" : ""})
+            <p className="text-white font-semibold font-one text-base sm:text-lg tracking-widest">
+              <span className="hidden sm:inline">
+                Équipe ({tatoueurs.length} tatoueur
+                {tatoueurs.length > 1 ? "s" : ""})
+              </span>
+              <span className="sm:hidden">Équipe ({tatoueurs.length})</span>
             </p>
             <p className="text-xs text-white/60 font-two">
-              Gérez votre équipe de tatoueurs
+              <span className="hidden sm:inline">
+                Gérez votre équipe de tatoueurs
+              </span>
+              <span className="sm:hidden">Gérez votre équipe</span>
             </p>
           </div>
         </div>
         <Link
           href="/mon-compte/ajouter-tatoueur"
-          className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+          className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
         >
           <span>+</span>
-          Nouveau tatoueur
+          <span className="hidden sm:inline">Nouveau tatoueur</span>
+          <span className="sm:hidden">Ajouter</span>
         </Link>
       </div>
-      {/* Loader */}
+
+      {/* Loader responsive */}
       {tatoueurs === undefined && (
-        <div className="w-full flex items-center justify-center py-20">
-          <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+        <div className="w-full flex items-center justify-center py-16 sm:py-20">
+          <div className="w-full rounded-2xl p-8 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
             <p className="text-white/60 font-two text-xs text-center">
               Chargement des tatoueurs...
             </p>
@@ -170,7 +152,7 @@ export default function TatoueurSalon({
           </div>
         </div>
       )} */}
-      {/* Liste des tatoueurs */}
+      {/* Liste des tatoueurs responsive */}
       {tatoueurs.length > 0 ? (
         <div className="space-y-3">
           {tatoueurs.map((tatoueur) => (
@@ -178,9 +160,9 @@ export default function TatoueurSalon({
               key={tatoueur.id}
               className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-all duration-200"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 rounded-full flex items-center justify-center border border-tertiary-400/30 overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                <div className="flex items-start gap-3 sm:gap-4 w-full sm:w-auto">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 rounded-full flex items-center justify-center border border-tertiary-400/30 overflow-hidden flex-shrink-0">
                     {tatoueur.img ? (
                       <Image
                         src={tatoueur.img}
@@ -190,19 +172,19 @@ export default function TatoueurSalon({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-tertiary-300 font-bold font-one text-sm">
+                      <span className="text-tertiary-300 font-bold font-one text-xs sm:text-sm">
                         {tatoueur.name.charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
-                  <div>
-                    <h4 className="text-white font-semibold font-one text-sm">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-white font-semibold font-one text-sm break-words">
                       {tatoueur.name}
                     </h4>
-                    <p className="text-white/60 font-two text-xs">
+                    <p className="text-white/60 font-two text-xs mt-1 break-words">
                       {tatoueur.description
-                        ? tatoueur.description.length > 100
-                          ? `${tatoueur.description.substring(0, 100)}...`
+                        ? tatoueur.description.length > 80
+                          ? `${tatoueur.description.substring(0, 80)}...`
                           : tatoueur.description
                         : "Aucune description"}
                     </p>
@@ -211,50 +193,86 @@ export default function TatoueurSalon({
                         📞 {tatoueur.phone}
                       </p>
                     )}
-                    <div className="flex items-center gap-1 flex-wrap mt-1">
+
+                    {/* Compétences responsive */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-wrap mt-2">
                       <p className="text-xs font-one text-white/50">
                         Compétences :
                       </p>
-                      {tatoueur.skills && tatoueur.skills.length > 0 ? (
-                        tatoueur.skills.map((skill) => (
-                          <span
-                            key={skill}
-                            className="bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/20 text-tertiary-400 px-2 py-1 rounded-lg text-xs font-one"
-                          >
-                            {skill}
+                      <div className="flex flex-wrap gap-1">
+                        {tatoueur.skills && tatoueur.skills.length > 0 ? (
+                          tatoueur.skills
+                            .slice(
+                              0,
+                              window.innerWidth < 640
+                                ? 2
+                                : tatoueur.skills.length
+                            )
+                            .map((skill) => (
+                              <span
+                                key={skill}
+                                className="bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/20 text-tertiary-400 px-2 py-1 rounded-lg text-xs font-one"
+                              >
+                                {skill}
+                              </span>
+                            ))
+                        ) : (
+                          <span className="text-white/50 text-xs">
+                            Aucune compétence
                           </span>
-                        ))
-                      ) : (
-                        <span className="text-white/50 text-xs">
-                          Aucune compétence
-                        </span>
-                      )}
+                        )}
+                        {tatoueur.skills &&
+                          tatoueur.skills.length > 2 &&
+                          window.innerWidth < 640 && (
+                            <span className="text-white/50 text-xs">
+                              +{tatoueur.skills.length - 2}
+                            </span>
+                          )}
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-1 flex-wrap mt-1">
+                    {/* Style responsive */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-wrap mt-1">
                       <p className="text-xs font-one text-white/50">Style :</p>
-                      {tatoueur.style && tatoueur.style.length > 0 ? (
-                        tatoueur.style.map((style) => (
-                          <span
-                            key={style}
-                            className="bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/20 text-tertiary-400 px-2 py-1 rounded-lg text-xs font-one"
-                          >
-                            {style}
+                      <div className="flex flex-wrap gap-1">
+                        {tatoueur.style && tatoueur.style.length > 0 ? (
+                          tatoueur.style
+                            .slice(
+                              0,
+                              window.innerWidth < 640
+                                ? 2
+                                : tatoueur.style.length
+                            )
+                            .map((style) => (
+                              <span
+                                key={style}
+                                className="bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/20 text-tertiary-400 px-2 py-1 rounded-lg text-xs font-one"
+                              >
+                                {style}
+                              </span>
+                            ))
+                        ) : (
+                          <span className="text-white/50 text-xs">
+                            Aucun style
                           </span>
-                        ))
-                      ) : (
-                        <span className="text-white/50 text-xs">
-                          Aucun style
-                        </span>
-                      )}
+                        )}
+                        {tatoueur.style &&
+                          tatoueur.style.length > 2 &&
+                          window.innerWidth < 640 && (
+                            <span className="text-white/50 text-xs">
+                              +{tatoueur.style.length - 2}
+                            </span>
+                          )}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* Actions responsive */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                   <Link
                     href={`/mon-compte/ajouter-tatoueur?id=${tatoueur.id}`}
-                    className="px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-xs border border-white/20 transition-colors font-one"
+                    className="px-3 py-2 sm:py-1 bg-white/10 hover:bg-white/20 text-white rounded text-xs border border-white/20 transition-colors font-one text-center"
                   >
                     Modifier
                   </Link>
@@ -263,7 +281,7 @@ export default function TatoueurSalon({
                       setSelectedTatoueur(tatoueur);
                       setIsDeleteModalOpen(true);
                     }}
-                    className="cursor-pointer px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded text-xs border border-red-500/30 transition-colors font-one"
+                    className="cursor-pointer px-3 py-2 sm:py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded text-xs border border-red-500/30 transition-colors font-one"
                   >
                     Supprimer
                   </button>
@@ -273,13 +291,13 @@ export default function TatoueurSalon({
           ))}
         </div>
       ) : (
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 text-center">
+        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 sm:p-8 border border-white/10 text-center">
           <div className="space-y-4">
-            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-3xl">👤</span>
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
+              <span className="text-2xl sm:text-3xl">👤</span>
             </div>
             <div>
-              <h3 className="text-white font-semibold font-one text-lg mb-2">
+              <h3 className="text-white font-semibold font-one text-base sm:text-lg mb-2">
                 Aucun tatoueur ajouté
               </h3>
               <p className="text-white/60 font-two text-sm">
@@ -288,20 +306,23 @@ export default function TatoueurSalon({
             </div>
             <Link
               href="/mon-compte/ajouter-tatoueur"
-              className="inline-block px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
+              className="inline-block px-4 sm:px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
             >
-              Ajouter le premier tatoueur
+              <span className="hidden sm:inline">
+                Ajouter le premier tatoueur
+              </span>
+              <span className="sm:hidden">Ajouter tatoueur</span>
             </Link>
           </div>
         </div>
       )}
 
-      {/* Modale de suppression modifiée */}
+      {/* Modale de suppression responsive */}
       {isDeleteModalOpen && selectedTatoueur && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-noir-500 rounded-2xl w-full max-w-md border border-white/20 shadow-2xl">
-            {/* Header */}
-            <div className="p-6 border-b border-white/10">
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-noir-500 rounded-xl sm:rounded-2xl w-full max-w-md max-h-[95vh] sm:max-h-none overflow-y-auto border border-white/20 shadow-2xl">
+            {/* Header responsive */}
+            <div className="p-4 sm:p-6 border-b border-white/10">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center">
                   <svg
@@ -318,20 +339,22 @@ export default function TatoueurSalon({
                     />
                   </svg>
                 </div>
-                <h2 className="text-lg font-bold text-white font-one">
-                  Supprimer le tatoueur
-                </h2>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base sm:text-lg font-bold text-white font-one">
+                    Supprimer le tatoueur
+                  </h2>
+                  <p className="text-white/70 text-sm">
+                    Cette action est irréversible
+                  </p>
+                </div>
               </div>
-              <p className="text-white/70 text-sm">
-                Cette action est irréversible
-              </p>
             </div>
 
-            {/* Contenu */}
-            <div className="p-6">
-              <div className="bg-white/5 rounded-lg p-4 border border-white/10 mb-4">
+            {/* Contenu responsive */}
+            <div className="p-4 sm:p-6">
+              <div className="bg-white/5 rounded-lg p-3 sm:p-4 border border-white/10 mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 rounded-full flex items-center justify-center border border-tertiary-400/30 overflow-hidden">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 rounded-full flex items-center justify-center border border-tertiary-400/30 overflow-hidden flex-shrink-0">
                     {selectedTatoueur.img ? (
                       <Image
                         src={selectedTatoueur.img}
@@ -347,12 +370,12 @@ export default function TatoueurSalon({
                     )}
                   </div>
 
-                  <div>
-                    <p className="text-white font-medium text-sm mb-1">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-medium text-sm mb-1 break-words">
                       {selectedTatoueur.name}
                     </p>
                     {selectedTatoueur.description && (
-                      <p className="text-white/70 text-xs">
+                      <p className="text-white/70 text-xs break-words">
                         {selectedTatoueur.description.length > 50
                           ? `${selectedTatoueur.description.substring(
                               0,
@@ -390,9 +413,14 @@ export default function TatoueurSalon({
                       Attention !
                     </p>
                     <p className="text-red-300/80 text-xs">
-                      Cette action supprimera définitivement ce tatoueur et sa
-                      photo de profil. Tous les rendez-vous associés seront
-                      également affectés.
+                      <span className="hidden sm:inline">
+                        Cette action supprimera définitivement ce tatoueur et sa
+                        photo de profil. Tous les rendez-vous associés seront
+                        également affectés.
+                      </span>
+                      <span className="sm:hidden">
+                        Le tatoueur sera définitivement supprimé.
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -404,8 +432,8 @@ export default function TatoueurSalon({
               </p>
             </div>
 
-            {/* Footer */}
-            <div className="p-6 border-t border-white/10 flex justify-end gap-3">
+            {/* Footer responsive */}
+            <div className="p-4 sm:p-6 border-t border-white/10 flex flex-col sm:flex-row justify-end gap-3">
               <button
                 onClick={() => {
                   setIsDeleteModalOpen(false);
@@ -419,7 +447,7 @@ export default function TatoueurSalon({
               <button
                 onClick={handleDeleteTatoueur}
                 disabled={isDeleting}
-                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center gap-2"
+                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center justify-center gap-2"
               >
                 {isDeleting ? (
                   <>

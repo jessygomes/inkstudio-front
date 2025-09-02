@@ -96,7 +96,6 @@ export default function UpdateAccountPage() {
           color={color}
           loading={!salon}
           cssOverride={override}
-          // size={150}
           width={300}
           height={5}
           aria-label="Loading Spinner"
@@ -108,11 +107,10 @@ export default function UpdateAccountPage() {
 
   return (
     <div className="min-h-screen w-full bg-noir-700">
-      <div className="container pt-24">
-        {/* Header */}
-
-        <div className="flex items-center gap-4 max-w-6xl mx-auto mb-8">
-          <div className="w-12 h-12 flex items-center justify-center ">
+      <div className="container pt-24 px-3 sm:px-6 lg:px-8">
+        {/* Header responsive */}
+        <div className="flex items-center gap-3 sm:gap-4 max-w-6xl mx-auto mb-6 sm:mb-8">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
             <Link
               href="/mon-compte"
               className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 border border-white/20"
@@ -121,24 +119,34 @@ export default function UpdateAccountPage() {
             </Link>
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white font-one tracking-widest text-center">
-              Modifier le salon
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white font-one tracking-widest">
+              <span className="hidden sm:inline">Modifier le salon</span>
+              <span className="sm:hidden">Modifier salon</span>
             </h1>
             <p className="text-white/70 text-xs font-one mt-1">
-              Mettez à jour les informations de votre salon
+              <span className="hidden sm:inline">
+                Mettez à jour les informations de votre salon
+              </span>
+              <span className="sm:hidden">Mettez à jour vos infos</span>
             </p>
           </div>
         </div>
 
-        {/* Form Content */}
-        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Section: Informations générales */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+        {/* Form Content responsive */}
+        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 sm:space-y-6"
+          >
+            {/* Section: Informations générales responsive */}
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
               <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                ℹ️ Informations générales
+                <span className="hidden sm:inline">
+                  ℹ️ Informations générales
+                </span>
+                <span className="sm:hidden">ℹ️ Infos générales</span>
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
                     Nom du salon
@@ -150,10 +158,13 @@ export default function UpdateAccountPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-1">
                     <label className="text-xs text-white/70 font-one">
-                      Prénom du propriétaire
+                      <span className="hidden sm:inline">
+                        Prénom du propriétaire
+                      </span>
+                      <span className="sm:hidden">Prénom</span>
                     </label>
                     <input
                       placeholder="Prénom"
@@ -164,7 +175,10 @@ export default function UpdateAccountPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs text-white/70 font-one">
-                      Nom du propriétaire
+                      <span className="hidden sm:inline">
+                        Nom du propriétaire
+                      </span>
+                      <span className="sm:hidden">Nom</span>
                     </label>
                     <input
                       placeholder="Nom"
@@ -176,15 +190,19 @@ export default function UpdateAccountPage() {
               </div>
             </div>
 
-            {/* Section: Contact et localisation */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+            {/* Section: Contact et localisation responsive */}
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
               <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                📍 Contact et localisation
+                <span className="hidden sm:inline">
+                  📍 Contact et localisation
+                </span>
+                <span className="sm:hidden">📍 Contact</span>
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
-                    N° de téléphone
+                    <span className="hidden sm:inline">N° de téléphone</span>
+                    <span className="sm:hidden">Téléphone</span>
                   </label>
                   <input
                     placeholder="Téléphone"
@@ -228,12 +246,15 @@ export default function UpdateAccountPage() {
               </div>
             </div>
 
-            {/* Section: Réseaux sociaux */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+            {/* Section: Réseaux sociaux responsive */}
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
               <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                🌐 Réseaux sociaux et site web
+                <span className="hidden sm:inline">
+                  🌐 Réseaux sociaux et site web
+                </span>
+                <span className="sm:hidden">🌐 Réseaux</span>
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
                     Instagram
@@ -280,14 +301,15 @@ export default function UpdateAccountPage() {
               </div>
             </div>
 
-            {/* Section: Description */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+            {/* Section: Description responsive */}
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
               <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
                 📝 Description
               </h3>
               <div className="space-y-1">
                 <label className="text-xs text-white/70 font-one">
-                  Description du salon
+                  <span className="hidden sm:inline">Description du salon</span>
+                  <span className="sm:hidden">Description</span>
                 </label>
                 <textarea
                   placeholder="Décrivez votre salon, votre style, votre ambiance..."
@@ -298,14 +320,21 @@ export default function UpdateAccountPage() {
               </div>
             </div>
 
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+            {/* Section: Prestations responsive */}
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
               <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                💼 Prestations proposées
+                <span className="hidden sm:inline">
+                  💼 Prestations proposées
+                </span>
+                <span className="sm:hidden">💼 Prestations</span>
               </h3>
 
               <p className="text-[11px] text-white/60 mb-3">
-                Sélectionnez une ou plusieurs prestations proposées par le
-                salon.
+                <span className="hidden sm:inline">
+                  Sélectionnez une ou plusieurs prestations proposées par le
+                  salon.
+                </span>
+                <span className="sm:hidden">Sélectionnez vos prestations</span>
               </p>
 
               {(() => {
@@ -346,10 +375,11 @@ export default function UpdateAccountPage() {
               })()}
             </div>
 
-            {/* Section: Image */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+            {/* Section: Image responsive */}
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
               <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                📸 Photo de profil
+                <span className="hidden sm:inline">📸 Photo de profil</span>
+                <span className="sm:hidden">📸 Photo</span>
               </h3>
               <SalonImageUploader
                 currentImage={form.watch("image") || salon.image || undefined}
@@ -362,23 +392,30 @@ export default function UpdateAccountPage() {
               />
             </div>
 
-            {/* Footer avec boutons d'action */}
-            <div className="flex justify-end gap-4 pt-6 border-t border-white/10">
+            {/* Footer avec boutons d'action responsive */}
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-white/10">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs text-center"
               >
                 Annuler
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+                className="cursor-pointer px-6 sm:px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
               >
-                {isSubmitting
-                  ? "Enregistrement..."
-                  : "Sauvegarder les modifications"}
+                {isSubmitting ? (
+                  <span className="hidden sm:inline">Enregistrement...</span>
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">
+                      Sauvegarder les modifications
+                    </span>
+                    <span className="sm:hidden">Sauvegarder</span>
+                  </>
+                )}
               </button>
             </div>
           </form>
