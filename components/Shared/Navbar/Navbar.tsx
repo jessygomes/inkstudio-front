@@ -12,6 +12,7 @@ export default function Navbar() {
     { href: "/", label: "Accueil" },
     { href: "/solutions", label: "Solutions" },
     { href: "/tarification", label: "Tarification" },
+    { href: "/a-propos-de-inkstudio", label: "A propos de InkStudio" },
   ];
 
   return (

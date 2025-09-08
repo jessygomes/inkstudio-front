@@ -11,7 +11,7 @@ import Header from "@/components/Shared/Header";
 export default function Home() {
   return (
     <>
-      <div className="absolute top-0 left-0 w-full h-screen z-50">
+      <div className="fixed backdrop-blur-2xl top-0 left-0 w-full z-50">
         <Header />
       </div>
       <div

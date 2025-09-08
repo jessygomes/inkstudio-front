@@ -1,5 +1,5 @@
 import Footer from "@/components/Shared/Footer/Footer";
-import Header from "@/components/Shared/Header";
+// import Header from "@/components/Shared/Header";
 
 export default async function DashboardLayout({
   children,
@@ -8,9 +8,9 @@ export default async function DashboardLayout({
 }) {
   return (
     <div>
-      <div className="absolute top-0 left-0 w-full h-screen">
+      {/* <div className="absolute top-0 left-0 w-full h-screen">
         <Header />
-      </div>
+      </div> */}
       {children}
       <Footer />
     </div>

@@ -12,14 +12,19 @@ export default function HeroSection() {
             INKSTUDIO
           </h1>
 
+          <div className="w-24 h-1 bg-gradient-to-r from-tertiary-400 to-tertiary-500 rounded-full mx-auto my-3"></div>
+
           {/* Sous-titre responsive */}
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-white uppercase font-two tracking-wide leading-tight">
-            Gérez votre salon de tatouage en toute simplicité
+            <span className="block bg-gradient-to-r from-tertiary-400 to-tertiary-500 bg-clip-text text-transparent">
+              Gérez votre salon
+            </span>{" "}
+            de tatouage en toute simplicité
           </h2>
 
           {/* Description avec fond semi-transparent pour mobile */}
           <div className="bg-noir-700/40 sm:bg-transparent backdrop-blur-sm sm:backdrop-blur-none rounded-xl sm:rounded-none p-4 sm:p-0 border border-white/20 sm:border-none">
-            <p className="text-center text-white sm:text-gray-600 text-sm sm:text-md font-one leading-relaxed max-w-2xl">
+            <p className="text-lg text-white/80 text-center font-one leading-relaxed max-w-2xl mx-auto">
               Gestion de salon de tatouage qui vous permet de gérer facilement
               vos rendez-vous, vos clients et vos finances.
             </p>
