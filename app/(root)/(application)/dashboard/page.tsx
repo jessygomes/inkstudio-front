@@ -1,12 +1,12 @@
 "use client";
 
 import CancelFillRate from "@/components/Application/Dashboard/CancelFillRate";
-import DemandeRdvClient from "@/components/Application/Dashboard/DemandeRdvClient";
+// import DemandeRdvClient from "@/components/Application/Dashboard/DemandeRdvClient";
 import NewClientsCount from "@/components/Application/Dashboard/NewClientsCount";
 import NotAnswerClient from "@/components/Application/Dashboard/NotAnswerClient";
 import RendezVousToday from "@/components/Application/Dashboard/RendezVousToday";
 import TotalPayed from "@/components/Application/Dashboard/TotalPayed";
-// import WaitingRdv from "@/components/Application/Dashboard/WaitingRdv";
+import WaitingRdv from "@/components/Application/Dashboard/WaitingRdv";
 import WeeklyFillRate from "@/components/Application/Dashboard/WeeklyFillRate";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import Link from "next/link";
@@ -106,7 +106,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="col-span-12 lg:col-span-4">
-            <DemandeRdvClient userId={user.id ?? ""} />
+            <WaitingRdv userId={user.id ?? ""} />
           </div>
 
           {!isFreeAccount && (
@@ -116,7 +116,7 @@ export default function DashboardPage() {
           )}
 
           {/* <div className="col-span-12 lg:col-span-4">
-            <WaitingRdv userId={user.id ?? ""} />
+            <DemandeRdvClient userId={user.id ?? ""} />
           </div> */}
 
           {/* {!isFreeAccount && (

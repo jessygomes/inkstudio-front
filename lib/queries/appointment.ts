@@ -127,6 +127,8 @@ export const updateAppointment = async (rdvId: string, updatedData: any) => {
   try {
     const headers = await getAuthHeaders();
 
+    console.log("Updating appointment with data:", updatedData);
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/update/${rdvId}`,
       {
@@ -493,16 +495,24 @@ export const proposeRescheduleAppointmentAction = async (
       {
         method: "POST",
         headers,
-        body: JSON.stringify({ rdvId, message }),
+        body: JSON.stringify({
+          appointmentId: rdvId, // Changé de rdvId à appointmentId
+          message: message || undefined,
+        }),
       }
     );
 
-    if (!res.ok)
-      throw new Error("Erreur lors de la proposition de reprogrammation");
+    const data = await res.json();
 
-    return res.json();
+    if (!res.ok || data?.error) {
+      const errorMessage =
+        data?.message || `Erreur ${res.status}: ${res.statusText}`;
+      throw new Error(errorMessage);
+    }
+
+    return data;
   } catch (error) {
-    console.error("Error patch proposeRescheduleAppointmentAction:", error);
+    console.error("Error in proposeRescheduleAppointmentAction:", error);
     throw error;
   }
 };

@@ -766,7 +766,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                       d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
                     />
                   </svg>
-                  Détails tatouage
+                  Détails : {selectedAppointment.prestation}
                 </h5>
 
                 <div className="space-y-2">
@@ -882,25 +882,42 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                   )}
 
                   {/* Prix compact */}
-                  {(selectedAppointment.tattooDetail.estimatedPrice ||
-                    selectedAppointment.tattooDetail.price) && (
+                  {((selectedAppointment.tattooDetail.estimatedPrice !==
+                    undefined &&
+                    selectedAppointment.tattooDetail.estimatedPrice !== null &&
+                    selectedAppointment.tattooDetail.estimatedPrice > 0) ||
+                    (selectedAppointment.tattooDetail.price !== undefined &&
+                      selectedAppointment.tattooDetail.price !== null &&
+                      selectedAppointment.tattooDetail.price > 0)) && (
                     <div className="bg-gradient-to-r from-tertiary-500/10 to-primary-500/10 rounded-lg p-2 border border-tertiary-400/20">
                       <div className="flex gap-2">
-                        {selectedAppointment.tattooDetail.estimatedPrice && (
-                          <div className="bg-white/5 rounded-md p-2 border border-white/5 flex-1">
-                            <p className="text-orange-400 font-one font-semibold text-xs">
-                              💰{" "}
-                              {selectedAppointment.tattooDetail.estimatedPrice}€
-                            </p>
-                          </div>
-                        )}
-                        {selectedAppointment.tattooDetail.price && (
-                          <div className="bg-white/5 rounded-md p-2 border border-white/5 flex-1">
-                            <p className="text-green-400 font-one font-semibold text-xs">
-                              ✅ {selectedAppointment.tattooDetail.price}€
-                            </p>
-                          </div>
-                        )}
+                        {selectedAppointment.tattooDetail.estimatedPrice !==
+                          undefined &&
+                          selectedAppointment.tattooDetail.estimatedPrice !==
+                            null &&
+                          selectedAppointment.tattooDetail.estimatedPrice >
+                            0 && (
+                            <div className="bg-white/5 rounded-md p-2 border border-white/5 flex-1">
+                              <p className="text-orange-400 font-one font-semibold text-xs">
+                                💰 Prix estimé :{" "}
+                                {
+                                  selectedAppointment.tattooDetail
+                                    .estimatedPrice
+                                }
+                                €
+                              </p>
+                            </div>
+                          )}
+                        {selectedAppointment.tattooDetail.price !== undefined &&
+                          selectedAppointment.tattooDetail.price !== null &&
+                          selectedAppointment.tattooDetail.price > 0 && (
+                            <div className="bg-white/5 rounded-md p-2 border border-white/5 flex-1">
+                              <p className="text-green-400 font-one font-semibold text-xs">
+                                ✅ Prix final :{" "}
+                                {selectedAppointment.tattooDetail.price}€
+                              </p>
+                            </div>
+                          )}
                       </div>
                     </div>
                   )}

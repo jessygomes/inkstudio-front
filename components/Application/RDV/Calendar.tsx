@@ -51,6 +51,7 @@ export type CalendarEvent = Event & {
     colorStyle: string;
     reference: string;
     sketch: string;
+    price?: number;
     estimatedPrice: number;
     description?: string;
   };

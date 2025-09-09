@@ -2,7 +2,7 @@
 "use client";
 
 import { useUser } from "@/components/Auth/Context/UserContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import {
   CiUser,
@@ -17,7 +17,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CiSettings } from "react-icons/ci";
-import { changePasswordAction } from "@/lib/queries/user";
+import {
+  changePasswordAction,
+  fetchAppointmentConfirmationAction,
+  updateAppointmentConfirmationAction,
+} from "@/lib/queries/user";
 
 interface Subscription {
   id: string;
@@ -69,8 +73,10 @@ const changePasswordSchema = z
 
 export default function ParamPage() {
   const user = useUser();
+
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [confirmationEnabled, setConfirmationEnabled] = useState(false);
   const [settings, setSettings] = useState<UserSettings>({
     emailNotifications: true,
     smsNotifications: false,
@@ -114,7 +120,7 @@ export default function ParamPage() {
   };
 
   //! Récupérer le plan utilisateur
-  const fetchUserPlan = async () => {
+  const fetchUserPlan = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -139,14 +145,37 @@ export default function ParamPage() {
         error
       );
     }
-  };
+  }, [user?.id]);
+
+  //! Récupérer le paramètre de confirmation des RDV
+  const fetchConfirmationSetting = useCallback(async () => {
+    if (!user?.id) return;
+
+    try {
+      const response = await fetchAppointmentConfirmationAction();
+
+      if (response.ok) {
+        setConfirmationEnabled(
+          response.data.user.addConfirmationEnabled || false
+        );
+      }
+
+      console.log("Paramètre de confirmation :", response);
+      console.log(confirmationEnabled);
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération du paramètre de confirmation :",
+        error
+      );
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     const fetchAccountData = async () => {
       try {
         setLoading(true);
-        // Appeler la vraie fonction au lieu de la simulation
-        await fetchUserPlan();
+        // Récupérer les données du plan et le paramètre de confirmation
+        await Promise.all([fetchUserPlan(), fetchConfirmationSetting()]);
         setLoading(false);
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
@@ -157,7 +186,7 @@ export default function ParamPage() {
     if (user?.id) {
       fetchAccountData();
     }
-  }, [user?.id]);
+  }, [user?.id, fetchUserPlan, fetchConfirmationSetting]);
 
   const getPlanDetails = (plan: string) => {
     switch (plan) {
@@ -337,6 +366,33 @@ export default function ParamPage() {
     }
   };
 
+  //! Fonction pour changer le paramètre de confirmation des RDV
+  const handleConfirmationSettingChange = async (value: boolean) => {
+    if (!user?.id) return;
+
+    console.log("Changement de confirmation à :", value);
+
+    try {
+      const response = await updateAppointmentConfirmationAction(value);
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la mise à jour du paramètre");
+      }
+
+      // Mise à jour de l'état local
+      setConfirmationEnabled(value);
+
+      toast.success(
+        value
+          ? "Confirmation manuelle activée - Les nouveaux RDV devront être confirmés"
+          : "Confirmation automatique activée - Les nouveaux RDV seront directement confirmés"
+      );
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du paramètre :", error);
+      toast.error("Erreur lors de la mise à jour du paramètre");
+    }
+  };
+
   // Fonction pour changer le mot de passe
   const handlePasswordChange = async (
     data: z.infer<typeof changePasswordSchema>
@@ -487,6 +543,73 @@ export default function ParamPage() {
                     <p className="text-white font-one text-sm break-words">
                       {user?.address || "Non renseignée"}
                     </p>
+                  </div>
+                </div>
+
+                <div className="h-[0.5px] bg-white/10"></div>
+
+                {/* Paramètre de confirmation des RDV */}
+                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-one mb-1 text-sm sm:text-base">
+                        <span className="hidden sm:inline">
+                          Confirmation manuelle des rendez-vous
+                        </span>
+                        <span className="sm:hidden">Confirmation RDV</span>
+                      </h3>
+                      <p className="text-white/60 text-xs sm:text-sm font-one">
+                        <span className="hidden sm:inline">
+                          Si activé, vous devrez confirmer manuellement chaque
+                          rendez-vous pris par un client
+                        </span>
+                        <span className="sm:hidden">
+                          Confirmation manuelle des RDV
+                        </span>
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={confirmationEnabled}
+                        onChange={(e) =>
+                          handleConfirmationSettingChange(e.target.checked)
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
+                    </label>
+                  </div>
+
+                  {/* Indicateur de statut */}
+                  <div className="mt-3 pt-3 border-t border-white/10">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          confirmationEnabled ? "bg-orange-400" : "bg-green-400"
+                        }`}
+                      ></div>
+                      <span className="text-xs font-one text-white/70">
+                        {confirmationEnabled ? (
+                          <span className="text-orange-300">
+                            <span className="hidden sm:inline">
+                              Les nouveaux RDV seront en attente de votre
+                              confirmation
+                            </span>
+                            <span className="sm:hidden">RDV en attente</span>
+                          </span>
+                        ) : (
+                          <span className="text-green-300">
+                            <span className="hidden sm:inline">
+                              Les nouveaux RDV sont automatiquement confirmés
+                            </span>
+                            <span className="sm:hidden">
+                              RDV auto-confirmés
+                            </span>
+                          </span>
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
 

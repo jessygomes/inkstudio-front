@@ -23,6 +23,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   fetchAllAppointments,
   fetchAppointments,
+  paidAppointmentsAction,
 } from "@/lib/queries/appointment";
 import CancelRdv from "./CancelRdv";
 import UpdateRdv from "./UpdateRdv";
@@ -273,20 +274,7 @@ export default function RDV() {
   //! Changer le statut de paiement
   const handlePaymentStatusChange = async (rdvId: string, isPayed: boolean) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/payed/${rdvId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ isPayed }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la mise à jour du statut de paiement");
-      }
+      await paidAppointmentsAction(rdvId, isPayed);
 
       // Mettre à jour l'événement sélectionné si c'est celui qui a été modifié
       if (selectedEvent && selectedEvent.id === rdvId) {
@@ -332,6 +320,12 @@ export default function RDV() {
   useEffect(() => {
     fetchUnansweredDemandesCount();
   }, [user.id]);
+
+  // console.log("SELECTED RDV", selectedEvent);
+  const price =
+    selectedEvent?.tattooDetail?.price ||
+    selectedEvent?.tattooDetail?.estimatedPrice ||
+    0;
 
   return (
     <div className="w-full gap-6">
@@ -1371,7 +1365,7 @@ export default function RDV() {
                                     d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
                                   />
                                 </svg>
-                                Détails tatouage
+                                Détails : {selectedEvent.prestation}
                               </h5>
 
                               <div className="space-y-2">
@@ -1491,12 +1485,11 @@ export default function RDV() {
                                 )}
 
                                 {/* Prix compact */}
-                                {tattooDetail.estimatedPrice && (
+                                {price !== undefined && price !== null && (
                                   <div className="bg-gradient-to-r from-tertiary-500/10 to-primary-500/10 rounded-lg p-2 border border-tertiary-400/20">
                                     <div className="bg-white/5 rounded-md p-2 border border-white/5">
                                       <p className="text-orange-400 font-one font-semibold text-xs">
-                                        💰 Estimé: {tattooDetail.estimatedPrice}
-                                        €
+                                        💰 Prix : {price}€
                                       </p>
                                     </div>
                                   </div>
@@ -1775,7 +1768,7 @@ export default function RDV() {
                 {selectedEvent.tattooDetail && (
                   <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10">
                     <h5 className="text-white font-one text-sm mb-3">
-                      Détails tatouage
+                      Détails {selectedEvent.prestation}
                     </h5>
                     <div className="space-y-2">
                       {selectedEvent.tattooDetail.description && (
@@ -1810,12 +1803,13 @@ export default function RDV() {
                           </div>
                         )}
                       </div>
-                      {selectedEvent.tattooDetail.estimatedPrice && (
+                      {price !== undefined && price !== null && (
                         <div className="bg-gradient-to-r from-tertiary-500/10 to-primary-500/10 rounded-lg p-2 border border-tertiary-400/20">
-                          <p className="text-orange-400 font-one font-semibold text-xs">
-                            💰 Estimé:{" "}
-                            {selectedEvent.tattooDetail.estimatedPrice}€
-                          </p>
+                          <div className="bg-white/5 rounded-md p-2 border border-white/5">
+                            <p className="text-orange-400 font-one font-semibold text-xs">
+                              💰 Prix : {price}€
+                            </p>
+                          </div>
                         </div>
                       )}
                     </div>

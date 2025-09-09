@@ -8,10 +8,10 @@ import {
   calculateDurationForModal,
   formatDateForModal,
 } from "@/lib/utils/date-format/format-date-for-modal";
+import { proposeRescheduleAppointmentAction } from "@/lib/queries/appointment";
 
 export default function ChangeRdv({
   rdvId,
-  userId,
   appointment,
 }: {
   rdvId: string;
@@ -25,26 +25,25 @@ export default function ChangeRdv({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      //   const res = await proposeRescheduleAppointmentAction(
-      //   rdvId,
-      //   actionMessage
-      // );
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/propose-reschedule/${userId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            appointmentId: rdvId,
-            message: actionMessage.trim() || undefined,
-          }),
+      try {
+        const data = await proposeRescheduleAppointmentAction(
+          rdvId,
+          actionMessage.trim() || undefined
+        );
+
+        if (!data) {
+          throw new Error("Aucune réponse du serveur");
         }
-      );
-      const data = await res.json();
-      if (data.error) throw new Error(data.message || "Erreur inconnue");
-      return data;
+
+        if (data.error) {
+          throw new Error(data.message || "Erreur inconnue du serveur");
+        }
+
+        return data;
+      } catch (error) {
+        console.error("Erreur dans mutationFn:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast.success(
@@ -101,7 +100,7 @@ export default function ChangeRdv({
               </div>
               <p className="text-white/70 mt-1 text-sm">
                 {appointment
-                  ? `Proposer un nouveau créneau à ${appointment.client?.firstName} ${appointment.client?.lastName}`
+                  ? `Demander à ${appointment.client?.firstName} ${appointment.client?.lastName} de choisir un nouveau créneau`
                   : "Proposer un nouveau créneau"}
               </p>
             </div>

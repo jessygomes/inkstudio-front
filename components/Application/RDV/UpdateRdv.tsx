@@ -241,6 +241,7 @@ export default function UpdateRdv({
     mutationFn: async (
       updatedData: z.infer<typeof updateAppointmentSchema>
     ) => {
+      console.log("Mutation with data:", updatedData);
       const data = await updateAppointment(rdv.id, updatedData);
 
       if (data.error) throw new Error(data.message || "Erreur inconnue");
@@ -263,6 +264,8 @@ export default function UpdateRdv({
 
   const onSubmit = async (data: z.infer<typeof updateAppointmentSchema>) => {
     if (loading || mutation.isPending) return;
+
+    // console.log("Données soumises :", data);
 
     setError(null);
     setLoading(true);
@@ -312,7 +315,11 @@ export default function UpdateRdv({
         ...data,
         tattooDetail: {
           ...data.tattooDetail,
-          price: data.tattooDetail?.estimatedPrice,
+          // Pour les projets, on utilise estimatedPrice, pour les autres on garde price
+          price:
+            data.prestation === "PROJET"
+              ? data.tattooDetail?.estimatedPrice
+              : data.tattooDetail?.price,
         },
       };
 
