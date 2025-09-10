@@ -3,8 +3,8 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import { userLoginSchema } from "@/lib/zod/validator.schema";
 import { CardWrapper } from "../CardWrapper";
 import { FormError } from "@/components/Shared/FormError";
@@ -14,10 +14,19 @@ import { createSession } from "@/lib/session";
 
 export const LoginForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
+
+  // ✅ Vérifier si l'utilisateur arrive avec un token expiré
+  useEffect(() => {
+    const reason = searchParams.get("reason");
+    if (reason === "expired") {
+      setError("Votre session a expiré. Veuillez vous reconnecter.");
+    }
+  }, [searchParams]);
 
   const form = useForm<z.infer<typeof userLoginSchema>>({
     resolver: zodResolver(userLoginSchema),

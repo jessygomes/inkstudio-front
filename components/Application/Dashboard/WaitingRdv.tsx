@@ -7,6 +7,7 @@ import ConfirmRdv from "../RDV/ConfirmRdv";
 import CancelRdv from "../RDV/CancelRdv";
 import UpdateRdv from "../RDV/UpdateRdv";
 import ChangeRdv from "../RDV/ChangeRdv";
+import SendMessageRdv from "../RDV/SendMessageRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import {
@@ -612,6 +613,17 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                             rdvId={selectedAppointmentDetails.id}
                             appointment={selectedAppointmentDetails}
                             onCancel={() =>
+                              handleRdvUpdated(selectedAppointmentDetails.id)
+                            }
+                          />
+                        )}
+
+                        {/* Bouton Message - disponible pour tous les rendez-vous sauf CANCELED */}
+                        {selectedAppointmentDetails.status !== "CANCELED" && (
+                          <SendMessageRdv
+                            rdvId={selectedAppointmentDetails.id}
+                            appointment={selectedAppointmentDetails}
+                            onMessageSent={() =>
                               handleRdvUpdated(selectedAppointmentDetails.id)
                             }
                           />

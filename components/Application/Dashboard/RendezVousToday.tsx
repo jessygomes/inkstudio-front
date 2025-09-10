@@ -5,6 +5,8 @@ import Image from "next/image";
 import ConfirmRdv from "../RDV/ConfirmRdv";
 import CancelRdv from "../RDV/CancelRdv";
 import UpdateRdv from "../RDV/UpdateRdv";
+import ChangeStatusButtons from "../RDV/ChangeStatusButtons";
+import SendMessageRdv from "../RDV/SendMessageRdv";
 // import ChangeRdv from "../RDV/ChangeRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import {
@@ -44,7 +46,13 @@ interface RendezVous {
   start: string;
   end: string;
   allDay: boolean;
-  status: "PENDING" | "CONFIRMED" | "CANCELED" | "RESCHEDULING";
+  status:
+    | "PENDING"
+    | "CONFIRMED"
+    | "CANCELED"
+    | "RESCHEDULING"
+    | "COMPLETED"
+    | "NO_SHOW";
   prestation: string;
   client: Client;
   clientId: string;
@@ -186,6 +194,23 @@ export default function RendezVousToday({ userId }: { userId: string }) {
         setSelectedAppointment(updated);
       }
     }
+  };
+
+  //! Callback pour le changement de statut depuis le composant ChangeStatusButtons
+  const handleStatusChange = (
+    rdvId: string,
+    status: "COMPLETED" | "NO_SHOW"
+  ) => {
+    // Mettre à jour l'événement sélectionné si c'est celui qui a été modifié
+    if (selectedAppointment && selectedAppointment.id === rdvId) {
+      setSelectedAppointment({
+        ...selectedAppointment,
+        status: status,
+      });
+    }
+
+    // Refetch des données après mise à jour
+    fetchTodayAppointments(currentDate);
   };
 
   const openAppointmentDetails = (appointment: RendezVous) => {
@@ -391,7 +416,25 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                       </span>
                     </div>
                   </div>
-                ) : (
+                ) : appointment.status === "COMPLETED" ? (
+                  <div className="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-400/30 rounded-lg p-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <span className="text-emerald-300 font-medium font-one text-xs">
+                        Complété
+                      </span>
+                    </div>
+                  </div>
+                ) : appointment.status === "NO_SHOW" ? (
+                  <div className="bg-gradient-to-r from-amber-500/15 to-orange-600/15 border border-amber-400/30 rounded-lg p-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                      <span className="text-amber-300 font-medium font-one text-xs">
+                        Pas présenté
+                      </span>
+                    </div>
+                  </div>
+                ) : appointment.status === "CANCELED" ? (
                   <div className="bg-gradient-to-r from-red-500/15 to-red-500/15 border border-red-400/30 rounded-lg p-2">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
@@ -400,7 +443,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                       </span>
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
           ))}
@@ -495,6 +538,24 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                       </span>
                     </div>
                   </div>
+                ) : selectedAppointment.status === "COMPLETED" ? (
+                  <div className="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-400/30 rounded-lg p-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <span className="text-emerald-300 font-medium font-one text-xs">
+                        Complété
+                      </span>
+                    </div>
+                  </div>
+                ) : selectedAppointment.status === "NO_SHOW" ? (
+                  <div className="bg-gradient-to-r from-amber-500/15 to-orange-600/15 border border-amber-400/30 rounded-lg p-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                      <span className="text-amber-300 font-medium font-one text-xs">
+                        Pas présenté
+                      </span>
+                    </div>
+                  </div>
                 ) : selectedAppointment.status === "CANCELED" ? (
                   <div className="bg-gradient-to-r from-red-500/15 to-rose-500/15 border border-red-400/30 rounded-lg p-2">
                     <div className="flex items-center gap-2">
@@ -509,9 +570,12 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                       <span className="text-blue-300 font-medium font-one text-xs">
-                        Reprogrammation
+                        En attente de reprogrammation
                       </span>
                     </div>
+                    <p className="text-blue-200/80 text-xs font-one mt-1">
+                      Le client doit choisir un nouveau créneau
+                    </p>
                   </div>
                 ) : null}
               </div>
@@ -520,28 +584,67 @@ export default function RendezVousToday({ userId }: { userId: string }) {
             {/* Actions compactes */}
             <div className="border-white/10">
               <div className="flex items-center gap-1 flex-wrap">
-                {selectedAppointment.status !== "CONFIRMED" && (
-                  <ConfirmRdv
+                {/* Bouton Confirmer - pas pour CONFIRMED, RESCHEDULING, COMPLETED, NO_SHOW */}
+                {selectedAppointment.status !== "CONFIRMED" &&
+                  selectedAppointment.status !== "RESCHEDULING" &&
+                  selectedAppointment.status !== "COMPLETED" &&
+                  selectedAppointment.status !== "NO_SHOW" && (
+                    <ConfirmRdv
+                      rdvId={selectedAppointment.id}
+                      appointment={selectedAppointment}
+                      onConfirm={() => handleRdvUpdated(selectedAppointment.id)}
+                    />
+                  )}
+
+                {/* Bouton Modifier - pas pour RDV passés confirmés, COMPLETED, NO_SHOW */}
+                {!(
+                  selectedAppointment.status === "CONFIRMED" &&
+                  new Date(selectedAppointment.end) < new Date()
+                ) &&
+                  selectedAppointment.status !== "COMPLETED" &&
+                  selectedAppointment.status !== "NO_SHOW" && (
+                    <UpdateRdv
+                      rdv={selectedAppointment as unknown as UpdateRdvFormProps}
+                      userId={userId}
+                      onUpdate={() => handleRdvUpdated(selectedAppointment.id)}
+                    />
+                  )}
+
+                {/* Bouton Annuler - pas pour CANCELED, RDV passés confirmés, COMPLETED, NO_SHOW */}
+                {selectedAppointment.status !== "CANCELED" &&
+                  selectedAppointment.status !== "COMPLETED" &&
+                  selectedAppointment.status !== "NO_SHOW" &&
+                  !(
+                    selectedAppointment.status === "CONFIRMED" &&
+                    new Date(selectedAppointment.end) < new Date()
+                  ) && (
+                    <CancelRdv
+                      rdvId={selectedAppointment.id}
+                      appointment={selectedAppointment}
+                      onCancel={() => handleRdvUpdated(selectedAppointment.id)}
+                    />
+                  )}
+
+                {/* Boutons pour changer le statut - pour RDV confirmés passés, COMPLETED, NO_SHOW */}
+                {((selectedAppointment.status === "CONFIRMED" &&
+                  new Date(selectedAppointment.end) < new Date()) ||
+                  selectedAppointment.status === "COMPLETED" ||
+                  selectedAppointment.status === "NO_SHOW") && (
+                  <ChangeStatusButtons
                     rdvId={selectedAppointment.id}
-                    appointment={selectedAppointment}
-                    onConfirm={() => handleRdvUpdated(selectedAppointment.id)}
+                    onStatusChange={handleStatusChange}
+                    size="sm"
                   />
                 )}
-                <UpdateRdv
-                  rdv={selectedAppointment as unknown as UpdateRdvFormProps}
-                  userId={userId}
-                  onUpdate={() => handleRdvUpdated(selectedAppointment.id)}
-                />
-                {/* <ChangeRdv
-                  rdvId={selectedAppointment.id}
-                  userId={userId}
-                  appointment={selectedAppointment}
-                /> */}
+
+                {/* Bouton Message - disponible pour tous les rendez-vous sauf CANCELED */}
                 {selectedAppointment.status !== "CANCELED" && (
-                  <CancelRdv
+                  <SendMessageRdv
                     rdvId={selectedAppointment.id}
                     appointment={selectedAppointment}
-                    onCancel={() => handleRdvUpdated(selectedAppointment.id)}
+                    onMessageSent={() =>
+                      handleRdvUpdated(selectedAppointment.id)
+                    }
                   />
                 )}
               </div>

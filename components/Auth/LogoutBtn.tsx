@@ -1,6 +1,7 @@
 "use client";
 
 import { deleteSession } from "@/lib/session";
+import { clearClientSession } from "@/lib/client-session";
 // import { logout } from "@/lib/authAction/auth.actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -14,16 +15,25 @@ export const LogoutBtn = ({ children }: LogoutBtnProps) => {
   const router = useRouter();
 
   const onClick = async () => {
-    await deleteSession();
+    try {
+      // ✅ Nettoyer côté serveur
+      await deleteSession();
 
-    // if (result?.error) {
-    //   console.error("Erreur lors de la déconnexion:", result.error);
-    //   toast.error(result.error);
-    //   return;
-    // }
+      // ✅ Nettoyer côté client aussi pour être sûr
+      clearClientSession();
 
-    toast.success("Déconnexion réussie");
-    router.push("/");
+      toast.success("Déconnexion réussie");
+      router.push("/");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+
+      // ✅ Même en cas d'erreur serveur, nettoyer côté client
+      clearClientSession();
+      toast.error(
+        "Erreur lors de la déconnexion, mais vous avez été déconnecté localement"
+      );
+      router.push("/");
+    }
   };
 
   return (

@@ -21,7 +21,17 @@ export const getAuthenticatedUser = async () => {
       },
     });
 
+    // ✅ Gestion spécifique des tokens expirés (401 Unauthorized)
+    if (response.status === 401) {
+      console.warn("🔑 Token expiré ou invalide - Redirection nécessaire");
+      // Ne pas supprimer les cookies ici - sera fait par le middleware ou client
+      throw new Error("TOKEN_EXPIRED");
+    }
+
     if (!response.ok) {
+      console.error(
+        `❌ Erreur API auth: ${response.status} - ${response.statusText}`
+      );
       throw new Error("Échec de la récupération de l'utilisateur authentifié.");
     }
 
@@ -31,6 +41,12 @@ export const getAuthenticatedUser = async () => {
     return getAuthenticatedUserSchema.parse(data);
   } catch (error) {
     console.error("Erreur lors de la récupération de l'utilisateur :", error);
+
+    // ✅ Si c'est un token expiré, on propage l'erreur spécifique
+    if (error instanceof Error && error.message === "TOKEN_EXPIRED") {
+      throw error;
+    }
+
     throw new Error("Erreur lors de la récupération de l'utilisateur.");
   }
 };

@@ -18,6 +18,7 @@ import { View } from "react-big-calendar";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { useSearchParams } from "next/navigation";
 import ConfirmRdv from "./ConfirmRdv";
+import SendMessageRdv from "./SendMessageRdv";
 
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -32,6 +33,7 @@ import Image from "next/image";
 import { FaArrowLeft } from "react-icons/fa6";
 import { CiCalendar, CiCalendarDate } from "react-icons/ci";
 import ChangeRdv from "./ChangeRdv";
+import ChangeStatusButtons from "./ChangeStatusButtons";
 import { Search } from "@/components/Shared/Search";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -57,9 +59,6 @@ export default function RDV() {
   const [dateFilter, setDateFilter] = useState<string>("all"); // all, past, upcoming
   const [prestationFilter, setPrestationFilter] = useState<string>("all");
   const [tatoueurFilter, setTatoueurFilter] = useState<string>("all");
-
-  //! Nouveau state pour les demandes non répondus
-  const [unansweredDemandesCount, setUnansweredDemandesCount] = useState(0);
 
   //! Afficher les infos d'un RDV
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
@@ -239,6 +238,16 @@ export default function RDV() {
     );
   });
 
+  // Calcul du nombre de RDV en attente de confirmation
+  const pendingAppointmentsCount = events.filter(
+    (event: CalendarEvent) => event.status === "PENDING"
+  ).length;
+
+  // Calcul du nombre de RDV en attente de reprogrammation
+  const reschedulingAppointmentsCount = events.filter(
+    (event: CalendarEvent) => event.status === "RESCHEDULING"
+  ).length;
+
   // Pagination côté frontend pour les deux vues
   const totalPages = Math.ceil(filteredEvents.length / ITEMS_PER_PAGE);
   const paginatedEvents = filteredEvents.slice(
@@ -295,31 +304,22 @@ export default function RDV() {
     }
   };
 
-  //! Nouvelle fonction pour récupérer le nombre de suivis non répondus
-  const fetchUnansweredDemandesCount = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/appointment-requests/not-confirmed/count/${user.id}`,
-        {
-          cache: "no-store",
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setUnansweredDemandesCount(data.count || 0);
-      }
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération du nombre de suivis non répondus:",
-        error
-      );
+  //! Callback pour le changement de statut depuis le composant ChangeStatusButtons
+  const handleStatusChange = (
+    rdvId: string,
+    status: "COMPLETED" | "NO_SHOW"
+  ) => {
+    // Mettre à jour l'événement sélectionné si c'est celui qui a été modifié
+    if (selectedEvent && selectedEvent.id === rdvId) {
+      setSelectedEvent({
+        ...selectedEvent,
+        status: status,
+      });
     }
-  };
 
-  useEffect(() => {
-    fetchUnansweredDemandesCount();
-  }, [user.id]);
+    // Optionnel: refetch des données pour mettre à jour la liste
+    // queryClient.invalidateQueries(['appointments']);
+  };
 
   // console.log("SELECTED RDV", selectedEvent);
   const price =
@@ -350,9 +350,30 @@ export default function RDV() {
         </div>
 
         <div className="flex gap-2">
+          <div className="relative w-full sm:w-[175px]">
+            <div className="bg-white/10 w-full px-5 py-2 text-white rounded-lg font-medium font-one text-xs flex items-center justify-center gap-2 whitespace-nowrap">
+              <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-[12px]">
+                {pendingAppointmentsCount > 99
+                  ? "99+"
+                  : pendingAppointmentsCount}
+              </span>
+              RDV en attente
+            </div>
+          </div>
+
+          <div className="relative w-full sm:w-[175px]">
+            <div className="bg-white/10  px-5 py-2 text-white rounded-lg font-medium font-one text-xs flex items-center justify-center gap-2 whitespace-nowrap">
+              <span className="bg-gradient-to-br from-blue-400 to-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-[12px]">
+                {reschedulingAppointmentsCount > 99
+                  ? "99+"
+                  : reschedulingAppointmentsCount}
+              </span>
+              RDV reprogrammer
+            </div>
+          </div>
           <Link
             href={"/mes-rendez-vous/creer"}
-            className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+            className="hidden sm:flex cursor-pointer w-[175px] justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
           >
             <svg
               className="w-4 h-4"
@@ -369,23 +390,27 @@ export default function RDV() {
             </svg>
             Créer un rendez-vous
           </Link>
-
-          <div className="relative">
-            <Link
-              href="/mes-rendez-vous/demandes"
-              className="cursor-pointer text-center px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center justify-center gap-2"
-            >
-              Demandes de rdv
-              {unansweredDemandesCount > 0 && (
-                <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
-                  {unansweredDemandesCount > 99
-                    ? "99+"
-                    : unansweredDemandesCount}
-                </span>
-              )}
-            </Link>
-          </div>
         </div>
+
+        <Link
+          href={"/mes-rendez-vous/creer"}
+          className="flex sm:hidden cursor-pointer w-full mt-2 sm:mt-0 sm:w-[175px] justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Créer un rendez-vous
+        </Link>
       </div>
       {/* Fin header toujours affiché */}
 
@@ -485,6 +510,12 @@ export default function RDV() {
                       </option>
                       <option value="CONFIRMED" className="bg-noir-500">
                         Confirmés
+                      </option>
+                      <option value="COMPLETED" className="bg-noir-500">
+                        Complétés
+                      </option>
+                      <option value="NO_SHOW" className="bg-noir-500">
+                        Pas présentés
                       </option>
                       <option value="CANCELED" className="bg-noir-500">
                         Annulés
@@ -622,6 +653,10 @@ export default function RDV() {
                           ? "En attente"
                           : statusFilter === "CONFIRMED"
                           ? "Confirmés"
+                          : statusFilter === "COMPLETED"
+                          ? "Complétés"
+                          : statusFilter === "NO_SHOW"
+                          ? "Pas présentés"
                           : statusFilter === "CANCELED"
                           ? "Annulés"
                           : statusFilter}
@@ -751,7 +786,15 @@ export default function RDV() {
                                   <span className="inline-block px-1 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-one font-medium hover:bg-blue-500/30 transition-all duration-200">
                                     En attente de reprogrammation
                                   </span>
-                                ) : event.status !== "CONFIRMED" ? (
+                                ) : event.status === "COMPLETED" ? (
+                                  <span className="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-medium font-one hover:bg-emerald-500/30 transition-all duration-200">
+                                    Complété
+                                  </span>
+                                ) : event.status === "NO_SHOW" ? (
+                                  <span className="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium font-one hover:bg-amber-500/30 transition-all duration-200">
+                                    Pas présenté
+                                  </span>
+                                ) : event.status === "PENDING" ? (
                                   <span className="inline-block px-3 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-lg text-xs font-medium font-one hover:bg-orange-500/30 transition-all duration-200">
                                     En attente
                                   </span>
@@ -788,7 +831,15 @@ export default function RDV() {
                                   <span className="inline-block px-2 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-medium font-one">
                                     Reprogrammation
                                   </span>
-                                ) : event.status !== "CONFIRMED" ? (
+                                ) : event.status === "COMPLETED" ? (
+                                  <span className="inline-block px-2 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-medium font-one">
+                                    Complété
+                                  </span>
+                                ) : event.status === "NO_SHOW" ? (
+                                  <span className="inline-block px-2 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium font-one">
+                                    Pas présenté
+                                  </span>
+                                ) : event.status === "PENDING" ? (
                                   <span className="inline-block px-2 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-lg text-xs font-medium font-one">
                                     En attente
                                   </span>
@@ -1061,6 +1112,24 @@ export default function RDV() {
                               </span>
                             </div>
                           </div>
+                        ) : selectedEvent.status === "COMPLETED" ? (
+                          <div className="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-400/30 rounded-lg p-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                              <span className="text-emerald-300 font-medium font-one text-xs">
+                                Complété
+                              </span>
+                            </div>
+                          </div>
+                        ) : selectedEvent.status === "NO_SHOW" ? (
+                          <div className="bg-gradient-to-r from-amber-500/15 to-orange-600/15 border border-amber-400/30 rounded-lg p-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                              <span className="text-amber-300 font-medium font-one text-xs">
+                                Pas présenté
+                              </span>
+                            </div>
+                          </div>
                         ) : selectedEvent.status === "CANCELED" ? (
                           <div className="bg-gradient-to-r from-red-500/15 to-rose-500/15 border border-red-400/30 rounded-lg p-2">
                             <div className="flex items-center gap-2">
@@ -1089,28 +1158,89 @@ export default function RDV() {
                     </div>
                     <div className="">
                       <div className="flex items-center gap-1 flex-wrap">
-                        {selectedEvent.status !== "CONFIRMED" && (
-                          <ConfirmRdv
+                        {/* Bouton Confirmer - pas pour CONFIRMED, RESCHEDULING, COMPLETED, NO_SHOW */}
+                        {selectedEvent.status !== "CONFIRMED" &&
+                          selectedEvent.status !== "RESCHEDULING" &&
+                          selectedEvent.status !== "COMPLETED" &&
+                          selectedEvent.status !== "NO_SHOW" && (
+                            <ConfirmRdv
+                              rdvId={selectedEvent.id}
+                              appointment={selectedEvent}
+                              onConfirm={() =>
+                                handleRdvUpdated(selectedEvent.id)
+                              }
+                            />
+                          )}
+
+                        {/* Bouton Modifier - pas pour RDV passés confirmés, COMPLETED, NO_SHOW */}
+                        {!(
+                          selectedEvent.status === "CONFIRMED" &&
+                          new Date(selectedEvent.end) < new Date()
+                        ) &&
+                          selectedEvent.status !== "COMPLETED" &&
+                          selectedEvent.status !== "NO_SHOW" && (
+                            <UpdateRdv
+                              rdv={
+                                selectedEvent as unknown as UpdateRdvFormProps
+                              }
+                              userId={userId || ""}
+                              onUpdate={() =>
+                                handleRdvUpdated(selectedEvent.id)
+                              }
+                            />
+                          )}
+
+                        {/* Bouton Notifier changement - pas pour RDV passés confirmés, COMPLETED, NO_SHOW */}
+                        {!(
+                          selectedEvent.status === "CONFIRMED" &&
+                          new Date(selectedEvent.end) < new Date()
+                        ) &&
+                          selectedEvent.status !== "COMPLETED" &&
+                          selectedEvent.status !== "NO_SHOW" && (
+                            <ChangeRdv
+                              rdvId={selectedEvent.id}
+                              appointment={selectedEvent}
+                              userId={userId || ""}
+                            />
+                          )}
+
+                        {/* Bouton Annuler - pas pour CANCELED, RDV passés confirmés, COMPLETED, NO_SHOW */}
+                        {selectedEvent.status !== "CANCELED" &&
+                          selectedEvent.status !== "COMPLETED" &&
+                          selectedEvent.status !== "NO_SHOW" &&
+                          !(
+                            selectedEvent.status === "CONFIRMED" &&
+                            new Date(selectedEvent.end) < new Date()
+                          ) && (
+                            <CancelRdv
+                              rdvId={selectedEvent.id}
+                              appointment={selectedEvent}
+                              onCancel={() =>
+                                handleRdvUpdated(selectedEvent.id)
+                              }
+                            />
+                          )}
+
+                        {/* Boutons pour changer le statut - pour RDV confirmés passés, COMPLETED, NO_SHOW */}
+                        {((selectedEvent.status === "CONFIRMED" &&
+                          new Date(selectedEvent.end) < new Date()) ||
+                          selectedEvent.status === "COMPLETED" ||
+                          selectedEvent.status === "NO_SHOW") && (
+                          <ChangeStatusButtons
                             rdvId={selectedEvent.id}
-                            appointment={selectedEvent}
-                            onConfirm={() => handleRdvUpdated(selectedEvent.id)}
+                            onStatusChange={handleStatusChange}
+                            size="sm"
                           />
                         )}
-                        <UpdateRdv
-                          rdv={selectedEvent as unknown as UpdateRdvFormProps}
-                          userId={userId || ""}
-                          onUpdate={() => handleRdvUpdated(selectedEvent.id)}
-                        />
-                        <ChangeRdv
-                          rdvId={selectedEvent.id}
-                          appointment={selectedEvent}
-                          userId={userId || ""}
-                        />
+
+                        {/* Bouton Message - disponible pour tous les rendez-vous sauf CANCELED */}
                         {selectedEvent.status !== "CANCELED" && (
-                          <CancelRdv
+                          <SendMessageRdv
                             rdvId={selectedEvent.id}
                             appointment={selectedEvent}
-                            onCancel={() => handleRdvUpdated(selectedEvent.id)}
+                            onMessageSent={() =>
+                              handleRdvUpdated(selectedEvent.id)
+                            }
                           />
                         )}
                       </div>
@@ -1610,6 +1740,24 @@ export default function RDV() {
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                         <span className="text-green-300 font-medium font-one text-xs">
                           Confirmé
+                        </span>
+                      </div>
+                    </div>
+                  ) : selectedEvent.status === "COMPLETED" ? (
+                    <div className="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-400/30 rounded-lg p-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                        <span className="text-emerald-300 font-medium font-one text-xs">
+                          Complété
+                        </span>
+                      </div>
+                    </div>
+                  ) : selectedEvent.status === "NO_SHOW" ? (
+                    <div className="bg-gradient-to-r from-amber-500/15 to-orange-600/15 border border-amber-400/30 rounded-lg p-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                        <span className="text-amber-300 font-medium font-one text-xs">
+                          Pas présenté
                         </span>
                       </div>
                     </div>

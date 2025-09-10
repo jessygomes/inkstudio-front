@@ -480,12 +480,77 @@ export const confirmAppointmentAction = async (
 
 //! ----------------------------------------------------------------------------
 
+//! CHANGER LE STATUS D'UN RDV (COMPLETED ou NO_SHOW)
+
+//! ----------------------------------------------------------------------------
+export const changeAppointmentStatusAction = async (
+  rdvId: string,
+  status: "COMPLETED" | "NO_SHOW"
+) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/change-status/${rdvId}`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ status }),
+      }
+    );
+
+    if (!res.ok) throw new Error("Erreur lors du changement de statut du RDV");
+
+    return res.json();
+  } catch (error) {
+    console.error("Error patch changeAppointmentStatusAction:", error);
+    throw error;
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
+//! ENVOYER UN MAIL CUSTOM AU CLIENT
+
+//! ----------------------------------------------------------------------------
+export const sendCustomEmailAction = async (
+  rdvId: string,
+  subject: string,
+  message: string
+) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/send-custom-email/${rdvId}`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          appointmentId: rdvId,
+          subject,
+          message,
+        }),
+      }
+    );
+
+    if (!res.ok) throw new Error("Erreur lors de l'envoi du mail");
+
+    return res.json();
+  } catch (error) {
+    console.error("Error in sendCustomEmailAction:", error);
+    throw error;
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
 //! PROPOSER UNE REPROGRAMMATION DE RDV
 
 //! ----------------------------------------------------------------------------
 export const proposeRescheduleAppointmentAction = async (
   rdvId: string,
-  message?: string
+  reason?: string
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -497,7 +562,7 @@ export const proposeRescheduleAppointmentAction = async (
         headers,
         body: JSON.stringify({
           appointmentId: rdvId, // Changé de rdvId à appointmentId
-          message: message || undefined,
+          reason: reason || undefined,
         }),
       }
     );
@@ -546,6 +611,38 @@ export const declineRequestAction = async (
     return res.json();
   } catch (error) {
     console.error("Error patch declineRequestAction:", error);
+    throw error;
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
+//! ENVOYER UN MESSAGE PERSONNALISE AU CLIENT
+
+//! ----------------------------------------------------------------------------
+export const sendCustomMessageAction = async (
+  rdvId: string,
+  message: string
+) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/send-custom-email/${rdvId}`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          message: message.trim(),
+        }),
+      }
+    );
+
+    if (!res.ok) throw new Error("Erreur lors de l'envoi du message");
+
+    return res.json();
+  } catch (error) {
+    console.error("Error sendCustomMessageAction:", error);
     throw error;
   }
 };

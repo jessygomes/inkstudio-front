@@ -33,6 +33,7 @@ export async function deleteSession() {
   const cookieStore = await cookies();
   cookieStore.delete("access_token");
   cookieStore.delete("userId");
+  console.log("🧹 Cookies de session supprimés côté serveur");
 }
 
 // Fonction utilitaire pour récupérer le token côté serveur
