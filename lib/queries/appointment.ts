@@ -614,35 +614,3 @@ export const declineRequestAction = async (
     throw error;
   }
 };
-
-//! ----------------------------------------------------------------------------
-
-//! ENVOYER UN MESSAGE PERSONNALISE AU CLIENT
-
-//! ----------------------------------------------------------------------------
-export const sendCustomMessageAction = async (
-  rdvId: string,
-  message: string
-) => {
-  try {
-    const headers = await getAuthHeaders();
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/send-custom-email/${rdvId}`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          message: message.trim(),
-        }),
-      }
-    );
-
-    if (!res.ok) throw new Error("Erreur lors de l'envoi du message");
-
-    return res.json();
-  } catch (error) {
-    console.error("Error sendCustomMessageAction:", error);
-    throw error;
-  }
-};

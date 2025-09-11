@@ -113,6 +113,40 @@ export interface UpdateSalonUserProps {
   prestations: string[]; // Liste des prestations
 }
 
+export interface Subscription {
+  id: string;
+  userId: string;
+  currentPlan: "FREE" | "PRO" | "BUSINESS";
+  planStatus: "ACTIVE" | "CANCELLED" | "EXPIRED";
+  startDate: string;
+  endDate: string | null;
+  trialEndDate: string | null;
+  maxAppointments: number;
+  maxClients: number;
+  maxTattooeurs: number;
+  maxPortfolioImages: number;
+  hasAdvancedStats: boolean;
+  hasEmailReminders: boolean;
+  hasCustomBranding: boolean;
+  hasApiAccess: boolean;
+  monthlyPrice: number | null;
+  yearlyPrice: number | null;
+  lastPaymentDate: string | null;
+  nextPaymentDate: string | null;
+  paymentMethod: string | null;
+  stripeCustomerId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserSettings {
+  emailNotifications: boolean;
+  smsNotifications: boolean;
+  marketingEmails: boolean;
+  appointmentReminders: boolean;
+  followUpReminders: boolean;
+}
+
 //! TATTOO HISTORY
 export interface TattooHistoryProps {
   id: string;

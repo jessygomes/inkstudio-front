@@ -20,56 +20,13 @@ import { CiSettings } from "react-icons/ci";
 import {
   changePasswordAction,
   fetchAppointmentConfirmationAction,
+  fetchAppointmentParamAction,
   updateAppointmentConfirmationAction,
+  updateAppointmentParamAction,
 } from "@/lib/queries/user";
-
-interface Subscription {
-  id: string;
-  userId: string;
-  currentPlan: "FREE" | "PRO" | "BUSINESS";
-  planStatus: "ACTIVE" | "CANCELLED" | "EXPIRED";
-  startDate: string;
-  endDate: string | null;
-  trialEndDate: string | null;
-  maxAppointments: number;
-  maxClients: number;
-  maxTattooeurs: number;
-  maxPortfolioImages: number;
-  hasAdvancedStats: boolean;
-  hasEmailReminders: boolean;
-  hasCustomBranding: boolean;
-  hasApiAccess: boolean;
-  monthlyPrice: number | null;
-  yearlyPrice: number | null;
-  lastPaymentDate: string | null;
-  nextPaymentDate: string | null;
-  paymentMethod: string | null;
-  stripeCustomerId: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface UserSettings {
-  emailNotifications: boolean;
-  smsNotifications: boolean;
-  marketingEmails: boolean;
-  appointmentReminders: boolean;
-  followUpReminders: boolean;
-}
-
-// Schéma de validation pour le changement de mot de passe
-const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Mot de passe actuel requis"),
-    newPassword: z
-      .string()
-      .min(6, "Le nouveau mot de passe doit contenir au moins 6 caractères"),
-    confirmPassword: z.string().min(1, "Confirmation requise"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Les mots de passe ne correspondent pas",
-    path: ["confirmPassword"],
-  });
+import { availablePlans, getPlanDetails } from "@/lib/saasPlan.data";
+import { changePasswordSchema } from "@/lib/zod/validator.schema";
+import { Subscription, UserSettings } from "@/lib/type";
 
 export default function ParamPage() {
   const user = useUser();
@@ -77,6 +34,7 @@ export default function ParamPage() {
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [confirmationEnabled, setConfirmationEnabled] = useState(false);
+  const [appointmentParam, setAppointmentParam] = useState(false);
   const [settings, setSettings] = useState<UserSettings>({
     emailNotifications: true,
     smsNotifications: false,
@@ -147,21 +105,24 @@ export default function ParamPage() {
     }
   }, [user?.id]);
 
-  //! Récupérer le paramètre de confirmation des RDV
+  //! Récupérer les paramètre de RDV
   const fetchConfirmationSetting = useCallback(async () => {
     if (!user?.id) return;
 
     try {
       const response = await fetchAppointmentConfirmationAction();
+      const responseParam = await fetchAppointmentParamAction();
 
       if (response.ok) {
         setConfirmationEnabled(
           response.data.user.addConfirmationEnabled || false
         );
       }
-
-      console.log("Paramètre de confirmation :", response);
-      console.log(confirmationEnabled);
+      if (responseParam.ok) {
+        setAppointmentParam(
+          responseParam.data.user.addAppointmentParam || false
+        );
+      }
     } catch (error) {
       console.error(
         "Erreur lors de la récupération du paramètre de confirmation :",
@@ -187,65 +148,6 @@ export default function ParamPage() {
       fetchAccountData();
     }
   }, [user?.id, fetchUserPlan, fetchConfirmationSetting]);
-
-  const getPlanDetails = (plan: string) => {
-    switch (plan) {
-      case "FREE":
-        return {
-          name: "Gratuit",
-          color: "text-gray-400",
-          bgColor: "bg-gray-500/20",
-          borderColor: "border-gray-500/30",
-          features: [
-            `${subscription?.maxClients || 0} clients max`,
-            `${subscription?.maxAppointments || 0} RDV/mois`,
-            "Support basique",
-          ],
-        };
-      case "PRO":
-        return {
-          name: "Pro",
-          color: "text-tertiary-400",
-          bgColor: "bg-tertiary-500/20",
-          borderColor: "border-tertiary-500/30",
-          features: [
-            "Clients illimités",
-            "RDV illimités",
-            "Support prioritaire",
-            subscription?.hasAdvancedStats
-              ? "Analytics avancées"
-              : "Analytics basiques",
-            subscription?.hasEmailReminders
-              ? "Rappels automatiques"
-              : "Rappels manuels",
-          ],
-        };
-      case "BUSINESS":
-        return {
-          name: "Business",
-          color: "text-purple-400",
-          bgColor: "bg-purple-500/20",
-          borderColor: "border-purple-500/30",
-          features: [
-            "Multi-salons",
-            subscription?.hasApiAccess ? "API accès" : "Pas d'API",
-            "Support dédié",
-            subscription?.hasCustomBranding
-              ? "Branding personnalisé"
-              : "Branding standard",
-            "Intégrations avancées",
-          ],
-        };
-      default:
-        return {
-          name: "Inconnu",
-          color: "text-white",
-          bgColor: "bg-white/5",
-          borderColor: "border-white/10",
-          features: [],
-        };
-    }
-  };
 
   //! CHANGER DE PLAN
   const handlePlanChange = async (newPlan: string) => {
@@ -278,7 +180,9 @@ export default function ParamPage() {
       await fetchUserPlan();
 
       toast.success(
-        `Plan changé avec succès vers ${getPlanDetails(newPlan).name} !`
+        `Plan changé avec succès vers ${
+          getPlanDetails(newPlan, subscription || undefined).name
+        } !`
       );
       setShowPlanModal(false);
       setSelectedPlan("");
@@ -289,52 +193,6 @@ export default function ParamPage() {
       setIsChangingPlan(false);
     }
   };
-
-  // Données des plans disponibles
-  const availablePlans = [
-    {
-      id: "FREE",
-      name: "Gratuit",
-      price: 0,
-      color: "text-gray-400",
-      bgColor: "bg-gray-500/20",
-      borderColor: "border-gray-500/30",
-      features: ["5 clients max", "10 RDV/mois", "Support basique"],
-      description: "Parfait pour débuter",
-    },
-    {
-      id: "PRO",
-      name: "Pro",
-      price: 29,
-      color: "text-tertiary-400",
-      bgColor: "bg-tertiary-500/20",
-      borderColor: "border-tertiary-500/30",
-      features: [
-        "Clients illimités",
-        "RDV illimités",
-        "Support prioritaire",
-        "Analytics avancées",
-        "Rappels automatiques",
-      ],
-      description: "Pour les professionnels",
-    },
-    {
-      id: "BUSINESS",
-      name: "Business",
-      price: 69,
-      color: "text-purple-400",
-      bgColor: "bg-purple-500/20",
-      borderColor: "border-purple-500/30",
-      features: [
-        "Multi-salons",
-        "API accès",
-        "Support dédié",
-        "Branding personnalisé",
-        "Intégrations avancées",
-      ],
-      description: "Pour les entreprises",
-    },
-  ];
 
   const handleSettingChange = async (
     setting: keyof UserSettings,
@@ -370,8 +228,6 @@ export default function ParamPage() {
   const handleConfirmationSettingChange = async (value: boolean) => {
     if (!user?.id) return;
 
-    console.log("Changement de confirmation à :", value);
-
     try {
       const response = await updateAppointmentConfirmationAction(value);
 
@@ -393,6 +249,31 @@ export default function ParamPage() {
     }
   };
 
+  //! Fonction pour changer le paramètre de confirmation des RDV
+  const handleAppointmentSettingChange = async (value: boolean) => {
+    if (!user?.id) return;
+
+    try {
+      const response = await updateAppointmentParamAction(value);
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la mise à jour du paramètre");
+      }
+
+      // Mise à jour de l'état local
+      setAppointmentParam(value);
+
+      toast.success(
+        value
+          ? "La prise de RDV est globale au salon."
+          : "La prise de RDV est individuelle aux tatoueurs."
+      );
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du paramètre :", error);
+      toast.error("Erreur lors de la mise à jour du paramètre");
+    }
+  };
+
   // Fonction pour changer le mot de passe
   const handlePasswordChange = async (
     data: z.infer<typeof changePasswordSchema>
@@ -402,23 +283,6 @@ export default function ParamPage() {
     setIsChangingPassword(true);
 
     try {
-      // const response = await fetch(
-      //   `${process.env.NEXT_PUBLIC_BACK_URL}/auth/change-password`,
-      //   {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({
-      //       currentPassword: data.currentPassword,
-      //       newPassword: data.newPassword,
-      //       confirmPassword: data.confirmPassword,
-      //     }),
-      //   }
-      // );
-
-      // const result = await response.json();
-
       const response = await changePasswordAction({
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
@@ -613,6 +477,70 @@ export default function ParamPage() {
                   </div>
                 </div>
 
+                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-one mb-1 text-sm sm:text-base">
+                        <span className="hidden sm:inline">
+                          Mode de prise de rendez-vous
+                        </span>
+                        <span className="sm:hidden">Mode RDV</span>
+                      </h3>
+                      <p className="text-white/60 text-xs sm:text-sm font-one">
+                        <span className="hidden sm:inline">
+                          Si activé, prise de RDV globale au salon (agenda
+                          unique). <br />
+                          Si désactivé, le client choisit son tatoueur et voit
+                          son agenda personnel.
+                        </span>
+                        <span className="sm:hidden">
+                          Agenda global ou par tatoueur
+                        </span>
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={appointmentParam}
+                        onChange={(e) =>
+                          handleAppointmentSettingChange(e.target.checked)
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
+                    </label>
+                  </div>
+
+                  {/* Indicateur de statut */}
+                  <div className="mt-3 pt-3 border-t border-white/10">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          appointmentParam ? "bg-blue-400" : "bg-green-400"
+                        }`}
+                      ></div>
+                      <span className="text-xs font-one text-white/70">
+                        {appointmentParam ? (
+                          <span className="text-blue-300">
+                            <span className="hidden sm:inline">
+                              Agenda global du salon (moins de créneaux
+                              disponibles)
+                            </span>
+                            <span className="sm:hidden">Agenda salon</span>
+                          </span>
+                        ) : (
+                          <span className="text-green-300">
+                            <span className="hidden sm:inline">
+                              Agenda par tatoueur (client choisit son tatoueur)
+                            </span>
+                            <span className="sm:hidden">Par tatoueur</span>
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="h-[0.5px] bg-white/10"></div>
 
                 <div className="flex justify-end">
@@ -650,19 +578,26 @@ export default function ParamPage() {
                 {/* Plan actuel responsive */}
                 <div
                   className={`${
-                    getPlanDetails(subscription.currentPlan).bgColor
+                    getPlanDetails(subscription.currentPlan, subscription)
+                      .bgColor
                   } rounded-xl p-4 sm:p-6 border ${
-                    getPlanDetails(subscription.currentPlan).borderColor
+                    getPlanDetails(subscription.currentPlan, subscription)
+                      .borderColor
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
                     <div>
                       <h3
                         className={`text-lg sm:text-xl font-bold ${
-                          getPlanDetails(subscription.currentPlan).color
+                          getPlanDetails(subscription.currentPlan, subscription)
+                            .color
                         } font-one`}
                       >
-                        Plan {getPlanDetails(subscription.currentPlan).name}
+                        Plan{" "}
+                        {
+                          getPlanDetails(subscription.currentPlan, subscription)
+                            .name
+                        }
                       </h3>
                       <p className="text-white/70 font-one text-sm">
                         {subscription.planStatus === "ACTIVE"
@@ -684,16 +619,17 @@ export default function ParamPage() {
 
                   {/* Fonctionnalités responsive */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-                    {getPlanDetails(subscription.currentPlan).features.map(
-                      (feature, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <FaCheck className="text-green-400 text-sm" />
-                          <span className="text-white/80 text-sm font-one">
-                            {feature}
-                          </span>
-                        </div>
-                      )
-                    )}
+                    {getPlanDetails(
+                      subscription.currentPlan,
+                      subscription
+                    ).features.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <FaCheck className="text-green-400 text-sm" />
+                        <span className="text-white/80 text-sm font-one">
+                          {feature}
+                        </span>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Limites du plan responsive */}

@@ -14,7 +14,7 @@ export default function Section5() {
             alt="sec3"
             width={1000}
             height={1000}
-            className="object-cover w-full max-w-md sm:max-w-lg rounded-2xl shadow-[15px_15px_30px_0px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-300"
+            className="object-cover w-full max-w-md sm:max-w-xl rounded-2xl shadow-[15px_15px_30px_0px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-300"
           />
         </div>
       </div>

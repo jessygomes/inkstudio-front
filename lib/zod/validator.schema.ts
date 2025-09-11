@@ -53,6 +53,20 @@ export const getAuthenticatedUserSchema = z.object({
   saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]),
 });
 
+// Schéma de validation pour le changement de mot de passe
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Mot de passe actuel requis"),
+    newPassword: z
+      .string()
+      .min(6, "Le nouveau mot de passe doit contenir au moins 6 caractères"),
+    confirmPassword: z.string().min(1, "Confirmation requise"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  });
+
 //! SALON
 export const prestationEnum = z.enum([
   "TATTOO",
