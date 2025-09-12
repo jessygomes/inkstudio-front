@@ -102,6 +102,7 @@ export const createTatoueurSchema = z.object({
   hours: z.string().optional(),
   style: z.array(z.string()).optional(),
   skills: z.array(z.string()).optional(),
+  rdvBookingEnabled: z.boolean().default(true),
 });
 
 //! RDV

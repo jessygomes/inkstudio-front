@@ -62,6 +62,8 @@ export default function SalonPhoto() {
       if (response.ok) {
         const data = response.data;
 
+        console.log("Photos récupérées :", data);
+
         // Si le backend retourne un tableau de strings, on les convertit en objets
         if (data.salonPhotos && Array.isArray(data.salonPhotos)) {
           const convertedImages = data.salonPhotos.map(

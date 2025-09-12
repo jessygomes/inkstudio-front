@@ -7,7 +7,7 @@ import { z } from "zod";
 import { createTatoueurSchema } from "@/lib/zod/validator.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
-import { TatoueurProps } from "@/components/Application/MonCompte/TatoueurSalon";
+import { TatoueurProps } from "@/lib/type";
 import Link from "next/link";
 import TatoueurImageUploader from "@/components/Application/MonCompte/TatoueurImageUploader";
 
@@ -115,6 +115,7 @@ export default function AddOrUpdateTatoueurPage() {
       hours: existingTatoueur?.hours || "",
       style: existingTatoueur?.style || [],
       skills: existingTatoueur?.skills || [],
+      rdvBookingEnabled: existingTatoueur?.rdvBookingEnabled || true,
     },
   });
 
@@ -130,6 +131,7 @@ export default function AddOrUpdateTatoueurPage() {
         hours: existingTatoueur.hours || "",
         style: existingTatoueur.style || [],
         skills: existingTatoueur.skills || [],
+        rdvBookingEnabled: existingTatoueur.rdvBookingEnabled || true,
       });
 
       if (existingTatoueur.hours) {
@@ -152,7 +154,7 @@ export default function AddOrUpdateTatoueurPage() {
   useEffect(() => {
     setStyleBadges(form.watch("style") || []);
     setSkillsBadges(form.watch("skills") || []);
-  }, [existingTatoueur]);
+  }, [existingTatoueur, form]);
 
   // Ajout badge style
   const handleAddStyle = () => {
@@ -452,6 +454,64 @@ export default function AddOrUpdateTatoueurPage() {
                         </button>
                       </span>
                     ))}
+                  </div>
+                </div>
+
+                {/* Autorisation de prise de RDV responsive */}
+                <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-white font-one mb-1 text-xs sm:text-sm">
+                        <span className="hidden sm:inline">
+                          Autoriser la prise de rendez-vous
+                        </span>
+                        <span className="sm:hidden">Prise de RDV</span>
+                      </h4>
+                      <p className="text-white/60 text-xs font-one">
+                        <span className="hidden sm:inline">
+                          Si activé, les clients peuvent prendre rendez-vous avec ce tatoueur
+                        </span>
+                        <span className="sm:hidden">
+                          Clients peuvent prendre RDV
+                        </span>
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        {...form.register("rdvBookingEnabled")}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
+                    </label>
+                  </div>
+
+                  {/* Indicateur de statut */}
+                  <div className="mt-3 pt-3 border-t border-white/10">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          form.watch("rdvBookingEnabled") ? "bg-green-400" : "bg-orange-400"
+                        }`}
+                      ></div>
+                      <span className="text-xs font-one text-white/70">
+                        {form.watch("rdvBookingEnabled") ? (
+                          <span className="text-green-300">
+                            <span className="hidden sm:inline">
+                              Ce tatoueur apparaîtra dans la liste de sélection pour les RDV
+                            </span>
+                            <span className="sm:hidden">Visible pour RDV</span>
+                          </span>
+                        ) : (
+                          <span className="text-orange-300">
+                            <span className="hidden sm:inline">
+                              Ce tatoueur ne sera pas disponible pour les prises de RDV
+                            </span>
+                            <span className="sm:hidden">Non disponible RDV</span>
+                          </span>
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

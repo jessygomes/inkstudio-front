@@ -12,7 +12,9 @@ import Link from "next/link";
 
 const resetPasswordSchema = z
   .object({
-    password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+    password: z
+      .string()
+      .min(6, "Le mot de passe doit contenir au moins 6 caractères"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -26,6 +28,7 @@ export default function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const email = searchParams.get("email");
 
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | undefined>("");
@@ -58,6 +61,7 @@ export default function ResetPasswordForm() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            email,
             token,
             password: data.password,
           }),
@@ -88,10 +92,14 @@ export default function ResetPasswordForm() {
   if (!token) {
     return (
       <div>
-        <h2 className="text-center font-two text-white uppercase mb-6">InkStudio</h2>
+        <h2 className="text-center font-two text-white uppercase mb-6">
+          InkStudio
+        </h2>
         <CardWrapper headerLabel="Lien invalide">
           <div className="text-center text-white">
-            <p className="mb-4">Le lien de réinitialisation est invalide ou a expiré.</p>
+            <p className="mb-4">
+              Le lien de réinitialisation est invalide ou a expiré.
+            </p>
             <Link
               href="/motdepasseoublie"
               className="text-tertiary-400 hover:text-tertiary-500 transition-all ease-in-out duration-150 underline"
@@ -106,7 +114,9 @@ export default function ResetPasswordForm() {
 
   return (
     <div>
-      <h2 className="text-center font-two text-white uppercase mb-6">InkStudio</h2>
+      <h2 className="text-center font-two text-white uppercase mb-6">
+        InkStudio
+      </h2>
       <CardWrapper headerLabel="Créez votre nouveau mot de passe">
         <form
           method="post"

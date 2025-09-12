@@ -46,7 +46,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   useEffect(() => {
     const fetchTatoueurs = async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${userId}`
+        `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/for-appointment/${userId}`
       );
       const data = await response.json();
       setTatoueurs(data);

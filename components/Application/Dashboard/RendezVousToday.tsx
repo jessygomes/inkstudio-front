@@ -14,6 +14,7 @@ import {
   paidAppointmentsAction,
 } from "@/lib/queries/appointment";
 import { openImageInNewTab } from "@/lib/utils/openImage";
+import ChangeRdv from "../RDV/ChangeRdv";
 
 interface Client {
   firstName: string;
@@ -609,6 +610,12 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                       onUpdate={() => handleRdvUpdated(selectedAppointment.id)}
                     />
                   )}
+
+                <ChangeRdv
+                  rdvId={selectedAppointment.id}
+                  userId={userId}
+                  appointment={selectedAppointment}
+                />
 
                 {/* Bouton Annuler - pas pour CANCELED, RDV passés confirmés, COMPLETED, NO_SHOW */}
                 {selectedAppointment.status !== "CANCELED" &&

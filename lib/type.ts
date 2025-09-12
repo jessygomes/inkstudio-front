@@ -9,6 +9,7 @@ export type TatoueurProps = {
   hours?: string | null;
   style: string[]; // Ajoutez cette propriété
   skills: string[]; // Ajoutez cette propriété
+  rdvBookingEnabled?: boolean; // Autoriser la prise de RDV
 };
 
 export interface TimeSlotProps {
