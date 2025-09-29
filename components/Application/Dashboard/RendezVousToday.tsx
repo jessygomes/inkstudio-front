@@ -639,6 +639,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                   selectedAppointment.status === "NO_SHOW") && (
                   <ChangeStatusButtons
                     rdvId={selectedAppointment.id}
+                    currentStatus={selectedAppointment.status}
                     onStatusChange={handleStatusChange}
                     size="sm"
                   />

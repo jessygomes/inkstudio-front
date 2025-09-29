@@ -60,7 +60,7 @@ export default function ProfilSection() {
               <div className="absolute -inset-1 bg-gradient-to-r from-tertiary-400/20 via-tertiary-500/20 to-tertiary-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-700"></div>
               <div className="relative bg-noir-800/50 backdrop-blur-sm rounded-3xl p-4">
                 <Image
-                  src="/images/dash.png"
+                  src="/images/profil.png"
                   alt="Interface profil salon"
                   width={1400}
                   height={900}

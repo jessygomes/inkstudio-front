@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 interface ChangeStatusButtonsProps {
   rdvId: string;
+  currentStatus?: "COMPLETED" | "NO_SHOW" | string;
   onStatusChange?: (rdvId: string, status: "COMPLETED" | "NO_SHOW") => void;
   size?: "sm" | "md" | "lg";
   className?: string;
@@ -11,6 +12,7 @@ interface ChangeStatusButtonsProps {
 
 export default function ChangeStatusButtons({
   rdvId,
+  currentStatus,
   onStatusChange,
   size = "sm",
   className = "",
@@ -25,13 +27,14 @@ export default function ChangeStatusButtons({
       // Callback pour notifier le parent du changement
       if (onStatusChange) {
         onStatusChange(rdvId, status);
+      } else {
+        // Show toast only if no callback is provided (to avoid duplicate toasts)
+        toast.success(
+          `Rendez-vous marqué comme ${
+            status === "COMPLETED" ? "terminé" : "non présenté"
+          }`
+        );
       }
-
-      toast.success(
-        `Rendez-vous marqué comme ${
-          status === "COMPLETED" ? "terminé" : "non présenté"
-        }`
-      );
     } catch (error) {
       console.error("Erreur:", error);
       toast.error("Une erreur est survenue lors de la mise à jour du statut");
@@ -49,25 +52,29 @@ export default function ChangeStatusButtons({
 
   return (
     <div className={`flex gap-1 ${className}`}>
-      {/* Bouton Terminé */}
-      <button
-        onClick={() => handleAppointmentStatusChange("COMPLETED")}
-        className={`cursor-pointer ${buttonSizeClass} bg-gradient-to-r from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30 text-green-300 rounded-lg border border-green-400/30 hover:border-green-400/50 transition-all duration-200 font-one flex items-center gap-1 whitespace-nowrap`}
-        title="Marquer comme terminé"
-      >
-        <span className="text-green-400">✓</span>
-        Terminé
-      </button>
+      {/* Bouton Terminé - Affiché si le statut n'est pas COMPLETED */}
+      {currentStatus !== "COMPLETED" && (
+        <button
+          onClick={() => handleAppointmentStatusChange("COMPLETED")}
+          className={`cursor-pointer ${buttonSizeClass} bg-gradient-to-r from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30 text-green-300 rounded-lg border border-green-400/30 hover:border-green-400/50 transition-all duration-200 font-one flex items-center gap-1 whitespace-nowrap`}
+          title="Marquer comme terminé"
+        >
+          <span className="text-green-400">✓</span>
+          Terminé
+        </button>
+      )}
 
-      {/* Bouton Absent */}
-      <button
-        onClick={() => handleAppointmentStatusChange("NO_SHOW")}
-        className={`cursor-pointer ${buttonSizeClass} bg-gradient-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500/30 hover:to-amber-500/30 text-orange-300 rounded-lg border border-orange-400/30 hover:border-orange-400/50 transition-all duration-200 font-one flex items-center gap-1 whitespace-nowrap`}
-        title="Marquer comme absent"
-      >
-        <span className="text-orange-400">X</span>
-        Absent
-      </button>
+      {/* Bouton Absent - Affiché si le statut n'est pas NO_SHOW */}
+      {currentStatus !== "NO_SHOW" && (
+        <button
+          onClick={() => handleAppointmentStatusChange("NO_SHOW")}
+          className={`cursor-pointer ${buttonSizeClass} bg-gradient-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500/30 hover:to-amber-500/30 text-orange-300 rounded-lg border border-orange-400/30 hover:border-orange-400/50 transition-all duration-200 font-one flex items-center gap-1 whitespace-nowrap`}
+          title="Marquer comme absent"
+        >
+          <span className="text-orange-400">X</span>
+          Absent
+        </button>
+      )}
     </div>
   );
 }

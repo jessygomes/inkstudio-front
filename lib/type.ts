@@ -152,11 +152,13 @@ export interface UserSettings {
 export interface TattooHistoryProps {
   id: string;
   clientId: string; // ID du client
+  tatoueurId: string; // ID du tatoueur
   date: string; // Date au format ISO
   description: string; // Type de tatouage
-  beforeImage: string; // Image avant le tatouage
-  afterImage: string; // Image après le tatouage
-  inkused: string; // Type d'encre utilisée
+  photo: string; // Image avant le tatouage
+  zone: string; // Zone du tatouage
+  size: string; // Taille du tatouage
+  price: number; // Prix du tatouage
   healingTime: string; // Temps de guérison
   careProducts: string; // Produits de soin utilisés
 }
@@ -171,7 +173,7 @@ export interface ClientProps {
   birthDate: string | null; // Date de naissance au format ISO
   address: string;
   appointments: AppointmentProps[]; // Liste des rendez-vous
-  tattooHistories: TattooHistoryProps[]; // Historique des tatouages
+  tattooHistory: TattooHistoryProps[]; // Historique des tatouages
   medicalHistory: {
     allergies: string | null; // Allergies
     healthIssues: string | null; // Problèmes de santé

@@ -48,3 +48,21 @@ export async function verifyToken(token: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Server Action pour nettoyer les cookies expirés
+ * Utilisée quand on détecte un token invalide/expiré
+ */
+export async function clearExpiredSession() {
+  try {
+    const cookieStore = await cookies();
+
+    // Supprimer les cookies de session
+    cookieStore.delete("access_token");
+    cookieStore.delete("userId");
+
+    console.log("🧹 Cookies expirés supprimés");
+  } catch (error) {
+    console.error("❌ Erreur lors du nettoyage des cookies expirés:", error);
+  }
+}

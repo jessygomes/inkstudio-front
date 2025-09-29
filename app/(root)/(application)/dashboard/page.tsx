@@ -202,9 +202,8 @@ export default function DashboardPage() {
           )}
 
           {/* Bottom Row - Additional Space for Future Components */}
-          <div className="col-span-12">
+          {/* <div className="col-span-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Placeholder pour futurs composants */}
               <div className="bg-noir-700 rounded-xl border border-white/20 p-6 shadow-2xl min-h-[300px]">
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
@@ -261,7 +260,7 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
