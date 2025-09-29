@@ -11,6 +11,7 @@ import ChangeStatusButtons from "./ChangeStatusButtons";
 import SendMessageRdv from "./SendMessageRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import { openImageInNewTab } from "@/lib/utils/openImage";
+import Link from "next/link";
 
 interface ShowRdvDetailsProps {
   selectedEvent: CalendarEvent;
@@ -377,6 +378,85 @@ export default function ShowRdvDetails({
                   <p className="text-white font-one text-xs">
                     {selectedEvent.tatoueur.name}
                   </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-6 h-6 ${
+                    selectedEvent.visio ? "bg-blue-500/20" : "bg-gray-500/20"
+                  } rounded-md flex items-center justify-center`}
+                >
+                  {selectedEvent.visio ? (
+                    <svg
+                      className="w-3 h-3 text-blue-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-3 h-3 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-white/60 text-xs font-one">Mode</p>
+                  <p
+                    className={`font-one text-xs ${
+                      selectedEvent.visio ? "text-blue-400" : "text-gray-400"
+                    }`}
+                  >
+                    {selectedEvent.visio ? "En visio" : "En présentiel"}
+                  </p>
+                  {selectedEvent.visio && selectedEvent.visioRoom && (
+                    <Link
+                      href={`/meeting/${selectedEvent.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 mt-1 px-2 py-1 bg-blue-500/20 text-blue-300 rounded-md text-xs font-one hover:bg-blue-500/30 transition-colors border border-blue-400/30"
+                    >
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
+                      </svg>
+                      Rejoindre la visio
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>

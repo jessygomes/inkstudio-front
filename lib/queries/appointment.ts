@@ -86,6 +86,31 @@ export const fetchAllAppointments = async (
 
 //! ----------------------------------------------------------------------------
 
+//! RECUPERER UN RDV
+
+//! ----------------------------------------------------------------------------
+export const fetchAppointmentById = async (rdvId: string) => {
+  try {
+    const headers = await getAuthHeaders();
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/${rdvId}`,
+      {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      }
+    );
+    if (!res.ok) throw new Error("Erreur lors du chargement du rendez-vous");
+    const data = await res.json();
+    return data || null;
+  } catch (error) {
+    console.error("Error fetching appointment by ID:", error);
+    throw error;
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
 //! CREER UN RDV
 
 //! ----------------------------------------------------------------------------

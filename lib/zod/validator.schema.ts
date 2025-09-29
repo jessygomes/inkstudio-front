@@ -121,6 +121,8 @@ export const appointmentSchema = z.object({
   end: z.string(),
   tatoueurId: z.string(),
   status: z.enum(["PENDING", "CONFIRMED", "DECLINED", "CANCELED"]),
+  // champ visio
+  visio: z.boolean().default(false),
   // champs optionnels pour projet :
   description: z.string().optional(),
   zone: z.string().optional(),
@@ -149,6 +151,8 @@ export const updateAppointmentSchema = z.object({
   end: z.string(),
   tatoueurId: z.string(),
   // status: z.enum(["PENDING", "CONFIRMED", "DECLINED", "CANCELED"]),
+  // champ visio
+  visio: z.boolean().default(false),
 
   client: z.object({
     firstName: z.string().min(1, "Le prénom est requis."),

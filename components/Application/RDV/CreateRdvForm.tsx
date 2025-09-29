@@ -317,6 +317,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       end: new Date().toISOString(),
       tatoueurId: "",
       status: "PENDING",
+      visio: false,
       zone: "",
       description: "",
       colorStyle: "",
@@ -617,6 +618,24 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   </option>
                 </select>
               </div>
+
+              {/* Champ Visio */}
+              <div className="space-y-1 mt-6 bg-white/10 p-3 rounded-lg border border-white/20">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    {...form.register("visio")}
+                    className="w-4 h-4 bg-white/10 border border-white/20 rounded focus:outline-none focus:border-tertiary-400 transition-colors accent-tertiary-400"
+                  />
+                  <span className="text-xs text-white/70 font-one">
+                    Rendez-vous en visioconférence
+                  </span>
+                </label>
+              </div>
+              <p className="text-xs text-white/50 mt-2 font-one">
+                Cochez cette case si le rendez-vous se déroulera en ligne via
+                visioconférence
+              </p>
             </div>
 
             {/* Section: Créneaux horaires */}

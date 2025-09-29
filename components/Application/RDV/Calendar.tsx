@@ -43,6 +43,8 @@ export type CalendarEvent = Event & {
     id: string;
     name: string;
   };
+  visio?: boolean;
+  visioRoom?: string;
   tattooDetail?: {
     id: string;
     type: string;
