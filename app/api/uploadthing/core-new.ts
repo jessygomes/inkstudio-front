@@ -6,7 +6,7 @@ export const fileRouter = {
   imageUploader: f({
     image: { maxFileSize: "8MB", maxFileCount: 5 },
   })
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       // Pour l'instant, on autorise tout le monde
       return { userId: "salon-user" };
     })
