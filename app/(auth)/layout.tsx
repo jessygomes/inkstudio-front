@@ -11,6 +11,9 @@ export default function AuthLayout({
     salonName: null,
     role: null,
     email: null,
+    phone: "",
+    address: "",
+    saasPlan: "",
   };
 
   return <UserProvider user={user}>{children}</UserProvider>;
