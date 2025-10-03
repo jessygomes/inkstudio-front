@@ -2,10 +2,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter, redirect } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { useUser } from "@/components/Auth/Context/UserContext";
 
 export default function VerifyEmailPage() {
   // const user = useUser();

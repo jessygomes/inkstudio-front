@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 import Image from "next/image";
 import { FaCircleInfo, FaUsers } from "react-icons/fa6";
 import { BiDetail } from "react-icons/bi";

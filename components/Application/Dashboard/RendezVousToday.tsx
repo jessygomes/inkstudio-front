@@ -65,6 +65,8 @@ interface RendezVous {
   updatedAt: string;
   userId: string;
   isPayed?: boolean; // Champ optionnel pour le statut de paiement
+  visio?: boolean; // Indique si le RDV est en visioconférence
+  visioRoom?: string; // Lien de la salle de visioconférence
 }
 
 export default function RendezVousToday({ userId }: { userId: string }) {
@@ -385,6 +387,28 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                           <span className="truncate">
                             {appointment.tattooDetail.zone}
                           </span>
+                        </>
+                      )}
+                      {/* Indicateur de visio */}
+                      {appointment.visio && (
+                        <>
+                          <span>•</span>
+                          <div className="flex items-center gap-1">
+                            <svg
+                              className="w-3 h-3 text-blue-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                              />
+                            </svg>
+                            <span className="text-blue-400">Visio</span>
+                          </div>
                         </>
                       )}
                     </div>
@@ -789,6 +813,65 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                 </div>
               </div>
             </div>
+
+            {/* Section Visio si applicable */}
+            {selectedAppointment.visio && (
+              <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+                <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
+                  <svg
+                    className="w-4 h-4 text-blue-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Visioconférence
+                </h5>
+
+                <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-lg p-3 border border-blue-400/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                    <span className="text-blue-300 font-medium font-one text-xs">
+                      Rendez-vous en ligne
+                    </span>
+                  </div>
+                  <p className="text-blue-200/80 text-xs font-one mb-3">
+                    Ce rendez-vous se déroulera en visioconférence
+                  </p>
+
+                  {selectedAppointment.visioRoom && (
+                    <a
+                      href={selectedAppointment.visioRoom}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 rounded-lg text-blue-300 hover:text-blue-200 transition-colors text-xs font-one font-medium"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
+                      </svg>
+                      Rejoindre la salle de visio
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Statut de paiement compact */}
             {(selectedAppointment.prestation === "RETOUCHE" ||

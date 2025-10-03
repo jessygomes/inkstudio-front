@@ -2,17 +2,13 @@
 import React, { useState } from "react";
 
 export default function CreateRdvViaDemande() {
-  const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   return (
     <div>
       <button
         onClick={() => {
-          setError(null);
           setLoading(false);
-          setShowModal(true);
         }}
         disabled={loading}
         className="cursor-pointer px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-600/30 rounded text-xs font-one font-medium transition-colors flex items-center gap-1 disabled:opacity-60"

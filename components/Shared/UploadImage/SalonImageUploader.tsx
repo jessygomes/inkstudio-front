@@ -155,8 +155,8 @@ export default function SalonImageUploader({
                       Formats acceptés: JPG, PNG, WebP (max 8MB)
                     </div>
                     <div className="text-xs text-tertiary-400 bg-tertiary-400/10 rounded-lg px-3 py-2 inline-block">
-                      💡 L'image sera affichée en format circulaire comme
-                      l'aperçu
+                      💡 L&apos;image sera affichée en format circulaire comme
+                      l&apos;aperçu
                     </div>
                   </div>
                 )}
