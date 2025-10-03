@@ -13,13 +13,22 @@ import { useUploadThing } from "@/lib/utils/uploadthing";
 import imageCompression from "browser-image-compression";
 
 interface SuiviPageProps {
-  params: {
+  params: Promise<{
     token: string;
-  };
+  }>;
 }
 
 export default function SuiviPage({ params }: SuiviPageProps) {
-  const { token } = params;
+  const [token, setToken] = useState<string>("");
+
+  // Récupérer les params de manière asynchrone
+  useEffect(() => {
+    const getParams = async () => {
+      const resolvedParams = await params;
+      setToken(resolvedParams.token);
+    };
+    getParams();
+  }, [params]);
 
   const [tokenValidation, setTokenValidation] = useState<{
     isLoading: boolean;
@@ -173,7 +182,7 @@ export default function SuiviPage({ params }: SuiviPageProps) {
   }, [token]);
 
   // Loading state
-  if (tokenValidation.isLoading) {
+  if (!token || tokenValidation.isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-noir-700 to-noir-500 flex items-center justify-center px-4">
         <div className="text-center">
