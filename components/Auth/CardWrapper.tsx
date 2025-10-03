@@ -17,9 +17,9 @@ export const CardWrapper = ({
 // showSocial = false,
 CardWrapperProps) => {
   return (
-    <div className="w-[550px] flex flex-col gap-4 p-4 rounded-2xl">
+    <div className="w-full max-w-[550px] mx-auto flex flex-col gap-4 p-4 rounded-2xl">
       <div className="flex flex-col justify-between items-center">
-        <h1 className="text-2xl p-2 rounded-[20px] text-white font-one text-center uppercase w-full">
+        <h1 className="text-xl sm:text-2xl p-2 rounded-[20px] text-white font-one text-center uppercase w-full">
           {headerLabel}
         </h1>
         <div className="h-[1px] bg-white/50 w-full" />
