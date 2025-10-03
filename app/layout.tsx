@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Didact_Gothic, Exo_2, Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/Shared/Sonner";
+
+export const dynamic = "force-dynamic";
+
 // import Header from "@/components/Shared/Header";
 
 // const geistSans = Didact_Gothic({

@@ -1,6 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";

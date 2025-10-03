@@ -1,17 +1,12 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function VerifyEmailPage() {
-  // const user = useUser();
-  // if (user) {
-  //   redirect("/dashboard");
-  // }
-
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -84,5 +79,31 @@ export default function VerifyEmailPage() {
         </p>
       </motion.div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-noir-700">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="text-center max-w-md"
+          >
+            <div className="flex justify-center mb-4">
+              <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
+            </div>
+            <h1 className="text-2xl font-semibold font-one tracking-widest text-white">
+              Chargement...
+            </h1>
+          </motion.div>
+        </div>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

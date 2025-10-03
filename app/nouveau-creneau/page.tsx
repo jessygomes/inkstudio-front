@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 
@@ -62,7 +62,7 @@ interface TokenValidation {
   rescheduleInfo?: RescheduleInfo;
 }
 
-export default function NouveauCreneauPage() {
+function NouveauCreneauContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
@@ -959,5 +959,22 @@ export default function NouveauCreneauPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NouveauCreneauPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-noir-700 to-noir-500 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+            <p className="text-white font-one">Chargement...</p>
+          </div>
+        </div>
+      }
+    >
+      <NouveauCreneauContent />
+    </Suspense>
   );
 }

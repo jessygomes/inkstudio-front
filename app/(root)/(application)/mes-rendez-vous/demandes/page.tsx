@@ -1,5 +1,7 @@
 import DemandesRdv from "@/components/Application/RDV/DemandesRdv";
 
+export const dynamic = "force-dynamic";
+
 export default function ClientAvisPage() {
   return (
     <div className="min-h-screen bg-noir-700 flex flex-col items-center gap-4">

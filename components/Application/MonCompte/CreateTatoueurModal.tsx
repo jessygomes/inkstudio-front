@@ -1,11 +1,13 @@
 // Ce fichier peut être supprimé car il n'est plus utilisé
 // La fonctionnalité a été déplacée vers la page AddOrUpdateTatoueurPage
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createTatoueurSchema } from "@/lib/zod/validator.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { TatoueurProps } from "./TatoueurSalon";
+import { TatoueurProps } from "@/lib/type";
+import { createOrUpdateTatoueur } from "@/lib/queries/tatoueur";
 
 type Horaire = {
   [key: string]: { start: string; end: string } | null;
@@ -61,6 +63,10 @@ export default function CreateTatoueurModal({
       description: existingTatoueur?.description || "",
       instagram: existingTatoueur?.instagram || "",
       hours: existingTatoueur?.hours || "",
+      phone: existingTatoueur?.phone || "",
+      style: existingTatoueur?.style || [],
+      skills: existingTatoueur?.skills || [],
+      rdvBookingEnabled: existingTatoueur?.rdvBookingEnabled ?? true,
       userId: salonId,
     },
   });
@@ -78,14 +84,10 @@ export default function CreateTatoueurModal({
       ? `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/update/${existingTatoueur.id}`
       : `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`;
 
-    try {
-      const res = await fetch(url, {
-        method: existingTatoueur ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+    const method = existingTatoueur ? "PATCH" : "POST";
 
-      const result = await res.json();
+    try {
+      const result = await createOrUpdateTatoueur(payload, method, url);
 
       // Vérifier si c'est une erreur de limite SaaS
       if (result.error) {
@@ -100,7 +102,7 @@ export default function CreateTatoueurModal({
         return;
       }
 
-      if (res.ok) {
+      if (result.ok) {
         onCreated();
         onClose();
       } else {

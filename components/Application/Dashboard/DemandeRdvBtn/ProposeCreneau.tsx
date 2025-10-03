@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
-import { TatoueurProps } from "../../MonCompte/TatoueurSalon";
-import { TimeSlotProps } from "@/lib/type";
+import { TatoueurProps, TimeSlotProps } from "@/lib/type";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { proposeCreneauSchema } from "@/lib/zod/validator.schema";
