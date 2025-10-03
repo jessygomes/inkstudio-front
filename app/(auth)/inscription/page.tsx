@@ -26,7 +26,7 @@ export default async function page() {
   return (
     <section className="">
       <div
-        className="hidden sm:flex h-screen w-full bg-cover bg-center items-center justify-center"
+        className="flex h-screen w-full bg-cover bg-center items-center justify-center px-4"
         style={{
           backgroundImage: "url('/images/bv.png')",
           backgroundSize: "cover",
