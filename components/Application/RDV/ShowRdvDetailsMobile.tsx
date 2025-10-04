@@ -25,9 +25,9 @@ export default function ShowRdvDetailsMobile({
   price,
 }: ShowRdvDetailsMobileProps) {
   return (
-    <div className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm">
-      <div className="absolute inset-0 flex items-end sm:items-center justify-center p-4">
-        <div className="bg-gradient-to-br from-noir-500 to-noir-600 rounded-t-3xl sm:rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+    <div className="lg:hidden fixed inset-0 z-50 bg-noir-700">
+      <div className="w-full h-full">
+        <div className="w-full h-full bg-gradient-to-br from-noir-500 to-noir-600 overflow-hidden flex flex-col">
           {/* Header mobile */}
           <div className="relative p-4 border-b border-white/10 bg-gradient-to-r from-noir-700/80 to-noir-500/80">
             <div className="flex items-center justify-between">
@@ -37,12 +37,12 @@ export default function ShowRdvDetailsMobile({
                     {selectedEvent.client.firstName.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <div>
-                  <h4 className="text-lg font-bold font-one text-white tracking-wide">
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-lg font-bold font-one text-white tracking-wide truncate">
                     {selectedEvent.client.firstName}{" "}
                     {selectedEvent.client.lastName}
                   </h4>
-                  <p className="text-white/70 text-xs font-one">
+                  <p className="text-white/70 text-xs font-one truncate">
                     {selectedEvent.title}
                   </p>
                 </div>

@@ -411,8 +411,8 @@ export default function ClientList() {
 
                   {/* Vue mobile - format carte */}
                   <div className="sm:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 mb-2">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 min-w-0 pr-3">
                         <h3 className="text-white font-one font-semibold text-sm mb-1">
                           {client.firstName} {client.lastName}
                         </h3>
@@ -426,35 +426,36 @@ export default function ClientList() {
                           {client.appointments.length} rendez-vous
                         </p>
                       </div>
+                    </div>
 
-                      {/* Actions mobiles */}
-                      <div className="flex flex-col gap-2">
+                    {/* Actions mobiles - maintenant en bas avec plus d'espace */}
+                    <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/10">
+                      <button
+                        onClick={() => handleShowReservations(client)}
+                        className="cursor-pointer flex-1 text-white font-one text-sm font-medium border border-white/30 px-4 py-2.5 rounded-lg hover:bg-white/10 hover:border-tertiary-400/50 duration-200 transition-all"
+                      >
+                        Voir les infos
+                      </button>
+
+                      <div className="flex gap-3">
                         <button
-                          onClick={() => handleShowReservations(client)}
-                          className="cursor-pointer text-white font-one text-xs border px-3 py-1 rounded-lg hover:bg-white/10 duration-200"
+                          className="cursor-pointer p-2.5 bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                          onClick={() => handleEdit(client)}
                         >
-                          Infos
+                          <IoCreateOutline
+                            size={20}
+                            className="text-white hover:text-tertiary-400 duration-200"
+                          />
                         </button>
-                        <div className="flex gap-3 justify-center">
-                          <button
-                            className="cursor-pointer"
-                            onClick={() => handleEdit(client)}
-                          >
-                            <IoCreateOutline
-                              size={18}
-                              className="text-white hover:text-secondary-500 duration-200"
-                            />
-                          </button>
-                          <button
-                            className="cursor-pointer"
-                            onClick={() => handleDelete(client)}
-                          >
-                            <AiOutlineDelete
-                              size={18}
-                              className="text-white hover:text-secondary-500 duration-200"
-                            />
-                          </button>
-                        </div>
+                        <button
+                          className="cursor-pointer p-2.5 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200"
+                          onClick={() => handleDelete(client)}
+                        >
+                          <AiOutlineDelete
+                            size={20}
+                            className="text-white hover:text-red-400 duration-200"
+                          />
+                        </button>
                       </div>
                     </div>
                   </div>

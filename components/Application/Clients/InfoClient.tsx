@@ -64,16 +64,16 @@ export default function InfoClient({
   if (!isOpen || !client) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+    <div className="fixed inset-0 z-[9999] sm:bg-black/60 sm:backdrop-blur-sm bg-noir-700 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="bg-noir-500 rounded-none sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-5xl sm:max-h-[90vh] overflow-hidden flex flex-col border-0 sm:border sm:border-white/20 sm:shadow-2xl">
         {/* Header fixe responsive */}
-        <div className="p-3 sm:p-4 border-b border-white/10 bg-white/5">
+        <div className="p-4 border-b border-white/10 bg-white/5">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide truncate">
+              <h2 className="text-xl font-bold text-white font-one tracking-wide truncate">
                 {client.firstName} {client.lastName}
               </h2>
-              <p className="text-white/70 mt-1 sm:mt-2 text-xs sm:text-sm">
+              <p className="text-white/70 mt-2 text-sm">
                 Informations détaillées du client
               </p>
             </div>
@@ -87,7 +87,7 @@ export default function InfoClient({
         </div>
 
         {/* Contenu scrollable responsive */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+        <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-4 sm:space-y-6">
             {/* Informations de base responsive */}
             <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
@@ -638,10 +638,10 @@ export default function InfoClient({
         </div>
 
         {/* Footer fixe responsive */}
-        <div className="p-3 sm:p-4 border-t border-white/10 bg-white/5 flex justify-end">
+        <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end">
           <button
             onClick={onClose}
-            className="cursor-pointer px-4 sm:px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
+            className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
           >
             Fermer
           </button>

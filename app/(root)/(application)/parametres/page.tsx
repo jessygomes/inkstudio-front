@@ -1039,12 +1039,12 @@ export default function ParamPage() {
 
       {/* Modales avec responsive... */}
       {showPlanModal && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+        <div className="fixed inset-0 z-[9999] sm:bg-black/60 sm:backdrop-blur-sm bg-noir-700 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-noir-500 rounded-none sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-4xl sm:max-h-[90vh] overflow-hidden flex flex-col border-0 sm:border sm:border-white/20 sm:shadow-2xl">
             {/* Header */}
-            <div className="p-6 border-b border-white/10 bg-white/5">
+            <div className="p-6 sm:p-6 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white font-one tracking-wide">
+                <h2 className="text-2xl sm:text-2xl font-bold text-white font-one tracking-wide">
                   Changer de plan
                 </h2>
                 <button
@@ -1052,19 +1052,21 @@ export default function ParamPage() {
                     setShowPlanModal(false);
                     setSelectedPlan("");
                   }}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  className="p-3 sm:p-2 hover:bg-white/10 rounded-full transition-colors"
                 >
-                  <span className="cursor-pointer text-white text-xl">×</span>
+                  <span className="cursor-pointer text-white text-2xl sm:text-xl">
+                    ×
+                  </span>
                 </button>
               </div>
-              <p className="text-white/70 mt-2 text-sm">
+              <p className="text-white/70 mt-2 text-base sm:text-sm">
                 Sélectionnez le plan qui correspond le mieux à vos besoins
               </p>
             </div>
 
             {/* Contenu */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex-1 overflow-y-auto p-6 sm:p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-6">
                 {availablePlans.map((plan) => {
                   const isCurrentPlan = subscription?.currentPlan === plan.id;
                   const isSelected = selectedPlan === plan.id;
@@ -1089,29 +1091,29 @@ export default function ParamPage() {
                       )}
 
                       {/* Header du plan */}
-                      <div className="text-center mb-6">
+                      <div className="text-center mb-6 sm:mb-6">
                         <h3
-                          className={`text-xl font-bold ${plan.color} font-one mb-2`}
+                          className={`text-2xl sm:text-xl font-bold ${plan.color} font-one mb-3 sm:mb-2`}
                         >
                           {plan.name}
                         </h3>
-                        <p className="text-white/60 text-sm font-one mb-4">
+                        <p className="text-white/60 text-base sm:text-sm font-one mb-4 sm:mb-4">
                           {plan.description}
                         </p>
-                        <div className="text-3xl font-bold text-white font-one">
+                        <div className="text-4xl sm:text-3xl font-bold text-white font-one">
                           {plan.price}€
-                          <span className="text-base text-white/60 font-normal">
+                          <span className="text-lg sm:text-base text-white/60 font-normal">
                             /mois
                           </span>
                         </div>
                       </div>
 
                       {/* Fonctionnalités */}
-                      <div className="space-y-3 mb-6">
+                      <div className="space-y-4 sm:space-y-3 mb-6 sm:mb-6">
                         {plan.features.map((feature, index) => (
                           <div key={index} className="flex items-center gap-3">
-                            <FaCheck className="text-green-400 text-sm flex-shrink-0" />
-                            <span className="text-white/80 text-sm font-one">
+                            <FaCheck className="text-green-400 text-base sm:text-sm flex-shrink-0" />
+                            <span className="text-white/80 text-base sm:text-sm font-one">
                               {feature}
                             </span>
                           </div>
@@ -1122,14 +1124,14 @@ export default function ParamPage() {
                       {!isCurrentPlan && (
                         <div className="flex items-center justify-center">
                           <div
-                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                            className={`w-7 h-7 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                               isSelected
                                 ? "border-tertiary-400 bg-tertiary-400"
                                 : "border-white/40"
                             }`}
                           >
                             {isSelected && (
-                              <FaCheck className="text-white text-xs" />
+                              <FaCheck className="text-white text-sm sm:text-xs" />
                             )}
                           </div>
                         </div>
@@ -1138,8 +1140,8 @@ export default function ParamPage() {
                       {/* Message pour plan gratuit */}
                       {plan.id === "FREE" &&
                         subscription?.currentPlan !== "FREE" && (
-                          <div className="mt-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
-                            <p className="text-yellow-300 text-xs font-one text-center">
+                          <div className="mt-5 sm:mt-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 sm:p-3">
+                            <p className="text-yellow-300 text-sm sm:text-xs font-one text-center">
                               ⚠️ Rétrograder vers le plan gratuit limitera vos
                               fonctionnalités
                             </p>
@@ -1151,11 +1153,11 @@ export default function ParamPage() {
               </div>
 
               {/* Information sur la facturation */}
-              <div className="mt-8 bg-tertiary-500/10 border border-tertiary-500/20 rounded-2xl p-4">
+              <div className="mt-8 sm:mt-8 bg-tertiary-500/10 border border-tertiary-500/20 rounded-2xl p-5 sm:p-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-7 h-7 sm:w-6 sm:h-6 bg-tertiary-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <svg
-                      className="w-3 h-3 text-tertiary-400"
+                      className="w-4 h-4 sm:w-3 sm:h-3 text-tertiary-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1169,10 +1171,10 @@ export default function ParamPage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold font-one mb-2 text-sm">
+                    <h3 className="text-white font-semibold font-one mb-3 sm:mb-2 text-base sm:text-sm">
                       💡 À propos du changement de plan
                     </h3>
-                    <ul className="text-white/70 text-xs space-y-1 font-one">
+                    <ul className="text-white/70 text-sm sm:text-xs space-y-2 sm:space-y-1 font-one">
                       <li>• Le changement prend effet immédiatement</li>
                       <li>• Pour les upgrades : facturation au prorata</li>
                       <li>
@@ -1187,25 +1189,25 @@ export default function ParamPage() {
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-white/10 bg-white/5 flex justify-end gap-3">
+            <div className="p-6 sm:p-6 border-t border-white/10 bg-white/5 flex justify-end gap-4 sm:gap-3">
               <button
                 onClick={() => {
                   setShowPlanModal(false);
                   setSelectedPlan("");
                 }}
                 disabled={isChangingPlan}
-                className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer px-6 py-3 sm:px-6 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-base sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Annuler
               </button>
               <button
                 onClick={() => selectedPlan && handlePlanChange(selectedPlan)}
                 disabled={!selectedPlan || isChangingPlan}
-                className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm flex items-center gap-2"
+                className="cursor-pointer px-8 py-3 sm:px-6 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-base sm:text-sm flex items-center gap-2"
               >
                 {isChangingPlan ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 sm:h-4 sm:w-4 border-b-2 border-white"></div>
                     <span>Changement...</span>
                   </>
                 ) : (

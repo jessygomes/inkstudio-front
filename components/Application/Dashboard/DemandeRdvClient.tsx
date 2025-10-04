@@ -343,56 +343,34 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
           const av = toObject<Availability>(selected.availability);
           const details = toObject<Details>(selected.details);
           return (
-            <div className="absolute inset-0 bg-gradient-to-br from-noir-700/98 via-noir-600/98 to-noir-500/98 backdrop-blur-md rounded-xl flex flex-col animate-in slide-in-from-bottom-4 duration-300 border border-white/10">
-              {/* Header */}
-              <div className="relative p-4 border-b border-white/10 bg-gradient-to-r from-noir-700/80 to-noir-500/80">
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-400/5 to-transparent"></div>
-                <div className="relative flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <span className="text-white font-bold text-sm">
-                        {selected.clientFirstname?.[0]?.toUpperCase() || "?"}
-                      </span>
+            <div className="fixed inset-0 z-50 bg-noir-700 sm:bg-gradient-to-br sm:from-noir-700/98 sm:via-noir-600/98 sm:to-noir-500/98 sm:backdrop-blur-md sm:flex sm:items-center sm:justify-center animate-in slide-in-from-bottom-4 duration-300">
+              <div className="h-full w-full sm:h-auto sm:w-auto sm:max-w-4xl sm:max-h-[95vh] bg-noir-700 sm:bg-transparent rounded-none sm:rounded-xl flex flex-col border-0 sm:border sm:border-white/10 shadow-2xl">
+                {/* Header */}
+                <div className="relative p-4 sm:p-4 border-b border-white/10 bg-noir-700 sm:bg-gradient-to-r sm:from-noir-700/80 sm:to-noir-500/80">
+                  <div className="absolute inset-0 bg-transparent sm:bg-gradient-to-r sm:from-orange-400/5 sm:to-transparent"></div>
+                  <div className="relative flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <span className="text-white font-bold text-sm">
+                          {selected.clientFirstname?.[0]?.toUpperCase() || "?"}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 className="text-lg sm:text-lg font-bold font-one text-white tracking-wide">
+                          {selected.clientFirstname} {selected.clientLastname}
+                        </h4>
+                        <p className="text-white/70 text-sm sm:text-xs font-one">
+                          {selected.prestation}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-lg font-bold font-one text-white tracking-wide">
-                        {selected.clientFirstname} {selected.clientLastname}
-                      </h4>
-                      <p className="text-white/70 text-xs font-one">
-                        {selected.prestation}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setSelected(null)}
-                    className="cursor-pointer p-1.5 hover:bg-white/10 rounded-lg transition-colors group"
-                    aria-label="Fermer"
-                  >
-                    <svg
-                      className="w-5 h-5 text-white/70 group-hover:text-white transition-colors"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                    <button
+                      onClick={() => setSelected(null)}
+                      className="cursor-pointer p-2 sm:p-1.5 hover:bg-white/10 rounded-lg transition-colors group"
+                      aria-label="Fermer"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Contenu */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-                {/* Statut */}
-                <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <h5 className="text-white font-one text-sm flex items-center gap-2">
                       <svg
-                        className="w-4 h-4 text-orange-500"
+                        className="w-6 h-6 sm:w-5 sm:h-5 text-white/70 group-hover:text-white transition-colors"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -401,75 +379,129 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          d="M6 18L18 6M6 6l12 12"
                         />
                       </svg>
-                      Statut
-                    </h5>
-                  </div>
-                  <div className="mb-1">
-                    {selected.status === "PENDING" ? (
-                      <div className="bg-gradient-to-r from-orange-500/15 to-amber-500/15 border border-orange-400/30 rounded-lg p-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
-                          <span className="text-orange-300 font-medium font-one text-xs">
-                            Demande en attente
-                          </span>
-                        </div>
-                      </div>
-                    ) : selected.status === "PROPOSED" ? (
-                      <div className="bg-white/5 border border-white/10 rounded-lg p-2">
-                        <span className="text-white/80 text-xs font-one">
-                          Proposée
-                        </span>
-                      </div>
-                    ) : selected.status === "DECLINED" ? (
-                      <div className="bg-gradient-to-r from-red-500/15 to-red-500/15 border border-red-400/30 rounded-lg p-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-                          <span className="text-red-300 font-medium font-one text-xs">
-                            Demande refusée
-                          </span>
-                        </div>
-                      </div>
-                    ) : selected.status === "CLOSED" ? (
-                      <div className="bg-gradient-to-r from-red-500/15 to-red-500/15 border border-red-400/30 rounded-lg p-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-                          <span className="text-red-300 font-medium font-one text-xs">
-                            Demande clôturée
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="bg-gradient-to-r from-green-500/15 to-green-500/15 border border-green-400/30 rounded-lg p-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                          <span className="text-green-300 font-medium font-one text-xs">
-                            Demande acceptée
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-white/60 text-[11px] font-one mt-2">
-                    Créée le {formatDate(selected.createdAt)}
+                    </button>
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="border-white/10">
-                  <div className="flex items-center gap-1 flex-wrap">
-                    {selected.status === "PENDING" && (
-                      <>
-                        <ProposeCreneau
-                          userId={userId}
-                          demande={selected}
-                          onUpdate={() => {
-                            fetchPendingDemandes();
-                          }}
-                        />
+                {/* Contenu */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                  {/* Statut */}
+                  <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="text-white font-one text-sm flex items-center gap-2">
+                        <svg
+                          className="w-4 h-4 text-orange-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        Statut
+                      </h5>
+                    </div>
+                    <div className="mb-1">
+                      {selected.status === "PENDING" ? (
+                        <div className="bg-gradient-to-r from-orange-500/15 to-amber-500/15 border border-orange-400/30 rounded-lg p-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                            <span className="text-orange-300 font-medium font-one text-xs">
+                              Demande en attente
+                            </span>
+                          </div>
+                        </div>
+                      ) : selected.status === "PROPOSED" ? (
+                        <div className="bg-white/5 border border-white/10 rounded-lg p-2">
+                          <span className="text-white/80 text-xs font-one">
+                            Proposée
+                          </span>
+                        </div>
+                      ) : selected.status === "DECLINED" ? (
+                        <div className="bg-gradient-to-r from-red-500/15 to-red-500/15 border border-red-400/30 rounded-lg p-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                            <span className="text-red-300 font-medium font-one text-xs">
+                              Demande refusée
+                            </span>
+                          </div>
+                        </div>
+                      ) : selected.status === "CLOSED" ? (
+                        <div className="bg-gradient-to-r from-red-500/15 to-red-500/15 border border-red-400/30 rounded-lg p-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                            <span className="text-red-300 font-medium font-one text-xs">
+                              Demande clôturée
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-gradient-to-r from-green-500/15 to-green-500/15 border border-green-400/30 rounded-lg p-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span className="text-green-300 font-medium font-one text-xs">
+                              Demande acceptée
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-white/60 text-[11px] font-one mt-2">
+                      Créée le {formatDate(selected.createdAt)}
+                    </div>
+                  </div>
 
+                  {/* Actions */}
+                  <div className="border-white/10">
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {selected.status === "PENDING" && (
+                        <>
+                          <ProposeCreneau
+                            userId={userId}
+                            demande={selected}
+                            onUpdate={() => {
+                              fetchPendingDemandes();
+                            }}
+                          />
+
+                          <DeclinedDemande
+                            userId={userId}
+                            demande={selected}
+                            onDeclined={() => {
+                              fetchPendingDemandes();
+                            }}
+                          />
+                        </>
+                      )}
+
+                      {selected.status === "DECLINED" && (
+                        <>
+                          <ProposeCreneau
+                            userId={userId}
+                            demande={selected}
+                            onUpdate={() => {
+                              fetchPendingDemandes();
+                            }}
+                          />
+
+                          <DeclinedDemande
+                            userId={userId}
+                            demande={selected}
+                            onDeclined={() => {
+                              fetchPendingDemandes();
+                            }}
+                          />
+                        </>
+                      )}
+
+                      {selected.status === "PROPOSED" && (
                         <DeclinedDemande
                           userId={userId}
                           demande={selected}
@@ -477,156 +509,11 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                             fetchPendingDemandes();
                           }}
                         />
-                      </>
-                    )}
-
-                    {selected.status === "DECLINED" && (
-                      <>
-                        <ProposeCreneau
-                          userId={userId}
-                          demande={selected}
-                          onUpdate={() => {
-                            fetchPendingDemandes();
-                          }}
-                        />
-
-                        <DeclinedDemande
-                          userId={userId}
-                          demande={selected}
-                          onDeclined={() => {
-                            fetchPendingDemandes();
-                          }}
-                        />
-                      </>
-                    )}
-
-                    {selected.status === "PROPOSED" && (
-                      <DeclinedDemande
-                        userId={userId}
-                        demande={selected}
-                        onDeclined={() => {
-                          fetchPendingDemandes();
-                        }}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Informations principales */}
-                <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                  <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
-                    <svg
-                      className="w-4 h-4 text-orange-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    Informations
-                  </h5>
-                  <div className="grid grid-cols-1 gap-2">
-                    <InfoCard
-                      title="Date (primaire)"
-                      value={
-                        av?.primary?.date
-                          ? formatFancySlot(
-                              av.primary.date,
-                              av.primary.from,
-                              av.primary.to
-                            )
-                          : "—"
-                      }
-                      tone="blue"
-                    />
-                    <InfoCard
-                      title="Alternative"
-                      value={
-                        av?.alternative?.date
-                          ? formatFancySlot(
-                              av.alternative.date,
-                              av.alternative.from,
-                              av.alternative.to
-                            )
-                          : "—"
-                      }
-                      tone="purple"
-                    />
-                    <InfoCard
-                      title="Prestation"
-                      value={selected.prestation}
-                      tone="green"
-                    />
-                    <InfoCard
-                      title="Contact"
-                      value={`${selected.clientEmail}${
-                        selected.clientPhone ? ` · ${selected.clientPhone}` : ""
-                      }`}
-                      tone="orange"
-                    />
+                      )}
+                    </div>
                   </div>
 
-                  {/* Détails + message */}
-                  <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
-                    {details?.description && (
-                      <>
-                        <p className="text-white/60 text-xs font-one mb-1">
-                          Détails de la demande
-                        </p>
-                        <div className="bg-white/5 rounded-lg p-2 border border-white/5">
-                          <p className="text-white/60 text-xs font-one mb-1">
-                            Description
-                          </p>
-                          <p className="text-white font-one text-xs leading-relaxed">
-                            {details.description || "N/A"}
-                          </p>
-                          <div>
-                            <p className="text-white/60 text-xs font-one mt-2 mb-1">
-                              Zone
-                            </p>
-                            <p className="text-white font-one text-xs leading-relaxed">
-                              {details.zone || "N/A"}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-white/60 text-xs font-one mt-2 mb-1">
-                              Style / Couleurs
-                            </p>
-                            <p className="text-white font-one text-xs leading-relaxed">
-                              {details.colorStyle || "N/A"}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-white/60 text-xs font-one mt-2 mb-1">
-                              Taille
-                            </p>
-                            <p className="text-white font-one text-xs leading-relaxed">
-                              {details.size || "N/A"}
-                            </p>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                    {selected.message && (
-                      <div className="bg-white/5 rounded-lg p-2 border border-white/5">
-                        <p className="text-white/60 text-xs font-one mb-1">
-                          Message du client
-                        </p>
-                        <p className="text-white font-one text-xs leading-relaxed">
-                          {selected.message}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Images */}
-                {(details?.reference || details?.sketch) && (
+                  {/* Informations principales */}
                   <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
                     <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
                       <svg
@@ -639,39 +526,156 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      Références
+                      Informations
                     </h5>
-                    <div className="grid grid-cols-2 gap-2">
-                      {details?.reference && (
-                        <ThumbImage
-                          label="Image de référence"
-                          url={details.reference}
-                          onOpen={() => openImageInNewTab(details.reference!)}
-                        />
+                    <div className="grid grid-cols-1 gap-2">
+                      <InfoCard
+                        title="Date (primaire)"
+                        value={
+                          av?.primary?.date
+                            ? formatFancySlot(
+                                av.primary.date,
+                                av.primary.from,
+                                av.primary.to
+                              )
+                            : "—"
+                        }
+                        tone="blue"
+                      />
+                      <InfoCard
+                        title="Alternative"
+                        value={
+                          av?.alternative?.date
+                            ? formatFancySlot(
+                                av.alternative.date,
+                                av.alternative.from,
+                                av.alternative.to
+                              )
+                            : "—"
+                        }
+                        tone="purple"
+                      />
+                      <InfoCard
+                        title="Prestation"
+                        value={selected.prestation}
+                        tone="green"
+                      />
+                      <InfoCard
+                        title="Contact"
+                        value={`${selected.clientEmail}${
+                          selected.clientPhone
+                            ? ` · ${selected.clientPhone}`
+                            : ""
+                        }`}
+                        tone="orange"
+                      />
+                    </div>
+
+                    {/* Détails + message */}
+                    <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
+                      {details?.description && (
+                        <>
+                          <p className="text-white/60 text-xs font-one mb-1">
+                            Détails de la demande
+                          </p>
+                          <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                            <p className="text-white/60 text-xs font-one mb-1">
+                              Description
+                            </p>
+                            <p className="text-white font-one text-xs leading-relaxed">
+                              {details.description || "N/A"}
+                            </p>
+                            <div>
+                              <p className="text-white/60 text-xs font-one mt-2 mb-1">
+                                Zone
+                              </p>
+                              <p className="text-white font-one text-xs leading-relaxed">
+                                {details.zone || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-white/60 text-xs font-one mt-2 mb-1">
+                                Style / Couleurs
+                              </p>
+                              <p className="text-white font-one text-xs leading-relaxed">
+                                {details.colorStyle || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-white/60 text-xs font-one mt-2 mb-1">
+                                Taille
+                              </p>
+                              <p className="text-white font-one text-xs leading-relaxed">
+                                {details.size || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                        </>
                       )}
-                      {details?.sketch && (
-                        <ThumbImage
-                          label="Croquis"
-                          url={details.sketch}
-                          onOpen={() => openImageInNewTab(details.sketch!)}
-                        />
+                      {selected.message && (
+                        <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                          <p className="text-white/60 text-xs font-one mb-1">
+                            Message du client
+                          </p>
+                          <p className="text-white font-one text-xs leading-relaxed">
+                            {selected.message}
+                          </p>
+                        </div>
                       )}
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* Footer */}
-              <div className="p-3 border-t border-white/10 bg-white/5">
-                <button
-                  onClick={() => setSelected(null)}
-                  className="cursor-pointer w-full py-2 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one"
-                >
-                  Retour à la liste
-                </button>
+                  {/* Images */}
+                  {(details?.reference || details?.sketch) && (
+                    <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+                      <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
+                        <svg
+                          className="w-4 h-4 text-orange-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                          />
+                        </svg>
+                        Références
+                      </h5>
+                      <div className="grid grid-cols-2 gap-2">
+                        {details?.reference && (
+                          <ThumbImage
+                            label="Image de référence"
+                            url={details.reference}
+                            onOpen={() => openImageInNewTab(details.reference!)}
+                          />
+                        )}
+                        {details?.sketch && (
+                          <ThumbImage
+                            label="Croquis"
+                            url={details.sketch}
+                            onOpen={() => openImageInNewTab(details.sketch!)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="p-3 border-t border-white/10 bg-white/5">
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="cursor-pointer w-full py-2 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one"
+                  >
+                    Retour à la liste
+                  </button>
+                </div>
               </div>
             </div>
           );

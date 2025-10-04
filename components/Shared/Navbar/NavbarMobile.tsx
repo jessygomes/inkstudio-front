@@ -77,12 +77,17 @@ export default function NavbarMobile() {
   useEffect(() => {
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      // Empêcher le scroll du body quand la navbar est ouverte
+      document.body.style.overflow = 'hidden';
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
+      // Restaurer le scroll du body
+      document.body.style.overflow = 'unset';
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
 
@@ -138,12 +143,23 @@ export default function NavbarMobile() {
         </div>
       )}
 
-      {/* Mobile Navigation Menu - Fond complètement opaque */}
+      {/* Mobile Navigation Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={handleClose}
+        />
+      )}
+
+      {/* Mobile Navigation Menu */}
       <div
         ref={navRef}
         className={`fixed top-0 right-0 z-50 w-80 h-screen bg-noir-700 text-white transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
+        style={{
+          pointerEvents: isOpen ? 'auto' : 'none'
+        }}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/20 bg-noir-600">
