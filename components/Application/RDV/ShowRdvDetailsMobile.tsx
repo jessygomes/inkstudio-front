@@ -25,7 +25,7 @@ export default function ShowRdvDetailsMobile({
   price,
 }: ShowRdvDetailsMobileProps) {
   return (
-    <div className="lg:hidden fixed inset-0 z-50 bg-noir-700">
+    <div className="xl:hidden fixed inset-0 z-50 bg-noir-700">
       <div className="w-full h-full">
         <div className="w-full h-full bg-gradient-to-br from-noir-500 to-noir-600 overflow-hidden flex flex-col">
           {/* Header mobile */}

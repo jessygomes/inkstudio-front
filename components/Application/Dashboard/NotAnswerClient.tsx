@@ -367,11 +367,11 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
 
       {/* Modale de réponse */}
       {isReplyModalOpen && selectedFollowUp && (
-        <div className="fixed inset-0 z-[9999] bg-noir-700 sm:bg-noir-700/95 sm:backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-noir-500 h-full w-full sm:max-w-2xl sm:max-h-[90vh] overflow-hidden flex flex-col border-0 sm:border sm:border-white/20 shadow-2xl rounded-none sm:rounded-xl">
+        <div className="fixed inset-0 z-[9999] bg-noir-700 md:bg-noir-700/95 md:backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-noir-500 h-full w-full md:max-w-2xl md:max-h-[90vh] overflow-hidden flex flex-col border-0 md:border md:border-white/20 shadow-2xl rounded-none md:rounded-xl">
             {/* Header compact */}
-            <div className="p-4 sm:p-4 border-b border-white/10 bg-noir-700 sm:bg-gradient-to-r sm:from-noir-700/80 sm:to-noir-500/80">
-              <div className="absolute inset-0 bg-transparent sm:bg-gradient-to-r sm:from-orange-400/5 sm:to-transparent"></div>
+            <div className="p-4 md:p-4 border-b border-white/10 bg-noir-700 md:bg-gradient-to-r md:from-noir-700/80 md:to-noir-500/80">
+              <div className="absolute inset-0 bg-transparent md:bg-gradient-to-r md:from-orange-400/5 md:to-transparent"></div>
               <div className="relative flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -382,10 +382,10 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
                     </span>
                   </div>
                   <div>
-                    <h2 className="text-lg sm:text-lg font-bold text-white font-one tracking-wide">
+                    <h2 className="text-lg md:text-lg font-bold text-white font-one tracking-wide">
                       Répondre au suivi
                     </h2>
-                    <p className="text-white/70 text-sm sm:text-xs font-one">
+                    <p className="text-white/70 text-sm md:text-xs font-one">
                       {selectedFollowUp.appointment?.client?.firstName}{" "}
                       {selectedFollowUp.appointment?.client?.lastName}
                     </p>
@@ -393,10 +393,10 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
                 </div>
                 <button
                   onClick={handleCloseReplyModal}
-                  className="cursor-pointer p-2 sm:p-1.5 hover:bg-white/10 rounded-lg transition-colors group"
+                  className="cursor-pointer p-2 md:p-1.5 hover:bg-white/10 rounded-lg transition-colors group"
                 >
                   <svg
-                    className="w-6 h-6 sm:w-5 sm:h-5 text-white/70 group-hover:text-white transition-colors"
+                    className="w-6 h-6 md:w-5 md:h-5 text-white/70 group-hover:text-white transition-colors"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -413,7 +413,7 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
             </div>
 
             {/* Contenu avec design compact */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-4 space-y-4 sm:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+            <div className="flex-1 overflow-y-auto p-4 md:p-4 space-y-4 md:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
               {/* Récapitulatif compact du suivi */}
               <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
                 <div className="flex items-start gap-3">
@@ -538,18 +538,18 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
             </div>
 
             {/* Footer compact */}
-            <div className="p-4 sm:p-3 border-t border-white/10 bg-white/5 flex justify-end gap-2">
+            <div className="p-4 md:p-3 border-t border-white/10 bg-white/5 flex justify-end gap-2">
               <button
                 onClick={handleCloseReplyModal}
                 disabled={isReplying}
-                className="cursor-pointer px-4 py-3 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm sm:text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer px-4 py-3 md:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm md:text-xs disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Annuler
               </button>
               <button
                 onClick={handleReplySubmit}
                 disabled={isReplying || !replyText.trim()}
-                className="cursor-pointer px-4 py-3 sm:py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm sm:text-xs flex items-center gap-2"
+                className="cursor-pointer px-4 py-3 md:py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm md:text-xs flex items-center gap-2"
               >
                 {isReplying ? (
                   <>

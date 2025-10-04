@@ -515,11 +515,11 @@ export default function WaitingRdv({ userId }: { userId: string }) {
               const tattooDetail = selectedAppointmentDetails.tattooDetail;
 
               return (
-                <div className="fixed inset-0 z-50 bg-noir-700 sm:bg-gradient-to-br sm:from-noir-700/98 sm:via-noir-600/98 sm:to-noir-500/98 sm:backdrop-blur-md sm:flex sm:items-center sm:justify-center animate-in slide-in-from-bottom-4 duration-300">
-                  <div className="h-full w-full sm:h-auto sm:w-auto sm:max-w-4xl sm:max-h-[95vh] bg-noir-700 sm:bg-transparent rounded-none sm:rounded-xl flex flex-col border-0 sm:border sm:border-white/10 shadow-2xl">
+                <div className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/98 md:via-noir-600/98 md:to-noir-500/98 md:backdrop-blur-md md:flex md:items-center md:justify-center animate-in slide-in-from-bottom-4 duration-300">
+                  <div className="h-full w-full md:h-auto md:w-auto md:max-w-3xl md:max-h-[90vh] bg-noir-700 md:bg-transparent rounded-none md:rounded-xl flex flex-col border-0 md:border md:border-white/10 shadow-2xl">
                     {/* Header du panneau avec design compact */}
-                    <div className="relative p-4 sm:p-4 border-b border-white/10 bg-noir-700 sm:bg-gradient-to-r sm:from-noir-700/80 sm:to-noir-500/80">
-                      <div className="absolute inset-0 bg-transparent sm:bg-gradient-to-r sm:from-orange-400/5 sm:to-transparent"></div>
+                    <div className="relative p-4 md:p-4 border-b border-white/10 bg-noir-700 md:bg-gradient-to-r md:from-noir-700/80 md:to-noir-500/80">
+                      <div className="absolute inset-0 bg-transparent md:bg-gradient-to-r md:from-orange-400/5 md:to-transparent"></div>
                       <div className="relative flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -530,21 +530,21 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                             </span>
                           </div>
                           <div>
-                            <h4 className="text-lg sm:text-lg font-bold font-one text-white tracking-wide">
+                            <h4 className="text-lg md:text-lg font-bold font-one text-white tracking-wide">
                               {selectedAppointmentDetails.client.firstName}{" "}
                               {selectedAppointmentDetails.client.lastName}
                             </h4>
-                            <p className="text-white/70 text-sm sm:text-xs font-one">
+                            <p className="text-white/70 text-sm md:text-xs font-one">
                               {selectedAppointmentDetails.title}
                             </p>
                           </div>
                         </div>
                         <button
                           onClick={closeAppointmentDetails}
-                          className="cursor-pointer p-2 sm:p-1.5 hover:bg-white/10 rounded-lg transition-colors group"
+                          className="cursor-pointer p-2 md:p-1.5 hover:bg-white/10 rounded-lg transition-colors group"
                         >
                           <svg
-                            className="w-6 h-6 sm:w-5 sm:h-5 text-white/70 group-hover:text-white transition-colors"
+                            className="w-6 h-6 md:w-5 md:h-5 text-white/70 group-hover:text-white transition-colors"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -561,13 +561,13 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                     </div>
 
                     {/* Contenu scrollable avec design compact */}
-                    <div className="flex-1 overflow-y-auto p-4 sm:p-4 space-y-4 sm:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                    <div className="flex-1 overflow-y-auto p-4 md:p-4 space-y-4 md:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                       {/* Statut avec design compact */}
                       <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
                         <div className="flex items-center justify-between mb-2">
-                          <h5 className="text-white font-one text-base sm:text-sm flex items-center gap-2">
+                          <h5 className="text-white font-one text-base md:text-sm flex items-center gap-2">
                             <svg
-                              className="w-5 h-5 sm:w-4 sm:h-4 text-orange-500"
+                              className="w-5 h-5 md:w-4 md:h-4 text-orange-500"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
