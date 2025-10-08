@@ -114,8 +114,12 @@ export default function CreateOrUpdateClient({
 
   return (
     <div>
-      <div className="fixed inset-0 z-[9999] sm:bg-black/60 sm:backdrop-blur-sm bg-noir-700 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div className="bg-noir-500 rounded-none sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-5xl sm:max-h-[90vh] overflow-hidden flex flex-col border-0 sm:border sm:border-white/20 sm:shadow-2xl">
+      <div
+        data-modal
+        className="fixed inset-0 z-[9999] sm:bg-black/60 sm:backdrop-blur-sm bg-noir-700 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden"
+        style={{ height: "100dvh", width: "100vw" }}
+      >
+        <div className="bg-noir-500 rounded-none sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-5xl sm:max-h-[90vh] overflow-hidden flex flex-col border-0 sm:border sm:border-white/20 sm:shadow-2xl min-h-0">
           {/* Header fixe */}
           <div className="p-6 sm:p-4 border-b border-white/10 bg-white/5">
             <div className="flex items-center justify-between">
@@ -141,7 +145,7 @@ export default function CreateOrUpdateClient({
           </div>
 
           {/* Form Content scrollable */}
-          <div className="flex-1 overflow-y-auto p-6 sm:p-4">
+          <div className="flex-1 overflow-y-auto p-6 sm:p-4 min-h-0">
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-8 sm:space-y-6"

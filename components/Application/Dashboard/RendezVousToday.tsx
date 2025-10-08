@@ -477,8 +477,12 @@ export default function RendezVousToday({ userId }: { userId: string }) {
 
       {/* Panneau de détails en overlay */}
       {selectedAppointment && (
-        <div className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/98 md:via-noir-600/98 md:to-noir-500/98 md:backdrop-blur-md md:flex md:items-center md:justify-center animate-in slide-in-from-bottom-4 duration-300">
-          <div className="h-full w-full md:h-auto md:w-auto md:max-w-3xl md:max-h-[90vh] bg-noir-700 md:bg-transparent rounded-none md:rounded-xl flex flex-col border-0 md:border md:border-white/10 shadow-2xl">
+        <div
+          data-modal
+          className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/98 md:via-noir-600/98 md:to-noir-500/98 md:backdrop-blur-md md:flex md:items-center md:justify-center animate-in slide-in-from-bottom-4 duration-300 overflow-hidden"
+          style={{ height: "100dvh", width: "100vw" }}
+        >
+          <div className="h-full w-full md:h-auto md:w-auto md:max-w-3xl md:max-h-[90vh] bg-noir-700 md:bg-transparent rounded-none md:rounded-xl flex flex-col border-0 md:border md:border-white/10 shadow-2xl min-h-0">
             {/* Header du panneau avec design compact */}
             <div className="relative p-4 md:p-4 border-b border-white/10 bg-noir-700 md:bg-gradient-to-r md:from-noir-700/80 md:to-noir-500/80">
               <div className="absolute inset-0 bg-transparent md:bg-gradient-to-r md:from-tertiary-400/5 md:to-transparent"></div>

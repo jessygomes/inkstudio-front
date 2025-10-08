@@ -338,8 +338,12 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
 
       {/* Modal de déblocage responsive */}
       {isDeleteModalOpen && slotToDelete && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-lg max-h-[95vh] sm:max-h-none overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+        <div
+          data-modal
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-hidden"
+          style={{ height: "100dvh", width: "100vw" }}
+        >
+          <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-lg max-h-[95vh] sm:max-h-none overflow-hidden flex flex-col border border-white/20 shadow-2xl min-h-0">
             {/* Header responsive */}
             <div className="p-3 sm:p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
@@ -365,7 +369,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
             </div>
 
             {/* Contenu responsive */}
-            <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 min-h-0">
               {/* Récapitulatif du créneau */}
               <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 mb-4">
                 <div className="flex items-start gap-3">

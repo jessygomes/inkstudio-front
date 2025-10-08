@@ -117,8 +117,12 @@ export default function CreateTatoueurModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-noir-500 rounded-3xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+    <div
+      data-modal
+      className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-hidden"
+      style={{ height: "100dvh", width: "100vw" }}
+    >
+      <div className="bg-noir-500 rounded-3xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl min-h-0">
         {/* Header fixe */}
         <div className="p-4 border-b border-white/10 bg-white/5">
           <div className="flex items-center justify-between">
@@ -142,7 +146,7 @@ export default function CreateTatoueurModal({
         </div>
 
         {/* Form Content scrollable */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-4 min-h-0">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Section: Informations générales */}
             <div className="bg-white/5 rounded-2xl p-4 border border-white/10">

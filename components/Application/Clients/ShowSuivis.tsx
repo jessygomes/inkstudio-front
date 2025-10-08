@@ -838,8 +838,12 @@ export default function ShowSuivis() {
 
       {/* Modale de réponse responsive */}
       {isReplyModalOpen && selectedFollowUp && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+        <div
+          data-modal
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-hidden"
+          style={{ height: "100dvh", width: "100vw" }}
+        >
+          <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col min-h-0 border border-white/20 shadow-2xl">
             {/* Header responsive */}
             <div className="p-4 sm:p-6 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
@@ -862,7 +866,7 @@ export default function ShowSuivis() {
             </div>
 
             {/* Contenu responsive */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 min-h-0">
               {/* Récapitulatif responsive */}
               <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10 mb-4 sm:mb-6">
                 <h3 className="text-white font-semibold font-one mb-3 text-sm sm:text-base">
@@ -1050,8 +1054,12 @@ export default function ShowSuivis() {
 
       {/* Modale de suppression responsive */}
       {isDeleteModalOpen && followUpToDelete && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-noir-500 rounded-xl sm:rounded-2xl w-full max-w-md border border-white/20 shadow-2xl">
+        <div
+          data-modal
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-hidden"
+          style={{ height: "100dvh", width: "100vw" }}
+        >
+          <div className="bg-noir-500 rounded-xl sm:rounded-2xl w-full max-w-md border border-white/20 shadow-2xl min-h-0 overflow-hidden">
             {/* Header */}
             <div className="p-4 sm:p-6 border-b border-white/10">
               <div className="flex items-center gap-3 mb-2">

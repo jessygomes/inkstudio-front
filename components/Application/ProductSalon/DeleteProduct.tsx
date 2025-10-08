@@ -94,7 +94,11 @@ export default function DeleteProduct({
 
   return (
     <div>
-      <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+      <div
+        data-modal
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center overflow-hidden"
+        style={{ height: "100dvh", width: "100vw" }}
+      >
         <div className="bg-noir-500 rounded-lg p-6 w-full max-w-md shadow-lg relative">
           <h2 className="text-lg font-semibold font-one text-white tracking-widest mb-4 border-b border-white/10 pb-2">
             {`Confirmer la suppression : ${product.name}`}

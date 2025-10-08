@@ -64,8 +64,12 @@ export default function InfoClient({
   if (!isOpen || !client) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] sm:bg-black/60 sm:backdrop-blur-sm bg-noir-700 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-noir-500 rounded-none sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-5xl sm:max-h-[90vh] overflow-hidden flex flex-col border-0 sm:border sm:border-white/20 sm:shadow-2xl">
+    <div
+      data-modal
+      className="fixed inset-0 z-[9999] sm:bg-black/60 sm:backdrop-blur-sm bg-noir-700 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden"
+      style={{ height: "100dvh", width: "100vw" }}
+    >
+      <div className="bg-noir-500 rounded-none sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-5xl sm:max-h-[90vh] overflow-hidden flex flex-col border-0 sm:border sm:border-white/20 sm:shadow-2xl min-h-0">
         {/* Header fixe responsive */}
         <div className="p-4 border-b border-white/10 bg-white/5">
           <div className="flex items-center justify-between">
@@ -87,7 +91,7 @@ export default function InfoClient({
         </div>
 
         {/* Contenu scrollable responsive */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-4 min-h-0">
           <div className="space-y-4 sm:space-y-6">
             {/* Informations de base responsive */}
             <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">

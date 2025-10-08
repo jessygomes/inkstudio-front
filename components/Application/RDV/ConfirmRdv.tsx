@@ -68,7 +68,11 @@ export default function ConfirmRdv({
 
       {/* Modale d'action */}
       {showModal && (
-        <div className="fixed inset-0 z-[9999] bg-noir-700 rounded-3xl backdrop-blur-sm flex items-center justify-center">
+        <div
+          data-modal
+          className="fixed inset-0 z-[9999] bg-noir-700 rounded-3xl backdrop-blur-sm flex items-center justify-center overflow-hidden"
+          style={{ height: "100dvh", width: "100vw" }}
+        >
           <div className="bg-noir-500 h-full rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             {/* Header */}
             <div className="p-4 border-b border-white/10 bg-white/5">
@@ -91,7 +95,7 @@ export default function ConfirmRdv({
             </div>
 
             {/* Contenu */}
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 min-h-0">
               {/* Récapitulatif du rendez-vous */}
               {appointment && (
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-4">

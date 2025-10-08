@@ -83,7 +83,11 @@ export default function ChangeRdv({
 
       {/* Modale de proposition */}
       {showModal && (
-        <div className="fixed inset-0 z-[9999] bg-noir-700 rounded-xl backdrop-blur-sm flex items-center justify-center">
+        <div
+          data-modal
+          className="fixed inset-0 z-[9999] bg-noir-700 rounded-xl backdrop-blur-sm flex items-center justify-center overflow-hidden"
+          style={{ height: "100dvh", width: "100vw" }}
+        >
           <div className="bg-noir-500 h-full rounded-lg w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             {/* Header */}
             <div className="p-4 border-b border-white/10 bg-white/5">
@@ -106,7 +110,7 @@ export default function ChangeRdv({
             </div>
 
             {/* Contenu */}
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 min-h-0">
               {/* Récapitulatif du rendez-vous actuel */}
               {appointment && (
                 <div className="bg-white/5 rounded-xl p-4 border border-white/10 mb-4">

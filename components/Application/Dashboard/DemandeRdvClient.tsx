@@ -343,8 +343,12 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
           const av = toObject<Availability>(selected.availability);
           const details = toObject<Details>(selected.details);
           return (
-            <div className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/98 md:via-noir-600/98 md:to-noir-500/98 md:backdrop-blur-md md:flex md:items-center md:justify-center animate-in slide-in-from-bottom-4 duration-300">
-              <div className="h-full w-full md:h-auto md:w-auto md:max-w-3xl md:max-h-[90vh] bg-noir-700 md:bg-transparent rounded-none md:rounded-xl flex flex-col border-0 md:border md:border-white/10 shadow-2xl">
+            <div
+              data-modal
+              className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/98 md:via-noir-600/98 md:to-noir-500/98 md:backdrop-blur-md md:flex md:items-center md:justify-center animate-in slide-in-from-bottom-4 duration-300 overflow-hidden"
+              style={{ height: "100dvh", width: "100vw" }}
+            >
+              <div className="h-full w-full md:h-auto md:w-auto md:max-w-3xl md:max-h-[90vh] bg-noir-700 md:bg-transparent rounded-none md:rounded-xl flex flex-col border-0 md:border md:border-white/10 shadow-2xl min-h-0">
                 {/* Header */}
                 <div className="relative p-4 md:p-4 border-b border-white/10 bg-noir-700 md:bg-gradient-to-r md:from-noir-700/80 md:to-noir-500/80">
                   <div className="absolute inset-0 bg-transparent md:bg-gradient-to-r md:from-orange-400/5 md:to-transparent"></div>
@@ -387,7 +391,7 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                 </div>
 
                 {/* Contenu */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent min-h-0">
                   {/* Statut */}
                   <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
                     <div className="flex items-center justify-between mb-2">

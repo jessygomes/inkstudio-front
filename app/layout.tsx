@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Didact_Gothic, Exo_2, Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/Shared/Sonner";
+import ModalManager from "@/components/Shared/ModalManager";
 
 export const dynamic = "force-dynamic";
 
@@ -53,10 +54,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width,initial-scale=1,viewport-fit=cover"
+        />
+      </head>
       <body
         className={`${didact_gothic.variable} ${exo_2.variable} ${montserrat_alternates.variable} antialiased relative`}
       >
         <Toaster />
+        <ModalManager />
 
         {/* <div className="absolute top-0 left-0 w-full h-screen">
           <Header />
