@@ -25,9 +25,12 @@ export default function ShowRdvDetailsMobile({
   price,
 }: ShowRdvDetailsMobileProps) {
   return (
-    <div className="xl:hidden fixed inset-0 z-50 bg-noir-700">
+    <div
+      className="xl:hidden fixed inset-0 z-50 bg-noir-700 overflow-hidden"
+      style={{ height: "100dvh", width: "100vw" }}
+    >
       <div className="w-full h-full">
-        <div className="w-full h-full bg-gradient-to-br from-noir-500 to-noir-600 overflow-hidden flex flex-col">
+        <div className="w-full h-full bg-gradient-to-br from-noir-500 to-noir-600 overflow-hidden flex flex-col min-h-0">
           {/* Header mobile */}
           <div className="relative p-4 border-b border-white/10 bg-gradient-to-r from-noir-700/80 to-noir-500/80">
             <div className="flex items-center justify-between">
@@ -69,7 +72,7 @@ export default function ShowRdvDetailsMobile({
           </div>
 
           {/* Contenu scrollable mobile */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
             {/* Statut */}
             <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10">
               <h5 className="text-white font-one text-sm mb-2">Statut</h5>
