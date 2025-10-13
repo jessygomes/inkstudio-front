@@ -333,12 +333,10 @@ export default function RDV() {
     selectedEvent?.tattooDetail?.estimatedPrice ||
     0;
 
-  console.log("EVENTS RENDER", selectedEvent);
-
   return (
     <div className="w-full gap-6">
       {/* Header toujours affiché */}
-      <div className="flex flex-col md:flex-row sm:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10 mb-6 w-full">
+      <div className="flex flex-col lg:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10 mb-6 w-full">
         <div className="w-full flex items-center gap-4 mb-4 sm:mb-0">
           <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
             <FaRegCalendarTimes
@@ -728,7 +726,7 @@ export default function RDV() {
                   </div>
 
                   {/* Liste des rendez-vous - layout adaptatif */}
-                  <div className="space-y-2 max-h-[55vh] overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                  <div className="space-y-2 lg:max-h-[55vh] lg:overflow-y-auto lg:scrollbar-thin lg:scrollbar-thumb-white/20 lg:scrollbar-track-transparent">
                     {paginatedEvents.map((event: CalendarEvent) => {
                       const start = new Date(event.start ?? "").getTime();
                       const end = new Date(event.end ?? "").getTime();

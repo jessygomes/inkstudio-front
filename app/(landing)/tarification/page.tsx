@@ -60,7 +60,7 @@ export default function TarificationPage() {
                     Sans engagement
                   </span>
                 </div>
-                <div className="text-xs text-white/80 font-one">
+                <div className="text-s text-white/80 font-one">
                   Flexibilité totale
                 </div>
               </div>
@@ -71,7 +71,7 @@ export default function TarificationPage() {
                     Support inclus
                   </span>
                 </div>
-                <div className="text-xs text-white/80 font-one">
+                <div className="text-sm text-white/80 font-one">
                   Assistance 7j/7
                 </div>
               </div>
@@ -82,7 +82,7 @@ export default function TarificationPage() {
                     Essai gratuit
                   </span>
                 </div>
-                <div className="text-xs text-white/80 font-one">
+                <div className="text-sm text-white/80 font-one">
                   30 jours offerts
                 </div>
               </div>
@@ -90,7 +90,7 @@ export default function TarificationPage() {
 
             {/* CTA d'exploration */}
             <div className="flex flex-col items-center gap-4 mt-8">
-              <div className="text-white/60 font-one text-sm">
+              <div className="text-white/60 font-one text-md">
                 Explorez nos offres
               </div>
               <FaArrowDown

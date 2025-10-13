@@ -11,7 +11,7 @@ export default function SolutionsPage() {
         <Header />
       </div>
       {/* Hero Section optimisée */}
-      <section className="min-h-[100vh] sm:min-h-[100vh] bg-noir-700 flex items-center justify-center relative overflow-hidden pt-20">
+      <section className="min-h-[100vh] lg:min-h-[100vh] bg-noir-700 flex items-center justify-center relative overflow-hidden pt-20">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -23,12 +23,12 @@ export default function SolutionsPage() {
         {/* Overlay moderne */}
         <div className="absolute inset-0 bg-gradient-to-b from-noir-700/60 via-noir-700/40 to-noir-700/80"></div>
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-8 text-center py-12">
+        <div className="relative z-10 container mx-auto px-4 lg:px-8 text-center py-12">
           <div className="max-w-4xl mx-auto space-y-6">
             {/* Badge moderne */}
             <div className="inline-flex items-center gap-2 bg-tertiary-500/20 border border-tertiary-400/30 rounded-full px-4 py-2 backdrop-blur-sm">
               <span className="w-2 h-2 bg-tertiary-400 rounded-full animate-pulse"></span>
-              <span className="text-tertiary-400 font-one text-sm font-semibold">
+              <span className="text-tertiary-400 font-one text-base lg:text-xs font-semibold">
                 INKSTUDIO
               </span>
             </div>
@@ -58,7 +58,7 @@ export default function SolutionsPage() {
                 <div className="text-xl font-bold text-tertiary-400 font-two">
                   3
                 </div>
-                <div className="text-xs text-white/80 font-one">
+                <div className="text-sm text-white/80 font-one">
                   Solutions complètes
                 </div>
               </div>
@@ -66,7 +66,7 @@ export default function SolutionsPage() {
                 <div className="text-xl font-bold text-tertiary-400 font-two">
                   100%
                 </div>
-                <div className="text-xs text-white/80 font-one">
+                <div className="text-sm text-white/80 font-one">
                   Pensé tatoueurs
                 </div>
               </div>
@@ -74,7 +74,7 @@ export default function SolutionsPage() {
                 <div className="text-xl font-bold text-tertiary-400 font-two">
                   24/7
                 </div>
-                <div className="text-xs text-white/80 font-one">
+                <div className="text-sm text-white/80 font-one">
                   Disponibilité
                 </div>
               </div>
@@ -82,7 +82,7 @@ export default function SolutionsPage() {
 
             {/* CTA d'exploration */}
             <div className="flex flex-col items-center gap-4 mt-8">
-              <div className="text-white/60 font-one text-sm">
+              <div className="text-white/60 font-one text-md">
                 Explorez nos solutions
               </div>
               <FaArrowDown

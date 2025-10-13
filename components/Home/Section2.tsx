@@ -40,7 +40,7 @@ export const projects = [
 
 export default function Section2() {
   return (
-    <section className="px-4 sm:px-20 py-16 bg-noir-700">
+    <section className="px-4 sm:px-10 lg:px-20 py-16 bg-noir-700">
       <h2 className="text-white font-two tracking-wide text-2xl sm:text-3xl font-bold py-2">
         Moins d’administratif, plus de tatouages.{" "}
         <span

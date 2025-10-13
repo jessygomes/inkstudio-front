@@ -425,7 +425,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             onSubmit={form.handleSubmit(onSubmit, (errors) => {
               console.log("❌ Erreurs de validation", errors);
             })}
-            className="space-y-4 sm:space-y-6"
+            className="tablet-inputs space-y-4 sm:space-y-6"
           >
             {/* Section: Recherche client */}
             <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
@@ -433,8 +433,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 🔍 Recherche client
               </h3>
               <div className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-xs text-white/70 font-one">
+                <div className="space-y-2">
+                  <label className="text-sm text-white/70 font-one">
                     Rechercher un client existant
                   </label>
                   <input

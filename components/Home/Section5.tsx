@@ -5,9 +5,9 @@ import React from "react";
 
 export default function Section5() {
   return (
-    <section className="bg-secondary-600 flex flex-col sm:flex-row sm:h-screen">
+    <section className="bg-secondary-600 flex flex-col lg:flex-row lg:h-screen">
       {/* Section image - même disposition que Section3 */}
-      <div className="w-full sm:w-1/2 h-[50vh] sm:h-full flex justify-center items-center p-10 sm:p-8">
+      <div className="w-full lg:w-1/2 h-[50vh] lg:h-full flex justify-center items-center p-10 sm:p-8">
         <div className="flex flex-col items-center justify-center">
           <Image
             src="/images/profil.png"
@@ -20,7 +20,7 @@ export default function Section5() {
       </div>
 
       {/* Section contenu - même structure que Section3 */}
-      <div className="w-full sm:w-1/2 h-full relative flex flex-col justify-center gap-6 sm:gap-8 py-10 sm:py-0">
+      <div className="w-full lg:w-1/2 h-full relative flex flex-col justify-center gap-6 lg:gap-8 py-10 lg:py-0">
         <div
           className="absolute inset-0"
           style={{

@@ -78,16 +78,16 @@ export default function NavbarMobile() {
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
       // Empêcher le scroll du body quand la navbar est ouverte
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
       // Restaurer le scroll du body
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
@@ -145,10 +145,7 @@ export default function NavbarMobile() {
 
       {/* Mobile Navigation Overlay */}
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40"
-          onClick={handleClose}
-        />
+        <div className="fixed inset-0 bg-black/50 z-40" onClick={handleClose} />
       )}
 
       {/* Mobile Navigation Menu */}
@@ -158,7 +155,7 @@ export default function NavbarMobile() {
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         style={{
-          pointerEvents: isOpen ? 'auto' : 'none'
+          pointerEvents: isOpen ? "auto" : "none",
         }}
       >
         {/* Header */}
@@ -214,7 +211,7 @@ export default function NavbarMobile() {
                 <span className="font-one text-sm">Paramètres</span>
               </Link>
 
-              <div className="flex items-center gap-3 px-4 py-3 text-white hover:bg-white/5 hover:text-red-400 rounded-lg transition-all duration-300">
+              <div className="flex items-center gap-3 py-3 text-white hover:bg-white/5 hover:text-red-400 rounded-lg transition-all duration-300">
                 <LogoutBtn>
                   <span className="font-one text-sm">Se déconnecter</span>
                 </LogoutBtn>

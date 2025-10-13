@@ -368,7 +368,7 @@ export default function ClientList() {
               {clients.map((client) => (
                 <div key={client.id}>
                   {/* Vue desktop - grille */}
-                  <div className="hidden sm:grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
+                  <div className="hidden lg:grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
                     <p className="text-white font-one text-xs">
                       {client.lastName} {client.firstName}
                     </p>
@@ -410,19 +410,19 @@ export default function ClientList() {
                   </div>
 
                   {/* Vue mobile - format carte */}
-                  <div className="sm:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 mb-2">
+                  <div className="lg:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 mb-4">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1 min-w-0 pr-3">
                         <h3 className="text-white font-one font-semibold text-sm mb-1">
                           {client.firstName} {client.lastName}
                         </h3>
-                        <p className="text-white/80 font-one text-xs break-all mb-1">
+                        <p className="text-white/80 font-one text-sm break-all mb-1">
                           {client.email}
                         </p>
-                        <p className="text-white/70 font-one text-xs">
+                        <p className="text-white/70 font-one text-sm">
                           {client.phone ? client.phone : "Tel. non renseigné"}
                         </p>
-                        <p className="text-white/70 font-one text-xs mt-2">
+                        <p className="text-white/70 font-one text-sm mt-2">
                           {client.appointments.length} rendez-vous
                         </p>
                       </div>

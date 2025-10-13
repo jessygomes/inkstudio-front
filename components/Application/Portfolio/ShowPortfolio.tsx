@@ -219,7 +219,7 @@ export default function ShowPortfolio() {
                   </div>
 
                   {/* Actions au bas - toujours visibles sur mobile */}
-                  <div className="flex gap-2 justify-end pt-2 sm:hidden">
+                  <div className="flex gap-2 justify-end pt-2 lg:hidden">
                     <button
                       className="cursor-pointer p-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-all duration-200"
                       onClick={() => handleEdit(photo)}

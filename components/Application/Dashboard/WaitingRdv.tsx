@@ -371,7 +371,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                       : ""
                   }`}
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex flex-col gap-2 lg:flex-row lg:gap-0 items-start justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-semibold text-xs">
@@ -437,7 +437,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                     </div>
 
                     {/* Boutons d'action rapide - empêche la propagation */}
-                    <div className="flex flex-col gap-1 ml-2">
+                    <div className="flex flex-col gap-1 lg:ml-2 w-full lg:w-auto">
                       {appointment.status === "RESCHEDULING" ? (
                         // Message pour les RDV en reprogrammation
                         <div className="bg-blue-500/10 border border-blue-500/30 rounded p-2 text-center">
@@ -517,10 +517,10 @@ export default function WaitingRdv({ userId }: { userId: string }) {
               return (
                 <div
                   data-modal
-                  className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/98 md:via-noir-600/98 md:to-noir-500/98 md:backdrop-blur-md md:flex md:items-center md:justify-center animate-in slide-in-from-bottom-4 duration-300 overflow-hidden"
+                  className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/70 md:via-noir-600/98 md:to-noir-500/70 md:backdrop-blur-md md:flex md:items-center md:justify-center animate-in slide-in-from-bottom-4 duration-300 overflow-hidden"
                   style={{ height: "100dvh", width: "100vw" }}
                 >
-                  <div className="h-full w-full md:h-auto md:w-auto md:max-w-3xl md:max-h-[90vh] bg-noir-700 md:bg-transparent rounded-none md:rounded-xl flex flex-col border-0 md:border md:border-white/10 shadow-2xl min-h-0">
+                  <div className="h-full w-full md:h-fit md:max-w-2xl lg:max-w-3xl lg:max-h-[90vh] bg-noir-700 md:bg-transparent rounded-none md:rounded-xl flex flex-col border-0 md:border md:border-white/10 shadow-2xl min-h-0">
                     {/* Header du panneau avec design compact */}
                     <div className="relative p-4 md:p-4 border-b border-white/10 bg-noir-700 md:bg-gradient-to-r md:from-noir-700/80 md:to-noir-500/80">
                       <div className="absolute inset-0 bg-transparent md:bg-gradient-to-r md:from-orange-400/5 md:to-transparent"></div>
@@ -569,7 +569,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                       {/* Statut avec design compact */}
                       <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
                         <div className="flex items-center justify-between mb-2">
-                          <h5 className="text-white font-one text-base md:text-sm flex items-center gap-2">
+                          <h5 className="text-white font-one text-base sm:text-base lg:text-sm flex items-center gap-2">
                             <svg
                               className="w-5 h-5 md:w-4 md:h-4 text-orange-500"
                               fill="none"
@@ -663,7 +663,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
 
                       {/* Informations principales compactes */}
                       <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                        <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
+                        <h5 className="text-white font-one text-base sm:text-base lg:text-sm flex items-center gap-2 mb-3">
                           <svg
                             className="w-4 h-4 text-orange-500"
                             fill="none"
@@ -883,7 +883,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                         selectedAppointmentDetails.prestation ===
                           "PIERCING") && (
                         <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                          <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
+                          <h5 className="text-white font-one text-base sm:text-base lg:text-sm flex items-center gap-2 mb-3">
                             <svg
                               className="w-4 h-4 text-orange-500"
                               fill="none"
@@ -955,7 +955,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                       {/* Détails du tattoo compact */}
                       {tattooDetail && (
                         <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                          <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
+                          <h5 className="text-white font-one text-base sm:text-base lg:text-sm flex items-center gap-2 mb-3">
                             <svg
                               className="w-4 h-4 text-orange-500"
                               fill="none"

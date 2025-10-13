@@ -247,7 +247,7 @@ export default function AddOrUpdateTatoueurPage() {
 
   return (
     <div className="min-h-screen w-full bg-noir-700">
-      <div className="container pt-24 px-3 sm:px-6 lg:px-8">
+      <div className="pt-24 px-3 sm:px-6 lg:px-8">
         {/* Header responsive */}
         <div className="flex items-center gap-3 sm:gap-4 max-w-6xl mx-auto mb-6 sm:mb-8">
           <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
@@ -281,13 +281,13 @@ export default function AddOrUpdateTatoueurPage() {
         </div>
 
         {/* Form Content responsive */}
-        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl">
+        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-2 lg:p-8 border border-white/20 shadow-2xl">
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6 sm:space-y-6"
           >
             {/* Section: Informations générales responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-2 sm:p-4 border border-white/10">
               <h3 className="flex gap-2 items-center text-base sm:text-sm text-white mb-4 sm:mb-3 font-one uppercase tracking-widest">
                 <CiUser size={20} className="sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Informations générales</span>
@@ -317,7 +317,7 @@ export default function AddOrUpdateTatoueurPage() {
                   <input
                     placeholder="Nom du tatoueur"
                     {...form.register("name")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
 
@@ -329,7 +329,7 @@ export default function AddOrUpdateTatoueurPage() {
                     rows={5}
                     placeholder="Description du tatoueur, ses spécialités..."
                     {...form.register("description")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
                   />
                 </div>
 
@@ -341,7 +341,7 @@ export default function AddOrUpdateTatoueurPage() {
                     <input
                       placeholder="Numéro de téléphone"
                       {...form.register("phone")}
-                      className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                   </div>
 
@@ -352,7 +352,7 @@ export default function AddOrUpdateTatoueurPage() {
                     <input
                       placeholder="@nom_instagram"
                       {...form.register("instagram")}
-                      className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                   </div>
                 </div>
@@ -377,12 +377,12 @@ export default function AddOrUpdateTatoueurPage() {
                         }
                       }}
                       placeholder="Ajouter une compétence"
-                      className="flex-1 p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="flex-1 p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                     <button
                       type="button"
                       onClick={handleAddSkill}
-                      className="cursor-pointer px-6 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-base sm:text-xs"
+                      className="cursor-pointer px-6 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-md lg:text-xs"
                     >
                       Ajouter
                     </button>
@@ -430,12 +430,12 @@ export default function AddOrUpdateTatoueurPage() {
                         }
                       }}
                       placeholder="Ajouter un style"
-                      className="flex-1 p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="flex-1 p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                     <button
                       type="button"
                       onClick={handleAddStyle}
-                      className="cursor-pointer px-6 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-base sm:text-xs"
+                      className="cursor-pointer px-6 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-md lg:text-xs"
                     >
                       Ajouter
                     </button>
@@ -742,14 +742,14 @@ export default function AddOrUpdateTatoueurPage() {
             <div className="flex flex-col sm:flex-row justify-end gap-4 sm:gap-4 pt-6 sm:pt-6 border-t border-white/10">
               <Link
                 href="/mon-compte"
-                className="cursor-pointer px-6 py-3 sm:px-6 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-base sm:text-xs text-center"
+                className="cursor-pointer px-6 py-3 sm:px-6 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-md lg:text-xs text-center"
               >
                 Annuler
               </Link>
               <button
                 type="submit"
                 disabled={loading}
-                className="cursor-pointer px-8 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-base sm:text-xs"
+                className="cursor-pointer px-8 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-md lg:text-xs"
               >
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">

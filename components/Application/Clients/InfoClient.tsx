@@ -15,7 +15,6 @@ interface InfoClientProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
 export default function InfoClient({
   client,
   isOpen,
@@ -26,8 +25,6 @@ export default function InfoClient({
   const [showTattooHistory, setShowTattooHistory] = useState(false);
   const [showTattooCare, setShowTattooCare] = useState(false);
   const [showFollowUpSubmissions, setShowFollowUpSubmissions] = useState(false);
-
-  console.log("Client pour infos détaillées:", client);
 
   // Fonctions utilitaires
   const getRatingStars = (rating: number) => {
@@ -66,10 +63,10 @@ export default function InfoClient({
   return (
     <div
       data-modal
-      className="fixed inset-0 z-[9999] sm:bg-black/60 sm:backdrop-blur-sm bg-noir-700 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden"
+      className="fixed inset-0 z-[9999] lg:bg-black/60 lg:backdrop-blur-sm bg-noir-700 flex items-end lg:items-center justify-center p-0 lg:p-4 overflow-hidden"
       style={{ height: "100dvh", width: "100vw" }}
     >
-      <div className="bg-noir-500 rounded-none sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-5xl sm:max-h-[90vh] overflow-hidden flex flex-col border-0 sm:border sm:border-white/20 sm:shadow-2xl min-h-0">
+      <div className="bg-noir-500 rounded-none lg:rounded-3xl w-full h-full lg:h-auto lg:max-w-5xl lg:max-h-[90vh] overflow-hidden flex flex-col border-0 lg:border lg:border-white/20 lg:shadow-2xl min-h-0">
         {/* Header fixe responsive */}
         <div className="p-4 border-b border-white/10 bg-white/5">
           <div className="flex items-center justify-between">
@@ -92,23 +89,23 @@ export default function InfoClient({
 
         {/* Contenu scrollable responsive */}
         <div className="flex-1 overflow-y-auto p-4 min-h-0">
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-4 lg:space-y-6">
             {/* Informations de base responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide mb-3">
-                <CiUser size={18} className="sm:w-5 sm:h-5" /> Informations
+            <div className="bg-white/5 rounded-xl lg:rounded-2xl p-3 lg:p-4 border border-white/10">
+              <h3 className="flex items-center gap-2 text-base font-semibold text-white font-one uppercase tracking-wide mb-3">
+                <CiUser size={18} className="lg:w-5 lg:h-5" /> Informations
                 personnelles
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
                 <div className="space-y-1">
                   <p className="text-xs text-white/70 font-one">Email</p>
-                  <p className="text-white font-two text-sm break-all">
+                  <p className="text-white font-two text-base break-all">
                     {client.email}
                   </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-white/70 font-one">Téléphone</p>
-                  <p className="text-white font-two text-sm">
+                  <p className="text-white font-two text-base">
                     {client.phone || "Non renseigné"}
                   </p>
                 </div>
@@ -116,7 +113,7 @@ export default function InfoClient({
                   <p className="text-xs text-white/70 font-one">
                     Date de naissance
                   </p>
-                  <p className="text-white font-two text-sm">
+                  <p className="text-white font-two text-base">
                     {client.birthDate
                       ? new Date(client.birthDate).toLocaleDateString("fr-FR")
                       : "Non renseignée"}
@@ -124,7 +121,7 @@ export default function InfoClient({
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-white/70 font-one">Adresse</p>
-                  <p className="text-white font-two text-sm break-words">
+                  <p className="text-white font-two text-base break-words">
                     {client.address || "Non renseignée"}
                   </p>
                 </div>
@@ -132,13 +129,13 @@ export default function InfoClient({
             </div>
 
             {/* Section Rendez-vous responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
+            <div className="bg-white/5 rounded-xl lg:rounded-2xl p-3 lg:p-4 border border-white/10">
               <button
                 onClick={() => setShowAppointments(!showAppointments)}
                 className="w-full flex items-center justify-between mb-4"
               >
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide">
-                  <CiCalendarDate size={18} className="sm:w-5 sm:h-5" />
+                <h3 className="flex items-center gap-2 text-bbase font-semibold text-white font-one uppercase tracking-wide">
+                  <CiCalendarDate size={18} className="lg:w-5 lg:h-5" />
                   <span className="truncate">
                     Rendez-vous ({client.appointments.length})
                   </span>
@@ -161,7 +158,7 @@ export default function InfoClient({
                           key={index}
                           className="bg-white/10 p-3 rounded-lg border border-white/20"
                         >
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                             <div className="space-y-1">
                               <p className="text-xs text-white/70 font-one">
                                 Date
@@ -224,13 +221,13 @@ export default function InfoClient({
             </div>
 
             {/* Section Historique des tatouages */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
+            <div className="bg-white/5 rounded-xl lg:rounded-2xl p-3 lg:p-4 border border-white/10">
               <button
                 onClick={() => setShowTattooHistory(!showTattooHistory)}
                 className="w-full flex items-center justify-between mb-4"
               >
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide">
-                  <FaFilePen size={16} className="sm:w-5 sm:h-5" />
+                <h3 className="flex items-center gap-2 text-base font-semibold text-white font-one uppercase tracking-wide">
+                  <FaFilePen size={16} className="lg:w-5 lg:h-5" />
                   <span className="truncate">
                     Historique tatouages ({client.tattooHistory?.length || 0})
                   </span>
@@ -249,9 +246,9 @@ export default function InfoClient({
                       (tattoo: TattooHistoryProps, index: number) => (
                         <div
                           key={tattoo.id}
-                          className="bg-white/10 p-3 sm:p-4 rounded-lg border border-white/20"
+                          className="bg-white/10 p-3 lg:p-4 rounded-lg border border-white/20"
                         >
-                          <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-3">
+                          <div className="flex flex-col lg:flex-row items-start justify-between mb-3 gap-3">
                             <div className="flex items-center gap-3 flex-1">
                               <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10 border border-white/20 flex-shrink-0">
                                 {tattoo.photo ? (
@@ -292,7 +289,7 @@ export default function InfoClient({
                             )}
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <p className="text-xs text-white/70 font-one">
                                 Zone
@@ -380,13 +377,13 @@ export default function InfoClient({
             </div>
 
             {/* Section Historique médical responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
+            <div className="bg-white/5 rounded-xl lg:rounded-2xl p-3 lg:p-4 border border-white/10">
               <button
                 onClick={() => setShowTattooCare(!showTattooCare)}
                 className="w-full flex items-center justify-between mb-4"
               >
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide">
-                  <RiHealthBookLine size={16} className="sm:w-5 sm:h-5" />
+                <h3 className="flex items-center gap-2 text-base font-semibold text-white font-one uppercase tracking-wide">
+                  <RiHealthBookLine size={16} className="lg:w-5 lg:h-5" />
                   <span className="truncate">Historique médical</span>
                 </h3>
                 {showTattooCare ? (
@@ -400,7 +397,7 @@ export default function InfoClient({
                 <div className="space-y-4">
                   {client.medicalHistory ? (
                     <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
                         <div className="bg-white/10 p-3 rounded-lg border border-white/20">
                           <p className="text-xs text-white/70 font-one mb-1">
                             Allergies
@@ -475,15 +472,15 @@ export default function InfoClient({
             </div>
 
             {/* Section Suivis de cicatrisation responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
+            <div className="bg-white/5 rounded-xl lg:rounded-2xl p-3 lg:p-4 border border-white/10">
               <button
                 onClick={() =>
                   setShowFollowUpSubmissions(!showFollowUpSubmissions)
                 }
                 className="w-full flex items-center justify-between mb-4"
               >
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-white font-one uppercase tracking-wide">
-                  <MdOutlineRateReview size={16} className="sm:w-5 sm:h-5" />
+                <h3 className="flex items-center gap-2 text-base font-semibold text-white font-one uppercase tracking-wide">
+                  <MdOutlineRateReview size={16} className="lg:w-5 lg:h-5" />
                   <span className="truncate">
                     Suivis cicatrisation (
                     {client.FollowUpSubmission?.length || 0})
@@ -645,7 +642,7 @@ export default function InfoClient({
         <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end">
           <button
             onClick={onClose}
-            className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs"
+            className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs sm:text-base"
           >
             Fermer
           </button>

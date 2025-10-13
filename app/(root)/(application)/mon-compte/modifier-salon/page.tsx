@@ -106,10 +106,10 @@ export default function UpdateAccountPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-noir-700">
-      <div className="container pt-24 px-3 sm:px-6 lg:px-8">
+    <div className="w-full bg-noir-700">
+      <div className="pt-24 px-3 lg:px-8">
         {/* Header responsive */}
-        <div className="flex items-center gap-3 sm:gap-4 max-w-6xl mx-auto mb-6 sm:mb-8">
+        <div className="flex items-center gap-3 sm:gap-4 lg:max-w-6xl mx-auto mb-6 sm:mb-8">
           <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
             <Link
               href="/mon-compte"
@@ -133,14 +133,14 @@ export default function UpdateAccountPage() {
         </div>
 
         {/* Form Content responsive */}
-        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-6 sm:p-8 border border-white/20 shadow-2xl">
+        <div className="w-full lg:max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-2 lg:p-4 lg:p-8 border border-white/20 shadow-2xl">
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6 sm:space-y-6"
           >
             {/* Section: Informations générales responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
-              <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-2 lg:p-4 border border-white/10">
+              <h3 className="text-base lg:text-sm font-semibold text-white mb-4 sm:mb-3 font-one uppercase tracking-wide">
                 <span className="hidden sm:inline">
                   ℹ️ Informations générales
                 </span>
@@ -154,7 +154,7 @@ export default function UpdateAccountPage() {
                   <input
                     placeholder="Nom du salon"
                     {...form.register("salonName")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
 
@@ -169,7 +169,7 @@ export default function UpdateAccountPage() {
                     <input
                       placeholder="Prénom"
                       {...form.register("firstName")}
-                      className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                   </div>
 
@@ -183,7 +183,7 @@ export default function UpdateAccountPage() {
                     <input
                       placeholder="Nom"
                       {...form.register("lastName")}
-                      className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                   </div>
                 </div>
@@ -207,7 +207,7 @@ export default function UpdateAccountPage() {
                   <input
                     placeholder="Téléphone"
                     {...form.register("phone")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
 
@@ -218,7 +218,7 @@ export default function UpdateAccountPage() {
                   <input
                     placeholder="Adresse"
                     {...form.register("address")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
 
@@ -229,7 +229,7 @@ export default function UpdateAccountPage() {
                   <input
                     placeholder="Ville"
                     {...form.register("city")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
 
@@ -240,7 +240,7 @@ export default function UpdateAccountPage() {
                   <input
                     placeholder="Code postal"
                     {...form.register("postalCode")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
               </div>
@@ -262,7 +262,7 @@ export default function UpdateAccountPage() {
                   <input
                     placeholder="Lien Instagram"
                     {...form.register("instagram")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
 
@@ -273,7 +273,7 @@ export default function UpdateAccountPage() {
                   <input
                     placeholder="Lien Facebook"
                     {...form.register("facebook")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
 
@@ -284,7 +284,7 @@ export default function UpdateAccountPage() {
                   <input
                     placeholder="Lien TikTok"
                     {...form.register("tiktok")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
 
@@ -295,7 +295,7 @@ export default function UpdateAccountPage() {
                   <input
                     placeholder="URL de votre site"
                     {...form.register("website")}
-                    className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
                 </div>
               </div>
@@ -315,7 +315,7 @@ export default function UpdateAccountPage() {
                   placeholder="Décrivez votre salon, votre style, votre ambiance..."
                   {...form.register("description")}
                   rows={5}
-                  className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
+                  className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
                 />
               </div>
             </div>
@@ -397,14 +397,14 @@ export default function UpdateAccountPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="cursor-pointer px-6 py-3 sm:px-6 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-base sm:text-xs text-center"
+                className="cursor-pointer px-6 py-3 sm:px-6 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-md lg:text-xs text-center"
               >
                 Annuler
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="cursor-pointer px-8 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-base sm:text-xs"
+                className="cursor-pointer px-8 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-md lg:text-xs"
               >
                 {isSubmitting ? (
                   <span className="hidden sm:inline">Enregistrement...</span>

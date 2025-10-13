@@ -102,7 +102,7 @@ export default function HorairesPage() {
 
   return (
     <div className="min-h-screen bg-noir-700">
-      <div className="container pt-24 px-3 sm:px-6 lg:px-8">
+      <div className="pt-24 px-3 sm:px-6 lg:px-8">
         {/* Header responsive - même style que modifier-salon */}
         <div className="flex items-center gap-3 sm:gap-4 max-w-6xl mx-auto mb-6 sm:mb-8">
           <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">

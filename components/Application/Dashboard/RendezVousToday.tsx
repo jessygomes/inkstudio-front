@@ -479,10 +479,10 @@ export default function RendezVousToday({ userId }: { userId: string }) {
       {selectedAppointment && (
         <div
           data-modal
-          className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/98 md:via-noir-600/98 md:to-noir-500/98 md:backdrop-blur-md md:flex md:items-center md:justify-center animate-in slide-in-from-bottom-4 duration-300 overflow-hidden"
+          className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/70 md:via-noir-600/98 md:to-noir-500/70 md:backdrop-blur-md md:flex md:items-center md:justify-center animate-in slide-in-from-bottom-4 duration-300 overflow-hidden"
           style={{ height: "100dvh", width: "100vw" }}
         >
-          <div className="h-full w-full md:h-auto md:w-auto md:max-w-3xl md:max-h-[90vh] bg-noir-700 md:bg-transparent rounded-none md:rounded-xl flex flex-col border-0 md:border md:border-white/10 shadow-2xl min-h-0">
+          <div className="h-full w-full md:h-fit md:max-w-2xl lg:max-w-3xl lg:max-h-[90vh] bg-noir-700 md:bg-transparent rounded-none md:rounded-xl flex flex-col border-0 md:border md:border-white/10 shadow-2xl min-h-0">
             {/* Header du panneau avec design compact */}
             <div className="relative p-4 md:p-4 border-b border-white/10 bg-noir-700 md:bg-gradient-to-r md:from-noir-700/80 md:to-noir-500/80">
               <div className="absolute inset-0 bg-transparent md:bg-gradient-to-r md:from-tertiary-400/5 md:to-transparent"></div>
@@ -527,11 +527,11 @@ export default function RendezVousToday({ userId }: { userId: string }) {
             </div>
 
             {/* Contenu scrollable avec design compact */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-4 space-y-4 md:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+            <div className="flex-1 overflow-y-auto p-4 md:p-4 space-y-4 md:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent bg-noir-700">
               {/* Statut avec design compact */}
               <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
                 <div className="flex items-center justify-between mb-2">
-                  <h5 className="text-white font-one text-base md:text-sm flex items-center gap-2">
+                  <h5 className="text-white font-one text-base sm:text-base lg:text-sm flex items-center gap-2">
                     <svg
                       className="w-5 h-5 md:w-4 md:h-4 text-tertiary-500"
                       fill="none"
@@ -696,7 +696,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
               </div>
               {/* Informations principales compactes */}
               <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                <h5 className="text-white font-one text-base sm:text-sm flex items-center gap-2 mb-3">
+                <h5 className="text-white font-one text-base sm:text-base lg:text-sm flex items-center gap-2 mb-3">
                   <svg
                     className="w-5 h-5 sm:w-4 sm:h-4 text-tertiary-500"
                     fill="none"
@@ -836,7 +836,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
               {/* Section Visio si applicable */}
               {selectedAppointment.visio && (
                 <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                  <h5 className="text-white font-one text-base sm:text-sm flex items-center gap-2 mb-3">
+                  <h5 className="text-white font-one text-base sm:text-base lg:text-sm flex items-center gap-2 mb-3">
                     <svg
                       className="w-5 h-5 sm:w-4 sm:h-4 text-blue-500"
                       fill="none"
@@ -897,7 +897,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                 selectedAppointment.prestation === "TATTOO" ||
                 selectedAppointment.prestation === "PIERCING") && (
                 <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                  <h5 className="text-white font-one text-base sm:text-sm flex items-center gap-2 mb-3">
+                  <h5 className="text-white font-one text-base sm:text-base lg:text-sm flex items-center gap-2 mb-3">
                     <svg
                       className="w-5 h-5 sm:w-4 sm:h-4 text-tertiary-500"
                       fill="none"
@@ -965,7 +965,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
               {/* Détails du tattoo compact */}
               {selectedAppointment.tattooDetail && (
                 <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-                  <h5 className="text-white font-one text-base sm:text-sm flex items-center gap-2 mb-3">
+                  <h5 className="text-white font-one text-base sm:text-base lg:text-sm flex items-center gap-2 mb-3">
                     <svg
                       className="w-5 h-5 sm:w-4 sm:h-4 text-tertiary-500"
                       fill="none"

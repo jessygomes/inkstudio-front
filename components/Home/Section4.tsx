@@ -5,9 +5,9 @@ import { FaClock, FaUserClock, FaBlackTie, FaDatabase } from "react-icons/fa6";
 
 export default function Section4() {
   return (
-    <section className="bg-secondary-500 flex flex-col sm:flex-row min-h-screen">
+    <section className="bg-secondary-500 flex flex-col lg:flex-row lg:min-h-screen">
       {/* Section gauche - Image et titre */}
-      <div className="w-full sm:w-1/2 h-[40vh] sm:h-screen relative flex flex-col justify-center">
+      <div className="w-full lg:w-1/2 h-[40vh] lg:h-screen relative flex flex-col justify-center">
         <div
           className="absolute inset-0"
           style={{
@@ -34,7 +34,7 @@ export default function Section4() {
       </div>
 
       {/* Section droite - Cartes modernes */}
-      <div className="w-full sm:w-1/2 py-8 sm:py-16 flex flex-col justify-center px-4 sm:px-8 lg:px-12">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 py-8 lg:py-16 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           {/* Carte 1 */}
           <div className="group bg-gradient-to-br from-noir-500/20 to-noir-700/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-tertiary-400/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl">

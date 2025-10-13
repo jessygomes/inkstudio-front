@@ -15,7 +15,7 @@ export default function Home() {
         <Header />
       </div>
       <div
-        className="hidden sm:flex h-screen w-full bg-cover bg-center items-center justify-center"
+        className="hidden lg:flex h-screen w-full bg-cover bg-center items-center justify-center"
         style={{
           backgroundImage: "url('/images/bv.png')",
           backgroundSize: "cover",
@@ -26,7 +26,7 @@ export default function Home() {
       </div>
 
       <div
-        className="sm:hidden h-screen w-full bg-cover bg-center flex items-center justify-center relative"
+        className="lg:hidden h-screen w-full bg-cover bg-center flex items-center justify-center relative"
         style={{
           backgroundImage: "url('/images/bvp.png')",
           backgroundSize: "cover",

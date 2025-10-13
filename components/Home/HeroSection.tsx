@@ -3,9 +3,9 @@ import React from "react";
 
 export default function HeroSection() {
   return (
-    <section className="w-full px-4 sm:px-0 sm:flex justify-center z-20">
-      <div className="hidden sm:block w-2/5"></div>
-      <div className="w-full sm:w-3/4 sm:mr-20 flex flex-col items-center justify-center gap-6 sm:gap-8">
+    <section className="w-full px-4 lg:px-0 sm:flex justify-center z-20">
+      <div className="hidden lg:block w-2/5"></div>
+      <div className="w-full lg:w-3/4 lg:mr-20 flex flex-col items-center justify-center gap-6 lg:gap-8">
         <div className="flex flex-col justify-center items-center gap-3 sm:gap-2">
           {/* Titre principal avec meilleure lisibilité mobile */}
           <h1 className="text-white font-two text-2xl sm:text-4xl lg:text-5xl font-bold tracking-wide">
@@ -15,7 +15,7 @@ export default function HeroSection() {
           <div className="w-24 h-1 bg-gradient-to-r from-tertiary-400 to-tertiary-500 rounded-full mx-auto my-3"></div>
 
           {/* Sous-titre responsive */}
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-white uppercase font-two tracking-wide leading-tight">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-center text-white uppercase font-two tracking-wide leading-tight">
             <span className="block bg-gradient-to-r from-tertiary-400 to-tertiary-500 bg-clip-text text-transparent">
               Gérez votre salon
             </span>{" "}
@@ -51,7 +51,7 @@ export default function HeroSection() {
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
-              <span className="text-sm sm:text-base font-semibold">
+              <span className="text-sm sm:text-lg lg:text-base font-semibold">
                 Créer un compte gratuit
               </span>
             </span>

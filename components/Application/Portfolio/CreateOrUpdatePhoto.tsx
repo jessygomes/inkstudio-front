@@ -170,31 +170,31 @@ export default function CreateOrUpdatePhoto({
 
       <div
         data-modal
-        className="fixed inset-0 z-[9999] sm:bg-black/60 sm:backdrop-blur-sm bg-noir-700 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden"
+        className="fixed inset-0 z-[9999] lg:bg-black/60 lg:backdrop-blur-sm bg-noir-700 flex items-end lg:items-center justify-center p-0 lg:p-4 overflow-hidden"
         style={{ height: "100dvh", width: "100vw" }}
       >
-        <div className="bg-noir-500 rounded-none sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-4xl sm:max-h-[95vh] overflow-hidden flex flex-col border-0 sm:border sm:border-white/20 sm:shadow-2xl min-h-0">
+        <div className="bg-noir-500 rounded-none lg:rounded-3xl w-full h-full lg:h-auto lg:max-w-4xl lg:max-h-[95vh] overflow-hidden flex flex-col border-0 lg:border lg:border-white/20 lg:shadow-2xl min-h-0">
           {/* Header fixe */}
-          <div className="p-6 sm:p-4 border-b border-white/10 bg-white/5">
+          <div className="p-6 lg:p-4 border-b border-white/10 bg-white/5">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl sm:text-xl font-bold text-white font-one tracking-wide">
+              <h2 className="text-2xl lg:text-xl font-bold text-white font-one tracking-wide">
                 {existingPhoto ? "Modifier la photo" : "Ajouter une photo"}
               </h2>
               <button
                 onClick={handleClose}
                 disabled={isClosing || loading}
-                className="p-3 sm:p-2 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-3 lg:p-2 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isClosing ? (
-                  <div className="animate-spin rounded-full h-6 w-6 sm:h-5 sm:w-5 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 lg:h-5 lg:w-5 border-b-2 border-white"></div>
                 ) : (
-                  <span className="text-white text-2xl sm:text-xl cursor-pointer">
+                  <span className="text-white text-2xl lg:text-xl cursor-pointer">
                     ×
                   </span>
                 )}
               </button>
             </div>
-            <p className="text-white/70 mt-2 text-base sm:text-sm">
+            <p className="text-white/70 mt-2 text-base lg:text-sm">
               {existingPhoto
                 ? "Modifiez les informations de votre photo"
                 : "Ajoutez une nouvelle photo à votre portfolio"}
@@ -202,14 +202,14 @@ export default function CreateOrUpdatePhoto({
           </div>
 
           {/* Form Content scrollable */}
-          <div className="flex-1 overflow-y-auto p-6 sm:p-4 min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 lg:p-4 min-h-0">
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-8 sm:space-y-6"
+              className="space-y-8 lg:space-y-6"
             >
               {/* Section: Image */}
-              <div className="bg-white/5 rounded-2xl p-6 sm:p-4 border border-white/10">
-                <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
+              <div className="bg-white/5 rounded-2xl p-6 lg:p-4 border border-white/10">
+                <h3 className="text-base lg:text-sm font-semibold text-tertiary-400 mb-4 lg:mb-3 font-one uppercase tracking-wide">
                   📸 Image du portfolio
                 </h3>
 
@@ -248,47 +248,47 @@ export default function CreateOrUpdatePhoto({
                 />
 
                 {form.formState.errors.imageUrl && (
-                  <p className="text-red-300 text-sm sm:text-xs mt-2">
+                  <p className="text-red-300 text-sm lg:text-xs mt-2">
                     {form.formState.errors.imageUrl.message}
                   </p>
                 )}
               </div>
 
               {/* Section: Informations */}
-              <div className="bg-white/5 rounded-2xl p-6 sm:p-4 border border-white/10">
-                <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
+              <div className="bg-white/5 rounded-2xl p-6 lg:p-4 border border-white/10">
+                <h3 className="text-base lg:text-sm font-semibold text-tertiary-400 mb-4 lg:mb-3 font-one uppercase tracking-wide">
                   ℹ️ Informations
                 </h3>
 
-                <div className="space-y-6 sm:space-y-4">
-                  <div className="space-y-2 sm:space-y-1">
-                    <label className="text-sm sm:text-xs text-white/70 font-one">
+                <div className="space-y-6 lg:space-y-4">
+                  <div className="space-y-2 lg:space-y-1">
+                    <label className="text-sm lg:text-xs text-white/70 font-one">
                       Titre du tatouage
                     </label>
                     <input
                       placeholder="Donnez un titre à votre tatouage"
                       {...form.register("title")}
-                      className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                     />
                     {form.formState.errors.title && (
-                      <p className="text-red-300 text-sm sm:text-xs mt-1">
+                      <p className="text-red-300 text-sm lg:text-xs mt-1">
                         {form.formState.errors.title.message}
                       </p>
                     )}
                   </div>
 
-                  <div className="space-y-2 sm:space-y-1">
-                    <label className="text-sm sm:text-xs text-white/70 font-one">
+                  <div className="space-y-2 lg:space-y-1">
+                    <label className="text-sm lg:text-xs text-white/70 font-one">
                       Description (optionnelle)
                     </label>
                     <textarea
                       placeholder="Décrivez votre œuvre, le style, la technique utilisée..."
                       {...form.register("description")}
                       rows={5}
-                      className="w-full p-4 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
+                      className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-base lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
                     />
                     {form.formState.errors.description && (
-                      <p className="text-red-300 text-sm sm:text-xs mt-1">
+                      <p className="text-red-300 text-sm lg:text-xs mt-1">
                         {form.formState.errors.description.message}
                       </p>
                     )}
@@ -406,16 +406,16 @@ export default function CreateOrUpdatePhoto({
           </div>
 
           {/* Footer fixe */}
-          <div className="p-6 sm:p-4 border-t border-white/10 bg-white/5 flex justify-end gap-4 sm:gap-3">
+            <div className="p-6 lg:p-4 border-t border-white/10 bg-white/5 flex justify-end gap-4 lg:gap-3">
             <button
               type="button"
               onClick={handleClose}
               disabled={loading || isClosing}
-              className="cursor-pointer px-6 py-3 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-base sm:text-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="cursor-pointer px-6 py-3 lg:px-4 lg:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-base lg:text-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isClosing ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 sm:h-3 sm:w-3 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 lg:h-3 lg:w-3 border-b-2 border-white"></div>
                   <span>Annulation...</span>
                 </>
               ) : (
@@ -426,7 +426,7 @@ export default function CreateOrUpdatePhoto({
               type="submit"
               disabled={loading || isClosing}
               onClick={form.handleSubmit(onSubmit)}
-              className="cursor-pointer px-8 py-3 sm:px-6 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-base sm:text-xs"
+                className="cursor-pointer px-8 py-3 lg:px-6 lg:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-base lg:text-xs"
             >
               {loading
                 ? "Enregistrement..."
