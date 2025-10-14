@@ -76,6 +76,10 @@ export const LoginForm = () => {
 
       await createSession(infos);
 
+      // Changement de texte pour la redirection
+      setIsPending(true);
+      setSuccess("Redirection vers l'app...");
+
       // Appeler l'API pour récupérer l'utilisateur authentifié
       // const userResponse = await fetch("/api/auth");
 
@@ -151,7 +155,11 @@ export const LoginForm = () => {
               type="submit"
               disabled={isPending}
             >
-              {isPending ? "Connexion..." : "Se connecter &rarr;"}
+              {isPending
+                ? success === "Redirection vers l'app..."
+                  ? "Redirection vers l'app..."
+                  : "Connexion..."
+                : "Se connecter"}
             </button>
           </div>
         </form>
