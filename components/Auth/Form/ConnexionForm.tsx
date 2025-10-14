@@ -151,7 +151,7 @@ export const LoginForm = () => {
               type="submit"
               disabled={isPending}
             >
-              SE CONNECTER &rarr;
+              {isPending ? "Connexion..." : "Se connecter &rarr;"}
             </button>
           </div>
         </form>

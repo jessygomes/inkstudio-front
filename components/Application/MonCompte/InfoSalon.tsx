@@ -2,16 +2,40 @@
 import { UpdateSalonUserProps } from "@/lib/type";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 import { CiInstagram, CiFacebook } from "react-icons/ci";
 import { PiTiktokLogoThin } from "react-icons/pi";
 import { TfiWorld } from "react-icons/tfi";
+import { IoCopy } from "react-icons/io5";
+import { makeCitySlug, makeSlug } from "@/lib/utils/makeLink";
 
 interface InfoSalonProps {
   salon: UpdateSalonUserProps;
 }
 
 export default function InfoSalon({ salon }: InfoSalonProps) {
+  const [copied, setCopied] = useState(false);
+  const salonWithMaybeSlug = salon as UpdateSalonUserProps & { slug?: string };
+  const salonSlug = salonWithMaybeSlug.slug ?? makeSlug(salon.salonName);
+
+  const publicProfileHref =
+    salon?.city && salon?.postalCode
+      ? `${
+          process.env.NEXT_PUBLIC_FRONTENDPUBLIC_URL
+        }/salon/${salonSlug}/${makeCitySlug(salon.city)}-${salon.postalCode}`
+      : `/salon/${salonSlug}`;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(publicProfileHref);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Erreur lors de la copie:", err);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col lg:flex-row gap-6">
@@ -116,6 +140,33 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
               </div>
             </div>
           )}
+          <div>
+            <p className="text-white/60 font-one text-xs mb-1">Profil public</p>
+            <div className="flex items-center gap-2 w-fit relative">
+              <p className="bg-white/5 w-fit p-2 rounded-lg text-white break-all text-xs mb-1 font-one tracking-wide flex-1">
+                {publicProfileHref}
+              </p>
+              <button
+                onClick={handleCopyLink}
+                className="cursor-pointer hover:bg-white/10 p-2 rounded-lg text-white text-xs font-one transition-colors"
+                title="Copier le lien"
+              >
+                <IoCopy size={15} />
+              </button>
+              {copied && (
+                <div className="absolute top-0 right-0 transform -translate-y-full -translate-x-1/2 mb-2 bg-tertiary-500 text-white p-2 rounded text-xs font-one whitespace-nowrap z-10 md:translate-y-0 md:translate-x-full md:mb-0 md:ml-4">
+                  Lien copié !
+                </div>
+              )}
+            </div>
+            <Link
+              href={publicProfileHref}
+              target="_blank"
+              className="text-tertiary-400 text-sm font-one hover:underline"
+            >
+              Voir mon profil public
+            </Link>
+          </div>
         </div>
       </div>
 
