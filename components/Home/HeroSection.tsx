@@ -9,7 +9,7 @@ export default function HeroSection() {
         <div className="flex flex-col justify-center items-center gap-3 sm:gap-2">
           {/* Titre principal avec meilleure lisibilité mobile */}
           <h1 className="text-white font-two text-2xl sm:text-4xl lg:text-5xl font-bold tracking-wide">
-            INKSTUDIO
+            TheInkEra Studio
           </h1>
 
           <div className="w-24 h-1 bg-gradient-to-r from-tertiary-400 to-tertiary-500 rounded-full mx-auto my-3"></div>

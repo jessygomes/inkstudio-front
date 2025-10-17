@@ -31,11 +31,8 @@ export function NavbarClient({ initialAuthStatus, links }: NavbarClientProps) {
 
   return (
     <nav className="flex justify-between items-center py-4 mx-20">
-      <Link
-        href={"/"}
-        className="font-two uppercase font-bold text-xl text-white"
-      >
-        InkStudio
+      <Link href={"/"} className="font-two font-bold text-xl text-white">
+        TheInkEra Studio
       </Link>
       <ul ref={navRef} className="flex gap-8">
         {links.map((link, index) => {

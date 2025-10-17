@@ -6,16 +6,11 @@ export default async function Navbar() {
     { href: "/", label: "Accueil" },
     { href: "/solutions", label: "Solutions" },
     { href: "/tarification", label: "Tarification" },
-    { href: "/a-propos-de-inkstudio", label: "A propos de InkStudio" },
+    { href: "/a-propos-de-inkera", label: "A propos de InkEra" },
   ];
 
   // Vérifier l'état d'authentification côté server
   const isAuthenticated = await getAuthStatus();
 
-  return (
-    <NavbarClient 
-      links={links} 
-      initialAuthStatus={isAuthenticated} 
-    />
-  );
+  return <NavbarClient links={links} initialAuthStatus={isAuthenticated} />;
 }

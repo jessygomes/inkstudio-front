@@ -6,7 +6,7 @@ export default async function NavMobile() {
     { href: "/", label: "Accueil", icon: "🏠" },
     { href: "/solutions", label: "Solutions", icon: "⚡" },
     { href: "/tarification", label: "Tarification", icon: "💰" },
-    { href: "/a-propos-de-inkstudio", label: "A propos de InkStudio" },
+    { href: "/a-propos-de-inkera", label: "A propos de InkEra" },
   ];
 
   // Vérifier l'état d'authentification côté server

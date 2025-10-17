@@ -14,13 +14,13 @@ import type { Metadata } from "next";
 import Header from "@/components/Shared/Header";
 
 export const metadata: Metadata = {
-  title: "À propos d'InkStudio | Notre Mission",
+  title: "À propos d'InkEra | Notre Mission",
   description:
-    "Découvrez l'histoire d'InkStudio, notre mission de révolutionner la gestion des salons de tatouage et notre engagement envers la communauté des artistes tatoueurs.",
+    "Découvrez l'histoire d'InkEra, notre mission de révolutionner la gestion des salons de tatouage et notre engagement envers la communauté des artistes tatoueurs.",
   keywords: [
-    "à propos InkStudio",
+    "à propos InkEra",
     "mission tatouage",
-    "équipe InkStudio",
+    "équipe InkEra",
     "histoire plateforme",
     "innovation tatoueurs",
   ],
@@ -56,7 +56,7 @@ export default function AproposPage() {
                     WebkitTextFillColor: "transparent",
                   }}
                 >
-                  InkStudio
+                  InkEra Studio
                 </span>
               </h1>
 
