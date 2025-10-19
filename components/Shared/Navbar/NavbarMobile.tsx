@@ -91,8 +91,27 @@ export default function NavbarMobile() {
     };
   }, [isOpen]);
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50); // Activer le blur après 50px de scroll
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <nav className="flex justify-between items-center py-4 pb-6 shadow-lg backdrop-blur-md px-4">
+    <nav
+      className={`flex justify-between items-center py-4 pb-6 shadow-lg px-4 ${
+        isScrolled ? "backdrop-blur-md" : "backdrop-blur-none"
+      }`}
+    >
       <div className="absolute bottom-0 left-0 right-0 h-1 animate-pulse bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-2xl"></div>
 
       {/* Logo */}
@@ -100,7 +119,7 @@ export default function NavbarMobile() {
         href={"/dashboard"}
         className="font-two uppercase font-bold text-lg text-white"
       >
-        {user?.salonName || "InkStudio"}
+        {user?.salonName || "INKERA Studio"}
       </Link>
 
       {/* Menu Button */}

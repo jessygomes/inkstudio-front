@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
@@ -29,10 +30,37 @@ export function NavbarClient({ initialAuthStatus, links }: NavbarClientProps) {
     };
   }, []);
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50); // Activer le blur après 50px de scroll
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <nav className="flex justify-between items-center py-4 mx-20">
-      <Link href={"/"} className="font-two font-bold text-xl text-white">
-        TheInkEra Studio
+    <nav
+      className={`flex justify-between items-center py-4 px-20  ${
+        isScrolled ? "backdrop-blur-md" : "backdrop-blur-none"
+      }`}
+    >
+      <Link href={"/"} className="flex items-center gap-2">
+        <Image
+          src="/images/logo_inline_white.png"
+          alt="Logo"
+          width={150}
+          height={50}
+        />
+        <p className="font-two tracking-widest text-xl text-white mb-0.5">
+          Studio
+        </p>
       </Link>
       <ul ref={navRef} className="flex gap-8">
         {links.map((link, index) => {
@@ -42,17 +70,15 @@ export function NavbarClient({ initialAuthStatus, links }: NavbarClientProps) {
             <li
               key={index}
               className={`${
-                isActive
-                  ? "active font-three text-white font-bold"
-                  : "font-thin"
-              } pb-1 text-white text-sm font-three pt-1 px-2 tracking-widest hover:text-white/70 transition-all duration-300`}
+                isActive ? "active font-two text-white font-bold" : "font-thin"
+              } pb-1 text-white text-sm font-two pt-1 px-2 tracking-widest hover:text-white/70 transition-all duration-300`}
             >
               <Link href={link.href}>{link.label}</Link>
             </li>
           );
         })}
         <Link href={isLoggedIn ? "/dashboard" : "/connexion"}>
-          <div className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs">
+          <div className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-two text-xs">
             {isLoggedIn ? "Dashboard" : "Connexion"}
           </div>
         </Link>

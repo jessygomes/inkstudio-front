@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -52,14 +53,45 @@ export function NavMobileClient({
     };
   }, []);
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50); // Activer le blur après 50px de scroll
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <nav>
-      <div className="flex items-center justify-between text-white">
+      <div
+        className={`flex items-center justify-between text-white w-full ${
+          isScrolled ? "backdrop-blur-md rounded-md" : "backdrop-blur-none"
+        }`}
+      >
+        <Link href={"/"} className="flex items-center gap-1">
+          <Image
+            src="/images/logo_inline_white.png"
+            alt="Logo"
+            width={110}
+            height={50}
+            className="w-[100px] md:w-[140px] h-auto"
+          />
+          <p className="font-two tracking-widest text-sm text-white font-thin">
+            Studio
+          </p>
+        </Link>
         <button
           onClick={handleOpen}
-          className="text-2xl p-2 rounded-xl hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
+          className="text-2xl p-2 rounded-xl hover:bg-white/10 transition-all duration-300"
         >
-          <MdMenu size={32} className="text-white" />
+          <MdMenu size={32} className="" />
         </button>
       </div>
 
@@ -77,7 +109,7 @@ export function NavMobileClient({
         {/* Header moderne */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold font-two">InkStudio</h2>
+            <h2 className="text-xl font-bold font-two">INKERA Studio</h2>
           </div>
           <button
             onClick={handleClose}
@@ -89,7 +121,7 @@ export function NavMobileClient({
 
         {/* Navigation links modernisés */}
         <div className="flex-1 px-6 py-8">
-          <ul className="space-y-2">
+          <ul className="space-y-2 font-two">
             {links.map((link, index) => {
               const isActive =
                 pathname === link.href ||
@@ -111,7 +143,7 @@ export function NavMobileClient({
                     }`}
                   >
                     <div className="flex-1">
-                      <span className="text-lg font-medium font-one tracking-wide">
+                      <span className="text-lg font-medium font-two tracking-wide">
                         {link.label}
                       </span>
                     </div>
@@ -134,7 +166,7 @@ export function NavMobileClient({
           <Link
             href={isLoggedIn ? "/dashboard" : "/connexion"}
             onClick={handleClose}
-            className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 px-6 py-4 rounded-2xl transition-all duration-300 font-one font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 px-6 py-4 rounded-2xl transition-all duration-300 font-two font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             <svg
               className="w-5 h-5"

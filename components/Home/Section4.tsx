@@ -22,12 +22,12 @@ export default function Section4() {
           <span
             className="text-tertiary-500 font-bold uppercase"
             style={{
-              background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
+              background: "linear-gradient(90deg, #ba01d3, #ff4d41)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
           >
-            INKSTUDIO
+            INKERA Studio
           </span>{" "}
           ?
         </h2>
@@ -47,8 +47,9 @@ export default function Section4() {
               </h3>
             </div>
             <p className="text-white/80 text-sm leading-relaxed font-one">
-              Passez moins de temps à gérer, plus de temps à créer. InkStudio
-              libère votre emploi du temps pour vous concentrer sur votre art.
+              Passez moins de temps à gérer, plus de temps à créer. INKERA
+              Studio libère votre emploi du temps pour vous concentrer sur votre
+              art.
             </p>
           </div>
 

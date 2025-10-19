@@ -9,14 +9,14 @@ export default function HeroSection() {
         <div className="flex flex-col justify-center items-center gap-3 sm:gap-2">
           {/* Titre principal avec meilleure lisibilité mobile */}
           <h1 className="text-white font-two text-2xl sm:text-4xl lg:text-5xl font-bold tracking-wide">
-            TheInkEra Studio
+            INKERA Studio
           </h1>
 
           <div className="w-24 h-1 bg-gradient-to-r from-tertiary-400 to-tertiary-500 rounded-full mx-auto my-3"></div>
 
           {/* Sous-titre responsive */}
           <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-center text-white uppercase font-two tracking-wide leading-tight">
-            <span className="block bg-gradient-to-r from-tertiary-400 to-tertiary-500 bg-clip-text text-transparent">
+            <span className="block  bg-gradient-to-r from-tertiary-400 via-tertiary-500 to-cuatro-500 bg-clip-text text-transparent">
               Gérez votre salon
             </span>{" "}
             de tatouage en toute simplicité
@@ -24,7 +24,7 @@ export default function HeroSection() {
 
           {/* Description avec fond semi-transparent pour mobile */}
           <div className="bg-noir-700/40 sm:bg-transparent backdrop-blur-sm sm:backdrop-blur-none rounded-xl sm:rounded-none p-4 sm:p-0 border border-white/20 sm:border-none">
-            <p className="text-lg text-white/80 text-center font-one leading-relaxed max-w-2xl mx-auto">
+            <p className="text-sm text-white/80 text-center font-one leading-relaxed max-w-2xl mx-auto">
               Gestion de salon de tatouage qui vous permet de gérer facilement
               vos rendez-vous, vos clients et vos finances.
             </p>

@@ -7,7 +7,7 @@ export default function Footer() {
       {/* Header du footer modernisé */}
       <div className="flex items-center justify-center gap-4 mb-8 sm:mb-12">
         <h3 className="text-white text-2xl sm:text-3xl font-two font-bold tracking-wide">
-          InkEra
+          INKERA
         </h3>
         <div className="bg-gradient-to-r from-tertiary-400 to-tertiary-500 w-full h-[2px] rounded-full"></div>
       </div>
@@ -66,7 +66,7 @@ export default function Footer() {
                 href={"/a-propos"}
                 className="hover:text-tertiary-400 duration-300 transition-colors"
               >
-                A Propos de InkEra
+                A Propos de INKERA Studio
               </Link>
             </li>
             <li>
@@ -136,7 +136,7 @@ export default function Footer() {
       <div className="border-t border-white/10 pt-6 sm:pt-8">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-white/60 font-one text-xs sm:text-sm text-center sm:text-left">
-            © 2025 Inkera Studio. Tous droits réservés.
+            © {new Date().getFullYear()} INKERA Studio. Tous droits réservés.
           </p>
           <div className="flex justify-center">
             <div className="h-1 w-16 bg-gradient-to-r from-tertiary-400 to-tertiary-500 rounded-full opacity-60"></div>

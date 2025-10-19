@@ -36,7 +36,7 @@ export const HoverEffect = ({
           <AnimatePresence>
             {hoveredIndex === idx && (
               <motion.span
-                className="absolute inset-0 h-full w-full bg- bg-gradient-to-r from-tertiary-500/[0.8] to-tertiary-400/[0.8] block rounded-3xl"
+                className="absolute inset-0 h-full w-full bg- bg-gradient-to-r from-tertiary-500/[0.8] to-cuatro-500/[0.8] block rounded-3xl"
                 layoutId="hoverBackground"
                 initial={{ opacity: 0 }}
                 animate={{
@@ -53,16 +53,7 @@ export const HoverEffect = ({
           <Card>
             <div className="flex justify-between items-center gap-2 text-tertiary-500">
               <CardTitle>{item.title}</CardTitle>
-              <span
-                className="text-2xl"
-                style={{
-                  background: "linear-gradient(90deg, #ff9d00, #ff5500)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                {item?.icons}
-              </span>
+              <span className="text-2xl">{item?.icons}</span>
             </div>
             <CardDescription>{item.description}</CardDescription>
           </Card>

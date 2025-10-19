@@ -3,19 +3,19 @@ import React, { useState } from "react";
 
 const faqs = [
   {
-    question: "Comment fonctionne InkStudio ?",
+    question: "Comment fonctionne INKERA Studio ?",
     answer:
-      "InkStudio est une plateforme tout-en-un qui vous permet de gérer vos réservations, vos clients, et bien plus encore, directement en ligne.",
+      "INKERA Studio est une plateforme tout-en-un qui vous permet de gérer vos réservations, vos clients, et bien plus encore, directement en ligne.",
   },
   {
     question: "Puis-je personnaliser mon portfolio ?",
     answer:
-      "Oui, InkStudio vous permet de créer un portfolio en ligne avec des options de personnalisation et une protection anti-vol.",
+      "Oui, INKERA Studio vous permet de créer un portfolio en ligne avec des options de personnalisation et une protection anti-vol.",
   },
   {
     question: "Quels rappels sont envoyés aux clients ?",
     answer:
-      "InkStudio envoie des rappels automatiques pour les rendez-vous et des instructions de soin après les séances.",
+      "INKERA Studio envoie des rappels automatiques pour les rendez-vous et des instructions de soin après les séances.",
   },
 ];
 export default function Section6() {

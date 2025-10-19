@@ -48,8 +48,8 @@ export default function Section5() {
         <div className="px-4 sm:px-20 relative z-10">
           <div className="bg-gradient-to-br from-noir-500/20 to-noir-700/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/10 mb-4 sm:mb-6">
             <p className="text-white/90 font-one text-sm sm:text-base leading-relaxed">
-              InkStudio propose une plateforme publique accessible à tous, où
-              les utilisateurs peuvent{" "}
+              INKERA Studio propose une plateforme publique accessible à tous,
+              où les utilisateurs peuvent{" "}
               <span className="font-bold text-tertiary-400">
                 découvrir les salons de tatouage recensés par ville, région ou
                 style.

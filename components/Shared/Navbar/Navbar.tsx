@@ -6,7 +6,7 @@ export default async function Navbar() {
     { href: "/", label: "Accueil" },
     { href: "/solutions", label: "Solutions" },
     { href: "/tarification", label: "Tarification" },
-    { href: "/a-propos-de-inkera", label: "A propos de InkEra" },
+    { href: "/a-propos-de-inkera", label: "A propos de INKERA" },
   ];
 
   // Vérifier l'état d'authentification côté server

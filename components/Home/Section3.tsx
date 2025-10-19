@@ -28,7 +28,7 @@ export default function Section3() {
           }}
         ></div>
         <h2 className="px-4 sm:px-10 lg:px-20 text-2xl font-two uppercase text-white font-bold relative z-10">
-          InkStudio, pensé{" "}
+          INKERA Studio, pensé{" "}
           <span
             style={{
               background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
@@ -41,12 +41,12 @@ export default function Section3() {
           les tatoueurs.
         </h2>
         <p className="px-4 sm:px-10 lg:px-20 text-white font-one relative z-10">
-          De la réservation à la cicatrisation, InkStudio vous fait gagner du
-          temps, simplifie votre organisation, et améliore l’expérience de vos
-          clients.
+          De la réservation à la cicatrisation, INKERA Studio vous fait gagner
+          du temps, simplifie votre organisation, et améliore l’expérience de
+          vos clients.
         </p>
         <p className="px-4 sm:px-10 lg:px-20 text-white font-one relative z-10">
-          InkStudio a été conçu main dans la main avec des tatoueurs. Chaque
+          INKERA Studio a été conçu main dans la main avec des tatoueurs. Chaque
           fonctionnalité répond à un vrai besoin du terrain.
         </p>
       </div>

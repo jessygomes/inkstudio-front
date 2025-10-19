@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import Navbar from "./Navbar/Navbar";
 import NavMobile from "./Navbar/NavMobile";
 
@@ -10,10 +9,7 @@ export default function Header() {
         <Navbar />
       </div>
 
-      <div className="lg:hidden px-4 pt-8 rounded-2xl flex justify-between items-center mx-2">
-        <Link href={"/"} className="text-xl font-one font-bold text-white ">
-          TheInkEra Studio
-        </Link>
+      <div className="lg:hidden px-4 pt-4 rounded-2xl w-full">
         <NavMobile />
       </div>
     </>
