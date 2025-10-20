@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
+import { UpdateColorProfileDto } from "../type";
 
 //! ----------------------------------------------------------------------------
 
@@ -203,6 +204,81 @@ export const updateAppointmentParamAction = async (value: boolean) => {
   } catch (error) {
     console.error(
       "Erreur lors de la mise à jour du paramètre de prise de rendez-vous :",
+      error
+    );
+    throw error;
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
+//! RECUPERER LES COULEURS DU PROFIL
+
+//! ----------------------------------------------------------------------------
+export const getColorProfileAction = async () => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/users/color-profile`,
+      {
+        method: "GET",
+        headers,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || (data && data.error)) {
+      const message =
+        data?.message ||
+        `Erreur lors de la récupération des couleurs (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return { ok: true, error: false, status: response.status, data };
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des couleurs du profil :",
+      error
+    );
+    throw error;
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
+//! METTRE À JOUR LES COULEURS DU PROFIL
+
+//! ----------------------------------------------------------------------------
+export const updateColorProfileAction = async (
+  payload: UpdateColorProfileDto
+) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/users/color-profile`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || (data && data.error)) {
+      const message =
+        data?.message ||
+        `Erreur lors de la mise à jour des couleurs (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return { ok: true, error: false, status: response.status, data };
+  } catch (error) {
+    console.error(
+      "Erreur lors de la mise à jour des couleurs du profil :",
       error
     );
     throw error;

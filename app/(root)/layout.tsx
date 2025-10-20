@@ -5,6 +5,7 @@ import { UserProvider } from "@/components/Auth/Context/UserContext";
 import Footer from "@/components/Shared/Footer/FooterApp";
 import Providers from "@/components/Providers/ReactQueryProvider";
 import { AuthErrorHandler } from "@/components/Auth/AuthErrorHandler";
+import { ColorProvider } from "@/components/ColorContext/ColorProvider";
 
 export default async function DashboardLayout({
   children,
@@ -52,18 +53,20 @@ export default async function DashboardLayout({
   return (
     <UserProvider user={user}>
       <Providers>
-        {/* Gestion des erreurs d'authentification côté client */}
-        {authError && <AuthErrorHandler error={authError} />}
+        <ColorProvider>
+          {/* Gestion des erreurs d'authentification côté client */}
+          {authError && <AuthErrorHandler error={authError} />}
 
-        {!authError && (
-          <>
-            <div className="absolute top-0 left-0 w-full z-50">
-              <HeaderApp />
-            </div>
-            {children}
-            <Footer />
-          </>
-        )}
+          {!authError && (
+            <>
+              <div className="absolute top-0 left-0 w-full z-50">
+                <HeaderApp />
+              </div>
+              {children}
+              <Footer />
+            </>
+          )}
+        </ColorProvider>
       </Providers>
     </UserProvider>
   );

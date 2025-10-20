@@ -29,6 +29,7 @@ import {
 import { availablePlans, getPlanDetails } from "@/lib/saasPlan.data";
 import { changePasswordSchema } from "@/lib/zod/validator.schema";
 import { Subscription, UserSettings } from "@/lib/type";
+// import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
 
 export default function ParamPage() {
   const user = useUser();
@@ -542,6 +543,8 @@ export default function ParamPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* <ColorProfile /> */}
 
                 <div className="h-[0.5px] bg-white/10"></div>
 

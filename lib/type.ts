@@ -233,3 +233,14 @@ export interface PaginationInfo {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
 }
+
+//! COLOR PROFILE
+export interface ColorProfileProps {
+  colorProfile: string;
+  colorProfileBis: string;
+}
+
+export interface UpdateColorProfileDto {
+  colorProfile: string;
+  colorProfileBis: string;
+}
