@@ -24,12 +24,12 @@ export const getAuthenticatedUser = async () => {
     // ✅ Gestion spécifique des tokens expirés (401 Unauthorized)
     if (response.status === 401) {
       console.warn("🔑 Token expiré ou invalide - Suppression des cookies");
-      
+
       // Supprimer les cookies expirés côté serveur
       const cookieStore = await cookies();
       cookieStore.delete("access_token");
       cookieStore.delete("userId");
-      
+
       throw new Error("TOKEN_EXPIRED");
     }
 
@@ -41,7 +41,7 @@ export const getAuthenticatedUser = async () => {
     }
 
     const data = await response.json();
-    console.log("✅ Utilisateur récupéré (auth.server.ts) :", data);
+    // console.log("✅ Utilisateur récupéré (auth.server.ts) :", data);
 
     return getAuthenticatedUserSchema.parse(data);
   } catch (error) {

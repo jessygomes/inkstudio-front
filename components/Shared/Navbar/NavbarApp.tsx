@@ -45,6 +45,7 @@ export default function NavbarApp() {
     { href: "/dashboard", label: "Dashboard" },
     { href: "/mes-rendez-vous", label: "Rendez-vous" },
     { href: "/clients", label: "Clients" },
+    { href: "/stocks", label: "Stocks" },
     { href: "/mon-portfolio", label: "Portfolio" },
     { href: "/mes-produits", label: "Produits" },
     { href: "/mon-compte", label: "Mon Compte" },

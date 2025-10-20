@@ -212,3 +212,24 @@ export interface ProductSalonProps {
   price: number;
   imageUrl: string; // URL de l'image
 }
+
+//! ITEM STOCK
+export interface StockItemProps {
+  id: string;
+  name: string;
+  category: string | null;
+  quantity: number;
+  unit: string | null;
+  minQuantity: number | null;
+  updatedAt: string; // Date au format ISO
+}
+
+//! PAGINATION
+export interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalClients: number;
+  limit: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}

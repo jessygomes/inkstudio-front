@@ -59,15 +59,11 @@ export const getSalonClientsAction = async (page: number, search: string) => {
       }
     );
 
-    console.log("Response:", response);
-
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       throw new Error(`Erreur ${response.status}: ${response.statusText}`);
     }
-
-    console.log(data);
 
     return data;
   } catch (error) {

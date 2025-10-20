@@ -261,3 +261,16 @@ export const followUpSubmissionSchema = z.object({
   review: z.string().optional(),
   isPhotoPublic: z.boolean().default(false),
 });
+
+//! ITEM STOCK
+export const stockItemSchema = z.object({
+  name: z.string().min(2, "Le nom est requis"),
+  category: z.string().optional(),
+  quantity: z.number().min(0, "La quantité doit être positive"),
+  unit: z.string().optional(),
+  minQuantity: z
+    .number()
+    .min(0, "La quantité minimale doit être positive")
+    .optional(),
+  userId: z.string(),
+});

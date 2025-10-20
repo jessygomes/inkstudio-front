@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { MdMenu, MdClose } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import { CiSettings } from "react-icons/ci";
+import { FaDatabase } from "react-icons/fa";
 import {
   MdDashboard,
   MdEvent,
@@ -56,6 +57,11 @@ export default function NavbarMobile() {
       href: "/clients",
       label: "Clients",
       icon: <MdPeople size={20} />,
+    },
+    {
+      href: "/stocks",
+      label: "Stocks",
+      icon: <FaDatabase size={20} />,
     },
     {
       href: "/mon-portfolio",
