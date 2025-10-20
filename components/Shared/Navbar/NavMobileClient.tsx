@@ -77,15 +77,12 @@ export function NavMobileClient({
       >
         <Link href={"/"} className="flex items-center gap-1">
           <Image
-            src="/images/logo_inline_white.png"
+            src="/images/logo_inline_studio_white.png"
             alt="Logo"
             width={110}
             height={50}
             className="w-[100px] md:w-[140px] h-auto"
           />
-          <p className="font-two tracking-widest text-sm text-white font-thin">
-            Studio
-          </p>
         </Link>
         <button
           onClick={handleOpen}

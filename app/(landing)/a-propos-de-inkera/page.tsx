@@ -5,11 +5,11 @@ import {
   FaLightbulb,
   FaShieldAlt,
   FaHeart,
-  FaTrophy,
+  // FaTrophy,
   FaChartLine,
   FaHandshake,
 } from "react-icons/fa";
-import Image from "next/image";
+// import Image from "next/image";
 import type { Metadata } from "next";
 import Header from "@/components/Shared/Header";
 
@@ -143,7 +143,7 @@ export default function AproposPage() {
               </div>
 
               {/* Notre Histoire */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
                   <h2 className="text-2xl font-bold text-white font-two mb-6">
                     Notre Histoire
@@ -191,7 +191,7 @@ export default function AproposPage() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Nos Valeurs */}
               <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
@@ -261,7 +261,7 @@ export default function AproposPage() {
               </div>
 
               {/* Nos Réalisations */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
+              {/* <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
                 <div className="text-center mb-12">
                   <div className="flex justify-center mb-6">
                     <div className="w-20 h-20 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-full flex items-center justify-center">
@@ -323,10 +323,10 @@ export default function AproposPage() {
                     standards de qualité.
                   </p>
                 </div>
-              </div>
+              </div> */}
 
               {/* Notre Équipe */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              {/* <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-bold text-white font-two mb-6">
                     Notre Équipe
@@ -341,7 +341,7 @@ export default function AproposPage() {
                   <div className="bg-white/5 rounded-2xl p-6 text-center">
                     <div className="w-20 h-20 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
                       <span className="text-tertiary-400 font-two text-xl font-bold">
-                        12
+                        2
                       </span>
                     </div>
                     <h3 className="text-lg font-bold text-white font-two mb-2">
@@ -396,7 +396,7 @@ export default function AproposPage() {
                     d&apos;innover tout en restant pragmatiques.
                   </p>
                 </div>
-              </div>
+              </div> */}
 
               {/* Notre Engagement */}
               <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
@@ -405,8 +405,8 @@ export default function AproposPage() {
                     Notre Engagement
                   </h2>
                   <p className="text-xl text-white/80 font-one leading-relaxed max-w-3xl mx-auto">
-                    Nous nous engageons à faire évoluer InkStudio en permanence
-                    pour rester la solution de référence du secteur
+                    Nous nous engageons à faire évoluer INKERA Studio en
+                    permanence pour rester la solution de référence du secteur
                   </p>
                 </div>
 
@@ -416,7 +416,6 @@ export default function AproposPage() {
                       Développement continu
                     </h3>
                     <ul className="space-y-2 text-white/80 font-one text-sm">
-                      <li>• Nouvelles fonctionnalités chaque trimestre</li>
                       <li>• Améliorations basées sur vos retours</li>
                       <li>• Veille technologique permanente</li>
                       <li>• Tests utilisateurs réguliers</li>
@@ -431,7 +430,6 @@ export default function AproposPage() {
                       <li>• Formation gratuite à l&apos;utilisation</li>
                       <li>• Support technique réactif</li>
                       <li>• Documentation complète</li>
-                      <li>• Webinaires de formation</li>
                     </ul>
                   </div>
                 </div>

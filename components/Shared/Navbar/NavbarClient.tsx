@@ -53,14 +53,11 @@ export function NavbarClient({ initialAuthStatus, links }: NavbarClientProps) {
     >
       <Link href={"/"} className="flex items-center gap-2">
         <Image
-          src="/images/logo_inline_white.png"
+          src="/images/logo_inline_studio_white.png"
           alt="Logo"
           width={150}
           height={50}
         />
-        <p className="font-two tracking-widest text-xl text-white mb-0.5">
-          Studio
-        </p>
       </Link>
       <ul ref={navRef} className="flex gap-8">
         {links.map((link, index) => {

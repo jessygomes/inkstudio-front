@@ -170,11 +170,13 @@ export default function TarificationPage() {
               Prêt à transformer votre salon ?
             </h2>
             <p className="text-xl text-white/80 font-one leading-relaxed">
-              Rejoignez les centaines de tatoueurs qui ont déjà choisi{" "}
-              <span className="text-tertiary-400 font-semibold">InkStudio</span>{" "}
+              Découvrez{" "}
+              <span className="text-tertiary-400 font-semibold">
+                INKERA Studio
+              </span>{" "}
               pour{" "}
               <span className="text-white font-semibold">
-                professionnaliser leur activité
+                simplifier votre activité
               </span>
             </p>
 
