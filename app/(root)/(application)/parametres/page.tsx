@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import {
   CiUser,
   CiCreditCard1,
-  CiBellOn,
+  // CiBellOn,
   CiLock,
   // CiMail,
 } from "react-icons/ci";
@@ -28,8 +28,8 @@ import {
 } from "@/lib/queries/user";
 import { availablePlans, getPlanDetails } from "@/lib/saasPlan.data";
 import { changePasswordSchema } from "@/lib/zod/validator.schema";
-import { Subscription, UserSettings } from "@/lib/type";
-// import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
+import { Subscription } from "@/lib/type";
+import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
 
 export default function ParamPage() {
   const user = useUser();
@@ -38,13 +38,13 @@ export default function ParamPage() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [confirmationEnabled, setConfirmationEnabled] = useState(false);
   const [appointmentParam, setAppointmentParam] = useState(false);
-  const [settings, setSettings] = useState<UserSettings>({
-    emailNotifications: true,
-    smsNotifications: false,
-    marketingEmails: true,
-    appointmentReminders: true,
-    followUpReminders: true,
-  });
+  // const [settings, setSettings] = useState<UserSettings>({
+  //   emailNotifications: true,
+  //   smsNotifications: false,
+  //   marketingEmails: true,
+  //   appointmentReminders: true,
+  //   followUpReminders: true,
+  // });
 
   // États pour les sections dépliantes
   const [openSections, setOpenSections] = useState({
@@ -197,35 +197,35 @@ export default function ParamPage() {
     }
   };
 
-  const handleSettingChange = async (
-    setting: keyof UserSettings,
-    value: boolean
-  ) => {
-    try {
-      setSettings((prev) => ({ ...prev, [setting]: value }));
+  // const handleSettingChange = async (
+  //   setting: keyof UserSettings,
+  //   value: boolean
+  // ) => {
+  //   try {
+  //     setSettings((prev) => ({ ...prev, [setting]: value }));
 
-      // Simuler un appel API
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/users/settings`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ [setting]: value }),
-        }
-      );
+  //     // Simuler un appel API
+  //     const response = await fetch(
+  //       `${process.env.NEXT_PUBLIC_BACK_URL}/users/settings`,
+  //       {
+  //         method: "PATCH",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ [setting]: value }),
+  //       }
+  //     );
 
-      if (response.ok) {
-        toast.success("Paramètre mis à jour");
-      } else {
-        throw new Error("Erreur lors de la mise à jour");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-      // Revenir à l'ancien état en cas d'erreur
-      setSettings((prev) => ({ ...prev, [setting]: !value }));
-      toast.error("Erreur lors de la mise à jour");
-    }
-  };
+  //     if (response.ok) {
+  //       toast.success("Paramètre mis à jour");
+  //     } else {
+  //       throw new Error("Erreur lors de la mise à jour");
+  //     }
+  //   } catch (error) {
+  //     console.error("Erreur:", error);
+  //     // Revenir à l'ancien état en cas d'erreur
+  //     setSettings((prev) => ({ ...prev, [setting]: !value }));
+  //     toast.error("Erreur lors de la mise à jour");
+  //   }
+  // };
 
   //! Fonction pour changer le paramètre de confirmation des RDV
   const handleConfirmationSettingChange = async (value: boolean) => {
@@ -412,6 +412,14 @@ export default function ParamPage() {
                     </p>
                   </div>
                 </div>
+                <div className="flex justify-end">
+                  <button className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg">
+                    <span className="hidden sm:inline">
+                      Modifier les informations
+                    </span>
+                    <span className="sm:hidden">Modifier</span>
+                  </button>
+                </div>
 
                 <div className="h-[0.5px] bg-white/10"></div>
 
@@ -544,18 +552,7 @@ export default function ParamPage() {
                   </div>
                 </div>
 
-                {/* <ColorProfile /> */}
-
-                <div className="h-[0.5px] bg-white/10"></div>
-
-                <div className="flex justify-end">
-                  <button className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg">
-                    <span className="hidden sm:inline">
-                      Modifier les informations
-                    </span>
-                    <span className="sm:hidden">Modifier</span>
-                  </button>
-                </div>
+                <ColorProfile />
               </div>
             )}
           </div>
@@ -759,6 +756,12 @@ export default function ParamPage() {
 
                 {/* Actions responsive */}
                 <div className="flex flex-col sm:flex-row justify-end gap-3">
+                  <button className="cursor-pointer px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors">
+                    <span className="hidden sm:inline">
+                      Annuler l'abonnement
+                    </span>
+                    <span className="sm:hidden">Annuler</span>
+                  </button>
                   <button
                     onClick={() => setShowPlanModal(true)}
                     className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
@@ -766,19 +769,13 @@ export default function ParamPage() {
                     <span className="hidden sm:inline">Changer de plan</span>
                     <span className="sm:hidden">Changer plan</span>
                   </button>
-                  <button className="cursor-pointer px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors">
-                    <span className="hidden sm:inline">
-                      Annuler l'abonnement
-                    </span>
-                    <span className="sm:hidden">Annuler</span>
-                  </button>
                 </div>
               </div>
             )}
           </div>
 
           {/* Section Notifications responsive */}
-          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
+          {/* <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
             <button
               onClick={() => toggleSection("notifications")}
               className="w-full flex items-center justify-between mb-3 sm:mb-4"
@@ -797,7 +794,6 @@ export default function ParamPage() {
 
             {openSections.notifications && (
               <div className="space-y-4">
-                {/* Email Notifications responsive */}
                 <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
@@ -831,7 +827,6 @@ export default function ParamPage() {
                   </div>
                 </div>
 
-                {/* Rappels RDV responsive */}
                 <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
@@ -865,7 +860,6 @@ export default function ParamPage() {
                   </div>
                 </div>
 
-                {/* Suivis de cicatrisation responsive */}
                 <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
@@ -899,7 +893,6 @@ export default function ParamPage() {
                   </div>
                 </div>
 
-                {/* Marketing responsive */}
                 <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
@@ -934,7 +927,7 @@ export default function ParamPage() {
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Section Sécurité responsive */}
           <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
@@ -1017,10 +1010,10 @@ export default function ParamPage() {
                   </h3>
                   <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors">
                     <option value="Europe/Paris">Europe/Paris (UTC+1)</option>
-                    <option value="Europe/London">Europe/London (UTC+0)</option>
+                    {/* <option value="Europe/London">Europe/London (UTC+0)</option>
                     <option value="America/New_York">
                       America/New_York (UTC-5)
-                    </option>
+                    </option> */}
                   </select>
                 </div>
 
@@ -1030,8 +1023,8 @@ export default function ParamPage() {
                   </h3>
                   <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors">
                     <option value="fr">Français</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
+                    {/* <option value="en">English</option>
+                    <option value="es">Español</option> */}
                   </select>
                 </div>
               </div>

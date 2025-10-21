@@ -236,6 +236,8 @@ export const getColorProfileAction = async () => {
       return { ok: false, error: true, status: response.status, message, data };
     }
 
+    console.log("Fetched color profile data:", data);
+
     return { ok: true, error: false, status: response.status, data };
   } catch (error) {
     console.error(

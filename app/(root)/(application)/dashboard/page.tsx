@@ -25,7 +25,7 @@ export default function DashboardPage() {
         <div className="">
           <div className="flex flex-col md:flex-row sm:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
             <div className="flex items-center gap-4 mb-4 sm:mb-0">
-              <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-tertiary-500/30 rounded-full flex items-center justify-center">
                 <LuLayoutDashboard
                   size={28}
                   className="text-tertiary-400 animate-pulse"
