@@ -5,6 +5,70 @@ import { UpdateColorProfileDto } from "../type";
 
 //! ----------------------------------------------------------------------------
 
+//! GET LES INFOS DU SALON
+
+//! ----------------------------------------------------------------------------
+export const getUserInfoAction = async (salonId: string) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}`,
+      {
+        method: "GET",
+        headers,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || (data && data.error)) {
+      const message =
+        data?.message || `Erreur lors de l'opération (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return { ok: true, error: false, status: response.status, data };
+  } catch (error) {
+    console.error("Erreur lors de la récupération des infos du salon :", error);
+    throw error;
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
+//! ----------------------------------------------------------------------------
+
+//! MODIFIER INFO DU SALON
+
+//! ----------------------------------------------------------------------------
+export const updateUserInfoAction = async (payload: any) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/users`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || (data && data.error)) {
+      const message =
+        data?.message || `Erreur lors de l'opération (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return { ok: true, error: false, status: response.status, data };
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des infos du salon :", error);
+    throw error;
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
 //! CHANGER DE MOT DE PASSE
 
 //! ----------------------------------------------------------------------------

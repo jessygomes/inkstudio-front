@@ -11,6 +11,7 @@ import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUpl
 import { useRouter } from "next/navigation";
 import BarLoader from "react-spinners/BarLoader";
 import Link from "next/link";
+import { updateUserInfoAction, getUserInfoAction } from "@/lib/queries/user";
 
 export default function UpdateAccountPage() {
   const user = useUser();
@@ -27,27 +28,25 @@ export default function UpdateAccountPage() {
       if (!user?.id) return;
 
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/users/${user.id}`,
-          { method: "GET" }
-        );
+        const result = await getUserInfoAction(user.id);
 
-        if (!response.ok) throw new Error("Network response was not ok");
+        if (result.ok) {
+          setSalon(result.data);
 
-        const data = await response.json();
-        setSalon(data);
-
-        // Mettre à jour les valeurs du formulaire
-        form.reset({
-          ...data,
-          instagram: data.instagram ?? undefined,
-          facebook: data.facebook ?? undefined,
-          tiktok: data.tiktok ?? undefined,
-          website: data.website ?? undefined,
-          description: data.description ?? undefined,
-          image: data.image ?? undefined,
-          prestations: data.prestations ?? [],
-        });
+          // Mettre à jour les valeurs du formulaire
+          form.reset({
+            ...result.data,
+            instagram: result.data.instagram ?? undefined,
+            facebook: result.data.facebook ?? undefined,
+            tiktok: result.data.tiktok ?? undefined,
+            website: result.data.website ?? undefined,
+            description: result.data.description ?? undefined,
+            image: result.data.image ?? undefined,
+            prestations: result.data.prestations ?? [],
+          });
+        } else {
+          console.error("Error fetching salon data:", result.message);
+        }
       } catch (error) {
         console.error("Error fetching salon data:", error);
       }
@@ -63,17 +62,12 @@ export default function UpdateAccountPage() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salon.id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
+      const result = await updateUserInfoAction(data);
 
-      if (res.ok) {
+      if (result.ok) {
         router.push("/mon-compte");
+      } else {
+        console.error("Erreur lors de la mise à jour:", result.message);
       }
     } catch (error) {
       console.error("Erreur lors de la mise à jour:", error);
