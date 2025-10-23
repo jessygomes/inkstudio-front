@@ -35,7 +35,7 @@ export default function ShowRdvDetails({
   return (
     <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl border border-white/20 shadow-2xl h-full flex flex-col">
       {/* Header du panneau avec design compact */}
-      <div className="relative p-4 border-b border-white/10 bg-gradient-to-r from-noir-700/80 to-noir-500/80">
+      <div className="relative p-4 border-b border-white/10 bg-gradient-to-r rounded-t-xl from-noir-700/80 to-noir-500/80">
         <div className="absolute inset-0 bg-gradient-to-r from-tertiary-400/5 to-transparent"></div>
         <div className="relative flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -641,7 +641,7 @@ export default function ShowRdvDetails({
       </div>
 
       {/* Footer compact */}
-      <div className="p-3 border-t border-white/10 bg-white/5">
+      <div className="p-3 border-t border-white/10 bg-white/5 rounded-b-xl">
         <button
           onClick={onClose}
           className="cursor-pointer w-full py-2 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one"

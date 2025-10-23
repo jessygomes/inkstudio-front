@@ -56,12 +56,6 @@ export default function SendMessageRdv({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    mutation.mutate();
-  };
-
   return (
     <>
       <button
@@ -86,13 +80,13 @@ export default function SendMessageRdv({
 
       {/* Modale d'envoi de message */}
       {showModal && (
-        <div className="fixed inset-0 z-[9999] bg-noir-700 rounded-2xl backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-noir-500 h-full rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div className="absolute inset-0 z-[9999] bg-transparent flex items-stretch justify-stretch p-0 rounded-xl">
+          <div className="bg-noir-500 rounded-none w-full h-full overflow-hidden flex flex-col border-0 shadow-none lg:rounded-xl">
             {/* Header */}
             <div className="p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-white font-one tracking-wide">
-                  � Envoyer un email
+                  💬 Envoyer un email
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
@@ -171,98 +165,132 @@ export default function SendMessageRdv({
                 </div>
               )}
 
-              {/* Formulaire d'email */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-white font-one text-sm mb-2">
-                    Objet de l&apos;email{" "}
-                    <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={emailSubject}
-                    onChange={(e) => setEmailSubject(e.target.value)}
-                    placeholder="Objet de votre email..."
-                    className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white text-sm placeholder-white/50 focus:outline-none focus:border-blue-400 transition-colors"
-                    maxLength={100}
-                  />
-                  <div className="flex justify-end items-center mt-1">
-                    <span className="text-white/50 text-xs">
-                      {emailSubject.length}/100
-                    </span>
+              {/* Zone de saisie d'email */}
+              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                <h3 className="text-white font-semibold font-one mb-3 text-sm">
+                  💬 Composer l&apos;email
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-white font-one text-xs mb-2">
+                      Objet de l&apos;email{" "}
+                      <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={emailSubject}
+                      onChange={(e) => setEmailSubject(e.target.value)}
+                      placeholder="Objet de votre email..."
+                      className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white text-sm placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors"
+                      maxLength={100}
+                      disabled={mutation.isPending}
+                    />
+                    <div className="flex justify-end items-center mt-1">
+                      <span className="text-white/50 text-xs">
+                        {emailSubject.length}/100
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-white font-one text-sm mb-2">
-                    Message <span className="text-red-400">*</span>
-                  </label>
-                  <textarea
-                    value={customMessage}
-                    onChange={(e) => setCustomMessage(e.target.value)}
-                    placeholder="Tapez votre message ici..."
-                    className="w-full h-32 bg-white/10 border border-white/20 rounded-lg p-3 text-white text-sm placeholder-white/50 focus:outline-none focus:border-blue-400 transition-colors resize-none"
-                    maxLength={500}
-                  />
-                  <div className="flex justify-between items-center mt-1">
-                    <p className="text-white/50 text-xs">
-                      Le client recevra cet email à son adresse
-                    </p>
-                    <span className="text-white/50 text-xs">
-                      {customMessage.length}/500
-                    </span>
-                  </div>
-                </div>
+                  <div>
+                    <label className="block text-white font-one text-xs mb-2">
+                      Message <span className="text-red-400">*</span>
+                    </label>
+                    <textarea
+                      value={customMessage}
+                      onChange={(e) => setCustomMessage(e.target.value)}
+                      placeholder="Rédigez votre message personnalisé..."
+                      className="w-full h-20 p-3 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none transition-colors"
+                      maxLength={500}
+                      disabled={mutation.isPending}
+                    />
+                    <div className="flex justify-between items-center mt-1">
+                      <p className="text-xs text-white/50 font-one">
+                        Le client recevra cet email à son adresse
+                      </p>
+                      <p className="text-xs text-white/50 font-one">
+                        {customMessage.length}/500
+                      </p>
+                    </div>
 
-                {error && (
-                  <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3">
-                    <p className="text-red-400 text-sm font-one">{error}</p>
-                  </div>
-                )}
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="cursor-pointer flex-1 py-2 px-4 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={
-                      mutation.isPending ||
-                      !customMessage.trim() ||
-                      !emailSubject.trim()
-                    }
-                    className="cursor-pointer flex-1 py-2 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium font-one text-sm transition-all"
-                  >
-                    {mutation.isPending ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                        Envoi...
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center gap-2">
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                    {/* Suggestions */}
+                    <div className="space-y-1 mt-3">
+                      <p className="text-xs text-white/70 font-one">
+                        💡 Suggestions :
+                      </p>
+                      {[
+                        "J'espère que tout se passe bien !",
+                        "N'hésitez pas si vous avez des questions.",
+                        "Merci pour votre confiance !",
+                      ].map((suggestion, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => setCustomMessage(suggestion)}
+                          disabled={mutation.isPending}
+                          className="cursor-pointer block w-full text-left p-2 bg-white/5 hover:bg-white/10 rounded-md border border-white/10 hover:border-blue-400/30 transition-all text-xs text-white/80 font-one disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                          />
-                        </svg>
-                        Envoyer l&apos;email
-                      </div>
-                    )}
-                  </button>
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </form>
+              </div>
+
+              {/* Messages d'erreur */}
+              {error && (
+                <div className="mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
+                  <p className="text-red-300 text-xs">{error}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-white/10 bg-white/5 flex flex-row justify-end gap-2 rounded-b-xl">
+              <button
+                onClick={() => setShowModal(false)}
+                disabled={mutation.isPending}
+                className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => {
+                  setError(null);
+                  mutation.mutate();
+                }}
+                disabled={
+                  mutation.isPending ||
+                  !customMessage.trim() ||
+                  !emailSubject.trim()
+                }
+                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {mutation.isPending ? (
+                  <>
+                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                    <span>Envoi...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span>Envoyer l&apos;email</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

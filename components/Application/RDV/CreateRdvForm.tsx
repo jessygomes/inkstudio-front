@@ -456,7 +456,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                           form.setValue("clientLastname", client.lastName);
                           form.setValue("clientFirstname", client.firstName);
                           form.setValue("clientEmail", client.email);
-                          form.setValue("clientPhone", client.phone);
+                          form.setValue("clientPhone", client.phone || "");
+                          if (client.birthDate) {
+                            form.setValue(
+                              "clientBirthday",
+                              new Date(client.birthDate)
+                            );
+                          }
                           setSearchClientQuery("");
                           setClientResults([]);
                         }}
@@ -465,9 +471,16 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                           <span className="font-medium">
                             {client.firstName} {client.lastName}
                           </span>
-                          <span className="text-white/60 text-xs">
-                            {client.email}
-                          </span>
+                          <div className="flex flex-col sm:flex-row sm:gap-2 text-xs">
+                            <span className="text-white/60">
+                              {client.email}
+                            </span>
+                            {client.phone && (
+                              <span className="text-white/50">
+                                📞 {client.phone}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -481,9 +494,11 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
               <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
                 👤 Informations client
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs text-white/70 font-one">Nom</label>
+                  <label className="text-xs text-white/70 font-one">
+                    Nom *
+                  </label>
                   <input
                     placeholder="Nom du client"
                     {...form.register("clientLastname")}
@@ -498,7 +513,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
-                    Prénom
+                    Prénom *
                   </label>
                   <input
                     placeholder="Prénom du client"
@@ -514,7 +529,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
-                    Email
+                    Email *
                   </label>
                   <input
                     placeholder="Email du client"
@@ -530,13 +545,37 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
-                    Téléphone (optionnel)
+                    Téléphone *
                   </label>
                   <input
                     placeholder="Téléphone du client"
                     {...form.register("clientPhone")}
                     className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
+                  {form.formState.errors.clientPhone && (
+                    <p className="text-red-300 text-xs">
+                      {form.formState.errors.clientPhone.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-white/70 font-one">
+                    Date de naissance *
+                  </label>
+                  <input
+                    type="date"
+                    placeholder="Date de naissance"
+                    {...form.register("clientBirthday", {
+                      valueAsDate: true,
+                    })}
+                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                  />
+                  {form.formState.errors.clientBirthday && (
+                    <p className="text-red-300 text-xs">
+                      {form.formState.errors.clientBirthday.message}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

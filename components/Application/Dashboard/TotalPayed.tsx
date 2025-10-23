@@ -167,7 +167,7 @@ export default function TotalPayed({ userId }: TotalPayedProps) {
   const totalPaid = data?.totalPaid || 0;
 
   return (
-    <div className="h-full bg-noir-700 rounded-xl border border-white/20 p-3 shadow-2xl">
+    <div className="h-full bg-noir-700 rounded-xl border border-white/20 p-3 shadow-2xl flex flex-col justify-between">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-bold text-white font-one">
           Chiffre d'affaires
@@ -252,7 +252,7 @@ export default function TotalPayed({ userId }: TotalPayedProps) {
           </span>
         </div>
 
-        <div className="pt-1 border-t border-tertiary-500/30">
+        {/* <div className="pt-1 border-t border-tertiary-500/30">
           <div className="flex items-center gap-1.5">
             <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
             <span className="text-gray-400 text-xs font-one">
@@ -263,7 +263,7 @@ export default function TotalPayed({ userId }: TotalPayedProps) {
                 : "À développer"}
             </span>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

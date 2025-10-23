@@ -114,8 +114,10 @@ export const appointmentSchema = z.object({
   clientEmail: z.string().email({
     message: "Votre email n'est pas valide.",
   }),
-  clientPhone: z.string().optional(),
-  clientBirthday: z.date().optional(),
+  clientPhone: z.string().min(1, "Le téléphone est requis."),
+  clientBirthday: z.date({
+    required_error: "La date de naissance est requise.",
+  }),
   prestation: z.enum(["TATTOO", "PIERCING", "RETOUCHE", "PROJET", ""]),
   allDay: z.boolean(),
   start: z.string(),

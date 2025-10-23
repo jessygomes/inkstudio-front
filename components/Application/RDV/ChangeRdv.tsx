@@ -83,12 +83,8 @@ export default function ChangeRdv({
 
       {/* Modale de proposition */}
       {showModal && (
-        <div
-          data-modal
-          className="fixed inset-0 z-[9999] bg-noir-700 rounded-xl backdrop-blur-sm flex items-center justify-center overflow-hidden"
-          style={{ height: "100dvh", width: "100vw" }}
-        >
-          <div className="bg-noir-500 h-full rounded-lg w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div className="absolute inset-0 z-[9999] bg-transparent flex items-stretch justify-stretch p-0">
+          <div className="bg-noir-500 w-full h-full overflow-hidden flex flex-col border-0 shadow-none lg:rounded-xl">
             {/* Header */}
             <div className="p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
@@ -227,7 +223,7 @@ export default function ChangeRdv({
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end gap-2">
+            <div className="p-4 border-t border-white/10 bg-white/5 flex flex-row justify-end gap-2">
               <button
                 onClick={() => setShowModal(false)}
                 disabled={mutation.isPending}
@@ -238,7 +234,7 @@ export default function ChangeRdv({
               <button
                 onClick={() => mutation.mutate()}
                 disabled={mutation.isPending}
-                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {mutation.isPending ? (
                   <>

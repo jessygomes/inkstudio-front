@@ -6,6 +6,7 @@ import CancelRdv from "./CancelRdv";
 import ChangeRdv from "./ChangeRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import Link from "next/link";
+import SendMessageRdv from "./SendMessageRdv";
 
 interface ShowRdvDetailsMobileProps {
   selectedEvent: CalendarEvent;
@@ -160,6 +161,14 @@ export default function ShowRdvDetailsMobile({
                   rdvId={selectedEvent.id}
                   appointment={selectedEvent}
                   onCancel={() => handleRdvUpdated(selectedEvent.id)}
+                />
+              )}
+              {/* Bouton Message - disponible pour tous les rendez-vous sauf CANCELED */}
+              {selectedEvent.status !== "CANCELED" && (
+                <SendMessageRdv
+                  rdvId={selectedEvent.id}
+                  appointment={selectedEvent}
+                  onMessageSent={() => handleRdvUpdated(selectedEvent.id)}
                 />
               )}
             </div>

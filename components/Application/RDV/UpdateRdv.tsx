@@ -382,18 +382,18 @@ export default function UpdateRdv({
               : new Date(rdv.start).toISOString();
           form.setValue("start", startStr);
         }}
-        className="cursor-pointer px-3 py-1.5 bg-tertiary-500/20 hover:bg-tertiary-500/30 text-tertiary-400 border border-tertiary-500/30 rounded-lg text-xs font-one font-medium transition-colors flex items-center gap-1"
+        className="cursor-pointer px-3 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/30 rounded-lg text-xs font-one font-medium transition-colors flex items-center gap-1"
       >
         Modifier
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 z-[9999] bg-noir-700 rounded-3xl backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-noir-500 rounded-xl w-full h-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col shadow-2xl">
+        <div className="absolute inset-0 z-[9999] bg-transparent flex items-stretch justify-stretch">
+          <div className="bg-noir-500 rounded-none w-full h-full overflow-hidden flex flex-col shadow-none lg:rounded-xl">
             {/* Header */}
             <div className="p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white font-one tracking-wide">
+                <h2 className="text-lg font-bold text-white font-one tracking-wide">
                   Modifier le rendez-vous
                 </h2>
                 <button
@@ -413,7 +413,7 @@ export default function UpdateRdv({
               >
                 {/* Client (lecture seule) */}
                 <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                  <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  <h3 className="text-sm font-semibold text-white mb-3 font-one uppercase tracking-wide">
                     Client{" "}
                     <span className="text-[10px] font-medium text-white/50">
                       (les infos du client ne sont pas modifiables ici.)
@@ -465,7 +465,7 @@ export default function UpdateRdv({
 
                 {/* Détails RDV */}
                 <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                  <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  <h3 className="text-sm font-semibold text-white mb-3 font-one uppercase tracking-wide">
                     Détails du rendez-vous
                   </h3>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
@@ -528,7 +528,7 @@ export default function UpdateRdv({
 
                 {/* Créneaux horaires */}
                 <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                  <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  <h3 className="text-sm font-semibold text-white mb-3 font-one uppercase tracking-wide">
                     Créneaux horaires
                   </h3>
 
@@ -875,7 +875,7 @@ export default function UpdateRdv({
 
                 {watchPrestation === "TATTOO" && (
                   <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                    <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                    <h3 className="text-sm font-semibold text-white mb-3 font-one uppercase tracking-wide">
                       Détails du tatouage
                     </h3>
                     <div className="space-y-4">
@@ -1039,7 +1039,7 @@ export default function UpdateRdv({
                 type="submit"
                 disabled={loading || mutation.isPending}
                 onClick={form.handleSubmit(onSubmit)}
-                className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+                className="cursor-pointer px-6 py-2 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
               >
                 {loading || mutation.isPending
                   ? "Modification..."

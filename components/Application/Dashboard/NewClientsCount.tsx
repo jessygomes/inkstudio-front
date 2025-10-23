@@ -168,7 +168,7 @@ export default function NewClientsCount({ userId }: NewClientsCountProps) {
   const newClientsCount = data?.newClientsCount || 0;
 
   return (
-    <div className="h-full bg-noir-700 rounded-xl border border-white/20 p-3 shadow-2xl">
+    <div className="h-full bg-noir-700 rounded-xl border border-white/20 p-3 shadow-2xl flex flex-col justify-between">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-bold text-white font-one">
           Nouveaux clients
@@ -219,7 +219,7 @@ export default function NewClientsCount({ userId }: NewClientsCountProps) {
 
       {/* Nombre principal */}
       <div className="text-center mb-3">
-        <div className="text-2xl font-bold font-one mb-0.5 text-tertiary-400">
+        <div className="text-2xl font-bold font-one mb-0.5 text-blue-400">
           {newClientsCount}
         </div>
         <p className="text-gray-400 text-xs font-one">
@@ -229,9 +229,9 @@ export default function NewClientsCount({ userId }: NewClientsCountProps) {
 
       {/* Icône et statistiques */}
       <div className="flex items-center justify-center mb-3">
-        <div className="w-12 h-12 bg-tertiary-500/20 rounded-full flex items-center justify-center">
+        <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
           <svg
-            className="w-6 h-6 text-tertiary-400"
+            className="w-6 h-6 text-blue-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -255,9 +255,9 @@ export default function NewClientsCount({ userId }: NewClientsCountProps) {
           </span>
         </div>
 
-        <div className="pt-1 border-t border-tertiary-500/30">
+        {/* <div className="pt-1 border-t border-tertiary-500/30">
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-tertiary-500"></div>
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
             <span className="text-gray-400 text-xs font-one">
               {newClientsCount >= 10
                 ? "Excellent mois!"
@@ -266,7 +266,7 @@ export default function NewClientsCount({ userId }: NewClientsCountProps) {
                 : "À développer"}
             </span>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
