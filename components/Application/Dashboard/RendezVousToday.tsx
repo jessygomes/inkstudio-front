@@ -315,7 +315,6 @@ export default function RendezVousToday({ userId }: { userId: string }) {
           {appointments.length}
         </div>
       </div>
-
       {/* Liste des rendez-vous */}
       {appointments.length === 0 ? (
         <div className="text-center py-8">
@@ -352,7 +351,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-8 h-8 bg-gradient-to-r from-tertiary-500 to-primary-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-white font-semibold text-xs">
                       {appointment.client.firstName.charAt(0).toUpperCase()}
                     </span>
@@ -465,7 +464,6 @@ export default function RendezVousToday({ userId }: { userId: string }) {
           ))}
         </div>
       )}
-
       {/* Panneau de détails */}
       {selectedAppointment && (
         <RdvDetailsPanel
@@ -476,7 +474,8 @@ export default function RendezVousToday({ userId }: { userId: string }) {
           handlePaymentStatusChange={handlePaymentStatusChange}
           userId={userId}
         />
-      )}      {/* Supprimer toute la modale d'affichage d'image */}
+      )}{" "}
+      {/* Supprimer toute la modale d'affichage d'image */}
       {/* {selectedImage && (
         // ... toute la modale
       )} */}

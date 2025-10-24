@@ -357,7 +357,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                   onClick={() => openAppointmentDetails(appointment)}
                   className={`cursor-pointer border rounded-lg p-3 hover:bg-slate-400/10 transition-all duration-200 bg-slate-300/10 ${
                     isUrgent
-                      ? "border-orange-400/40 bg-orange-500/5"
+                      ? "border-tertiary-400/40 bg-tertiary-500/5"
                       : "border-white/20"
                   } ${
                     selectedAppointmentDetails?.id === appointment.id
@@ -367,7 +367,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                 >
                   <div className="flex flex-col gap-2 lg:flex-row lg:gap-0 items-start justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-semibold text-xs">
                           {appointment.client.firstName.charAt(0).toUpperCase()}
                         </span>
@@ -513,8 +513,11 @@ export default function WaitingRdv({ userId }: { userId: string }) {
 
       {/* Modale d'action rapide - existante */}
       {isActionModalOpen && selectedAppointment && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-noir-500 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl">
+        <div
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm lg:flex lg:items-center lg:justify-center lg:p-4"
+          style={{ height: "100dvh", width: "100vw" }}
+        >
+          <div className="bg-noir-500 lg:rounded-3xl w-full lg:max-w-2xl h-full lg:max-h-[90vh] overflow-hidden flex flex-col border-0 lg:border border-white/20 shadow-2xl">
             {/* Header */}
             <div className="p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
@@ -667,18 +670,18 @@ export default function WaitingRdv({ userId }: { userId: string }) {
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end gap-2">
+            <div className="p-4 border-t border-white/10 bg-white/5 flex flex-col lg:flex-row justify-end gap-2">
               <button
                 onClick={handleCloseActionModal}
                 disabled={isProcessing}
-                className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer px-4 py-3 lg:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm lg:text-xs disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Annuler
               </button>
               <button
                 onClick={handleActionSubmit}
                 disabled={isProcessing}
-                className={`cursor-pointer px-4 py-2 rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`cursor-pointer px-4 py-3 lg:py-2 rounded-lg transition-all duration-300 font-medium font-one text-sm lg:text-xs flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                   actionType === "confirm"
                     ? "bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
                     : "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white"
