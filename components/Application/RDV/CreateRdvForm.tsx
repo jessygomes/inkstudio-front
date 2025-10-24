@@ -310,7 +310,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       clientLastname: "",
       clientEmail: "",
       clientPhone: "",
-      clientBirthday: undefined,
+      clientBirthdate: undefined,
       prestation: "",
       allDay: false,
       start: new Date().toISOString(),
@@ -459,7 +459,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                           form.setValue("clientPhone", client.phone || "");
                           if (client.birthDate) {
                             form.setValue(
-                              "clientBirthday",
+                              "clientBirthdate",
                               new Date(client.birthDate)
                             );
                           }
@@ -566,14 +566,12 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   <input
                     type="date"
                     placeholder="Date de naissance"
-                    {...form.register("clientBirthday", {
-                      valueAsDate: true,
-                    })}
+                    {...form.register("clientBirthdate")}
                     className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                   />
-                  {form.formState.errors.clientBirthday && (
+                  {form.formState.errors.clientBirthdate && (
                     <p className="text-red-300 text-xs">
-                      {form.formState.errors.clientBirthday.message}
+                      {form.formState.errors.clientBirthdate.message}
                     </p>
                   )}
                 </div>
