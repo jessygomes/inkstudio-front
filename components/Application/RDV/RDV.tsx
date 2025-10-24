@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { FaRegCalendarTimes } from "react-icons/fa";
 import ShowRdvDetails from "./ShowRdvDetails";
 import ShowRdvDetailsMobile from "./ShowRdvDetailsMobile";
+import { useScrollLock } from "@/lib/hook/useScrollLock";
 
 export default function RDV() {
   const user = useUser();
@@ -58,6 +59,9 @@ export default function RDV() {
     null
   );
   const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
+
+  // Bloquer le scroll du body quand la modal mobile est ouverte
+  useScrollLock(isMobileDetailOpen);
 
   const openEventDetails = (event: CalendarEvent) => {
     setSelectedEvent(event);

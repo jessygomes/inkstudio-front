@@ -35,10 +35,6 @@ export default function ShowRdvDetailsMobile({
       style={{
         height: "100dvh",
         width: "100vw",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        zIndex: 50,
       }}
     >
       <div className="w-full h-full">

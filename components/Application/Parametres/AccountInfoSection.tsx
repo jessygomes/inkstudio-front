@@ -80,14 +80,14 @@ export default function AccountInfoSection({
           </div>
 
           <div className="h-[0.5px] bg-white/10"></div>
-          <div className="flex justify-end">
+          {/* <div className="flex justify-end">
             <button className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg">
               <span className="hidden sm:inline">
                 Modifier les informations
               </span>
               <span className="sm:hidden">Modifier</span>
             </button>
-          </div>
+          </div> */}
         </div>
       )}
     </div>

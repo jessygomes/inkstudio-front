@@ -82,14 +82,14 @@ export default function ProductList() {
   return (
     <section className="w-full">
       <div className="mb-6 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-        <div className="flex items-center gap-3 sm:gap-4 mb-4 md:mb-0 w-full md:w-auto">
-          <div className="w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center ">
+        <div className="w-full flex items-center gap-3 sm:gap-4 mb-4 md:mb-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
             <MdOutlineSell
-              size={28}
+              size={20}
               className="text-tertiary-400 animate-pulse"
             />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
               Produits
             </h1>
