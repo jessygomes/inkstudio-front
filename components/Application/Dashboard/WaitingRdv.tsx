@@ -9,6 +9,7 @@ import {
   waitingConfirmationAppointmentsAction,
 } from "@/lib/queries/appointment";
 import WaitingRdvDetailsPanel from "./WaitingRdvDetailsPanel";
+import { useScrollLock } from "@/lib/hook/useScrollLock";
 
 interface Client {
   firstName: string;
@@ -75,6 +76,9 @@ export default function WaitingRdv({ userId }: { userId: string }) {
   // Nouveaux états pour les détails
   const [selectedAppointmentDetails, setSelectedAppointmentDetails] =
     useState<PendingAppointment | null>(null);
+
+  // Bloquer le scroll du body quand une modal est ouverte
+  useScrollLock(isActionModalOpen || !!selectedAppointmentDetails);
 
   const fetchPendingAppointments = async () => {
     try {
@@ -515,7 +519,14 @@ export default function WaitingRdv({ userId }: { userId: string }) {
       {isActionModalOpen && selectedAppointment && (
         <div
           className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm lg:flex lg:items-center lg:justify-center lg:p-4"
-          style={{ height: "100dvh", width: "100vw" }}
+          style={{
+            height: "100dvh",
+            width: "100vw",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            zIndex: 9999,
+          }}
         >
           <div className="bg-noir-500 lg:rounded-3xl w-full lg:max-w-2xl h-full lg:max-h-[90vh] overflow-hidden flex flex-col border-0 lg:border border-white/20 shadow-2xl">
             {/* Header */}

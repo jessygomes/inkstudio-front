@@ -7,6 +7,7 @@ import ChangeRdv from "./ChangeRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import Link from "next/link";
 import SendMessageRdv from "./SendMessageRdv";
+import { useScrollLock } from "@/lib/hook/useScrollLock";
 
 interface ShowRdvDetailsMobileProps {
   selectedEvent: CalendarEvent;
@@ -25,10 +26,20 @@ export default function ShowRdvDetailsMobile({
   userId,
   price,
 }: ShowRdvDetailsMobileProps) {
+  // Bloquer le scroll du body quand la modal est ouverte
+  useScrollLock(true);
+
   return (
     <div
       className="xl:hidden fixed inset-0 z-50 bg-noir-700 overflow-hidden"
-      style={{ height: "100dvh", width: "100vw" }}
+      style={{
+        height: "100dvh",
+        width: "100vw",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        zIndex: 50,
+      }}
     >
       <div className="w-full h-full">
         <div className="w-full h-full bg-gradient-to-br from-noir-500 to-noir-600 overflow-hidden flex flex-col min-h-0">

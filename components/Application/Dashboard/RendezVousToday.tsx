@@ -6,6 +6,7 @@ import {
   paidAppointmentsAction,
 } from "@/lib/queries/appointment";
 import RdvDetailsPanel from "./RdvDetailsPanel";
+import { useScrollLock } from "@/lib/hook/useScrollLock";
 
 interface Client {
   firstName: string;
@@ -73,6 +74,9 @@ export default function RendezVousToday({ userId }: { userId: string }) {
   // Nouvel état pour les détails du RDV sélectionné
   const [selectedAppointment, setSelectedAppointment] =
     useState<RendezVous | null>(null);
+
+  // Bloquer le scroll du body quand une modal est ouverte
+  useScrollLock(!!selectedAppointment);
 
   const fetchTodayAppointments = async (date?: string) => {
     try {

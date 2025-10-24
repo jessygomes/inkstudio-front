@@ -8,6 +8,7 @@ import ChangeRdv from "../RDV/ChangeRdv";
 import SendMessageRdv from "../RDV/SendMessageRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import { openImageInNewTab } from "@/lib/utils/openImage";
+import { useScrollLock } from "@/lib/hook/useScrollLock";
 
 interface Client {
   firstName: string;
@@ -66,6 +67,9 @@ export default function WaitingRdvDetailsPanel({
   handlePaymentStatusChange,
   userId,
 }: WaitingRdvDetailsPanelProps) {
+  // Bloquer le scroll du body quand la modal est ouverte
+  useScrollLock(true);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -103,7 +107,17 @@ export default function WaitingRdvDetailsPanel({
   const tattooDetail = selectedAppointment.tattooDetail;
 
   return (
-    <div className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/70 md:via-noir-600/98 md:to-noir-500/70 md:backdrop-blur-md md:flex md:items-center md:justify-center lg:absolute lg:inset-0 lg:bg-transparent lg:rounded-xl flex flex-col animate-in slide-in-from-bottom-4 lg:slide-in-from-right-4 duration-300 overflow-hidden">
+    <div
+      className="fixed inset-0 z-50 bg-noir-700 md:bg-gradient-to-br md:from-noir-700/70 md:via-noir-600/98 md:to-noir-500/70 md:backdrop-blur-md md:flex md:items-center md:justify-center lg:absolute lg:inset-0 lg:bg-transparent lg:rounded-xl flex flex-col animate-in slide-in-from-bottom-4 lg:slide-in-from-right-4 duration-300 overflow-hidden"
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        zIndex: 50,
+        height: "100dvh",
+        width: "100vw",
+      }}
+    >
       <div className="h-full w-full md:h-fit md:w-[70%] md:max-h-[85vh] lg:w-full lg:h-full bg-noir-700 md:bg-gradient-to-br md:from-noir-700/95 md:to-noir-600/95 lg:bg-gradient-to-br lg:from-noir-700/95 lg:to-noir-600/95 lg:backdrop-blur-sm rounded-none md:rounded-xl lg:rounded-xl flex flex-col border-0 md:border md:border-white/20 lg:border lg:border-white/20 md:shadow-2xl lg:shadow-2xl min-h-0">
         {/* Header du panneau */}
         <div className="relative p-4 border-b border-white/10 bg-noir-700 md:bg-gradient-to-r md:from-noir-700/80 md:to-noir-500/80 lg:bg-gradient-to-r lg:from-noir-700/80 lg:to-noir-500/80 md:rounded-t-xl lg:rounded-t-xl">
