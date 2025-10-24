@@ -310,7 +310,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       clientLastname: "",
       clientEmail: "",
       clientPhone: "",
-      clientBirthdate: undefined,
+      clientBirthdate: "",
       prestation: "",
       allDay: false,
       start: new Date().toISOString(),
@@ -461,6 +461,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                             form.setValue(
                               "clientBirthdate",
                               new Date(client.birthDate)
+                                .toISOString()
+                                .slice(0, 10)
                             );
                           }
                           setSearchClientQuery("");
