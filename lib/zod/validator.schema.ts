@@ -115,17 +115,7 @@ export const appointmentSchema = z.object({
     message: "Votre email n'est pas valide.",
   }),
   clientPhone: z.string().min(1, "Le téléphone est requis."),
-  clientBirthdate: z.preprocess(
-    (val) => {
-      if (!val) return undefined;
-      if (val instanceof Date) return val;
-      if (typeof val === "string") return new Date(val);
-      return undefined;
-    },
-    z.date({
-      required_error: "La date de naissance est requise.",
-    })
-  ),
+  clientBirthdate: z.string().min(1, "La date de naissance est requise."),
   prestation: z.enum(["TATTOO", "PIERCING", "RETOUCHE", "PROJET", ""]),
   allDay: z.boolean(),
   start: z.string(),
