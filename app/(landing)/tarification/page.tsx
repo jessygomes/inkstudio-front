@@ -192,7 +192,6 @@ export default function TarificationPage() {
             <div className="flex justify-center items-center gap-6 mt-8 text-sm text-white/60">
               <span>✓ Sans engagement</span>
               <span>✓ Support inclus</span>
-              <span>✓ Installation comprise</span>
             </div>
           </div>
         </div>

@@ -19,7 +19,7 @@ export default function Tarifs() {
         "Lien direct de contact",
       ],
       popular: false,
-      cta: "Commencer l'essai",
+      cta: "Créer mon profil",
       color: "blue",
     },
     {
@@ -58,7 +58,7 @@ export default function Tarifs() {
         "Formations incluses",
       ],
       popular: false,
-      cta: "Nous contacter",
+      cta: "Essayer gratuitement",
       color: "purple",
     },
   ];
