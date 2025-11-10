@@ -92,6 +92,8 @@ export const replySuiviAction = async (suiviId: string, reply: string) => {
   try {
     const headers = await getAuthHeaders();
 
+    console.log("REPLY: ", reply);
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACK_URL}/follow-up/reply/${suiviId}`,
       {

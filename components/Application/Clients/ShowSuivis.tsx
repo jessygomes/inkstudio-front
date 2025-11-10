@@ -149,7 +149,7 @@ export default function ShowSuivis() {
     }
   };
 
-  // Fetch follow-ups (server-side filters + pagination)
+  //! Fetch follow-ups (server-side filters + pagination)
   const fetchFollowUps = async (opts?: {
     page?: number;
     limit?: number;
@@ -265,6 +265,7 @@ export default function ShowSuivis() {
     }
     setIsReplying(true);
     try {
+      console.log("Réponse au suivi :", selectedFollowUp.id, replyText);
       const res = await replySuiviAction(selectedFollowUp.id, replyText);
 
       if (!res.ok)
