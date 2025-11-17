@@ -60,10 +60,11 @@ export const currentUser = async () => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("access_token")?.value;
   const userId = cookieStore.get("userId")?.value;
+  const saasPlan = cookieStore.get("saasPlan")?.value;
 
   if (!accessToken || !userId) return null;
 
   // ✅ Retourne les informations utilisateur depuis les cookies
   // Le token est validé côté backend quand nécessaire
-  return { userId };
+  return { userId, saasPlan };
 };

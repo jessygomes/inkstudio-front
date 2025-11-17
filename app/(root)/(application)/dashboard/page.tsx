@@ -19,7 +19,7 @@ export default function DashboardPage() {
   const isFreeAccount = user?.saasPlan === "FREE";
 
   return (
-    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 lg:px-20">
+    <div className=" bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 lg:px-20">
       <div className="flex flex-col relative gap-6 w-full mt-23">
         {/* Header */}
         <div className="">
@@ -87,7 +87,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Main Grid Layout */}
-        <div className="grid grid-cols-12 gap-6">
+        <div className="min-h-screen grid grid-cols-12 gap-6">
           {/* Top Row - Stats Cards - Seulement pour les comptes payants */}
           {!isFreeAccount && (
             <div className="col-span-12">
@@ -101,13 +101,17 @@ export default function DashboardPage() {
           )}
 
           {/* Middle Row - Main Content */}
-          <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-            <RendezVousToday userId={user.id ?? ""} />
-          </div>
+          {!isFreeAccount && (
+            <div className="col-span-12 sm:col-span-6 lg:col-span-4">
+              <RendezVousToday userId={user.id ?? ""} />
+            </div>
+          )}
 
-          <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-            <WaitingRdv userId={user.id ?? ""} />
-          </div>
+          {!isFreeAccount && (
+            <div className="col-span-12 sm:col-span-6 lg:col-span-4">
+              <WaitingRdv userId={user.id ?? ""} />
+            </div>
+          )}
 
           {!isFreeAccount && (
             <div className="col-span-12 sm:col-span-6 lg:col-span-4">

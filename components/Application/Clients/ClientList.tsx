@@ -14,15 +14,11 @@ import { RiFileUserLine } from "react-icons/ri";
 import Link from "next/link";
 import { getSalonClientsAction } from "@/lib/queries/client";
 
-// interface ClientsResponse {
-//   error: boolean;
-//   clients: ClientProps[];
-//   pagination?: PaginationInfo;
-//   message?: string;
-// }
-
 export default function ClientList() {
   const user = useUser();
+
+  // Vérifier si l'utilisateur a un plan Free
+  const isFreeAccount = user?.saasPlan === "FREE";
 
   const [loading, setLoading] = useState(true);
 
@@ -199,60 +195,64 @@ export default function ClientList() {
         </div>
 
         {/* Boutons d'action responsive */}
-        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-          <button
-            onClick={handleCreate}
-            className="cursor-pointer flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        {!isFreeAccount && (
+          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <button
+              onClick={handleCreate}
+              className="cursor-pointer flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Nouveau client
-          </button>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Nouveau client
+            </button>
 
-          <div className="relative">
-            <Link
-              href="/clients/suivi"
-              className="cursor-pointer text-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center justify-center gap-2"
-            >
-              <span className="hidden sm:inline">Suivi de cicatrisation</span>
-              <span className="sm:hidden">Suivi cicatrisation</span>
-              {unansweredFollowUpsCount > 0 && (
-                <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
-                  {unansweredFollowUpsCount > 99
-                    ? "99+"
-                    : unansweredFollowUpsCount}
-                </span>
-              )}
-            </Link>
+            <div className="relative">
+              <Link
+                href="/clients/suivi"
+                className="cursor-pointer text-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center justify-center gap-2"
+              >
+                <span className="hidden sm:inline">Suivi de cicatrisation</span>
+                <span className="sm:hidden">Suivi cicatrisation</span>
+                {unansweredFollowUpsCount > 0 && (
+                  <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                    {unansweredFollowUpsCount > 99
+                      ? "99+"
+                      : unansweredFollowUpsCount}
+                  </span>
+                )}
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div>
         {/* Barre de recherche responsive */}
-        <div className="flex gap-2 items-center mb-4 sm:mb-6 mt-4 sm:mt-6">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Rechercher par client"
-            className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-2 sm:py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
-          />
-        </div>
+        {!isFreeAccount && (
+          <div className="flex gap-2 items-center mb-4 sm:mb-6 mt-4 sm:mt-6">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Rechercher par client"
+              className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-2 sm:py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
+            />
+          </div>
+        )}
 
         {/* Informations de pagination responsive */}
-        {!loading && !error && (
+        {!isFreeAccount && !loading && !error && (
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
             <div className="text-white/70 text-xs font-one">
               Affichage de{" "}
@@ -276,261 +276,352 @@ export default function ClientList() {
           </div>
         )}
 
-        {/* Header de tableau - masqué sur mobile */}
-        <div className="hidden sm:grid grid-cols-6 gap-2 px-4 py-2 mb-2 bg-white/10 rounded-lg text-white font-one text-xs font-semibold tracking-widest">
-          <p>Nom & Prénom</p>
-          <p>Email</p>
-          <p>Téléphone</p>
-          <p>Rendez-vous</p>
-          <p className="text-center">Actions</p>
-          <p></p>
-        </div>
+        {isFreeAccount ? (
+          /* Message pour les comptes Free */
+          <div className="bg-gradient-to-r from-orange-500/10 to-tertiary-500/10 border border-orange-500/30 rounded-2xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="w-6 h-6 text-orange-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </div>
 
-        {loading ? (
-          <div className="h-full w-full flex items-center justify-center">
-            <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
-              <p className="text-white/60 font-two text-xs text-center">
-                Chargement des clients...
-              </p>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="h-full w-full flex">
-            <div className="mt-4 w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
-                <svg
-                  className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M16 3H8a2 2 0 00-2 2v0a2 2 0 002 2h8a2 2 0 002-2v0a2 2 0 00-2-2zM8 21h8"
-                  />
-                </svg>
+              <div className="flex-1">
+                <h2 className="text-white font-semibold font-one mb-2">
+                  👥 Gestion des clients disponible avec un abonnement
+                </h2>
+
+                <p className="text-white/70 text-sm font-one mb-4">
+                  Accédez à la gestion complète de votre base clients : création
+                  de fiches, historique des rendez-vous, suivi de cicatrisation
+                  et bien plus.
+                </p>
+
+                <div className="flex flex-wrap gap-3 mb-4">
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      👤 Fiches clients complètes
+                    </span>
+                  </div>
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      📞 Coordonnées & contacts
+                    </span>
+                  </div>
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      📅 Historique des RDV
+                    </span>
+                  </div>
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      🩹 Suivi de cicatrisation
+                    </span>
+                  </div>
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      🔍 Recherche & filtres
+                    </span>
+                  </div>
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      📊 Statistiques clients
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => (window.location.href = "/parametres")}
+                    className="cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-sm font-one font-medium transition-all duration-300"
+                  >
+                    🚀 Passer à PRO
+                  </button>
+
+                  <button
+                    onClick={() => (window.location.href = "/parametres")}
+                    className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-sm font-one font-medium transition-colors"
+                  >
+                    Voir les plans
+                  </button>
+                </div>
               </div>
-              <p className="text-white font-one text-lg sm:text-xl text-center">
-                {error}
-              </p>
-              <button
-                onClick={() => fetchClients(currentPage, searchTerm)}
-                className="cursor-pointer mt-2 px-4 sm:px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
-              >
-                Réessayer
-              </button>
-            </div>
-          </div>
-        ) : clients.length === 0 ? (
-          <div className="h-full w-full flex">
-            <div className="w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
-                <svg
-                  className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M16 3H8a2 2 0 00-2 2v0a2 2 0 002 2h8a2 2 0 002-2v0a2 2 0 00-2-2zM8 21h8"
-                  />
-                </svg>
-              </div>
-              <p className="text-white/70 font-one text-base sm:text-lg text-center">
-                {searchTerm ? "Aucun client trouvé" : "Aucun client"}
-              </p>
-              <p className="text-white/50 text-sm font-one text-center">
-                {searchTerm
-                  ? `Aucun client ne correspond à "${searchTerm}"`
-                  : "Commencez par ajouter votre premier client"}
-              </p>
             </div>
           </div>
         ) : (
-          <>
-            {/* Liste des clients responsive */}
-            <div className="space-y-2 mb-6">
-              {clients.map((client) => (
-                <div key={client.id}>
-                  {/* Vue desktop - grille */}
-                  <div className="hidden lg:grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
-                    <p className="text-white font-one text-xs">
-                      {client.lastName} {client.firstName}
-                    </p>
-                    <p className="text-white font-one text-xs break-all">
-                      {client.email}
-                    </p>
-                    <p className="text-white font-one text-xs">
-                      {client.phone ? client.phone : "Non renseigné"}
-                    </p>
-                    <p className="text-white font-one text-xs text-left">
-                      {client.appointments.length} rendez-vous
-                    </p>
-                    <button
-                      onClick={() => handleShowReservations(client)}
-                      className="cursor-pointer text-white font-one text-xs mx-auto border w-[60px] hover:underline hover:bg-white/10 duration-200 px-2 py-1 rounded-3xl"
-                    >
-                      <p>Infos</p>
-                    </button>
-                    <div className="flex gap-8 text-xs items-center justify-center">
-                      <button
-                        className="cursor-pointer text-black"
-                        onClick={() => handleEdit(client)}
-                      >
-                        <IoCreateOutline
-                          size={25}
-                          className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                        />
-                      </button>
-                      <button
-                        className="cursor-pointer text-black"
-                        onClick={() => handleDelete(client)}
-                      >
-                        <AiOutlineDelete
-                          size={25}
-                          className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Vue mobile - format carte */}
-                  <div className="lg:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 mb-4">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1 min-w-0 pr-3">
-                        <h3 className="text-white font-one font-semibold text-sm mb-1">
-                          {client.firstName} {client.lastName}
-                        </h3>
-                        <p className="text-white/80 font-one text-sm break-all mb-1">
-                          {client.email}
-                        </p>
-                        <p className="text-white/70 font-one text-sm">
-                          {client.phone ? client.phone : "Tel. non renseigné"}
-                        </p>
-                        <p className="text-white/70 font-one text-sm mt-2">
-                          {client.appointments.length} rendez-vous
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Actions mobiles - maintenant en bas avec plus d'espace */}
-                    <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/10">
-                      <button
-                        onClick={() => handleShowReservations(client)}
-                        className="cursor-pointer flex-1 text-white font-one text-sm font-medium border border-white/30 px-4 py-2.5 rounded-lg hover:bg-white/10 hover:border-tertiary-400/50 duration-200 transition-all"
-                      >
-                        Voir les infos
-                      </button>
-
-                      <div className="flex gap-3">
-                        <button
-                          className="cursor-pointer p-2.5 bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                          onClick={() => handleEdit(client)}
-                        >
-                          <IoCreateOutline
-                            size={20}
-                            className="text-white hover:text-tertiary-400 duration-200"
-                          />
-                        </button>
-                        <button
-                          className="cursor-pointer p-2.5 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200"
-                          onClick={() => handleDelete(client)}
-                        >
-                          <AiOutlineDelete
-                            size={20}
-                            className="text-white hover:text-red-400 duration-200"
-                          />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+          <div>
+            {/* Header de tableau - masqué sur mobile */}
+            <div className="hidden sm:grid grid-cols-6 gap-2 px-4 py-2 mb-2 bg-white/10 rounded-lg text-white font-one text-xs font-semibold tracking-widest">
+              <p>Nom & Prénom</p>
+              <p>Email</p>
+              <p>Téléphone</p>
+              <p>Rendez-vous</p>
+              <p className="text-center">Actions</p>
+              <p></p>
             </div>
 
-            {/* Pagination responsive */}
-            {pagination.totalPages > 1 && (
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4">
-                <button
-                  onClick={handlePreviousPage}
-                  disabled={!pagination.hasPreviousPage}
-                  className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
-                >
-                  Précédent
-                </button>
-
-                <div className="flex items-center gap-1 sm:gap-2 order-first sm:order-none">
-                  {Array.from(
-                    {
-                      length: Math.min(
-                        pagination.totalPages,
-                        window.innerWidth < 640 ? 3 : 5
-                      ),
-                    },
-                    (_, i) => {
-                      const maxButtons = window.innerWidth < 640 ? 3 : 5;
-                      let pageNumber;
-                      if (pagination.totalPages <= maxButtons) {
-                        pageNumber = i + 1;
-                      } else if (
-                        currentPage <=
-                        Math.floor(maxButtons / 2) + 1
-                      ) {
-                        pageNumber = i + 1;
-                      } else if (
-                        currentPage >=
-                        pagination.totalPages - Math.floor(maxButtons / 2)
-                      ) {
-                        pageNumber = pagination.totalPages - maxButtons + 1 + i;
-                      } else {
-                        pageNumber =
-                          currentPage - Math.floor(maxButtons / 2) + i;
-                      }
-
-                      return (
+            {loading ? (
+              <div className="h-full w-full flex items-center justify-center">
+                <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+                  <p className="text-white/60 font-two text-xs text-center">
+                    Chargement des clients...
+                  </p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="h-full w-full flex">
+                <div className="mt-4 w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+                    <svg
+                      className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M16 3H8a2 2 0 00-2 2v0a2 2 0 002 2h8a2 2 0 002-2v0a2 2 0 00-2-2zM8 21h8"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-white font-one text-lg sm:text-xl text-center">
+                    {error}
+                  </p>
+                  <button
+                    onClick={() => fetchClients(currentPage, searchTerm)}
+                    className="cursor-pointer mt-2 px-4 sm:px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
+                  >
+                    Réessayer
+                  </button>
+                </div>
+              </div>
+            ) : clients.length === 0 ? (
+              <div className="h-full w-full flex">
+                <div className="w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+                    <svg
+                      className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M16 3H8a2 2 0 00-2 2v0a2 2 0 002 2h8a2 2 0 002-2v0a2 2 0 00-2-2zM8 21h8"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-white/70 font-one text-base sm:text-lg text-center">
+                    {searchTerm ? "Aucun client trouvé" : "Aucun client"}
+                  </p>
+                  <p className="text-white/50 text-sm font-one text-center">
+                    {searchTerm
+                      ? `Aucun client ne correspond à "${searchTerm}"`
+                      : "Commencez par ajouter votre premier client"}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div>
+                {/* Liste des clients responsive */}
+                <div className="space-y-2 mb-6">
+                  {clients.map((client) => (
+                    <div key={client.id}>
+                      {/* Vue desktop - grille */}
+                      <div className="hidden lg:grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
+                        <p className="text-white font-one text-xs">
+                          {client.lastName} {client.firstName}
+                        </p>
+                        <p className="text-white font-one text-xs break-all">
+                          {client.email}
+                        </p>
+                        <p className="text-white font-one text-xs">
+                          {client.phone ? client.phone : "Non renseigné"}
+                        </p>
+                        <p className="text-white font-one text-xs text-left">
+                          {client.appointments.length} rendez-vous
+                        </p>
                         <button
-                          key={pageNumber}
-                          onClick={() => handlePageChange(pageNumber)}
-                          className={`cursor-pointer w-6 h-6 sm:w-8 sm:h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
-                            currentPage === pageNumber
-                              ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
-                              : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
-                          }`}
+                          onClick={() => handleShowReservations(client)}
+                          className="cursor-pointer text-white font-one text-xs mx-auto border w-[60px] hover:underline hover:bg-white/10 duration-200 px-2 py-1 rounded-3xl"
                         >
-                          {pageNumber}
+                          <p>Infos</p>
                         </button>
-                      );
-                    }
-                  )}
+                        <div className="flex gap-8 text-xs items-center justify-center">
+                          <button
+                            className="cursor-pointer text-black"
+                            onClick={() => handleEdit(client)}
+                          >
+                            <IoCreateOutline
+                              size={25}
+                              className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                            />
+                          </button>
+                          <button
+                            className="cursor-pointer text-black"
+                            onClick={() => handleDelete(client)}
+                          >
+                            <AiOutlineDelete
+                              size={25}
+                              className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                            />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Vue mobile - format carte */}
+                      <div className="lg:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 mb-4">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1 min-w-0 pr-3">
+                            <h3 className="text-white font-one font-semibold text-sm mb-1">
+                              {client.firstName} {client.lastName}
+                            </h3>
+                            <p className="text-white/80 font-one text-sm break-all mb-1">
+                              {client.email}
+                            </p>
+                            <p className="text-white/70 font-one text-sm">
+                              {client.phone
+                                ? client.phone
+                                : "Tel. non renseigné"}
+                            </p>
+                            <p className="text-white/70 font-one text-sm mt-2">
+                              {client.appointments.length} rendez-vous
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Actions mobiles - maintenant en bas avec plus d'espace */}
+                        <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/10">
+                          <button
+                            onClick={() => handleShowReservations(client)}
+                            className="cursor-pointer flex-1 text-white font-one text-sm font-medium border border-white/30 px-4 py-2.5 rounded-lg hover:bg-white/10 hover:border-tertiary-400/50 duration-200 transition-all"
+                          >
+                            Voir les infos
+                          </button>
+
+                          <div className="flex gap-3">
+                            <button
+                              className="cursor-pointer p-2.5 bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                              onClick={() => handleEdit(client)}
+                            >
+                              <IoCreateOutline
+                                size={20}
+                                className="text-white hover:text-tertiary-400 duration-200"
+                              />
+                            </button>
+                            <button
+                              className="cursor-pointer p-2.5 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200"
+                              onClick={() => handleDelete(client)}
+                            >
+                              <AiOutlineDelete
+                                size={20}
+                                className="text-white hover:text-red-400 duration-200"
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
-                <button
-                  onClick={handleNextPage}
-                  disabled={!pagination.hasNextPage}
-                  className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
-                >
-                  Suivant
-                </button>
+                {/* Pagination responsive */}
+                {pagination.totalPages > 1 && (
+                  <div className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4">
+                    <button
+                      onClick={handlePreviousPage}
+                      disabled={!pagination.hasPreviousPage}
+                      className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
+                    >
+                      Précédent
+                    </button>
+
+                    <div className="flex items-center gap-1 sm:gap-2 order-first sm:order-none">
+                      {Array.from(
+                        {
+                          length: Math.min(
+                            pagination.totalPages,
+                            window.innerWidth < 640 ? 3 : 5
+                          ),
+                        },
+                        (_, i) => {
+                          const maxButtons = window.innerWidth < 640 ? 3 : 5;
+                          let pageNumber;
+                          if (pagination.totalPages <= maxButtons) {
+                            pageNumber = i + 1;
+                          } else if (
+                            currentPage <=
+                            Math.floor(maxButtons / 2) + 1
+                          ) {
+                            pageNumber = i + 1;
+                          } else if (
+                            currentPage >=
+                            pagination.totalPages - Math.floor(maxButtons / 2)
+                          ) {
+                            pageNumber =
+                              pagination.totalPages - maxButtons + 1 + i;
+                          } else {
+                            pageNumber =
+                              currentPage - Math.floor(maxButtons / 2) + i;
+                          }
+
+                          return (
+                            <button
+                              key={pageNumber}
+                              onClick={() => handlePageChange(pageNumber)}
+                              className={`cursor-pointer w-6 h-6 sm:w-8 sm:h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
+                                currentPage === pageNumber
+                                  ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                              }`}
+                            >
+                              {pageNumber}
+                            </button>
+                          );
+                        }
+                      )}
+                    </div>
+
+                    <button
+                      onClick={handleNextPage}
+                      disabled={!pagination.hasNextPage}
+                      className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
+                    >
+                      Suivant
+                    </button>
+                  </div>
+                )}
               </div>
             )}
-          </>
+          </div>
         )}
 
-        {/* Modal INFOS CLIENT - Utilisation du composant séparé */}
-        <InfoClient
-          client={clientForInfos!}
-          isOpen={isFullInfoModalOpen}
-          onClose={() => setIsFullInfoModalOpen(false)}
-        />
+        {/* Modal INFOS CLIENT - Utilisation du composant séparé - Seulement pour les comptes payants */}
+        {!isFreeAccount && (
+          <InfoClient
+            client={clientForInfos!}
+            isOpen={isFullInfoModalOpen}
+            onClose={() => setIsFullInfoModalOpen(false)}
+          />
+        )}
       </div>
 
-      {isModalOpen && (
+      {!isFreeAccount && isModalOpen && (
         <CreateOrUpdateClient
           onCreate={() => {
             fetchClients(currentPage, searchTerm);
@@ -541,7 +632,7 @@ export default function ClientList() {
         />
       )}
 
-      {isModalDeleteOpen && (
+      {!isFreeAccount && isModalDeleteOpen && (
         <DeleteClient
           onDelete={() => {
             fetchClients(currentPage, searchTerm);

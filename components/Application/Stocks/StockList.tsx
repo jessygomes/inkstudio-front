@@ -19,6 +19,9 @@ import { toast } from "sonner";
 export default function StockList() {
   const user = useUser();
 
+  // Vérifier si l'utilisateur a un plan Free
+  const isFreeAccount = user?.saasPlan === "FREE";
+
   const [loading, setLoading] = useState(true);
 
   //! State
@@ -210,60 +213,66 @@ export default function StockList() {
         </div>
 
         {/* Boutons d'action responsive */}
-        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-          <button
-            onClick={handleCreate}
-            className="cursor-pointer flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        {!isFreeAccount && (
+          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <button
+              onClick={handleCreate}
+              className="cursor-pointer flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Créer un nouvel item
-          </button>
-        </div>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Créer un nouvel item
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Liste des items de stock */}
+
       <div>
         {/* Barre de recherche et filtre par catégorie responsive */}
-        <div className="flex flex-col sm:flex-row gap-2 items-center mb-4 sm:mb-6 mt-4 sm:mt-6">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Rechercher par article"
-            className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-2 sm:py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
-          />
+        {!isFreeAccount && (
+          <div className="flex flex-col sm:flex-row gap-2 items-center mb-4 sm:mb-6 mt-4 sm:mt-6">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Rechercher par article"
+              className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-2 sm:py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
+            />
 
-          {/* Filtre par catégorie */}
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full sm:w-48 text-sm text-white bg-white/10 py-2 sm:py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
-          >
-            <option value="" className="text-black">
-              Toutes les catégories
-            </option>
-            {categories.map((category) => (
-              <option key={category} value={category} className="text-black">
-                {category}
+            {/* Filtre par catégorie */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="w-full sm:w-48 text-sm text-white bg-white/10 py-2 sm:py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
+            >
+              <option value="" className="text-black">
+                Toutes les catégories
               </option>
-            ))}
-          </select>
-        </div>
+              {categories.map((category) => (
+                <option key={category} value={category} className="text-black">
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Informations de pagination responsive */}
-        {!loading && !error && (
+
+        {!isFreeAccount && !loading && !error && (
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
             <div className="text-white/70 text-xs font-one">
               Affichage de {itemsStock.length > 0 ? 1 : 0} à{" "}
@@ -286,301 +295,394 @@ export default function StockList() {
           </div>
         )}
 
-        {/* Header de tableau - masqué sur mobile */}
-        <div className="hidden sm:grid grid-cols-6 gap-2 px-4 py-2 mb-2 bg-white/10 rounded-lg text-white font-one text-xs font-semibold tracking-widest">
-          <p>Nom de l'article</p>
-          <p>Catégorie</p>
-          <p>Quantité</p>
-          <p>Quantité min.</p>
-          <p className="text-center">Actions</p>
-          <p></p>
-        </div>
+        {isFreeAccount ? (
+          /* Message pour les comptes Free */
+          <div className="bg-gradient-to-r from-orange-500/10 to-tertiary-500/10 border border-orange-500/30 rounded-2xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="w-6 h-6 text-orange-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                  />
+                </svg>
+              </div>
 
-        {loading ? (
-          <div className="h-full w-full flex items-center justify-center">
-            <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
-              <p className="text-white/60 font-two text-xs text-center">
-                Chargement des articles...
-              </p>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="h-full w-full flex">
-            <div className="mt-4 w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
-                <svg
-                  className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                  />
-                </svg>
+              <div className="flex-1">
+                <h2 className="text-white font-semibold font-one mb-2">
+                  📦 Gestion des stocks disponible avec un abonnement
+                </h2>
+
+                <p className="text-white/70 text-sm font-one mb-4">
+                  Accédez à la gestion complète de votre stock : suivi des
+                  quantités, alertes de rupture, catégorisation et historique
+                  des mouvements.
+                </p>
+
+                <div className="flex flex-wrap gap-3 mb-4">
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      📦 Inventaire complet
+                    </span>
+                  </div>
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      🔔 Alertes de rupture
+                    </span>
+                  </div>
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      📊 Suivi des quantités
+                    </span>
+                  </div>
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      🏷️ Catégorisation
+                    </span>
+                  </div>
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      📈 Historique des mouvements
+                    </span>
+                  </div>
+                  <div className="bg-white/10 rounded-lg px-3 py-1">
+                    <span className="text-white/80 text-xs font-one">
+                      🔍 Recherche & filtres
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => (window.location.href = "/parametres")}
+                    className="cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-sm font-one font-medium transition-all duration-300"
+                  >
+                    🚀 Passer à PRO
+                  </button>
+
+                  <button
+                    onClick={() => (window.location.href = "/parametres")}
+                    className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-sm font-one font-medium transition-colors"
+                  >
+                    Voir les plans
+                  </button>
+                </div>
               </div>
-              <p className="text-white font-one text-lg sm:text-xl text-center">
-                {error}
-              </p>
-              <button
-                onClick={() => fetchStockItems(currentPage, searchTerm)}
-                className="cursor-pointer mt-2 px-4 sm:px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
-              >
-                Réessayer
-              </button>
-            </div>
-          </div>
-        ) : filteredItems.length === 0 ? (
-          <div className="h-full w-full flex">
-            <div className="w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
-                <svg
-                  className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                  />
-                </svg>
-              </div>
-              <p className="text-white/70 font-one text-base sm:text-lg text-center">
-                {searchTerm || categoryFilter
-                  ? "Aucun article trouvé"
-                  : "Aucun article"}
-              </p>
-              <p className="text-white/50 text-sm font-one text-center">
-                {searchTerm || categoryFilter
-                  ? `Aucun article ne correspond aux critères${
-                      searchTerm ? ` "${searchTerm}"` : ""
-                    }${
-                      categoryFilter
-                        ? ` dans la catégorie "${categoryFilter}"`
-                        : ""
-                    }`
-                  : "Commencez par ajouter votre premier article"}
-              </p>
             </div>
           </div>
         ) : (
-          <>
-            {/* Liste des articles responsive */}
-            <div className="space-y-2 mb-6">
-              {filteredItems.map((item) => (
-                <div key={item.id}>
-                  {/* Vue desktop - grille */}
-                  <div className="hidden lg:grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
-                    <p className="text-white font-one text-xs">{item.name}</p>
-                    <p className="text-white font-one text-xs break-all">
-                      {item.category || "Non renseignée"}
-                    </p>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleUpdateQuantity(item, -1)}
-                        disabled={item.quantity <= 0}
-                        className="cursor-pointer w-5 h-5 flex items-center justify-center bg-white/10 hover:bg-red-500/20 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white text-xs transition-colors"
-                        title="Diminuer la quantité"
-                      >
-                        −
-                      </button>
-                      <span className="text-white font-one text-xs min-w-[60px] text-center">
-                        {item.quantity} {item.unit || "pièce(s)"}
-                      </span>
-                      <button
-                        onClick={() => handleUpdateQuantity(item, 1)}
-                        className="cursor-pointer w-5 h-5 flex items-center justify-center bg-white/10 hover:bg-green-500/20 rounded text-white text-xs transition-colors"
-                        title="Augmenter la quantité"
-                      >
-                        +
-                      </button>
-                    </div>
-                    <p className="text-white font-one text-xs text-left">
-                      {item.minQuantity
-                        ? `${item.minQuantity} ${item.unit || "pièce(s)"}`
-                        : "Non définie"}
-                    </p>
+          <div>
+            {/* Header de tableau - masqué sur mobile */}
+            <div className="hidden sm:grid grid-cols-6 gap-2 px-4 py-2 mb-2 bg-white/10 rounded-lg text-white font-one text-xs font-semibold tracking-widest">
+              <p>Nom de l'article</p>
+              <p>Catégorie</p>
+              <p>Quantité</p>
+              <p>Quantité min.</p>
+              <p className="text-center">Actions</p>
+              <p></p>
+            </div>
 
-                    <div className="flex gap-2 text-xs items-center justify-center">
-                      <button
-                        className="cursor-pointer text-black"
-                        onClick={() => handleEdit(item)}
-                        title="Modifier l'article"
-                      >
-                        <AiOutlineEdit
-                          size={25}
-                          className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                        />
-                      </button>
-                      <button
-                        className="cursor-pointer text-black"
-                        onClick={() => handleDelete(item)}
-                        title="Supprimer l'article"
-                      >
-                        <AiOutlineDelete
-                          size={25}
-                          className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                        />
-                      </button>
-                    </div>
+            {loading ? (
+              <div className="h-full w-full flex items-center justify-center">
+                <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
+                  <p className="text-white/60 font-two text-xs text-center">
+                    Chargement des articles...
+                  </p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="h-full w-full flex">
+                <div className="mt-4 w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+                    <svg
+                      className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                      />
+                    </svg>
                   </div>
-
-                  {/* Vue mobile - format carte */}
-                  <div className="lg:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 mb-4">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1 min-w-0 pr-3">
-                        <h3 className="text-white font-one font-semibold text-sm mb-1">
+                  <p className="text-white font-one text-lg sm:text-xl text-center">
+                    {error}
+                  </p>
+                  <button
+                    onClick={() => fetchStockItems(currentPage, searchTerm)}
+                    className="cursor-pointer mt-2 px-4 sm:px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
+                  >
+                    Réessayer
+                  </button>
+                </div>
+              </div>
+            ) : filteredItems.length === 0 ? (
+              <div className="h-full w-full flex">
+                <div className="w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+                    <svg
+                      className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-white/70 font-one text-base sm:text-lg text-center">
+                    {searchTerm || categoryFilter
+                      ? "Aucun article trouvé"
+                      : "Aucun article"}
+                  </p>
+                  <p className="text-white/50 text-sm font-one text-center">
+                    {searchTerm || categoryFilter
+                      ? `Aucun article ne correspond aux critères${
+                          searchTerm ? ` "${searchTerm}"` : ""
+                        }${
+                          categoryFilter
+                            ? ` dans la catégorie "${categoryFilter}"`
+                            : ""
+                        }`
+                      : "Commencez par ajouter votre premier article"}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Liste des articles responsive */}
+                <div className="space-y-2 mb-6">
+                  {filteredItems.map((item) => (
+                    <div key={item.id}>
+                      {/* Vue desktop - grille */}
+                      <div className="hidden lg:grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
+                        <p className="text-white font-one text-xs">
                           {item.name}
-                        </h3>
-                        <p className="text-white/80 font-one text-sm break-all mb-1">
-                          Catégorie: {item.category || "Non renseignée"}
                         </p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-white/70 font-one text-sm">
-                            Quantité:
+                        <p className="text-white font-one text-xs break-all">
+                          {item.category || "Non renseignée"}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleUpdateQuantity(item, -1)}
+                            disabled={item.quantity <= 0}
+                            className="cursor-pointer w-5 h-5 flex items-center justify-center bg-white/10 hover:bg-red-500/20 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white text-xs transition-colors"
+                            title="Diminuer la quantité"
+                          >
+                            −
+                          </button>
+                          <span className="text-white font-one text-xs min-w-[60px] text-center">
+                            {item.quantity} {item.unit || "pièce(s)"}
                           </span>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleUpdateQuantity(item, -1)}
-                              disabled={item.quantity <= 0}
-                              className="cursor-pointer w-7 h-7 flex items-center justify-center bg-white/10 hover:bg-red-500/20 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white text-sm transition-colors"
-                              title="Diminuer la quantité"
-                            >
-                              −
-                            </button>
-                            <span className="text-white/70 font-one text-sm min-w-[80px] text-center">
-                              {item.quantity} {item.unit || "pièce(s)"}
-                            </span>
-                            <button
-                              onClick={() => handleUpdateQuantity(item, 1)}
-                              className="cursor-pointer w-7 h-7 flex items-center justify-center bg-white/10 hover:bg-green-500/20 rounded text-white text-sm transition-colors"
-                              title="Augmenter la quantité"
-                            >
-                              +
-                            </button>
-                          </div>
+                          <button
+                            onClick={() => handleUpdateQuantity(item, 1)}
+                            className="cursor-pointer w-5 h-5 flex items-center justify-center bg-white/10 hover:bg-green-500/20 rounded text-white text-xs transition-colors"
+                            title="Augmenter la quantité"
+                          >
+                            +
+                          </button>
                         </div>
-                        <p className="text-white/70 font-one text-sm mt-2">
-                          Quantité min.:{" "}
+                        <p className="text-white font-one text-xs text-left">
                           {item.minQuantity
                             ? `${item.minQuantity} ${item.unit || "pièce(s)"}`
                             : "Non définie"}
                         </p>
+
+                        <div className="flex gap-2 text-xs items-center justify-center">
+                          <button
+                            className="cursor-pointer text-black"
+                            onClick={() => handleEdit(item)}
+                            title="Modifier l'article"
+                          >
+                            <AiOutlineEdit
+                              size={25}
+                              className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                            />
+                          </button>
+                          <button
+                            className="cursor-pointer text-black"
+                            onClick={() => handleDelete(item)}
+                            title="Supprimer l'article"
+                          >
+                            <AiOutlineDelete
+                              size={25}
+                              className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                            />
+                          </button>
+                        </div>
                       </div>
+
+                      {/* Vue mobile - format carte */}
+                      <div className="lg:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 mb-4">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1 min-w-0 pr-3">
+                            <h3 className="text-white font-one font-semibold text-sm mb-1">
+                              {item.name}
+                            </h3>
+                            <p className="text-white/80 font-one text-sm break-all mb-1">
+                              Catégorie: {item.category || "Non renseignée"}
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <span className="text-white/70 font-one text-sm">
+                                Quantité:
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleUpdateQuantity(item, -1)}
+                                  disabled={item.quantity <= 0}
+                                  className="cursor-pointer w-7 h-7 flex items-center justify-center bg-white/10 hover:bg-red-500/20 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white text-sm transition-colors"
+                                  title="Diminuer la quantité"
+                                >
+                                  −
+                                </button>
+                                <span className="text-white/70 font-one text-sm min-w-[80px] text-center">
+                                  {item.quantity} {item.unit || "pièce(s)"}
+                                </span>
+                                <button
+                                  onClick={() => handleUpdateQuantity(item, 1)}
+                                  className="cursor-pointer w-7 h-7 flex items-center justify-center bg-white/10 hover:bg-green-500/20 rounded text-white text-sm transition-colors"
+                                  title="Augmenter la quantité"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                            <p className="text-white/70 font-one text-sm mt-2">
+                              Quantité min.:{" "}
+                              {item.minQuantity
+                                ? `${item.minQuantity} ${
+                                    item.unit || "pièce(s)"
+                                  }`
+                                : "Non définie"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Actions mobiles - maintenant en bas avec plus d'espace */}
+                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+                          <div className="flex gap-3">
+                            <button
+                              className="cursor-pointer p-2.5 bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                              onClick={() => handleEdit(item)}
+                              title="Modifier l'article"
+                            >
+                              <IoCreateOutline
+                                size={20}
+                                className="text-white hover:text-tertiary-400 duration-200"
+                              />
+                            </button>
+                            <button
+                              className="cursor-pointer p-2.5 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200"
+                              onClick={() => handleDelete(item)}
+                              title="Supprimer l'article"
+                            >
+                              <AiOutlineDelete
+                                size={20}
+                                className="text-white hover:text-tertiary-400 duration-200"
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pagination responsive */}
+                {pagination.totalPages > 1 && (
+                  <div className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4">
+                    <button
+                      onClick={handlePreviousPage}
+                      disabled={!pagination.hasPreviousPage}
+                      className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
+                    >
+                      Précédent
+                    </button>
+
+                    <div className="flex items-center gap-1 sm:gap-2 order-first sm:order-none">
+                      {Array.from(
+                        {
+                          length: Math.min(
+                            pagination.totalPages,
+                            typeof window !== "undefined" &&
+                              window.innerWidth < 640
+                              ? 3
+                              : 5
+                          ),
+                        },
+                        (_, i) => {
+                          const maxButtons =
+                            typeof window !== "undefined" &&
+                            window.innerWidth < 640
+                              ? 3
+                              : 5;
+                          let pageNumber;
+                          if (pagination.totalPages <= maxButtons) {
+                            pageNumber = i + 1;
+                          } else if (
+                            currentPage <=
+                            Math.floor(maxButtons / 2) + 1
+                          ) {
+                            pageNumber = i + 1;
+                          } else if (
+                            currentPage >=
+                            pagination.totalPages - Math.floor(maxButtons / 2)
+                          ) {
+                            pageNumber =
+                              pagination.totalPages - maxButtons + 1 + i;
+                          } else {
+                            pageNumber =
+                              currentPage - Math.floor(maxButtons / 2) + i;
+                          }
+
+                          return (
+                            <button
+                              key={pageNumber}
+                              onClick={() => handlePageChange(pageNumber)}
+                              className={`cursor-pointer w-6 h-6 sm:w-8 sm:h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
+                                currentPage === pageNumber
+                                  ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                              }`}
+                            >
+                              {pageNumber}
+                            </button>
+                          );
+                        }
+                      )}
                     </div>
 
-                    {/* Actions mobiles - maintenant en bas avec plus d'espace */}
-                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
-                      <div className="flex gap-3">
-                        <button
-                          className="cursor-pointer p-2.5 bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                          onClick={() => handleEdit(item)}
-                          title="Modifier l'article"
-                        >
-                          <IoCreateOutline
-                            size={20}
-                            className="text-white hover:text-tertiary-400 duration-200"
-                          />
-                        </button>
-                        <button
-                          className="cursor-pointer p-2.5 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200"
-                          onClick={() => handleDelete(item)}
-                          title="Supprimer l'article"
-                        >
-                          <AiOutlineDelete
-                            size={20}
-                            className="text-white hover:text-tertiary-400 duration-200"
-                          />
-                        </button>
-                      </div>
-                    </div>
+                    <button
+                      onClick={handleNextPage}
+                      disabled={!pagination.hasNextPage}
+                      className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
+                    >
+                      Suivant
+                    </button>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Pagination responsive */}
-            {pagination.totalPages > 1 && (
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4">
-                <button
-                  onClick={handlePreviousPage}
-                  disabled={!pagination.hasPreviousPage}
-                  className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
-                >
-                  Précédent
-                </button>
-
-                <div className="flex items-center gap-1 sm:gap-2 order-first sm:order-none">
-                  {Array.from(
-                    {
-                      length: Math.min(
-                        pagination.totalPages,
-                        typeof window !== "undefined" && window.innerWidth < 640
-                          ? 3
-                          : 5
-                      ),
-                    },
-                    (_, i) => {
-                      const maxButtons =
-                        typeof window !== "undefined" && window.innerWidth < 640
-                          ? 3
-                          : 5;
-                      let pageNumber;
-                      if (pagination.totalPages <= maxButtons) {
-                        pageNumber = i + 1;
-                      } else if (
-                        currentPage <=
-                        Math.floor(maxButtons / 2) + 1
-                      ) {
-                        pageNumber = i + 1;
-                      } else if (
-                        currentPage >=
-                        pagination.totalPages - Math.floor(maxButtons / 2)
-                      ) {
-                        pageNumber = pagination.totalPages - maxButtons + 1 + i;
-                      } else {
-                        pageNumber =
-                          currentPage - Math.floor(maxButtons / 2) + i;
-                      }
-
-                      return (
-                        <button
-                          key={pageNumber}
-                          onClick={() => handlePageChange(pageNumber)}
-                          className={`cursor-pointer w-6 h-6 sm:w-8 sm:h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
-                            currentPage === pageNumber
-                              ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
-                              : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
-                          }`}
-                        >
-                          {pageNumber}
-                        </button>
-                      );
-                    }
-                  )}
-                </div>
-
-                <button
-                  onClick={handleNextPage}
-                  disabled={!pagination.hasNextPage}
-                  className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
-                >
-                  Suivant
-                </button>
-              </div>
+                )}
+              </>
             )}
-          </>
+          </div>
         )}
       </div>
 
-      {isModalOpen && (
+      {!isFreeAccount && isModalOpen && (
         <CreateOrUpdateItem
           userId={user.id ?? ""}
           onCreate={() => {
@@ -592,7 +694,7 @@ export default function StockList() {
         />
       )}
 
-      {isModalDeleteOpen && (
+      {!isFreeAccount && isModalDeleteOpen && (
         <DeleteItemStock
           onDelete={() => {
             fetchStockItems();
