@@ -19,7 +19,7 @@ export default function Tarifs() {
         "Lien direct de contact",
       ],
       popular: false,
-      cta: "Créer mon profil",
+      cta: "Bientot disponible",
       color: "blue",
     },
     {
@@ -39,7 +39,7 @@ export default function Tarifs() {
         "Sauvegarde cloud",
       ],
       popular: true,
-      cta: "Essayer gratuitement",
+      cta: "Bientot disponible",
       color: "tertiary",
     },
     {
@@ -58,7 +58,7 @@ export default function Tarifs() {
         "Formations incluses",
       ],
       popular: false,
-      cta: "Essayer gratuitement",
+      cta: "Bientot disponible",
       color: "purple",
     },
   ];
@@ -237,7 +237,7 @@ export default function Tarifs() {
 
             <div className="text-center mt-8 p-6 bg-white/5 rounded-2xl">
               <p className="text-tertiary-400 font-one font-semibold">
-                🎁 30 jours d'essai gratuit sur tous les plans - Aucune carte
+                30 jours d'essai gratuit sur tous les plans - Aucune carte
                 bancaire requise
               </p>
             </div>

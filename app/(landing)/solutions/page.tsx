@@ -4,6 +4,7 @@ import ClientSection from "@/components/SolutionsPage/ClientSection";
 import ProfilSection from "@/components/SolutionsPage/ProfilSection";
 import ReservationSection from "@/components/SolutionsPage/ReservationSection";
 import Image from "next/image";
+import Link from "next/link";
 import { FaArrowDown, FaCalendarAlt, FaUsers, FaGlobe } from "react-icons/fa";
 
 export default function SolutionsPage() {
@@ -218,12 +219,18 @@ export default function SolutionsPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-              <button className="bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white font-one font-semibold px-8 py-4 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg">
-                S'inscrire gratuitement
-              </button>
-              <button className="border border-white/20 text-white hover:bg-white/10 font-one font-semibold px-8 py-4 rounded-2xl transition-all duration-300">
-                Devenir testeur
-              </button>
+              <Link
+                href={"/inscription"}
+                className="bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white font-one font-semibold px-8 py-4 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg"
+              >
+                DEVENIR TESTEUR
+              </Link>
+              <Link
+                href={"/contact"}
+                className="border border-white/20 text-white hover:bg-white/10 font-one font-semibold px-8 py-4 rounded-2xl transition-all duration-300"
+              >
+                Contactez-nous
+              </Link>
             </div>
           </div>
         </div>
