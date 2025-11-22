@@ -6,10 +6,107 @@ import ReservationSection from "@/components/SolutionsPage/ReservationSection";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowDown, FaCalendarAlt, FaUsers, FaGlobe } from "react-icons/fa";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Solutions de Gestion pour Studios de Tatouage | INKERA Studio",
+  description:
+    "Découvrez nos solutions complètes pour gérer votre salon de tatouage : gestion des rendez-vous, portfolio en ligne, suivi client et bien plus. Essai gratuit 30 jours.",
+  keywords: [
+    "logiciel salon tatouage",
+    "gestion studio tattoo",
+    "rendez-vous tatoueur",
+    "portfolio tatouage en ligne",
+    "CRM tatoueur",
+    "planning tattoo",
+    "réservation tatouage",
+    "management salon tatouage",
+  ],
+  authors: [{ name: "INKERA Studio" }],
+  creator: "INKERA Studio",
+  publisher: "InTheGleam",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL("https://inkera-studio.com"),
+  alternates: {
+    canonical: "/solutions",
+  },
+  openGraph: {
+    title: "Solutions de Gestion pour Studios de Tatouage | INKERA Studio",
+    description:
+      "Plateforme tout-en-un pour gérer votre salon de tatouage : rendez-vous, clients, portfolio et plus encore.",
+    url: "https://inkera-studio.com/solutions",
+    siteName: "INKERA Studio",
+    images: [
+      {
+        url: "https://inkera-studio.com/images/og-solutions.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Solutions INKERA Studio pour salons de tatouage",
+      },
+    ],
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Solutions de Gestion pour Studios de Tatouage",
+    description:
+      "Gérez votre salon de tatouage avec INKERA Studio : rendez-vous, clients, portfolio en une seule plateforme.",
+    images: ["https://inkera-studio.com/images/twitter-solutions.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
 
 export default function SolutionsPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "INKERA Studio",
+    description:
+      "Plateforme de gestion complète pour studios de tatouage et artistes tatoueurs",
+    url: "https://inkera-studio.com/solutions",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "EUR",
+      description: "Essai gratuit 30 jours",
+    },
+    featureList: [
+      "Gestion des rendez-vous",
+      "Portfolio en ligne",
+      "Suivi client",
+      "Gestion des stocks",
+      "Notifications automatiques",
+    ],
+    publisher: {
+      "@type": "Organization",
+      name: "InTheGleam",
+      url: "https://inkera-studio.com",
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="fixed top-0 left-0 w-full z-50">
         <Header />
       </div>

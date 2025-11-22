@@ -12,23 +12,111 @@ import {
 // import Image from "next/image";
 import type { Metadata } from "next";
 import Header from "@/components/Shared/Header";
+import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "À propos d'InkEra | Notre Mission",
+  title: "À Propos de INKERA Studio | Innovation pour Salons de Tatouage",
   description:
-    "Découvrez l'histoire d'InkEra, notre mission de révolutionner la gestion des salons de tatouage et notre engagement envers la communauté des artistes tatoueurs.",
+    "Découvrez INKERA Studio : notre mission de révolutionner la gestion des salons de tatouage avec des outils innovants. Créé par des passionnés pour les artistes tatoueurs professionnels.",
   keywords: [
-    "à propos InkEra",
+    "à propos INKERA Studio",
     "mission tatouage",
-    "équipe InkEra",
-    "histoire plateforme",
+    "équipe INKERA",
+    "histoire plateforme tatouage",
     "innovation tatoueurs",
+    "startup tatouage",
+    "technologie salon tattoo",
+    "vision INKERA",
   ],
+  authors: [{ name: "INKERA Studio" }],
+  creator: "INKERA Studio",
+  publisher: "InTheGleam",
+  metadataBase: new URL("https://inkera-studio.com"),
+  alternates: {
+    canonical: "/a-propos-de-inkera",
+  },
+  openGraph: {
+    title: "À Propos de INKERA Studio | Innovation pour Studios de Tatouage",
+    description:
+      "Notre mission : révolutionner la gestion des salons de tatouage avec des outils innovants créés par et pour les professionnels du tatouage.",
+    url: "https://inkera-studio.com/a-propos-de-inkera",
+    siteName: "INKERA Studio",
+    images: [
+      {
+        url: "https://inkera-studio.com/images/og-about.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Équipe INKERA Studio - Innovation pour salons de tatouage",
+      },
+    ],
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "À Propos de INKERA Studio",
+    description:
+      "Innovation et passion au service des studios de tatouage. Découvrez notre mission et notre équipe.",
+    images: ["https://inkera-studio.com/images/twitter-about.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function AproposPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: "À Propos de INKERA Studio",
+    description:
+      "Découvrez INKERA Studio, notre mission et notre équipe dédiée à l'innovation dans la gestion des salons de tatouage",
+    url: "https://inkera-studio.com/a-propos-de-inkera",
+    mainEntity: {
+      "@type": "Organization",
+      name: "INKERA Studio",
+      foundingDate: "2024",
+      description:
+        "Plateforme innovante pour la gestion des studios de tatouage",
+      url: "https://inkera-studio.com",
+      logo: "https://inkera-studio.com/images/Logo13.png",
+      sameAs: [
+        "https://www.instagram.com/inkera.studio",
+        "https://www.linkedin.com/company/inkera-studio",
+      ],
+      founder: {
+        "@type": "Person",
+        name: "InTheGleam Team",
+      },
+      areaServed: {
+        "@type": "Country",
+        name: "France",
+      },
+      knowsAbout: [
+        "Gestion de salon de tatouage",
+        "Logiciel pour tatoueurs",
+        "Planning rendez-vous tatouage",
+        "Portfolio tatouage en ligne",
+      ],
+    },
+  };
+
   return (
     <>
+      <Script
+        id="schema-aboutpage"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <div className="fixed backdrop-blur-2xl top-0 left-0 w-full z-50">
         <Header />
       </div>

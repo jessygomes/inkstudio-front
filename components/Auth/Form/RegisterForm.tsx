@@ -129,6 +129,8 @@ export const Register = () => {
         phone: data.phone,
         email: data.email,
         password: data.password,
+        // Convertir TESTER en FREE pour l'envoi au serveur
+        saasPlan: formData.saasPlan === "TESTER" ? "FREE" : formData.saasPlan,
       };
 
       console.log("📤 Données finales envoyées:", finalData);

@@ -172,12 +172,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             ←
           </button>
 
-          <button
+          {/* <button
             onClick={() => setCurrentDate(new Date())}
             className="px-4 py-2 bg-tertiary-400/20 hover:bg-tertiary-400/30 text-white text-xs rounded-xl border border-tertiary-400/50 transition-colors font-medium"
           >
             Aujourd'hui
-          </button>
+          </button> */}
 
           <button
             onClick={() => {
@@ -201,12 +201,29 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       {/* Date actuelle affichée */}
       <div className="mb-4">
         <p className="text-white/80 font-two text-xs uppercase">
-          {currentDate.toLocaleDateString("fr-FR", {
-            year: "numeric",
-            month: "long",
-            ...(currentView === "day" && { weekday: "long", day: "numeric" }),
-            ...(currentView === "week" && { day: "numeric" }),
-          })}
+          {currentView === "week"
+            ? (() => {
+                const startWeek = startOfWeek(currentDate, { weekStartsOn: 1 });
+                const endWeek = new Date(startWeek);
+                endWeek.setDate(startWeek.getDate() + 6);
+
+                return `${startWeek.toLocaleDateString("fr-FR", {
+                  day: "numeric",
+                  month: "long",
+                })} - ${endWeek.toLocaleDateString("fr-FR", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}`;
+              })()
+            : currentDate.toLocaleDateString("fr-FR", {
+                year: "numeric",
+                month: "long",
+                ...(currentView === "day" && {
+                  weekday: "long",
+                  day: "numeric",
+                }),
+              })}
         </p>
       </div>
 

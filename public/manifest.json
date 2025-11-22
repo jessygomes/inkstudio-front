@@ -1,0 +1,41 @@
+{
+  "name": "INKERA Studio - Gestion Salon Tatouage",
+  "short_name": "INKERA Studio",
+  "description": "Plateforme de gestion complète pour salons de tatouage et artistes tatoueurs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#ff8500",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "fr-FR",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/images/screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}

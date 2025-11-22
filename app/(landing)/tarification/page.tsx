@@ -3,10 +3,144 @@ import Tarifs from "@/components/TarifPage/Tarifs";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowDown, FaEuroSign, FaCheckCircle } from "react-icons/fa";
+import type { Metadata } from "next";
+import Script from "next/script";
+
+export const metadata: Metadata = {
+  title: "Tarifs INKERA Studio | Plans Abonnement Salon Tatouage",
+  description:
+    "Découvrez nos tarifs transparents pour la gestion de votre salon de tatouage. Plan Gratuit, Pro à 29€/mois, Business à 69€/mois. Essai gratuit 30 jours sans engagement.",
+  keywords: [
+    "prix logiciel tatouage",
+    "tarif gestion salon tattoo",
+    "abonnement studio tatouage",
+    "cout plateforme tatoueur",
+    "prix INKERA Studio",
+    "logiciel tatouage gratuit",
+    "plan pro tatoueur",
+    "tarification salon tatouage",
+  ],
+  authors: [{ name: "INKERA Studio" }],
+  creator: "INKERA Studio",
+  publisher: "InTheGleam",
+  metadataBase: new URL("https://inkera-studio.com"),
+  alternates: {
+    canonical: "/tarification",
+  },
+  openGraph: {
+    title: "Tarifs INKERA Studio | Plans pour Salons de Tatouage",
+    description:
+      "Plans transparents dès 0€/mois. Choisissez la formule adaptée à votre salon de tatouage. Essai gratuit 30 jours.",
+    url: "https://inkera-studio.com/tarification",
+    siteName: "INKERA Studio",
+    images: [
+      {
+        url: "https://inkera-studio.com/images/og-pricing.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Tarifs INKERA Studio - Plans abonnement salon tatouage",
+      },
+    ],
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tarifs INKERA Studio",
+    description:
+      "Plans transparents pour salons de tatouage. Gratuit, Pro 29€/mois, Business 69€/mois. Essai 30j gratuit.",
+    images: ["https://inkera-studio.com/images/twitter-pricing.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
 
 export default function TarificationPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "PriceSpecification",
+    name: "Tarifs INKERA Studio",
+    description: "Plans d'abonnement pour la gestion de salons de tatouage",
+    url: "https://inkera-studio.com/tarification",
+    offers: [
+      {
+        "@type": "Offer",
+        name: "Plan Gratuit",
+        description: "Fonctionnalités de base pour débuter",
+        price: "0",
+        priceCurrency: "EUR",
+        billingIncrement: "P1M",
+        eligibleRegion: "FR",
+        itemOffered: {
+          "@type": "SoftwareApplication",
+          name: "INKERA Studio Gratuit",
+          featureList: [
+            "Profil public",
+            "Portfolio d'images",
+            "Produits & services",
+            "Profil tatoueur principal",
+          ],
+        },
+      },
+      {
+        "@type": "Offer",
+        name: "Plan Pro",
+        description: "Fonctionnalités avancées pour professionnels",
+        price: "29",
+        priceCurrency: "EUR",
+        billingIncrement: "P1M",
+        eligibleRegion: "FR",
+        itemOffered: {
+          "@type": "SoftwareApplication",
+          name: "INKERA Studio Pro",
+          featureList: [
+            "1 tatoueur",
+            "Gestion clients illimitée",
+            "Réservation en ligne",
+            "Profil public",
+            "Support email",
+          ],
+        },
+      },
+      {
+        "@type": "Offer",
+        name: "Plan Business",
+        description: "Solution complète pour studios",
+        price: "69",
+        priceCurrency: "EUR",
+        billingIncrement: "P1M",
+        eligibleRegion: "FR",
+        itemOffered: {
+          "@type": "SoftwareApplication",
+          name: "INKERA Studio Business",
+          featureList: [
+            "Tatoueurs illimités",
+            "Gestion du stock",
+            "Toutes fonctionnalités Pro",
+            "Statistiques détaillées",
+            "Support prioritaire",
+          ],
+        },
+      },
+    ],
+  };
+
   return (
     <>
+      <Script
+        id="schema-pricingpage"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="fixed top-0 left-0 w-full z-50">
         <Header />
       </div>
