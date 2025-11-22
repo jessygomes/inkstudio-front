@@ -3,6 +3,9 @@ import { Didact_Gothic, Exo_2, Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/Shared/Sonner";
 import ModalManager from "@/components/Shared/ModalManager";
+import { CookieConsentProvider } from "@/components/Cookies/CookieConsentContext";
+import CookieBanner from "@/components/Cookies/CookieBanner";
+import GoogleAnalytics from "@/components/Cookies/GoogleAnalytics";
 
 export const dynamic = "force-dynamic";
 
@@ -158,13 +161,21 @@ export default function RootLayout({
       <body
         className={`${didact_gothic.variable} ${exo_2.variable} ${montserrat_alternates.variable} antialiased relative`}
       >
-        <Toaster />
-        <ModalManager />
+        <CookieConsentProvider>
+          {/* Google Analytics avec consentement */}
+          <GoogleAnalytics measurementId="G-W3LKS9M53F" />
 
-        {/* <div className="absolute top-0 left-0 w-full h-screen">
-          <Header />
-        </div> */}
-        {children}
+          <Toaster />
+          <ModalManager />
+
+          {/* Bannière de consentement des cookies */}
+          <CookieBanner />
+
+          {/* <div className="absolute top-0 left-0 w-full h-screen">
+            <Header />
+          </div> */}
+          {children}
+        </CookieConsentProvider>
       </body>
     </html>
   );

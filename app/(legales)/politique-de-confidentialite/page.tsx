@@ -12,16 +12,17 @@ import Header from "@/components/Shared/Header";
 import Footer from "@/components/Shared/Footer/Footer";
 
 export const metadata: Metadata = {
-  title: "Politique de Confidentialité | InkStudio",
+  title: "Politique de Confidentialité & Cookies | INKERA Studio",
   description:
-    "Découvrez comment InkStudio protège vos données personnelles. Politique de confidentialité détaillée, traitement des données et respect du RGPD pour les salons de tatouage.",
+    "Découvrez comment INKERA Studio protège vos données personnelles. Politique complète sur les cookies, Google Analytics, RGPD et traitement des données pour salons de tatouage.",
   keywords: [
     "politique confidentialité",
-    "RGPD",
-    "protection données",
-    "vie privée",
-    "InkStudio",
-    "sécurité",
+    "cookies INKERA",
+    "Google Analytics consentement",
+    "RGPD tatouage",
+    "protection données salon",
+    "vie privée studio tattoo",
+    "sécurité INKERA Studio",
   ],
 };
 
