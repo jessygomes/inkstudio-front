@@ -8,14 +8,15 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Connexion | Shop Ton Alternance",
+  title: "Connexion | Inkera Studio",
   description:
-    "Connectez-vous à votre compte Téléphone du Monde pour gérer vos commandes, consulter vos informations personnelles et accéder à vos offres exclusives. Une expérience simple et rapide.",
+    "Connectez-vous à votre compte Inkera Studio pour gérer votre salon de tatouage, vos rendez-vous clients, votre portfolio et développer votre activité. Interface intuitive et sécurisée.",
   keywords: [
-    "se connecter",
-    "compte utilisateur",
-    "gestion de compte",
-    "offres exclusives",
+    "connexion tatoueur",
+    "compte Inkera Studio",
+    "gestion salon tatouage",
+    "rendez-vous tatouage",
+    "portfolio tattoo",
   ],
 };
 

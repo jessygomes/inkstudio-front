@@ -6,14 +6,15 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Register | Shop Ton Alternance",
+  title: "Inscription | Inkera Studio",
   description:
-    "Connectez-vous à votre compte Téléphone du Monde pour gérer vos commandes, consulter vos informations personnelles et accéder à vos offres exclusives. Une expérience simple et rapide.",
+    "Rejoignez Inkera Studio et transformez votre passion du tatouage en business florissant. Créez votre compte professionnel pour gérer clients, rendez-vous et développer votre réputation.",
   keywords: [
-    "se connecter",
-    "compte utilisateur",
-    "gestion de compte",
-    "offres exclusives",
+    "inscription tatoueur",
+    "créer compte Inkera Studio",
+    "salon de tatouage",
+    "tatoueur professionnel",
+    "business tattoo",
   ],
 };
 
