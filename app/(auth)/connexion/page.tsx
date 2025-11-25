@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Connexion | Inkera Studio",
+  title: "Se connecter",
   description:
     "Connectez-vous à votre compte Inkera Studio pour gérer votre salon de tatouage, vos rendez-vous clients, votre portfolio et développer votre activité. Interface intuitive et sécurisée.",
   keywords: [
