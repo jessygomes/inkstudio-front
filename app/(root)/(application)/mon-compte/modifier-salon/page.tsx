@@ -8,10 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateSalonSchema } from "@/lib/zod/validator.schema";
 import { z } from "zod";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
+import PiercingManager from "@/components/Application/MonCompte/PiercingManager";
 import { useRouter } from "next/navigation";
 import BarLoader from "react-spinners/BarLoader";
 import Link from "next/link";
 import { updateUserInfoAction, getUserInfoAction } from "@/lib/queries/user";
+import { toast } from "sonner";
 
 export default function UpdateAccountPage() {
   const user = useUser();
@@ -58,14 +60,12 @@ export default function UpdateAccountPage() {
   const onSubmit = async (data: z.infer<typeof updateSalonSchema>) => {
     if (!salon) return;
 
-    console.log("Submitting data:", data);
-
     setIsSubmitting(true);
     try {
       const result = await updateUserInfoAction(data);
 
       if (result.ok) {
-        router.push("/mon-compte");
+        toast.success("Salon mis à jour avec succès !");
       } else {
         console.error("Erreur lors de la mise à jour:", result.message);
       }
@@ -127,11 +127,28 @@ export default function UpdateAccountPage() {
         </div>
 
         {/* Form Content responsive */}
-        <div className="w-full lg:max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-2 lg:p-4 lg:p-8 border border-white/20 shadow-2xl">
+        <div className="w-full lg:max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-2 lg:p-8 border border-white/20 shadow-2xl">
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6 sm:space-y-6"
           >
+            {/* Section: Image responsive */}
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
+              <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
+                <span className="hidden sm:inline">📸 Photo de profil</span>
+                <span className="sm:hidden">📸 Photo</span>
+              </h3>
+              <SalonImageUploader
+                currentImage={form.watch("image") || salon.image || undefined}
+                onImageUpload={(imageUrl) => {
+                  form.setValue("image", imageUrl);
+                }}
+                onImageRemove={() => {
+                  form.setValue("image", undefined);
+                }}
+              />
+            </div>
+
             {/* Section: Informations générales responsive */}
             <div className="bg-white/5 rounded-xl sm:rounded-2xl p-2 lg:p-4 border border-white/10">
               <h3 className="text-base lg:text-sm font-semibold text-white mb-4 sm:mb-3 font-one uppercase tracking-wide">
@@ -369,23 +386,6 @@ export default function UpdateAccountPage() {
               })()}
             </div>
 
-            {/* Section: Image responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
-              <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
-                <span className="hidden sm:inline">📸 Photo de profil</span>
-                <span className="sm:hidden">📸 Photo</span>
-              </h3>
-              <SalonImageUploader
-                currentImage={form.watch("image") || salon.image || undefined}
-                onImageUpload={(imageUrl) => {
-                  form.setValue("image", imageUrl);
-                }}
-                onImageRemove={() => {
-                  form.setValue("image", undefined);
-                }}
-              />
-            </div>
-
             {/* Footer avec boutons d'action responsive */}
             <div className="flex flex-col sm:flex-row justify-end gap-4 sm:gap-4 pt-6 sm:pt-6 border-t border-white/10">
               <button
@@ -413,6 +413,26 @@ export default function UpdateAccountPage() {
               </button>
             </div>
           </form>
+
+          {/* Section: Piercing Manager - Conditionally displayed */}
+          {(() => {
+            const selected = form.watch("prestations") ?? [];
+            const showPiercing = selected.includes("PIERCING");
+
+            if (!showPiercing) return null;
+
+            return (
+              <div className="my-10 bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
+                <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
+                  <span className="hidden sm:inline">
+                    🎯 Configuration Piercing
+                  </span>
+                  <span className="sm:hidden">🎯 Piercing</span>
+                </h3>
+                <PiercingManager />
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>

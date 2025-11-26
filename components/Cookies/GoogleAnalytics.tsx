@@ -13,7 +13,9 @@ interface GoogleAnalyticsProps {
   measurementId: string;
 }
 
-export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
+export default function GoogleAnalytics({
+  measurementId,
+}: GoogleAnalyticsProps) {
   const { analyticsConsent } = useCookieConsent();
 
   useEffect(() => {
@@ -43,17 +45,17 @@ export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps)
         });
       `;
       document.head.appendChild(script2);
-
-      console.log("✅ Google Analytics 4 chargé:", measurementId);
     }
   }, [analyticsConsent, measurementId]);
 
   // Fonction utilitaire pour tracker des événements
   useEffect(() => {
     if (analyticsConsent && typeof window !== "undefined") {
-      window.gtag = window.gtag || function(...args: unknown[]) {
-        (window.dataLayer = window.dataLayer || []).push(args);
-      };
+      window.gtag =
+        window.gtag ||
+        function (...args: unknown[]) {
+          (window.dataLayer = window.dataLayer || []).push(args);
+        };
     }
   }, [analyticsConsent]);
 
@@ -75,7 +77,6 @@ export function useGoogleAnalytics() {
         app_name: "INKERA_Studio",
         send_to: "GA_MEASUREMENT_ID",
       });
-      console.log(`📊 Événement GA4:`, eventName, parameters);
     }
   };
 
@@ -85,11 +86,14 @@ export function useGoogleAnalytics() {
         page_path: pagePath,
         page_title: pageTitle,
       });
-      console.log(`📊 Page vue GA4:`, pagePath);
     }
   };
 
-  const trackPurchase = (transactionId: string, value: number, currency = "EUR") => {
+  const trackPurchase = (
+    transactionId: string,
+    value: number,
+    currency = "EUR"
+  ) => {
     if (analyticsConsent && typeof window !== "undefined" && window.gtag) {
       window.gtag("event", "purchase", {
         transaction_id: transactionId,
@@ -97,7 +101,6 @@ export function useGoogleAnalytics() {
         currency: currency,
         app_name: "INKERA_Studio",
       });
-      console.log(`💰 Achat GA4:`, transactionId, value);
     }
   };
 

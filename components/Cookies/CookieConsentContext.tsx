@@ -83,9 +83,6 @@ export function CookieConsentProvider({
         });
       `;
       document.head.appendChild(gtagConfigScript);
-
-      // Marquer GA comme chargé
-      console.log("✅ Google Analytics chargé avec consentement");
     }
   }, [analyticsConsent]);
 
@@ -98,8 +95,6 @@ export function CookieConsentProvider({
     localStorage.setItem("inkera_cookie_consent", "true");
     localStorage.setItem("inkera_analytics_consent", "true");
     localStorage.setItem("inkera_marketing_consent", "true");
-
-    console.log("✅ Tous les cookies acceptés");
   };
 
   const acceptAnalytics = () => {
@@ -110,8 +105,6 @@ export function CookieConsentProvider({
     localStorage.setItem("inkera_cookie_consent", "true");
     localStorage.setItem("inkera_analytics_consent", "true");
     localStorage.setItem("inkera_marketing_consent", "false");
-
-    console.log("✅ Cookies Analytics acceptés");
   };
 
   const acceptMarketing = () => {
@@ -120,8 +113,6 @@ export function CookieConsentProvider({
 
     localStorage.setItem("inkera_cookie_consent", "true");
     localStorage.setItem("inkera_marketing_consent", "true");
-
-    console.log("✅ Cookies Marketing acceptés");
   };
 
   const rejectAll = () => {
@@ -133,8 +124,6 @@ export function CookieConsentProvider({
     localStorage.setItem("inkera_cookie_consent", "true");
     localStorage.setItem("inkera_analytics_consent", "false");
     localStorage.setItem("inkera_marketing_consent", "false");
-
-    console.log("❌ Tous les cookies refusés");
   };
 
   const hideBanner = () => {
