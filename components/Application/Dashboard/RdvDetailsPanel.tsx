@@ -10,6 +10,10 @@ import ChangeRdv from "../RDV/ChangeRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
+import { formatTime } from "@/lib/utils/formatTime";
+import { calculateDuration } from "@/lib/utils/calculateDuration";
+import { useEffect, useState } from "react";
+import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
 
 interface Client {
   firstName: string;
@@ -34,6 +38,8 @@ interface TattooDetail {
   sketch?: string;
   estimatedPrice?: number;
   price?: number;
+  piercingZone?: string;
+  piercingServicePriceId?: string;
 }
 
 interface RendezVous {
@@ -84,18 +90,41 @@ export default function RdvDetailsPanel({
   // Bloquer le scroll du body quand la modal est ouverte
   useScrollLock(true);
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const [piercingZoneName, setPiercingZoneName] = useState<string | null>(null);
 
-  const calculateDuration = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
-  };
+  useEffect(() => {
+    async function fetchPiercingDetails() {
+      if (selectedAppointment.tattooDetail?.piercingServicePriceId) {
+        try {
+          const piercingResult = await getPiercingServiceByIdAction(
+            selectedAppointment.tattooDetail.piercingServicePriceId
+          );
+
+          if (piercingResult.ok && piercingResult.data) {
+            const service = piercingResult.data;
+
+            const zoneName =
+              service.piercingZoneOreille ||
+              service.piercingZoneVisage ||
+              service.piercingZoneBouche ||
+              service.piercingCorps ||
+              "Zone non spécifiée";
+
+            setPiercingZoneName(zoneName);
+          }
+        } catch {
+          setPiercingZoneName(null);
+        }
+      } else {
+        setPiercingZoneName(null);
+      }
+    }
+
+    fetchPiercingDetails();
+  }, [
+    selectedAppointment.id,
+    selectedAppointment.tattooDetail?.piercingServicePriceId,
+  ]);
 
   return (
     <div
@@ -609,6 +638,28 @@ export default function RdvDetailsPanel({
                       <p className="text-white/60 text-xs font-one">Taille</p>
                       <p className="text-white font-one text-xs">
                         {selectedAppointment.tattooDetail.size}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedAppointment.tattooDetail.piercingZone && (
+                    <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                      <p className="text-white/60 text-xs font-one mb-1">
+                        Zone de piercing
+                      </p>
+                      <p className="text-white font-one text-xs leading-relaxed">
+                        {selectedAppointment.tattooDetail.piercingZone}
+                      </p>
+                    </div>
+                  )}
+
+                  {piercingZoneName && (
+                    <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                      <p className="text-white/60 text-xs font-one mb-1">
+                        Zone de piercing spécifique
+                      </p>
+                      <p className="text-white font-one text-xs leading-relaxed">
+                        {piercingZoneName}
                       </p>
                     </div>
                   )}

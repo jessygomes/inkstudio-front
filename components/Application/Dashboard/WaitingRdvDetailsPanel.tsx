@@ -9,48 +9,10 @@ import SendMessageRdv from "../RDV/SendMessageRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
-
-interface Client {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-}
-
-interface Tatoueur {
-  id: string;
-  name: string;
-}
-
-interface TattooDetail {
-  sketch: string | null;
-  reference: string | null;
-  description: string;
-  estimatedPrice: number;
-  price: number;
-}
-
-interface PendingAppointment {
-  id: string;
-  title: string;
-  start: string;
-  end: string;
-  allDay: boolean;
-  status: "PENDING" | "CONFIRMED" | "CANCELED" | "RESCHEDULING";
-  prestation: string;
-  client: Client;
-  clientId: string;
-  tatoueur: Tatoueur;
-  tatoueurId: string;
-  tattooDetail: TattooDetail | null;
-  tattooDetailId: string | null;
-  createdAt: string;
-  updatedAt: string;
-  userId: string;
-  isPayed?: boolean;
-  visio?: boolean;
-  visioRoom?: string;
-}
+import { useEffect, useState } from "react";
+import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
+import { calculateDuration } from "@/lib/utils/calculateDuration";
+import { PendingAppointment } from "./WaitingRdv";
 
 interface WaitingRdvDetailsPanelProps {
   selectedAppointment: PendingAppointment;
@@ -98,13 +60,44 @@ export default function WaitingRdvDetailsPanel({
     });
   };
 
-  const calculateDuration = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
-  };
-
   const tattooDetail = selectedAppointment.tattooDetail;
+
+  const [piercingZoneName, setPiercingZoneName] = useState<string | null>(null);
+
+  // Récupérer le nom de la zone de piercing détaillée
+  useEffect(() => {
+    async function fetchPiercingDetails() {
+      if (selectedAppointment.tattooDetail?.piercingServicePriceId) {
+        try {
+          const piercingResult = await getPiercingServiceByIdAction(
+            selectedAppointment.tattooDetail.piercingServicePriceId
+          );
+
+          if (piercingResult.ok && piercingResult.data) {
+            const service = piercingResult.data;
+
+            const zoneName =
+              service.piercingZoneOreille ||
+              service.piercingZoneVisage ||
+              service.piercingZoneBouche ||
+              service.piercingCorps ||
+              "Zone non spécifiée";
+
+            setPiercingZoneName(zoneName);
+          }
+        } catch {
+          setPiercingZoneName(null);
+        }
+      } else {
+        setPiercingZoneName(null);
+      }
+    }
+
+    fetchPiercingDetails();
+  }, [
+    selectedAppointment.id,
+    selectedAppointment.tattooDetail?.piercingServicePriceId,
+  ]);
 
   return (
     <div
@@ -534,6 +527,28 @@ export default function WaitingRdvDetailsPanel({
               </h5>
 
               <div className="space-y-2">
+                {tattooDetail.piercingZone && (
+                  <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                    <p className="text-white/60 text-xs font-one mb-1">
+                      Zone de piercing
+                    </p>
+                    <p className="text-white font-one text-xs leading-relaxed">
+                      {tattooDetail.piercingZone}
+                    </p>
+                  </div>
+                )}
+
+                {piercingZoneName && (
+                  <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                    <p className="text-white/60 text-xs font-one mb-1">
+                      Zone de piercing spécifique
+                    </p>
+                    <p className="text-white font-one text-xs leading-relaxed">
+                      {piercingZoneName}
+                    </p>
+                  </div>
+                )}
+
                 {tattooDetail.description && (
                   <div className="bg-white/5 rounded-lg p-2 border border-white/5">
                     <p className="text-white/60 text-xs font-one mb-1">

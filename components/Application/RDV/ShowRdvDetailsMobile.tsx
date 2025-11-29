@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { CalendarEvent } from "./Calendar";
 import ConfirmRdv from "./ConfirmRdv";
 import UpdateRdv from "./UpdateRdv";
@@ -8,6 +8,7 @@ import { UpdateRdvFormProps } from "@/lib/type";
 import Link from "next/link";
 import SendMessageRdv from "./SendMessageRdv";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
+import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
 
 interface ShowRdvDetailsMobileProps {
   selectedEvent: CalendarEvent;
@@ -28,6 +29,41 @@ export default function ShowRdvDetailsMobile({
 }: ShowRdvDetailsMobileProps) {
   // Bloquer le scroll du body quand la modal est ouverte
   useScrollLock(true);
+
+  // État pour le nom de la zone de piercing détaillée
+  const [piercingZoneName, setPiercingZoneName] = useState<string | null>(null);
+
+  // Récupérer le nom de la zone de piercing détaillée
+  useEffect(() => {
+    async function fetchPiercingDetails() {
+      if (selectedEvent.tattooDetail?.piercingServicePriceId) {
+        try {
+          const piercingResult = await getPiercingServiceByIdAction(
+            selectedEvent.tattooDetail.piercingServicePriceId
+          );
+
+          if (piercingResult.ok && piercingResult.data) {
+            const service = piercingResult.data;
+
+            const zoneName =
+              service.piercingZoneOreille ||
+              service.piercingZoneVisage ||
+              service.piercingZoneBouche ||
+              service.piercingCorps ||
+              "Zone non spécifiée";
+
+            setPiercingZoneName(zoneName);
+          }
+        } catch {
+          setPiercingZoneName(null);
+        }
+      } else {
+        setPiercingZoneName(null);
+      }
+    }
+
+    fetchPiercingDetails();
+  }, [selectedEvent.id, selectedEvent.tattooDetail?.piercingServicePriceId]);
 
   return (
     <div
@@ -342,6 +378,27 @@ export default function ShowRdvDetailsMobile({
                         <p className="text-white/60 text-xs font-one">Taille</p>
                         <p className="text-white font-one text-xs">
                           {selectedEvent.tattooDetail.size}
+                        </p>
+                      </div>
+                    )}
+                    {selectedEvent.tattooDetail.piercingZone && (
+                      <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                        <p className="text-white/60 text-xs font-one mb-1">
+                          Zone de piercing
+                        </p>
+                        <p className="text-white font-one text-xs leading-relaxed">
+                          {selectedEvent.tattooDetail.piercingZone}
+                        </p>
+                      </div>
+                    )}
+
+                    {piercingZoneName && (
+                      <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                        <p className="text-white/60 text-xs font-one mb-1">
+                          Zone de piercing spécifique
+                        </p>
+                        <p className="text-white font-one text-xs leading-relaxed">
+                          {piercingZoneName}
                         </p>
                       </div>
                     )}

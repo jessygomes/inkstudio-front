@@ -56,6 +56,8 @@ export type CalendarEvent = Event & {
     price?: number;
     estimatedPrice: number;
     description?: string;
+    piercingZone?: string;
+    piercingServicePriceId?: string;
   };
 };
 

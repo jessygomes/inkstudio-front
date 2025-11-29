@@ -7,6 +7,9 @@ import {
 } from "@/lib/queries/appointment";
 import RdvDetailsPanel from "./RdvDetailsPanel";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
+import { formatTime } from "@/lib/utils/formatTime";
+import { calculateDuration } from "@/lib/utils/calculateDuration";
+import { getDateLabel } from "@/lib/utils/getDateLabel";
 
 interface Client {
   firstName: string;
@@ -66,18 +69,19 @@ export default function RendezVousToday({ userId }: { userId: string }) {
   const [appointments, setAppointments] = useState<RendezVous[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // État pour la date actuelle
+  //! État pour la date actuelle
   const [currentDate, setCurrentDate] = useState(
     new Date().toISOString().split("T")[0]
   );
 
-  // Nouvel état pour les détails du RDV sélectionné
+  //! Nouvel état pour les détails du RDV sélectionné
   const [selectedAppointment, setSelectedAppointment] =
     useState<RendezVous | null>(null);
 
   // Bloquer le scroll du body quand une modal est ouverte
   useScrollLock(!!selectedAppointment);
 
+  //! Fonction pour récupérer les rendez-vous du jour
   const fetchTodayAppointments = async (date?: string) => {
     try {
       setLoading(true);
@@ -97,20 +101,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
     fetchTodayAppointments();
   }, []);
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const calculateDuration = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
-  };
-
-  // Navigation
+  //! Navigation
   const goToPreviousDay = () => {
     const prevDate = new Date(currentDate);
     prevDate.setDate(prevDate.getDate() - 1);
@@ -125,40 +116,6 @@ export default function RendezVousToday({ userId }: { userId: string }) {
     const newDate = nextDate.toISOString().split("T")[0];
     setCurrentDate(newDate);
     fetchTodayAppointments(newDate);
-  };
-
-  // Fonction pour formater la date avec les labels intelligents
-  const getDateLabel = () => {
-    // Date d'aujourd'hui
-    const today = new Date();
-    const todayStr = today.toISOString().split("T")[0];
-
-    // Date d'hier
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split("T")[0];
-
-    // Date de demain
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split("T")[0];
-
-    if (currentDate === todayStr) {
-      return "Aujourd'hui";
-    } else if (currentDate === yesterdayStr) {
-      return "Hier";
-    } else if (currentDate === tomorrowStr) {
-      return "Demain";
-    } else {
-      // Afficher la date au format français
-      const date = new Date(currentDate);
-      return date.toLocaleDateString("fr-FR", {
-        weekday: "long",
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-    }
   };
 
   //! Gérer le statut de paiement
@@ -295,7 +252,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
           </svg>
         </button>
         <div className="text-white text-sm font-one font-medium">
-          {getDateLabel()}
+          {getDateLabel(currentDate)}
         </div>
         <button
           onClick={goToNextDay}
@@ -338,7 +295,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
             </svg>
           </div>
           <p className="text-gray-400 text-sm">
-            Aucun RDV {getDateLabel().toLowerCase()}
+            Aucun RDV {getDateLabel(currentDate).toLowerCase()}
           </p>
         </div>
       ) : (

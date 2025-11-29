@@ -10,6 +10,7 @@ import {
 } from "@/lib/queries/appointment";
 import WaitingRdvDetailsPanel from "./WaitingRdvDetailsPanel";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
+import { calculateDuration } from "@/lib/utils/calculateDuration";
 
 interface Client {
   firstName: string;
@@ -23,15 +24,17 @@ interface Tatoueur {
   name: string;
 }
 
-interface TattooDetail {
-  sketch: string | null; // Correction ici
-  reference: string | null; // Correction ici
+export interface TattooDetail {
+  sketch: string | null;
+  reference: string | null;
   description: string;
   estimatedPrice: number;
   price: number;
+  piercingZone?: string;
+  piercingServicePriceId: string | null;
 }
 
-interface PendingAppointment {
+export interface PendingAppointment {
   id: string;
   title: string;
   start: string;
@@ -48,9 +51,9 @@ interface PendingAppointment {
   createdAt: string;
   updatedAt: string;
   userId: string;
-  isPayed?: boolean; // Champ optionnel pour le statut de paiement
-  visio?: boolean; // Indique si le RDV est en visioconférence
-  visioRoom?: string; // Lien de la salle de visioconférence
+  isPayed?: boolean;
+  visio?: boolean;
+  visioRoom?: string;
 }
 
 // interface PendingAppointmentsResponse {
@@ -134,12 +137,6 @@ export default function WaitingRdv({ userId }: { userId: string }) {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  const calculateDuration = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
   };
 
   const getDaysUntilAppointment = (dateString: string) => {

@@ -70,7 +70,7 @@ export interface CreatePiercingServicePriceDto {
   isActive?: boolean;
 }
 
-// Server Actions
+//! GET PIERCING ENUMS
 export async function getPiercingEnumsAction() {
   try {
     const headers = await getAuthHeaders();
@@ -131,6 +131,7 @@ export async function getPiercingEnumsAction() {
   }
 }
 
+//! CREATE Services de piercing (zones principales)
 export async function createPiercingZoneAction(data: CreatePiercingPriceDto) {
   try {
     const headers = await getAuthHeaders();
@@ -161,6 +162,7 @@ export async function createPiercingZoneAction(data: CreatePiercingPriceDto) {
   }
 }
 
+//! GET Services de piercing (zones principales)
 export async function getPiercingZonesAction() {
   try {
     const headers = await getAuthHeaders();
@@ -183,6 +185,7 @@ export async function getPiercingZonesAction() {
   }
 }
 
+//! UPDATE Services de piercing (zones principales)
 export async function updatePiercingZoneAction(
   id: string,
   data: Partial<CreatePiercingPriceDto>
@@ -212,6 +215,7 @@ export async function updatePiercingZoneAction(
   }
 }
 
+//! DELETE Services de piercing (zones principales)
 export async function deletePiercingZoneAction(id: string) {
   try {
     const headers = await getAuthHeaders();
@@ -234,6 +238,7 @@ export async function deletePiercingZoneAction(id: string) {
   }
 }
 
+//! GET Services de piercing (zones spécifiques par type)
 export async function getSpecificZonesByTypeAction(zone: PiercingZone) {
   try {
     const headers = await getAuthHeaders();
@@ -259,7 +264,7 @@ export async function getSpecificZonesByTypeAction(zone: PiercingZone) {
   }
 }
 
-// Services de piercing (zones spécifiques avec prix)
+//! CREATE Services de piercing (zones spécifiques avec prix)
 export async function createPiercingServiceAction(
   data: CreatePiercingServicePriceDto
 ) {
@@ -297,6 +302,7 @@ export async function createPiercingServiceAction(
   }
 }
 
+//! GET Services de piercing (zones spécifiques avec prix)
 export async function getPiercingServicesAction(piercingPriceId?: string) {
   try {
     const headers = await getAuthHeaders();
@@ -327,6 +333,7 @@ export async function getPiercingServicesAction(piercingPriceId?: string) {
   }
 }
 
+//! UPDATE Services de piercing (zones spécifiques avec prix)
 export async function updatePiercingServiceAction(
   id: string,
   data: Partial<CreatePiercingServicePriceDto>
@@ -365,6 +372,7 @@ export async function updatePiercingServiceAction(
   }
 }
 
+//! DELETE Services de piercing (zones spécifiques avec prix)
 export async function deletePiercingServiceAction(id: string) {
   try {
     const headers = await getAuthHeaders();
@@ -393,6 +401,7 @@ export async function deletePiercingServiceAction(id: string) {
   }
 }
 
+//! GET Aperçu des prix des services de piercing
 export async function getSalonPricingOverviewAction() {
   try {
     const headers = await getAuthHeaders();
@@ -418,6 +427,7 @@ export async function getSalonPricingOverviewAction() {
   }
 }
 
+//! GET Zones disponibles pour la configuration des services de piercing
 export async function getAvailableZonesForConfigurationAction() {
   try {
     const headers = await getAuthHeaders();
@@ -442,6 +452,33 @@ export async function getAvailableZonesForConfigurationAction() {
     return {
       ok: false,
       message: "Erreur lors de la récupération des zones disponibles",
+    };
+  }
+}
+
+//! GET ONE Service de piercing par ID
+export async function getPiercingServiceByIdAction(id: string) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/piercing-prices/services/${id}`,
+      {
+        headers,
+      }
+    );
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: "Erreur lors de la récupération du service",
+      };
+    }
+    const result = await response.json();
+
+    return { ok: true, data: result };
+  } catch {
+    return {
+      ok: false,
+      message: "Erreur lors de la récupération du service",
     };
   }
 }

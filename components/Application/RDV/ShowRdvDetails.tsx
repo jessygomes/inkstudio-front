@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { CalendarEvent } from "./Calendar";
 import ConfirmRdv from "./ConfirmRdv";
@@ -12,6 +12,7 @@ import SendMessageRdv from "./SendMessageRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import Link from "next/link";
+import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
 
 interface ShowRdvDetailsProps {
   selectedEvent: CalendarEvent;
@@ -32,6 +33,41 @@ export default function ShowRdvDetails({
   userId,
   price,
 }: ShowRdvDetailsProps) {
+  // État pour le nom de la zone de piercing détaillée
+  const [piercingZoneName, setPiercingZoneName] = useState<string | null>(null);
+
+  // Récupérer le nom de la zone de piercing détaillée
+  useEffect(() => {
+    async function fetchPiercingDetails() {
+      if (selectedEvent.tattooDetail?.piercingServicePriceId) {
+        try {
+          const piercingResult = await getPiercingServiceByIdAction(
+            selectedEvent.tattooDetail.piercingServicePriceId
+          );
+
+          if (piercingResult.ok && piercingResult.data) {
+            const service = piercingResult.data;
+
+            const zoneName =
+              service.piercingZoneOreille ||
+              service.piercingZoneVisage ||
+              service.piercingZoneBouche ||
+              service.piercingCorps ||
+              "Zone non spécifiée";
+
+            setPiercingZoneName(zoneName);
+          }
+        } catch {
+          setPiercingZoneName(null);
+        }
+      } else {
+        setPiercingZoneName(null);
+      }
+    }
+
+    fetchPiercingDetails();
+  }, [selectedEvent.id, selectedEvent.tattooDetail?.piercingServicePriceId]);
+
   return (
     <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl border border-white/20 shadow-2xl h-full flex flex-col">
       {/* Header du panneau avec design compact */}
@@ -542,6 +578,28 @@ export default function ShowRdvDetails({
                           </p>
                           <p className="text-white font-one text-xs">
                             {tattooDetail.size}
+                          </p>
+                        </div>
+                      )}
+
+                      {tattooDetail.piercingZone && (
+                        <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                          <p className="text-white/60 text-xs font-one mb-1">
+                            Zone de piercing
+                          </p>
+                          <p className="text-white font-one text-xs leading-relaxed">
+                            {tattooDetail.piercingZone}
+                          </p>
+                        </div>
+                      )}
+
+                      {piercingZoneName && (
+                        <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                          <p className="text-white/60 text-xs font-one mb-1">
+                            Zone de piercing spécifique
+                          </p>
+                          <p className="text-white font-one text-xs leading-relaxed">
+                            {piercingZoneName}
                           </p>
                         </div>
                       )}
