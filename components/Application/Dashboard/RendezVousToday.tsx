@@ -5,11 +5,12 @@ import {
   fetchTodayAppointmentsAction,
   paidAppointmentsAction,
 } from "@/lib/queries/appointment";
-import RdvDetailsPanel from "./RdvDetailsPanel";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { formatTime } from "@/lib/utils/formatTime";
 import { calculateDuration } from "@/lib/utils/calculateDuration";
 import { getDateLabel } from "@/lib/utils/getDateLabel";
+import RdvDetailsPanelDesktop from "./RdvDetailsPanelDesktop";
+import RdvDetailsPanelMobile from "./RdvDetailsPanelMobile";
 
 interface Client {
   firstName: string;
@@ -427,19 +428,31 @@ export default function RendezVousToday({ userId }: { userId: string }) {
       )}
       {/* Panneau de détails */}
       {selectedAppointment && (
-        <RdvDetailsPanel
-          selectedAppointment={selectedAppointment}
-          onClose={closeAppointmentDetails}
-          handleRdvUpdated={handleRdvUpdated}
-          handleStatusChange={handleStatusChange}
-          handlePaymentStatusChange={handlePaymentStatusChange}
-          userId={userId}
-        />
-      )}{" "}
-      {/* Supprimer toute la modale d'affichage d'image */}
-      {/* {selectedImage && (
-        // ... toute la modale
-      )} */}
+        <>
+          {/* Version Desktop - par-dessus tout le composant */}
+          <div className="hidden lg:block absolute inset-0 z-50">
+            <RdvDetailsPanelDesktop
+              selectedAppointment={selectedAppointment}
+              onClose={closeAppointmentDetails}
+              handleRdvUpdated={handleRdvUpdated}
+              handleStatusChange={handleStatusChange}
+              handlePaymentStatusChange={handlePaymentStatusChange}
+              userId={userId}
+            />
+          </div>
+          {/* Version Mobile - masquée sur desktop */}
+          <div className="lg:hidden">
+            <RdvDetailsPanelMobile
+              selectedAppointment={selectedAppointment}
+              onClose={closeAppointmentDetails}
+              handleRdvUpdated={handleRdvUpdated}
+              handleStatusChange={handleStatusChange}
+              handlePaymentStatusChange={handlePaymentStatusChange}
+              userId={userId}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }

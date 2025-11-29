@@ -8,9 +8,17 @@ import {
   paidAppointmentsAction,
   waitingConfirmationAppointmentsAction,
 } from "@/lib/queries/appointment";
-import WaitingRdvDetailsPanel from "./WaitingRdvDetailsPanel";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { calculateDuration } from "@/lib/utils/calculateDuration";
+import WaitingRdvDetailsPanelMobile from "./WaitingRdvDetailsPanelMobile";
+import WaitingRdvDetailsPanelDesktop from "./WaitingRdvDetailsPanelDesktop";
+
+// interface PendingAppointmentsResponse {
+//   error: boolean;
+//   appointments?: PendingAppointment[];
+//   totalAppointments?: number;
+//   message?: string;
+// }
 
 interface Client {
   firstName: string;
@@ -55,13 +63,6 @@ export interface PendingAppointment {
   visio?: boolean;
   visioRoom?: string;
 }
-
-// interface PendingAppointmentsResponse {
-//   error: boolean;
-//   appointments?: PendingAppointment[];
-//   totalAppointments?: number;
-//   message?: string;
-// }
 
 export default function WaitingRdv({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
@@ -502,13 +503,29 @@ export default function WaitingRdv({ userId }: { userId: string }) {
 
         {/* Panneau de détails */}
         {selectedAppointmentDetails && (
-          <WaitingRdvDetailsPanel
-            selectedAppointment={selectedAppointmentDetails}
-            onClose={closeAppointmentDetails}
-            handleRdvUpdated={handleRdvUpdated}
-            handlePaymentStatusChange={handlePaymentStatusChange}
-            userId={userId}
-          />
+          <>
+            {/* Version Mobile */}
+            <div className="lg:hidden">
+              <WaitingRdvDetailsPanelMobile
+                selectedAppointment={selectedAppointmentDetails}
+                onClose={closeAppointmentDetails}
+                handleRdvUpdated={handleRdvUpdated}
+                handlePaymentStatusChange={handlePaymentStatusChange}
+                userId={userId}
+              />
+            </div>
+
+            {/* Version Desktop */}
+            <div className="hidden lg:block absolute inset-0 z-50">
+              <WaitingRdvDetailsPanelDesktop
+                selectedAppointment={selectedAppointmentDetails}
+                onClose={closeAppointmentDetails}
+                handleRdvUpdated={handleRdvUpdated}
+                handlePaymentStatusChange={handlePaymentStatusChange}
+                userId={userId}
+              />
+            </div>
+          </>
         )}
       </div>
 
