@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export default function ClientAvisPage() {
   return (
     <div className="min-h-screen bg-noir-700 flex flex-col items-center gap-4">
-      <div className="flex relative gap-8 w-full mt-23">
+      <div className="flex relative gap-8 w-full mt-4 lg:mt-23">
         <DemandesRdv />
       </div>
     </div>

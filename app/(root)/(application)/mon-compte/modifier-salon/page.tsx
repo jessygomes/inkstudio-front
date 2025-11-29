@@ -101,7 +101,7 @@ export default function UpdateAccountPage() {
 
   return (
     <div className="w-full bg-noir-700">
-      <div className="pt-24 px-3 lg:px-8">
+      <div className="pt-4 lg:pt-24 px-3 lg:px-8">
         {/* Header responsive */}
         <div className="flex items-center gap-3 sm:gap-4 lg:max-w-6xl mx-auto mb-6 sm:mb-8">
           <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">

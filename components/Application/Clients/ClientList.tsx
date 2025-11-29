@@ -175,7 +175,7 @@ export default function ClientList() {
   return (
     <section>
       {/* Header responsive */}
-      <div className="mb-6 mt-23 flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
+      <div className="mb-6  flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
         <div className="w-full flex items-center gap-3 sm:gap-4 mb-4 md:mb-0">
           <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
             <RiFileUserLine

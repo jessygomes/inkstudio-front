@@ -19,8 +19,8 @@ export default function DashboardPage() {
   const isFreeAccount = user?.saasPlan === "FREE";
 
   return (
-    <div className=" bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 lg:px-20">
-      <div className="flex flex-col relative gap-6 w-full mt-23">
+    <div className=" bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 lg:px-20 pb-10 lg:pb-0">
+      <div className="flex flex-col relative gap-6 w-full mt-2 lg:mt-23">
         {/* Header */}
         <div className="">
           <div className="flex flex-col md:flex-row sm:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">

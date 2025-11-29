@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MdMenu, MdClose } from "react-icons/md";
-import { CgProfile } from "react-icons/cg";
+// import { CgProfile } from "react-icons/cg";
 import { CiSettings } from "react-icons/ci";
 import { FaDatabase } from "react-icons/fa";
 import {
@@ -21,24 +21,24 @@ export default function NavbarMobile() {
   const user = useUser();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  // const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
+  // const profileRef = useRef<HTMLDivElement>(null);
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => {
     setIsOpen(false);
-    setShowProfileMenu(false);
+    // setShowProfileMenu(false);
   };
 
-  const toggleProfileMenu = () => {
-    setShowProfileMenu((prev) => !prev);
-  };
+  // const toggleProfileMenu = () => {
+  //   // setShowProfileMenu((prev) => !prev);
+  // };
 
   const handleClickOutside = (event: MouseEvent) => {
     if (navRef.current && !navRef.current.contains(event.target as Node)) {
       setIsOpen(false);
-      setShowProfileMenu(false);
+      // setShowProfileMenu(false);
     }
   };
 
@@ -97,6 +97,7 @@ export default function NavbarMobile() {
     };
   }, [isOpen]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -113,61 +114,7 @@ export default function NavbarMobile() {
   }, []);
 
   return (
-    <nav
-      className={`flex justify-between items-center py-4 pb-6 shadow-lg px-4 ${
-        isScrolled ? "backdrop-blur-md" : "backdrop-blur-none"
-      }`}
-    >
-      <div className="absolute bottom-0 left-0 right-0 h-1 animate-pulse bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-2xl"></div>
-
-      {/* Logo */}
-      <Link
-        href={"/dashboard"}
-        className="font-two uppercase font-bold text-lg text-white"
-      >
-        {user?.salonName || "INKERA Studio"}
-      </Link>
-
-      {/* Menu Button */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={toggleProfileMenu}
-          className="cursor-pointer text-white hover:text-white/70 transition duration-300"
-        >
-          <CgProfile size={20} />
-        </button>
-
-        <button onClick={handleOpen} className="text-white">
-          <MdMenu size={24} />
-        </button>
-      </div>
-
-      {/* Profile Dropdown */}
-      {showProfileMenu && (
-        <div
-          ref={profileRef}
-          className="absolute top-16 right-4 w-64 bg-noir-700 text-white rounded-lg shadow-lg z-50 flex flex-col gap-2 p-2"
-        >
-          <Link
-            href="/parametres"
-            className="flex items-center px-4 h-12 text-sm font-one hover:bg-noir-500 transition-colors rounded-lg"
-            onClick={() => setShowProfileMenu(false)}
-          >
-            <CiSettings size={20} className="inline-block mr-3" />
-            Paramètres du compte
-          </Link>
-
-          <div
-            className="flex items-center h-12 text-sm font-one w-full text-left hover:bg-noir-500 transition-colors rounded-lg"
-            onClick={() => setShowProfileMenu(false)}
-          >
-            <LogoutBtn>
-              <span>Se déconnecter</span>
-            </LogoutBtn>
-          </div>
-        </div>
-      )}
-
+    <>
       {/* Mobile Navigation Overlay */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 z-40" onClick={handleClose} />
@@ -176,8 +123,8 @@ export default function NavbarMobile() {
       {/* Mobile Navigation Menu */}
       <div
         ref={navRef}
-        className={`fixed top-0 right-0 z-50 w-80 h-screen bg-noir-700 text-white transform transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 w-80 h-screen bg-noir-700 text-white transform transition-transform duration-300 ease-in-out ${
+          isOpen ? "translate-x-0 z-50" : "translate-x-full -z-10"
         }`}
         style={{
           pointerEvents: isOpen ? "auto" : "none",
@@ -247,11 +194,80 @@ export default function NavbarMobile() {
           {/* Footer - Fixé en bas */}
           <div className="p-4 text-center border-t border-white/20 bg-noir-600">
             <p className="text-white/50 text-xs font-one">
-              Version mobile • InkStudio
+              Version mobile • Inkera Studio
             </p>
           </div>
         </div>
       </div>
-    </nav>
+
+      {/* Bottom Navigation Bar - Style App Mobile */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-noir-700/95 backdrop-blur-md border-t border-white/20">
+        <div className="flex items-center justify-around py-2 px-4">
+          {/* Dashboard */}
+          <Link
+            href="/dashboard"
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+              pathname === "/dashboard"
+                ? "text-tertiary-400"
+                : "text-white/70 hover:text-white active:scale-95"
+            }`}
+          >
+            <MdDashboard size={20} />
+            <span className="text-xs font-one mt-1">Dashboard</span>
+          </Link>
+
+          {/* RDV */}
+          <Link
+            href="/mes-rendez-vous"
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+              pathname === "/mes-rendez-vous"
+                ? "text-tertiary-400"
+                : "text-white/70 hover:text-white active:scale-95"
+            }`}
+          >
+            <MdEvent size={20} />
+            <span className="text-xs font-one mt-1">RDV</span>
+          </Link>
+
+          {/* Clients */}
+          <Link
+            href="/clients"
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+              pathname === "/clients"
+                ? "text-tertiary-400"
+                : "text-white/70 hover:text-white active:scale-95"
+            }`}
+          >
+            <MdPeople size={20} />
+            <span className="text-xs font-one mt-1">Clients</span>
+          </Link>
+
+          {/* Portfolio */}
+          <Link
+            href="/stocks"
+            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+              pathname === "/mon-portfolio"
+                ? "text-tertiary-400"
+                : "text-white/70 hover:text-white active:scale-95"
+            }`}
+          >
+            <FaDatabase size={20} />
+            <span className="text-xs font-one mt-1">Stocks</span>
+          </Link>
+
+          {/* Menu Plus */}
+          <button
+            onClick={handleOpen}
+            className="flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 text-white/70 hover:text-white active:scale-95"
+          >
+            <MdMenu size={20} />
+            <span className="text-xs font-one mt-1">Plus</span>
+          </button>
+        </div>
+
+        {/* Indicateur de page active */}
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-tertiary-500 to-tertiary-400"></div>
+      </div>
+    </>
   );
 }

@@ -26,7 +26,7 @@ export default async function CreerRDVpage() {
 
   return (
     <div className="bg-noir-700 flex flex-col items-center justify-center gap-4">
-      <div className="flex flex-col relative gap-8 w-full bg-noir-700 mt-24 pb-4 px-3 sm:px-6 lg:px-20">
+      <div className="flex flex-col relative gap-8 w-full bg-noir-700 mt-4 lg:mt-23 pb-4 px-3 sm:px-6 lg:px-20">
         <div className="flex flex-col md:flex-row sm:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10 w-full">
           <div className="w-full flex items-center gap-4 mb-4 sm:mb-0">
             <div className="w-22 sm:w-12 h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
