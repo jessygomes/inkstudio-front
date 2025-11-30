@@ -37,7 +37,7 @@ export default function ParamPage() {
   };
 
   return (
-    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 sm:px-6 lg:px-20">
+    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 sm:px-6 lg:px-20 pb-10 lg:pb-0">
       <div className="flex flex-col relative gap-4 sm:gap-6 w-full mt-4 lg:mt-23">
         {/* Header responsive */}
         <div className="">

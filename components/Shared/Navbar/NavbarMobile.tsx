@@ -16,6 +16,7 @@ import {
   MdShoppingBag,
   MdAccountCircle,
 } from "react-icons/md";
+import { PiInvoiceDuotone } from "react-icons/pi";
 
 export default function NavbarMobile() {
   const user = useUser();
@@ -72,6 +73,11 @@ export default function NavbarMobile() {
       href: "/mes-produits",
       label: "Produits",
       icon: <MdShoppingBag size={20} />,
+    },
+    {
+      href: "/factures",
+      label: "Factures",
+      icon: <PiInvoiceDuotone size={20} />,
     },
     {
       href: "/mon-compte",

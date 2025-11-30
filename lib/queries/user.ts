@@ -37,8 +37,6 @@ export const getUserInfoAction = async (salonId: string) => {
 
 //! ----------------------------------------------------------------------------
 
-//! ----------------------------------------------------------------------------
-
 //! MODIFIER INFO DU SALON
 
 //! ----------------------------------------------------------------------------
@@ -304,6 +302,50 @@ export const getColorProfileAction = async () => {
   } catch (error) {
     console.error(
       "Erreur lors de la récupération des couleurs du profil :",
+      error
+    );
+    throw error;
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
+//! RECUPERER LES FACTURES DU SALON
+
+//! ----------------------------------------------------------------------------
+export const getfacturesSalonAction = async (page: number, search: string, isPayed?: boolean) => {
+  const ITEMS_PER_PAGE = 10;
+  try {
+    const headers = await getAuthHeaders();
+    
+    // Construire l'URL avec les paramètres
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: ITEMS_PER_PAGE.toString(),
+      search: search
+    });
+    
+    // Ajouter le filtre isPayed seulement s'il est défini
+    if (isPayed !== undefined) {
+      params.append('isPayed', isPayed.toString());
+    }
+    
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/users/factures?${params.toString()}`,
+      { method: "GET", headers }
+    );
+    const data = await response.json();
+
+    if (!response.ok || (data && data.error)) {
+      const message =
+        data?.message ||
+        `Erreur lors de la récupération des factures (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+    return { ok: true, error: false, status: response.status, data };
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des factures du salon :",
       error
     );
     throw error;

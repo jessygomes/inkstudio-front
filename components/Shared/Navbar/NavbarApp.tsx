@@ -48,6 +48,7 @@ export default function NavbarApp() {
     { href: "/stocks", label: "Stocks" },
     { href: "/mon-portfolio", label: "Portfolio" },
     { href: "/mes-produits", label: "Produits" },
+    { href: "/factures", label: "Factures" },
     { href: "/mon-compte", label: "Mon Compte" },
   ];
 

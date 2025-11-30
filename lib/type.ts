@@ -234,6 +234,56 @@ export interface PaginationInfo {
   hasPreviousPage: boolean;
 }
 
+//! FACTURE
+export interface FactureClient {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+}
+
+export interface PrestationDetails {
+  colorStyle: string;
+  description: string;
+  piercingDetails: string | null; // À typer plus précisément si nécessaire
+  piercingZone: string | null;
+  reference: string;
+  size: string;
+  sketch: string;
+  zone: string;
+}
+
+export interface FactureProps {
+  id: string;
+  client: FactureClient;
+  dateRdv: string; // Date au format ISO
+  duration: number; // Durée en minutes
+  estimatedPrice: number;
+  isPayed: boolean;
+  prestation: "TATTOO" | "PIERCING" | "RETOUCHE" | "PROJET";
+  prestationDetails: PrestationDetails;
+  price: number;
+  tatoueur: string;
+  title: string;
+}
+
+export interface FactureStatistics {
+  nombreFacturesEnAttente: number;
+  nombreFacturesPaye: number;
+  tauxPaiement: number;
+  totalChiffreAffaires: number;
+  totalEnAttente: number;
+  totalFactures: number;
+  totalPaye: number;
+}
+
+export interface FactureResponse {
+  error: boolean;
+  factures: FactureProps[];
+  message: string;
+  statistics: FactureStatistics;
+}
+
 //! COLOR PROFILE
 export interface ColorProfileProps {
   colorProfile: string;
