@@ -245,12 +245,21 @@ export interface FactureClient {
 export interface PrestationDetails {
   colorStyle: string;
   description: string;
-  piercingDetails: string | null; // À typer plus précisément si nécessaire
+  piercingDetails: PiercingDetails | null; // Référence à l'interface PiercingDetails
   piercingZone: string | null;
   reference: string;
   size: string;
   sketch: string;
   zone: string;
+}
+
+export interface PiercingDetails {
+  serviceDescription: string | null;
+  zoneBouche: string | null;
+  zoneCorps: string | null;
+  zoneMicrodermal: string | null;
+  zoneOreille: string | null;
+  zoneVisage: string | null;
 }
 
 export interface FactureProps {
@@ -262,6 +271,7 @@ export interface FactureProps {
   isPayed: boolean;
   prestation: "TATTOO" | "PIERCING" | "RETOUCHE" | "PROJET";
   prestationDetails: PrestationDetails;
+  piercingDetails?: PiercingDetails; // Optionnel, seulement pour les piercings
   price: number;
   tatoueur: string;
   title: string;

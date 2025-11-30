@@ -3,6 +3,8 @@ import { paidAppointmentsAction } from "@/lib/queries/appointment";
 import { FactureProps } from "@/lib/type";
 import React, { useState } from "react";
 import { toast } from "sonner";
+import { generateFacturePDF } from "@/lib/utils/pdfGenerator";
+import { useUser } from "@/components/Auth/Context/UserContext";
 
 interface FactureDetailsModalDesktopProps {
   facture: FactureProps;
@@ -17,6 +19,7 @@ export default function FactureDetailsModalDesktop({
 }: FactureDetailsModalDesktopProps) {
   const [currentFacture, setCurrentFacture] = useState<FactureProps>(facture);
   const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
+  const user = useUser();
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -32,6 +35,18 @@ export default function FactureDetailsModalDesktop({
       style: "currency",
       currency: "EUR",
     }).format(price);
+  };
+
+  //! Générer PDF
+  const handleGeneratePDF = () => {
+    try {
+      const salonName = user?.salonName || "InkStudio";
+      generateFacturePDF(currentFacture, salonName);
+      toast.success("PDF généré avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de la génération du PDF:", error);
+      toast.error("Erreur lors de la génération du PDF");
+    }
   };
 
   //! Changer le statut de paiement
@@ -135,7 +150,8 @@ export default function FactureDetailsModalDesktop({
               </div>
               <button
                 onClick={onClose}
-                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                aria-label="Fermer la modale"
+                className="cursor-pointer w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
               >
                 <svg
                   className="w-5 h-5 text-white"
@@ -401,13 +417,22 @@ export default function FactureDetailsModalDesktop({
                         )}
 
                       {currentFacture.prestation === "PIERCING" &&
-                        currentFacture.prestationDetails.zone && (
+                        currentFacture.prestationDetails.piercingDetails && (
                           <div className="bg-noir-600 p-3 rounded-lg">
                             <p className="text-white/60 text-xs font-one">
                               Zone détaillée
                             </p>
                             <p className="text-white font-one font-medium">
-                              {currentFacture.prestationDetails.zone}
+                              {currentFacture.prestationDetails.piercingDetails
+                                ?.zoneBouche ||
+                                currentFacture.prestationDetails.piercingDetails
+                                  ?.zoneCorps ||
+                                currentFacture.prestationDetails.piercingDetails
+                                  ?.zoneMicrodermal ||
+                                currentFacture.prestationDetails.piercingDetails
+                                  ?.zoneOreille ||
+                                currentFacture.prestationDetails.piercingDetails
+                                  ?.zoneVisage}
                             </p>
                           </div>
                         )}
@@ -478,8 +503,11 @@ export default function FactureDetailsModalDesktop({
                 <h3 className="text-sm font-bold text-white font-one mb-2">
                   Actions
                 </h3>
-                <div className="grid grid-cols-2 gap-1">
-                  <button className="py-1.5 px-2 bg-tertiary-600 text-white rounded-lg hover:bg-tertiary-700 transition-colors font-one font-medium text-xs flex items-center justify-center gap-1">
+                <div className="grid grid-cols-1 gap-1">
+                  <button
+                    onClick={handleGeneratePDF}
+                    className="cursor-pointer py-1.5 px-2 bg-primary-500 text-white rounded-lg hover:bg-tertiary-700 transition-colors font-one font-medium text-xs flex items-center justify-center gap-1"
+                  >
                     <svg
                       className="w-3 h-3"
                       fill="none"
@@ -496,7 +524,7 @@ export default function FactureDetailsModalDesktop({
                     PDF
                   </button>
 
-                  <button className="py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-one font-medium text-xs flex items-center justify-center gap-1">
+                  {/* <button className="py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-one font-medium text-xs flex items-center justify-center gap-1">
                     <svg
                       className="w-3 h-3"
                       fill="none"
@@ -511,7 +539,7 @@ export default function FactureDetailsModalDesktop({
                       />
                     </svg>
                     Email
-                  </button>
+                  </button> */}
 
                   {/* <button className="py-2 px-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-one font-medium text-xs flex items-center justify-center gap-1">
                     <svg

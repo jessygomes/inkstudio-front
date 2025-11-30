@@ -3,6 +3,8 @@ import { paidAppointmentsAction } from "@/lib/queries/appointment";
 import { FactureProps } from "@/lib/type";
 import React, { useState } from "react";
 import { toast } from "sonner";
+import { generateFacturePDF } from "@/lib/utils/pdfGenerator";
+import { useUser } from "@/components/Auth/Context/UserContext";
 
 interface FactureDetailsModalMobileProps {
   facture: FactureProps;
@@ -17,6 +19,8 @@ export default function FactureDetailsModalMobile({
 }: FactureDetailsModalMobileProps) {
   const [currentFacture, setCurrentFacture] = useState<FactureProps>(facture);
   const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
+  const user = useUser();
+  
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("fr-FR", {
@@ -31,6 +35,18 @@ export default function FactureDetailsModalMobile({
       style: "currency",
       currency: "EUR",
     }).format(price);
+  };
+
+  //! Générer PDF
+  const handleGeneratePDF = () => {
+    try {
+      const salonName = user?.salonName || 'InkStudio';
+      generateFacturePDF(currentFacture, salonName);
+      toast.success("PDF généré avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de la génération du PDF:", error);
+      toast.error("Erreur lors de la génération du PDF");
+    }
   };
 
   //! Changer le statut de paiement
@@ -348,7 +364,16 @@ export default function FactureDetailsModalMobile({
                         Zone détaillée
                       </p>
                       <p className="text-white font-one font-medium">
-                        {currentFacture.prestationDetails.zone}
+                        {currentFacture.prestationDetails.piercingDetails
+                          ?.zoneBouche ||
+                          currentFacture.prestationDetails.piercingDetails
+                            ?.zoneCorps ||
+                          currentFacture.prestationDetails.piercingDetails
+                            ?.zoneMicrodermal ||
+                          currentFacture.prestationDetails.piercingDetails
+                            ?.zoneOreille ||
+                          currentFacture.prestationDetails.piercingDetails
+                            ?.zoneVisage}
                       </p>
                     </div>
                   )}
@@ -439,7 +464,10 @@ export default function FactureDetailsModalMobile({
             Actions
           </h3>
           <div className="space-y-1.5">
-            <button className="w-full py-1.5 px-2 bg-tertiary-600 text-white rounded-lg hover:bg-tertiary-700 transition-colors font-one font-medium flex items-center justify-center gap-1.5 text-xs">
+            <button 
+              onClick={handleGeneratePDF}
+              className="w-full py-1.5 px-2 bg-tertiary-600 text-white rounded-lg hover:bg-tertiary-700 transition-colors font-one font-medium flex items-center justify-center gap-1.5 text-xs"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
