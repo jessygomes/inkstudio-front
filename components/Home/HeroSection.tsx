@@ -58,7 +58,7 @@ export default function HeroSection() {
                 />
               </svg>
               <span className="text-sm sm:text-lg lg:text-base font-semibold">
-                Créer un compte gratuit
+                Devenez testeur dès maintenant !
               </span>
             </span>
           </Link>
