@@ -31,6 +31,7 @@ export default function CreateOrUpdateItem({
       quantity: existingProduct?.quantity || 0,
       unit: existingProduct?.unit || "",
       minQuantity: existingProduct?.minQuantity || 0,
+      pricePerUnit: existingProduct?.pricePerUnit || undefined,
       userId: userId,
     },
   });
@@ -208,7 +209,38 @@ export default function CreateOrUpdateItem({
                     )}
                   </div>
 
-                  <div className="space-y-1 lg:space-y-1 lg:col-span-2">
+                  <div className="space-y-1 lg:space-y-1">
+                    <label className="text-xs lg:text-xs text-white/70 font-one">
+                      Prix unitaire € (optionnel)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="15.50"
+                      {...form.register("pricePerUnit", {
+                        valueAsNumber: true,
+                        setValueAs: (value) => {
+                          if (
+                            value === "" ||
+                            value === null ||
+                            value === undefined
+                          )
+                            return undefined;
+                          const parsed = parseFloat(value);
+                          return isNaN(parsed) ? undefined : parsed;
+                        },
+                      })}
+                      className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    />
+                    {form.formState.errors.pricePerUnit && (
+                      <p className="text-red-300 text-xs lg:text-xs mt-1">
+                        {form.formState.errors.pricePerUnit.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1 lg:space-y-1">
                     <label className="text-xs lg:text-xs text-white/70 font-one">
                       Quantité minimale d'alerte (optionnelle)
                     </label>

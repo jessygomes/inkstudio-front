@@ -272,5 +272,9 @@ export const stockItemSchema = z.object({
     .number()
     .min(0, "La quantité minimale doit être positive")
     .optional(),
+  pricePerUnit: z
+    .number()
+    .min(0, "Le prix unitaire doit être positif")
+    .optional(),
   userId: z.string(),
 });

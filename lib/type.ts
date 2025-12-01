@@ -221,6 +221,8 @@ export interface StockItemProps {
   quantity: number;
   unit: string | null;
   minQuantity: number | null;
+  pricePerUnit: number | null;
+  totalPrice: number | null;
   updatedAt: string; // Date au format ISO
 }
 

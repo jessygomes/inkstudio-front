@@ -838,7 +838,13 @@ export default function RDV() {
                       return (
                         <div key={event.id}>
                           {/* Vue desktop - grille */}
-                          <div className="hidden sm:grid grid-cols-7 items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 group">
+                          <div
+                            className={`hidden sm:grid grid-cols-7 items-center gap-4 p-4 rounded-xl border transition-all duration-300 group ${
+                              selectedEvent?.id === event.id
+                                ? "bg-tertiary-400/20 border-tertiary-400/50 shadow-lg shadow-tertiary-400/20"
+                                : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-tertiary-400/30"
+                            }`}
+                          >
                             <div className="text-white font-two text-sm">
                               <p className="font-bold">
                                 {new Date(event.start ?? "").toLocaleDateString(
@@ -912,7 +918,11 @@ export default function RDV() {
 
                           {/* Vue mobile - format carte (toujours en mode liste) */}
                           <div
-                            className="sm:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 cursor-pointer"
+                            className={`sm:hidden rounded-xl border p-4 transition-all duration-300 cursor-pointer ${
+                              selectedEvent?.id === event.id
+                                ? "bg-tertiary-400/20 border-tertiary-400/50 shadow-lg shadow-tertiary-400/20"
+                                : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-tertiary-400/30"
+                            }`}
                             onClick={() => openEventDetails(event)}
                           >
                             <div className="flex justify-between items-start mb-3">

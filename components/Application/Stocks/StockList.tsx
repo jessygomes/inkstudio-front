@@ -380,11 +380,13 @@ export default function StockList() {
         ) : (
           <div>
             {/* Header de tableau - masqué sur mobile */}
-            <div className="hidden sm:grid grid-cols-6 gap-2 px-4 py-2 mb-2 bg-white/10 rounded-lg text-white font-one text-xs font-semibold tracking-widest">
+            <div className="hidden sm:grid grid-cols-8 gap-2 px-4 py-2 mb-2 bg-white/10 rounded-lg text-white font-one text-xs font-semibold tracking-widest">
               <p>Nom de l'article</p>
               <p>Catégorie</p>
               <p>Quantité</p>
               <p>Quantité min.</p>
+              <p>Prix unitaire</p>
+              <p>Prix total</p>
               <p className="text-center">Actions</p>
               <p></p>
             </div>
@@ -470,7 +472,7 @@ export default function StockList() {
                   {filteredItems.map((item) => (
                     <div key={item.id}>
                       {/* Vue desktop - grille */}
-                      <div className="hidden lg:grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
+                      <div className="hidden lg:grid grid-cols-8 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
                         <p className="text-white font-one text-xs">
                           {item.name}
                         </p>
@@ -501,6 +503,16 @@ export default function StockList() {
                           {item.minQuantity
                             ? `${item.minQuantity} ${item.unit || "pièce(s)"}`
                             : "Non définie"}
+                        </p>
+                        <p className="text-white font-one text-xs text-left">
+                          {item.pricePerUnit
+                            ? `${item.pricePerUnit.toFixed(2)} €`
+                            : "Non renseigné"}
+                        </p>
+                        <p className="text-white font-one text-xs text-left font-semibold">
+                          {item.totalPrice
+                            ? `${item.totalPrice.toFixed(2)} €`
+                            : "0,00 €"}
                         </p>
 
                         <div className="flex gap-2 text-xs items-center justify-center">
@@ -570,6 +582,22 @@ export default function StockList() {
                                   }`
                                 : "Non définie"}
                             </p>
+                            <div className="flex justify-between items-center mt-2">
+                              <p className="text-white/70 font-one text-sm">
+                                Prix unitaire:{" "}
+                                <span className="text-white">
+                                  {item.pricePerUnit
+                                    ? `${item.pricePerUnit.toFixed(2)} €`
+                                    : "Non renseigné"}
+                                </span>
+                              </p>
+                              <p className="text-tertiary-400 font-one text-sm font-semibold">
+                                Total:{" "}
+                                {item.totalPrice
+                                  ? `${item.totalPrice.toFixed(2)} €`
+                                  : "0,00 €"}
+                              </p>
+                            </div>
                           </div>
                         </div>
 
