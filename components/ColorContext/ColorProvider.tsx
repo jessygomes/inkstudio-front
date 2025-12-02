@@ -66,11 +66,11 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
           const userColorProfile = userColors.colorProfile || "default";
           const userColorProfileBis = userColors.colorProfileBis || "default";
 
-          console.log("ColorProvider - Couleurs récupérées:", {
-            userColorProfile,
-            userColorProfileBis,
-            isDefault: userColorProfile === "default",
-          });
+          // console.log("ColorProvider - Couleurs récupérées:", {
+          //   userColorProfile,
+          //   userColorProfileBis,
+          //   isDefault: userColorProfile === "default",
+          // });
 
           // Si l'utilisateur utilise les couleurs par défaut, appliquer les couleurs système
           if (userColorProfile === "default") {
@@ -84,9 +84,9 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
           }
         } else {
           // Pas de données utilisateur, utiliser les couleurs par défaut (système)
-          console.log(
-            "ColorProvider - Aucune couleur utilisateur, utilisation des couleurs système"
-          );
+          // console.log(
+          //   "ColorProvider - Aucune couleur utilisateur, utilisation des couleurs système"
+          // );
           setColorProfile("#ff9d00");
           setColorProfileBis("#ff5500");
           applyColorsToDOM("#ff9d00", "#ff5500");
@@ -94,7 +94,7 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error("Erreur lors de la récupération des couleurs:", error);
         // En cas d'erreur, garder les couleurs système
-        console.log("ColorProvider - Erreur, utilisation des couleurs système");
+        // console.log("ColorProvider - Erreur, utilisation des couleurs système");
         setColorProfile("#ff9d00");
         setColorProfileBis("#ff5500");
         applyColorsToDOM("#ff9d00", "#ff5500");

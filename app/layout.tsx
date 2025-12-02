@@ -9,18 +9,6 @@ import GoogleAnalytics from "@/components/Cookies/GoogleAnalytics";
 
 export const dynamic = "force-dynamic";
 
-// import Header from "@/components/Shared/Header";
-
-// const geistSans = Didact_Gothic({
-//   variable: "--font-didact-gothic",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-didact-gothic",
-//   subsets: ["latin"],
-// });
-
 const didact_gothic = Didact_Gothic({
   weight: ["400"],
   style: ["normal"],

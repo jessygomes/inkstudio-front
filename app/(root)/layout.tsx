@@ -36,13 +36,13 @@ export default async function DashboardLayout({
       phone: userData.phone || "",
       address: userData.address || "",
     };
-    console.log("user - layout", user);
+    // console.log("user - layout", user);
   } catch (error) {
     console.error("Erreur lors de la récupération de l'utilisateur :", error);
 
     // ✅ Gestion spécifique des tokens expirés - sera géré côté client
     if (error instanceof Error && error.message === "TOKEN_EXPIRED") {
-      console.log("🔑 Token expiré détecté - Sera géré côté client");
+      // console.log("🔑 Token expiré détecté - Sera géré côté client");
       authError = error;
     } else {
       // ✅ Pour les autres erreurs, redirection simple

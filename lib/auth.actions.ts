@@ -15,7 +15,7 @@ export async function logoutAction() {
     cookieStore.delete("access_token");
     cookieStore.delete("userId");
 
-    console.log("🧹 Cookies de session supprimés via server action");
+    // console.log("🧹 Cookies de session supprimés via server action");
 
     // Rediriger vers la page de connexion
     redirect("/connexion?reason=token_expired");
@@ -61,7 +61,7 @@ export async function clearExpiredSession() {
     cookieStore.delete("access_token");
     cookieStore.delete("userId");
 
-    console.log("🧹 Cookies expirés supprimés");
+    // console.log("🧹 Cookies expirés supprimés");
   } catch (error) {
     console.error("❌ Erreur lors du nettoyage des cookies expirés:", error);
   }

@@ -74,7 +74,7 @@ export const LoginForm = () => {
       setIsPending(false);
 
       // Créez une session pour l'utilisateur connecté
-      console.log("Infos de l'utilisateur connecté :", infos);
+      // console.log("Infos de l'utilisateur connecté :", infos);
 
       await createSession(infos);
 
