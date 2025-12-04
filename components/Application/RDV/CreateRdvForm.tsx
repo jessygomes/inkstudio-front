@@ -5,7 +5,7 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { appointmentSchema } from "@/lib/zod/validator.schema";
 import { TatoueurProps, TimeSlotProps } from "@/lib/type";
@@ -15,6 +15,30 @@ import { toast } from "sonner";
 import Link from "next/link";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import { createAppointment } from "@/lib/queries/appointment";
+import { getPiercingPrice } from "@/lib/queries/piercing";
+
+type PiercingZone = {
+  id: string;
+  piercingZone: string;
+  isActive: boolean;
+  servicesCount: number;
+  services: PiercingService[];
+};
+
+type PiercingService = {
+  id: string;
+  specificZone: boolean;
+  price: number;
+  description: string | null;
+  piercingZoneOreille?: string | null;
+  piercingZoneVisage?: string | null;
+  piercingZoneBouche?: string | null;
+  piercingZoneCorps?: string | null;
+  piercingZoneMicrodermal?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export default function CreateRdvForm({ userId }: { userId: string }) {
   const router = useRouter();
@@ -210,12 +234,14 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   //! Fonction pour rechercher un client par email
   const [searchClientQuery, setSearchClientQuery] = useState("");
   const [clientResults, setClientResults] = useState<any[]>([]);
+  const [userClientResults, setUserClientResults] = useState<any[]>([]);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleClientSearch = useCallback(
     async (query: string) => {
       if (!query.trim()) {
         setClientResults([]);
+        setUserClientResults([]);
         return;
       }
 
@@ -227,19 +253,25 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         );
         if (!res.ok) {
           setClientResults([]);
+          setUserClientResults([]);
           throw new Error("Erreur lors de la recherche de clients");
         }
         const results = await res.json();
 
+        console.log("Résultats de la recherche client :", results);
+
         // Gérer la structure de réponse du backend
         if (results.error) {
           setClientResults([]);
+          setUserClientResults([]);
         } else {
           setClientResults(results.clients || []);
+          setUserClientResults(results.userClients || []);
         }
       } catch (error) {
         console.error("Erreur recherche client :", error);
         setClientResults([]);
+        setUserClientResults([]);
       }
     },
     [userId]
@@ -250,6 +282,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
     if (searchClientQuery.length < 2) {
       setClientResults([]);
+      setUserClientResults([]);
       return;
     }
 
@@ -259,6 +292,86 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
     searchTimeoutRef.current = timeout;
   }, [searchClientQuery, handleClientSearch]);
+
+  //! États pour la gestion des zones de piercing
+  const [piercingZones, setPiercingZones] = useState<PiercingZone[]>([]);
+  const [selectedPiercingZone, setSelectedPiercingZone] = useState<string>("");
+  const [selectedPiercingService, setSelectedPiercingService] =
+    useState<string>("");
+  const [isLoadingPiercingZones, setIsLoadingPiercingZones] = useState(false);
+
+  // Charger les zones de piercing quand la prestation PIERCING est sélectionnée
+  useEffect(() => {
+    if (selectedPrestation === "PIERCING") {
+      const fetchPiercingZones = async () => {
+        try {
+          setIsLoadingPiercingZones(true);
+          console.log("Fetching piercing zones for salon:", userId);
+
+          // Utiliser le server action pour récupérer toutes les configurations
+          const result = await getPiercingPrice({ salonId: userId });
+          console.log("Piercing zones result received:", result);
+
+          if (result.ok && result.data) {
+            // Si on a des données, les utiliser
+            const zones = Array.isArray(result.data) ? result.data : [];
+            console.log("Setting piercing zones:", zones);
+            setPiercingZones(zones);
+          } else {
+            // Gestion des erreurs
+            console.error(
+              "Erreur lors du fetch des zones de piercing:",
+              result.message || "Erreur inconnue"
+            );
+            setPiercingZones([]);
+
+            // Optionnel: afficher un toast d'erreur pour informer l'utilisateur
+            // toast.error(`Impossible de charger les zones de piercing: ${result.message}`);
+          }
+        } catch (err) {
+          console.error(
+            "Erreur catch lors du fetch des zones de piercing:",
+            err
+          );
+          setPiercingZones([]);
+
+          // Optionnel: toast d'erreur réseau
+          // toast.error("Erreur réseau lors du chargement des zones de piercing");
+        } finally {
+          setIsLoadingPiercingZones(false);
+        }
+      };
+
+      fetchPiercingZones();
+    } else {
+      // Reset quand on change de prestation
+      setPiercingZones([]);
+      setSelectedPiercingZone("");
+      setSelectedPiercingService("");
+    }
+  }, [selectedPrestation, userId]);
+
+  const selectedZoneServices = useMemo(() => {
+    const zone = piercingZones.find((z) => z.id === selectedPiercingZone);
+    return zone?.services || [];
+  }, [piercingZones, selectedPiercingZone]);
+
+  const selectedServicePrice = useMemo(() => {
+    const service = selectedZoneServices.find(
+      (s) => s.id === selectedPiercingService
+    );
+    return service?.price || 0;
+  }, [selectedZoneServices, selectedPiercingService]);
+
+  // Fonction pour extraire le nom détaillé de la zone selon les champs de service
+  const getServiceZoneName = (service: PiercingService): string => {
+    if (service.piercingZoneOreille) return service.piercingZoneOreille;
+    if (service.piercingZoneVisage) return service.piercingZoneVisage;
+    if (service.piercingZoneBouche) return service.piercingZoneBouche;
+    if (service.piercingZoneCorps) return service.piercingZoneCorps;
+    if (service.piercingZoneMicrodermal) return service.piercingZoneMicrodermal;
+    return service.description || "Zone non spécifiée";
+  };
 
   //! Formulaire de création de rendez-vous
   const form = useForm<z.infer<typeof appointmentSchema>>({
@@ -285,6 +398,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       sketch: "",
       price: 1,
       estimatedPrice: 1,
+      // Champs spécifiques aux piercings
+      piercingZone: "",
+      piercingZoneOreille: null,
+      piercingZoneVisage: null,
+      piercingZoneBouche: null,
+      piercingZoneCorps: null,
+      piercingZoneMicrodermal: null,
     },
   });
 
@@ -324,6 +444,67 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       start,
       end,
     };
+
+    // Ajouter les champs spécifiques aux piercings si c'est une prestation PIERCING
+    if (data.prestation === "PIERCING" && selectedPiercingService) {
+      const selectedService = selectedZoneServices.find(
+        (s) => s.id === selectedPiercingService
+      );
+      const selectedZone = piercingZones.find(
+        (z) => z.id === selectedPiercingZone
+      );
+
+      if (selectedService && selectedZone) {
+        // Définir le prix du piercing
+        rdvBody.estimatedPrice = selectedService.price;
+        rdvBody.price = selectedService.price;
+
+        // Ajouter la zone principale
+        rdvBody.piercingZone = selectedZone.piercingZone;
+
+        // Mapper les zones spécifiques selon la logique backend
+        const zoneLower = selectedZone.piercingZone?.toLowerCase();
+
+        // Réinitialiser tous les champs de zone à null
+        rdvBody.piercingZoneOreille = null;
+        rdvBody.piercingZoneVisage = null;
+        rdvBody.piercingZoneBouche = null;
+        rdvBody.piercingZoneCorps = null;
+        rdvBody.piercingZoneMicrodermal = null;
+
+        // Assigner le bon champ selon la zone
+        switch (zoneLower) {
+          case "oreille":
+          case "oreilles":
+            rdvBody.piercingZoneOreille = selectedService.id;
+            break;
+          case "visage":
+            rdvBody.piercingZoneVisage = selectedService.id;
+            break;
+          case "bouche":
+          case "langue":
+          case "lèvre":
+          case "lèvres":
+            rdvBody.piercingZoneBouche = selectedService.id;
+            break;
+          case "corps":
+          case "torse":
+          case "ventre":
+          case "nombril":
+            rdvBody.piercingZoneCorps = selectedService.id;
+            break;
+          case "microdermal":
+          case "micro-dermal":
+          case "implant":
+            rdvBody.piercingZoneMicrodermal = selectedService.id;
+            break;
+          default:
+            // Par défaut, considérer comme piercing corps
+            rdvBody.piercingZoneCorps = selectedService.id;
+            break;
+        }
+      }
+    }
 
     try {
       const result = await createAppointment(rdvBody);
@@ -392,11 +573,12 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   />
                 </div>
 
-                {clientResults.length > 0 && (
+                {(clientResults.length > 0 || userClientResults.length > 0) && (
                   <div className="bg-white/10 border border-white/20 rounded-lg max-h-48 sm:max-h-40 overflow-auto">
+                    {/* Clients existants du salon */}
                     {clientResults.map((client) => (
                       <div
-                        key={client.id}
+                        key={`salon-${client.id}`}
                         className="cursor-pointer px-3 py-3 sm:py-2 text-white text-sm sm:text-xs hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
                         onClick={() => {
                           form.setValue("clientLastname", client.lastName);
@@ -413,25 +595,102 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                           }
                           setSearchClientQuery("");
                           setClientResults([]);
+                          setUserClientResults([]);
                         }}
                       >
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
-                          <span className="font-medium">
-                            {client.firstName} {client.lastName}
-                          </span>
-                          <div className="flex flex-col sm:flex-row sm:gap-2 text-xs">
-                            <span className="text-white/60">
-                              {client.email}
-                            </span>
-                            {client.phone && (
-                              <span className="text-white/50">
-                                📞 {client.phone}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium truncate">
+                                {client.firstName} {client.lastName}
                               </span>
-                            )}
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400 border border-green-500/30 whitespace-nowrap">
+                                📋 Client salon
+                              </span>
+                            </div>
+                            <div className="flex flex-col sm:flex-row sm:gap-2 text-xs">
+                              <span className="text-white/60 truncate">
+                                {client.email}
+                              </span>
+                              {client.phone && (
+                                <span className="text-white/50">
+                                  📞 {client.phone}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
                     ))}
+
+                    {/* UserClients (clients avec compte plateforme) */}
+                    {userClientResults.map((userClient) => {
+                      // Vérifier si cet email existe déjà dans les clients du salon
+                      const existsInSalon = clientResults.some(
+                        (salonClient) => salonClient.email === userClient.email
+                      );
+
+                      return (
+                        <div
+                          key={`user-${userClient.id}`}
+                          className="cursor-pointer px-3 py-3 sm:py-2 text-white text-sm sm:text-xs hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
+                          onClick={() => {
+                            form.setValue(
+                              "clientLastname",
+                              userClient.lastName
+                            );
+                            form.setValue(
+                              "clientFirstname",
+                              userClient.firstName
+                            );
+                            form.setValue("clientEmail", userClient.email);
+                            form.setValue(
+                              "clientPhone",
+                              userClient.phone || ""
+                            );
+                            if (userClient.birthDate) {
+                              form.setValue(
+                                "clientBirthdate",
+                                new Date(userClient.birthDate)
+                                  .toISOString()
+                                  .slice(0, 10)
+                              );
+                            }
+                            setSearchClientQuery("");
+                            setClientResults([]);
+                            setUserClientResults([]);
+                          }}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <span className="font-medium truncate">
+                                  {userClient.firstName} {userClient.lastName}
+                                </span>
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 whitespace-nowrap">
+                                  👤 Compte plateforme
+                                </span>
+                                {existsInSalon && (
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-500/20 text-orange-400 border border-orange-500/30 whitespace-nowrap">
+                                    ⚠️ Déjà client
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex flex-col sm:flex-row sm:gap-2 text-xs">
+                                <span className="text-white/60 truncate">
+                                  {userClient.email}
+                                </span>
+                                {userClient.phone && (
+                                  <span className="text-white/50">
+                                    📞 {userClient.phone}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1093,38 +1352,130 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <label className="text-xs text-white/70 font-one">
-                      Description du piercing
+                      Zone de piercing
                     </label>
-                    <textarea
-                      placeholder="Description"
-                      {...form.register("description")}
-                      rows={3}
-                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
-                    />
+                    {isLoadingPiercingZones ? (
+                      <div className="flex items-center justify-center p-4 bg-white/5 rounded-lg border border-white/10">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-tertiary-400 border-t-transparent mr-2"></div>
+                        <span className="text-white/70 text-xs">
+                          Chargement des zones...
+                        </span>
+                      </div>
+                    ) : piercingZones.length > 0 ? (
+                      <select
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        value={selectedPiercingZone}
+                        onChange={(e) => {
+                          setSelectedPiercingZone(e.target.value);
+                          setSelectedPiercingService(""); // Reset service selection
+                          form.setValue(
+                            "zone",
+                            e.target.value
+                              ? piercingZones.find(
+                                  (z) => z.id === e.target.value
+                                )?.piercingZone || ""
+                              : ""
+                          );
+                        }}
+                      >
+                        <option value="" className="bg-noir-500">
+                          -- Choisissez une zone --
+                        </option>
+                        {piercingZones.map((zone) => (
+                          <option
+                            key={zone.id}
+                            value={zone.id}
+                            className="bg-noir-500"
+                          >
+                            {zone.piercingZone} ({zone.servicesCount} option
+                            {zone.servicesCount > 1 ? "s" : ""})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                        <p className="text-orange-300 text-xs font-one">
+                          Aucune zone de piercing configurée pour ce salon.
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                  {/* Sélection du service spécifique */}
+                  {selectedPiercingZone && selectedZoneServices.length > 0 && (
                     <div className="space-y-1">
                       <label className="text-xs text-white/70 font-one">
-                        Zone du piercing
+                        Zone détaillée et prix
                       </label>
-                      <input
-                        placeholder="Zone du piercing"
-                        {...form.register("zone")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                      />
+                      <div className="space-y-2">
+                        {selectedZoneServices.map((service) => (
+                          <label
+                            key={service.id}
+                            className={`cursor-pointer p-3 rounded-lg border transition-all duration-200 block ${
+                              selectedPiercingService === service.id
+                                ? "border-tertiary-500/70 bg-tertiary-500/10"
+                                : "border-white/20 bg-white/5 hover:border-white/30 hover:bg-white/8"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="radio"
+                                name="piercingService"
+                                value={service.id}
+                                checked={selectedPiercingService === service.id}
+                                onChange={(e) => {
+                                  setSelectedPiercingService(e.target.value);
+                                  // Mettre à jour le prix dans le formulaire
+                                  form.setValue("price", service.price);
+                                  form.setValue(
+                                    "estimatedPrice",
+                                    service.price
+                                  );
+                                }}
+                                className="w-3 h-3 text-tertiary-500 focus:ring-tertiary-400 bg-transparent border-white/30"
+                              />
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex flex-col">
+                                    <span className="text-white font-one font-medium text-sm">
+                                      {getServiceZoneName(service)}
+                                    </span>
+                                    {service.description && (
+                                      <span className="text-xs text-white/60 font-one mt-1">
+                                        {service.description}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="text-tertiary-400 font-one font-bold">
+                                    {service.price}€
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
-                        Prix (€)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="Prix"
-                        {...form.register("price")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                      />
+                  )}
+
+                  {/* Prix total affiché */}
+                  {selectedServicePrice > 0 && (
+                    <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-tertiary-400 font-semibold font-one text-sm">
+                            Prix du piercing
+                          </h4>
+                          <p className="text-white/70 text-xs font-one">
+                            Prix indicatif, peut varier selon les bijoux choisis
+                          </p>
+                        </div>
+                        <div className="text-xl font-bold text-tertiary-400 font-one">
+                          {selectedServicePrice}€
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}

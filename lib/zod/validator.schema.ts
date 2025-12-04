@@ -140,6 +140,13 @@ export const appointmentSchema = z.object({
     (val) => (val === "" ? undefined : Number(val)),
     z.number().optional()
   ),
+  // Champs spécifiques aux piercings
+  piercingZone: z.string().optional(),
+  piercingZoneOreille: z.string().nullable().optional(),
+  piercingZoneVisage: z.string().nullable().optional(),
+  piercingZoneBouche: z.string().nullable().optional(),
+  piercingZoneCorps: z.string().nullable().optional(),
+  piercingZoneMicrodermal: z.string().nullable().optional(),
 });
 
 export const updateAppointmentSchema = z.object({

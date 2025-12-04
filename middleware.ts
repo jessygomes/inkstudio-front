@@ -14,6 +14,8 @@ export async function middleware(request: NextRequest) {
     "/mes-produits",
     "/mon-compte",
     "/parametres",
+    "/stocks",
+    "/factures",
   ];
 
   // Pages d'authentification
