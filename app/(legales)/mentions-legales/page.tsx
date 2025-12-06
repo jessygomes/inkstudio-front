@@ -6,12 +6,12 @@ import Header from "@/components/Shared/Header";
 import Footer from "@/components/Shared/Footer/Footer";
 
 export const metadata: Metadata = {
-  title: "Mentions Légales | InkStudio",
+  title: "Mentions Légales",
   description:
-    "Consultez les mentions légales d'InkStudio, plateforme de gestion pour salons de tatouage. Informations légales, conditions d'utilisation et données de l'entreprise.",
+    "Consultez les mentions légales d'Inkera Studio, plateforme de gestion pour salons de tatouage. Informations légales, conditions d'utilisation et données de l'entreprise.",
   keywords: [
     "mentions légales",
-    "InkStudio",
+    "Inkera Studio",
     "informations légales",
     "conditions utilisation",
     "RGPD",
@@ -58,7 +58,7 @@ export default function MentionsLegales() {
                 Informations légales et conditions d&apos;utilisation de la
                 plateforme{" "}
                 <span className="text-tertiary-400 font-semibold">
-                  InkStudio
+                  Inkera Studio
                 </span>
               </p>
             </div>
@@ -86,7 +86,7 @@ export default function MentionsLegales() {
                       <h3 className="font-semibold text-white mb-2">
                         Dénomination sociale
                       </h3>
-                      <p>InkStudio SAS</p>
+                      <p>Inkera Studio</p>
                     </div>
                     <div>
                       <h3 className="font-semibold text-white mb-2">
@@ -130,9 +130,9 @@ export default function MentionsLegales() {
                   <div className="mt-6">
                     <h3 className="font-semibold text-white mb-2">Contact</h3>
                     <p>
-                      Email : contact@inkstudio.fr
+                      Email : contact@inkera-studio.com
                       <br />
-                      Téléphone : +33 1 23 45 67 89
+                      {/* Téléphone : +33 1 23 45 67 89 */}
                     </p>
                   </div>
                 </div>
@@ -154,13 +154,13 @@ export default function MentionsLegales() {
                     <h3 className="font-semibold text-white mb-2">
                       Directeur de la publication
                     </h3>
-                    <p>John Doe, Président de InkStudio SAS</p>
+                    <p>Jessy Gomes, Fondateur de Inkera Studio</p>
                   </div>
                   <div>
                     <h3 className="font-semibold text-white mb-2">
                       Responsable de la rédaction
                     </h3>
-                    <p>Équipe InkStudio</p>
+                    <p>Équipe Inkera Studio</p>
                   </div>
                 </div>
               </div>
@@ -215,7 +215,7 @@ export default function MentionsLegales() {
                   <p>
                     L&apos;ensemble du contenu de ce site web (textes, images,
                     vidéos, logos, icônes, sons, logiciels, etc.) est la
-                    propriété exclusive d&apos;InkStudio SAS ou de ses
+                    propriété exclusive d&apos;Inkera Studio SAS ou de ses
                     partenaires et est protégé par les lois françaises et
                     internationales relatives à la propriété intellectuelle.
                   </p>
@@ -225,7 +225,7 @@ export default function MentionsLegales() {
                     publication, adaptation, ou exploitation totale ou partielle
                     du contenu, par quelque procédé que ce soit, est strictement
                     interdite sans l&apos;autorisation écrite préalable
-                    d&apos;InkStudio SAS.
+                    d&apos;Inkera Studio SAS.
                   </p>
 
                   <div className="bg-white/5 rounded-2xl p-6 mt-6">
@@ -233,10 +233,10 @@ export default function MentionsLegales() {
                       Marques et logos
                     </h3>
                     <p>
-                      La marque &quot;InkStudio&quot; ainsi que tous les logos
-                      et éléments graphiques associés sont des marques déposées
-                      d&apos;InkStudio SAS. Leur utilisation est strictement
-                      réglementée.
+                      La marque &quot;Inkera Studio&quot; ainsi que tous les
+                      logos et éléments graphiques associés sont des marques
+                      déposées d&apos;Inkera Studio SAS. Leur utilisation est
+                      strictement réglementée.
                     </p>
                   </div>
                 </div>
@@ -250,7 +250,7 @@ export default function MentionsLegales() {
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
-                    InkStudio SAS met tout en œuvre pour fournir des
+                    Inkera Studio SAS met tout en œuvre pour fournir des
                     informations exactes et à jour sur son site web. Cependant,
                     nous ne pouvons garantir l&apos;exactitude, la précision ou
                     l&apos;exhaustivité des informations mises à disposition.
@@ -259,7 +259,7 @@ export default function MentionsLegales() {
                   <p>
                     L&apos;utilisation des informations et services proposés sur
                     ce site se fait sous l&apos;entière responsabilité de
-                    l&apos;utilisateur. InkStudio SAS ne saurait être tenue
+                    l&apos;utilisateur. Inkera Studio SAS ne saurait être tenue
                     responsable des dommages directs ou indirects résultant de
                     l&apos;utilisation du site ou de l&apos;impossibilité
                     d&apos;y accéder.
@@ -299,20 +299,20 @@ export default function MentionsLegales() {
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Responsable de traitement
                       </h3>
-                      <p>InkStudio SAS</p>
+                      <p>Inkera Studio SAS</p>
                     </div>
                     <div className="bg-white/5 rounded-2xl p-6">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Contact DPO
                       </h3>
-                      <p>dpo@inkstudio.fr</p>
+                      <p>contact@inkera-studio.com</p>
                     </div>
                   </div>
 
                   <p className="mt-6">
                     Pour exercer vos droits (accès, rectification, effacement,
                     portabilité, limitation du traitement, opposition), vous
-                    pouvez nous contacter à l'adresse : contact@inkstudio.fr
+                    pouvez nous contacter à l'adresse : contact@Inkera Studio.fr
                   </p>
                 </div>
               </div>
@@ -326,7 +326,7 @@ export default function MentionsLegales() {
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
                     Les présentes mentions légales et l'utilisation du site
-                    InkStudio sont régies par le droit français. En cas de
+                    Inkera Studio sont régies par le droit français. En cas de
                     litige, et à défaut de résolution amiable, les tribunaux
                     français seront seuls compétents.
                   </p>

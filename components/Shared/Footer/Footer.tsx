@@ -63,7 +63,7 @@ export default function Footer() {
             </li>
             <li>
               <Link
-                href={"/a-propos"}
+                href={"/a-propos-de-inkera"}
                 className="hover:text-tertiary-400 duration-300 transition-colors"
               >
                 A Propos de INKERA Studio

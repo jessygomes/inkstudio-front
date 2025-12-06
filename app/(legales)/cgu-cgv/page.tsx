@@ -12,15 +12,15 @@ import Footer from "@/components/Shared/Footer/Footer";
 import Header from "@/components/Shared/Header";
 
 export const metadata: Metadata = {
-  title: "CGU & CGV | InkStudio",
+  title: "CGU & CGV",
   description:
-    "Consultez les conditions générales d'utilisation et de vente d'InkStudio. Termes du service, obligations des parties et modalités d'utilisation de la plateforme pour salons de tatouage.",
+    "Consultez les conditions générales d'utilisation et de vente d'Inkera Studio. Termes du service, obligations des parties et modalités d'utilisation de la plateforme pour salons de tatouage.",
   keywords: [
     "CGU",
     "CGV",
     "conditions générales",
     "termes service",
-    "InkStudio",
+    "Inkera Studio",
     "contrat",
   ],
 };
@@ -64,7 +64,7 @@ export default function CguCgv() {
                 Conditions générales d&apos;utilisation et de vente de la
                 plateforme{" "}
                 <span className="text-tertiary-400 font-semibold">
-                  InkStudio
+                  Inkera Studio
                 </span>
               </p>
             </div>
@@ -85,16 +85,16 @@ export default function CguCgv() {
                   <p>
                     Les présentes conditions générales d&apos;utilisation et de
                     vente (ci-après &quot;CGU/CGV&quot;) régissent
-                    l&apos;utilisation de la plateforme InkStudio, éditée par
-                    InkStudio SAS, société par actions simplifiée au capital de
-                    50 000 euros.
+                    l&apos;utilisation de la plateforme Inkera Studio, éditée
+                    par Inkera Studio SAS, société par actions simplifiée au
+                    capital de 50 000 euros.
                   </p>
 
                   <p>
-                    InkStudio est une plateforme numérique dédiée à la gestion
-                    professionnelle des salons de tatouage, proposant des outils
-                    de réservation, de gestion client et de présentation en
-                    ligne.
+                    Inkera Studio est une plateforme numérique dédiée à la
+                    gestion professionnelle des salons de tatouage, proposant
+                    des outils de réservation, de gestion client et de
+                    présentation en ligne.
                   </p>
 
                   <div className="bg-white/5 rounded-2xl p-6 mt-6">
@@ -102,7 +102,7 @@ export default function CguCgv() {
                       Acceptation des conditions
                     </h3>
                     <p>
-                      L&apos;utilisation de la plateforme InkStudio implique
+                      L&apos;utilisation de la plateforme Inkera Studio implique
                       l&apos;acceptation pleine et entière des présentes
                       CGU/CGV. Si vous n&apos;acceptez pas ces conditions,
                       veuillez ne pas utiliser nos services.
@@ -124,8 +124,9 @@ export default function CguCgv() {
                         Plateforme
                       </h3>
                       <p className="text-sm">
-                        Site web et application InkStudio accessible à
-                        l&apos;adresse www.inkstudio.fr et ses sous-domaines.
+                        Site web et application Inkera Studio accessible à
+                        l&apos;adresse www.Inkera Studio.fr et ses
+                        sous-domaines.
                       </p>
                     </div>
 
@@ -135,7 +136,7 @@ export default function CguCgv() {
                       </h3>
                       <p className="text-sm">
                         Toute personne physique ou morale utilisant la
-                        plateforme InkStudio, qu&apos;elle soit client ou
+                        plateforme Inkera Studio, qu&apos;elle soit client ou
                         professionnel.
                       </p>
                     </div>
@@ -146,7 +147,7 @@ export default function CguCgv() {
                       </h3>
                       <p className="text-sm">
                         Tatoueur, salon de tatouage ou entreprise du secteur
-                        utilisant les services InkStudio pour sa gestion.
+                        utilisant les services Inkera Studio pour sa gestion.
                       </p>
                     </div>
 
@@ -165,8 +166,8 @@ export default function CguCgv() {
                         Services
                       </h3>
                       <p className="text-sm">
-                        Ensemble des fonctionnalités proposées par InkStudio :
-                        gestion, réservation, profil public, etc.
+                        Ensemble des fonctionnalités proposées par Inkera Studio
+                        : gestion, réservation, profil public, etc.
                       </p>
                     </div>
 
@@ -198,8 +199,8 @@ export default function CguCgv() {
                   <p>
                     Les présentes CGU/CGV ont pour objet de définir les
                     modalités et conditions d&apos;utilisation des services
-                    proposés sur la plateforme InkStudio, ainsi que de définir
-                    les droits et obligations des parties dans ce cadre.
+                    proposés sur la plateforme Inkera Studio, ainsi que de
+                    définir les droits et obligations des parties dans ce cadre.
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
@@ -248,7 +249,7 @@ export default function CguCgv() {
                     Conditions d&apos;accès
                   </h3>
                   <p>
-                    L&apos;accès à la plateforme InkStudio est réservé aux
+                    L&apos;accès à la plateforme Inkera Studio est réservé aux
                     personnes majeures disposant de la capacité juridique pour
                     contracter. Les professionnels doivent justifier de leur
                     activité légale dans le secteur du tatouage.
@@ -287,10 +288,10 @@ export default function CguCgv() {
                       Vérification des comptes
                     </h3>
                     <p className="text-sm">
-                      InkStudio se réserve le droit de vérifier l&apos;identité
-                      et les qualifications des utilisateurs. Les comptes
-                      professionnels peuvent faire l&apos;objet d&apos;une
-                      validation avant activation complète.
+                      Inkera Studio se réserve le droit de vérifier
+                      l&apos;identité et les qualifications des utilisateurs.
+                      Les comptes professionnels peuvent faire l&apos;objet
+                      d&apos;une validation avant activation complète.
                     </p>
                   </div>
                 </div>
@@ -366,7 +367,7 @@ export default function CguCgv() {
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
-                    Les tarifs des services InkStudio sont indiqués en euros
+                    Les tarifs des services Inkera Studio sont indiqués en euros
                     toutes taxes comprises. Ils sont susceptibles d&apos;être
                     modifiés à tout moment, mais les tarifs applicables sont
                     ceux en vigueur au moment de la commande.
@@ -448,7 +449,7 @@ export default function CguCgv() {
 
                     <div className="bg-white/5 rounded-2xl p-6">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
-                        Suspension par InkStudio
+                        Suspension par Inkera Studio
                       </h3>
                       <ul className="space-y-2 text-sm">
                         <li>• Non-respect des CGU/CGV</li>
@@ -480,7 +481,7 @@ export default function CguCgv() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-white/5 rounded-2xl p-6">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
-                        Responsabilité d&apos;InkStudio
+                        Responsabilité d&apos;Inkera Studio
                       </h3>
                       <ul className="space-y-2 text-sm">
                         <li>• Fourniture des services décrits</li>
@@ -513,8 +514,8 @@ export default function CguCgv() {
                       Les utilisateurs garantissent la véracité des informations
                       fournies, le respect des lois en vigueur et l&apos;absence
                       de violation des droits de tiers. Ils s&apos;engagent à
-                      indemniser InkStudio de tout préjudice résultant de leurs
-                      actions.
+                      indemniser Inkera Studio de tout préjudice résultant de
+                      leurs actions.
                     </p>
                   </div>
                 </div>
@@ -528,8 +529,8 @@ export default function CguCgv() {
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
-                    La plateforme InkStudio, son code source, sa structure, ses
-                    bases de données, ainsi que tous les éléments qui la
+                    La plateforme Inkera Studio, son code source, sa structure,
+                    ses bases de données, ainsi que tous les éléments qui la
                     composent (textes, images, sons, vidéos, etc.) sont protégés
                     par le droit de la propriété intellectuelle.
                   </p>
@@ -537,10 +538,10 @@ export default function CguCgv() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div className="bg-white/5 rounded-2xl p-6">
                       <h3 className="font-semibold text-white mb-3">
-                        Droits d&apos;InkStudio
+                        Droits d&apos;Inkera Studio
                       </h3>
                       <ul className="space-y-2 text-sm">
-                        <li>• Marques et logos InkStudio</li>
+                        <li>• Marques et logos Inkera Studio</li>
                         <li>• Code source et architecture</li>
                         <li>• Design et interface utilisateur</li>
                         <li>• Documentation et contenus éditoriaux</li>
@@ -556,7 +557,7 @@ export default function CguCgv() {
                         <li>• Portfolio et réalisations artistiques</li>
                         <li>• Photos et contenus personnels</li>
                         <li>• Textes de présentation</li>
-                        <li>• Licence d&apos;utilisation à InkStudio</li>
+                        <li>• Licence d&apos;utilisation à Inkera Studio</li>
                         <li>• Droit de retrait à tout moment</li>
                       </ul>
                     </div>
@@ -567,8 +568,8 @@ export default function CguCgv() {
                       Utilisation des contenus
                     </h3>
                     <p className="text-sm">
-                      En publiant du contenu sur InkStudio, vous accordez une
-                      licence d&apos;utilisation non-exclusive pour
+                      En publiant du contenu sur Inkera Studio, vous accordez
+                      une licence d&apos;utilisation non-exclusive pour
                       l&apos;affichage, la promotion et l&apos;amélioration des
                       services. Vous conservez tous vos droits de propriété
                       intellectuelle.
@@ -602,8 +603,9 @@ export default function CguCgv() {
                       </h3>
                       <p className="text-sm">
                         Avant tout recours judiciaire, nous encourageons le
-                        recours à la médiation. Contact : mediation@inkstudio.fr
-                        ou via la plateforme officielle de médiation.
+                        recours à la médiation. Contact :
+                        contact@inkera-studio.com ou via la plateforme
+                        officielle de médiation.
                       </p>
                     </div>
 
@@ -629,7 +631,7 @@ export default function CguCgv() {
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
-                    InkStudio se réserve le droit de modifier les présentes
+                    Inkera Studio se réserve le droit de modifier les présentes
                     CGU/CGV à tout moment. Les utilisateurs seront informés de
                     toute modification substantielle par email et/ou
                     notification sur la plateforme.
@@ -664,11 +666,11 @@ export default function CguCgv() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <strong className="text-tertiary-400">Email :</strong>{" "}
-                    legal@inkstudio.fr
+                    legal@Inkera Studio.fr
                   </div>
                   <div>
                     <strong className="text-tertiary-400">Courrier :</strong>{" "}
-                    InkStudio SAS - Service Juridique
+                    Inkera Studio SAS - Service Juridique
                   </div>
                   <div>
                     <strong className="text-tertiary-400">Adresse :</strong> 123

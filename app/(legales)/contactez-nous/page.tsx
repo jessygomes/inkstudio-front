@@ -1,10 +1,12 @@
 import React from "react";
 import {
   FaEnvelope,
-  FaPhone,
+  // FaPhone,
   FaClock,
   FaHeadset,
   FaQuestionCircle,
+  FaHandshake,
+  FaLifeRing,
 } from "react-icons/fa";
 import type { Metadata } from "next";
 import Header from "@/components/Shared/Header";
@@ -62,7 +64,7 @@ export default function ContactezNous() {
                 Notre équipe est à votre disposition pour vous accompagner dans
                 l&apos;utilisation d&apos;{" "}
                 <span className="text-tertiary-400 font-semibold">
-                  InkStudio
+                  Inkera Studio
                 </span>
               </p>
             </div>
@@ -182,139 +184,57 @@ export default function ContactezNous() {
             </div> */}
 
               {/* Formulaire de contact */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
-                  Envoyez-nous un message
-                </h2>
-
-                <form className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label
-                        htmlFor="nom"
-                        className="block text-white font-one text-sm font-semibold mb-2"
-                      >
-                        Nom complet *
-                      </label>
-                      <input
-                        type="text"
-                        id="nom"
-                        name="nom"
-                        required
-                        className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:border-tertiary-400 focus:ring-1 focus:ring-tertiary-400 transition-all duration-300"
-                        placeholder="Votre nom et prénom"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-white font-one text-sm font-semibold mb-2"
-                      >
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        required
-                        className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:border-tertiary-400 focus:ring-1 focus:ring-tertiary-400 transition-all duration-300"
-                        placeholder="votre@email.com"
-                      />
-                    </div>
+              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                    <FaEnvelope size={24} className="text-tertiary-400" />
                   </div>
+                  <h2 className="text-2xl font-bold text-white font-two">
+                    Moyens de contact
+                  </h2>
+                </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label
-                        htmlFor="telephone"
-                        className="block text-white font-one text-sm font-semibold mb-2"
-                      >
-                        Téléphone
-                      </label>
-                      <input
-                        type="tel"
-                        id="telephone"
-                        name="telephone"
-                        className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:border-tertiary-400 focus:ring-1 focus:ring-tertiary-400 transition-all duration-300"
-                        placeholder="+33 1 23 45 67 89"
-                      />
+                <div className="space-y-6 text-white/80 font-one leading-relaxed">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-tertiary-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                      <FaLifeRing className="w-4 h-4 text-tertiary-400" />
                     </div>
-
                     <div>
-                      <label
-                        htmlFor="sujet"
-                        className="block text-white font-one text-sm font-semibold mb-2"
-                      >
-                        Sujet *
-                      </label>
-                      <select
-                        id="sujet"
-                        name="sujet"
-                        required
-                        className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:border-tertiary-400 focus:ring-1 focus:ring-tertiary-400 transition-all duration-300"
-                      >
-                        <option value="">Sélectionnez un sujet</option>
-                        <option value="support-technique">
-                          Support technique
-                        </option>
-                        <option value="commercial">Question commerciale</option>
-                        <option value="compte">Gestion de compte</option>
-                        <option value="juridique">Question juridique</option>
-                        <option value="autre">Autre</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="message"
-                      className="block text-white font-one text-sm font-semibold mb-2"
-                    >
-                      Message *
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows={6}
-                      required
-                      className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:border-tertiary-400 focus:ring-1 focus:ring-tertiary-400 transition-all duration-300 resize-none"
-                      placeholder="Décrivez votre demande en détail..."
-                    ></textarea>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="rgpd"
-                      name="rgpd"
-                      required
-                      className="w-4 h-4 rounded border-white/20 bg-white/10 text-tertiary-400 focus:ring-tertiary-400"
-                    />
-                    <label
-                      htmlFor="rgpd"
-                      className="text-white/80 font-one text-sm"
-                    >
-                      J&apos;accepte que mes données soient utilisées pour
-                      traiter ma demande conformément à la{" "}
+                      <h3 className="font-semibold text-white mb-2">
+                        Support technique
+                      </h3>
                       <a
-                        href="/politique-de-confidentialite"
-                        className="text-tertiary-400 hover:text-tertiary-300 underline"
+                        href="mailto:contact@inkera-studio.com"
+                        className="text-tertiary-400 hover:text-tertiary-300 transition-colors font-semibold underline"
                       >
-                        politique de confidentialité
+                        contact@inkera-studio.com
                       </a>
-                    </label>
+                      <p className="text-sm text-white/60 mt-1">
+                        Pour les problèmes techniques
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="flex justify-end">
-                    <button
-                      type="submit"
-                      className="bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white font-one font-semibold px-8 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 focus:ring-2 focus:ring-tertiary-400 focus:ring-offset-2 focus:ring-offset-noir-700"
-                    >
-                      Envoyer le message
-                    </button>
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-tertiary-500/20 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                      <FaHandshake className="w-4 h-4 text-tertiary-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white mb-2">
+                        Partenariats
+                      </h3>
+                      <a
+                        href="mailto:contact@inkera-studio.com"
+                        className="text-tertiary-400 hover:text-tertiary-300 transition-colors font-semibold underline"
+                      >
+                        contact@inkera-studio.com
+                      </a>
+                      <p className="text-sm text-white/60 mt-1">
+                        Collaborations et partenariats
+                      </p>
+                    </div>
                   </div>
-                </form>
+                </div>
               </div>
 
               {/* Horaires d'ouverture */}
@@ -328,7 +248,7 @@ export default function ContactezNous() {
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                   <div className="bg-white/5 rounded-2xl p-6">
                     <h3 className="font-semibold text-white mb-4">
                       Support général
@@ -369,7 +289,7 @@ export default function ContactezNous() {
                     </div>
                   </div>
 
-                  <div className="bg-white/5 rounded-2xl p-6">
+                  {/* <div className="bg-white/5 rounded-2xl p-6">
                     <h3 className="font-semibold text-white mb-4">
                       Équipe commerciale
                     </h3>
@@ -387,7 +307,7 @@ export default function ContactezNous() {
                         <span>Fermé</span>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -462,7 +382,7 @@ export default function ContactezNous() {
               </div>
 
               {/* Temps de réponse */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              {/* <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
                 <h2 className="text-2xl font-bold text-white font-two mb-6">
                   Temps de réponse
                 </h2>
@@ -498,10 +418,10 @@ export default function ContactezNous() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* FAQ rapide */}
-              <div className="text-center py-8">
+              {/* <div className="text-center py-8">
                 <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20 max-w-3xl mx-auto">
                   <h3 className="text-xl font-bold text-white font-two mb-4">
                     Besoin d&apos;une aide immédiate ?
@@ -527,7 +447,7 @@ export default function ContactezNous() {
                     </a>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </section>

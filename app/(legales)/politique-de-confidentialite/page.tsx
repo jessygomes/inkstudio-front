@@ -12,7 +12,7 @@ import Header from "@/components/Shared/Header";
 import Footer from "@/components/Shared/Footer/Footer";
 
 export const metadata: Metadata = {
-  title: "Politique de Confidentialité & Cookies | INKERA Studio",
+  title: "Politique de Confidentialité & Cookies",
   description:
     "Découvrez comment INKERA Studio protège vos données personnelles. Politique complète sur les cookies, Google Analytics, RGPD et traitement des données pour salons de tatouage.",
   keywords: [
@@ -65,7 +65,7 @@ export default function PolitiqueDeConfidentialite() {
               <p className="text-xl text-white/70 font-one leading-relaxed max-w-3xl mx-auto">
                 Votre vie privée est notre priorité. Découvrez comment{" "}
                 <span className="text-tertiary-400 font-semibold">
-                  InkStudio
+                  Inkera Studio
                 </span>{" "}
                 protège et traite vos données personnelles
               </p>
@@ -85,7 +85,7 @@ export default function PolitiqueDeConfidentialite() {
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
-                    InkStudio SAS, en tant que responsable de traitement,
+                    Inkera Studio SAS, en tant que responsable de traitement,
                     s&apos;engage à protéger la vie privée et les données
                     personnelles de ses utilisateurs. Cette politique de
                     confidentialité vous informe sur la façon dont nous
@@ -126,7 +126,7 @@ export default function PolitiqueDeConfidentialite() {
                       <h3 className="font-semibold text-white mb-2">
                         Entreprise
                       </h3>
-                      <p>InkStudio SAS</p>
+                      <p>Inkera Studio SAS</p>
                     </div>
                     <div>
                       <h3 className="font-semibold text-white mb-2">Adresse</h3>
@@ -140,13 +140,13 @@ export default function PolitiqueDeConfidentialite() {
                       <h3 className="font-semibold text-white mb-2">
                         Contact DPO
                       </h3>
-                      <p>dpo@inkstudio.fr</p>
+                      <p>contact@inkera-studio.com</p>
                     </div>
                     <div>
                       <h3 className="font-semibold text-white mb-2">
                         Contact général
                       </h3>
-                      <p>contact@inkstudio.fr</p>
+                      <p>contact@inkera-studio.com</p>
                     </div>
                   </div>
                 </div>
@@ -244,7 +244,7 @@ export default function PolitiqueDeConfidentialite() {
                       </h3>
                       <p className="text-sm">
                         Création, authentification et gestion de votre compte
-                        utilisateur sur la plateforme InkStudio.
+                        utilisateur sur la plateforme Inkera Studio.
                       </p>
                     </div>
 
@@ -315,7 +315,7 @@ export default function PolitiqueDeConfidentialite() {
                       </h3>
                       <p className="text-sm">
                         Traitement nécessaire à l&apos;exécution des services
-                        InkStudio et à la gestion des rendez-vous.
+                        Inkera Studio et à la gestion des rendez-vous.
                       </p>
                     </div>
 
@@ -501,7 +501,7 @@ export default function PolitiqueDeConfidentialite() {
                     </h3>
                     <p className="text-sm">
                       Pour exercer vos droits, contactez-nous à l&apos;adresse{" "}
-                      <strong>dpo@inkstudio.fr</strong> en précisant votre
+                      <strong>dpo@Inkera Studio.fr</strong> en précisant votre
                       demande et en joignant une copie de votre pièce
                       d&apos;identité. Nous vous répondrons dans un délai
                       maximum d&apos;un mois.
@@ -643,13 +643,13 @@ export default function PolitiqueDeConfidentialite() {
                         Contact DPO
                       </h3>
                       <p className="text-sm">
-                        Email : dpo@inkstudio.fr
-                        <br />
-                        Courrier : DPO InkStudio
+                        Email : contact@inkera-studio.com
+                        {/* <br />
+                        Courrier : DPO Inkera Studio
                         <br />
                         123 Rue de l&apos;Innovation
                         <br />
-                        75001 Paris, France
+                        75001 Paris, France */}
                       </p>
                     </div>
 
