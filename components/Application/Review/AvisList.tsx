@@ -39,6 +39,19 @@ interface PaginatedReviews {
   totalPages?: number;
   page?: number;
   limit?: number;
+  statistics?: ReviewStatistics;
+  pagination?: {
+    currentPage?: number;
+    totalReviews?: number;
+    totalPages?: number;
+  };
+}
+
+interface ReviewStatistics {
+  totalReviews?: number;
+  averageRating?: number;
+  ratingDistribution?: Record<string, number>;
+  verifiedReviewsCount?: number;
 }
 
 export default function AvisList() {
@@ -60,8 +73,11 @@ export default function AvisList() {
   const [responseError, setResponseError] = useState<Record<string, string>>(
     {}
   );
+  const [statistics, setStatistics] = useState<ReviewStatistics>({});
 
   const pageSize = 10;
+
+  console.log("Rendering AvisList with reviews:", reviews);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -76,6 +92,8 @@ export default function AvisList() {
     if (!url) return;
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  const formatRating = (value?: number) => (value ?? 0).toFixed(1);
 
   const loadReviews = async (pageToLoad = 1) => {
     if (!user?.id) return;
@@ -97,12 +115,20 @@ export default function AvisList() {
       const data = result.data as PaginatedReviews;
       const list = data.reviews || data.items || data.data;
       setReviews(list ?? []);
-      setTotal(data.total ?? data.totalItems ?? null);
+      setTotal(
+        data.total ??
+          data.totalItems ??
+          data.statistics?.totalReviews ??
+          data.pagination?.totalReviews ??
+          null
+      );
       setTotalPages(
         data.totalPages ??
+          data.pagination?.totalPages ??
           (data.total && pageSize ? Math.ceil(data.total / pageSize) : null)
       );
-      setPage(data.page ?? pageToLoad);
+      setStatistics(data.statistics ?? {});
+      setPage(data.page ?? data.pagination?.currentPage ?? pageToLoad);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Une erreur est survenue";
@@ -223,10 +249,59 @@ export default function AvisList() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-white/70 text-xs font-one bg-white/5 rounded-lg px-3 py-2 border border-white/10">
-          <span>Page {page}</span>
-          {totalPages ? <span>/ {totalPages}</span> : null}
-          {total ? <span className="ml-2">• {total} avis</span> : null}
+        <div className="flex items-center gap-2 text-white/70 text-xs font-one bg-white/5 rounded-lg px-3 py-2 border border-white/10 whitespace-nowrap">
+          <span>
+            Page {page}
+            {totalPages ? ` / ${totalPages}` : ""}
+            {total ? ` • ${total} avis` : ""}
+          </span>
+        </div>
+      </div>
+
+      <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
+          <span className="text-white/60 text-xs font-one">Total avis</span>
+          <span className="text-white text-xl font-one font-semibold">
+            {statistics.totalReviews ?? total ?? 0}
+          </span>
+        </div>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
+          <span className="text-white/60 text-xs font-one">Note moyenne</span>
+          <span className="text-white text-xl font-one font-semibold">
+            {formatRating(statistics.averageRating)}
+          </span>
+        </div>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
+          <span className="text-white/60 text-xs font-one">Avis vérifiés</span>
+          <span className="text-white text-xl font-one font-semibold">
+            {statistics.verifiedReviewsCount ?? 0}
+          </span>
+        </div>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-2">
+          <span className="text-white/60 text-xs font-one">Répartition</span>
+          <div className="space-y-1">
+            {[5, 4, 3, 2, 1].map((star) => {
+              const value =
+                statistics.ratingDistribution?.[star.toString()] ?? 0;
+              const max = statistics.totalReviews ?? total ?? 0;
+              const width = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+              return (
+                <div
+                  key={star}
+                  className="flex items-center gap-2 text-white/70 text-[11px] font-one"
+                >
+                  <span className="w-3 text-right">{star}</span>
+                  <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-tertiary-400"
+                      style={{ width: `${width}%` }}
+                    />
+                  </div>
+                  <span className="w-6 text-right">{value}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -344,7 +419,7 @@ export default function AvisList() {
                       <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2l-2.81 6.63L2 9.24l5.46 4.73L5.82 21 12 17.27z" />
                     </svg>
                     <span className="text-yellow-300 font-semibold text-sm font-one">
-                      {(review.rating ?? 0).toFixed(1)}
+                      {formatRating(review.rating)}
                     </span>
                   </div>
                   <button

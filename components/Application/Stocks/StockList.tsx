@@ -217,7 +217,7 @@ export default function StockList() {
           <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
             <button
               onClick={handleCreate}
-              className="cursor-pointer flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+              className="whitespace-nowrap cursor-pointer flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
             >
               <svg
                 className="w-4 h-4"

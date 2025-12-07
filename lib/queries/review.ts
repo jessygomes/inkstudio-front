@@ -191,6 +191,8 @@ export async function getAllReviewsBySalon(
 
     const result = await response.json();
 
+    console.log("All reviews result:", result);
+
     if (result && typeof result === "object") {
       return { ok: true, data: result };
     }
