@@ -693,6 +693,103 @@ export default function ShowRdvDetails({
                   </div>
                 </div>
               )}
+
+              {/* Section Review du client - Affichage de la salonReview si elle existe */}
+              {selectedEvent.salonReview && (
+                <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-lg p-3 border border-blue-400/20">
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <h5 className="text-white font-one font-semibold text-xs mb-1">
+                          ⭐ Avis client
+                        </h5>
+                        <p className="text-white font-one font-semibold text-sm">
+                          {selectedEvent.salonReview.title}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-md border border-yellow-500/30">
+                        <span className="text-yellow-400 font-one font-bold text-xs">
+                          {selectedEvent.salonReview.rating}
+                        </span>
+                        <span className="text-yellow-400 text-xs">★</span>
+                      </div>
+                    </div>
+
+                    <p className="text-white/80 font-one text-xs leading-relaxed">
+                      {selectedEvent.salonReview.comment}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                      <div className="text-white/60 text-xs font-one">
+                        {new Date(
+                          selectedEvent.salonReview.createdAt
+                        ).toLocaleDateString("fr-FR", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </div>
+                      {selectedEvent.salonReview.isVerified && (
+                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full border border-green-500/30 font-one">
+                          ✓ Vérifié
+                        </span>
+                      )}
+                    </div>
+
+                    {selectedEvent.salonReview.photos &&
+                      selectedEvent.salonReview.photos.length > 0 && (
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          {selectedEvent.salonReview.photos.map(
+                            (photo: string, idx: number) => (
+                              <div
+                                key={idx}
+                                className="relative w-full h-24 bg-white/5 rounded-md border border-white/10 overflow-hidden group cursor-pointer"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  openImageInNewTab(photo);
+                                }}
+                              >
+                                <Image
+                                  src={photo}
+                                  alt={`Photo avis ${idx + 1}`}
+                                  fill
+                                  className="object-cover group-hover:scale-105 transition-transform duration-200 pointer-events-none"
+                                />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center pointer-events-none">
+                                  <svg
+                                    className="w-3 h-3 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                    />
+                                  </svg>
+                                </div>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      )}
+
+                    {selectedEvent.salonReview.salonResponse && (
+                      <div className="bg-white/5 rounded-md p-2 border border-white/10 mt-2">
+                        <p className="text-white/60 text-xs font-one mb-1">
+                          Réponse du salon :
+                        </p>
+                        <p className="text-white/80 font-one text-xs">
+                          {selectedEvent.salonReview.salonResponse}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </>
           );
         })()}

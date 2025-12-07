@@ -61,6 +61,7 @@ export default function RDV() {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
   );
+  console.log("SELECTED EVENT", selectedEvent);
   const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
 
   // Bloquer le scroll du body quand la modal mobile est ouverte

@@ -75,6 +75,11 @@ export default function NavbarMobile() {
       icon: <MdShoppingBag size={20} />,
     },
     {
+      href: "/review",
+      label: "Avis",
+      icon: <MdAccountCircle size={20} />,
+    },
+    {
       href: "/factures",
       label: "Factures",
       icon: <PiInvoiceDuotone size={20} />,

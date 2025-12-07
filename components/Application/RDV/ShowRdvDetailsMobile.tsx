@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { CalendarEvent } from "./Calendar";
 import ConfirmRdv from "./ConfirmRdv";
 import UpdateRdv from "./UpdateRdv";
@@ -9,6 +10,7 @@ import Link from "next/link";
 import SendMessageRdv from "./SendMessageRdv";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
+import { openImageInNewTab } from "@/lib/utils/openImage";
 
 interface ShowRdvDetailsMobileProps {
   selectedEvent: CalendarEvent;
@@ -410,6 +412,62 @@ export default function ShowRdvDetailsMobile({
                           💰 Prix : {price}€
                         </p>
                       </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Section Review du client - Affichage de la salonReview si elle existe */}
+            {selectedEvent.salonReview && (
+              <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-xl p-3 border border-blue-400/20">
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex-1">
+                      <h5 className="text-white font-one font-semibold text-sm mb-1">
+                        ⭐ Avis client
+                      </h5>
+                      <p className="text-white font-one font-semibold text-sm">
+                        {selectedEvent.salonReview.title}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-md border border-yellow-500/30 flex-shrink-0">
+                      <span className="text-yellow-400 font-one font-bold text-xs">
+                        {selectedEvent.salonReview.rating}
+                      </span>
+                      <span className="text-yellow-400 text-xs">★</span>
+                    </div>
+                  </div>
+
+                  <p className="text-white/80 font-one text-xs leading-relaxed">
+                    {selectedEvent.salonReview.comment}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                    <div className="text-white/60 text-xs font-one">
+                      {new Date(
+                        selectedEvent.salonReview.createdAt
+                      ).toLocaleDateString("fr-FR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </div>
+                    {selectedEvent.salonReview.isVerified && (
+                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full border border-green-500/30 font-one">
+                        ✓ Vérifié
+                      </span>
+                    )}
+                  </div>
+
+                  {selectedEvent.salonReview.salonResponse && (
+                    <div className="bg-white/5 rounded-md p-2 border border-white/10 mt-2">
+                      <p className="text-white/60 text-xs font-one mb-1">
+                        Réponse du salon :
+                      </p>
+                      <p className="text-white/80 font-one text-xs">
+                        {selectedEvent.salonReview.salonResponse}
+                      </p>
                     </div>
                   )}
                 </div>

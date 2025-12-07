@@ -8,6 +8,7 @@ import RendezVousToday from "@/components/Application/Dashboard/RendezVousToday"
 import TotalPayed from "@/components/Application/Dashboard/TotalPayed";
 import WaitingRdv from "@/components/Application/Dashboard/WaitingRdv";
 import WeeklyFillRate from "@/components/Application/Dashboard/WeeklyFillRate";
+import RecentReviews from "@/components/Application/Dashboard/RecentReviews";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import Link from "next/link";
 import { LuLayoutDashboard } from "react-icons/lu";
@@ -116,6 +117,13 @@ export default function DashboardPage() {
           {!isFreeAccount && (
             <div className="col-span-12 sm:col-span-6 lg:col-span-4">
               <NotAnswerClient userId={user.id ?? ""} />
+            </div>
+          )}
+
+          {/* Derniers avis du salon */}
+          {!isFreeAccount && (
+            <div className="col-span-12 sm:col-span-6 lg:col-span-4">
+              <RecentReviews />
             </div>
           )}
 
