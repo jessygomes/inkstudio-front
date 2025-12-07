@@ -150,6 +150,9 @@ export interface UserSettings {
 
 //! TATTOO HISTORY
 export interface TattooHistoryProps {
+  tatoueur: {
+    name: string;
+  };
   id: string;
   clientId: string; // ID du client
   tatoueurId: string; // ID du tatoueur

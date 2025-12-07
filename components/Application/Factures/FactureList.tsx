@@ -2,7 +2,7 @@
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { getfacturesSalonAction } from "@/lib/queries/user";
 import { FactureProps, PaginationInfo, FactureStatistics } from "@/lib/type";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { PiInvoiceDuotone } from "react-icons/pi";
 import FactureDetailsModal from "./FactureDetailsModal";
 
@@ -38,62 +38,67 @@ export default function FactureList() {
   );
 
   //! Récupère les factures avec pagination et filtres
-  const fetchFactures = async (
-    page: number = currentPage,
-    search: string = searchTerm,
-    filter: "all" | "paid" | "unpaid" = paymentFilter
-  ) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const fetchFactures = useCallback(
+    async (
+      page: number = currentPage,
+      search: string = searchTerm,
+      filter: "all" | "paid" | "unpaid" = paymentFilter
+    ) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      // Convertir le filtre en booléen ou undefined
-      let isPayed: boolean | undefined = undefined;
-      if (filter === "paid") isPayed = true;
-      if (filter === "unpaid") isPayed = false;
+        // Convertir le filtre en booléen ou undefined
+        let isPayed: boolean | undefined = undefined;
+        if (filter === "paid") isPayed = true;
+        if (filter === "unpaid") isPayed = false;
 
-      const data = await getfacturesSalonAction(page, search, isPayed);
+        const data = await getfacturesSalonAction(page, search, isPayed);
 
-      console.log("Données des factures reçues :", data);
+        console.log("Données des factures reçues :", data);
 
-      if (data.error) {
-        throw new Error(
-          data.message || "Erreur lors de la récupération des factures"
-        );
-      }
-
-      // Les données sont dans data.data selon votre structure d'API
-      const responseData = data.data;
-
-      if (Array.isArray(responseData.factures)) {
-        setFactures(responseData.factures);
-        if (responseData.statistics) {
-          setStatistics(responseData.statistics);
+        if (data.error) {
+          throw new Error(
+            data.message || "Erreur lors de la récupération des factures"
+          );
         }
-        if (responseData.pagination) {
-          setPagination(responseData.pagination);
+
+        // Les données sont dans data.data selon votre structure d'API
+        const responseData = data.data;
+
+        if (Array.isArray(responseData.factures)) {
+          setFactures(responseData.factures);
+          if (responseData.statistics) {
+            setStatistics(responseData.statistics);
+          }
+          if (responseData.pagination) {
+            setPagination(responseData.pagination);
+          }
+        } else {
+          console.error(
+            "Les données reçues ne sont pas un tableau:",
+            responseData
+          );
+          setFactures([]);
         }
-      } else {
-        console.error(
-          "Les données reçues ne sont pas un tableau:",
-          responseData
+      } catch (err) {
+        console.error("Erreur lors du chargement des factures :", err);
+        setError(
+          err instanceof Error ? err.message : "Une erreur est survenue"
         );
         setFactures([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Erreur lors du chargement des factures :", err);
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
-      setFactures([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    []
+  );
 
   useEffect(() => {
     if (user.id) {
       fetchFactures();
     }
-  }, [user.id, currentPage, paymentFilter]);
+  }, [user.id, currentPage, paymentFilter, fetchFactures]);
 
   // Effet pour la recherche avec debounce
   useEffect(() => {
@@ -105,6 +110,7 @@ export default function FactureList() {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, user.id]);
 
   console.log("Factures dans le state :", factures);
@@ -145,12 +151,12 @@ export default function FactureList() {
 
   // Gérer la mise à jour d'une facture
   const handleFactureUpdate = (updatedFacture: FactureProps) => {
-    setFactures(prevFactures =>
-      prevFactures.map(facture =>
+    setFactures((prevFactures) =>
+      prevFactures.map((facture) =>
         facture.id === updatedFacture.id ? updatedFacture : facture
       )
     );
-    
+
     // Mettre à jour la facture sélectionnée si c'est celle qui a été modifiée
     if (selectedFacture && selectedFacture.id === updatedFacture.id) {
       setSelectedFacture(updatedFacture);
@@ -399,8 +405,8 @@ export default function FactureList() {
 
         {/* Liste des factures - seulement si pas de loading/error */}
         {!loading && !error && (
-          <div className="bg-noir-700 rounded-xl border border-white/20 overflow-hidden">
-            <div className="p-4 border-b border-white/10">
+          <div className="space-y-3">
+            <div className="px-4 py-2">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white font-one">
                   Liste des factures
@@ -412,7 +418,7 @@ export default function FactureList() {
             </div>
 
             {factures.length === 0 ? (
-              <div className="text-center py-12">
+              <div className="text-center py-12 bg-noir-700 rounded-xl border border-white/20">
                 <div className="w-16 h-16 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <svg
                     className="w-8 h-8 text-gray-500"
@@ -434,74 +440,171 @@ export default function FactureList() {
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-white/10">
-                {factures.map((facture) => (
-                  <div
-                    key={facture.id}
-                    className="p-4 hover:bg-white/5 transition-colors cursor-pointer"
-                    onClick={() => setSelectedFacture(facture)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        {/* Avatar client */}
-                        <div className="w-12 h-12 bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-full flex items-center justify-center">
+              <>
+                {/* Vue Desktop */}
+                <div className="hidden md:block bg-noir-700 rounded-xl border border-white/20 overflow-hidden">
+                  <div className="divide-y divide-white/10">
+                    {factures.map((facture) => (
+                      <div
+                        key={facture.id}
+                        className="p-4 hover:bg-white/5 transition-colors cursor-pointer"
+                        onClick={() => setSelectedFacture(facture)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4 flex-1">
+                            {/* Avatar client */}
+                            <div className="w-12 h-12 bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-full flex items-center justify-center flex-shrink-0">
+                              <span className="text-white font-semibold text-sm">
+                                {facture.client.firstName
+                                  .charAt(0)
+                                  .toUpperCase()}
+                                {facture.client.lastName
+                                  .charAt(0)
+                                  .toUpperCase()}
+                              </span>
+                            </div>
+
+                            {/* Infos facture */}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-3 mb-1">
+                                <h3 className="font-semibold text-white text-sm font-one truncate">
+                                  {facture.title}
+                                </h3>
+                                <span
+                                  className={`px-2 py-1 rounded text-xs font-medium font-one whitespace-nowrap ${
+                                    facture.prestation === "TATTOO"
+                                      ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                                      : facture.prestation === "PIERCING"
+                                      ? "bg-pink-500/20 text-pink-400 border border-pink-500/30"
+                                      : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                                  }`}
+                                >
+                                  {facture.prestation}
+                                </span>
+                              </div>
+                              <p className="text-white/70 text-xs font-one">
+                                {facture.client.firstName}{" "}
+                                {facture.client.lastName} •{" "}
+                                {formatDate(facture.dateRdv)} •{" "}
+                                {facture.tatoueur}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Prix et statut */}
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-white font-bold text-lg font-one mb-1">
+                              {formatPrice(facture.price)}
+                            </p>
+                            <div className="flex items-center justify-end gap-2">
+                              <div
+                                className={`w-2 h-2 rounded-full ${
+                                  facture.isPayed
+                                    ? "bg-green-400"
+                                    : "bg-orange-400"
+                                }`}
+                              ></div>
+                              <span
+                                className={`text-xs font-one ${
+                                  facture.isPayed
+                                    ? "text-green-400"
+                                    : "text-orange-400"
+                                }`}
+                              >
+                                {facture.isPayed ? "Payé" : "En attente"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Vue Mobile */}
+                <div className="md:hidden space-y-3">
+                  {factures.map((facture) => (
+                    <div
+                      key={facture.id}
+                      className="bg-noir-700 rounded-xl border border-white/20 p-4 hover:border-tertiary-400/50 transition-colors cursor-pointer"
+                      onClick={() => setSelectedFacture(facture)}
+                    >
+                      {/* Header: Avatar + Titre */}
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-full flex items-center justify-center flex-shrink-0">
                           <span className="text-white font-semibold text-sm">
                             {facture.client.firstName.charAt(0).toUpperCase()}
                             {facture.client.lastName.charAt(0).toUpperCase()}
                           </span>
                         </div>
-
-                        {/* Infos facture */}
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-3 mb-1">
-                            <h3 className="font-semibold text-white text-sm font-one truncate">
-                              {facture.title}
-                            </h3>
-                            <span
-                              className={`px-2 py-1 rounded text-xs font-medium font-one ${
-                                facture.prestation === "TATTOO"
-                                  ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                                  : facture.prestation === "PIERCING"
-                                  ? "bg-pink-500/20 text-pink-400 border border-pink-500/30"
-                                  : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                              }`}
-                            >
-                              {facture.prestation}
-                            </span>
-                          </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-white text-sm font-one truncate mb-1">
+                            {facture.title}
+                          </h3>
                           <p className="text-white/70 text-xs font-one">
-                            {facture.client.firstName} {facture.client.lastName}{" "}
-                            • {formatDate(facture.dateRdv)} • {facture.tatoueur}
+                            {facture.client.firstName} {facture.client.lastName}
                           </p>
                         </div>
                       </div>
 
-                      {/* Prix et statut */}
-                      <div className="text-right">
-                        <p className="text-white font-bold text-lg font-one mb-1">
-                          {formatPrice(facture.price)}
+                      {/* Info ligne 1: Prestation + Date */}
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium font-one ${
+                            facture.prestation === "TATTOO"
+                              ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                              : facture.prestation === "PIERCING"
+                              ? "bg-pink-500/20 text-pink-400 border border-pink-500/30"
+                              : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                          }`}
+                        >
+                          {facture.prestation}
+                        </span>
+                        <p className="text-white/70 text-xs font-one text-right">
+                          {formatDate(facture.dateRdv)}
                         </p>
-                        <div className="flex items-center gap-2">
+                      </div>
+
+                      {/* Info ligne 2: Tatoueur */}
+                      <div className="mb-3 pb-3 border-b border-white/10">
+                        <p className="text-white/70 text-xs font-one">
+                          Tatoueur: {facture.tatoueur}
+                        </p>
+                      </div>
+
+                      {/* Footer: Prix + Statut */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-white/60 text-xs font-one mb-1">
+                            Montant
+                          </p>
+                          <p className="text-white font-bold text-lg font-one">
+                            {formatPrice(facture.price)}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
                           <div
-                            className={`w-2 h-2 rounded-full ${
-                              facture.isPayed ? "bg-green-400" : "bg-orange-400"
-                            }`}
-                          ></div>
-                          <span
-                            className={`text-xs font-one ${
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium font-one flex items-center gap-2 ${
                               facture.isPayed
-                                ? "text-green-400"
-                                : "text-orange-400"
+                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                : "bg-orange-500/20 text-orange-400 border border-orange-500/30"
                             }`}
                           >
+                            <div
+                              className={`w-2 h-2 rounded-full ${
+                                facture.isPayed
+                                  ? "bg-green-400"
+                                  : "bg-orange-400"
+                              }`}
+                            ></div>
                             {facture.isPayed ? "Payé" : "En attente"}
-                          </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </>
             )}
 
             {/* Pagination responsive */}

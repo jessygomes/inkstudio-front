@@ -2,7 +2,7 @@
 "use client";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { ClientProps, PaginationInfo } from "@/lib/type";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 import CreateOrUpdateClient from "./CreateOrUpdateClient";
 import DeleteClient from "./DeleteClient";
@@ -56,42 +56,44 @@ export default function ClientList() {
   const [unansweredFollowUpsCount, setUnansweredFollowUpsCount] = useState(0);
 
   //! Récupère les clients avec pagination
-  const fetchClients = async (
-    page: number = currentPage,
-    search: string = searchTerm
-  ) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const fetchClients = useCallback(
+    async (page: number = currentPage, search: string = searchTerm) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const data = await getSalonClientsAction(page, search);
+        const data = await getSalonClientsAction(page, search);
 
-      if (data.error) {
-        throw new Error(
-          data.message || "Erreur lors de la récupération des clients"
-        );
-      }
-
-      if (Array.isArray(data.clients)) {
-        setClients(data.clients);
-        if (data.pagination) {
-          setPagination(data.pagination);
+        if (data.error) {
+          throw new Error(
+            data.message || "Erreur lors de la récupération des clients"
+          );
         }
-      } else {
-        console.error("Les données reçues ne sont pas un tableau:", data);
+
+        if (Array.isArray(data.clients)) {
+          setClients(data.clients);
+          if (data.pagination) {
+            setPagination(data.pagination);
+          }
+        } else {
+          console.error("Les données reçues ne sont pas un tableau:", data);
+          setClients([]);
+        }
+      } catch (err) {
+        console.error("Erreur lors du chargement des clients :", err);
+        setError(
+          err instanceof Error ? err.message : "Une erreur est survenue"
+        );
         setClients([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Erreur lors du chargement des clients :", err);
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
-      setClients([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [currentPage, searchTerm]
+  );
 
   //! Nouvelle fonction pour récupérer le nombre de suivis non répondus
-  const fetchUnansweredFollowUpsCount = async () => {
+  const fetchUnansweredFollowUpsCount = useCallback(async () => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACK_URL}/follow-up/unanswered/${user.id}/number`,
@@ -110,14 +112,15 @@ export default function ClientList() {
         error
       );
     }
-  };
+  }, [user.id]);
 
   // Effet pour charger les clients au changement de page ou de recherche
   useEffect(() => {
     if (user.id) {
       fetchClients(currentPage, searchTerm);
-      fetchUnansweredFollowUpsCount(); // Ajouter ici
+      fetchUnansweredFollowUpsCount();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id, currentPage]);
 
   // Effet pour la recherche avec debounce
@@ -126,11 +129,12 @@ export default function ClientList() {
       if (user.id) {
         setCurrentPage(1); // Reset à la page 1 lors d'une nouvelle recherche
         fetchClients(1, searchTerm);
-        fetchUnansweredFollowUpsCount(); // Ajouter ici aussi
+        fetchUnansweredFollowUpsCount();
       }
     }, 300);
 
     return () => clearTimeout(debounceTimer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, user.id]);
 
   //! Handler pour afficher les réservations
@@ -361,13 +365,25 @@ export default function ClientList() {
         ) : (
           <div>
             {/* Header de tableau - masqué sur mobile */}
-            <div className="hidden sm:grid grid-cols-6 gap-2 px-4 py-2 mb-2 bg-white/10 rounded-lg text-white font-one text-xs font-semibold tracking-widest">
-              <p>Nom & Prénom</p>
-              <p>Email</p>
-              <p>Téléphone</p>
-              <p>Rendez-vous</p>
+            <div className="hidden lg:grid grid-cols-6 gap-4 px-6 py-3 mb-4 bg-gradient-to-r from-white/5 to-white/10 rounded-xl text-white font-one text-xs font-semibold tracking-wider uppercase border border-white/10">
+              <p className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
+                Client
+              </p>
+              <p className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
+                Email
+              </p>
+              <p className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
+                Téléphone
+              </p>
+              <p className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
+                RDV
+              </p>
+              <p className="text-center">Détails</p>
               <p className="text-center">Actions</p>
-              <p></p>
             </div>
 
             {loading ? (
@@ -439,101 +455,173 @@ export default function ClientList() {
             ) : (
               <div>
                 {/* Liste des clients responsive */}
-                <div className="space-y-2 mb-6">
+                <div className="space-y-3 mb-6">
                   {clients.map((client) => (
                     <div key={client.id}>
                       {/* Vue desktop - grille */}
-                      <div className="hidden lg:grid grid-cols-6 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
-                        <p className="text-white font-one text-xs">
-                          {client.lastName} {client.firstName}
-                        </p>
-                        <p className="text-white font-one text-xs break-all">
+                      <div className="hidden lg:grid grid-cols-6 gap-4 px-6 py-4 items-center bg-gradient-to-r from-white/5 to-white/[0.02] rounded-xl border border-white/10 hover:border-tertiary-400/50 hover:from-white/10 hover:to-white/5 transition-all duration-300 group shadow-lg hover:shadow-tertiary-400/10">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/60 transition-all">
+                            <span className="text-white font-bold text-sm font-one">
+                              {client.firstName.charAt(0)}
+                              {client.lastName.charAt(0)}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-white font-one text-sm font-semibold">
+                              {client.firstName} {client.lastName}
+                            </p>
+                            <p className="text-white/50 text-xs font-one">
+                              Client
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-white/80 font-two text-xs break-all">
                           {client.email}
                         </p>
-                        <p className="text-white font-one text-xs">
-                          {client.phone ? client.phone : "Non renseigné"}
-                        </p>
-                        <p className="text-white font-one text-xs text-left">
-                          {client.appointments.length} rendez-vous
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <svg
+                            className="w-4 h-4 text-tertiary-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                            />
+                          </svg>
+                          <p className="text-white/80 font-two text-xs">
+                            {client.phone || "Non renseigné"}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="px-2.5 py-1 bg-tertiary-400/20 border border-tertiary-400/30 rounded-lg">
+                            <span className="text-tertiary-400 font-one text-xs font-semibold">
+                              {client.appointments.length}
+                            </span>
+                          </div>
+                          <span className="text-white/70 text-xs font-one">
+                            RDV
+                          </span>
+                        </div>
                         <button
                           onClick={() => handleShowReservations(client)}
-                          className="cursor-pointer text-white font-one text-xs mx-auto border w-[60px] hover:underline hover:bg-white/10 duration-200 px-2 py-1 rounded-3xl"
+                          className="cursor-pointer text-white font-one text-xs mx-auto px-4 py-2 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-lg transition-all duration-200 font-medium group-hover:scale-105"
                         >
-                          <p>Infos</p>
+                          Voir infos
                         </button>
-                        <div className="flex gap-8 text-xs items-center justify-center">
+                        <div className="flex gap-2 items-center justify-center">
                           <button
-                            className="cursor-pointer text-black"
+                            className="cursor-pointer p-2 bg-white/10 hover:bg-tertiary-400/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200 group/btn"
                             onClick={() => handleEdit(client)}
                           >
                             <IoCreateOutline
-                              size={25}
-                              className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                              size={18}
+                              className="text-white group-hover/btn:text-tertiary-400 transition-colors"
                             />
                           </button>
                           <button
-                            className="cursor-pointer text-black"
+                            className="cursor-pointer p-2 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200 group/btn"
                             onClick={() => handleDelete(client)}
                           >
                             <AiOutlineDelete
-                              size={25}
-                              className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                              size={18}
+                              className="text-white group-hover/btn:text-red-400 transition-colors"
                             />
                           </button>
                         </div>
                       </div>
 
-                      {/* Vue mobile - format carte */}
-                      <div className="lg:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 mb-4">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1 min-w-0 pr-3">
-                            <h3 className="text-white font-one font-semibold text-sm mb-1">
-                              {client.firstName} {client.lastName}
-                            </h3>
-                            <p className="text-white/80 font-one text-sm break-all mb-1">
+                      {/* Vue mobile - format carte moderne */}
+                      <div className="lg:hidden bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl border border-white/10 overflow-hidden hover:border-tertiary-400/50 transition-all duration-300 shadow-lg hover:shadow-tertiary-400/10">
+                        {/* En-tête avec avatar et nom */}
+                        <div className="bg-gradient-to-r from-white/10 to-white/5 p-4 border-b border-white/10">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border-2 border-tertiary-400/30 flex-shrink-0">
+                              <span className="text-white font-bold text-base font-one">
+                                {client.firstName.charAt(0)}
+                                {client.lastName.charAt(0)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center w-full">
+                              <h3 className="text-white font-one font-bold text-base mb-0.5 truncate">
+                                {client.firstName} {client.lastName}
+                              </h3>
+                              <div className="flex items-center gap-2">
+                                <div className="px-2 py-0.5 bg-tertiary-400/20 border border-tertiary-400/30 rounded-md">
+                                  <span className="text-tertiary-400 font-one text-xs font-semibold">
+                                    {client.appointments.length} RDV
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Contenu principal */}
+                        <div className="p-4 space-y-3">
+                          <div className="flex items-start gap-2">
+                            <svg
+                              className="w-4 h-4 text-tertiary-400 mt-0.5 flex-shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                              />
+                            </svg>
+                            <p className="text-white/80 font-two text-sm break-all flex-1">
                               {client.email}
                             </p>
-                            <p className="text-white/70 font-one text-sm">
-                              {client.phone
-                                ? client.phone
-                                : "Tel. non renseigné"}
-                            </p>
-                            <p className="text-white/70 font-one text-sm mt-2">
-                              {client.appointments.length} rendez-vous
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <svg
+                              className="w-4 h-4 text-tertiary-400 flex-shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                              />
+                            </svg>
+                            <p className="text-white/80 font-two text-sm">
+                              {client.phone || "Tél. non renseigné"}
                             </p>
                           </div>
                         </div>
 
-                        {/* Actions mobiles - maintenant en bas avec plus d'espace */}
-                        <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/10">
+                        {/* Actions - pied de carte */}
+                        <div className="flex items-center gap-2 p-3 bg-white/5 border-t border-white/10">
                           <button
                             onClick={() => handleShowReservations(client)}
-                            className="cursor-pointer flex-1 text-white font-one text-sm font-medium border border-white/30 px-4 py-2.5 rounded-lg hover:bg-white/10 hover:border-tertiary-400/50 duration-200 transition-all"
+                            className="cursor-pointer flex-1 text-white font-one text-sm font-medium px-4 py-2.5 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-lg transition-all duration-200"
                           >
-                            Voir les infos
+                            📋 Voir les infos
                           </button>
 
-                          <div className="flex gap-3">
-                            <button
-                              className="cursor-pointer p-2.5 bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                              onClick={() => handleEdit(client)}
-                            >
-                              <IoCreateOutline
-                                size={20}
-                                className="text-white hover:text-tertiary-400 duration-200"
-                              />
-                            </button>
-                            <button
-                              className="cursor-pointer p-2.5 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200"
-                              onClick={() => handleDelete(client)}
-                            >
-                              <AiOutlineDelete
-                                size={20}
-                                className="text-white hover:text-red-400 duration-200"
-                              />
-                            </button>
-                          </div>
+                          <button
+                            className="cursor-pointer p-2.5 bg-white/10 hover:bg-tertiary-400/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                            onClick={() => handleEdit(client)}
+                          >
+                            <IoCreateOutline size={20} className="text-white" />
+                          </button>
+                          <button
+                            className="cursor-pointer p-2.5 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200"
+                            onClick={() => handleDelete(client)}
+                          >
+                            <AiOutlineDelete size={20} className="text-white" />
+                          </button>
                         </div>
                       </div>
                     </div>
