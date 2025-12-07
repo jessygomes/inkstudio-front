@@ -59,6 +59,17 @@ export type CalendarEvent = Event & {
     piercingZone?: string;
     piercingServicePriceId?: string;
   };
+  salonReview?: {
+    id: string;
+    rating: number;
+    title?: string;
+    comment?: string;
+    photos?: string[];
+    isVerified?: boolean;
+    createdAt: string;
+    salonResponse?: string | null;
+    salonRespondedAt?: string | null;
+  };
 };
 
 interface CalendarViewProps {

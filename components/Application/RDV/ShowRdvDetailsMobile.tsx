@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 import { CalendarEvent } from "./Calendar";
 import ConfirmRdv from "./ConfirmRdv";
 import UpdateRdv from "./UpdateRdv";
@@ -10,10 +9,21 @@ import Link from "next/link";
 import SendMessageRdv from "./SendMessageRdv";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
-import { openImageInNewTab } from "@/lib/utils/openImage";
 
 interface ShowRdvDetailsMobileProps {
-  selectedEvent: CalendarEvent;
+  selectedEvent: CalendarEvent & {
+    salonReview?: {
+      id: string;
+      rating: number;
+      title?: string;
+      comment?: string;
+      photos?: string[];
+      isVerified?: boolean;
+      createdAt: string;
+      salonResponse?: string | null;
+      salonRespondedAt?: string | null;
+    };
+  };
   onClose: () => void;
   handleRdvUpdated: (rdvId: string) => void;
   handlePaymentStatusChange: (rdvId: string, isPayed: boolean) => void;
