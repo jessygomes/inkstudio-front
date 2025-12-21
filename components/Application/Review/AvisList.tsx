@@ -8,6 +8,7 @@ import {
   removeReviewResponseAction,
   respondToReviewAction,
 } from "@/lib/queries/review";
+import { getFavoriteCountBySalon } from "@/lib/queries/favorite";
 
 interface Review {
   id: string;
@@ -74,6 +75,7 @@ export default function AvisList() {
     {}
   );
   const [statistics, setStatistics] = useState<ReviewStatistics>({});
+  const [favoriteCount, setFavoriteCount] = useState<number>(0);
 
   const pageSize = 10;
 
@@ -92,6 +94,17 @@ export default function AvisList() {
   };
 
   const formatRating = (value?: number) => (value ?? 0).toFixed(1);
+
+  const loadFavoriteCount = async () => {
+    try {
+      const result = await getFavoriteCountBySalon();
+      if (result.ok && result.data) {
+        setFavoriteCount(result.data.favoritesCount || result.data || 0);
+      }
+    } catch (err) {
+      console.error("Erreur lors du chargement des favoris:", err);
+    }
+  };
 
   const loadReviews = async (pageToLoad = 1) => {
     if (!user?.id) return;
@@ -161,6 +174,7 @@ export default function AvisList() {
   useEffect(() => {
     if (user?.id) {
       loadReviews(1);
+      loadFavoriteCount();
     } else {
       setLoading(false);
     }
@@ -256,7 +270,7 @@ export default function AvisList() {
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
           <span className="text-white/60 text-xs font-one">Total avis</span>
           <span className="text-white text-xl font-one font-semibold">
@@ -273,6 +287,28 @@ export default function AvisList() {
           <span className="text-white/60 text-xs font-one">Avis vérifiés</span>
           <span className="text-white text-xl font-one font-semibold">
             {statistics.verifiedReviewsCount ?? 0}
+          </span>
+        </div>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
+          <span className="text-white/60 text-xs font-one flex items-center gap-1">
+            <svg
+              className="w-3 h-3 text-red-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Mis en favoris
+          </span>
+          <span className="text-white text-xl font-one font-semibold">
+            {favoriteCount}
+          </span>
+          <span className="text-white/50 text-[10px] font-one -mt-1">
+            clients ont ajouté
           </span>
         </div>
         <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-2">

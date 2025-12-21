@@ -51,6 +51,7 @@ export const getAuthenticatedUserSchema = z.object({
   salonHours: z.string().nullable().optional(),
   role: z.enum(["user", "admin"]),
   saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]),
+  verifiedSalon: z.boolean().optional(),
 });
 
 // Schéma de validation pour le changement de mot de passe

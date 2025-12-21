@@ -6,6 +6,7 @@ import Footer from "@/components/Shared/Footer/FooterApp";
 import Providers from "@/components/Providers/ReactQueryProvider";
 import { AuthErrorHandler } from "@/components/Auth/AuthErrorHandler";
 import { ColorProvider } from "@/components/ColorContext/ColorProvider";
+import VerificationNotification from "@/components/Shared/VerificationNotification";
 
 export default async function DashboardLayout({
   children,
@@ -20,6 +21,7 @@ export default async function DashboardLayout({
     saasPlan: "",
     phone: "",
     address: "",
+    verifiedSalon: false,
   };
 
   let authError: Error | undefined;
@@ -35,6 +37,7 @@ export default async function DashboardLayout({
       saasPlan: userData.saasPlan,
       phone: userData.phone || "",
       address: userData.address || "",
+      verifiedSalon: userData.verifiedSalon || false,
     };
     // console.log("user - layout", user);
   } catch (error) {
@@ -62,6 +65,7 @@ export default async function DashboardLayout({
               <div className="absolute top-0 left-0 w-full z-50">
                 <HeaderApp />
               </div>
+              <VerificationNotification />
               {children}
               <Footer />
             </>

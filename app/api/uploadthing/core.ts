@@ -12,7 +12,22 @@ export const fileRouter = {
     })
     .onUploadComplete(async ({ file, metadata }) => {
       console.log("Upload complete for userId:", metadata.userId);
-      console.log("File URL:", file.url);
+      console.log("File URL:", file.ufsUrl);
+      return { uploadedBy: metadata.userId };
+    }),
+  salonDocuments: f({
+    pdf: { maxFileSize: "16MB", maxFileCount: 1 },
+  })
+    .middleware(async () => {
+      // Pour l'instant, on autorise tout le monde
+      return { userId: "salon-user" };
+    })
+    .onUploadComplete(async ({ file, metadata }) => {
+      console.log(
+        "Salon document upload complete for userId:",
+        metadata.userId
+      );
+      console.log("File URL:", file.ufsUrl);
       return { uploadedBy: metadata.userId };
     }),
 } satisfies FileRouter;

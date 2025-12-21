@@ -13,6 +13,7 @@ import AppointmentModeSetting from "@/components/Application/Parametres/Appointm
 import AppointmentConfirmationSetting from "@/components/Application/Parametres/AppointmentConfirmationSetting";
 import SubscriptionSection from "@/components/Application/Parametres/SubscriptionSection";
 import SecuritySection from "@/components/Application/Parametres/SecuritySection";
+import VerificationDocumentsSection from "@/components/Application/Parametres/VerificationDocumentsSection";
 import { MdOutlinePalette } from "react-icons/md";
 import { CiSettings } from "react-icons/ci";
 import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
@@ -71,6 +72,8 @@ export default function ParamPage() {
             openSections={openSections}
             toggleSection={toggleSection}
           />
+
+          <VerificationDocumentsSection />
 
           <AppointmentModeSetting userId={user?.id || null} />
 

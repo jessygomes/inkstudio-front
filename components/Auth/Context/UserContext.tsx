@@ -9,6 +9,7 @@ export interface User {
   phone: string;
   address: string;
   saasPlan: string;
+  verifiedSalon?: boolean;
 }
 
 const UserContext = createContext<User | null>(null);
