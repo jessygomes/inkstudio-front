@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import {
   getAllReviewsBySalon,
   removeReviewResponseAction,
@@ -56,7 +56,7 @@ interface ReviewStatistics {
 }
 
 export default function AvisList() {
-  const user = useUser();
+  const { data: session } = useSession();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -107,13 +107,13 @@ export default function AvisList() {
   };
 
   const loadReviews = async (pageToLoad = 1) => {
-    if (!user?.id) return;
+    if (!session?.user?.id) return;
 
     try {
       setLoading(true);
       setError(null);
 
-      const result = await getAllReviewsBySalon(user.id, {
+      const result = await getAllReviewsBySalon(session.user.id, {
         page: pageToLoad,
         limit: pageSize,
         sortBy: "recent",
@@ -172,14 +172,14 @@ export default function AvisList() {
   };
 
   useEffect(() => {
-    if (user?.id) {
+    if (session?.user?.id) {
       loadReviews(1);
       loadFavoriteCount();
     } else {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [session?.user?.id]);
 
   const canPrev = useMemo(() => page > 1, [page]);
   const canNext = useMemo(

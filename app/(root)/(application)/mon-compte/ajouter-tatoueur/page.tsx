@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -32,10 +32,10 @@ const daysOfWeek = [
 ];
 
 export default function AddOrUpdateTatoueurPage() {
-  const user = useUser();
+  const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const salonId = user?.id;
+  const salonId = session?.user?.id;
 
   const tatoueurId = searchParams.get("id");
   const isEditing = !!tatoueurId;

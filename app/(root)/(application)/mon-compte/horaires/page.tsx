@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -28,7 +28,7 @@ const daysOfWeek = [
 ];
 
 export default function HorairesPage() {
-  const user = useUser();
+  const { data: session } = useSession();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentHours, setCurrentHours] = useState<string | null>(null);
@@ -49,11 +49,11 @@ export default function HorairesPage() {
 
   useEffect(() => {
     const fetchSalonHours = async () => {
-      if (!user?.id) return;
+      if (!session?.user?.id) return;
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/users/${user.id}`,
+          `${process.env.NEXT_PUBLIC_BACK_URL}/users/${session.user.id}`,
           { method: "GET" }
         );
 
@@ -71,16 +71,16 @@ export default function HorairesPage() {
     };
 
     fetchSalonHours();
-  }, [user?.id]);
+  }, [session?.user?.id]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!user?.id) return;
+    if (!session?.user?.id) return;
 
     setIsSubmitting(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/users/${user.id}/hours`,
+        `${process.env.NEXT_PUBLIC_BACK_URL}/users/${session.user.id}/hours`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -229,7 +229,7 @@ export default function HorairesPage() {
             <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-white/10">
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={() => router.push("/mon-compte")}
                 className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs text-center"
               >
                 Annuler

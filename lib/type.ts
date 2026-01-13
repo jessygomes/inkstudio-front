@@ -26,7 +26,14 @@ export interface AppointmentProps {
   start: string; // Date au format ISO
   end: string; // Date au format ISO
   allDay?: boolean;
-  status: "PENDING" | "CONFIRMED" | "DECLINED" | "CANCELED";
+  status:
+    | "PENDING"
+    | "CONFIRMED"
+    | "DECLINED"
+    | "CANCELLED"
+    | "COMPLETED"
+    | "NO_SHOW"
+    | "RESCHEDULING";
   prestation: "TATTOO" | "PIERCING" | "RETOUCHE" | "PROJET";
   zone: string;
   size: number;
@@ -34,6 +41,12 @@ export interface AppointmentProps {
   tatoueurId: string;
   userId: string;
   clientId: string;
+  tatoueur: {
+    id: string;
+    name: string;
+    img?: string;
+  };
+  isPayed: boolean;
   tattooDetail?: {
     description?: string;
     zone?: string;
@@ -41,6 +54,7 @@ export interface AppointmentProps {
     colorStyle?: string;
     reference?: string;
     sketch?: string;
+    price?: number;
     estimatedPrice?: number;
   };
 }

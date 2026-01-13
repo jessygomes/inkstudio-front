@@ -10,8 +10,8 @@ import { CardWrapper } from "../CardWrapper";
 import { FormError } from "@/components/Shared/FormError";
 import { FormSuccess } from "@/components/Shared/FormSuccess";
 import Link from "next/link";
-import { createSession } from "@/lib/session";
 import Image from "next/image";
+import { signIn } from "next-auth/react";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -22,11 +22,15 @@ export const LoginForm = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
 
-  // ✅ Vérifier si l'utilisateur arrive avec un token expiré
+  // ✅ Vérifier si l'utilisateur arrive avec un callback ou erreur
   useEffect(() => {
-    const reason = searchParams.get("reason");
-    if (reason === "expired") {
-      setError("Votre session a expiré. Veuillez vous reconnecter.");
+    const errorParam = searchParams.get("error");
+    const callbackUrl = searchParams.get("callbackUrl");
+
+    if (errorParam === "CredentialsSignin") {
+      setError("Email ou mot de passe incorrect.");
+    } else if (callbackUrl) {
+      setError("Veuillez vous connecter pour accéder à cette page.");
     }
   }, [searchParams]);
 
@@ -44,60 +48,31 @@ export const LoginForm = () => {
     setIsPending(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: data.email,
-            password: data.password,
-          }),
-        }
-      );
+      // Utiliser NextAuth pour la connexion
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
 
-      const infos = await response.json();
-
-      if (infos.error) {
-        setError(
-          infos.message ||
-            infos.error ||
-            "Une erreur est survenue lors de l'inscription."
-        );
+      if (result?.error) {
+        setError("Email ou mot de passe incorrect.");
         setIsPending(false);
         return;
       }
 
       setSuccess("Connexion réussie !");
-      setIsPending(false);
 
-      // Créez une session pour l'utilisateur connecté
-      // console.log("Infos de l'utilisateur connecté :", infos);
+      // Récupérer le callbackUrl ou rediriger vers dashboard
+      const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
-      await createSession(infos);
-
-      // Changement de texte pour la redirection
-      setIsPending(true);
-      setSuccess("Redirection vers l'app...");
-
-      // Appeler l'API pour récupérer l'utilisateur authentifié
-      // const userResponse = await fetch("/api/auth");
-
-      // if (!userResponse.ok) {
-      //   throw new Error("Impossible de récupérer l'utilisateur authentifié.");
-      // }
-
-      // const user = await userResponse.json();
-      // console.log("Utilisateur authentifié :", user);
-
-      // Redirigez l'utilisateur vers la page d'accueil
-      router.push("/dashboard");
+      setSuccess("Redirection...");
+      router.push(callbackUrl);
+      router.refresh();
     } catch (error) {
       console.error("Erreur lors de la connexion :", error);
       setError("Impossible de se connecter. Veuillez réessayer plus tard.");
-      return;
+      setIsPending(false);
     }
   };
 

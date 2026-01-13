@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import { SalonUserProps } from "@/lib/type";
 import { useEffect, useState } from "react";
 import Horaire from "./Horaire";
@@ -15,8 +15,8 @@ import { PiUsersLight } from "react-icons/pi";
 import { HiOutlinePhotograph } from "react-icons/hi";
 
 export default function SalonAccount() {
-  const user = useUser();
-  const salonId = user?.id;
+  const { data: session } = useSession();
+  const salonId = session?.user?.id;
 
   const [salon, setSalon] = useState<SalonUserProps>();
   const [isHoursVisible, setIsHoursVisible] = useState(true);
@@ -135,7 +135,7 @@ export default function SalonAccount() {
                 isHoursVisible={isHoursVisible}
                 setIsHoursVisible={setIsHoursVisible}
                 hours={salon.salonHours}
-                salonId={salonId || ""}
+                salonId={session?.user?.id || ""}
               />
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function SalonAccount() {
               </h3>
               <TatoueurSalon
                 tatoueurs={salon.Tatoueur}
-                salonId={salonId || ""}
+                salonId={session?.user?.id || ""}
                 salonHours={salon.salonHours || ""}
               />
             </div>

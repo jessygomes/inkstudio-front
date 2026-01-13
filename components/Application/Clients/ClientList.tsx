@@ -1,8 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import { useUser } from "@/components/Auth/Context/UserContext";
 import { ClientProps, PaginationInfo } from "@/lib/type";
 import React, { useEffect, useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
 
 import CreateOrUpdateClient from "./CreateOrUpdateClient";
 import DeleteClient from "./DeleteClient";
@@ -15,10 +15,10 @@ import Link from "next/link";
 import { getSalonClientsAction } from "@/lib/queries/client";
 
 export default function ClientList() {
-  const user = useUser();
+  const { data: session } = useSession();
 
   // Vérifier si l'utilisateur a un plan Free
-  const isFreeAccount = user?.saasPlan === "FREE";
+  const isFreeAccount = session?.user?.saasPlan === "FREE";
 
   const [loading, setLoading] = useState(true);
 
@@ -96,7 +96,7 @@ export default function ClientList() {
   const fetchUnansweredFollowUpsCount = useCallback(async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/follow-up/unanswered/${user.id}/number`,
+        `${process.env.NEXT_PUBLIC_BACK_URL}/follow-up/unanswered/${session?.user?.id}/number`,
         {
           cache: "no-store",
         }
@@ -112,21 +112,21 @@ export default function ClientList() {
         error
       );
     }
-  }, [user.id]);
+  }, [session?.user?.id]);
 
   // Effet pour charger les clients au changement de page ou de recherche
   useEffect(() => {
-    if (user.id) {
+    if (session?.user?.id) {
       fetchClients(currentPage, searchTerm);
       fetchUnansweredFollowUpsCount();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user.id, currentPage]);
+  }, [session?.user?.id, currentPage]);
 
   // Effet pour la recherche avec debounce
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      if (user.id) {
+      if (session?.user?.id) {
         setCurrentPage(1); // Reset à la page 1 lors d'une nouvelle recherche
         fetchClients(1, searchTerm);
         fetchUnansweredFollowUpsCount();
@@ -135,7 +135,7 @@ export default function ClientList() {
 
     return () => clearTimeout(debounceTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, user.id]);
+  }, [searchTerm, session?.user?.id]);
 
   //! Handler pour afficher les réservations
   const handleShowReservations = (client: ClientProps) => {

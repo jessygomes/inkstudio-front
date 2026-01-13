@@ -15,7 +15,6 @@ import {
   endOfWeek,
 } from "date-fns";
 import { View } from "react-big-calendar";
-import { useUser } from "@/components/Auth/Context/UserContext";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -32,15 +31,16 @@ import { FaRegCalendarTimes } from "react-icons/fa";
 import ShowRdvDetails from "./ShowRdvDetails";
 import ShowRdvDetailsMobile from "./ShowRdvDetailsMobile";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
+import { useSession } from "next-auth/react";
 
 export default function RDV() {
-  const user = useUser();
+  const { data: session } = useSession();
   const searchParams = useSearchParams();
   const query = searchParams.get("query")?.toLowerCase() || "";
   const queryClient = useQueryClient();
 
   // Vérifier si l'utilisateur a un plan Free
-  const isFreeAccount = user?.saasPlan === "FREE";
+  const isFreeAccount = session?.user?.saasPlan === "FREE";
 
   //! Pour afficher les rdv en fonction de la date courante
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -108,7 +108,7 @@ export default function RDV() {
       ? getDateRange(currentView, currentDate)
       : { start: "", end: "" }; // Pas de filtre de date en mode liste
 
-  const userId = user?.id;
+  const userId = session?.user?.id;
 
   const {
     data: rawData,
@@ -1146,7 +1146,7 @@ export default function RDV() {
                   handleRdvUpdated={handleRdvUpdated}
                   handleStatusChange={handleStatusChange}
                   handlePaymentStatusChange={handlePaymentStatusChange}
-                  userId={userId}
+                  userId={userId ?? null}
                   price={price}
                 />
               ) : viewMode === "calendar" ? (
@@ -1189,7 +1189,7 @@ export default function RDV() {
           onClose={closeEventDetails}
           handleRdvUpdated={handleRdvUpdated}
           handlePaymentStatusChange={handlePaymentStatusChange}
-          userId={userId}
+          userId={userId ?? null}
           price={price}
         />
       )}

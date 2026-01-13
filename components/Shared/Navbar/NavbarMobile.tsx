@@ -15,6 +15,7 @@ import {
   MdPhotoLibrary,
   MdShoppingBag,
   MdAccountCircle,
+  MdOutlineMessage,
 } from "react-icons/md";
 import { PiInvoiceDuotone } from "react-icons/pi";
 
@@ -58,6 +59,11 @@ export default function NavbarMobile() {
       href: "/clients",
       label: "Clients",
       icon: <MdPeople size={20} />,
+    },
+    {
+      href: "/messagerie",
+      label: "Messagerie",
+      icon: <MdOutlineMessage size={20} />,
     },
     {
       href: "/stocks",
@@ -255,15 +261,15 @@ export default function NavbarMobile() {
 
           {/* Portfolio */}
           <Link
-            href="/stocks"
+            href="/messagerie"
             className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
-              pathname === "/mon-portfolio"
+              pathname === "/messagerie"
                 ? "text-tertiary-400"
                 : "text-white/70 hover:text-white active:scale-95"
             }`}
           >
-            <FaDatabase size={20} />
-            <span className="text-xs font-one mt-1">Stocks</span>
+            <MdOutlineMessage size={20} />
+            <span className="text-xs font-one mt-1">Messagerie</span>
           </Link>
 
           {/* Menu Plus */}

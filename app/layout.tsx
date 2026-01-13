@@ -6,6 +6,7 @@ import ModalManager from "@/components/Shared/ModalManager";
 import { CookieConsentProvider } from "@/components/Cookies/CookieConsentContext";
 import CookieBanner from "@/components/Cookies/CookieBanner";
 import GoogleAnalytics from "@/components/Cookies/GoogleAnalytics";
+import { NextAuthProvider } from "@/components/Providers/NextAuthProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -149,21 +150,23 @@ export default function RootLayout({
       <body
         className={`${didact_gothic.variable} ${exo_2.variable} ${montserrat_alternates.variable} antialiased relative`}
       >
-        <CookieConsentProvider>
-          {/* Google Analytics avec consentement */}
-          <GoogleAnalytics measurementId="G-W3LKS9M53F" />
+        <NextAuthProvider>
+          <CookieConsentProvider>
+            {/* Google Analytics avec consentement */}
+            <GoogleAnalytics measurementId="G-W3LKS9M53F" />
 
-          <Toaster />
-          <ModalManager />
+            <Toaster />
+            <ModalManager />
 
-          {/* Bannière de consentement des cookies */}
-          <CookieBanner />
+            {/* Bannière de consentement des cookies */}
+            <CookieBanner />
 
-          {/* <div className="absolute top-0 left-0 w-full h-screen">
-            <Header />
-          </div> */}
-          {children}
-        </CookieConsentProvider>
+            {/* <div className="absolute top-0 left-0 w-full h-screen">
+              <Header />
+            </div> */}
+            {children}
+          </CookieConsentProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

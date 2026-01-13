@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import // CiBellOn,
 // CiLock,
@@ -19,7 +19,7 @@ import { CiSettings } from "react-icons/ci";
 import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
 
 export default function ParamPage() {
-  const user = useUser();
+  const { data: session } = useSession();
 
   // États pour les sections dépliantes
   const [openSections, setOpenSections] = useState({
@@ -75,16 +75,16 @@ export default function ParamPage() {
 
           <VerificationDocumentsSection />
 
-          <AppointmentModeSetting userId={user?.id || null} />
+          <AppointmentModeSetting userId={session?.user?.id || null} />
 
-          <AppointmentConfirmationSetting userId={user?.id || null} />
+          <AppointmentConfirmationSetting userId={session?.user?.id || null} />
 
           <ColorProfile />
 
           <SubscriptionSection
             openSections={openSections}
             toggleSection={toggleSection}
-            userId={user?.id || null}
+            userId={session?.user?.id || null}
           />
 
           <SecuritySection

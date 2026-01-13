@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import { MdOutlineRateReview, MdFilterList } from "react-icons/md";
 import { IoChevronDown } from "react-icons/io5";
 import { toast } from "sonner";
@@ -61,7 +61,7 @@ interface Pagination {
 }
 
 export default function ShowSuivis() {
-  const user = useUser();
+  const { data: session } = useSession();
 
   // URL / Nav
   const searchParams = useSearchParams();
@@ -120,9 +120,12 @@ export default function ShowSuivis() {
   const fetchTatoueurs = async () => {
     try {
       const base = process.env.NEXT_PUBLIC_BACK_URL!;
-      const res = await fetch(`${base}/follow-up/tatoueurs/${user.id}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(
+        `${base}/follow-up/tatoueurs/${session?.user?.id}`,
+        {
+          cache: "no-store",
+        }
+      );
       if (res.ok) {
         const data = await res.json();
         setTatoueurs(Array.isArray(data?.tatoueurs) ? data.tatoueurs : []);
@@ -157,7 +160,7 @@ export default function ShowSuivis() {
     tatoueurId?: string;
     q?: string;
   }) => {
-    if (!user?.id) return;
+    if (!session?.user?.id) return;
 
     const page = opts?.page ?? pageFromUrl;
     const limit = opts?.limit ?? limitFromUrl;
@@ -189,7 +192,7 @@ export default function ShowSuivis() {
     setStatusFilter(statusFromUrl);
     setTatoueurFilter(tatoueurFromUrl);
     setSearchTerm(queryFromUrl);
-    if (user?.id) {
+    if (session?.user?.id) {
       fetchFollowUps({
         page: pageFromUrl,
         limit: limitFromUrl,
@@ -199,13 +202,13 @@ export default function ShowSuivis() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, searchParams]);
+  }, [session?.user?.id, searchParams]);
 
   // Charger la liste des tatoueurs
   useEffect(() => {
-    if (user?.id) fetchTatoueurs();
+    if (session?.user?.id) fetchTatoueurs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, followUps]);
+  }, [session?.user?.id, followUps]);
 
   // Debounce pour la recherche client
   useEffect(() => {

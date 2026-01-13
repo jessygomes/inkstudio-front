@@ -1,9 +1,13 @@
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  // Récupérer le token depuis les cookies
-  const token = request.cookies.get("access_token")?.value;
+/**
+ * Middleware NextAuth pour protéger les routes
+ * Utilise la fonction auth() de NextAuth pour vérifier l'authentification
+ */
+export default auth((req) => {
+  const { nextUrl } = req;
+  const isLoggedIn = !!req.auth;
 
   // Pages qui nécessitent une authentification
   const protectedPaths = [
@@ -16,81 +20,36 @@ export async function middleware(request: NextRequest) {
     "/parametres",
     "/stocks",
     "/factures",
+    "/admin",
   ];
 
-  // Pages d'authentification
+  // Pages d'authentification (connexion, inscription)
   const authPaths = ["/connexion", "/inscription"];
 
   const isProtectedPath = protectedPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
+    nextUrl.pathname.startsWith(path)
   );
   const isAuthPath = authPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
+    nextUrl.pathname.startsWith(path)
   );
 
-  // Si on essaie d'accéder à une page protégée sans token
-  if (isProtectedPath && !token) {
+  // Si on essaie d'accéder à une page protégée sans être connecté
+  if (isProtectedPath && !isLoggedIn) {
     console.log(
-      "🔒 Accès à une page protégée sans token - Redirection vers connexion"
+      "🔒 Accès à une page protégée sans authentification - Redirection"
     );
     return NextResponse.redirect(
-      new URL("/connexion?reason=no-token", request.url)
+      new URL("/connexion?callbackUrl=" + nextUrl.pathname, req.url)
     );
   }
 
-  // Si on a un token, vérifier sa validité pour les pages protégées
-  if (isProtectedPath && token) {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/auth`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      // Si le token est expiré ou invalide
-      if (response.status === 401) {
-        console.log(
-          "🔒 Token expiré/invalide détecté - Suppression et redirection"
-        );
-
-        // Créer une réponse avec redirection et suppression des cookies
-        const redirectResponse = NextResponse.redirect(
-          new URL("/connexion?reason=token_expired", request.url)
-        );
-
-        // Supprimer les cookies expirés
-        redirectResponse.cookies.delete("access_token");
-        redirectResponse.cookies.delete("userId");
-
-        return redirectResponse;
-      }
-
-      // Si erreur réseau ou autre problème, on laisse passer
-      // L'erreur sera gérée côté composant
-      if (!response.ok && response.status !== 401) {
-        console.warn(
-          `⚠️ Erreur lors de la vérification du token: ${response.status}`
-        );
-      }
-    } catch (error) {
-      console.warn("⚠️ Erreur réseau lors de la vérification du token:", error);
-      // En cas d'erreur réseau, on laisse passer pour éviter de bloquer l'utilisateur
-    }
-  }
-
-  // Si on a un token et qu'on essaie d'accéder aux pages d'auth, rediriger vers dashboard
-  // Note: La validité du token sera vérifiée par le composant si nécessaire
-  if (isAuthPath && token) {
-    console.log(
-      "✅ Token présent sur page d'auth - Redirection vers dashboard"
-    );
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  // Si on est connecté et qu'on essaie d'accéder aux pages d'auth, rediriger vers le dashboard
+  if (isAuthPath && isLoggedIn) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: [

@@ -45,12 +45,13 @@ export default function NavbarApp() {
     { href: "/dashboard", label: "Dashboard" },
     { href: "/mes-rendez-vous", label: "Rendez-vous" },
     { href: "/clients", label: "Clients" },
+    { href: "/messagerie", label: "Messagerie" },
     { href: "/stocks", label: "Stocks" },
     { href: "/mon-portfolio", label: "Portfolio" },
     { href: "/mes-produits", label: "Produits" },
     { href: "/review", label: "Avis" },
     { href: "/factures", label: "Factures" },
-    { href: "/mon-compte", label: "Mon Compte" },
+    // { href: "/mon-compte", label: "Mon Compte" },
   ];
 
   return (
@@ -89,6 +90,15 @@ export default function NavbarApp() {
 
           {showMenu && (
             <div className="absolute right-0 mt-4 p-2 w-[400px] bg-noir-700 text-white rounded shadow-lg z-50 flex flex-col gap-2">
+              <Link
+                href="/mon-compte"
+                className="flex items-center h-12 text-sm font-one w-full text-left hover:bg-noir-500 transition-colors rounded-xl px-4"
+                onClick={() => setShowMenu(false)}
+              >
+                <CgProfile size={20} className="inline-block mr-3" />
+                Profil
+              </Link>
+
               <Link
                 href="/parametres"
                 className="flex items-center px-4 h-12 text-sm font-one hover:bg-noir-500 transition-colors rounded-xl"

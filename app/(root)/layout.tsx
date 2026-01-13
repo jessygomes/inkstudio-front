@@ -1,10 +1,9 @@
-import { getAuthenticatedUser } from "@/lib/auth.server";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import HeaderApp from "@/components/Shared/HeaderApp";
 import { UserProvider } from "@/components/Auth/Context/UserContext";
 import Footer from "@/components/Shared/Footer/FooterApp";
 import Providers from "@/components/Providers/ReactQueryProvider";
-import { AuthErrorHandler } from "@/components/Auth/AuthErrorHandler";
 import { ColorProvider } from "@/components/ColorContext/ColorProvider";
 import VerificationNotification from "@/components/Shared/VerificationNotification";
 
@@ -13,63 +12,36 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let user = {
-    id: "",
-    salonName: "",
-    role: "",
-    email: "",
-    saasPlan: "",
-    phone: "",
-    address: "",
-    verifiedSalon: false,
-  };
+  // ✅ Récupération directe de la session NextAuth
+  const session = await auth();
 
-  let authError: Error | undefined;
-
-  try {
-    const userData = await getAuthenticatedUser(); // fonctionne car côté server
-
-    user = {
-      id: userData.id,
-      salonName: userData.salonName,
-      role: userData.role,
-      email: userData.email,
-      saasPlan: userData.saasPlan,
-      phone: userData.phone || "",
-      address: userData.address || "",
-      verifiedSalon: userData.verifiedSalon || false,
-    };
-    // console.log("user - layout", user);
-  } catch (error) {
-    console.error("Erreur lors de la récupération de l'utilisateur :", error);
-
-    // ✅ Gestion spécifique des tokens expirés - sera géré côté client
-    if (error instanceof Error && error.message === "TOKEN_EXPIRED") {
-      // console.log("🔑 Token expiré détecté - Sera géré côté client");
-      authError = error;
-    } else {
-      // ✅ Pour les autres erreurs, redirection simple
-      redirect("/connexion");
-    }
+  // ✅ Si pas de session, redirection (normalement géré par le middleware)
+  if (!session || !session.user) {
+    redirect("/connexion");
   }
+
+  // ✅ Création de l'objet user pour le UserProvider
+  const user = {
+    id: session.user.id,
+    salonName: session.user.salonName,
+    role: session.user.role,
+    email: session.user.email,
+    saasPlan: session.user.saasPlan,
+    phone: session.user.phone || "",
+    address: session.user.address || "",
+    verifiedSalon: session.user.verifiedSalon || false,
+  };
 
   return (
     <UserProvider user={user}>
       <Providers>
         <ColorProvider>
-          {/* Gestion des erreurs d'authentification côté client */}
-          {authError && <AuthErrorHandler error={authError} />}
-
-          {!authError && (
-            <>
-              <div className="absolute top-0 left-0 w-full z-50">
-                <HeaderApp />
-              </div>
-              <VerificationNotification />
-              {children}
-              <Footer />
-            </>
-          )}
+          <div className="absolute top-0 left-0 w-full z-50">
+            <HeaderApp />
+          </div>
+          <VerificationNotification />
+          {children}
+          <Footer />
         </ColorProvider>
       </Providers>
     </UserProvider>

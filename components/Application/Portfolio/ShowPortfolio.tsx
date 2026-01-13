@@ -1,5 +1,5 @@
 "use client";
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import { PortfolioProps } from "@/lib/type";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -10,7 +10,7 @@ import DeletePhoto from "./DeletePhoto";
 import { FaIdCardClip } from "react-icons/fa6";
 
 export default function ShowPortfolio() {
-  const user = useUser();
+  const { data: session } = useSession();
 
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +28,7 @@ export default function ShowPortfolio() {
   const fetchPhotos = async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/portfolio/${user?.id}`,
+        `${process.env.NEXT_PUBLIC_BACK_URL}/portfolio/${session?.user?.id}`,
         {
           cache: "no-store",
         }
@@ -56,7 +56,7 @@ export default function ShowPortfolio() {
   };
 
   useEffect(() => {
-    if (user?.id) {
+    if (session?.user?.id) {
       fetchPhotos();
     } else {
       setLoading(false);

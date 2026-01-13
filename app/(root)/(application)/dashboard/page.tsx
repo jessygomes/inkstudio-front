@@ -9,15 +9,17 @@ import TotalPayed from "@/components/Application/Dashboard/TotalPayed";
 import WaitingRdv from "@/components/Application/Dashboard/WaitingRdv";
 import WeeklyFillRate from "@/components/Application/Dashboard/WeeklyFillRate";
 import RecentReviews from "@/components/Application/Dashboard/RecentReviews";
-import { useUser } from "@/components/Auth/Context/UserContext";
 import Link from "next/link";
 import { LuLayoutDashboard } from "react-icons/lu";
+import { useSession } from "next-auth/react";
 
 export default function DashboardPage() {
-  const user = useUser();
+  const { data: session } = useSession();
 
   // Vérifier si l'utilisateur a un plan Free
-  const isFreeAccount = user?.saasPlan === "FREE";
+  const isFreeAccount = session?.user?.saasPlan === "FREE";
+
+  console.log("🧾 Session utilisateur dans DashboardPage:", session);
 
   return (
     <div className=" bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 lg:px-20 pb-10 lg:pb-0">
@@ -93,10 +95,10 @@ export default function DashboardPage() {
           {!isFreeAccount && (
             <div className="col-span-12">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <WeeklyFillRate userId={user.id ?? ""} />
-                <CancelFillRate userId={user.id ?? ""} />
-                <NewClientsCount userId={user.id ?? ""} />
-                <TotalPayed userId={user.id ?? ""} />
+                <WeeklyFillRate userId={session?.user?.id ?? ""} />
+                <CancelFillRate userId={session?.user?.id ?? ""} />
+                <NewClientsCount userId={session?.user?.id ?? ""} />
+                <TotalPayed userId={session?.user?.id ?? ""} />
               </div>
             </div>
           )}
@@ -104,19 +106,19 @@ export default function DashboardPage() {
           {/* Middle Row - Main Content */}
           {!isFreeAccount && (
             <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-              <RendezVousToday userId={user.id ?? ""} />
+              <RendezVousToday userId={session?.user?.id ?? ""} />
             </div>
           )}
 
           {!isFreeAccount && (
             <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-              <WaitingRdv userId={user.id ?? ""} />
+              <WaitingRdv userId={session?.user?.id ?? ""} />
             </div>
           )}
 
           {!isFreeAccount && (
             <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-              <NotAnswerClient userId={user.id ?? ""} />
+              <NotAnswerClient userId={session?.user?.id ?? ""} />
             </div>
           )}
 

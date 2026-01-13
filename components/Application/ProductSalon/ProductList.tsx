@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import { ProductSalonProps } from "@/lib/type";
 import { useEffect, useState } from "react";
 import { IoCreateOutline } from "react-icons/io5";
@@ -11,7 +11,7 @@ import CreateOrUpdateProduct from "./CreateOrUpdateProduct";
 import DeleteProduct from "./DeleteProduct";
 
 export default function ProductList() {
-  const user = useUser();
+  const { data: session } = useSession();
 
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +28,7 @@ export default function ProductList() {
   const fetchProducts = async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/product-salon/${user?.id}`,
+        `${process.env.NEXT_PUBLIC_BACK_URL}/product-salon/${session?.user?.id}`,
         {
           cache: "no-store",
         }
@@ -56,7 +56,7 @@ export default function ProductList() {
   };
 
   useEffect(() => {
-    if (user?.id) {
+    if (session?.user?.id) {
       fetchProducts();
     } else {
       setLoading(false);
@@ -249,7 +249,7 @@ export default function ProductList() {
       )}
       {isModalOpen && (
         <CreateOrUpdateProduct
-          userId={user.id ?? ""}
+          userId={session?.user?.id ?? ""}
           onCreate={() => {
             fetchProducts();
             setIsModalOpen(false);

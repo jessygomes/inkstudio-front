@@ -1,36 +1,187 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# INKERA Studio - Frontend
 
-## Getting Started
+Plateforme de gestion pour salons de tatouage construite avec Next.js 15 et NextAuth.
 
-First, run the development server:
+## 🚀 Démarrage rapide
+
+### Prérequis
+
+- Node.js 18+
+- npm ou yarn
+- Backend API en cours d'exécution
+
+### Installation
+
+```bash
+npm install
+```
+
+### Configuration
+
+**⚠️ IMPORTANT** : Avant de démarrer, configurez les variables d'environnement.
+
+1. Créez un fichier `.env.local` à la racine :
+
+```env
+AUTH_SECRET=<votre-clé-secrète>
+NEXTAUTH_URL=http://localhost:3000
+NEXT_PUBLIC_BACK_URL=http://localhost:4000
+```
+
+2. Générez votre `AUTH_SECRET` :
+
+```bash
+# PowerShell
+[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
+```
+
+Pour plus de détails, consultez [CONFIGURATION-REQUISE.md](./CONFIGURATION-REQUISE.md)
+
+### Lancement
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔐 Authentification
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ce projet utilise **NextAuth v5** pour une authentification sécurisée.
 
-## Learn More
+### Documentation
 
-To learn more about Next.js, take a look at the following resources:
+- 📖 [Guide de migration NextAuth](./NEXTAUTH-MIGRATION-GUIDE.md)
+- ✅ [Résumé de l'installation](./NEXTAUTH-SETUP-COMPLETE.md)
+- ⚙️ [Configuration requise](./CONFIGURATION-REQUISE.md)
+- 💡 [Exemples d'utilisation](./lib/examples/nextauth-usage-examples.tsx)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Utilisation rapide
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Server Component :**
 
-## Deploy on Vercel
+```typescript
+import { getCurrentUser } from "@/lib/auth-helpers";
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+export default async function Page() {
+  const user = await getCurrentUser();
+  return <div>Bonjour {user?.name}</div>;
+}
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Client Component :**
+
+```typescript
+"use client";
+import { useSession } from "next-auth/react";
+
+export function MyComponent() {
+  const { data: session } = useSession();
+  return <div>{session?.user.name}</div>;
+}
+```
+
+## 📁 Structure du projet
+
+```
+├── app/                      # Pages et routes Next.js
+│   ├── (auth)/              # Pages d'authentification
+│   ├── (root)/              # Application principale
+│   ├── api/                 # API routes
+│   └── layout.tsx           # Layout racine
+├── components/              # Composants React
+│   ├── Auth/               # Composants d'authentification
+│   ├── Application/        # Composants métier
+│   ├── Providers/          # Context providers
+│   └── ui/                 # Composants UI réutilisables
+├── lib/                     # Utilitaires et helpers
+│   ├── auth-helpers.ts     # Helpers NextAuth
+│   ├── queries/            # React Query hooks
+│   └── zod/                # Schémas de validation
+├── auth.ts                  # Configuration NextAuth
+├── auth.config.ts          # Config providers NextAuth
+└── middleware.ts           # Middleware de protection
+
+```
+
+## 🛠️ Stack technologique
+
+- **Framework** : Next.js 15 (App Router)
+- **Authentification** : NextAuth v5
+- **Styling** : TailwindCSS
+- **Validation** : Zod
+- **Forms** : React Hook Form
+- **State Management** : React Query
+- **Animations** : Framer Motion
+- **WebSocket** : Socket.io-client
+
+## 📝 Scripts disponibles
+
+```bash
+# Développement
+npm run dev
+
+# Build de production
+npm run build
+
+# Démarrer en production
+npm start
+
+# Linting
+npm run lint
+
+# Vérifier l'installation NextAuth (optionnel)
+npm run verify-auth
+```
+
+## 🧪 Tests
+
+Avant de déployer, vérifiez que :
+
+- ✅ La connexion fonctionne
+- ✅ Les routes protégées sont inaccessibles sans authentification
+- ✅ La déconnexion fonctionne correctement
+- ✅ La session persiste après actualisation
+
+## 🚀 Déploiement
+
+### Variables d'environnement en production
+
+Définissez ces variables sur votre plateforme d'hébergement :
+
+```env
+AUTH_SECRET=<clé-générée-sécurisée>
+NEXTAUTH_URL=https://votre-domaine.com
+NEXT_PUBLIC_BACK_URL=https://api.votre-domaine.com
+```
+
+### Vercel
+
+Le déploiement sur Vercel est recommandé pour Next.js :
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+
+Consultez la [documentation de déploiement Next.js](https://nextjs.org/docs/app/building-your-application/deploying).
+
+## 📚 Documentation supplémentaire
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [NextAuth Documentation](https://authjs.dev)
+- [TailwindCSS Documentation](https://tailwindcss.com/docs)
+- [React Query Documentation](https://tanstack.com/query)
+
+## 🆘 Support
+
+En cas de problème :
+
+1. Consultez [CONFIGURATION-REQUISE.md](./CONFIGURATION-REQUISE.md)
+2. Vérifiez [NEXTAUTH-MIGRATION-GUIDE.md](./NEXTAUTH-MIGRATION-GUIDE.md)
+3. Consultez les logs du serveur et du navigateur
+
+## 📄 Licence
+
+Propriétaire - INKERA Studio
+
+---
+
+Développé avec ❤️ pour les professionnels du tatouage

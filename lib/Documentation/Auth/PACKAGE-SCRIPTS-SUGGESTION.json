@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "verify-auth": "powershell -ExecutionPolicy Bypass -File ./scripts/verify-nextauth.ps1"
+  }
+}

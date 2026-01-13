@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import { UpdateSalonUserProps } from "@/lib/type";
 import { CSSProperties, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -16,7 +16,7 @@ import { updateUserInfoAction, getUserInfoAction } from "@/lib/queries/user";
 import { toast } from "sonner";
 
 export default function UpdateAccountPage() {
-  const user = useUser();
+  const { data: session } = useSession();
   const router = useRouter();
   const [salon, setSalon] = useState<UpdateSalonUserProps | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,10 +27,10 @@ export default function UpdateAccountPage() {
 
   useEffect(() => {
     const fetchSalon = async () => {
-      if (!user?.id) return;
+      if (!session?.user?.id) return;
 
       try {
-        const result = await getUserInfoAction(user.id);
+        const result = await getUserInfoAction(session.user.id);
 
         if (result.ok) {
           setSalon(result.data);
@@ -55,7 +55,7 @@ export default function UpdateAccountPage() {
     };
 
     fetchSalon();
-  }, [user?.id, form]);
+  }, [session?.user?.id, form]);
 
   const onSubmit = async (data: z.infer<typeof updateSalonSchema>) => {
     if (!salon) return;
@@ -390,7 +390,7 @@ export default function UpdateAccountPage() {
             <div className="flex flex-col sm:flex-row justify-end gap-4 sm:gap-4 pt-6 sm:pt-6 border-t border-white/10">
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={() => router.push("/mon-compte")}
                 className="cursor-pointer px-6 py-3 sm:px-6 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-md lg:text-xs text-center"
               >
                 Annuler

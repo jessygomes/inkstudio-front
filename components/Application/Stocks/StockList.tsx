@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import {
   getSalonStockAction,
   updateStockQuantityAction,
@@ -17,10 +17,10 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "sonner";
 
 export default function StockList() {
-  const user = useUser();
+  const { data: session } = useSession();
 
   // Vérifier si l'utilisateur a un plan Free
-  const isFreeAccount = user?.saasPlan === "FREE";
+  const isFreeAccount = session?.user?.saasPlan === "FREE";
 
   const [loading, setLoading] = useState(true);
 
@@ -101,29 +101,29 @@ export default function StockList() {
 
   // Effet pour charger les clients au changement de page ou de recherche
   useEffect(() => {
-    if (user.id) {
+    if (session?.user?.id) {
       fetchStockItems(currentPage, searchTerm);
     }
-  }, [user.id, currentPage, fetchStockItems, searchTerm]);
+  }, [session?.user?.id, currentPage, fetchStockItems, searchTerm]);
 
   // Effet pour la recherche avec debounce
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      if (user.id) {
+      if (session?.user?.id) {
         setCurrentPage(1); // Reset à la page 1 lors d'une nouvelle recherche
         fetchStockItems(1, searchTerm);
       }
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, user.id, fetchStockItems]);
+  }, [searchTerm, session?.user?.id, fetchStockItems]);
 
   // Effet pour charger les catégories au démarrage
   useEffect(() => {
-    if (user.id) {
+    if (session?.user?.id) {
       fetchCategories();
     }
-  }, [user.id, fetchCategories]);
+  }, [session?.user?.id, fetchCategories]);
 
   //! Filtrage local par catégorie
   const filteredItems = categoryFilter
@@ -712,7 +712,7 @@ export default function StockList() {
 
       {!isFreeAccount && isModalOpen && (
         <CreateOrUpdateItem
-          userId={user.id ?? ""}
+          userId={session?.user?.id ?? ""}
           onCreate={() => {
             fetchStockItems();
             setIsModalOpen(false);

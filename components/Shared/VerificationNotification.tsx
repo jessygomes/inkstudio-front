@@ -21,7 +21,7 @@ export default function VerificationNotification() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 max-w-sm">
+    <div className="fixed top-4 left-4 right-4 lg:top-auto lg:bottom-4 lg:left-auto lg:right-4 z-40 max-w-sm mx-auto lg:mx-0">
       <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/50 rounded-xl p-4 shadow-xl backdrop-blur-sm">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1">
