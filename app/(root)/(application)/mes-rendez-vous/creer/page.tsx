@@ -21,8 +21,7 @@ export default async function CreerRDVpage() {
     );
   }
 
-  const userId =
-    typeof user !== "string" && "userId" in user ? user.userId : null;
+  const userId = user?.id ?? "";
 
   return (
     <div className="bg-noir-700 flex flex-col items-center justify-center gap-4">
