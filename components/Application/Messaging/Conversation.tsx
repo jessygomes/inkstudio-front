@@ -1,11 +1,18 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import { useParams } from "next/navigation";
 import {
-  getConversationBySlugAction,
+  AttachmentDto,
   ConversationDto,
   ConversationMessageDto,
+  getConversationByIdAction,
 } from "@/lib/queries/conversation.action";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -14,13 +21,15 @@ import MessageBubbles from "./MessageBubbles";
 import MessageInput from "./MessageInput";
 import ConversationRDVModal from "./ConversationRDVModal";
 import { MessagingMessage, useMessaging } from "@/lib/hook/useMessaging";
+import ArchiveBtn from "./ArchiveBtn";
+import DeleteConversationBtn from "./DeleteConversationBtn";
 
 export default function Conversation() {
   const params = useParams();
   const id = params?.id as string;
   const { data: session } = useSession();
 
-  console.log("User dans Conversation.tsx :", session?.user);
+  console.log("User dans Conversation.tsx :", session);
 
   const [conversation, setConversation] = useState<ConversationDto | null>(
     null
@@ -28,13 +37,15 @@ export default function Conversation() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showRDVDetails, setShowRDVDetails] = useState(false);
-  const [accessToken, setAccessToken] = useState<string | undefined>();
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const initialMessages = conversation?.messages?.data || [];
+  const initialMessages = useMemo(
+    () => conversation?.messages?.data || [],
+    [conversation?.messages?.data]
+  );
 
-  const fetchConversation = async () => {
+  const fetchConversation = useCallback(async () => {
     if (!id) {
       setError("ID manquant");
       setLoading(false);
@@ -44,7 +55,7 @@ export default function Conversation() {
     try {
       setLoading(true);
       setError(null);
-      const result = await getConversationBySlugAction(id);
+      const result = await getConversationByIdAction(id);
       setConversation(result);
     } catch (err) {
       const errorMessage =
@@ -54,28 +65,11 @@ export default function Conversation() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchConversation();
-  }, [id]);
-
-  // Récupérer le token depuis l'API (qui lit le cookie HttpOnly côté serveur)
-  useEffect(() => {
-    const fetchToken = async () => {
-      try {
-        const response = await fetch("/api/messaging/token");
-        if (response.ok) {
-          const data = await response.json();
-          setAccessToken(data.token);
-        }
-      } catch (err) {
-        console.error("Erreur lors de la récupération du token:", err);
-      }
-    };
-
-    fetchToken();
-  }, []);
+  }, [fetchConversation]);
 
   const {
     isConnected,
@@ -87,7 +81,7 @@ export default function Conversation() {
     markAsRead,
     startTyping,
     stopTyping,
-  } = useMessaging(accessToken);
+  } = useMessaging(session?.accessToken);
 
   // Rejoindre la conversation une fois chargée et socket connecté
   useEffect(() => {
@@ -145,10 +139,14 @@ export default function Conversation() {
       ? conversation?.client
       : conversation?.salon;
 
-  const handleSendMessage = async (message: string) => {
+  const handleSendMessage = async (
+    message: string,
+    attachments?: AttachmentDto[]
+  ) => {
     if (!conversation?.id) return;
 
-    sendMessage(conversation.id, message);
+    // Envoyer le message au serveur
+    sendMessage(conversation.id, message, attachments);
 
     if (isTyping) {
       stopTyping(conversation.id);
@@ -265,7 +263,7 @@ export default function Conversation() {
       {/* Version Mobile */}
       <div className="lg:hidden w-full flex flex-col h-[calc(100vh-64px)]">
         {/* Header */}
-        <div className="flex-shrink-0 flex items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-3 rounded-lg shadow-lg border border-white/10">
+        <div className="flex-shrink-0 flex flex-col gap-2 bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-3 rounded-lg shadow-lg border border-white/10">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div className="relative flex-shrink-0">
               <Image
@@ -318,6 +316,13 @@ export default function Conversation() {
               {isConnected ? "Connecté" : "Déconnecté"}
             </span>
 
+            <ArchiveBtn
+              conversationId={conversation.id}
+              status={conversation.status}
+            />
+
+            <DeleteConversationBtn conversationId={conversation.id} />
+
             {/* Bouton pour voir les détails RDV (mobile uniquement) */}
             {conversation.appointmentId && (
               <button
@@ -326,7 +331,7 @@ export default function Conversation() {
                 title="Voir les détails du rendez-vous"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -428,6 +433,13 @@ export default function Conversation() {
                 />
                 {isConnected ? "Connecté" : "Déconnecté"}
               </span>
+
+              <ArchiveBtn
+                conversationId={conversation.id}
+                status={conversation.status}
+              />
+
+              <DeleteConversationBtn conversationId={conversation.id} />
             </div>
           </div>
 

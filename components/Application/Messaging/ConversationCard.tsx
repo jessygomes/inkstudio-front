@@ -3,8 +3,10 @@ import {
   ConversationDto,
   getConversationByIdAction,
 } from "@/lib/queries/conversation.action";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import ArchiveBtn from "./ArchiveBtn";
+import DeleteConversationBtn from "./DeleteConversationBtn";
 
 interface ConversationCardProps {
   conversation: ConversationDto;
@@ -20,6 +22,12 @@ export default function ConversationCard({
   currentUserId,
 }: ConversationCardProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [localStatus, setLocalStatus] = useState(conversation.status);
+
+  // Sync local status if conversation prop changes (e.g., refetch)
+  useEffect(() => {
+    setLocalStatus(conversation.status);
+  }, [conversation.status]);
 
   const handleSelect = async () => {
     try {
@@ -34,6 +42,7 @@ export default function ConversationCard({
       setIsLoading(false);
     }
   };
+
   const otherUser =
     conversation.salonId === currentUserId
       ? conversation.client
@@ -63,15 +72,15 @@ export default function ConversationCard({
   return (
     <div
       onClick={handleSelect}
-      className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
+      className={`p-3 sm:p-3 rounded-lg border transition-all duration-150 ${
         isLoading ? "opacity-50" : ""
       } ${
         isSelected
-          ? "bg-noir-700/80 border-tertiary-400/50 shadow-lg shadow-tertiary-400/20"
-          : "bg-noir-700/40 border-white/10 hover:bg-noir-700/60 hover:border-white/20"
+          ? "bg-noir-700/80 border-tertiary-400/20 shadow-md "
+          : "bg-noir-700/30 border-white/10 hover:bg-noir-700/50 hover:border-white/15"
       }`}
     >
-      <div className="flex gap-3 sm:gap-4">
+      <div className="flex gap-3 sm:gap-3">
         {/* Avatar */}
         <div className="flex-shrink-0 relative">
           <Image
@@ -79,7 +88,7 @@ export default function ConversationCard({
             width={56}
             height={56}
             alt={displayName}
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-tertiary-400/30"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover border border-tertiary-400/30"
           />
           {isLoading && (
             <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
@@ -91,7 +100,7 @@ export default function ConversationCard({
         {/* Content */}
         <div className="flex-1 min-w-0 font-one">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-            <h3 className="text-sm sm:text-base font-semibold text-white truncate">
+            <h3 className="text-sm sm:text-sm font-semibold text-white truncate">
               {displayName}
             </h3>
             <span className="text-xs text-white/60 whitespace-nowrap">
@@ -101,40 +110,53 @@ export default function ConversationCard({
 
           {/* Subject */}
           {conversation.subject && (
-            <p className="text-xs sm:text-sm text-tertiary-400 truncate mt-1">
+            <p className="text-xs text-tertiary-400 truncate mt-1">
               {conversation.subject}
             </p>
           )}
 
           {/* Last message preview */}
-          <p className="text-xs sm:text-sm text-white/70 line-clamp-2 mt-2">
+          <p className="text-xs text-white/70 line-clamp-2 mt-2 bg-primary-500/5 p-2 rounded-md">
             {lastMessagePreview}
           </p>
 
           {/* Status badge */}
-          <div className="flex items-center gap-2 mt-2">
-            <span
-              className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                conversation.status === "ACTIVE"
-                  ? "bg-green-900/40 text-green-300"
-                  : conversation.status === "ARCHIVED"
-                  ? "bg-yellow-900/40 text-yellow-300"
-                  : "bg-red-900/40 text-red-300"
-              }`}
-            >
-              {conversation.status}
-            </span>
-
-            {/* Unread indicator */}
-            {conversation.unreadCount && conversation.unreadCount > 0 && (
-              <span className="inline-block px-2 py-1 rounded-full text-xs font-bold bg-tertiary-500 text-white">
-                {conversation.unreadCount}
+          <div className="flex justify-between items-center gap-2 mt-2">
+            <div className="flex gap-2 items-center">
+              <span
+                className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                  localStatus === "ACTIVE"
+                    ? "bg-green-900/40 text-green-300"
+                    : localStatus === "ARCHIVED"
+                    ? "bg-yellow-900/40 text-yellow-300"
+                    : "bg-red-900/40 text-red-300"
+                }`}
+              >
+                {localStatus}
               </span>
-            )}
 
-            <Link href={`/messagerie/${conversation.id}`}>
-              Voir la conversation
-            </Link>
+              <Link href={`/messagerie/${conversation.id}`}>
+                <span className="inline-block px-2 py-1 rounded-sm text-xs bg-linear-to-l from-tertiary-400 to-tertiary-500 text-white">
+                  Voir la conversation
+                </span>
+              </Link>
+
+              {/* Unread indicator */}
+              {/* {conversation.unreadCount && conversation.unreadCount > 0 && (
+                <span className="inline-block px-2 py-1 rounded-md text-xs bg-tertiary-500 text-white">
+                  {conversation.unreadCount}
+                </span>
+              )} */}
+            </div>
+
+            <div className="flex gap-2 items-center">
+              <ArchiveBtn
+                conversationId={conversation.id}
+                status={localStatus}
+                onStatusChange={(next) => setLocalStatus(next)}
+              />
+              <DeleteConversationBtn conversationId={conversation.id} />
+            </div>
           </div>
         </div>
       </div>

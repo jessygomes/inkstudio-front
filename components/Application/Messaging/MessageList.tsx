@@ -5,6 +5,7 @@ import {
   getConversationsAction,
   ConversationDto,
   PaginatedConversationsDto,
+  ConversationStatus,
 } from "@/lib/queries/conversation.action";
 import ConversationCard from "./ConversationCard";
 import React, { useEffect, useState, useCallback } from "react";
@@ -21,8 +22,8 @@ export default function MessageList() {
   const [selectedConversation, setSelectedConversation] =
     useState<ConversationDto | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  console.log("MessageList :", conversations);
+  const [statusFilter, setStatusFilter] =
+    useState<ConversationStatus>("ACTIVE");
 
   //! Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,32 +31,36 @@ export default function MessageList() {
   const [total, setTotal] = useState(0);
 
   //! Fetch conversations
-  const fetchConversations = useCallback(async (page: number = 1) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result: PaginatedConversationsDto = await getConversationsAction(
-        page,
-        20
-      );
-      setConversations(result.data);
-      setCurrentPage(result.page);
-      setTotalPages(result.totalPages);
-      setTotal(result.total);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Erreur inconnue";
-      setError(errorMessage);
-      setConversations([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchConversations = useCallback(
+    async (page: number = 1, status?: ConversationStatus) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const result: PaginatedConversationsDto = await getConversationsAction(
+          page,
+          20,
+          status
+        );
+        setConversations(result.data);
+        setCurrentPage(result.page);
+        setTotalPages(result.totalPages);
+        setTotal(result.total);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erreur inconnue";
+        setError(errorMessage);
+        setConversations([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   //! Load conversations on mount
   useEffect(() => {
-    fetchConversations(1);
-  }, [fetchConversations]);
+    fetchConversations(1, statusFilter);
+  }, [fetchConversations, statusFilter]);
 
   return (
     <section>
@@ -76,6 +81,29 @@ export default function MessageList() {
               Gérez vos conversations avec les clients et l'équipe interne.
             </p>
           </div>
+        </div>
+
+        <div className="w-full md:w-auto flex items-center gap-3">
+          <label
+            className="text-white/70 text-xs font-one"
+            htmlFor="status-filter"
+          >
+            Statut
+          </label>
+          <select
+            id="status-filter"
+            value={statusFilter}
+            onChange={(e) => {
+              const next = e.target.value as ConversationStatus;
+              setStatusFilter(next);
+              setCurrentPage(1);
+              fetchConversations(1, next);
+            }}
+            className="cursor-pointer bg-noir-700 border border-white/15 text-white text-xs rounded-lg px-3 py-1 focus:outline-none focus:border-tertiary-400 focus:ring-1 focus:ring-tertiary-400"
+          >
+            <option value="ACTIVE">Active</option>
+            <option value="ARCHIVED">Archivé</option>
+          </select>
         </div>
       </div>
 
@@ -114,7 +142,7 @@ export default function MessageList() {
               </h3>
               <p className="text-red-400 mb-4 text-sm">{error}</p>
               <button
-                onClick={() => fetchConversations()}
+                onClick={() => fetchConversations(1, statusFilter)}
                 className="cursor-pointer px-4 py-2 bg-tertiary-600 text-white rounded-lg hover:bg-tertiary-700 transition-colors text-sm font-medium"
               >
                 Réessayer
@@ -169,7 +197,7 @@ export default function MessageList() {
                 (pageNum) => (
                   <button
                     key={pageNum}
-                    onClick={() => fetchConversations(pageNum)}
+                    onClick={() => fetchConversations(pageNum, statusFilter)}
                     className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
                       currentPage === pageNum
                         ? "bg-tertiary-600 text-white"
@@ -196,7 +224,7 @@ export default function MessageList() {
 
         {/* Total conversations count */}
         {!loading && !error && conversations.length > 0 && (
-          <div className="text-center text-sm text-white/60 mt-6">
+          <div className="text-center text-xs text-white/60 mt-6">
             {total} conversation{total > 1 ? "s" : ""} •{" "}
             {currentPage > 1 && `Page ${currentPage}/{totalPages}`}
           </div>

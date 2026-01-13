@@ -23,6 +23,8 @@ export default function MessageBubbles({
     );
   }
 
+  console.log("Messages dans MessageBubbles :", messages);
+
   return (
     <>
       {messages.map((message) => {
@@ -62,27 +64,54 @@ export default function MessageBubbles({
                   {message.content}
                 </p>
 
-                {/* Attachments */}
+                {/* Images attachées */}
+                {message.attachments && message.attachments.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {message.attachments
+                      .filter((att) => att.fileType.startsWith("image/"))
+                      .map((attachment) => (
+                        <a
+                          key={attachment.id}
+                          href={attachment.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block relative rounded overflow-hidden hover:opacity-80 transition-opacity"
+                        >
+                          <Image
+                            src={attachment.fileUrl}
+                            alt={attachment.fileName}
+                            width={200}
+                            height={200}
+                            className="w-full h-auto max-w-[180px] rounded"
+                          />
+                        </a>
+                      ))}
+                  </div>
+                )}
+
+                {/* Autres fichiers attachés */}
                 {message.attachments && message.attachments.length > 0 && (
                   <div className="mt-1 space-y-0.5">
-                    {message.attachments.map((attachment) => (
-                      <a
-                        key={attachment.id}
-                        href={attachment.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-[10px] hover:underline opacity-90"
-                      >
-                        <svg
-                          className="w-3 h-3"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
+                    {message.attachments
+                      .filter((att) => !att.fileType.startsWith("image/"))
+                      .map((attachment) => (
+                        <a
+                          key={attachment.id}
+                          href={attachment.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-[10px] hover:underline opacity-90"
                         >
-                          <path d="M8 16.5a1 1 0 11-2 0 1 1 0 012 0zM15 7a2 2 0 11-4 0 2 2 0 014 0zM12.5 20H2a2 2 0 01-2-2V4a2 2 0 012-2h7l5.495 5.495a1 1 0 010 1.414L9.414 16.5a1 1 0 001.414 1.414l8.485-8.485A2 2 0 0120 6V4a2 2 0 01-2-2h-5.5A1.5 1.5 0 0012 4v16a1.5 1.5 0 00.5 1z" />
-                        </svg>
-                        {attachment.fileName}
-                      </a>
-                    ))}
+                          <svg
+                            className="w-3 h-3"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M8 16.5a1 1 0 11-2 0 1 1 0 012 0zM15 7a2 2 0 11-4 0 2 2 0 014 0zM12.5 20H2a2 2 0 01-2-2V4a2 2 0 012-2h7l5.495 5.495a1 1 0 010 1.414L9.414 16.5a1 1 0 001.414 1.414l8.485-8.485A2 2 0 0120 6V4a2 2 0 01-2-2h-5.5A1.5 1.5 0 0012 4v16a1.5 1.5 0 00.5 1z" />
+                          </svg>
+                          {attachment.fileName}
+                        </a>
+                      ))}
                   </div>
                 )}
               </div>

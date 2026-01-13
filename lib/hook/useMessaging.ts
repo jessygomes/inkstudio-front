@@ -12,6 +12,14 @@ export interface MessagingMessage {
   isRead: boolean;
   readAt?: Date;
   createdAt: Date | string;
+  attachments?: Array<{
+    id: string;
+    fileUrl: string;
+    fileName: string;
+    fileSize: number;
+    fileType: string;
+    uploadThingKey?: string;
+  }>;
   sender: {
     id: string;
     firstName?: string;
@@ -31,6 +39,14 @@ interface NewMessageEvent {
   type: "USER" | "SYSTEM";
   isRead: boolean;
   createdAt: Date;
+  attachments?: Array<{
+    id: string;
+    fileUrl: string;
+    fileName: string;
+    fileSize: number;
+    fileType: string;
+    uploadThingKey?: string;
+  }>;
   sender: any;
 }
 

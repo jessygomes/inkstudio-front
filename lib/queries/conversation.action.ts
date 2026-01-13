@@ -28,10 +28,21 @@ export interface ConversationMessageDto {
   attachments?: Array<{
     id: string;
     url: string;
+    fileUrl: string;
     fileName: string;
     fileSize: number;
+    fileType: string;
   }>;
   sender: ConversationUserDto;
+}
+
+export interface AttachmentDto {
+  id: string;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  uploadThingKey?: string;
 }
 
 export interface MessagesResponseDto {
@@ -109,37 +120,11 @@ export const getConversationsAction = async (
 };
 
 //! ============================================================================
-//! RECUPERER UNE CONVERSATION PAR SON ID
+//! RECUPERER UNE CONVERSATION PAR SLUG (prenom_prestation)
 //! ============================================================================
-
 export type ConversationResponseDto = ConversationDto;
 
 export const getConversationByIdAction = async (
-  conversationId: string
-): Promise<ConversationResponseDto> => {
-  const headers = await getAuthHeaders();
-
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACK_URL}/messaging/conversations/${conversationId}`,
-    {
-      method: "GET",
-      headers,
-      cache: "no-store",
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch conversation: ${response.statusText}`);
-  }
-
-  return response.json();
-};
-
-//! ============================================================================
-//! RECUPERER UNE CONVERSATION PAR SLUG (prenom_prestation)
-//! ============================================================================
-
-export const getConversationBySlugAction = async (
   id: string
 ): Promise<ConversationResponseDto> => {
   const headers = await getAuthHeaders();
@@ -184,4 +169,44 @@ export const getConversationBySlugAction = async (
     ...conversationData,
     messages: messagesData,
   };
+};
+
+//! ============================================================================
+//! ARCHIVER UNE CONVERSATION
+//! ============================================================================
+export const archiveConversationAction = async (
+  conversationId: string
+): Promise<void> => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACK_URL}/messaging/conversations/${conversationId}/archive`,
+    {
+      method: "PATCH",
+      headers,
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to archive conversation: ${response.statusText}`);
+  }
+  return;
+};
+
+//! ============================================================================
+//! DELETE UNE CONVERSATION
+//! ============================================================================
+export const deleteConversationAction = async (
+  conversationId: string
+): Promise<void> => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACK_URL}/messaging/conversations/${conversationId}`,
+    {
+      method: "DELETE",
+      headers,
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to delete conversation: ${response.statusText}`);
+  }
+  return;
 };
