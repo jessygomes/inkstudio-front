@@ -17,9 +17,9 @@ import VerificationDocumentsSection from "@/components/Admin/VerificationDocumen
 export default async function AdminUserDetail({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
 
   const result = await getSalonById(id);
 
