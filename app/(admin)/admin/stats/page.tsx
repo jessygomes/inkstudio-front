@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { FiChevronLeft, FiBarChart2 } from "react-icons/fi";
 import EvolutionCharts from "@/components/Admin/EvolutionCharts";
-import ConversionRates from "@/components/Admin/ConversionRates";
 
 export default function StatsPage() {
   return (

@@ -61,7 +61,7 @@ export default function ProductList() {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [session?.user?.id, fetchProducts]);
 
   //! Handlers pour les actions
   const handleCreate = () => {

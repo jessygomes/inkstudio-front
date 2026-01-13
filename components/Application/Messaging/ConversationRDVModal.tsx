@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 import { ConversationDto } from "@/lib/queries/conversation.action";
 import ConversationRDVDetails from "./ConversationRDVDetails";
 

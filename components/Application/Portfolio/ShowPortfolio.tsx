@@ -61,7 +61,7 @@ export default function ShowPortfolio() {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [session?.user?.id, fetchPhotos]);
 
   //! Handlers pour les actions
   const handleCreate = () => {
