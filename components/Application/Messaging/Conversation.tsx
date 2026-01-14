@@ -38,6 +38,9 @@ export default function Conversation() {
   const [error, setError] = useState<string | null>(null);
   const [showRDVDetails, setShowRDVDetails] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [deletedMessageIds, setDeletedMessageIds] = useState<Set<string>>(
+    new Set()
+  );
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const initialMessages = useMemo(
@@ -198,8 +201,13 @@ export default function Conversation() {
     })
   );
 
-  const displayedMessages =
-    liveMessagesAsDto.length > 0 ? liveMessagesAsDto : initialMessages;
+  const handleDeleteMessage = useCallback((messageId: string) => {
+    setDeletedMessageIds((prev) => new Set(prev).add(messageId));
+  }, []);
+
+  const displayedMessages = (
+    liveMessagesAsDto.length > 0 ? liveMessagesAsDto : initialMessages
+  ).filter((msg) => !deletedMessageIds.has(msg.id));
 
   if (loading) {
     return (
@@ -353,6 +361,7 @@ export default function Conversation() {
           <MessageBubbles
             messages={displayedMessages}
             currentUserId={session?.user?.id ?? undefined}
+            onDeleteMessage={handleDeleteMessage}
           />
 
           {typingUsers.size > 0 && (
@@ -450,6 +459,7 @@ export default function Conversation() {
               <MessageBubbles
                 messages={displayedMessages}
                 currentUserId={session?.user?.id ?? undefined}
+                onDeleteMessage={handleDeleteMessage}
               />
 
               {typingUsers.size > 0 && (

@@ -210,3 +210,24 @@ export const deleteConversationAction = async (
   }
   return;
 };
+
+//! ============================================================================
+//! DELETE UN MESSAGE
+//! ============================================================================
+export const deleteMessageAction = async (
+  conversationId: string,
+  messageId: string
+): Promise<void> => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACK_URL}/messaging/messages/${messageId}`,
+    {
+      method: "DELETE",
+      headers,
+    }
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to delete message: ${response.statusText}`);
+  }
+  return;
+};

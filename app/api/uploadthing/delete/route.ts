@@ -5,19 +5,19 @@ const utapi = new UTApi();
 
 export async function POST(request: NextRequest) {
   try {
-    const { key } = await request.json();
+    const { fileKeys } = await request.json();
 
-    if (!key) {
+    if (!fileKeys || !Array.isArray(fileKeys) || fileKeys.length === 0) {
       return NextResponse.json(
-        { success: false, error: "Clé manquante" },
+        { success: false, error: "Clés de fichiers manquantes" },
         { status: 400 }
       );
     }
 
-    console.log("🗑️ Suppression UploadThing - Clé:", key);
+    console.log("🗑️ Suppression UploadThing - Clés:", fileKeys);
 
-    // Supprimer le fichier
-    const result = await utapi.deleteFiles([key]);
+    // Supprimer les fichiers
+    const result = await utapi.deleteFiles(fileKeys);
 
     console.log("📋 Résultat suppression UploadThing:", result);
 
