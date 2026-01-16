@@ -4,6 +4,8 @@ import { LogoutBtn } from "@/components/Auth/LogoutBtn";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useMessagingContext } from "@/components/Providers/MessagingProvider";
+import { getUnreadMessagesCountAction } from "@/lib/queries/conversation.action";
 
 import { CgProfile } from "react-icons/cg";
 import { CiSettings } from "react-icons/ci";
@@ -12,12 +14,30 @@ export default function NavbarApp() {
   const user = useUser();
   const pathname = usePathname();
 
+  // Utiliser le contexte global pour le unreadCount
+  const { unreadCount, setUnreadCount } = useMessagingContext();
+
   const navRef = useRef<HTMLUListElement>(null);
 
   const [showMenu, setShowMenu] = useState(false);
+
   const toggleMenu = () => {
     setShowMenu((prev) => !prev);
   };
+
+  // Initialiser le compteur au montage depuis le serveur
+  useEffect(() => {
+    const initializeUnreadCount = async () => {
+      try {
+        const count = await getUnreadMessagesCountAction();
+        setUnreadCount(count);
+      } catch (error) {
+        console.error("Erreur initialisation compteur:", error);
+      }
+    };
+
+    initializeUnreadCount();
+  }, [setUnreadCount]);
 
   // Fermer le menu quand on clique ailleurs
   useEffect(() => {
@@ -34,11 +54,6 @@ export default function NavbarApp() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showMenu]);
-
-  // Debug temporaire pour voir l'état du menu
-  useEffect(() => {
-    console.log("Menu navbar ouvert:", showMenu);
   }, [showMenu]);
 
   const links = [
@@ -74,9 +89,14 @@ export default function NavbarApp() {
                 isActive
                   ? "active font-three text-white font-bold"
                   : "font-thin"
-              } pb-1 text-white text-sm font-three pt-1 px-2 tracking-widest hover:text-white/70 transition-all duration-300`}
+              } pb-1 text-white text-sm font-three pt-1 px-2 tracking-widest hover:text-white/70 transition-all duration-300 relative`}
             >
               <Link href={link.href}>{link.label}</Link>
+              {link.label === "Messagerie" && unreadCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[24px] text-center">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
             </li>
           );
         })}

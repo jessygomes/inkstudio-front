@@ -18,6 +18,7 @@ interface MessageOptionsMenuProps {
   messageContent: string;
   attachments?: AttachmentDto[];
   onDelete?: (messageId: string) => void;
+  isOwnMessage?: boolean;
 }
 
 export default function MessageOptionsMenu({
@@ -26,6 +27,7 @@ export default function MessageOptionsMenu({
   messageContent,
   attachments,
   onDelete,
+  isOwnMessage,
 }: MessageOptionsMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -74,12 +76,14 @@ export default function MessageOptionsMenu({
             <span>Copier</span>
           </button>
 
-          <DeleteMessageButton
-            messageId={messageId}
-            conversationId={conversationId}
-            attachments={attachments}
-            onDelete={onDelete}
-          />
+          {isOwnMessage && (
+            <DeleteMessageButton
+              messageId={messageId}
+              conversationId={conversationId}
+              attachments={attachments}
+              onDelete={onDelete}
+            />
+          )}
         </div>
       )}
     </div>

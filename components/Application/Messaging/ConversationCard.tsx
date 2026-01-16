@@ -116,9 +116,23 @@ export default function ConversationCard({
           )}
 
           {/* Last message preview */}
-          <p className="text-xs text-white/70 line-clamp-2 mt-2 bg-primary-500/5 p-2 rounded-md">
-            {lastMessagePreview}
-          </p>
+          <div className="w-full flex gap-2 items-center mt-2">
+            <p
+              className={`flex-1 text-xs text-white/70 truncate p-2 rounded-md ${
+                conversation.unreadCount && conversation.unreadCount > 0
+                  ? "bg-tertiary-500/15"
+                  : "bg-primary-500/5"
+              }`}
+            >
+              {lastMessagePreview}
+            </p>
+            {conversation.unreadCount && conversation.unreadCount > 0 && (
+              <span className="flex-shrink-0 px-2 py-1 rounded-md text-[10px] bg-linear-to-r from-tertiary-500 to-tertiary-400 text-white whitespace-nowrap">
+                {conversation.unreadCount} non lu
+                {conversation.unreadCount > 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
 
           {/* Status badge */}
           <div className="flex justify-between items-center gap-2 mt-2">

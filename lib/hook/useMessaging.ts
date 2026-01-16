@@ -95,12 +95,10 @@ export const useMessaging = (token?: string) => {
 
     // Événements de connexion
     socket.on("connect", () => {
-      console.log("✅ Connecté au serveur de messagerie");
       setIsConnected(true);
     });
 
-    socket.on("disconnect", (reason) => {
-      console.log("❌ Déconnecté du serveur", reason);
+    socket.on("disconnect", () => {
       setIsConnected(false);
     });
 
@@ -123,7 +121,23 @@ export const useMessaging = (token?: string) => {
 
     // Événement: nouveau message
     socket.on("new-message", (message: NewMessageEvent) => {
-      setMessages((prev) => [...prev, message as MessagingMessage]);
+      setMessages((prev) => [...prev, message]);
+
+      // Si on est dans la conversation active et que le message est déjà marqué comme lu
+      // (car on est présent), notifier le MessageList pour mettre à jour le compteur à 0
+      if (
+        currentConversationIdRef.current === message.conversationId &&
+        typeof window !== "undefined"
+      ) {
+        window.dispatchEvent(
+          new CustomEvent("conversationUnreadUpdated", {
+            detail: {
+              conversationId: message.conversationId,
+              unreadCount: 0,
+            },
+          })
+        );
+      }
     });
 
     // Événement: utilisateur en train d'écrire
@@ -156,7 +170,62 @@ export const useMessaging = (token?: string) => {
             : msg
         )
       );
+
+      // Optimistic decrement of unread count locally + propagation
+      setUnreadCount((prev) => {
+        const next = Math.max(0, prev - 1);
+
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("unreadCountChanged", {
+              detail: { count: next },
+            })
+          );
+        }
+
+        return next;
+      });
+
+      // Propager un événement global pour mettre à jour via refetch si besoin
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("messagesMarkedAsRead", {
+            detail: { messageId: data.messageId },
+          })
+        );
+      }
     });
+
+    // Événement: compteur global de non lus mis à jour
+    socket.on("unread-count-updated", (data: { totalUnread: number }) => {
+      setUnreadCount(data.totalUnread);
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("unreadCountChanged", {
+            detail: { count: data.totalUnread },
+          })
+        );
+      }
+    });
+
+    // Événement: compteur de non lus mis à jour pour une conversation spécifique
+    socket.on(
+      "conversation-unread-updated",
+      (data: { conversationId: string; unreadCount: number }) => {
+        // Mettre à jour localement la conversation spécifique
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("conversationUnreadUpdated", {
+              detail: {
+                conversationId: data.conversationId,
+                unreadCount: data.unreadCount,
+              },
+            })
+          );
+        }
+      }
+    );
 
     // Événement: erreur
     socket.on("error", (data: { message: string }) => {
@@ -221,6 +290,7 @@ export const useMessaging = (token?: string) => {
   // Marquer un message comme lu
   const markAsRead = useCallback((messageId: string) => {
     if (!socketRef.current) return;
+
     socketRef.current.emit("mark-as-read", { messageId });
   }, []);
 

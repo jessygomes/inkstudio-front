@@ -26,12 +26,11 @@ export default function MessageBubbles({
     );
   }
 
-  console.log("Messages dans MessageBubbles :", messages);
-
   return (
     <>
       {messages.map((message) => {
         const isOwnMessage = message.sender.id === currentUserId;
+
         const sender = message.sender;
 
         return (
@@ -60,8 +59,8 @@ export default function MessageBubbles({
                 <div
                   className={`px-3 py-2 rounded text-xs ${
                     isOwnMessage
-                      ? "bg-tertiary-500/80 text-white rounded-br-none"
-                      : "bg-noir-600/80 text-white/90 rounded-bl-none"
+                      ? "bg-linear-to-l from-secondary-500/80 to-secondary-600/80 text-white/90 rounded-br-none"
+                      : "bg-linear-to-l from-tertiary-400/80 to-tertiary-500/80 text-white rounded-bl-none"
                   }`}
                 >
                   <p className="break-words font-one leading-tight">
@@ -126,6 +125,7 @@ export default function MessageBubbles({
                   messageContent={message.content}
                   attachments={message.attachments}
                   onDelete={onDeleteMessage}
+                  isOwnMessage={isOwnMessage}
                 />
               </div>
 

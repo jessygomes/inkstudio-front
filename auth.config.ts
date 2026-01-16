@@ -66,6 +66,7 @@ export default {
             id: String(data.id),
             email: data.email || email,
             name: data.salonName || email,
+            image: data.image || null,
             role: data.role || "user",
             accessToken: data.access_token,
             salonName: data.salonName || "",

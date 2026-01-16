@@ -6,6 +6,7 @@ import Footer from "@/components/Shared/Footer/FooterApp";
 import Providers from "@/components/Providers/ReactQueryProvider";
 import { ColorProvider } from "@/components/ColorContext/ColorProvider";
 import VerificationNotification from "@/components/Shared/VerificationNotification";
+import { MessagingProvider } from "@/components/Providers/MessagingProvider";
 
 export default async function DashboardLayout({
   children,
@@ -36,12 +37,14 @@ export default async function DashboardLayout({
     <UserProvider user={user}>
       <Providers>
         <ColorProvider>
-          <div className="absolute top-0 left-0 w-full z-50">
-            <HeaderApp />
-          </div>
-          <VerificationNotification />
-          {children}
-          <Footer />
+          <MessagingProvider>
+            <div className="absolute top-0 left-0 w-full z-50">
+              <HeaderApp />
+            </div>
+            <VerificationNotification />
+            {children}
+            <Footer />
+          </MessagingProvider>
         </ColorProvider>
       </Providers>
     </UserProvider>

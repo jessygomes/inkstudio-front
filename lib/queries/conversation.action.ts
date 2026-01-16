@@ -231,3 +231,27 @@ export const deleteMessageAction = async (
   }
   return;
 };
+
+//! ============================================================================
+//! RECUPERER LE NOMBRE DE MESSAGES NON LUS
+//! ============================================================================
+export const getUnreadMessagesCountAction = async (): Promise<number> => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACK_URL}/messaging/conversations/unread/total`,
+    {
+      method: "GET",
+      headers,
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch unread messages count: ${response.statusText}`
+    );
+  }
+  const data = await response.json();
+
+  return data.totalUnread;
+};

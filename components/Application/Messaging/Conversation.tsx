@@ -20,7 +20,7 @@ import ConversationRDVDetails from "./ConversationRDVDetails";
 import MessageBubbles from "./MessageBubbles";
 import MessageInput from "./MessageInput";
 import ConversationRDVModal from "./ConversationRDVModal";
-import { MessagingMessage, useMessaging } from "@/lib/hook/useMessaging";
+import { useMessaging } from "@/lib/hook/useMessaging";
 import ArchiveBtn from "./ArchiveBtn";
 import DeleteConversationBtn from "./DeleteConversationBtn";
 
@@ -28,8 +28,6 @@ export default function Conversation() {
   const params = useParams();
   const id = params?.id as string;
   const { data: session } = useSession();
-
-  console.log("User dans Conversation.tsx :", session);
 
   const [conversation, setConversation] = useState<ConversationDto | null>(
     null
@@ -42,6 +40,7 @@ export default function Conversation() {
     new Set()
   );
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const initialMessages = useMemo(
     () => conversation?.messages?.data || [],
@@ -81,10 +80,12 @@ export default function Conversation() {
     joinConversation,
     leaveConversation,
     sendMessage,
-    markAsRead,
+    markConversationAsRead,
     startTyping,
     stopTyping,
   } = useMessaging(session?.accessToken);
+
+  const hasMarkedConversationRef = useRef(false);
 
   // Rejoindre la conversation une fois chargée et socket connecté
   useEffect(() => {
@@ -92,37 +93,31 @@ export default function Conversation() {
 
     joinConversation(conversation.id);
 
+    if (!hasMarkedConversationRef.current) {
+      markConversationAsRead(conversation.id);
+      hasMarkedConversationRef.current = true;
+    }
+
     return () => {
       leaveConversation(conversation.id);
-    };
-  }, [conversation?.id, isConnected, joinConversation, leaveConversation]);
+      hasMarkedConversationRef.current = false;
 
-  // Marquer les messages comme lus lorsque reçus
-  useEffect(() => {
-    if (!conversation?.id || !isConnected) return;
-
-    const messagesToCheck = liveMessages.length
-      ? liveMessages
-      : initialMessages;
-
-    messagesToCheck.forEach(
-      (msg: MessagingMessage | ConversationMessageDto) => {
-        const senderId = "sender" in msg ? msg.sender.id : undefined;
-        const isAlreadyRead = "isRead" in msg ? msg.isRead : false;
-
-        if (!isAlreadyRead && senderId && senderId !== session?.user?.id) {
-          markAsRead(msg.id);
-        }
+      // Refetch les conversations quand on quitte la conversation pour sync les compteurs
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("conversationLeft"));
       }
-    );
+    };
   }, [
     conversation?.id,
-    liveMessages,
-    initialMessages,
-    session?.user?.id,
-    markAsRead,
     isConnected,
+    joinConversation,
+    leaveConversation,
+    markConversationAsRead,
   ]);
+
+  //! Note: Le marquage automatique des messages comme lus est désormais géré
+  //! directement dans le hook useMessaging lors de la réception des nouveaux messages.
+  //! Plus besoin de le faire manuellement ici pour éviter les doubles marquages.
 
   // Nettoyer le typing indicator au démontage
   useEffect(() => {
@@ -208,6 +203,18 @@ export default function Conversation() {
   const displayedMessages = (
     liveMessagesAsDto.length > 0 ? liveMessagesAsDto : initialMessages
   ).filter((msg) => !deletedMessageIds.has(msg.id));
+
+  const scrollToBottom = useCallback(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
+    }
+  }, []);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [displayedMessages, scrollToBottom]);
 
   if (loading) {
     return (
@@ -357,7 +364,10 @@ export default function Conversation() {
         </div>
 
         {/* Messages List - Scrollable avec padding bas pour l'input fixe */}
-        <div className="flex-1 overflow-y-auto p-3 pb-20 space-y-2 scrollbar-thin scrollbar-thumb-tertiary-500/30 scrollbar-track-transparent bg-noir-700/50">
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto p-3 pb-20 space-y-2 scrollbar-thin scrollbar-thumb-tertiary-500/30 scrollbar-track-transparent bg-noir-700/50"
+        >
           <MessageBubbles
             messages={displayedMessages}
             currentUserId={session?.user?.id ?? undefined}
@@ -455,7 +465,10 @@ export default function Conversation() {
           {/* Messages Container */}
           <div className="bg-noir-700/50 border border-white/10 rounded-lg overflow-hidden flex flex-col flex-1 min-h-0">
             {/* Messages List */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-tertiary-500/30 scrollbar-track-transparent">
+            <div
+              ref={messagesContainerRef}
+              className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-tertiary-500/30 scrollbar-track-transparent"
+            >
               <MessageBubbles
                 messages={displayedMessages}
                 currentUserId={session?.user?.id ?? undefined}

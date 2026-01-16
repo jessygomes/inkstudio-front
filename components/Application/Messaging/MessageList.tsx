@@ -10,15 +10,16 @@ import {
 import ConversationCard from "./ConversationCard";
 import React, { useEffect, useState, useCallback } from "react";
 import { MdOutlineMessage } from "react-icons/md";
+import { useMessagingContext } from "@/components/Providers/MessagingProvider";
 
 export default function MessageList() {
   const { data: session } = useSession();
-  // const isFreeAccount = session?.user?.saasPlan === "FREE";
+
+  // Utiliser le contexte global au lieu du state local
+  const { conversations, setConversations, unreadCount } =
+    useMessagingContext();
 
   const [loading, setLoading] = useState(true);
-
-  //! State pour les conversations
-  const [conversations, setConversations] = useState<ConversationDto[]>([]);
   const [selectedConversation, setSelectedConversation] =
     useState<ConversationDto | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +42,11 @@ export default function MessageList() {
           20,
           status
         );
+
+        // Simplement remplacer par les données du serveur (source de vérité)
+        // Le refetch après avoir quitté une conversation doit refléter l'état actuel du serveur
         setConversations(result.data);
+
         setCurrentPage(result.page);
         setTotalPages(result.totalPages);
         setTotal(result.total);
@@ -54,13 +59,26 @@ export default function MessageList() {
         setLoading(false);
       }
     },
-    []
+    [setConversations]
   );
 
   //! Load conversations on mount
   useEffect(() => {
     fetchConversations(1, statusFilter);
   }, [fetchConversations, statusFilter]);
+
+  // Écouter l'événement conversationLeft pour refetch
+  useEffect(() => {
+    const handleConversationLeft = () => {
+      fetchConversations(currentPage, statusFilter);
+    };
+
+    window.addEventListener("conversationLeft", handleConversationLeft);
+
+    return () => {
+      window.removeEventListener("conversationLeft", handleConversationLeft);
+    };
+  }, [currentPage, statusFilter, fetchConversations]);
 
   return (
     <section>
@@ -74,9 +92,16 @@ export default function MessageList() {
             />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
-              Messagerie
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
+                Messagerie
+              </h1>
+              {unreadCount > 0 && (
+                <span className="bg-tertiary-500 text-white text-xs font-one px-3 py-1 rounded-full">
+                  {unreadCount} message{unreadCount > 1 ? "s" : ""} non lu
+                </span>
+              )}
+            </div>
             <p className="text-white/70 text-xs font-one mt-1">
               Gérez vos conversations avec les clients et l'équipe interne.
             </p>
