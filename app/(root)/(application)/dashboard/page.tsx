@@ -12,6 +12,7 @@ import RecentReviews from "@/components/Application/Dashboard/RecentReviews";
 import Link from "next/link";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { useSession } from "next-auth/react";
+import LastMessage from "@/components/Application/Dashboard/LastMessage";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -113,6 +114,12 @@ export default function DashboardPage() {
           {!isFreeAccount && (
             <div className="col-span-12 sm:col-span-6 lg:col-span-4">
               <WaitingRdv userId={session?.user?.id ?? ""} />
+            </div>
+          )}
+
+          {!isFreeAccount && (
+            <div className="col-span-12 sm:col-span-6 lg:col-span-4">
+              <LastMessage />
             </div>
           )}
 

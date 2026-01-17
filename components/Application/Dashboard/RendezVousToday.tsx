@@ -72,7 +72,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
 
   //! État pour la date actuelle
   const [currentDate, setCurrentDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
 
   //! Nouvel état pour les détails du RDV sélectionné
@@ -155,7 +155,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
   //! Callback pour le changement de statut depuis le composant ChangeStatusButtons
   const handleStatusChange = (
     rdvId: string,
-    status: "COMPLETED" | "NO_SHOW"
+    status: "COMPLETED" | "NO_SHOW",
   ) => {
     // Mettre à jour l'événement sélectionné si c'est celui qui a été modifié
     if (selectedAppointment && selectedAppointment.id === rdvId) {
@@ -291,12 +291,15 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 2m8-2l2 2m-2-2v6a2 2 0 01-2 2H10a2 2 0 01-2-2v-6"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
           </div>
           <p className="text-gray-400 text-sm">
-            Aucun RDV {getDateLabel(currentDate).toLowerCase()}
+            Aucun rendez-vous {getDateLabel(currentDate).toLowerCase()}
+          </p>
+          <p className="text-gray-500 text-xs mt-1">
+            Vos rendez-vous apparaîtront ici
           </p>
         </div>
       ) : (

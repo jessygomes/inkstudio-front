@@ -85,6 +85,31 @@ export interface PaginatedConversationsDto {
   totalPages: number;
 }
 
+export interface UnreadConversationResponseDto {
+  subject: string;
+  conversationId: string;
+  clientId: string;
+  clientFirstName?: string;
+  clientLastName?: string;
+  clientImage?: string;
+  lastMessage: {
+    id: string;
+    content: string;
+    type: MessageType;
+    createdAt: string;
+  };
+  unreadCount: number;
+  lastMessageAt: string;
+}
+
+export interface PaginatedUnreadConversationsDto {
+  data: UnreadConversationResponseDto[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 //! ============================================================================
 //! RECUPERER LES CONVERSATIONS D'UN UTILISATEUR AVEC PAGINATION
 //! ============================================================================
@@ -92,7 +117,7 @@ export interface PaginatedConversationsDto {
 export const getConversationsAction = async (
   page: number = 1,
   limit: number = 20,
-  status?: ConversationStatus
+  status?: ConversationStatus,
 ): Promise<PaginatedConversationsDto> => {
   const headers = await getAuthHeaders();
 
@@ -109,7 +134,7 @@ export const getConversationsAction = async (
       method: "GET",
       headers,
       cache: "no-store",
-    }
+    },
   );
 
   if (!response.ok) {
@@ -125,7 +150,7 @@ export const getConversationsAction = async (
 export type ConversationResponseDto = ConversationDto;
 
 export const getConversationByIdAction = async (
-  id: string
+  id: string,
 ): Promise<ConversationResponseDto> => {
   const headers = await getAuthHeaders();
 
@@ -140,7 +165,7 @@ export const getConversationByIdAction = async (
       method: "GET",
       headers,
       cache: "no-store",
-    }
+    },
   );
 
   const messageResponse = await fetch(
@@ -149,7 +174,7 @@ export const getConversationByIdAction = async (
       method: "GET",
       headers,
       cache: "no-store",
-    }
+    },
   );
 
   if (!response.ok) {
@@ -158,7 +183,7 @@ export const getConversationByIdAction = async (
 
   if (!messageResponse.ok) {
     throw new Error(
-      `Failed to fetch conversation messages: ${messageResponse.statusText}`
+      `Failed to fetch conversation messages: ${messageResponse.statusText}`,
     );
   }
 
@@ -175,7 +200,7 @@ export const getConversationByIdAction = async (
 //! ARCHIVER UNE CONVERSATION
 //! ============================================================================
 export const archiveConversationAction = async (
-  conversationId: string
+  conversationId: string,
 ): Promise<void> => {
   const headers = await getAuthHeaders();
   const response = await fetch(
@@ -183,7 +208,7 @@ export const archiveConversationAction = async (
     {
       method: "PATCH",
       headers,
-    }
+    },
   );
   if (!response.ok) {
     throw new Error(`Failed to archive conversation: ${response.statusText}`);
@@ -195,7 +220,7 @@ export const archiveConversationAction = async (
 //! DELETE UNE CONVERSATION
 //! ============================================================================
 export const deleteConversationAction = async (
-  conversationId: string
+  conversationId: string,
 ): Promise<void> => {
   const headers = await getAuthHeaders();
   const response = await fetch(
@@ -203,7 +228,7 @@ export const deleteConversationAction = async (
     {
       method: "DELETE",
       headers,
-    }
+    },
   );
   if (!response.ok) {
     throw new Error(`Failed to delete conversation: ${response.statusText}`);
@@ -216,7 +241,7 @@ export const deleteConversationAction = async (
 //! ============================================================================
 export const deleteMessageAction = async (
   conversationId: string,
-  messageId: string
+  messageId: string,
 ): Promise<void> => {
   const headers = await getAuthHeaders();
   const response = await fetch(
@@ -224,7 +249,7 @@ export const deleteMessageAction = async (
     {
       method: "DELETE",
       headers,
-    }
+    },
   );
   if (!response.ok) {
     throw new Error(`Failed to delete message: ${response.statusText}`);
@@ -243,15 +268,40 @@ export const getUnreadMessagesCountAction = async (): Promise<number> => {
       method: "GET",
       headers,
       cache: "no-store",
-    }
+    },
   );
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch unread messages count: ${response.statusText}`
+      `Failed to fetch unread messages count: ${response.statusText}`,
     );
   }
   const data = await response.json();
 
   return data.totalUnread;
+};
+
+//! ============================================================================
+//! RECUPERER 10 CONVERSATIONS AVEC MESSAGES NON LUS (dashboard)
+//! ============================================================================
+export const getRecentUnreadConversationsAction = async (): Promise<
+  UnreadConversationResponseDto[]
+> => {
+  const headers = await getAuthHeaders();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACK_URL}/messaging/conversations/unread`,
+    {
+      method: "GET",
+      headers,
+      cache: "no-store",
+    },
+  );
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch recent unread conversations: ${response.statusText}`,
+    );
+  }
+  const data = await response.json();
+
+  return data;
 };

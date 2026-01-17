@@ -1,5 +1,4 @@
 import AvisList from "@/components/Application/Review/AvisList";
-import React from "react";
 
 export default function page() {
   return (

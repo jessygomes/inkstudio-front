@@ -17,7 +17,7 @@ export async function getRecentReviewsBySalon() {
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -59,7 +59,7 @@ export async function getRecentReviewsBySalon() {
 
 export async function respondToReviewAction(
   reviewId: string,
-  response: string
+  response: string,
 ) {
   try {
     const headers = await getAuthHeaders();
@@ -74,7 +74,7 @@ export async function respondToReviewAction(
         },
         body: JSON.stringify({ response }),
         cache: "no-store",
-      }
+      },
     );
 
     if (!result.ok) {
@@ -117,7 +117,7 @@ export async function removeReviewResponseAction(reviewId: string) {
         method: "DELETE",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!result.ok) {
@@ -157,7 +157,7 @@ export async function getAllReviewsBySalon(
     limit?: number;
     sortBy?: "recent" | "rating" | "oldest";
     filterRating?: number;
-  }
+  },
 ) {
   try {
     const headers = await getAuthHeaders();
@@ -178,7 +178,7 @@ export async function getAllReviewsBySalon(
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -191,13 +191,13 @@ export async function getAllReviewsBySalon(
 
     const result = await response.json();
 
-    if (result && typeof result === "object") {
+    if (result && typeof result === "object" && !result.error) {
       return { ok: true, data: result };
     }
 
     return {
       ok: false,
-      message: "Format de données invalide",
+      message: result?.message || "Format de données invalide",
     };
   } catch (error) {
     console.error("Erreur lors de la récupération des avis du salon:", error);

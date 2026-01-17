@@ -16,7 +16,7 @@ export async function getFavoriteCountBySalon() {
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -30,15 +30,22 @@ export async function getFavoriteCountBySalon() {
     const data = await response.json();
     console.log("Nombre de favoris récupéré:", data);
 
+    if (data && typeof data === "object" && !data.error) {
+      return {
+        ok: true,
+        data,
+        message: "Nombre de favoris récupéré avec succès",
+      };
+    }
+
     return {
-      ok: true,
-      data,
-      message: "Nombre de favoris récupéré avec succès",
+      ok: false,
+      message: data?.message || "Format de données invalide",
     };
   } catch (error) {
     console.error(
       "Erreur lors de la récupération du nombre de favoris:",
-      error
+      error,
     );
     return {
       ok: false,
