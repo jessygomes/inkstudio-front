@@ -1,13 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/components/Auth/Context/UserContext";
 import { CgDanger } from "react-icons/cg";
+import { useSession } from "next-auth/react";
 
 export default function VerificationNotification() {
-  const user = useUser();
+  const user = useSession().data?.user;
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
+
+  console.log("VérificationNotification - user:", user);
 
   useEffect(() => {
     // N'afficher la notification que si le salon n'est pas vérifié

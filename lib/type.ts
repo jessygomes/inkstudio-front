@@ -57,6 +57,9 @@ export interface AppointmentProps {
     price?: number;
     estimatedPrice?: number;
   };
+  conversation: {
+    id: string;
+  };
 }
 
 export type UpdateRdvFormProps = {

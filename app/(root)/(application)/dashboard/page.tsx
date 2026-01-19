@@ -1,5 +1,3 @@
-"use client";
-
 import CancelFillRate from "@/components/Application/Dashboard/CancelFillRate";
 // import DemandeRdvClient from "@/components/Application/Dashboard/DemandeRdvClient";
 import NewClientsCount from "@/components/Application/Dashboard/NewClientsCount";
@@ -11,16 +9,14 @@ import WeeklyFillRate from "@/components/Application/Dashboard/WeeklyFillRate";
 import RecentReviews from "@/components/Application/Dashboard/RecentReviews";
 import Link from "next/link";
 import { LuLayoutDashboard } from "react-icons/lu";
-import { useSession } from "next-auth/react";
 import LastMessage from "@/components/Application/Dashboard/LastMessage";
+import { auth } from "@/auth";
 
-export default function DashboardPage() {
-  const { data: session } = useSession();
+export default async function DashboardPage() {
+  const session = await auth();
 
   // Vérifier si l'utilisateur a un plan Free
   const isFreeAccount = session?.user?.saasPlan === "FREE";
-
-  console.log("🧾 Session utilisateur dans DashboardPage:", session);
 
   return (
     <div className=" bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 lg:px-20 pb-10 lg:pb-0">

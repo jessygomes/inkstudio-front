@@ -12,7 +12,7 @@ export const fetchAppointments = async (
   start: string,
   end: string,
   page: number = 1,
-  limit: number = 5
+  limit: number = 5,
 ) => {
   try {
     /* Format de réponse des données : 
@@ -28,7 +28,7 @@ export const fetchAppointments = async (
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
     if (!res.ok) throw new Error("Erreur lors du chargement des rendez-vous");
     const data = await res.json();
@@ -47,7 +47,12 @@ export const fetchAppointments = async (
 export const fetchAllAppointments = async (
   userId: string,
   page: number = 1,
-  limit: number = 5
+  limit: number = 5,
+  status?: string,
+  period?: string,
+  tatoueurId?: string,
+  prestation?: string,
+  search?: string,
 ) => {
   /* Format de réponse des données : 
       error: false,
@@ -59,17 +64,30 @@ export const fetchAllAppointments = async (
       limit,
       hasNextPage: page < totalPages,
       hasPreviousPage: page > 1,
+      },
+      allTatoueurs,
+      allPrestations
   */
   try {
     const headers = await getAuthHeaders();
 
+    // Construire les query params
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+    if (status) params.append("status", status);
+    if (period) params.append("period", period);
+    if (tatoueurId) params.append("tatoueurId", tatoueurId);
+    if (prestation) params.append("prestation", prestation);
+    if (search) params.append("search", search);
+
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/salon/${userId}?page=${page}&limit=${limit}`,
+      `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/salon/${userId}?${params.toString()}`,
       {
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -77,6 +95,8 @@ export const fetchAllAppointments = async (
     }
 
     const data = await response.json();
+
+    console.log("All appointments data:", data);
     return data || [];
   } catch (error) {
     console.error("Error fetching all appointments:", error);
@@ -98,7 +118,7 @@ export const fetchAppointmentById = async (rdvId: string) => {
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
     if (!res.ok) throw new Error("Erreur lors du chargement du rendez-vous");
     const data = await res.json();
@@ -124,7 +144,7 @@ export const createAppointment = async (rdvBody: any) => {
         method: "POST",
         headers,
         body: JSON.stringify(rdvBody),
-      }
+      },
     );
 
     const data = await res.json().catch(() => ({}));
@@ -160,7 +180,7 @@ export const updateAppointment = async (rdvId: string, updatedData: any) => {
         method: "PATCH",
         headers,
         body: JSON.stringify(updatedData),
-      }
+      },
     );
 
     const data = await res.json().catch(() => ({}));
@@ -224,7 +244,7 @@ export const fetchPendingAppointmentsAction = async () => {
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!res.ok)
@@ -254,7 +274,7 @@ export const fetchDemandesAction = async () => {
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!res.ok)
@@ -285,7 +305,7 @@ export const proposeAppointment = async (demandeId: string, payload: any) => {
         headers,
         body: JSON.stringify(payload),
         cache: "no-store",
-      }
+      },
     );
 
     const data = await res.json().catch(() => ({}));
@@ -317,13 +337,13 @@ export const weeklyFillRateAction = async (start: string, end: string) => {
       `${
         process.env.NEXT_PUBLIC_BACK_URL
       }/appointments/weekly-fill-rate?start=${encodeURIComponent(
-        start
+        start,
       )}&end=${encodeURIComponent(end)}`,
       {
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!res.ok)
@@ -353,7 +373,7 @@ export const cancelRateAction = async () => {
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!res.ok)
@@ -375,7 +395,7 @@ export const cancelRateAction = async () => {
 //! ----------------------------------------------------------------------------
 export const totalPaidAppointmentsAction = async (
   month: number,
-  year: number
+  year: number,
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -386,7 +406,7 @@ export const totalPaidAppointmentsAction = async (
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!res.ok)
@@ -416,12 +436,12 @@ export const waitingConfirmationAppointmentsAction = async () => {
         method: "GET",
         headers,
         cache: "no-store",
-      }
+      },
     );
 
     if (!res.ok)
       throw new Error(
-        "Erreur lors du chargement des RDV en attente de confirmation"
+        "Erreur lors du chargement des RDV en attente de confirmation",
       );
 
     const data = await res.json();
@@ -440,7 +460,7 @@ export const waitingConfirmationAppointmentsAction = async () => {
 //! ----------------------------------------------------------------------------
 export const paidAppointmentsAction = async (
   rdvId: string,
-  isPayed: boolean
+  isPayed: boolean,
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -451,7 +471,7 @@ export const paidAppointmentsAction = async (
         method: "PATCH",
         headers,
         body: JSON.stringify({ isPayed }),
-      }
+      },
     );
 
     if (!res.ok)
@@ -472,7 +492,7 @@ export const paidAppointmentsAction = async (
 export const confirmAppointmentAction = async (
   rdvId: string,
   endpoint: string,
-  actionMessage: string
+  actionMessage: string,
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -485,7 +505,7 @@ export const confirmAppointmentAction = async (
         body: JSON.stringify({
           message: actionMessage.trim() || undefined,
         }),
-      }
+      },
     );
 
     if (!res.ok)
@@ -493,7 +513,7 @@ export const confirmAppointmentAction = async (
       throw new Error(
         `Erreur lors de ${
           endpoint === "confirm" ? "la confirmation" : "l'annulation"
-        }`
+        }`,
       );
 
     return res.json();
@@ -510,7 +530,7 @@ export const confirmAppointmentAction = async (
 //! ----------------------------------------------------------------------------
 export const changeAppointmentStatusAction = async (
   rdvId: string,
-  status: "COMPLETED" | "NO_SHOW"
+  status: "COMPLETED" | "NO_SHOW",
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -521,7 +541,7 @@ export const changeAppointmentStatusAction = async (
         method: "PATCH",
         headers,
         body: JSON.stringify({ status }),
-      }
+      },
     );
 
     if (!res.ok) throw new Error("Erreur lors du changement de statut du RDV");
@@ -541,7 +561,7 @@ export const changeAppointmentStatusAction = async (
 export const sendCustomEmailAction = async (
   rdvId: string,
   subject: string,
-  message: string
+  message: string,
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -556,7 +576,7 @@ export const sendCustomEmailAction = async (
           subject,
           message,
         }),
-      }
+      },
     );
 
     if (!res.ok) throw new Error("Erreur lors de l'envoi du mail");
@@ -575,7 +595,7 @@ export const sendCustomEmailAction = async (
 //! ----------------------------------------------------------------------------
 export const proposeRescheduleAppointmentAction = async (
   rdvId: string,
-  reason?: string
+  reason?: string,
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -589,7 +609,7 @@ export const proposeRescheduleAppointmentAction = async (
           appointmentId: rdvId, // Changé de rdvId à appointmentId
           reason: reason || undefined,
         }),
-      }
+      },
     );
 
     const data = await res.json();
@@ -614,7 +634,7 @@ export const proposeRescheduleAppointmentAction = async (
 //! ----------------------------------------------------------------------------
 export const declineRequestAction = async (
   demandeId: string,
-  reason: string
+  reason: string,
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -628,7 +648,7 @@ export const declineRequestAction = async (
           appointmentRequestId: demandeId,
           reason: reason.trim() || undefined,
         }),
-      }
+      },
     );
 
     if (!res.ok) throw new Error("Erreur lors du refus de la demande de RDV");

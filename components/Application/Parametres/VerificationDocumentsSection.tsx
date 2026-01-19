@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useUser } from "@/components/Auth/Context/UserContext";
@@ -115,7 +116,7 @@ export default function VerificationDocumentsSection() {
 
   const handleFileUpload = async (
     type: SalonVerificationDocumentType,
-    files: FileList | null
+    files: FileList | null,
   ) => {
     if (!files || files.length === 0) return;
 
@@ -238,7 +239,7 @@ export default function VerificationDocumentsSection() {
                   {doc && (
                     <span
                       className={`px-2 py-1 rounded-md text-xs font-semibold border ${getStatusColor(
-                        doc.status
+                        doc.status,
                       )}`}
                     >
                       {getStatusLabel(doc.status)}
@@ -365,12 +366,15 @@ export default function VerificationDocumentsSection() {
           </svg>
         </div>
         <div>
-          <p className="text-tertiary-400 text-xs sm:text-sm font-one font-semibold mb-1">
-            Une fois tous les documents approuvés
+          <p className="text-tertiary-400 text-xs sm:text-sm font-one mb-1">
+            Seule le document "Hygiène & Salubrité" est obligatoire pour
+            vérifier votre salon.
           </p>
           <p className="text-tertiary-400/80 text-xs font-one leading-relaxed">
             Votre salon sera marqué comme vérifié, augmentant ainsi la confiance
-            de vos clients.
+            de vos clients. Nous vous recommandons de déposer tous les documents
+            pour maximiser vos chances d'approbation et augmenter votre
+            crédibilité.
           </p>
         </div>
       </div>
