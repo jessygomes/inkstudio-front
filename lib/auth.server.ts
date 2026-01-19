@@ -13,7 +13,7 @@ export const getAuthenticatedUser = async () => {
 
   if (!session || !session.user) {
     throw new Error(
-      "Aucun token d'accès trouvé. L'utilisateur n'est pas authentifié."
+      "Aucun token d'accès trouvé. L'utilisateur n'est pas authentifié.",
     );
   }
 
@@ -35,10 +35,10 @@ export const getAuthenticatedUser = async () => {
     address: session.user.address || null,
     city: null, // Non retourné par le backend pour l'instant
     postalCode: null, // Non retourné par le backend pour l'instant
-    salonHours: null, // Non retourné par le backend pour l'instant
     role: session.user.role as "user" | "admin",
     saasPlan: session.user.saasPlan as "FREE" | "PRO" | "BUSINESS",
     verifiedSalon: session.user.verifiedSalon,
+    salonHours: session.user.salonHours,
   };
 
   // Valider les données avec le schéma Zod

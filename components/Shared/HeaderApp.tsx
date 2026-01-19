@@ -8,10 +8,10 @@ export default function HeaderApp() {
   return (
     <>
       {" "}
-      <div className="block lg:hidden">
+      <div className="block xl:hidden">
         <NavbarMobile />
       </div>
-      <div className="hidden lg:block">
+      <div className="hidden xl:block">
         <NavbarApp />
       </div>
       {/* <div className="sm:hidden px-4 pt-8 rounded-2xl flex justify-between items-center mx-2">

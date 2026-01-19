@@ -54,7 +54,7 @@ export default function HorairesPage() {
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACK_URL}/users/${session.user.id}`,
-          { method: "GET" }
+          { method: "GET" },
         );
 
         if (!response.ok) throw new Error("Network response was not ok");
@@ -85,7 +85,7 @@ export default function HorairesPage() {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editingHours),
-        }
+        },
       );
 
       if (res.ok) {
@@ -102,7 +102,7 @@ export default function HorairesPage() {
 
   return (
     <div className="min-h-screen bg-noir-700">
-      <div className="pt-4 lg:pt-24 px-3 sm:px-6 lg:px-8">
+      <div className="pt-10 pb-10 xl:pb-0 xl:pt-24 px-3 sm:px-6 lg:px-8">
         {/* Header responsive - même style que modifier-salon */}
         <div className="flex items-center gap-3 sm:gap-4 max-w-6xl mx-auto mb-6 sm:mb-8">
           <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">

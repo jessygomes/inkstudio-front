@@ -32,6 +32,10 @@
   --animation-direction: forwards;
 }
 
+.wrapper-global {
+  @apply min-h-screen bg-noir-700 flex flex-col items-center gap-4 px-3 lg:px-10;
+}
+
 /* ! TOOLBAR */
 .rbc-toolbar {
   background-color: #131313;
@@ -58,7 +62,9 @@
 .rbc-toolbar button:hover {
   background-color: #ff4d41 !important;
   color: #ffffff !important;
-  transition: background-color 0.3s ease, transform 0.3s ease; /* Animation fluide */
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease; /* Animation fluide */
 }
 
 .rbc-toolbar-label {
@@ -151,7 +157,9 @@
   border-radius: 10px !important;
   border: none !important;
   background-color: #3e2c27;
-  transition: background-color 0.3s ease, transform 0.3s ease; /* Animation fluide */
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease; /* Animation fluide */
 }
 .rbc-day-bg:hover {
   background-color: #af7e70 !important;
@@ -185,7 +193,9 @@
 .rbc-event:hover {
   background-color: #ff4d41 !important;
   color: #ffffff !important;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
 }
 
 /* ! BTN VOIR PLUS */

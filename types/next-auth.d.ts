@@ -15,6 +15,7 @@ declare module "next-auth" {
       phone: string;
       address: string;
       verifiedSalon: boolean;
+      salonHours?: string | null;
     } & DefaultSession["user"];
     accessToken: string;
   }
@@ -27,6 +28,7 @@ declare module "next-auth" {
     phone: string;
     address: string;
     verifiedSalon: boolean;
+    salonHours?: string | null;
   }
 }
 
@@ -40,5 +42,6 @@ declare module "next-auth/jwt" {
     phone: string;
     address: string;
     verifiedSalon: boolean;
+    salonHours?: string | null;
   }
 }

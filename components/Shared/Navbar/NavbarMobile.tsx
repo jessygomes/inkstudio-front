@@ -219,66 +219,128 @@ export default function NavbarMobile() {
 
       {/* Bottom Navigation Bar - Style App Mobile */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-noir-700/95 backdrop-blur-md border-t border-white/20">
-        <div className="flex items-center justify-around py-2 px-4">
+        <div className="flex items-center justify-around py-2 px-2 sm:px-4">
           {/* Dashboard */}
           <Link
             href="/dashboard"
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+            className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
               pathname === "/dashboard"
                 ? "text-tertiary-400"
                 : "text-white/70 hover:text-white active:scale-95"
             }`}
           >
             <MdDashboard size={20} />
-            <span className="text-xs font-one mt-1">Dashboard</span>
+            <span className="text-[10px] sm:text-xs font-one mt-1">
+              Dashboard
+            </span>
           </Link>
 
           {/* RDV */}
           <Link
             href="/mes-rendez-vous"
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+            className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
               pathname === "/mes-rendez-vous"
                 ? "text-tertiary-400"
                 : "text-white/70 hover:text-white active:scale-95"
             }`}
           >
             <MdEvent size={20} />
-            <span className="text-xs font-one mt-1">RDV</span>
+            <span className="text-[10px] sm:text-xs font-one mt-1">RDV</span>
           </Link>
 
           {/* Clients */}
           <Link
             href="/clients"
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+            className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
               pathname === "/clients"
                 ? "text-tertiary-400"
                 : "text-white/70 hover:text-white active:scale-95"
             }`}
           >
             <MdPeople size={20} />
-            <span className="text-xs font-one mt-1">Clients</span>
+            <span className="text-[10px] sm:text-xs font-one mt-1">
+              Clients
+            </span>
           </Link>
 
-          {/* Portfolio */}
+          {/* Messagerie */}
           <Link
             href="/messagerie"
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+            className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
               pathname === "/messagerie"
                 ? "text-tertiary-400"
                 : "text-white/70 hover:text-white active:scale-95"
             }`}
           >
             <MdOutlineMessage size={20} />
-            <span className="text-xs font-one mt-1">Messagerie</span>
+            <span className="text-[10px] sm:text-xs font-one mt-1">
+              Messages
+            </span>
+          </Link>
+
+          {/* Stocks - visible à partir de sm (640px) */}
+          <Link
+            href="/stocks"
+            className={`hidden sm:flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
+              pathname === "/stocks"
+                ? "text-tertiary-400"
+                : "text-white/70 hover:text-white active:scale-95"
+            }`}
+          >
+            <FaDatabase size={18} />
+            <span className="text-[10px] sm:text-xs font-one mt-1">Stocks</span>
+          </Link>
+
+          {/* Portfolio - visible à partir de md (768px) */}
+          <Link
+            href="/mon-portfolio"
+            className={`hidden md:flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
+              pathname === "/mon-portfolio"
+                ? "text-tertiary-400"
+                : "text-white/70 hover:text-white active:scale-95"
+            }`}
+          >
+            <MdPhotoLibrary size={20} />
+            <span className="text-[10px] sm:text-xs font-one mt-1">
+              Portfolio
+            </span>
+          </Link>
+
+          {/* Produits - visible à partir de lg (1024px) */}
+          <Link
+            href="/mes-produits"
+            className={`hidden lg:flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
+              pathname === "/mes-produits"
+                ? "text-tertiary-400"
+                : "text-white/70 hover:text-white active:scale-95"
+            }`}
+          >
+            <MdShoppingBag size={20} />
+            <span className="text-[10px] sm:text-xs font-one mt-1">
+              Produits
+            </span>
+          </Link>
+
+          {/* Avis - visible à partir de lg (1024px) */}
+          <Link
+            href="/review"
+            className={`hidden lg:flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
+              pathname === "/review"
+                ? "text-tertiary-400"
+                : "text-white/70 hover:text-white active:scale-95"
+            }`}
+          >
+            <MdAccountCircle size={20} />
+            <span className="text-[10px] sm:text-xs font-one mt-1">Avis</span>
           </Link>
 
           {/* Menu Plus */}
           <button
             onClick={handleOpen}
-            className="flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 text-white/70 hover:text-white active:scale-95"
+            className="flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 text-white/70 hover:text-white active:scale-95"
           >
             <MdMenu size={20} />
-            <span className="text-xs font-one mt-1">Plus</span>
+            <span className="text-[10px] sm:text-xs font-one mt-1">Plus</span>
           </button>
         </div>
 

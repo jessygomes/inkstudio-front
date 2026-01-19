@@ -37,6 +37,8 @@ export default function AddOrUpdateTatoueurPage() {
   const searchParams = useSearchParams();
   const salonId = session?.user?.id;
 
+  console.log("Rendering AddOrUpdateTatoueurPage", session);
+
   const tatoueurId = searchParams.get("id");
   const isEditing = !!tatoueurId;
 
@@ -46,6 +48,15 @@ export default function AddOrUpdateTatoueurPage() {
     useState<TatoueurProps | null>(null);
   const [salonHours, setSalonHours] = useState<string | null>(null);
 
+  // Précharger les horaires depuis la session si disponibles
+  useEffect(() => {
+    const raw = session?.user?.salonHours as unknown;
+    if (raw) {
+      const normalized = typeof raw === "string" ? raw : JSON.stringify(raw);
+      setSalonHours(normalized);
+    }
+  }, [session?.user?.salonHours]);
+
   // Récupérer les données du salon pour les horaires par défaut
   useEffect(() => {
     const fetchSalonData = async () => {
@@ -53,16 +64,19 @@ export default function AddOrUpdateTatoueurPage() {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}`
+          `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}`,
         );
         if (response.ok) {
           const data = await response.json();
-          setSalonHours(data.salonHours);
+          const raw = (data as unknown as { salonHours?: unknown }).salonHours;
+          const normalized =
+            typeof raw === "string" ? raw : raw ? JSON.stringify(raw) : null;
+          setSalonHours(normalized);
         }
       } catch (error) {
         console.error(
           "Erreur lors de la récupération des données du salon:",
-          error
+          error,
         );
       }
     };
@@ -77,7 +91,7 @@ export default function AddOrUpdateTatoueurPage() {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/${tatoueurId}`
+          `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/${tatoueurId}`,
         );
         if (response.ok) {
           const data = await response.json();
@@ -104,6 +118,18 @@ export default function AddOrUpdateTatoueurPage() {
     };
 
   const [editingHours, setEditingHours] = useState<Horaire>(initialHours);
+
+  // Mettre à jour les horaires d'édition lorsque les horaires du salon arrivent (création uniquement)
+  useEffect(() => {
+    if (!isEditing && salonHours) {
+      try {
+        const parsed = JSON.parse(salonHours) as Horaire;
+        setEditingHours(parsed);
+      } catch (e) {
+        console.error("Impossible de parser salonHours", e);
+      }
+    }
+  }, [salonHours, isEditing]);
 
   const form = useForm<z.infer<typeof createTatoueurSchema>>({
     resolver: zodResolver(createTatoueurSchema),
@@ -144,10 +170,10 @@ export default function AddOrUpdateTatoueurPage() {
   const [styleInput, setStyleInput] = useState("");
   const [skillsInput, setSkillsInput] = useState("");
   const [styleBadges, setStyleBadges] = useState<string[]>(
-    form.watch("style") || []
+    form.watch("style") || [],
   );
   const [skillsBadges, setSkillsBadges] = useState<string[]>(
-    form.watch("skills") || []
+    form.watch("skills") || [],
   );
 
   // Synchronise badges avec form (utile en édition)
@@ -211,7 +237,7 @@ export default function AddOrUpdateTatoueurPage() {
       const result = await createOrUpdateTatoueur(
         payload,
         isEditing ? "PATCH" : "POST",
-        url
+        url,
       );
 
       // Vérifier si c'est une erreur de limite SaaS
@@ -247,7 +273,7 @@ export default function AddOrUpdateTatoueurPage() {
 
   return (
     <div className="min-h-screen w-full bg-noir-700">
-      <div className="pt-4 lg:pt-24 px-3 sm:px-6 lg:px-8">
+      <div className="pt-10 pb-10 xl:pb-0 xl:pt-24 px-3 sm:px-6 lg:px-8">
         {/* Header responsive */}
         <div className="flex items-center gap-3 sm:gap-4 max-w-6xl mx-auto mb-6 sm:mb-8">
           <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">

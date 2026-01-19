@@ -24,7 +24,7 @@ export default {
         if (!validatedFields.success) {
           console.error(
             "❌ Validation des credentials échouée:",
-            validatedFields.error
+            validatedFields.error,
           );
           return null;
         }
@@ -46,7 +46,7 @@ export default {
           if (!response.ok) {
             console.error(
               "❌ Échec de l'authentification - Status:",
-              response.status
+              response.status,
             );
             const errorText = await response.text();
             console.error("❌ Message d'erreur:", errorText);
@@ -61,6 +61,14 @@ export default {
             return null;
           }
 
+          // Normaliser salonHours en string JSON si backend renvoie un objet
+          const normalizedSalonHours =
+            typeof data.salonHours === "string"
+              ? data.salonHours
+              : data.salonHours
+                ? JSON.stringify(data.salonHours)
+                : null;
+
           // Le backend retourne maintenant toutes les données nécessaires
           const userObject = {
             id: String(data.id),
@@ -74,6 +82,7 @@ export default {
             phone: data.phone || "",
             address: data.address || "",
             verifiedSalon: data.verifiedSalon || false,
+            salonHours: normalizedSalonHours,
           };
 
           // Retourner l'objet utilisateur avec toutes les données

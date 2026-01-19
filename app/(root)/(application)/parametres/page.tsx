@@ -38,8 +38,8 @@ export default function ParamPage() {
   };
 
   return (
-    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 sm:px-6 lg:px-20 pb-10 lg:pb-0">
-      <div className="flex flex-col relative gap-4 sm:gap-6 w-full mt-4 lg:mt-23">
+    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 sm:px-6 lg:px-10 pb-10 lg:pb-0">
+      <div className="flex flex-col relative gap-4 sm:gap-6 w-full mt-4 pb-10 xl:pb-0 xl:mt-23">
         {/* Header responsive */}
         <div className="">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">

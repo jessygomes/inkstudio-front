@@ -66,13 +66,13 @@ export default function AvisList() {
   const [totalPages, setTotalPages] = useState<number | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [responseValues, setResponseValues] = useState<Record<string, string>>(
-    {}
+    {},
   );
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
   const [responseError, setResponseError] = useState<Record<string, string>>(
-    {}
+    {},
   );
   const [statistics, setStatistics] = useState<ReviewStatistics>({});
   const [favoriteCount, setFavoriteCount] = useState<number>(0);
@@ -131,12 +131,12 @@ export default function AvisList() {
           data.totalItems ??
           data.statistics?.totalReviews ??
           data.pagination?.totalReviews ??
-          null
+          null,
       );
       setTotalPages(
         data.totalPages ??
           data.pagination?.totalPages ??
-          (data.total && pageSize ? Math.ceil(data.total / pageSize) : null)
+          (data.total && pageSize ? Math.ceil(data.total / pageSize) : null),
       );
       setStatistics(data.statistics ?? {});
       setPage(data.page ?? data.pagination?.currentPage ?? pageToLoad);
@@ -184,7 +184,7 @@ export default function AvisList() {
   const canPrev = useMemo(() => page > 1, [page]);
   const canNext = useMemo(
     () => (totalPages ? page < totalPages : reviews.length === pageSize),
-    [page, totalPages, reviews.length]
+    [page, totalPages, reviews.length],
   );
 
   const handlePrev = () => {
@@ -379,9 +379,18 @@ export default function AvisList() {
             <h2 className="text-white font-one text-xl text-center">
               Aucun avis pour le moment
             </h2>
-            <p className="text-white/60 font-two text-xs text-center">
-              Les avis laissés par vos clients apparaîtront ici.
+            <p className="text-white/60 font-two text-xs text-center max-w-md">
+              Dès qu'un client laissera un avis, il s'affichera ici. Encouragez
+              vos clients à partager leur expérience.
             </p>
+            <div className="flex gap-3 flex-wrap justify-center">
+              <button
+                onClick={() => loadReviews(1)}
+                className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-one font-medium border border-white/20 transition-colors"
+              >
+                Rafraîchir
+              </button>
+            </div>
           </div>
         </div>
       ) : (
@@ -463,8 +472,8 @@ export default function AvisList() {
                     {expandedId === review.id
                       ? "Fermer"
                       : review.salonResponse
-                      ? "Modifier la réponse"
-                      : "Répondre"}
+                        ? "Modifier la réponse"
+                        : "Répondre"}
                   </button>
                 </div>
               </div>
@@ -500,7 +509,7 @@ export default function AvisList() {
                             year: "numeric",
                             hour: "2-digit",
                             minute: "2-digit",
-                          }
+                          },
                         )}
                       </p>
                     </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { useSession } from "next-auth/react";
 import { LogoutBtn } from "@/components/Auth/LogoutBtn";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,10 +9,13 @@ import { getUnreadMessagesCountAction } from "@/lib/queries/conversation.action"
 
 import { CgProfile } from "react-icons/cg";
 import { CiSettings } from "react-icons/ci";
+import Image from "next/image";
 
 export default function NavbarApp() {
-  const user = useUser();
+  const { data: session } = useSession();
   const pathname = usePathname();
+
+  console.log("NavbarApp rendered", session);
 
   // Utiliser le contexte global pour le unreadCount
   const { unreadCount, setUnreadCount } = useMessagingContext();
@@ -70,14 +73,14 @@ export default function NavbarApp() {
   ];
 
   return (
-    <nav className="flex justify-between items-center py-4 pb-6 shadow-lg mx-20">
+    <nav className="flex justify-end items-center py-4 pb-4 shadow-lg mx-10">
       <div className="absolute bottom-0 left-0 right-0 h-1 animate-pulse bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-2xl"></div>{" "}
-      <Link
+      {/* <Link
         href={"/"}
-        className="font-two uppercase font-bold text-xl text-white"
+        className="font-two uppercase font-bold text-lg text-white"
       >
         {user?.salonName || "INKERA"}
-      </Link>
+      </Link> */}
       <ul ref={navRef} className="flex justify-center items-center gap-8">
         {links.map((link, index) => {
           const isActive = pathname === link.href;
@@ -89,7 +92,7 @@ export default function NavbarApp() {
                 isActive
                   ? "active font-three text-white font-bold"
                   : "font-thin"
-              } pb-1 text-white text-sm font-three pt-1 px-2 tracking-widest hover:text-white/70 transition-all duration-300 relative`}
+              } pb-1 text-white text-xs font-three pt-1 px-2 tracking-widest hover:text-white/70 transition-all duration-300 relative`}
             >
               <Link href={link.href}>{link.label}</Link>
               {link.label === "Messagerie" && unreadCount > 0 && (
@@ -105,7 +108,17 @@ export default function NavbarApp() {
             onClick={toggleMenu}
             className="cursor-pointer items-center text-white hover:text-white/70 transition duration-300"
           >
-            <CgProfile size={20} />
+            {session?.user?.image ? (
+              <Image
+                src={session.user.image}
+                alt="Salon"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-full object-cover border-2 border-tertiary-400"
+              />
+            ) : (
+              <CgProfile size={20} />
+            )}
           </button>
 
           {showMenu && (

@@ -96,7 +96,6 @@ export const fetchAllAppointments = async (
 
     const data = await response.json();
 
-    console.log("All appointments data:", data);
     return data || [];
   } catch (error) {
     console.error("Error fetching all appointments:", error);
@@ -171,8 +170,6 @@ export const createAppointment = async (rdvBody: any) => {
 export const updateAppointment = async (rdvId: string, updatedData: any) => {
   try {
     const headers = await getAuthHeaders();
-
-    console.log("Updating appointment with data:", updatedData);
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/update/${rdvId}`,

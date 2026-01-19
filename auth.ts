@@ -33,6 +33,14 @@ export const {
         token.phone = user.phone;
         token.address = user.address;
         token.verifiedSalon = user.verifiedSalon;
+        const rawHoursUnknown = (user as unknown as { salonHours?: unknown })
+          .salonHours;
+        token.salonHours =
+          typeof rawHoursUnknown === "string"
+            ? rawHoursUnknown
+            : rawHoursUnknown
+              ? JSON.stringify(rawHoursUnknown)
+              : null;
       }
 
       // Support pour la mise à jour de session
@@ -60,6 +68,14 @@ export const {
         session.user.address = token.address as string;
         session.user.verifiedSalon = token.verifiedSalon as boolean;
         session.accessToken = token.accessToken as string;
+        const tokenHours = (token as unknown as { salonHours?: unknown })
+          .salonHours;
+        session.user.salonHours =
+          typeof tokenHours === "string"
+            ? tokenHours
+            : tokenHours
+              ? JSON.stringify(tokenHours)
+              : null;
       } else {
         console.warn("⚠️  [Session Callback] Token non disponible");
       }

@@ -55,7 +55,6 @@ export default function StockList() {
     try {
       const categories = await getStockCategoriesAction();
       setCategories(categories);
-      console.log("Catégories chargées:", categories);
     } catch (error) {
       console.error("Erreur lors du chargement des catégories:", error);
     }
@@ -73,7 +72,7 @@ export default function StockList() {
         if (data.error) {
           throw new Error(
             data.message ||
-              "Erreur lors de la récupération des articles de stock"
+              "Erreur lors de la récupération des articles de stock",
           );
         }
 
@@ -89,14 +88,14 @@ export default function StockList() {
       } catch (err) {
         console.error("Erreur lors du chargement des articles de stock :", err);
         setError(
-          err instanceof Error ? err.message : "Une erreur est survenue"
+          err instanceof Error ? err.message : "Une erreur est survenue",
         );
         setItemsStock([]);
       } finally {
         setLoading(false);
       }
     },
-    [currentPage, searchTerm]
+    [currentPage, searchTerm],
   );
 
   // Effet pour charger les clients au changement de page ou de recherche
@@ -129,6 +128,20 @@ export default function StockList() {
   const filteredItems = categoryFilter
     ? itemsStock.filter((item) => item.category === categoryFilter)
     : itemsStock;
+
+  //! Calcul des statistiques
+  const statistics = {
+    totalItems: itemsStock.length,
+    totalValue: itemsStock.reduce((sum, item) => sum + (item.totalPrice || 0), 0),
+    lowStockItems: itemsStock.filter(
+      (item) => item.minQuantity && item.quantity <= item.minQuantity
+    ).length,
+    outOfStockItems: itemsStock.filter((item) => item.quantity === 0).length,
+    totalCategories: new Set(itemsStock.map((item) => item.category).filter(Boolean)).size,
+    averageValue: itemsStock.length > 0 
+      ? itemsStock.reduce((sum, item) => sum + (item.totalPrice || 0), 0) / itemsStock.length
+      : 0,
+  };
 
   //! Fonctions de gestion
   const handleCreate = () => {
@@ -166,7 +179,7 @@ export default function StockList() {
   //! Fonction pour modifier rapidement la quantité
   const handleUpdateQuantity = async (
     item: StockItemProps,
-    increment: number
+    increment: number,
   ) => {
     const newQuantity = Math.max(0, item.quantity + increment);
 
@@ -179,8 +192,8 @@ export default function StockList() {
           prevItems.map((prevItem) =>
             prevItem.id === item.id
               ? { ...prevItem, quantity: newQuantity }
-              : prevItem
-          )
+              : prevItem,
+          ),
         );
       } else {
         console.error("Erreur lors de la mise à jour de la quantité");
@@ -237,6 +250,53 @@ export default function StockList() {
           </div>
         )}
       </div>
+
+      {/* Statistiques */}
+      {!isFreeAccount && !loading && !error && (
+        <div className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
+            <span className="text-white/60 text-xs font-one">Articles</span>
+            <span className="text-white text-xl font-one font-semibold">
+              {statistics.totalItems}
+            </span>
+          </div>
+          
+          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
+            <span className="text-white/60 text-xs font-one">Valeur totale</span>
+            <span className="text-white text-xl font-one font-semibold">
+              {statistics.totalValue.toFixed(2)} €
+            </span>
+          </div>
+          
+          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
+            <span className="text-white/60 text-xs font-one">Stock bas</span>
+            <span className="text-orange-400 text-xl font-one font-semibold">
+              {statistics.lowStockItems}
+            </span>
+          </div>
+          
+          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
+            <span className="text-white/60 text-xs font-one">Rupture</span>
+            <span className="text-red-400 text-xl font-one font-semibold">
+              {statistics.outOfStockItems}
+            </span>
+          </div>
+          
+          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
+            <span className="text-white/60 text-xs font-one">Catégories</span>
+            <span className="text-white text-xl font-one font-semibold">
+              {statistics.totalCategories}
+            </span>
+          </div>
+          
+          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
+            <span className="text-white/60 text-xs font-one">Valeur moy.</span>
+            <span className="text-white text-xl font-one font-semibold">
+              {statistics.averageValue.toFixed(2)} €
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Liste des items de stock */}
 
@@ -650,7 +710,7 @@ export default function StockList() {
                             typeof window !== "undefined" &&
                               window.innerWidth < 640
                               ? 3
-                              : 5
+                              : 5,
                           ),
                         },
                         (_, i) => {
@@ -691,7 +751,7 @@ export default function StockList() {
                               {pageNumber}
                             </button>
                           );
-                        }
+                        },
                       )}
                     </div>
 
