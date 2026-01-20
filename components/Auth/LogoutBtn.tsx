@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AiOutlineLogout } from "react-icons/ai";
 import { signOut } from "next-auth/react";
@@ -10,18 +10,21 @@ interface LogoutBtnProps {
 }
 
 export const LogoutBtn = ({ children }: LogoutBtnProps) => {
-  const router = useRouter();
+  // const router = useRouter();
 
   const onClick = async () => {
     try {
       // ✅ Utiliser NextAuth pour la déconnexion
       await signOut({
         redirect: false,
+        callbackUrl: "/",
       });
 
       toast.success("Déconnexion réussie");
-      router.push("/");
-      router.refresh();
+
+      // 🔄 Forcer un refresh complet pour que le middleware réévalue l'état d'authentification
+      // Sans ceci, le cache client peut continuer à penser qu'on est connecté
+      window.location.href = "/";
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
       toast.error("Erreur lors de la déconnexion");
