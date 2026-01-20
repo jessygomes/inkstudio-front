@@ -25,7 +25,7 @@ export default function Tarifs() {
     {
       name: "Studio",
       subtitle: "Le plus populaire",
-      price: "29",
+      price: "35,99",
       period: "mois",
       description:
         "Idéal pour les tatoueurs indépendants qui démarrent leur activité",
@@ -36,7 +36,6 @@ export default function Tarifs() {
         "Réservation en ligne",
         "Profil public",
         "Support email",
-        "Sauvegarde cloud",
       ],
       popular: true,
       cta: "Bientot disponible",
@@ -45,14 +44,14 @@ export default function Tarifs() {
     {
       name: "Pro",
       subtitle: "Pour les grandes structures",
-      price: "59",
+      price: "85,99",
       period: "mois",
       description: "Solution complète pour les salons avec plusieurs artistes",
       icon: <FaRocket size={24} className="text-purple-400" />,
       features: [
         "Tatoueurs illimités",
         "Gestion du stock",
-        "Tout du plan Solo",
+        "Tout du plan Studio",
         "Statistiques détaillées",
         "Support prioritaire",
         "Formations incluses",
@@ -109,8 +108,8 @@ export default function Tarifs() {
                       plan.color === "tertiary"
                         ? "bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20"
                         : plan.color === "purple"
-                        ? "bg-gradient-to-br from-purple-500/20 to-purple-600/20"
-                        : "bg-gradient-to-br from-blue-500/20 to-blue-600/20"
+                          ? "bg-gradient-to-br from-purple-500/20 to-purple-600/20"
+                          : "bg-gradient-to-br from-blue-500/20 to-blue-600/20"
                     }`}
                   >
                     {plan.icon}

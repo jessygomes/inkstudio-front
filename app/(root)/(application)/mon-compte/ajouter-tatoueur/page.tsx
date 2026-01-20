@@ -222,17 +222,13 @@ export default function AddOrUpdateTatoueurPage() {
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
     if (!salonId) return;
 
-    console.log("📝 Starting form submission...");
-
     setLoading(true);
     setError("");
 
     try {
       // 1. Uploader l'image en premier si elle est en attente
       if (imageUploaderRef.current) {
-        console.log("📸 Uploading image...");
         await imageUploaderRef.current.uploadImage();
-        console.log("✅ Image uploaded successfully");
       }
 
       const payload = {
@@ -241,21 +237,15 @@ export default function AddOrUpdateTatoueurPage() {
         hours: JSON.stringify(editingHours),
       };
 
-      console.log("📝 Submitting payload:", payload);
-
       const url = isEditing
         ? `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/update/${tatoueurId}`
         : `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`;
-
-      console.log("🚀 Calling API:", url);
 
       const result = await createOrUpdateTatoueur(
         payload,
         isEditing ? "PATCH" : "POST",
         url,
       );
-
-      console.log("✅ API Result:", result);
 
       // Vérifier si c'est une erreur de limite SaaS
       if (result.error) {

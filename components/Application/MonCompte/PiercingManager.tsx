@@ -22,7 +22,7 @@ interface PiercingManagerProps {
 export default function PiercingManager({}: PiercingManagerProps) {
   const [piercingZones, setPiercingZones] = useState<PiercingPrice[]>([]);
   const [allAvailableZones, setAllAvailableZones] = useState<PiercingZone[]>(
-    []
+    [],
   );
   const [selectedZones, setSelectedZones] = useState<PiercingZone[]>([]);
   const [enums, setEnums] = useState<{
@@ -77,7 +77,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
 
       // Marquer les zones déjà configurées comme sélectionnées
       const configuredZones = result.data.map(
-        (z: PiercingPrice) => z.piercingZone
+        (z: PiercingPrice) => z.piercingZone,
       );
       setSelectedZones(configuredZones);
 
@@ -163,7 +163,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
     zoneId: string,
     serviceIndex: number,
     field: string,
-    value: string | number | boolean
+    value: string | number | boolean,
   ) => {
     setServices((prev) => ({
       ...prev,
@@ -171,7 +171,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
         prev[zoneId]?.map((service, idx) =>
           idx === serviceIndex
             ? { ...service, [field]: value, isModified: true }
-            : service
+            : service,
         ) || [],
     }));
   };
@@ -192,7 +192,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
       ...prev,
       [zoneId]:
         prev[zoneId]?.map((s, idx) =>
-          idx === serviceIndex ? { ...s, isSaving: true } : s
+          idx === serviceIndex ? { ...s, isSaving: true } : s,
         ) || [],
     }));
 
@@ -240,7 +240,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
                     isModified: false,
                     isSaving: false,
                   }
-                : s
+                : s,
             ) || [],
         }));
         toast.success("Sauvegardé avec succès !");
@@ -256,7 +256,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
         ...prev,
         [zoneId]:
           prev[zoneId]?.map((s, idx) =>
-            idx === serviceIndex ? { ...s, isSaving: false } : s
+            idx === serviceIndex ? { ...s, isSaving: false } : s,
           ) || [],
       }));
     }
@@ -437,7 +437,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
                             >
                               {option}
                             </option>
-                          )
+                          ),
                         )}
                       </select>
                     </div>
@@ -456,7 +456,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
                             zone.id,
                             idx,
                             "price",
-                            parseFloat(e.target.value) || 0
+                            parseFloat(e.target.value) || 0,
                           )
                         }
                         className="w-full p-2 bg-white/10 border border-white/20 rounded text-white text-xs focus:outline-none focus:border-tertiary-400"
@@ -478,7 +478,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
                               zone.id,
                               idx,
                               "isActive",
-                              e.target.checked
+                              e.target.checked,
                             )
                           }
                           className="sr-only peer"
