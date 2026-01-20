@@ -99,10 +99,21 @@ export default function AvisList() {
     try {
       const result = await getFavoriteCountBySalon();
       if (result.ok && result.data) {
-        setFavoriteCount(result.data.favoritesCount || result.data || 0);
+        // Vérifier que result.data est un objet et extraire favoritesCount
+        if (
+          typeof result.data === "object" &&
+          "favoritesCount" in result.data
+        ) {
+          setFavoriteCount(result.data.favoritesCount ?? 0);
+        } else if (typeof result.data === "number") {
+          setFavoriteCount(result.data);
+        } else {
+          setFavoriteCount(0);
+        }
       }
     } catch (err) {
       console.error("Erreur lors du chargement des favoris:", err);
+      setFavoriteCount(0);
     }
   };
 
@@ -233,7 +244,7 @@ export default function AvisList() {
   };
 
   return (
-    <section className="w-full mb-10">
+    <section className="w-full pb-10 bg-noir-700">
       <div className="mb-6 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
         <div className="w-full flex items-center gap-3 sm:gap-4 mb-4 md:mb-0">
           <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
@@ -340,7 +351,7 @@ export default function AvisList() {
       </div>
 
       {loading ? (
-        <div className="h-full w-full flex items-center justify-center">
+        <div className="h-fit w-full flex items-center justify-center">
           <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
             <p className="text-white/60 font-two text-xs text-center">
@@ -359,7 +370,7 @@ export default function AvisList() {
           </button>
         </div>
       ) : reviews.length === 0 ? (
-        <div className="h-full w-full flex">
+        <div className="h-fit w-full flex bg-noir-700">
           <div className="w-full rounded-2xl shadow-xl border border-white/10 p-10 flex flex-col items-center justify-center gap-6 mx-auto">
             <div className="w-20 h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
               <svg

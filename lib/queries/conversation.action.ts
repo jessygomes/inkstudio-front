@@ -261,24 +261,35 @@ export const deleteMessageAction = async (
 //! RECUPERER LE NOMBRE DE MESSAGES NON LUS
 //! ============================================================================
 export const getUnreadMessagesCountAction = async (): Promise<number> => {
-  const headers = await getAuthHeaders();
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACK_URL}/messaging/conversations/unread/total`,
-    {
-      method: "GET",
-      headers,
-      cache: "no-store",
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch unread messages count: ${response.statusText}`,
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/messaging/conversations/unread/total`,
+      {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      },
     );
-  }
-  const data = await response.json();
 
-  return data.totalUnread;
+    if (!response.ok) {
+      // Pour les nouveaux comptes ou erreurs 500, retourner 0 au lieu de planter
+      if (response.status === 500 || response.status === 404) {
+        console.warn("Nouveau compte ou données manquantes, retour 0 messages");
+        return 0;
+      }
+      throw new Error(
+        `Failed to fetch unread messages count: ${response.statusText}`,
+      );
+    }
+    const data = await response.json();
+
+    return data.totalUnread || 0;
+  } catch (error) {
+    console.error("Error fetching unread messages:", error);
+    // Retourner 0 au lieu de faire planter l'app
+    return 0;
+  }
 };
 
 //! ============================================================================
@@ -287,21 +298,33 @@ export const getUnreadMessagesCountAction = async (): Promise<number> => {
 export const getRecentUnreadConversationsAction = async (): Promise<
   UnreadConversationResponseDto[]
 > => {
-  const headers = await getAuthHeaders();
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACK_URL}/messaging/conversations/unread`,
-    {
-      method: "GET",
-      headers,
-      cache: "no-store",
-    },
-  );
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch recent unread conversations: ${response.statusText}`,
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/messaging/conversations/unread`,
+      {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      },
     );
-  }
-  const data = await response.json();
+    if (!response.ok) {
+      // Pour les nouveaux comptes, retourner un tableau vide
+      if (response.status === 500 || response.status === 404) {
+        console.warn(
+          "Nouveau compte ou données manquantes, retour tableau vide",
+        );
+        return [];
+      }
+      throw new Error(
+        `Failed to fetch recent unread conversations: ${response.statusText}`,
+      );
+    }
+    const data = await response.json();
 
-  return data;
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching recent unread conversations:", error);
+    return [];
+  }
 };

@@ -1,6 +1,6 @@
 "use client";
 
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AiOutlineLogout } from "react-icons/ai";
 import { signOut } from "next-auth/react";
@@ -10,7 +10,7 @@ interface LogoutBtnProps {
 }
 
 export const LogoutBtn = ({ children }: LogoutBtnProps) => {
-  // const router = useRouter();
+  const router = useRouter();
 
   const onClick = async () => {
     try {

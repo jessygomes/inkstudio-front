@@ -15,8 +15,6 @@ export default function NavbarApp() {
   const { data: session } = useSession();
   const pathname = usePathname();
 
-  console.log("NavbarApp rendered", session);
-
   // Utiliser le contexte global pour le unreadCount
   const { unreadCount, setUnreadCount } = useMessagingContext();
 
@@ -31,16 +29,24 @@ export default function NavbarApp() {
   // Initialiser le compteur au montage depuis le serveur
   useEffect(() => {
     const initializeUnreadCount = async () => {
+      // Ne pas essayer de récupérer les messages si la session n'est pas complète
+      if (!session || !session.user?.id) {
+        console.log("Session incomplète, skip messages count");
+        return;
+      }
+
       try {
         const count = await getUnreadMessagesCountAction();
         setUnreadCount(count);
       } catch (error) {
         console.error("Erreur initialisation compteur:", error);
+        // En cas d'erreur, mettre le count à 0 au lieu de planter
+        setUnreadCount(0);
       }
     };
 
     initializeUnreadCount();
-  }, [setUnreadCount]);
+  }, [setUnreadCount, session]);
 
   // Fermer le menu quand on clique ailleurs
   useEffect(() => {

@@ -5,18 +5,17 @@ import { CgDanger } from "react-icons/cg";
 import { useSession } from "next-auth/react";
 
 export default function VerificationNotification() {
-  const user = useSession().data?.user;
+  const { data: session, status } = useSession();
+  const user = session?.user;
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
 
-  console.log("VérificationNotification - user:", user);
-
   useEffect(() => {
-    // N'afficher la notification que si le salon n'est pas vérifié
-    if (user && user.verifiedSalon === false) {
+    // N'afficher la notification que si le salon n'est pas vérifié et que la session est chargée
+    if (status === "authenticated" && user && user.verifiedSalon === false) {
       setIsVisible(true);
     }
-  }, [user]);
+  }, [user, status]);
 
   if (!isVisible || (user && user.verifiedSalon !== false)) {
     return null;

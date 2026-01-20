@@ -198,19 +198,19 @@ export default async function DashboardPage() {
                     </div>
 
                     <div className="flex gap-3 mt-4">
-                      <button
-                        onClick={() => (window.location.href = "/parametres")}
+                      <Link
+                        href="/parametres"
                         className="cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-sm font-one font-medium transition-all duration-300"
                       >
                         🚀 Passer à PRO
-                      </button>
+                      </Link>
 
-                      <button
-                        onClick={() => (window.location.href = "/parametres")}
+                      <Link
+                        href="/parametres"
                         className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-sm font-one font-medium transition-colors"
                       >
                         Voir les plans
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
