@@ -6,10 +6,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createTatoueurSchema } from "@/lib/zod/validator.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TatoueurProps } from "@/lib/type";
 import Link from "next/link";
-import TatoueurImageUploader from "@/components/Application/MonCompte/TatoueurImageUploader";
+import TatoueurImageUploader, {
+  TatoueurImageUploaderHandle,
+} from "@/components/Application/MonCompte/TatoueurImageUploader";
 
 import { CiUser } from "react-icons/ci";
 import { TbClockHour5 } from "react-icons/tb";
@@ -36,8 +38,7 @@ export default function AddOrUpdateTatoueurPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const salonId = session?.user?.id;
-
-  console.log("Rendering AddOrUpdateTatoueurPage", session);
+  const imageUploaderRef = useRef<TatoueurImageUploaderHandle>(null);
 
   const tatoueurId = searchParams.get("id");
   const isEditing = !!tatoueurId;
@@ -221,24 +222,40 @@ export default function AddOrUpdateTatoueurPage() {
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
     if (!salonId) return;
 
-    const payload = {
-      ...values,
-      hours: JSON.stringify(editingHours),
-    };
+    console.log("📝 Starting form submission...");
 
     setLoading(true);
     setError("");
 
     try {
+      // 1. Uploader l'image en premier si elle est en attente
+      if (imageUploaderRef.current) {
+        console.log("📸 Uploading image...");
+        await imageUploaderRef.current.uploadImage();
+        console.log("✅ Image uploaded successfully");
+      }
+
+      const payload = {
+        ...values,
+        userId: salonId,
+        hours: JSON.stringify(editingHours),
+      };
+
+      console.log("📝 Submitting payload:", payload);
+
       const url = isEditing
         ? `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/update/${tatoueurId}`
         : `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs`;
+
+      console.log("🚀 Calling API:", url);
 
       const result = await createOrUpdateTatoueur(
         payload,
         isEditing ? "PATCH" : "POST",
         url,
       );
+
+      console.log("✅ API Result:", result);
 
       // Vérifier si c'est une erreur de limite SaaS
       if (result.error) {
@@ -260,7 +277,7 @@ export default function AddOrUpdateTatoueurPage() {
         setError("Une erreur est survenue côté serveur.");
       }
     } catch (error) {
-      console.error("Erreur:", error);
+      console.error("❌ Erreur:", error);
       setError("Une erreur est survenue lors de la création du tatoueur.");
     } finally {
       setLoading(false);
@@ -333,6 +350,7 @@ export default function AddOrUpdateTatoueurPage() {
                     onImageRemove={() => {
                       form.setValue("img", "");
                     }}
+                    ref={imageUploaderRef}
                   />
                 </div>
 

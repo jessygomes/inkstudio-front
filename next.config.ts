@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "utfs.io", pathname: "/**" },
       { protocol: "https", hostname: "inkera-studio.com", pathname: "/**" },
+      { protocol: "https", hostname: "*.ufs.sh", pathname: "/**" },
     ],
     formats: ["image/webp", "image/avif"],
     minimumCacheTTL: 60,

@@ -25,9 +25,9 @@ export default function SalonGalleryUploader({
   const remainingSlots = maxImages - currentImageCount;
 
   const { startUpload, isUploading } = useUploadThing("imageUploader", {
-    onClientUploadComplete: (res: { url: string; key: string }[]) => {
+    onClientUploadComplete: (res: { ufsUrl: string; key: string }[]) => {
       if (res && res.length > 0) {
-        const uploadedUrls = res.map((file) => file.url);
+        const uploadedUrls = res.map((file) => file.ufsUrl);
         onImagesUploaded(uploadedUrls);
         setUploadingFiles([]);
         setPreviewImages([]);
@@ -89,7 +89,7 @@ export default function SalonGalleryUploader({
             fileType: "image/webp",
             initialQuality: 0.8,
           });
-        })
+        }),
       );
 
       await startUpload(compressedFiles);

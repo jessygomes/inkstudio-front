@@ -104,7 +104,7 @@ export const createTatoueurSchema = z.object({
   style: z.array(z.string()).optional(),
   skills: z.array(z.string()).optional(),
   rdvBookingEnabled: z.boolean().default(true),
-  userId: z.string(),
+  userId: z.string().optional(),
 });
 
 //! RDV
@@ -134,12 +134,12 @@ export const appointmentSchema = z.object({
   sketch: z.string().optional(),
   price: z.preprocess(
     (val) => (val === "" ? undefined : Number(val)),
-    z.number().optional()
+    z.number().optional(),
   ),
   // prix estimé pour les projets
   estimatedPrice: z.preprocess(
     (val) => (val === "" ? undefined : Number(val)),
-    z.number().optional()
+    z.number().optional(),
   ),
   // Champs spécifiques aux piercings
   piercingZone: z.string().optional(),
@@ -197,7 +197,7 @@ export const proposeCreneauSchema = z.object({
         from: z.string().datetime(),
         to: z.string().datetime(),
         tatoueurId: z.string().optional(),
-      })
+      }),
     )
     .min(1, "Au moins un créneau est requis")
     .max(2, "Deux créneaux maximum"),
@@ -222,7 +222,7 @@ export const clientSchema = z.object({
       },
       {
         message: "La date de naissance doit être une date valide.",
-      }
+      },
     ),
   address: z.string().optional(),
 
@@ -260,7 +260,7 @@ export const followUpSubmissionSchema = z.object({
       (file) => ["image/jpeg", "image/png", "image/jpg"].includes(file.type),
       {
         message: "Seuls les fichiers PNG, JPG et JPEG sont acceptés",
-      }
+      },
     ),
   rating: z
     .number()

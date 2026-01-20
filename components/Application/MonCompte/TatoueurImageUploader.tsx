@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useImperativeHandle, forwardRef } from "react";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
 import { useUploadThing } from "@/lib/utils/uploadthing";
@@ -14,125 +14,157 @@ interface TatoueurImageUploaderProps {
   onImageRemove: () => void;
 }
 
-export default function TatoueurImageUploader({
-  currentImage,
-  onImageUpload,
-  onImageRemove,
-}: TatoueurImageUploaderProps) {
-  const [progress, setProgress] = useState<number>(0);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+export interface TatoueurImageUploaderHandle {
+  uploadImage: () => Promise<void>;
+}
 
-  const { startUpload, isUploading } = useUploadThing("imageUploader", {
-    onClientUploadComplete: (res: { url: string; key: string }[]) => {
-      if (res && res[0]) {
-        onImageUpload(res[0].url);
-      }
-      setProgress(100);
-    },
-    onUploadProgress: (p: number) => setProgress(p),
-    onUploadError: (error: Error) => {
-      console.error("Upload error:", error);
-      alert("Erreur lors de l'upload de l'image");
-    },
-  });
+const TatoueurImageUploader = forwardRef<TatoueurImageUploaderHandle, TatoueurImageUploaderProps>(
+  (
+    {
+      currentImage,
+      onImageUpload,
+      onImageRemove,
+    }: TatoueurImageUploaderProps,
+    ref
+  ) => {
+    const [progress, setProgress] = useState<number>(0);
+    const [isDragOver, setIsDragOver] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Fonction pour extraire la clé d'une URL UploadThing
-  // const extractKeyFromUrl = (url: string): string | null => {
-  //   try {
-  //     // Format UploadThing: https://uploadthing-prod.s3.us-west-2.amazonaws.com/key
-  //     // ou https://utfs.io/f/key
-  //     const match = url.match(/\/f\/([^\/\?]+)|\/([^\/\?]+)$/);
-  //     return match ? match[1] || match[2] : null;
-  //   } catch {
-  //     return null;
-  //   }
-  // };
+    const { startUpload } = useUploadThing("imageUploader", {
+      onClientUploadComplete: (res: { ufsUrl: string; key: string }[]) => {
+        if (res && res[0]) {
+          onImageUpload(res[0].ufsUrl);
+        }
+        setProgress(100);
+        setPendingFile(null);
+        setPreviewUrl(null);
+      },
+      onUploadProgress: (p: number) => setProgress(p),
+      onUploadError: (error: Error) => {
+        console.error("Upload error:", error);
+        alert("Erreur lors de l'upload de l'image");
+      },
+    });
 
-  // Fonction pour supprimer une image d'UploadThing
-  const deleteFromUploadThing = async (imageUrl: string) => {
-    try {
-      const key = extractKeyFromUrl(imageUrl);
-      if (key) {
-        await fetch("/api/uploadthing/delete", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ key }),
-        });
-      }
-    } catch (error) {
-      console.error("Erreur lors de la suppression:", error);
-    }
-  };
+    useImperativeHandle(ref, () => ({
+      uploadImage: async () => {
+        if (pendingFile) {
+          setIsUploading(true);
+          try {
+            await startUpload([pendingFile]);
+          } catch (error) {
+            console.error("Erreur lors de l'upload:", error);
+            throw error;
+          } finally {
+            setIsUploading(false);
+          }
+        }
+      },
+    }));
 
-  async function handleFiles(files: FileList | null) {
-    if (!files?.length) return;
-
-    const file = files[0];
-
-    // Vérifier le type de fichier
-    if (!file.type.startsWith("image/")) {
-      alert("Veuillez sélectionner une image valide");
-      return;
-    }
-
-    try {
-      // Supprimer l'ancienne image si elle existe
-      if (currentImage) {
-        await deleteFromUploadThing(currentImage);
-      }
-
-      // Compresser l'image
-      const compressed = await imageCompression(file, {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
-        useWebWorker: true,
-        fileType: "image/webp",
-        initialQuality: 0.8,
-      });
-
-      await startUpload([compressed]);
-    } catch (error) {
-      console.error("Erreur lors de la compression:", error);
-      alert("Erreur lors du traitement de l'image");
-    }
-  }
-
-  // Fonction pour gérer la suppression de l'image
-  const handleImageRemove = async () => {
-    if (currentImage) {
-      setIsDeleting(true);
+    // Fonction pour supprimer une image d'UploadThing
+    const deleteFromUploadThing = async (imageUrl: string) => {
       try {
-        await deleteFromUploadThing(currentImage);
-        onImageRemove();
+        const key = extractKeyFromUrl(imageUrl);
+        if (key) {
+          await fetch("/api/uploadthing/delete", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ fileKeys: [key] }),
+          });
+        }
       } catch (error) {
         console.error("Erreur lors de la suppression:", error);
-      } finally {
-        setIsDeleting(false);
+      }
+    };
+
+    async function handleFiles(files: FileList | null) {
+      if (!files?.length) return;
+
+      const file = files[0];
+
+      // Vérifier le type de fichier
+      if (!file.type.startsWith("image/")) {
+        alert("Veuillez sélectionner une image valide");
+        return;
+      }
+
+      try {
+        // Supprimer l'ancienne image si elle existe
+        if (currentImage) {
+          await deleteFromUploadThing(currentImage);
+        }
+
+        // Compresser l'image
+        const compressed = await imageCompression(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+          fileType: "image/webp",
+          initialQuality: 0.8,
+        });
+
+        // Stocker le fichier compressé et créer un preview local
+        setPendingFile(compressed);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewUrl(reader.result as string);
+        };
+        reader.readAsDataURL(compressed);
+      } catch (error) {
+        console.error("Erreur lors de la compression:", error);
+        alert("Erreur lors du traitement de l'image");
       }
     }
-  };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
+    // Fonction pour gérer la suppression de l'image
+    const handleImageRemove = () => {
+      if (currentImage) {
+        setIsDeleting(true);
+        try {
+          deleteFromUploadThing(currentImage);
+          onImageRemove();
+          setPendingFile(null);
+          setPreviewUrl(null);
+        } catch (error) {
+          console.error("Erreur lors de la suppression:", error);
+        } finally {
+          setIsDeleting(false);
+        }
+      } else {
+        // Si c'est une image en attente, juste la supprimer du state
+        setPendingFile(null);
+        setPreviewUrl(null);
+      }
+    };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-  };
+    const handleDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(true);
+    };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const files = e.dataTransfer.files;
-    handleFiles(files);
-  };
+    const handleDragLeave = (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+    };
 
-  return (
+    const handleDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      const files = e.dataTransfer.files;
+      handleFiles(files);
+    };
+
+    // Image à afficher: preview local si en attente, sinon image actuelle
+    const displayImage = previewUrl || currentImage;
+
+    return (
     <div className="space-y-3">
       <div className="flex items-center gap-4">
         {/* Preview de l'image actuelle */}
@@ -145,9 +177,9 @@ export default function TatoueurImageUploader({
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            {currentImage ? (
+            {displayImage ? (
               <Image
-                src={currentImage}
+                src={displayImage}
                 alt="Photo du tatoueur"
                 width={80}
                 height={80}
@@ -169,7 +201,7 @@ export default function TatoueurImageUploader({
             />
           </div>
 
-          {currentImage && (
+          {displayImage && (
             <button
               type="button"
               onClick={handleImageRemove}
@@ -210,8 +242,10 @@ export default function TatoueurImageUploader({
                   <div className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin"></div>
                   Suppression...
                 </div>
-              ) : currentImage ? (
+              ) : displayImage ? (
                 "Changer"
+              ) : pendingFile ? (
+                "En attente d'envoi"
               ) : (
                 "Ajouter"
               )}
@@ -240,5 +274,10 @@ export default function TatoueurImageUploader({
         </div>
       )}
     </div>
-  );
-}
+    );
+  }
+);
+
+TatoueurImageUploader.displayName = "TatoueurImageUploader";
+
+export default TatoueurImageUploader;
