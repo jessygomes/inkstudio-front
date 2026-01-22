@@ -53,7 +53,7 @@ export default function ColorProfile() {
     console.log(
       `Couleur principale: ${colorProfile} (${
         isLight ? "claire" : "foncée"
-      }), Couleur secondaire générée: ${secondary}`
+      }), Couleur secondaire générée: ${secondary}`,
     );
     return secondary;
   }, [colorProfile]);
@@ -106,25 +106,16 @@ export default function ColorProfile() {
           const userColors = result.data.user || result.data;
           const retrievedColor = userColors.colorProfile || "default";
 
-          console.log("ColorProfile - Couleurs récupérées:", {
-            userColors,
-            retrievedColor,
-            hasUserColor: !!userColors.colorProfile,
-            isDefault: retrievedColor === "default",
-          });
-
           setColorProfile(retrievedColor);
           // colorProfileBis sera automatiquement généré via useMemo
         } else {
           // Pas de données utilisateur, utiliser "default"
-          console.log(
-            "ColorProfile - Aucune donnée utilisateur, utilisation de 'default'"
-          );
+
           setColorProfile("default");
         }
       } catch (error) {
         console.error("Erreur lors de la récupération des couleurs:", error);
-        console.log("ColorProfile - Erreur, utilisation de 'default'");
+
         setColorProfile("default");
         toast.error("Erreur lors de la récupération des couleurs");
       } finally {
@@ -229,7 +220,7 @@ export default function ColorProfile() {
     } catch (error) {
       console.error(
         "Erreur lors de la sauvegarde des couleurs système:",
-        error
+        error,
       );
       toast.error("Erreur lors de la sauvegarde des couleurs système");
     } finally {

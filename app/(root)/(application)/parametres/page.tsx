@@ -17,6 +17,7 @@ import VerificationDocumentsSection from "@/components/Application/Parametres/Ve
 import { MdOutlinePalette } from "react-icons/md";
 import { CiSettings } from "react-icons/ci";
 import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
+import NotifChatPreference from "@/components/Application/Parametres/NotifChatPreference";
 
 export default function ParamPage() {
   const { data: session } = useSession();
@@ -80,6 +81,8 @@ export default function ParamPage() {
           <AppointmentConfirmationSetting userId={session?.user?.id || null} />
 
           <ColorProfile />
+
+          <NotifChatPreference />
 
           <SubscriptionSection
             openSections={openSections}
