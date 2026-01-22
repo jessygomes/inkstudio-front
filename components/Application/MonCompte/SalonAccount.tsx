@@ -18,6 +18,8 @@ export default function SalonAccount() {
   const { data: session } = useSession();
   const salonId = session?.user?.id;
 
+  console.log("SalonAccount session user ID:", session);
+
   const [salon, setSalon] = useState<SalonUserProps>();
   const [isHoursVisible, setIsHoursVisible] = useState(true);
 
@@ -28,7 +30,7 @@ export default function SalonAccount() {
           `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}`,
           {
             method: "GET",
-          }
+          },
         );
 
         if (!response.ok) {
