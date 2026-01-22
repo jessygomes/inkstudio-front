@@ -91,7 +91,7 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
     const now = new Date();
     const date = new Date(dateString);
     const diffInHours = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60),
     );
 
     if (diffInHours < 1) return "À l'instant";
@@ -256,7 +256,7 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
                       {followUp.appointment.title}
                       <span>•</span>
                       <span className="text-gray-500">
-                        {followUp.appointment.tatoueur.name}
+                        {followUp.appointment.tatoueur?.name || "Non assigné"}
                       </span>
                     </p>
 

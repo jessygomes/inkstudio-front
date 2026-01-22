@@ -51,7 +51,7 @@ export default function ShowRdvDetailsMobile({
       if (selectedEvent.tattooDetail?.piercingServicePriceId) {
         try {
           const piercingResult = await getPiercingServiceByIdAction(
-            selectedEvent.tattooDetail.piercingServicePriceId
+            selectedEvent.tattooDetail.piercingServicePriceId,
           );
 
           if (piercingResult.ok && piercingResult.data) {
@@ -256,7 +256,7 @@ export default function ShowRdvDetailsMobile({
                     {Math.round(
                       (new Date(selectedEvent.end).getTime() -
                         new Date(selectedEvent.start).getTime()) /
-                        (1000 * 60)
+                        (1000 * 60),
                     )}{" "}
                     min
                   </span>
@@ -274,7 +274,7 @@ export default function ShowRdvDetailsMobile({
                     Tatoueur
                   </span>
                   <span className="text-white font-one text-xs">
-                    {selectedEvent.tatoueur.name}
+                    {selectedEvent.tatoueur?.name || "Non assigné"}
                   </span>
                 </div>
               </div>
@@ -456,7 +456,7 @@ export default function ShowRdvDetailsMobile({
                   <div className="flex items-center justify-between pt-2 border-t border-white/10">
                     <div className="text-white/60 text-xs font-one">
                       {new Date(
-                        selectedEvent.salonReview.createdAt
+                        selectedEvent.salonReview.createdAt,
                       ).toLocaleDateString("fr-FR", {
                         year: "numeric",
                         month: "long",

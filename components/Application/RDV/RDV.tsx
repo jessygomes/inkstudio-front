@@ -918,7 +918,7 @@ export default function RDV() {
                                   {event.prestation}
                                 </p>
                                 <p className="text-white font-two text-sm truncate">
-                                  {event.tatoueur.name}
+                                  {event.tatoueur?.name || "Non assigné"}
                                 </p>
                                 <div className="text-center">
                                   <button
@@ -1018,7 +1018,9 @@ export default function RDV() {
                                   <span className="flex items-center gap-2">
                                     <span>{event.prestation}</span>
                                     <span>•</span>
-                                    <span>{event.tatoueur.name}</span>
+                                    <span>
+                                      {event.tatoueur?.name || "Non assigné"}
+                                    </span>
                                   </span>
                                 </div>
                               </div>

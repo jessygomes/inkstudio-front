@@ -55,8 +55,8 @@ interface RendezVous {
   prestation: string;
   client: Client;
   clientId: string;
-  tatoueur: Tatoueur;
-  tatoueurId: string;
+  tatoueur?: Tatoueur | null;
+  tatoueurId?: string | null;
   tattooDetail: TattooDetail;
   tattooDetailId: string | null;
   createdAt: string;
@@ -91,7 +91,7 @@ export default function RdvDetailsPanelDesktop({
       if (selectedAppointment.tattooDetail?.piercingServicePriceId) {
         try {
           const piercingResult = await getPiercingServiceByIdAction(
-            selectedAppointment.tattooDetail.piercingServicePriceId
+            selectedAppointment.tattooDetail.piercingServicePriceId,
           );
 
           if (piercingResult.ok && piercingResult.data) {
@@ -361,7 +361,7 @@ export default function RdvDetailsPanelDesktop({
                   <p className="text-white/60 text-xs font-one">Date & Heure</p>
                   <p className="text-white font-one text-xs">
                     {new Date(selectedAppointment.start).toLocaleDateString(
-                      "fr-FR"
+                      "fr-FR",
                     )}
                   </p>
                   <p className="text-white font-one text-xs">
@@ -370,7 +370,7 @@ export default function RdvDetailsPanelDesktop({
                       {
                         hour: "2-digit",
                         minute: "2-digit",
-                      }
+                      },
                     )}{" "}
                     -{" "}
                     {new Date(selectedAppointment.end).toLocaleTimeString(
@@ -378,7 +378,7 @@ export default function RdvDetailsPanelDesktop({
                       {
                         hour: "2-digit",
                         minute: "2-digit",
-                      }
+                      },
                     )}
                   </p>
                 </div>
@@ -408,7 +408,7 @@ export default function RdvDetailsPanelDesktop({
                     {Math.round(
                       (new Date(selectedAppointment.end).getTime() -
                         new Date(selectedAppointment.start).getTime()) /
-                        (1000 * 60)
+                        (1000 * 60),
                     )}{" "}
                     min
                   </p>
@@ -462,7 +462,7 @@ export default function RdvDetailsPanelDesktop({
                 <div>
                   <p className="text-white/60 text-xs font-one">Tatoueur</p>
                   <p className="text-white font-one text-xs">
-                    {selectedAppointment.tatoueur.name}
+                    {selectedAppointment.tatoueur?.name || "Non assigné"}
                   </p>
                 </div>
               </div>
@@ -681,7 +681,7 @@ export default function RdvDetailsPanelDesktop({
                           e.stopPropagation();
                           if (selectedAppointment.tattooDetail.reference) {
                             openImageInNewTab(
-                              selectedAppointment.tattooDetail.reference
+                              selectedAppointment.tattooDetail.reference,
                             );
                           }
                         }}
@@ -717,7 +717,7 @@ export default function RdvDetailsPanelDesktop({
                           e.stopPropagation();
                           if (selectedAppointment.tattooDetail.sketch) {
                             openImageInNewTab(
-                              selectedAppointment.tattooDetail.sketch
+                              selectedAppointment.tattooDetail.sketch,
                             );
                           }
                         }}

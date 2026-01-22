@@ -70,7 +70,7 @@ export default function WaitingRdvDetailsPanelMobile({
       if (selectedAppointment.tattooDetail?.piercingServicePriceId) {
         try {
           const piercingResult = await getPiercingServiceByIdAction(
-            selectedAppointment.tattooDetail.piercingServicePriceId
+            selectedAppointment.tattooDetail.piercingServicePriceId,
           );
 
           if (piercingResult.ok && piercingResult.data) {
@@ -119,7 +119,9 @@ export default function WaitingRdvDetailsPanelMobile({
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-sm">
-                    {selectedAppointment.client.firstName.charAt(0).toUpperCase()}
+                    {selectedAppointment.client.firstName
+                      .charAt(0)
+                      .toUpperCase()}
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
@@ -231,7 +233,7 @@ export default function WaitingRdvDetailsPanelMobile({
                   <span className="text-white font-one text-xs">
                     {calculateDuration(
                       selectedAppointment.start,
-                      selectedAppointment.end
+                      selectedAppointment.end,
                     )}{" "}
                     min
                   </span>
@@ -249,7 +251,7 @@ export default function WaitingRdvDetailsPanelMobile({
                     Tatoueur
                   </span>
                   <span className="text-white font-one text-xs">
-                    {selectedAppointment.tatoueur.name}
+                    {selectedAppointment.tatoueur?.name || "Non assigné"}
                   </span>
                 </div>
               </div>

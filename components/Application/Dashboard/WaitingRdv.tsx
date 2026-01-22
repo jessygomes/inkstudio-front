@@ -221,13 +221,13 @@ export default function WaitingRdv({ userId }: { userId: string }) {
       await confirmAppointmentAction(
         selectedAppointment.id,
         endpoint,
-        actionMessage
+        actionMessage,
       );
 
       toast.success(
         actionType === "confirm"
           ? "Rendez-vous confirmé avec succès ! Le client va recevoir un email."
-          : "Rendez-vous annulé avec succès ! Le client va recevoir un email."
+          : "Rendez-vous annulé avec succès ! Le client va recevoir un email.",
       );
 
       // Mettre à jour la liste des rendez-vous
@@ -244,7 +244,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
           ? error.message
           : `Erreur lors de la ${
               actionType === "confirm" ? "confirmation" : "annulation"
-            }`
+            }`,
       );
     } finally {
       setIsProcessing(false);
@@ -393,12 +393,14 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                           <span>
                             {calculateDuration(
                               appointment.start,
-                              appointment.end
+                              appointment.end,
                             )}
                             min
                           </span>
                           <span>•</span>
-                          <span>{appointment.tatoueur.name}</span>
+                          <span>
+                            {appointment.tatoueur?.name || "Non assigné"}
+                          </span>
                           {/* Indicateur de visio */}
                           {appointment.visio && (
                             <>
@@ -599,7 +601,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                         <p className="text-white font-one">
                           {calculateDuration(
                             selectedAppointment.start,
-                            selectedAppointment.end
+                            selectedAppointment.end,
                           )}{" "}
                           min
                         </p>
@@ -613,7 +615,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
                       <div>
                         <p className="text-white/60 font-one">Tatoueur</p>
                         <p className="text-white font-one">
-                          {selectedAppointment.tatoueur.name}
+                          {selectedAppointment.tatoueur?.name || "Non assigné"}
                         </p>
                       </div>
                     </div>

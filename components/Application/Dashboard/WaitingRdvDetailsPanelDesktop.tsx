@@ -65,7 +65,7 @@ export default function WaitingRdvDetailsPanelDesktop({
       if (selectedAppointment.tattooDetail?.piercingServicePriceId) {
         try {
           const piercingResult = await getPiercingServiceByIdAction(
-            selectedAppointment.tattooDetail.piercingServicePriceId
+            selectedAppointment.tattooDetail.piercingServicePriceId,
           );
 
           if (piercingResult.ok && piercingResult.data) {
@@ -244,7 +244,7 @@ export default function WaitingRdvDetailsPanelDesktop({
               <p className="text-white font-one text-xs">
                 {calculateDuration(
                   selectedAppointment.start,
-                  selectedAppointment.end
+                  selectedAppointment.end,
                 )}{" "}
                 min
               </p>
@@ -258,7 +258,7 @@ export default function WaitingRdvDetailsPanelDesktop({
             <div className="bg-white/5 rounded-md p-1.5 border border-white/5">
               <p className="text-white/60 text-xs font-one">Tatoueur</p>
               <p className="text-white font-one text-xs">
-                {selectedAppointment.tatoueur.name}
+                {selectedAppointment.tatoueur?.name || "Non assigné"}
               </p>
             </div>
           </div>

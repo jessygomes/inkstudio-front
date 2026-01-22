@@ -53,8 +53,8 @@ interface RendezVous {
   prestation: string;
   client: Client;
   clientId: string;
-  tatoueur: Tatoueur;
-  tatoueurId: string;
+  tatoueur?: Tatoueur | null;
+  tatoueurId?: string | null;
   tattooDetail: TattooDetail;
   tattooDetailId: string | null;
   createdAt: string;

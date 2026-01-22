@@ -412,7 +412,7 @@ export default function ShowRdvDetails({
                 <div>
                   <p className="text-white/60 text-xs font-one">Tatoueur</p>
                   <p className="text-white font-one text-xs">
-                    {selectedEvent.tatoueur.name}
+                    {selectedEvent.tatoueur?.name || "Non assigné"}
                   </p>
                 </div>
               </div>
