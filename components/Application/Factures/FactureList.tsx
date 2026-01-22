@@ -264,12 +264,66 @@ export default function FactureList() {
         <div className="space-y-6">
           {/* États de chargement et erreur */}
           {loading && (
-            <div className="bg-noir-700 rounded-xl border border-white/20 p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
-                <h2 className="text-xl font-bold text-white font-one">
-                  Chargement des factures...
-                </h2>
+            <div className="space-y-3">
+              {/* Vue Desktop - skeletons */}
+              <div className="hidden md:block bg-noir-700 rounded-xl border border-white/20 overflow-hidden">
+                <div className="divide-y divide-white/10">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="p-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className="w-12 h-12 rounded-full bg-white/10 animate-pulse flex-shrink-0"></div>
+                          <div className="min-w-0 flex-1 space-y-2">
+                            <div className="flex items-center gap-3">
+                              <div className="h-4 bg-white/10 rounded-lg flex-1 max-w-xs animate-pulse"></div>
+                              <div className="h-6 bg-white/10 rounded w-20 animate-pulse"></div>
+                            </div>
+                            <div className="h-3 bg-white/10 rounded-lg w-2/3 animate-pulse"></div>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0 space-y-2">
+                          <div className="h-5 bg-white/10 rounded-lg w-20 animate-pulse ml-auto"></div>
+                          <div className="h-6 bg-white/10 rounded-lg w-24 animate-pulse ml-auto"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Vue Mobile - skeletons */}
+              <div className="md:hidden space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={`mobile-${i}`}
+                    className="bg-noir-700 rounded-xl border border-white/20 p-4"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-12 h-12 rounded-full bg-white/10 flex-shrink-0 animate-pulse"></div>
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="h-4 bg-white/10 rounded-lg w-32 animate-pulse"></div>
+                        <div className="h-3 bg-white/10 rounded-lg w-24 animate-pulse"></div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <div className="h-6 bg-white/10 rounded w-16 animate-pulse"></div>
+                      <div className="h-3 bg-white/10 rounded-lg w-20 animate-pulse"></div>
+                    </div>
+
+                    <div className="mb-3 pb-3 border-b border-white/10">
+                      <div className="h-3 bg-white/10 rounded-lg w-28 animate-pulse"></div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-2">
+                        <div className="h-3 bg-white/10 rounded-lg w-16 animate-pulse"></div>
+                        <div className="h-5 bg-white/10 rounded-lg w-24 animate-pulse"></div>
+                      </div>
+                      <div className="h-8 bg-white/10 rounded-lg w-24 animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

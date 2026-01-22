@@ -351,13 +351,43 @@ export default function AvisList() {
       </div>
 
       {loading ? (
-        <div className="h-fit w-full flex items-center justify-center">
-          <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
-            <p className="text-white/60 font-two text-xs text-center">
-              Chargement des avis...
-            </p>
-          </div>
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex-shrink-0 animate-pulse"></div>
+
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <div className="h-4 bg-white/10 rounded-lg w-32 animate-pulse"></div>
+                    <div className="h-3 bg-white/10 rounded-lg w-48 animate-pulse"></div>
+                    <div className="h-3 bg-white/10 rounded-lg w-24 animate-pulse"></div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-2 ml-2 flex-shrink-0">
+                  <div className="h-7 bg-white/10 rounded-lg w-16 animate-pulse"></div>
+                  <div className="h-8 bg-white/10 rounded-lg w-24 animate-pulse"></div>
+                </div>
+              </div>
+
+              <div className="mt-3 space-y-2">
+                <div className="h-3 bg-white/10 rounded-lg w-full animate-pulse"></div>
+                <div className="h-3 bg-white/10 rounded-lg w-5/6 animate-pulse"></div>
+                <div className="h-3 bg-white/10 rounded-lg w-4/6 animate-pulse"></div>
+              </div>
+
+              <div className="mt-3 h-16 bg-white/10 rounded-lg animate-pulse"></div>
+
+              <div className="mt-3 flex gap-2">
+                <div className="w-12 h-12 rounded-lg bg-white/10 animate-pulse"></div>
+                <div className="w-12 h-12 rounded-lg bg-white/10 animate-pulse"></div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : error ? (
         <div className="w-full rounded-2xl shadow-xl border border-red-500/30 p-8 flex flex-col items-center gap-3 bg-red-500/10">

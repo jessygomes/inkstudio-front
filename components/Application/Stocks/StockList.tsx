@@ -132,15 +132,22 @@ export default function StockList() {
   //! Calcul des statistiques
   const statistics = {
     totalItems: itemsStock.length,
-    totalValue: itemsStock.reduce((sum, item) => sum + (item.totalPrice || 0), 0),
+    totalValue: itemsStock.reduce(
+      (sum, item) => sum + (item.totalPrice || 0),
+      0,
+    ),
     lowStockItems: itemsStock.filter(
-      (item) => item.minQuantity && item.quantity <= item.minQuantity
+      (item) => item.minQuantity && item.quantity <= item.minQuantity,
     ).length,
     outOfStockItems: itemsStock.filter((item) => item.quantity === 0).length,
-    totalCategories: new Set(itemsStock.map((item) => item.category).filter(Boolean)).size,
-    averageValue: itemsStock.length > 0 
-      ? itemsStock.reduce((sum, item) => sum + (item.totalPrice || 0), 0) / itemsStock.length
-      : 0,
+    totalCategories: new Set(
+      itemsStock.map((item) => item.category).filter(Boolean),
+    ).size,
+    averageValue:
+      itemsStock.length > 0
+        ? itemsStock.reduce((sum, item) => sum + (item.totalPrice || 0), 0) /
+          itemsStock.length
+        : 0,
   };
 
   //! Fonctions de gestion
@@ -260,35 +267,37 @@ export default function StockList() {
               {statistics.totalItems}
             </span>
           </div>
-          
+
           <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-white/60 text-xs font-one">Valeur totale</span>
+            <span className="text-white/60 text-xs font-one">
+              Valeur totale
+            </span>
             <span className="text-white text-xl font-one font-semibold">
               {statistics.totalValue.toFixed(2)} €
             </span>
           </div>
-          
+
           <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
             <span className="text-white/60 text-xs font-one">Stock bas</span>
             <span className="text-orange-400 text-xl font-one font-semibold">
               {statistics.lowStockItems}
             </span>
           </div>
-          
+
           <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
             <span className="text-white/60 text-xs font-one">Rupture</span>
             <span className="text-red-400 text-xl font-one font-semibold">
               {statistics.outOfStockItems}
             </span>
           </div>
-          
+
           <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
             <span className="text-white/60 text-xs font-one">Catégories</span>
             <span className="text-white text-xl font-one font-semibold">
               {statistics.totalCategories}
             </span>
           </div>
-          
+
           <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
             <span className="text-white/60 text-xs font-one">Valeur moy.</span>
             <span className="text-white text-xl font-one font-semibold">
@@ -452,13 +461,68 @@ export default function StockList() {
             </div>
 
             {loading ? (
-              <div className="h-full w-full flex items-center justify-center">
-                <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
-                  <p className="text-white/60 font-two text-xs text-center">
-                    Chargement des articles...
-                  </p>
-                </div>
+              <div className="space-y-3 mb-6">
+                {/* Vue desktop - skeletons */}
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="hidden lg:grid grid-cols-6 gap-4 px-6 py-4 items-center bg-gradient-to-r from-white/5 to-white/[0.02] rounded-xl border border-white/10"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3 bg-white/10 rounded-lg w-24 animate-pulse"></div>
+                        <div className="h-2 bg-white/10 rounded-lg w-16 animate-pulse"></div>
+                      </div>
+                    </div>
+                    <div className="h-3 bg-white/10 rounded-lg w-20 animate-pulse"></div>
+                    <div className="h-3 bg-white/10 rounded-lg w-16 animate-pulse"></div>
+                    <div className="h-3 bg-white/10 rounded-lg w-24 animate-pulse"></div>
+                    <div className="h-6 bg-white/10 rounded-lg w-12 animate-pulse"></div>
+                    <div className="flex gap-2 justify-center">
+                      <div className="h-8 w-8 bg-white/10 rounded-lg animate-pulse"></div>
+                      <div className="h-8 w-8 bg-white/10 rounded-lg animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Vue mobile - skeletons */}
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={`mobile-${i}`}
+                    className="lg:hidden bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl border border-white/10 overflow-hidden"
+                  >
+                    {/* En-tête avec avatar et nom */}
+                    <div className="bg-gradient-to-r from-white/10 to-white/5 p-4 border-b border-white/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-white/10 animate-pulse flex-shrink-0"></div>
+                        <div className="flex justify-between items-center w-full gap-3">
+                          <div className="h-4 bg-white/10 rounded-lg flex-1 animate-pulse"></div>
+                          <div className="h-6 bg-white/10 rounded-lg w-16 animate-pulse"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contenu principal */}
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-start gap-2">
+                        <div className="w-4 h-4 bg-white/10 rounded mt-0.5 flex-shrink-0 animate-pulse"></div>
+                        <div className="h-3 bg-white/10 rounded-lg flex-1 animate-pulse"></div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-white/10 rounded flex-shrink-0 animate-pulse"></div>
+                        <div className="h-3 bg-white/10 rounded-lg w-32 animate-pulse"></div>
+                      </div>
+                    </div>
+
+                    {/* Actions - pied de carte */}
+                    <div className="flex items-center gap-2 p-3 bg-white/5 border-t border-white/10">
+                      <div className="flex-1 h-10 bg-white/10 rounded-lg animate-pulse"></div>
+                      <div className="w-10 h-10 bg-white/10 rounded-lg animate-pulse"></div>
+                      <div className="w-10 h-10 bg-white/10 rounded-lg animate-pulse"></div>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : error ? (
               <div className="h-full w-full flex">

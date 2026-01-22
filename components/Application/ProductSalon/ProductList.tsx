@@ -31,7 +31,7 @@ export default function ProductList() {
         `${process.env.NEXT_PUBLIC_BACK_URL}/product-salon/${session?.user?.id}`,
         {
           cache: "no-store",
-        }
+        },
       );
 
       if (!res.ok) {
@@ -124,13 +124,38 @@ export default function ProductList() {
       </div>
 
       {loading ? (
-        <div className="h-full w-full flex items-center justify-center">
-          <div className="w-full rounded-2xl p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
-            <p className="text-white/60 font-two text-xs text-center">
-              Chargement des photos...
-            </p>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+          {[...Array(10)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20"
+            >
+              <div className="aspect-square relative overflow-hidden bg-white/10 animate-pulse"></div>
+
+              <div className="p-4 space-y-3">
+                {/* Header avec nom et prix */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="h-4 bg-white/10 rounded-lg flex-1 animate-pulse"></div>
+                    <div className="h-6 bg-white/10 rounded-full w-16 animate-pulse"></div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="border-t border-white/10 pt-2 space-y-2">
+                  <div className="h-3 bg-white/10 rounded-lg w-full animate-pulse"></div>
+                  <div className="h-3 bg-white/10 rounded-lg w-3/4 animate-pulse"></div>
+                  <div className="h-3 bg-white/10 rounded-lg w-1/2 animate-pulse"></div>
+                </div>
+
+                {/* Actions au bas */}
+                <div className="flex gap-2 justify-end pt-2 lg:hidden">
+                  <div className="w-8 h-8 bg-white/10 rounded-lg animate-pulse"></div>
+                  <div className="w-8 h-8 bg-white/10 rounded-lg animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : products.length === 0 ? (
         <div className="h-full w-full flex">

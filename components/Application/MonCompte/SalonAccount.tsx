@@ -18,8 +18,6 @@ export default function SalonAccount() {
   const { data: session } = useSession();
   const salonId = session?.user?.id;
 
-  console.log("SalonAccount session user ID:", session);
-
   const [salon, setSalon] = useState<SalonUserProps>();
   const [isHoursVisible, setIsHoursVisible] = useState(true);
 
@@ -73,12 +71,64 @@ export default function SalonAccount() {
             </div>
           </div>
         </div>
-        <div className="w-full flex items-center justify-center py-16 sm:py-20">
-          <div className="w-full rounded-2xl p-8 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
-            <p className="text-white/60 font-two text-xs text-center">
-              Chargement des informations...
-            </p>
+
+        {/* Skeletons de chargement */}
+        <div className="space-y-4 sm:space-y-6 mx-auto">
+          {/* Section INFO SALON skeleton */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-xl p-4 sm:p-8 border border-white/20 shadow-2xl">
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
+              <div className="h-5 bg-white/10 rounded-lg w-32 mb-4 animate-pulse"></div>
+              <div className="space-y-3">
+                <div className="h-10 bg-white/10 rounded-lg animate-pulse"></div>
+                <div className="h-10 bg-white/10 rounded-lg animate-pulse"></div>
+                <div className="h-10 bg-white/10 rounded-lg animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section HORAIRES skeleton */}
+          <div className="w-full bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl">
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
+              <div className="h-5 bg-white/10 rounded-lg w-32 mb-4 animate-pulse"></div>
+              <div className="space-y-2">
+                {[...Array(7)].map((_, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="h-4 bg-white/10 rounded-lg w-20 animate-pulse"></div>
+                    <div className="h-6 bg-white/10 rounded-lg w-40 animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Section TATOUEURS skeleton */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl">
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
+              <div className="h-5 bg-white/10 rounded-lg w-32 mb-4 animate-pulse"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-20 bg-white/10 rounded-lg animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Section PHOTOS skeleton */}
+          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl">
+            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
+              <div className="h-5 bg-white/10 rounded-lg w-32 mb-4 animate-pulse"></div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square bg-white/10 rounded-lg animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
