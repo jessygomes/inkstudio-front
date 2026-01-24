@@ -200,7 +200,7 @@ export default function ShowPortfolio() {
                   />
 
                   {/* Overlay avec actions - masqué sur mobile */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden sm:flex">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden xl:flex">
                     <div className="flex gap-3">
                       <button
                         className="cursor-pointer p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
@@ -240,7 +240,7 @@ export default function ShowPortfolio() {
                   </div>
 
                   {/* Actions au bas - toujours visibles sur mobile */}
-                  <div className="flex gap-2 justify-end pt-2 lg:hidden">
+                  <div className="flex gap-2 justify-end pt-2 xl:hidden">
                     <button
                       className="cursor-pointer p-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-all duration-200"
                       onClick={() => handleEdit(photo)}
