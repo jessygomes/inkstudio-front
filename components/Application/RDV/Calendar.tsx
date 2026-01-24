@@ -43,6 +43,10 @@ export type CalendarEvent = Event & {
     id: string;
     name: string;
   };
+  conversation?: {
+    id: string;
+  };
+  notes?: string;
   visio?: boolean;
   visioRoom?: string;
   tattooDetail?: {
@@ -159,8 +163,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 {view === "month"
                   ? "Mois"
                   : view === "week"
-                  ? "Semaine"
-                  : "Jour"}
+                    ? "Semaine"
+                    : "Jour"}
               </button>
             ))}
           </div>

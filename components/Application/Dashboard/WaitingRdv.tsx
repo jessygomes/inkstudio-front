@@ -62,6 +62,7 @@ export interface PendingAppointment {
   isPayed?: boolean;
   visio?: boolean;
   visioRoom?: string;
+  conversation?: { id: string } | null;
 }
 
 export default function WaitingRdv({ userId }: { userId: string }) {

@@ -33,6 +33,7 @@ export default function ShowRdvDetails({
   userId,
   price,
 }: ShowRdvDetailsProps) {
+  console.log("Selected Event:", selectedEvent);
   // État pour le nom de la zone de piercing détaillée
   const [piercingZoneName, setPiercingZoneName] = useState<string | null>(null);
 
@@ -42,7 +43,7 @@ export default function ShowRdvDetails({
       if (selectedEvent.tattooDetail?.piercingServicePriceId) {
         try {
           const piercingResult = await getPiercingServiceByIdAction(
-            selectedEvent.tattooDetail.piercingServicePriceId
+            selectedEvent.tattooDetail.piercingServicePriceId,
           );
 
           if (piercingResult.ok && piercingResult.data) {
@@ -198,7 +199,33 @@ export default function ShowRdvDetails({
           {/* Actions compactes */}
         </div>
         <div className="">
-          <div className="flex items-center gap-1 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Bouton Rejoindre la conversation - si une conversation existe */}
+            {selectedEvent.conversation?.id && (
+              <button
+                onClick={() => {
+                  window.location.href = `/messagerie/${selectedEvent.conversation?.id}`;
+                }}
+                className="cursor-pointer px-2.5 py-1.5 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 hover:from-teal-500/30 hover:to-emerald-500/30 text-teal-300 border border-teal-500/40 rounded-md text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
+                title="Rejoindre la conversation"
+              >
+                <svg
+                  className="w-3.5 h-3.5 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                  />
+                </svg>
+                <span>Conversation</span>
+              </button>
+            )}
+
             {/* Bouton Confirmer - pas pour CONFIRMED, RESCHEDULING, COMPLETED, NO_SHOW */}
             {selectedEvent.status !== "CONFIRMED" &&
               selectedEvent.status !== "RESCHEDULING" &&
@@ -273,6 +300,7 @@ export default function ShowRdvDetails({
                 rdvId={selectedEvent.id}
                 appointment={selectedEvent}
                 onMessageSent={() => handleRdvUpdated(selectedEvent.id)}
+                buttonLabel="Envoyer un mail"
               />
             )}
           </div>
@@ -358,7 +386,7 @@ export default function ShowRdvDetails({
                     {Math.round(
                       (new Date(selectedEvent.end).getTime() -
                         new Date(selectedEvent.start).getTime()) /
-                        (1000 * 60)
+                        (1000 * 60),
                     )}{" "}
                     min
                   </p>
@@ -722,7 +750,7 @@ export default function ShowRdvDetails({
                     <div className="flex items-center justify-between pt-2 border-t border-white/10">
                       <div className="text-white/60 text-xs font-one">
                         {new Date(
-                          selectedEvent.salonReview.createdAt
+                          selectedEvent.salonReview.createdAt,
                         ).toLocaleDateString("fr-FR", {
                           year: "numeric",
                           month: "long",
@@ -772,7 +800,7 @@ export default function ShowRdvDetails({
                                   </svg>
                                 </div>
                               </div>
-                            )
+                            ),
                           )}
                         </div>
                       )}

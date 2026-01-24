@@ -13,10 +13,12 @@ export default function SendMessageRdv({
   rdvId,
   appointment,
   onMessageSent,
+  buttonLabel = "Message",
 }: {
   rdvId: string;
   appointment?: any; // Pour passer les détails du RDV
   onMessageSent?: () => void;
+  buttonLabel?: string;
 }) {
   const [showModal, setShowModal] = useState(false);
   const [emailSubject, setEmailSubject] = useState("");
@@ -37,12 +39,12 @@ export default function SendMessageRdv({
       const res = await sendCustomEmailAction(
         rdvId,
         emailSubject,
-        customMessage
+        customMessage,
       );
 
       if (res) {
         toast.success(
-          "Email envoyé avec succès ! Le client va recevoir votre message."
+          "Email envoyé avec succès ! Le client va recevoir votre message.",
         );
         onMessageSent?.();
         setShowModal(false);
@@ -59,11 +61,12 @@ export default function SendMessageRdv({
   return (
     <>
       <button
-        className="cursor-pointer px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/30 rounded-lg text-xs font-one font-medium transition-colors flex items-center gap-1"
+        className="cursor-pointer px-2.5 py-1.5 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 hover:from-indigo-500/30 hover:to-purple-500/30 text-indigo-300 border border-indigo-500/40 rounded-md text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
         onClick={() => setShowModal(true)}
+        title={buttonLabel}
       >
         <svg
-          className="w-3 h-3"
+          className="w-3.5 h-3.5 flex-shrink-0"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -71,11 +74,11 @@ export default function SendMessageRdv({
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            strokeWidth={2.5}
+            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
           />
         </svg>
-        Message
+        <span>{buttonLabel}</span>
       </button>
 
       {/* Modale d'envoi de message */}
@@ -156,7 +159,7 @@ export default function SendMessageRdv({
                           </svg>
                           {calculateDurationForModal(
                             appointment.start,
-                            appointment.end
+                            appointment.end,
                           )}
                         </span>
                       </div>

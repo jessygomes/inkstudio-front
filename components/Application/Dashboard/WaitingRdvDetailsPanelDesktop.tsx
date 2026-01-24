@@ -95,9 +95,9 @@ export default function WaitingRdvDetailsPanelDesktop({
   ]);
 
   return (
-    <div className="h-full w-full bg-gradient-to-br from-noir-700/95 to-noir-600/95 backdrop-blur-sm rounded-xl flex flex-col border border-white/20 shadow-2xl animate-in slide-in-from-right-4 duration-300">
+    <div className="h-full w-full bg-gradient-to-br from-noir-700/90 to-noir-500/90 backdrop-blur-sm rounded-xl flex flex-col border border-white/20 shadow-2xl animate-in slide-in-from-right-4 duration-300">
       {/* Header desktop */}
-      <div className="relative p-3 border-b border-white/10 bg-gradient-to-r from-noir-700/80 to-noir-500/80 rounded-t-xl">
+      <div className="relative p-3 border-b border-white/10 bg-gradient-to-r from-noir-700 to-noir-500 rounded-t-xl">
         <div className="absolute inset-0 bg-gradient-to-r from-orange-400/5 to-transparent rounded-t-xl"></div>
         <div className="relative flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -179,7 +179,21 @@ export default function WaitingRdvDetailsPanelDesktop({
         </div>
 
         {/* Actions desktop */}
-        <div className="flex items-center gap-1 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          {selectedAppointment.conversation?.id && (
+            <button
+              onClick={() => {
+                window.location.href = `/messagerie/${selectedAppointment.conversation?.id}`;
+              }}
+              className="cursor-pointer px-2.5 py-1.5 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 hover:from-teal-500/30 hover:to-emerald-500/30 text-teal-300 border border-teal-500/40 rounded-md text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
+              title="Rejoindre la conversation"
+            >
+              <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+              </svg>
+              <span>Conversation</span>
+            </button>
+          )}
           {selectedAppointment.status !== "CONFIRMED" && (
             <ConfirmRdv
               rdvId={selectedAppointment.id}
@@ -209,6 +223,7 @@ export default function WaitingRdvDetailsPanelDesktop({
               rdvId={selectedAppointment.id}
               appointment={selectedAppointment}
               onMessageSent={() => handleRdvUpdated(selectedAppointment.id)}
+              buttonLabel="Envoyer un mail"
             />
           )}
         </div>

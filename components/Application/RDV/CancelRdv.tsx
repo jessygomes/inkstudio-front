@@ -28,12 +28,12 @@ export default function CancelRdv({
       const res = await confirmAppointmentAction(
         rdvId,
         "cancel",
-        actionMessage
+        actionMessage,
       );
 
       if (res) {
         toast.success(
-          "Rendez-vous annulé avec succès ! Le client va recevoir un email."
+          "Rendez-vous annulé avec succès ! Le client va recevoir un email.",
         );
         onCancel();
         setShowModal(false);
@@ -48,11 +48,12 @@ export default function CancelRdv({
   return (
     <>
       <button
-        className="cursor-pointer px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors flex items-center gap-1"
+        className="cursor-pointer px-2.5 py-1.5 bg-gradient-to-r from-rose-500/20 to-red-500/20 hover:from-rose-500/30 hover:to-red-500/30 text-rose-300 border border-rose-500/40 rounded-md text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
         onClick={() => setShowModal(true)}
+        title="Annuler ce rendez-vous"
       >
         <svg
-          className="w-3 h-3"
+          className="w-3.5 h-3.5 flex-shrink-0"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -60,11 +61,11 @@ export default function CancelRdv({
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
+            strokeWidth={2.5}
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        Annuler
+        <span>Annuler</span>
       </button>
 
       {/* Modale d'action */}
@@ -126,7 +127,7 @@ export default function CancelRdv({
                           <p className="text-white font-one">
                             {calculateDurationForModal(
                               appointment.start,
-                              appointment.end
+                              appointment.end,
                             )}{" "}
                             min
                           </p>

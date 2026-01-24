@@ -39,7 +39,7 @@ interface TattooDetail {
   piercingServicePriceId?: string;
 }
 
-interface RendezVous {
+export interface RendezVous {
   id: string;
   title: string;
   start: string;
@@ -65,6 +65,7 @@ interface RendezVous {
   isPayed?: boolean;
   visio?: boolean;
   visioRoom?: string;
+  conversation?: { id: string } | null;
 }
 
 interface RdvDetailsPanelDesktopProps {
@@ -121,9 +122,9 @@ export default function RdvDetailsPanelDesktop({
   ]);
 
   return (
-    <div className="bg-gradient-to-br from-noir-500/90 to-noir-500/85 backdrop-blur-lg rounded-xl border border-white/20 shadow-2xl h-full flex flex-col">
+    <div className="bg-gradient-to-br from-noir-700/90 to-noir-500/90 backdrop-blur-lg rounded-xl border border-white/20 shadow-2xl h-full flex flex-col">
       {/* Header du panneau avec design compact */}
-      <div className="relative p-4 border-b border-white/10 bg-gradient-to-r rounded-t-xl from-noir-700/80 to-noir-500/80">
+      <div className="relative p-4 border-b border-white/10 bg-gradient-to-r rounded-t-xl from-noir-700 to-noir-500">
         <div className="absolute inset-0 bg-gradient-to-r from-tertiary-400/5 to-transparent"></div>
         <div className="relative flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -249,7 +250,33 @@ export default function RdvDetailsPanelDesktop({
         </div>
 
         {/* Actions compactes */}
-        <div className="flex items-center gap-1 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Bouton Rejoindre la conversation - si une conversation existe */}
+          {selectedAppointment.conversation?.id && (
+            <button
+              onClick={() => {
+                window.location.href = `/messagerie/${selectedAppointment.conversation?.id}`;
+              }}
+              className="cursor-pointer px-2.5 py-1.5 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 hover:from-teal-500/30 hover:to-emerald-500/30 text-teal-300 border border-teal-500/40 rounded-md text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
+              title="Rejoindre la conversation"
+            >
+              <svg
+                className="w-3.5 h-3.5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                />
+              </svg>
+              <span>Conversation</span>
+            </button>
+          )}
+
           {/* Bouton Confirmer */}
           {selectedAppointment.status !== "CONFIRMED" &&
             selectedAppointment.status !== "RESCHEDULING" &&
@@ -316,6 +343,7 @@ export default function RdvDetailsPanelDesktop({
               rdvId={selectedAppointment.id}
               appointment={selectedAppointment}
               onMessageSent={() => handleRdvUpdated(selectedAppointment.id)}
+              buttonLabel="Envoyer un mail"
             />
           )}
         </div>

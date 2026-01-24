@@ -28,7 +28,7 @@ export default function ChangeRdv({
       try {
         const data = await proposeRescheduleAppointmentAction(
           rdvId,
-          actionMessage.trim() || undefined
+          actionMessage.trim() || undefined,
         );
 
         if (!data) {
@@ -47,7 +47,7 @@ export default function ChangeRdv({
     },
     onSuccess: () => {
       toast.success(
-        "Proposition de nouveau créneau envoyée ! Le client va recevoir un email."
+        "Proposition de nouveau créneau envoyée ! Le client va recevoir un email.",
       );
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
       setShowModal(false);
@@ -62,11 +62,12 @@ export default function ChangeRdv({
   return (
     <>
       <button
-        className="cursor-pointer px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-600/30 rounded-lg text-xs font-one font-medium transition-colors flex items-center gap-1"
+        className="cursor-pointer px-2.5 py-1.5 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 border border-cyan-500/40 rounded-md text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
         onClick={() => setShowModal(true)}
+        title="Proposer une reprogrammation"
       >
         <svg
-          className="w-3 h-3"
+          className="w-3.5 h-3.5 flex-shrink-0"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -74,11 +75,11 @@ export default function ChangeRdv({
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={2}
+            strokeWidth={2.5}
             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        Notifier un changement
+        <span>Reprogrammer</span>
       </button>
 
       {/* Modale de proposition */}
@@ -145,7 +146,7 @@ export default function ChangeRdv({
                           <p className="text-white font-one">
                             {calculateDurationForModal(
                               appointment.start,
-                              appointment.end
+                              appointment.end,
                             )}{" "}
                             min
                           </p>
