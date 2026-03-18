@@ -6,6 +6,7 @@ import { CiCreditCard1 } from "react-icons/ci";
 import { FaCheck } from "react-icons/fa";
 import { availablePlans, getPlanDetails } from "@/lib/saasPlan.data";
 import { Subscription } from "@/lib/type";
+import { changePlanAction } from "@/lib/queries/stripe";
 
 interface SubscriptionSectionProps {
   openSections: {
@@ -21,7 +22,7 @@ interface SubscriptionSectionProps {
       | "account"
       | "notifications"
       | "security"
-      | "preferences"
+      | "preferences",
   ) => void;
   userId: string | null;
 }
@@ -32,6 +33,7 @@ export default function SubscriptionSection({
   userId,
 }: SubscriptionSectionProps) {
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [isChangingPlan, setIsChangingPlan] = useState(false);
@@ -50,7 +52,7 @@ export default function SubscriptionSection({
             "Content-Type": "application/json",
           },
           credentials: "include", // Inclut automatiquement le cookie "session"
-        }
+        },
       );
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération du plan utilisateur");
@@ -60,7 +62,7 @@ export default function SubscriptionSection({
     } catch (error) {
       console.error(
         "Erreur lors de la récupération du plan utilisateur :",
-        error
+        error,
       );
     }
   }, [userId]);
@@ -91,39 +93,44 @@ export default function SubscriptionSection({
     setIsChangingPlan(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/saas/upgrade/${userId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            plan: newPlan,
-          }),
-          credentials: "include",
-        }
-      );
+      const result = await changePlanAction(newPlan);
 
-      if (!response.ok) {
-        throw new Error("Erreur lors du changement de plan");
+      // Cas 1 : l'utilisateur n'a pas d'abonnement Stripe actif
+      // → le backend crée une checkout session et retourne l'URL
+      if (!result.updated && result.url) {
+        toast.success("Redirection vers le paiement...");
+        setShowPlanModal(false);
+        setShowCancelModal(false);
+        setSelectedPlan("");
+        window.location.href = result.url;
+        return;
       }
 
-      await response.json();
-
-      // Récupérer les nouvelles données de plan depuis l'API
+      // Cas 2 : changement direct (upgrade/downgrade via Stripe Billing Portal
+      // ou passage au plan FREE)
       await fetchUserPlan();
 
-      toast.success(
-        `Plan changé avec succès vers ${
-          getPlanDetails(newPlan, subscription || undefined).name
-        } !`
-      );
+      if (result.updated && result.alreadyOnTargetPlan) {
+        toast.info(result.message);
+      } else {
+        toast.success(
+          result.message ||
+            `Plan changé avec succès vers ${
+              getPlanDetails(newPlan, subscription || undefined).name
+            } !`,
+        );
+      }
+
       setShowPlanModal(false);
+      setShowCancelModal(false);
       setSelectedPlan("");
     } catch (error) {
       console.error("Erreur lors du changement de plan :", error);
-      toast.error("Erreur lors du changement de plan");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors du changement de plan",
+      );
     } finally {
       setIsChangingPlan(false);
     }
@@ -204,7 +211,7 @@ export default function SubscriptionSection({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                   {getPlanDetails(
                     subscription.currentPlan,
-                    subscription
+                    subscription,
                   ).features.map((feature, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <FaCheck className="text-green-400 text-sm" />
@@ -280,7 +287,7 @@ export default function SubscriptionSection({
                     </p>
                     <p className="text-white font-one">
                       {new Date(subscription.startDate).toLocaleDateString(
-                        "fr-FR"
+                        "fr-FR",
                       )}
                     </p>
                   </div>
@@ -298,13 +305,13 @@ export default function SubscriptionSection({
                     <p className="text-white font-one">
                       {subscription.nextPaymentDate
                         ? new Date(
-                            subscription.nextPaymentDate
+                            subscription.nextPaymentDate,
                           ).toLocaleDateString("fr-FR")
                         : subscription.endDate
-                        ? new Date(subscription.endDate).toLocaleDateString(
-                            "fr-FR"
-                          )
-                        : "Aucune"}
+                          ? new Date(subscription.endDate).toLocaleDateString(
+                              "fr-FR",
+                            )
+                          : "Aucune"}
                     </p>
                   </div>
                 </div>
@@ -324,7 +331,7 @@ export default function SubscriptionSection({
                         <p className="text-tertiary-400/80 text-xs font-one">
                           Expire le{" "}
                           {new Date(
-                            subscription.trialEndDate
+                            subscription.trialEndDate,
                           ).toLocaleDateString("fr-FR")}
                         </p>
                       </div>
@@ -337,7 +344,13 @@ export default function SubscriptionSection({
 
               {/* Actions responsive */}
               <div className="flex flex-col sm:flex-row justify-end gap-3">
-                <button className="cursor-pointer px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors">
+                <button
+                  onClick={() => setShowCancelModal(true)}
+                  disabled={
+                    isChangingPlan || subscription.currentPlan === "FREE"
+                  }
+                  className="cursor-pointer px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   <span className="hidden sm:inline">
                     Annuler l&apos;abonnement
                   </span>
@@ -403,8 +416,8 @@ export default function SubscriptionSection({
                         isCurrentPlan
                           ? `${plan.bgColor} ${plan.borderColor} ring-2 ring-white/20`
                           : isSelected
-                          ? `${plan.bgColor} ${plan.borderColor} ring-2 ring-tertiary-400/50`
-                          : "bg-white/5 border-white/20 hover:bg-white/10 hover:border-white/30"
+                            ? `${plan.bgColor} ${plan.borderColor} ring-2 ring-tertiary-400/50`
+                            : "bg-white/5 border-white/20 hover:bg-white/10 hover:border-white/30"
                       }`}
                       onClick={() => !isCurrentPlan && setSelectedPlan(plan.id)}
                     >
@@ -501,11 +514,11 @@ export default function SubscriptionSection({
                     </h3>
                     <ul className="text-white/70 text-sm sm:text-xs space-y-2 sm:space-y-1 font-one">
                       <li>• Le changement prend effet immédiatement</li>
-                      <li>• Pour les upgrades : facturation au prorata</li>
+                      {/* <li>• Pour les upgrades : facturation au prorata</li>
                       <li>
                         • Pour les downgrades : crédits appliqués au cycle
                         suivant
-                      </li>
+                      </li> */}
                       <li>• Vous pouvez changer de plan à tout moment</li>
                     </ul>
                   </div>
@@ -550,6 +563,65 @@ export default function SubscriptionSection({
                   </>
                 )}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale de confirmation résiliation */}
+      {showCancelModal && subscription && (
+        <div className="fixed inset-0 z-[10000] sm:bg-black/60 sm:backdrop-blur-sm bg-noir-700 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-noir-500 rounded-none sm:rounded-2xl w-full sm:max-w-lg border-0 sm:border sm:border-white/20 sm:shadow-2xl">
+            <div className="p-6 border-b border-white/10 bg-white/5">
+              <h2 className="text-xl font-bold text-white font-one">
+                Confirmer la résiliation
+              </h2>
+              <p className="text-white/70 mt-2 text-sm font-one">
+                Votre compte passera en abonnement FREE. Vous n&apos;aurez plus
+                accès à toutes les fonctionnalités de votre plan actuel.
+              </p>
+              <p className="text-white/70 mt-2 text-sm font-one">
+                Si le mois en cours est déjà payé, votre abonnement restera
+                actif jusqu&apos;à la fin de ce mois, puis passera en FREE.
+              </p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                <p className="text-yellow-300 text-sm font-one font-semibold mb-2">
+                  ⚠️ Ce qui change immédiatement
+                </p>
+                <p className="text-yellow-200/90 text-xs font-one leading-relaxed">
+                  Vous basculerez sur le plan Gratuit. Certaines limites et
+                  fonctionnalités premium de votre plan actuel ({" "}
+                  {getPlanDetails(subscription.currentPlan, subscription).name})
+                  seront retirées.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-end gap-3">
+                <button
+                  onClick={() => setShowCancelModal(false)}
+                  disabled={isChangingPlan}
+                  className="cursor-pointer px-5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Garder mon abonnement
+                </button>
+                <button
+                  onClick={() => handlePlanChange("FREE")}
+                  disabled={isChangingPlan}
+                  className="cursor-pointer px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium font-one text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isChangingPlan ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Résiliation...</span>
+                    </>
+                  ) : (
+                    <span>Confirmer et passer en FREE</span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

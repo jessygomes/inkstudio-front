@@ -4,8 +4,8 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 
 import { CardWrapper } from "../CardWrapper";
 // import { FormError } from "@/components/Shared/FormError";
@@ -19,7 +19,7 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  saasPlan: z.enum(["FREE", "PRO", "BUSINESS", "TESTER"]),
+  saasPlan: z.enum(["FREE", "STUDIO", "PRO"]),
 });
 
 const step3Schema = z
@@ -38,8 +38,39 @@ const step3Schema = z
     path: ["passwordConfirmation"],
   });
 
+type SignupPlan = "FREE" | "STUDIO" | "PRO";
+
 export const Register = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const rawCallbackUrl = searchParams.get("callbackUrl");
+  const safeCallbackUrl = rawCallbackUrl?.startsWith("/")
+    ? rawCallbackUrl
+    : null;
+
+  const preselectedPlan = useMemo<SignupPlan>(() => {
+    if (!safeCallbackUrl) {
+      return "FREE";
+    }
+
+    try {
+      const url = new URL(safeCallbackUrl, "https://inkera-studio.local");
+      const checkoutPlan = url.searchParams.get("checkout");
+
+      if (checkoutPlan === "STUDIO" || checkoutPlan === "PRO") {
+        return checkoutPlan;
+      }
+
+      return "FREE";
+    } catch {
+      return "FREE";
+    }
+  }, [safeCallbackUrl]);
+
+  const connexionHref = safeCallbackUrl
+    ? `/connexion?callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
+    : "/connexion";
 
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
@@ -51,16 +82,16 @@ export const Register = () => {
     useState(false);
 
   // Données collectées à travers les étapes
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => ({
     salonName: "",
-    saasPlan: "TESTER" as "FREE" | "PRO" | "BUSINESS" | "TESTER",
+    saasPlan: preselectedPlan as SignupPlan,
     firstName: "",
     lastName: "",
     phone: "",
     email: "",
     password: "",
     passwordConfirmation: "",
-  });
+  }));
 
   // Formulaires pour chaque étape
   const step1Form = useForm({
@@ -102,9 +133,7 @@ export const Register = () => {
     nextStep();
   };
 
-  const handleStep2Submit = (data: {
-    saasPlan: "FREE" | "PRO" | "BUSINESS" | "TESTER";
-  }) => {
+  const handleStep2Submit = (data: { saasPlan: SignupPlan }) => {
     setFormData({ ...formData, saasPlan: data.saasPlan });
     nextStep();
   };
@@ -122,6 +151,8 @@ export const Register = () => {
     setIsPending(true);
 
     try {
+      const selectedPlan = formData.saasPlan;
+
       const finalData = {
         ...formData,
         firstName: data.firstName,
@@ -129,12 +160,15 @@ export const Register = () => {
         phone: data.phone,
         email: data.email,
         password: data.password,
-        // Convertir TESTER en FREE pour l'envoi au serveur
-        saasPlan: formData.saasPlan === "TESTER" ? "FREE" : formData.saasPlan,
+        // Le compte reste en FREE tant que le paiement Stripe n'est pas validé.
+        saasPlan: "FREE",
+        // Ajouter le plan sélectionné pour créer la checkout session Stripe
+        checkoutPlan: selectedPlan !== "FREE" ? selectedPlan : null,
       };
 
       console.log("📤 Données finales envoyées:", finalData);
 
+      // Créer le compte utilisateur et obtenir la checkout URL si plan payant
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACK_URL}/auth/register`,
         {
@@ -143,7 +177,7 @@ export const Register = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(finalData),
-        }
+        },
       );
 
       const infos = await response.json();
@@ -159,12 +193,57 @@ export const Register = () => {
         return;
       }
 
+      // L'utilisateur a choisi un plan payant (STUDIO ou PRO)
+      const isPaymentPlanSelected = selectedPlan !== "FREE";
+
+      if (isPaymentPlanSelected) {
+        // Le backend a créé la checkout session et retourne l'URL
+        const checkoutUrl = infos.checkoutUrl;
+        const checkoutError = infos.checkoutError;
+
+        if (checkoutError) {
+          // Erreur Stripe : afficher le message mais ne pas bloquer l'inscription
+          setError(`Erreur paiement: ${checkoutError}`);
+          console.warn(
+            "⚠️ Erreur lors de la création de la session Stripe:",
+            checkoutError,
+          );
+          // Laisser l'utilisateur accéder à son compte en version gratuite
+          setSuccess(
+            infos.message ||
+              "Inscription réussie ! (Plan payant non disponible pour le moment)",
+          );
+          setIsPending(false);
+          setTimeout(() => router.push(connexionHref), 3000);
+          return;
+        }
+
+        if (!checkoutUrl) {
+          throw new Error(
+            infos.message || "Impossible de créer la session de paiement",
+          );
+        }
+
+        setSuccess("Compte créé. Redirection vers le paiement...");
+        console.log("✅ Redirection vers Stripe...");
+
+        // Rediriger l'utilisateur vers Stripe
+        setIsPending(false);
+        window.location.href = checkoutUrl;
+        return;
+      }
+
+      // Plan FREE: redirection après succès
       setSuccess(infos.message || "Inscription réussie !");
       setIsPending(false);
-      setTimeout(() => router.push("/connexion"), 3000);
+      setTimeout(() => router.push(connexionHref), 3000);
     } catch (error) {
       console.error("❌ Erreur lors de l'inscription :", error);
-      setError("Impossible de s'inscrire. Veuillez réessayer plus tard.");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Impossible de s'inscrire. Veuillez réessayer plus tard.",
+      );
       setIsPending(false);
     }
   };
@@ -278,29 +357,14 @@ export const Register = () => {
                       className="bg-white/30 py-3 px-4 rounded-lg text-white text-sm"
                       {...step2Form.register("saasPlan")}
                     >
-                      <option
-                        value="FREE"
-                        className="bg-white text-black"
-                        disabled
-                      >
-                        Gratuit - Fonctionnalités de base (Bientôt disponible)
+                      <option value="FREE" className="bg-white text-black">
+                        Free - 0€/mois
                       </option>
-                      <option
-                        value="PRO"
-                        className="bg-white text-black"
-                        disabled
-                      >
-                        Pro - Fonctionnalités avancées (Bientôt disponible)
+                      <option value="STUDIO" className="bg-white text-black">
+                        Studio - 35,99€/mois
                       </option>
-                      <option
-                        value="BUSINESS"
-                        className="bg-white text-black"
-                        disabled
-                      >
-                        Business - Solution complète (Bientôt disponible)
-                      </option>
-                      <option value="TESTER" className="bg-white text-black">
-                        Testeur - Accès anticipé au plan Business
+                      <option value="PRO" className="bg-white text-black">
+                        Pro - 85,99€/mois
                       </option>
                     </select>
 
@@ -309,7 +373,7 @@ export const Register = () => {
                       {step2Form.watch("saasPlan") === "FREE" && (
                         <div className="text-xs text-white/80">
                           <p className="font-semibold mb-2 text-tertiary-400">
-                            Plan Gratuit :
+                            Plan Free :
                           </p>
                           <div className="text-xs space-y-1">
                             <p>• Profil public professionnel</p>
@@ -320,10 +384,10 @@ export const Register = () => {
                           </div>
                         </div>
                       )}
-                      {step2Form.watch("saasPlan") === "PRO" && (
+                      {step2Form.watch("saasPlan") === "STUDIO" && (
                         <div className="text-xs text-white/80">
                           <p className="font-semibold mb-2 text-tertiary-400">
-                            Plan Pro - 29€/mois :
+                            Plan Studio - 35,99€/mois :
                           </p>
                           <div className="text-xs space-y-1">
                             <p>• 1 tatoueur</p>
@@ -334,40 +398,26 @@ export const Register = () => {
                           </div>
                         </div>
                       )}
-                      {step2Form.watch("saasPlan") === "BUSINESS" && (
+                      {step2Form.watch("saasPlan") === "PRO" && (
                         <div className="text-xs text-white/80">
                           <p className="font-semibold mb-2 text-tertiary-400">
-                            Plan Business - 69€/mois :
+                            Plan Pro - 85,99€/mois :
                           </p>
                           <div className="text-xs space-y-1">
                             <p>• Tatoueurs illimités</p>
                             <p>• Gestion du stock</p>
-                            <p>• Tout du plan Pro</p>
+                            <p>• Tout du plan Studio</p>
                             <p>• Statistiques détaillées</p>
                             <p>• Support prioritaire</p>
-                          </div>
-                        </div>
-                      )}
-                      {step2Form.watch("saasPlan") === "TESTER" && (
-                        <div className="text-xs text-white/80">
-                          <p className="font-semibold mb-2 text-tertiary-400">
-                            🧪 Programme Testeur :
-                          </p>
-                          <div className="text-xs space-y-1">
-                            <p>• Accès GRATUIT au plan Business complet</p>
-                            <p>• Tatoueurs illimités</p>
-                            <p>• Gestion du stock</p>
-                            <p>• Toutes les fonctionnalités premium</p>
-                            <p>• Support direct avec l'équipe INKERA</p>
-                            <p>• Participation au développement produit</p>
+                            <p>• Formations incluses</p>
                           </div>
                         </div>
                       )}
                     </div>
 
                     {/* Note sur les plans payants */}
-                    {(step2Form.watch("saasPlan") === "PRO" ||
-                      step2Form.watch("saasPlan") === "BUSINESS") && (
+                    {(step2Form.watch("saasPlan") === "STUDIO" ||
+                      step2Form.watch("saasPlan") === "PRO") && (
                       <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-lg p-3 mt-2">
                         <div className="flex items-start gap-2">
                           <svg
@@ -385,42 +435,12 @@ export const Register = () => {
                           </svg>
                           <div>
                             <p className="text-tertiary-400 text-xs font-semibold mb-1">
-                              🎁 Période d'essai gratuite
+                              Paiement après création du compte
                             </p>
                             <p className="text-tertiary-400/80 text-xs">
-                              14 jours d'essai gratuit. Aucune carte bancaire
-                              requise.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Note spéciale pour les testeurs */}
-                    {step2Form.watch("saasPlan") === "TESTER" && (
-                      <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mt-2">
-                        <div className="flex items-start gap-2">
-                          <svg
-                            className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <div>
-                            <p className="text-green-400 text-xs font-semibold mb-1">
-                              Validation INKERA Studio
-                            </p>
-                            <p className="text-green-400/80 text-xs">
-                              Notre équipe prendra contact avec vous sous 48h
-                              pour valider votre participation au programme
-                              testeur.
+                              Après validation de votre inscription, vous serez
+                              redirigé vers Stripe pour finaliser votre
+                              abonnement.
                             </p>
                           </div>
                         </div>
@@ -718,7 +738,7 @@ export const Register = () => {
             Vous avez déjà un compte ?{" "}
             <Link
               className="text-tertiary-400 hover:text-tertiary-500 transition-all ease-in-out duration-150"
-              href="/connexion"
+              href={connexionHref}
             >
               Connectez-vous
             </Link>

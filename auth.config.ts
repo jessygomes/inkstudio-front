@@ -1,6 +1,52 @@
 import type { NextAuthConfig } from "next-auth";
+import { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { userLoginSchema } from "@/lib/zod/validator.schema";
+
+class EmailNotVerifiedSigninError extends CredentialsSignin {
+  constructor(message: string) {
+    super();
+    this.code = message;
+  }
+}
+
+type BackendLoginResponse = {
+  id?: string | number;
+  email?: string;
+  salonName?: string;
+  image?: string | null;
+  role?: string;
+  access_token?: string;
+  saasPlan?: string;
+  phone?: string;
+  address?: string;
+  verifiedSalon?: boolean;
+  salonHours?: unknown;
+  error?: boolean | string;
+  message?: string;
+};
+
+const getBackendAuthMessage = (
+  payload: BackendLoginResponse | null,
+): string => {
+  if (!payload) {
+    return "";
+  }
+
+  if (typeof payload.error === "string" && payload.error.trim()) {
+    return payload.error.trim();
+  }
+
+  if (
+    payload.error === true &&
+    typeof payload.message === "string" &&
+    payload.message.trim()
+  ) {
+    return payload.message.trim();
+  }
+
+  return "";
+};
 
 /**
  * Configuration NextAuth pour l'authentification
@@ -43,17 +89,36 @@ export default {
             body: JSON.stringify({ email, password }),
           });
 
+          const payload = (await response
+            .json()
+            .catch(() => null)) as BackendLoginResponse | null;
+          const backendErrorMessage = getBackendAuthMessage(payload);
+
           if (!response.ok) {
+            if (backendErrorMessage) {
+              throw new EmailNotVerifiedSigninError(backendErrorMessage);
+            }
+
             console.error(
               "❌ Échec de l'authentification - Status:",
               response.status,
             );
-            const errorText = await response.text();
-            console.error("❌ Message d'erreur:", errorText);
+            if (backendErrorMessage) {
+              console.error("❌ Message d'erreur:", backendErrorMessage);
+            }
             return null;
           }
 
-          const data = await response.json();
+          if (backendErrorMessage) {
+            throw new EmailNotVerifiedSigninError(backendErrorMessage);
+          }
+
+          if (!payload) {
+            console.error("❌ Réponse backend invalide: payload JSON manquant");
+            return null;
+          }
+
+          const data = payload;
 
           if (!data.access_token || !data.id) {
             console.error("❌ Token ou id manquant dans la réponse");
@@ -88,6 +153,10 @@ export default {
           // Retourner l'objet utilisateur avec toutes les données
           return userObject;
         } catch (error) {
+          if (error instanceof CredentialsSignin) {
+            throw error;
+          }
+
           console.error("❌ Erreur lors de l'authentification:", error);
           return null;
         }

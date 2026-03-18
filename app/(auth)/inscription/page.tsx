@@ -18,10 +18,26 @@ export const metadata: Metadata = {
   ],
 };
 
-export default async function page() {
+type AuthPageProps = {
+  searchParams?:
+    | {
+        callbackUrl?: string | string[];
+      }
+    | Promise<{
+        callbackUrl?: string | string[];
+      }>;
+};
+
+export default async function page({ searchParams }: AuthPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const callbackParam = Array.isArray(resolvedSearchParams?.callbackUrl)
+    ? resolvedSearchParams.callbackUrl[0]
+    : resolvedSearchParams?.callbackUrl;
+  const safeCallbackUrl = callbackParam?.startsWith("/") ? callbackParam : null;
+
   const user = await currentUser();
   if (user) {
-    redirect("/dashboard");
+    redirect(safeCallbackUrl || "/dashboard");
   }
 
   return (

@@ -95,7 +95,7 @@ export default function TarificationPage() {
         "@type": "Offer",
         name: "Plan Pro",
         description: "Fonctionnalités avancées pour professionnels",
-        price: "35,99",
+        price: "29,99",
         priceCurrency: "EUR",
         billingIncrement: "P1M",
         eligibleRegion: "FR",
@@ -115,7 +115,7 @@ export default function TarificationPage() {
         "@type": "Offer",
         name: "Plan Business",
         description: "Solution complète pour studios",
-        price: "79,99",
+        price: "69,99",
         priceCurrency: "EUR",
         billingIncrement: "P1M",
         eligibleRegion: "FR",
@@ -133,6 +133,44 @@ export default function TarificationPage() {
       },
     ],
   };
+
+  const plans = [
+    {
+      id: "STUDIO",
+      link:
+        process.env.NODE_ENV === "development"
+          ? "https://buy.stripe.com/test_3cI9AUfbhcKDgaOg4m2ZO00"
+          : "",
+      priceId:
+        process.env.NODE_ENV === "development"
+          ? "price_1TBynYJMlGOwiqiVbpmg4EHu"
+          : "",
+      name: "Offre Studio",
+      price: 29.99,
+      duration: "/month",
+    },
+    {
+      id: "PRO",
+      link:
+        process.env.NODE_ENV === "development"
+          ? "https://buy.stripe.com/test_4gM7sM2ov5ib4s67xQ2ZO01"
+          : "",
+      priceId:
+        process.env.NODE_ENV === "development"
+          ? "price_1TC2itJMlGOwiqiVEtpAD8js"
+          : "",
+      name: "Offre Pro",
+      price: 69.99,
+      duration: "/month",
+    },
+  ] satisfies Array<{
+    id: "STUDIO" | "PRO";
+    link: string;
+    priceId: string;
+    name: string;
+    price: number;
+    duration: string;
+  }>;
 
   return (
     <>
@@ -294,7 +332,7 @@ export default function TarificationPage() {
 
       {/* Composant Tarifs modernisé */}
       <div className="bg-gradient-to-b from-noir-500 to-noir-700">
-        <Tarifs />
+        <Tarifs paymentPlans={plans} />
       </div>
 
       {/* Section finale encouragement */}

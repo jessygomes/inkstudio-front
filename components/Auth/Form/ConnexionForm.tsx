@@ -17,6 +17,14 @@ export const LoginForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const rawCallbackUrl = searchParams.get("callbackUrl");
+  const safeCallbackUrl = rawCallbackUrl?.startsWith("/")
+    ? rawCallbackUrl
+    : null;
+  const signupHref = safeCallbackUrl
+    ? `/inscription?callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
+    : "/inscription";
+
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | undefined>("");
@@ -25,14 +33,18 @@ export const LoginForm = () => {
   // ✅ Vérifier si l'utilisateur arrive avec un callback ou erreur
   useEffect(() => {
     const errorParam = searchParams.get("error");
-    const callbackUrl = searchParams.get("callbackUrl");
+    const codeParam = searchParams.get("code");
 
     if (errorParam === "CredentialsSignin") {
-      setError("Email ou mot de passe incorrect.");
-    } else if (callbackUrl) {
-      setError("Veuillez vous connecter pour accéder à cette page.");
+      if (codeParam && codeParam !== "credentials") {
+        setError(codeParam);
+      } else {
+        setError("Email ou mot de passe incorrect.");
+      }
+    } else if (safeCallbackUrl) {
+      setError("Veuillez vous connecter pour continuer.");
     }
-  }, [searchParams]);
+  }, [searchParams, safeCallbackUrl]);
 
   const form = useForm<z.infer<typeof userLoginSchema>>({
     resolver: zodResolver(userLoginSchema),
@@ -56,7 +68,11 @@ export const LoginForm = () => {
       });
 
       if (result?.error) {
-        setError("Email ou mot de passe incorrect.");
+        if (result.code && result.code !== "credentials") {
+          setError(result.code);
+        } else {
+          setError("Email ou mot de passe incorrect.");
+        }
         setIsPending(false);
         return;
       }
@@ -64,7 +80,7 @@ export const LoginForm = () => {
       setSuccess("Connexion réussie !");
 
       // Récupérer le callbackUrl ou rediriger vers dashboard
-      const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+      const callbackUrl = safeCallbackUrl || "/dashboard";
 
       setSuccess("Redirection...");
       router.push(callbackUrl);
@@ -196,7 +212,7 @@ export const LoginForm = () => {
           Pas encore de compte ?{" "}
           <Link
             className="text-tertiary-400 hover:text-tertiary-500 transition-all ease-in-out duration-150"
-            href="/inscription"
+            href={signupHref}
           >
             Créer un compte
           </Link>
