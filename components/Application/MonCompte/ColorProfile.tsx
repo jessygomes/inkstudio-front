@@ -231,12 +231,12 @@ export default function ColorProfile() {
 
   if (loadingFetch) {
     return (
-      <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-        <div className="animate-pulse">
-          <div className="h-6 bg-white/10 rounded w-1/3 mb-4"></div>
-          <div className="space-y-4">
-            <div className="h-10 bg-white/10 rounded"></div>
-            <div className="h-10 bg-white/10 rounded"></div>
+      <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+        <div className="animate-pulse space-y-2">
+          <div className="h-5 bg-white/10 rounded w-1/3"></div>
+          <div className="space-y-1.5">
+            <div className="h-8 bg-white/10 rounded"></div>
+            <div className="h-8 bg-white/10 rounded"></div>
           </div>
         </div>
       </div>
@@ -244,11 +244,11 @@ export default function ColorProfile() {
   }
 
   return (
-    <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+    <div className="bg-white/5 rounded-2xl p-4 sm:p-5 border border-white/10">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
           <svg
-            className="w-4 h-4 text-white"
+            className="w-3 h-3 text-white"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -262,29 +262,29 @@ export default function ColorProfile() {
           </svg>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-white font-one">
-            Couleurs de l&apos;interface
+          <h3 className="text-sm font-semibold text-white font-one">
+            Couleurs
           </h3>
-          <p className="text-white/60 text-sm">
-            Personnalisez les couleurs principales de votre interface
+          <p className="text-white/60 text-xs">
+            Personnalisez les couleurs de l&apos;interface
           </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-3">
         {/* Couleur principale */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium text-white/80 font-one">
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-white/80 font-one">
             Couleur principale
           </label>
 
           {/* Palette de couleurs présélectionnées */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <p className="text-white/70 text-xs">Palette recommandée :</p>
-              <div className="flex items-center gap-1">
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5">
+              <p className="text-white/70 text-xs">Palette :</p>
+              <div className="flex items-center gap-0.5">
                 <svg
-                  className="w-3 h-3 text-green-400"
+                  className="w-2.5 h-2.5 text-green-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -296,18 +296,16 @@ export default function ColorProfile() {
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <span className="text-green-400 text-xs">
-                  Visibilité optimale
-                </span>
+                <span className="text-green-400 text-xs">Optimale</span>
               </div>
             </div>
-            <div className="grid grid-cols-6 gap-2">
+            <div className="grid grid-cols-6 gap-1.5">
               {colorPalette.map((item, index) => (
                 <button
                   key={index}
                   type="button"
                   onClick={() => setColorProfile(item.color)}
-                  className={`w-full h-10 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
+                  className={`w-full h-8 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
                     colorProfile === item.color
                       ? "border-white shadow-lg ring-2 ring-white/30"
                       : "border-white/20 hover:border-white/40"
@@ -319,7 +317,7 @@ export default function ColorProfile() {
                   {colorProfile === item.color && (
                     <div className="w-full h-full flex items-center justify-center">
                       <svg
-                        className="w-4 h-4 text-white drop-shadow-lg"
+                        className="w-3 h-3 text-white drop-shadow-lg"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -336,10 +334,6 @@ export default function ColorProfile() {
                 </button>
               ))}
             </div>
-            <p className="text-white/60 text-xs">
-              💡 Les couleurs de la palette garantissent une excellente
-              visibilité et un bon contraste.
-            </p>
           </div>
 
           {/* Sélecteur manuel */}
@@ -419,61 +413,62 @@ export default function ColorProfile() {
         </div>
 
         {/* Aperçu */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium text-white/80 font-one">
-            Aperçu des couleurs
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-white/80 font-one">
+            Aperçu
           </label>
-          <div className="flex gap-4">
-            <div className="flex-1 p-4 rounded-lg border border-white/20">
+          <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-2 p-3 rounded-lg border border-white/20 flex-1">
               {colorProfile === "default" ? (
                 <>
                   <div
-                    className="w-full h-8 rounded-md mb-2 flex items-center justify-center text-white text-sm font-medium"
+                    className="p-1.5 h-6 rounded-md flex items-center justify-center text-white text-xs font-medium"
                     style={{ backgroundColor: DEFAULT_TERTIARY_400 }}
                   >
-                    Couleurs système
+                    Système
                   </div>
                   <div
-                    className="w-full h-8 rounded-md flex items-center justify-center text-white text-sm font-medium"
+                    className="p-1.5 h-6 rounded-md flex items-center justify-center text-white text-xs font-medium"
                     style={{ backgroundColor: DEFAULT_TERTIARY_500 }}
                   >
-                    Couleurs système
+                    Système
                   </div>
                 </>
               ) : isLightColor(colorProfile) ? (
                 <>
                   <div
-                    className="w-full h-8 rounded-md mb-2 flex items-center justify-center text-white text-sm font-medium"
+                    className="p-1.5 h-6 rounded-md flex items-center justify-center text-white text-xs font-medium"
                     style={{ backgroundColor: colorProfile }}
                   >
-                    Couleur principale (tertiary-400)
+                    Principal
                   </div>
                   <div
-                    className="w-full h-8 rounded-md flex items-center justify-center text-white text-sm font-medium"
+                    className="p-1.5 h-6 rounded-md flex items-center justify-center text-white text-xs font-medium"
                     style={{ backgroundColor: colorProfileBis }}
                   >
-                    Couleur générée (tertiary-500)
+                    Généré
                   </div>
                 </>
               ) : (
                 <>
                   <div
-                    className="w-full h-8 rounded-md mb-2 flex items-center justify-center text-white text-sm font-medium"
+                    className="p-1.5 h-6 rounded-md flex items-center justify-center text-white text-xs font-medium"
                     style={{ backgroundColor: colorProfileBis }}
                   >
-                    Couleur générée (tertiary-400)
+                    Généré
                   </div>
                   <div
-                    className="w-full h-8 rounded-md flex items-center justify-center text-white text-sm font-medium"
+                    className="p-1.5 h-6 rounded-md flex items-center justify-center text-white text-xs font-medium"
                     style={{ backgroundColor: colorProfile }}
                   >
-                    Couleur principale (tertiary-500)
+                    Principal
                   </div>
                 </>
               )}
             </div>
           </div>
-          {/* <p className="text-white/50 text-xs">
+        </div>
+        {/* <p className="text-white/50 text-xs">
             {isUsingSystemColors ? (
               <>
                 <span className="text-green-400 font-medium">
@@ -488,30 +483,29 @@ export default function ColorProfile() {
               "Couleur foncée détectée : elle devient tertiary-500, la version claire devient tertiary-400"
             )}
           </p> */}
-        </div>
 
         {/* Boutons d'action */}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-2 pt-2">
           <button
             type="button"
             onClick={resetToDefault}
             disabled={loading}
-            className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Couleurs système
+            Système
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+            className="cursor-pointer flex justify-center items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
           >
             {loading ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
                 Mise à jour...
               </>
             ) : (
-              "Sauvegarder les couleurs"
+              "Sauvegarder"
             )}
           </button>
         </div>

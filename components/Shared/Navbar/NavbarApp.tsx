@@ -72,6 +72,7 @@ export default function NavbarApp() {
     { href: "/messagerie", label: "Messagerie" },
     { href: "/stocks", label: "Stocks" },
     { href: "/mon-portfolio", label: "Portfolio" },
+    { href: "/mes-flashs", label: "Flashs" },
     { href: "/mes-produits", label: "Produits" },
     { href: "/review", label: "Avis" },
     { href: "/factures", label: "Factures" },

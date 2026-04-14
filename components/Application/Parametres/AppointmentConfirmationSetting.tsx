@@ -27,7 +27,7 @@ export default function AppointmentConfirmationSetting({
 
       if (response.ok) {
         setConfirmationEnabled(
-          response.data.user.addConfirmationEnabled || false
+          response.data.user.addConfirmationEnabled || false,
         );
       }
       // if (responseParam.ok) {
@@ -38,7 +38,7 @@ export default function AppointmentConfirmationSetting({
     } catch (error) {
       console.error(
         "Erreur lors de la récupération du paramètre de confirmation :",
-        error
+        error,
       );
     }
   }, [userId]);
@@ -78,7 +78,7 @@ export default function AppointmentConfirmationSetting({
       toast.success(
         value
           ? "Confirmation manuelle activée - Les nouveaux RDV devront être confirmés"
-          : "Confirmation automatique activée - Les nouveaux RDV seront directement confirmés"
+          : "Confirmation automatique activée - Les nouveaux RDV seront directement confirmés",
       );
     } catch (error) {
       console.error("Erreur lors de la mise à jour du paramètre :", error);
@@ -87,7 +87,7 @@ export default function AppointmentConfirmationSetting({
   };
 
   return (
-    <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
+    <div className="w-full bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
       {loading ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-tertiary-400"></div>
@@ -107,8 +107,8 @@ export default function AppointmentConfirmationSetting({
               </h3>
               <p className="text-white/60 text-xs sm:text-sm font-one">
                 <span className="hidden sm:inline">
-                  Si activé, vous devrez confirmer manuellement chaque rendez-vous
-                  pris par un client
+                  Si activé, vous devrez confirmer manuellement chaque
+                  rendez-vous pris par un client
                 </span>
                 <span className="sm:hidden">Confirmation manuelle des RDV</span>
               </p>
@@ -117,7 +117,9 @@ export default function AppointmentConfirmationSetting({
               <input
                 type="checkbox"
                 checked={confirmationEnabled}
-                onChange={(e) => handleConfirmationSettingChange(e.target.checked)}
+                onChange={(e) =>
+                  handleConfirmationSettingChange(e.target.checked)
+                }
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>

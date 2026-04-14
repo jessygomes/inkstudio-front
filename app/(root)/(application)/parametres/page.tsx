@@ -11,16 +11,18 @@ import // CiBellOn,
 import AccountInfoSection from "@/components/Application/Parametres/AccountInfoSection";
 import AppointmentModeSetting from "@/components/Application/Parametres/AppointmentModeSetting";
 import AppointmentConfirmationSetting from "@/components/Application/Parametres/AppointmentConfirmationSetting";
+import BillingHistorySection from "@/components/Application/Parametres/BillingHistorySection";
 import SubscriptionSection from "@/components/Application/Parametres/SubscriptionSection";
 import SecuritySection from "@/components/Application/Parametres/SecuritySection";
 import VerificationDocumentsSection from "@/components/Application/Parametres/VerificationDocumentsSection";
-import { MdOutlinePalette } from "react-icons/md";
+// import { MdOutlinePalette } from "react-icons/md";
 import { CiSettings } from "react-icons/ci";
 import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
 import NotifChatPreference from "@/components/Application/Parametres/NotifChatPreference";
 
 export default function ParamPage() {
   const { data: session } = useSession();
+  const [billingRefreshKey, setBillingRefreshKey] = useState(0);
 
   // États pour les sections dépliantes
   const [openSections, setOpenSections] = useState({
@@ -76,18 +78,33 @@ export default function ParamPage() {
 
           <VerificationDocumentsSection />
 
-          <AppointmentModeSetting userId={session?.user?.id || null} />
+          <div className="w-full flex flex-col sm:flex-row gap-2">
+            <AppointmentModeSetting
+              userId={session?.user?.id || null}
+              saasPlan={session?.user?.saasPlan || null}
+            />
 
-          <AppointmentConfirmationSetting userId={session?.user?.id || null} />
-
-          <ColorProfile />
+            <AppointmentConfirmationSetting
+              userId={session?.user?.id || null}
+            />
+          </div>
 
           <NotifChatPreference />
+
+          <ColorProfile />
 
           <SubscriptionSection
             openSections={openSections}
             toggleSection={toggleSection}
             userId={session?.user?.id || null}
+            onBillingRefresh={() =>
+              setBillingRefreshKey((currentKey) => currentKey + 1)
+            }
+          />
+
+          <BillingHistorySection
+            userId={session?.user?.id || null}
+            refreshKey={billingRefreshKey}
           />
 
           <SecuritySection
@@ -96,7 +113,7 @@ export default function ParamPage() {
           />
 
           {/* Section Préférences responsive */}
-          <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
+          {/* <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
             <button
               onClick={() => toggleSection("preferences")}
               className="w-full flex items-center justify-between mb-3 sm:mb-4"
@@ -122,10 +139,10 @@ export default function ParamPage() {
                   </h3>
                   <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors">
                     <option value="Europe/Paris">Europe/Paris (UTC+1)</option>
-                    {/* <option value="Europe/London">Europe/London (UTC+0)</option>
+                    <option value="Europe/London">Europe/London (UTC+0)</option>
                     <option value="America/New_York">
                       America/New_York (UTC-5)
-                    </option> */}
+                    </option>
                   </select>
                 </div>
 
@@ -135,13 +152,13 @@ export default function ParamPage() {
                   </h3>
                   <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors">
                     <option value="fr">Français</option>
-                    {/* <option value="en">English</option>
-                    <option value="es">Español</option> */}
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
                   </select>
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

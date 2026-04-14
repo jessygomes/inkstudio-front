@@ -23,7 +23,7 @@ interface SecuritySectionProps {
       | "account"
       | "notifications"
       | "security"
-      | "preferences"
+      | "preferences",
   ) => void;
 }
 
@@ -45,7 +45,7 @@ export default function SecuritySection({
 
   // Fonction pour changer le mot de passe
   const handlePasswordChange = async (
-    data: z.infer<typeof changePasswordSchema>
+    data: z.infer<typeof changePasswordSchema>,
   ) => {
     setIsChangingPassword(true);
 
@@ -58,7 +58,7 @@ export default function SecuritySection({
 
       if (!response.ok) {
         throw new Error(
-          response.message || "Erreur lors du changement de mot de passe"
+          response.message || "Erreur lors du changement de mot de passe",
         );
       }
 
@@ -70,7 +70,7 @@ export default function SecuritySection({
       toast.error(
         error instanceof Error
           ? error.message
-          : "Erreur lors du changement de mot de passe"
+          : "Erreur lors du changement de mot de passe",
       );
     } finally {
       setIsChangingPassword(false);
@@ -109,7 +109,8 @@ export default function SecuritySection({
               </button>
             </div>
 
-            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            {/* SESSIONS ACTIVE */}
+            {/* <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-white font-one mb-2 text-sm sm:text-base">
                   <span className="hidden sm:inline">Sessions actives</span>
@@ -128,7 +129,7 @@ export default function SecuritySection({
                 </span>
                 <span className="sm:hidden">Déconnecter</span>
               </button>
-            </div>
+            </div> */}
           </div>
         )}
       </div>

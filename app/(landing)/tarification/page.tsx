@@ -115,7 +115,7 @@ export default function TarificationPage() {
         "@type": "Offer",
         name: "Plan Business",
         description: "Solution complète pour studios",
-        price: "69,99",
+        price: "59,99",
         priceCurrency: "EUR",
         billingIncrement: "P1M",
         eligibleRegion: "FR",
@@ -160,7 +160,7 @@ export default function TarificationPage() {
           ? "price_1TC2itJMlGOwiqiVEtpAD8js"
           : "",
       name: "Offre Pro",
-      price: 69.99,
+      price: 59.99,
       duration: "/month",
     },
   ] satisfies Array<{

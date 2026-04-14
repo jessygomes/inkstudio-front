@@ -41,7 +41,7 @@ export const availablePlans = [
   {
     id: "BUSINESS",
     name: "Business",
-    price: 69.99,
+    price: 59.99,
     color: "text-purple-400",
     bgColor: "bg-purple-500/20",
     borderColor: "border-purple-500/30",

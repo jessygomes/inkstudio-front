@@ -48,16 +48,17 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
   //! Date sélectionnée pour le rendez-vous
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().slice(0, 10)
+    new Date().toISOString().slice(0, 10),
   );
   const [timeSlots, setTimeSlots] = useState<{ start: string; end: string }[]>(
-    []
+    [],
   );
 
   //! stocke les créneaux horaires disponibles
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]); // stocke les start ISO
   const [occupiedSlots, setOccupiedSlots] = useState<TimeSlotProps[]>([]);
   const [blockedSlots, setBlockedSlots] = useState<any[]>([]);
+  const SLOT_STEP_MS = 30 * 60 * 1000;
   // const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   //! Selection de la prestation change les inputs à afficher
@@ -70,7 +71,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   useEffect(() => {
     const fetchTatoueurs = async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/for-appointment/${userId}`
+        `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/for-appointment/${userId}`,
       );
       const data = await response.json();
       setTatoueurs(data);
@@ -85,7 +86,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       try {
         // setIsLoadingSlots(true);
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${selectedTatoueur}`
+          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${selectedTatoueur}&includeUnavailable=true`,
         );
         const data = await res.json();
         setTimeSlots(data);
@@ -105,7 +106,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       const res = await fetch(
         `${
           process.env.NEXT_PUBLIC_BACK_URL
-        }/appointments/tatoueur-range?tatoueurId=${selectedTatoueur}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
+        }/appointments/tatoueur-range?tatoueurId=${selectedTatoueur}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`,
       );
       const data = await res.json();
       setOccupiedSlots(data);
@@ -114,7 +115,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     const fetchBlockedSlots = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${selectedTatoueur}`
+          `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${selectedTatoueur}`,
         );
         const data = await res.json();
         if (!data.error) {
@@ -160,11 +161,39 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     return isBlocked;
   };
 
+  const isSlotOccupied = (slotStart: string, slotEnd?: string) => {
+    const slotStartDate = new Date(slotStart);
+    const slotEndDate = slotEnd
+      ? new Date(slotEnd)
+      : new Date(slotStartDate.getTime() + SLOT_STEP_MS);
+
+    const slotStartUTC = slotStartDate.getTime();
+    const slotEndUTC = slotEndDate.getTime();
+
+    return occupiedSlots.some((slot) => {
+      const occupiedStartUTC = new Date(slot.start).getTime();
+      const occupiedEndUTC = new Date(slot.end).getTime();
+
+      return slotStartUTC < occupiedEndUTC && slotEndUTC > occupiedStartUTC;
+    });
+  };
+
+  const slotsByTimestamp = useMemo(() => {
+    const map = new Map<number, { start: string; end: string }>();
+
+    timeSlots.forEach((slot) => {
+      map.set(new Date(slot.start).getTime(), slot);
+    });
+
+    return map;
+  }, [timeSlots]);
+
   // ! Fonction pour gérer le clic sur un créneau horaire
-  // Fait en sorte que les créneaux soient consécutifs
-  // et que l'on puisse en sélectionner plusieurs
-  // ou en désélectionner un (toggle OFF)
+  // Clic sur un slot déjà sélectionné: retire ce slot et tous les suivants.
+  // Clic sur un slot libre: sélectionne toute la plage entre la borne existante et ce slot.
   const handleSlotClick = (slotStart: string) => {
+    const clickedTs = new Date(slotStart).getTime();
+
     // Vérifier si le créneau est bloqué avant de permettre la sélection
     const isBlockedResult = isSlotBlocked(slotStart);
 
@@ -174,18 +203,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     }
 
     // Vérifier si le créneau est occupé
-    const isOccupied = (start: string) => {
-      return occupiedSlots.some((slot) => {
-        const slotStart = new Date(start);
-        const slotEnd = new Date(slotStart.getTime() + 30 * 60 * 1000);
-        const occupiedStart = new Date(slot.start);
-        const occupiedEnd = new Date(slot.end);
-
-        return slotStart < occupiedEnd && slotEnd > occupiedStart;
-      });
-    };
-
-    const isOccupiedResult = isOccupied(slotStart);
+    const isOccupiedResult = isSlotOccupied(slotStart);
 
     if (isOccupiedResult) {
       toast.error("Ce créneau est déjà occupé");
@@ -193,42 +211,54 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     }
 
     if (selectedSlots.includes(slotStart)) {
-      // Si déjà sélectionné, on l'enlève (toggle OFF)
-      const newSelection = selectedSlots.filter((s) => s !== slotStart);
+      const newSelection = selectedSlots
+        .filter((s) => new Date(s).getTime() < clickedTs)
+        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
-      // Vérifie que les slots restants sont toujours consécutifs
-      const timestamps = newSelection.map((s) => new Date(s).getTime()).sort();
-      const areConsecutive = timestamps.every((time, i) => {
-        if (i === 0) return true;
-        return time - timestamps[i - 1] === 30 * 60 * 1000;
-      });
-
-      // Si après suppression c'est bon → on update
-      if (areConsecutive || newSelection.length <= 1) {
-        setSelectedSlots(newSelection);
-      } else {
-        alert("Les créneaux restants ne sont plus consécutifs.");
-      }
+      setSelectedSlots(newSelection);
 
       return;
     }
 
-    // Sinon on l'ajoute et on vérifie que tous les slots sont consécutifs
-    const newSelection = [...selectedSlots, slotStart]
-      .filter((s, i, arr) => arr.indexOf(s) === i) // évite les doublons
-      .sort();
-
-    const timestamps = newSelection.map((s) => new Date(s).getTime());
-    const areConsecutive = timestamps.every((time, i) => {
-      if (i === 0) return true;
-      return time - timestamps[i - 1] === 30 * 60 * 1000;
-    });
-
-    if (areConsecutive) {
-      setSelectedSlots(newSelection);
-    } else {
-      alert("Les créneaux doivent être consécutifs.");
+    if (selectedSlots.length === 0) {
+      setSelectedSlots([slotStart]);
+      return;
     }
+
+    const selectedTs = selectedSlots
+      .map((s) => new Date(s).getTime())
+      .sort((a, b) => a - b);
+
+    const minSelectedTs = selectedTs[0];
+    const maxSelectedTs = selectedTs[selectedTs.length - 1];
+
+    const rangeStartTs = Math.min(clickedTs, minSelectedTs);
+    const rangeEndTs = Math.max(clickedTs, maxSelectedTs);
+
+    const rangeSelection: string[] = [];
+
+    for (let ts = rangeStartTs; ts <= rangeEndTs; ts += SLOT_STEP_MS) {
+      const slot = slotsByTimestamp.get(ts);
+
+      if (!slot) {
+        toast.error("Impossible de sélectionner une plage discontinue.");
+        return;
+      }
+
+      if (isSlotBlocked(slot.start, slot.end)) {
+        toast.error("Un créneau bloqué est présent dans la plage.");
+        return;
+      }
+
+      if (isSlotOccupied(slot.start, slot.end)) {
+        toast.error("Un créneau occupé est présent dans la plage.");
+        return;
+      }
+
+      rangeSelection.push(slot.start);
+    }
+
+    setSelectedSlots(rangeSelection);
   };
 
   //! Fonction pour rechercher un client par email
@@ -249,7 +279,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         const res = await fetch(
           `${
             process.env.NEXT_PUBLIC_BACK_URL
-          }/clients/search?query=${encodeURIComponent(query)}&userId=${userId}`
+          }/clients/search?query=${encodeURIComponent(query)}&userId=${userId}`,
         );
         if (!res.ok) {
           setClientResults([]);
@@ -274,7 +304,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         setUserClientResults([]);
       }
     },
-    [userId]
+    [userId],
   );
 
   useEffect(() => {
@@ -321,7 +351,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             // Gestion des erreurs
             console.error(
               "Erreur lors du fetch des zones de piercing:",
-              result.message || "Erreur inconnue"
+              result.message || "Erreur inconnue",
             );
             setPiercingZones([]);
 
@@ -331,7 +361,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         } catch (err) {
           console.error(
             "Erreur catch lors du fetch des zones de piercing:",
-            err
+            err,
           );
           setPiercingZones([]);
 
@@ -358,7 +388,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
   const selectedServicePrice = useMemo(() => {
     const service = selectedZoneServices.find(
-      (s) => s.id === selectedPiercingService
+      (s) => s.id === selectedPiercingService,
     );
     return service?.price || 0;
   }, [selectedZoneServices, selectedPiercingService]);
@@ -448,10 +478,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     // Ajouter les champs spécifiques aux piercings si c'est une prestation PIERCING
     if (data.prestation === "PIERCING" && selectedPiercingService) {
       const selectedService = selectedZoneServices.find(
-        (s) => s.id === selectedPiercingService
+        (s) => s.id === selectedPiercingService,
       );
       const selectedZone = piercingZones.find(
-        (z) => z.id === selectedPiercingZone
+        (z) => z.id === selectedPiercingZone,
       );
 
       if (selectedService && selectedZone) {
@@ -590,7 +620,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               "clientBirthdate",
                               new Date(client.birthDate)
                                 .toISOString()
-                                .slice(0, 10)
+                                .slice(0, 10),
                             );
                           }
                           setSearchClientQuery("");
@@ -627,7 +657,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     {userClientResults.map((userClient) => {
                       // Vérifier si cet email existe déjà dans les clients du salon
                       const existsInSalon = clientResults.some(
-                        (salonClient) => salonClient.email === userClient.email
+                        (salonClient) => salonClient.email === userClient.email,
                       );
 
                       return (
@@ -637,23 +667,23 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                           onClick={() => {
                             form.setValue(
                               "clientLastname",
-                              userClient.lastName
+                              userClient.lastName,
                             );
                             form.setValue(
                               "clientFirstname",
-                              userClient.firstName
+                              userClient.firstName,
                             );
                             form.setValue("clientEmail", userClient.email);
                             form.setValue(
                               "clientPhone",
-                              userClient.phone || ""
+                              userClient.phone || "",
                             );
                             if (userClient.birthDate) {
                               form.setValue(
                                 "clientBirthdate",
                                 new Date(userClient.birthDate)
                                   .toISOString()
-                                  .slice(0, 10)
+                                  .slice(0, 10),
                               );
                             }
                             setSearchClientQuery("");
@@ -906,9 +936,20 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     <>
                       {timeSlots.length > 0 ? (
                         <div className="space-y-2">
-                          <label className="text-xs text-white/70 font-one">
-                            Sélectionnez les créneaux (30 min chacun)
-                          </label>
+                          <div className="flex items-center justify-between gap-3">
+                            <label className="text-xs text-white/70 font-one">
+                              Sélectionnez les créneaux (30 min chacun)
+                            </label>
+                            {selectedSlots.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedSlots([])}
+                                className="px-2 py-1 rounded border border-white/20 text-white/80 text-xs font-one hover:bg-white/10 transition-colors"
+                              >
+                                Désélectionner tout
+                              </button>
+                            )}
+                          </div>
                           <p className="text-xs text-white/50 mb-3">
                             Cliquez sur les créneaux pour les sélectionner. Ils
                             doivent être consécutifs.
@@ -919,13 +960,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                 return occupiedSlots.some((occupiedSlot) => {
                                   const slotStart = new Date(start);
                                   const slotEnd = new Date(
-                                    slotStart.getTime() + 30 * 60 * 1000
+                                    slotStart.getTime() + 30 * 60 * 1000,
                                   );
                                   const occupiedStart = new Date(
-                                    occupiedSlot.start
+                                    occupiedSlot.start,
                                   );
                                   const occupiedEnd = new Date(
-                                    occupiedSlot.end
+                                    occupiedSlot.end,
                                   );
 
                                   return (
@@ -936,22 +977,22 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               };
 
                               const isSelected = selectedSlots.includes(
-                                slot.start
+                                slot.start,
                               );
                               const startTime = format(
                                 new Date(slot.start),
                                 "HH:mm",
-                                { locale: fr }
+                                { locale: fr },
                               );
                               const endTime = format(
                                 new Date(slot.end),
                                 "HH:mm",
-                                { locale: fr }
+                                { locale: fr },
                               );
                               const isTaken = isOccupied(slot.start);
                               const isBlocked = isSlotBlocked(
                                 slot.start,
-                                slot.end
+                                slot.end,
                               );
 
                               // Déterminer la couleur et l'état du bouton
@@ -1057,15 +1098,15 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               </svg>
                             </div>
                             <div className="flex-1">
-                              <h4 className="text-orange-300 font-semibold font-one text-sm mb-2">
+                              {/* <h4 className="text-orange-300 font-semibold font-one text-sm mb-2">
                                 🚫 Salon fermé ce jour
-                              </h4>
+                              </h4> */}
                               <p className="text-orange-300/80 text-xs sm:text-sm font-one mb-3">
                                 Le tatoueur{" "}
                                 <strong>
                                   {
                                     tatoueurs.find(
-                                      (t) => t.id === selectedTatoueur
+                                      (t) => t.id === selectedTatoueur,
                                     )?.name
                                   }
                                 </strong>{" "}
@@ -1078,7 +1119,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                       day: "numeric",
                                       month: "long",
                                       year: "numeric",
-                                    }
+                                    },
                                   )}
                                 </strong>
                                 .
@@ -1139,11 +1180,11 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                 new Date(
                                   Math.min(
                                     ...selectedSlots.map((s) =>
-                                      new Date(s).getTime()
-                                    )
-                                  )
+                                      new Date(s).getTime(),
+                                    ),
+                                  ),
                                 ),
-                                "HH:mm"
+                                "HH:mm",
                               )}
                             </strong>{" "}
                             à{" "}
@@ -1153,13 +1194,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                   new Date(
                                     Math.max(
                                       ...selectedSlots.map((s) =>
-                                        new Date(s).getTime()
-                                      )
-                                    )
+                                        new Date(s).getTime(),
+                                      ),
+                                    ),
                                   ),
-                                  30
+                                  30,
                                 ),
-                                "HH:mm"
+                                "HH:mm",
                               )}
                             </strong>
                           </p>
@@ -1372,9 +1413,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                             "zone",
                             e.target.value
                               ? piercingZones.find(
-                                  (z) => z.id === e.target.value
+                                  (z) => z.id === e.target.value,
                                 )?.piercingZone || ""
-                              : ""
+                              : "",
                           );
                         }}
                       >
@@ -1429,7 +1470,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                   form.setValue("price", service.price);
                                   form.setValue(
                                     "estimatedPrice",
-                                    service.price
+                                    service.price,
                                   );
                                 }}
                                 className="w-3 h-3 text-tertiary-500 focus:ring-tertiary-400 bg-transparent border-white/30"

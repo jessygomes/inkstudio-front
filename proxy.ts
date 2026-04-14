@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
 /**
- * Middleware NextAuth pour protéger les routes
+ * Proxy NextAuth pour protéger les routes
  * Utilise la fonction auth() de NextAuth pour vérifier l'authentification
  */
 export default auth((req) => {
@@ -29,9 +29,7 @@ export default auth((req) => {
   const isProtectedPath = protectedPaths.some((path) =>
     nextUrl.pathname.startsWith(path)
   );
-  const isAuthPath = authPaths.some((path) =>
-    nextUrl.pathname.startsWith(path)
-  );
+  const isAuthPath = authPaths.some((path) => nextUrl.pathname.startsWith(path));
 
   // Si on essaie d'accéder à une page protégée sans être connecté
   if (isProtectedPath && !isLoggedIn) {

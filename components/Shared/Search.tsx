@@ -13,7 +13,17 @@ export const Search = () => {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    setQuery(searchParams.get("query") || "");
+  }, [searchParams]);
+
+  useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
+      const currentQuery = searchParams.get("query") || "";
+
+      if (query === currentQuery) {
+        return;
+      }
+
       let newUrl = "";
       if (query) {
         newUrl = formUrlQuery({
@@ -28,7 +38,7 @@ export const Search = () => {
         });
       }
 
-      router.push(newUrl, { scroll: false });
+      router.replace(newUrl, { scroll: false });
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);

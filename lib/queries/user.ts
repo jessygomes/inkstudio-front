@@ -17,7 +17,7 @@ export const getUserInfoAction = async (salonId: string) => {
       {
         method: "GET",
         headers,
-      }
+      },
     );
 
     const data = await response.json();
@@ -80,7 +80,7 @@ export const changePasswordAction = async (payload: any) => {
         method: "POST",
         headers,
         body: JSON.stringify(payload),
-      }
+      },
     );
 
     const data = await response.json();
@@ -109,7 +109,7 @@ export const fetchSalonPhotosAction = async (salonId: string) => {
       `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}/photos`,
       {
         method: "GET",
-      }
+      },
     );
 
     const data = await response.json();
@@ -124,7 +124,7 @@ export const fetchSalonPhotosAction = async (salonId: string) => {
   } catch (error) {
     console.error(
       "Erreur lors de la récupération des photos du salon :",
-      error
+      error,
     );
     throw error;
   }
@@ -144,7 +144,7 @@ export const fetchAppointmentConfirmationAction = async () => {
       {
         method: "GET",
         headers,
-      }
+      },
     );
 
     const data = await response.json();
@@ -159,7 +159,7 @@ export const fetchAppointmentConfirmationAction = async () => {
   } catch (error) {
     console.error(
       "Erreur lors de la récupération du paramètre de confirmation :",
-      error
+      error,
     );
     throw error;
   }
@@ -180,7 +180,7 @@ export const updateAppointmentConfirmationAction = async (value: boolean) => {
         method: "PATCH",
         headers,
         body: JSON.stringify({ addConfirmationEnabled: value }),
-      }
+      },
     );
 
     const data = await response.json();
@@ -195,7 +195,7 @@ export const updateAppointmentConfirmationAction = async (value: boolean) => {
   } catch (error) {
     console.error(
       "Erreur lors de la mise à jour du paramètre de confirmation :",
-      error
+      error,
     );
     throw error;
   }
@@ -215,7 +215,7 @@ export const fetchAppointmentParamAction = async () => {
       {
         method: "GET",
         headers,
-      }
+      },
     );
 
     const data = await response.json();
@@ -230,7 +230,7 @@ export const fetchAppointmentParamAction = async () => {
   } catch (error) {
     console.error(
       "Erreur lors de la récupération du paramètre de confirmation :",
-      error
+      error,
     );
     throw error;
   }
@@ -246,19 +246,21 @@ export const updateAppointmentParamAction = async (value: boolean) => {
     const headers = await getAuthHeaders();
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACK_URL}/users/appointment-setting`,
+      process.env.NEXT_PUBLIC_BACK_URL + "/users/appointment-setting",
       {
         method: "PATCH",
         headers,
-        body: JSON.stringify({ appointmentBookingEnabled: value }),
-      }
+        body: JSON.stringify({
+          agendaMode: value ? "PAR_TATOUEUR" : "GLOBAL",
+        }),
+      },
     );
 
     const data = await response.json();
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || "Erreur lors de l'opération (" + response.status + ")";
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -266,7 +268,7 @@ export const updateAppointmentParamAction = async (value: boolean) => {
   } catch (error) {
     console.error(
       "Erreur lors de la mise à jour du paramètre de prise de rendez-vous :",
-      error
+      error,
     );
     throw error;
   }
@@ -286,7 +288,7 @@ export const getColorProfileAction = async () => {
       {
         method: "GET",
         headers,
-      }
+      },
     );
 
     const data = await response.json();
@@ -302,7 +304,7 @@ export const getColorProfileAction = async () => {
   } catch (error) {
     console.error(
       "Erreur lors de la récupération des couleurs du profil :",
-      error
+      error,
     );
     throw error;
   }
@@ -313,26 +315,30 @@ export const getColorProfileAction = async () => {
 //! RECUPERER LES FACTURES DU SALON
 
 //! ----------------------------------------------------------------------------
-export const getfacturesSalonAction = async (page: number, search: string, isPayed?: boolean) => {
+export const getfacturesSalonAction = async (
+  page: number,
+  search: string,
+  isPayed?: boolean,
+) => {
   const ITEMS_PER_PAGE = 10;
   try {
     const headers = await getAuthHeaders();
-    
+
     // Construire l'URL avec les paramètres
     const params = new URLSearchParams({
       page: page.toString(),
       limit: ITEMS_PER_PAGE.toString(),
-      search: search
+      search: search,
     });
-    
+
     // Ajouter le filtre isPayed seulement s'il est défini
     if (isPayed !== undefined) {
-      params.append('isPayed', isPayed.toString());
+      params.append("isPayed", isPayed.toString());
     }
-    
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACK_URL}/users/factures?${params.toString()}`,
-      { method: "GET", headers }
+      { method: "GET", headers },
     );
     const data = await response.json();
 
@@ -346,7 +352,7 @@ export const getfacturesSalonAction = async (page: number, search: string, isPay
   } catch (error) {
     console.error(
       "Erreur lors de la récupération des factures du salon :",
-      error
+      error,
     );
     throw error;
   }
@@ -358,7 +364,7 @@ export const getfacturesSalonAction = async (page: number, search: string, isPay
 
 //! ----------------------------------------------------------------------------
 export const updateColorProfileAction = async (
-  payload: UpdateColorProfileDto
+  payload: UpdateColorProfileDto,
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -369,7 +375,7 @@ export const updateColorProfileAction = async (
         method: "PATCH",
         headers,
         body: JSON.stringify(payload),
-      }
+      },
     );
 
     const data = await response.json();
@@ -385,7 +391,7 @@ export const updateColorProfileAction = async (
   } catch (error) {
     console.error(
       "Erreur lors de la mise à jour des couleurs du profil :",
-      error
+      error,
     );
     throw error;
   }

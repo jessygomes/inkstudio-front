@@ -212,20 +212,23 @@ export default function NotifChatPreference() {
           </div>
 
           {/* Bouton Sauvegarder */}
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="cursor-pointer w-full bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 sm:py-3 px-4 rounded-lg transition-all duration-200 text-sm sm:text-base font-one"
-          >
-            {saving ? (
-              <span className="flex items-center justify-center text-white">
-                <div className="animate-spin text-white rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Sauvegarde...
-              </span>
-            ) : (
-              <span className="font-normal">Sauvegarder les préférences</span>
-            )}
-          </button>
+          <div className="flex flex-col sm:flex-row justify-end gap-3">
+            <div></div>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+            >
+              {saving ? (
+                <span className="flex items-center justify-center text-white">
+                  <div className="animate-spin text-white rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Sauvegarde...
+                </span>
+              ) : (
+                <span className="font-normal">Sauvegarder les préférences</span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

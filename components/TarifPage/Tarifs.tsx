@@ -108,7 +108,7 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
       id: "PRO",
       name: "Pro",
       subtitle: "Pour les grandes structures",
-      price: "69,99",
+      price: "59,99",
       period: "mois",
       description:
         "Solution complète pour les salons avec plusieurs artistes et une gestion avancée.",

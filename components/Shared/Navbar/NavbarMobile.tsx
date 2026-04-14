@@ -76,6 +76,11 @@ export default function NavbarMobile() {
       icon: <MdPhotoLibrary size={20} />,
     },
     {
+      href: "/mes-flashs",
+      label: "Flashs",
+      icon: <MdPhotoLibrary size={20} />,
+    },
+    {
       href: "/mes-produits",
       label: "Produits",
       icon: <MdShoppingBag size={20} />,

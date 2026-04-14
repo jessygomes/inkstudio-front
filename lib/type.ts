@@ -224,6 +224,19 @@ export interface PortfolioProps {
   tatoueurId: string; // ID du tatoueur associé
 }
 
+//! FLASHS
+export interface FlashProps {
+  id: string;
+  userId: string;
+  title: string;
+  description: string | null;
+  imageUrl: string;
+  price: number;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 //! PRODUCTS
 export interface ProductSalonProps {
   id: string;

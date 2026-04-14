@@ -25,12 +25,14 @@ interface SubscriptionSectionProps {
       | "preferences",
   ) => void;
   userId: string | null;
+  onBillingRefresh?: () => void;
 }
 
 export default function SubscriptionSection({
   openSections,
   toggleSection,
   userId,
+  onBillingRefresh,
 }: SubscriptionSectionProps) {
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -67,11 +69,13 @@ export default function SubscriptionSection({
     }
   }, [userId]);
 
+  console.log("Subscription data:", subscription);
+
   useEffect(() => {
     const fetchAccountData = async () => {
       try {
         setLoading(true);
-        await Promise.all([fetchUserPlan()]);
+        await fetchUserPlan();
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
       } finally {
@@ -109,6 +113,7 @@ export default function SubscriptionSection({
       // Cas 2 : changement direct (upgrade/downgrade via Stripe Billing Portal
       // ou passage au plan FREE)
       await fetchUserPlan();
+      onBillingRefresh?.();
 
       if (result.updated && result.alreadyOnTargetPlan) {
         toast.info(result.message);
@@ -208,7 +213,7 @@ export default function SubscriptionSection({
                 </div>
 
                 {/* Fonctionnalités responsive */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
+                {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                   {getPlanDetails(
                     subscription.currentPlan,
                     subscription,
@@ -220,10 +225,10 @@ export default function SubscriptionSection({
                       </span>
                     </div>
                   ))}
-                </div>
+                </div> */}
 
                 {/* Limites du plan responsive */}
-                <div className="bg-white/10 rounded-lg p-3 sm:p-4 mb-4">
+                {/* <div className="bg-white/10 rounded-lg p-3 sm:p-4 mb-4">
                   <h4 className="text-white font-one mb-3 text-sm">
                     📊{" "}
                     <span className="hidden sm:inline">
@@ -276,7 +281,7 @@ export default function SubscriptionSection({
                       </p>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Dates responsive */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
@@ -292,7 +297,7 @@ export default function SubscriptionSection({
                     </p>
                   </div>
                   <div>
-                    <p className="text-white/60 font-one">
+                    {/* <p className="text-white/60 font-one">
                       <span className="hidden sm:inline">
                         {subscription.nextPaymentDate
                           ? "Prochaine facturation"
@@ -301,8 +306,8 @@ export default function SubscriptionSection({
                       <span className="sm:hidden">
                         {subscription.nextPaymentDate ? "Facture" : "Fin"}
                       </span>
-                    </p>
-                    <p className="text-white font-one">
+                    </p> */}
+                    {/* <p className="text-white font-one">
                       {subscription.nextPaymentDate
                         ? new Date(
                             subscription.nextPaymentDate,
@@ -312,7 +317,7 @@ export default function SubscriptionSection({
                               "fr-FR",
                             )
                           : "Aucune"}
-                    </p>
+                    </p> */}
                   </div>
                 </div>
 

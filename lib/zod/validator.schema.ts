@@ -241,6 +241,15 @@ export const portfolioSchema = z.object({
   imageUrl: z.string().url("L'URL de l'image doit être valide."),
 });
 
+//! FLASHS
+export const flashSchema = z.object({
+  title: z.string().min(1, "Le titre est requis."),
+  description: z.string().optional(),
+  imageUrl: z.string().url("L'URL de l'image doit être valide."),
+  price: z.number().min(0, "Le prix doit etre superieur ou egal a 0."),
+  isAvailable: z.boolean().default(true),
+});
+
 //! PRODUCT SALON
 export const productSalonSchema = z.object({
   name: z.string().min(2, "Le nom est requis"),
