@@ -35,6 +35,7 @@ export interface AppointmentProps {
     | "NO_SHOW"
     | "RESCHEDULING";
   prestation: "TATTOO" | "PIERCING" | "RETOUCHE" | "PROJET";
+  skin?: string;
   zone: string;
   size: number;
   estimatedPrice: number;
@@ -70,6 +71,7 @@ export type UpdateRdvFormProps = {
   end: string;
   status: "PENDING" | "CONFIRMED" | "DECLINED" | "CANCELED";
   prestation: "TATTOO" | "PIERCING" | "RETOUCHE" | "PROJET";
+  skin?: string;
   zone: string;
   size: number;
   estimatedPrice: number;
@@ -229,6 +231,7 @@ export interface FlashProps {
   id: string;
   userId: string;
   title: string;
+  dimension?: string | null;
   description: string | null;
   imageUrl: string;
   price: number;

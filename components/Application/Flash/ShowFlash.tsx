@@ -171,6 +171,12 @@ export default function ShowFlash() {
                   {flash.price} €
                 </p>
 
+                {flash.dimension && (
+                  <p className="text-white/80 text-xs font-one">
+                    Dimensions: {flash.dimension}
+                  </p>
+                )}
+
                 <p className="text-white/70 text-xs font-one line-clamp-2 leading-relaxed min-h-8">
                   {flash.description || "Aucune description"}
                 </p>

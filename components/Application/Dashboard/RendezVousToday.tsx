@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { useState, useEffect } from "react";
 import {
@@ -7,6 +6,7 @@ import {
 } from "@/lib/queries/appointment";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { formatTime } from "@/lib/utils/formatTime";
+import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import { calculateDuration } from "@/lib/utils/calculateDuration";
 import { getDateLabel } from "@/lib/utils/getDateLabel";
 import RdvDetailsPanelDesktop from "./RdvDetailsPanelDesktop";
@@ -51,6 +51,7 @@ interface RendezVous {
     | "COMPLETED"
     | "NO_SHOW";
   prestation: string;
+  skin?: string | null;
   client: Client;
   clientId: string;
   tatoueur?: Tatoueur | null;
@@ -341,6 +342,21 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                           <span>•</span>
                           <span className="truncate">
                             {appointment.tattooDetail.zone}
+                          </span>
+                        </>
+                      )}
+                      {appointment.skin && (
+                        <>
+                          <span>•</span>
+                          <span className="truncate inline-flex items-center gap-1.5">
+                            <span
+                              className="inline-block h-2.5 w-2.5 rounded-full border border-white/20 flex-shrink-0"
+                              style={{
+                                backgroundColor: getSkinTonePreviewHex(appointment.skin) ?? undefined,
+                              }}
+                              aria-hidden="true"
+                            />
+                            {formatSkinTone(appointment.skin)}
                           </span>
                         </>
                       )}

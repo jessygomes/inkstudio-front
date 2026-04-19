@@ -5,6 +5,7 @@ import UpdateRdv from "./UpdateRdv";
 import CancelRdv from "./CancelRdv";
 import ChangeRdv from "./ChangeRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
+import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import Link from "next/link";
 import SendMessageRdv from "./SendMessageRdv";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
@@ -409,6 +410,24 @@ export default function ShowRdvDetailsMobile({
                         <p className="text-white/60 text-xs font-one">Zone</p>
                         <p className="text-white font-one text-xs">
                           {selectedEvent.tattooDetail.zone}
+                        </p>
+                      </div>
+                    )}
+                    {selectedEvent.skin && (
+                      <div>
+                        <p className="text-white/60 text-xs font-one">
+                          Teinte de peau
+                        </p>
+                        <p className="text-white font-one text-xs inline-flex items-center gap-1.5">
+                          <span
+                            className="inline-block h-3 w-3 rounded-full border border-white/20 flex-shrink-0"
+                            style={{
+                              backgroundColor:
+                                getSkinTonePreviewHex(selectedEvent.skin) ?? undefined,
+                            }}
+                            aria-hidden="true"
+                          />
+                          {formatSkinTone(selectedEvent.skin)}
                         </p>
                       </div>
                     )}

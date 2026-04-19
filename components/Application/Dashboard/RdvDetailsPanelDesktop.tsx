@@ -8,6 +8,7 @@ import ChangeRdv from "../RDV/ChangeRdv";
 import ChangeStatusButtons from "../RDV/ChangeStatusButtons";
 import SendMessageRdv from "../RDV/SendMessageRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
+import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import Link from "next/link";
 import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
@@ -53,6 +54,7 @@ export interface RendezVous {
     | "COMPLETED"
     | "NO_SHOW";
   prestation: string;
+  skin?: string | null;
   client: Client;
   clientId: string;
   tatoueur?: Tatoueur | null;
@@ -495,6 +497,7 @@ export default function RdvDetailsPanelDesktop({
                 </div>
               </div>
             </div>
+
           </div>
         </div>
 
@@ -663,6 +666,23 @@ export default function RdvDetailsPanelDesktop({
                   </div>
                 )}
 
+                {selectedAppointment.skin && (
+                  <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                    <p className="text-white/60 text-xs font-one">Teinte de peau</p>
+                    <p className="text-white font-one text-xs inline-flex items-center gap-1.5">
+                      <span
+                        className="inline-block h-3 w-3 rounded-full border border-white/20 flex-shrink-0"
+                        style={{
+                          backgroundColor:
+                            getSkinTonePreviewHex(selectedAppointment.skin) ?? undefined,
+                        }}
+                        aria-hidden="true"
+                      />
+                      {formatSkinTone(selectedAppointment.skin)}
+                    </p>
+                  </div>
+                )}
+
                 {selectedAppointment.tattooDetail.size && (
                   <div className="bg-white/5 rounded-lg p-2 border border-white/5">
                     <p className="text-white/60 text-xs font-one">Taille</p>
@@ -706,6 +726,7 @@ export default function RdvDetailsPanelDesktop({
                         className="relative w-full h-32 bg-white/5 rounded-md border border-white/10 overflow-hidden group cursor-pointer"
                         onClick={(e) => {
                           e.preventDefault();
+
                           e.stopPropagation();
                           if (selectedAppointment.tattooDetail.reference) {
                             openImageInNewTab(

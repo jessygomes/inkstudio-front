@@ -7,6 +7,7 @@ import UpdateRdv from "../RDV/UpdateRdv";
 import ChangeRdv from "../RDV/ChangeRdv";
 import SendMessageRdv from "../RDV/SendMessageRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
+import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import { useEffect, useState } from "react";
 import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
@@ -433,6 +434,25 @@ export default function WaitingRdvDetailsPanelDesktop({
                   </p>
                   <p className="text-white font-one text-xs">
                     {piercingZoneName}
+                  </p>
+                </div>
+              )}
+
+              {selectedAppointment.skin && (
+                <div className="bg-white/5 rounded-md p-1.5 border border-white/5">
+                  <p className="text-white/60 text-xs font-one mb-0.5">
+                    Teinte de peau
+                  </p>
+                  <p className="text-white font-one text-xs inline-flex items-center gap-1.5">
+                    <span
+                      className="inline-block h-3 w-3 rounded-full border border-white/20 flex-shrink-0"
+                      style={{
+                        backgroundColor:
+                          getSkinTonePreviewHex(selectedAppointment.skin) ?? undefined,
+                      }}
+                      aria-hidden="true"
+                    />
+                    {formatSkinTone(selectedAppointment.skin)}
                   </p>
                 </div>
               )}

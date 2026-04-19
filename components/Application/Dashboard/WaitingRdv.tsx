@@ -50,6 +50,7 @@ export interface PendingAppointment {
   allDay: boolean;
   status: "PENDING" | "CONFIRMED" | "CANCELED" | "RESCHEDULING";
   prestation: string;
+  skin?: string | null;
   client: Client;
   clientId: string;
   tatoueur: Tatoueur;

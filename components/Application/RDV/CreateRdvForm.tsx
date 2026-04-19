@@ -14,6 +14,7 @@ import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
 import Link from "next/link";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
+import SkinToneSelect, { SkinToneOption } from "@/components/Application/RDV/SkinToneSelect";
 import { createAppointment } from "@/lib/queries/appointment";
 import { getPiercingPrice } from "@/lib/queries/piercing";
 
@@ -40,6 +41,8 @@ type PiercingService = {
   updatedAt: string;
 };
 
+const SKIN_REQUIRED_PRESTATIONS = new Set(["TATTOO", "RETOUCHE", "PROJET"]);
+
 export default function CreateRdvForm({ userId }: { userId: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | undefined>("");
@@ -64,6 +67,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   //! Selection de la prestation change les inputs à afficher
   const [selectedPrestation, setSelectedPrestation] = useState("");
   const [selectedTatoueur, setSelectedTatoueur] = useState<string | null>(null);
+  const [skinToneOptions, setSkinToneOptions] = useState<SkinToneOption[]>([]);
+  const [isLoadingSkinTones, setIsLoadingSkinTones] = useState(false);
+  const [skinTonesError, setSkinTonesError] = useState<string | null>(null);
 
   //! Récupérer les tatoueurs
   const [tatoueurs, setTatoueurs] = useState<TatoueurProps[]>([]);
@@ -78,6 +84,47 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     };
     fetchTatoueurs();
   }, [userId]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchSkinTones = async () => {
+      try {
+        setIsLoadingSkinTones(true);
+        setSkinTonesError(null);
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACK_URL}/appointments/skin-tones`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("Erreur lors du chargement des teintes de peau");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+          throw new Error("Format de réponse invalide pour les teintes de peau");
+        }
+
+        setSkinToneOptions(data);
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        console.error("Erreur lors du fetch des teintes de peau :", err);
+        setSkinToneOptions([]);
+        setSkinTonesError("Impossible de charger les teintes de peau.");
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingSkinTones(false);
+        }
+      }
+    };
+
+    fetchSkinTones();
+
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     if (!selectedDate || !selectedTatoueur) return;
@@ -414,6 +461,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       clientPhone: "",
       clientBirthdate: "",
       prestation: "",
+      skin: undefined,
       allDay: false,
       start: new Date().toISOString(),
       end: new Date().toISOString(),
@@ -437,6 +485,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       piercingZoneMicrodermal: null,
     },
   });
+
+  const isSkinRequired = SKIN_REQUIRED_PRESTATIONS.has(selectedPrestation);
 
   const onSubmit = async (data: z.infer<typeof appointmentSchema>) => {
     setLoading(true);
@@ -844,6 +894,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   <select
                     {...form.register("tatoueurId")}
                     onChange={(e) => {
+                      form.setValue("tatoueurId", e.target.value, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
                       setSelectedTatoueur(e.target.value);
                     }}
                     className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
@@ -871,7 +925,15 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 <select
                   {...form.register("prestation")}
                   onChange={(e) => {
+                    form.setValue("prestation", e.target.value as z.infer<typeof appointmentSchema>["prestation"], {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
                     setSelectedPrestation(e.target.value);
+
+                    if (!SKIN_REQUIRED_PRESTATIONS.has(e.target.value)) {
+                      form.clearErrors("skin");
+                    }
                   }}
                   className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
                 >
@@ -893,7 +955,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 </select>
               </div>
 
-              {/* Champ Visio */}
+               {/* Champ Visio */}
               <div className="space-y-1 mt-6 bg-white/10 p-3 rounded-lg border border-white/20">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -911,6 +973,33 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 visioconférence
               </p>
             </div>
+
+              {isSkinRequired && (
+                <div className="mt-4 w-fit mx-auto rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4">
+                  <SkinToneSelect
+                    options={skinToneOptions}
+                    value={form.watch("skin")}
+                    loading={isLoadingSkinTones}
+                    required={isSkinRequired}
+                    error={
+                      form.formState.errors.skin?.message ||
+                      skinTonesError ||
+                      undefined
+                    }
+                    onChange={(value) => {
+                      form.setValue("skin", value, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                    }}
+                  />
+                  <p className="mt-2 text-xs text-white/45 font-one">
+                    Obligatoire pour les rendez-vous de tatouage, retouche et projet.
+                  </p>
+                </div>
+              )}
+
+             
 
             {/* Section: Créneaux horaires */}
             {selectedTatoueur && (

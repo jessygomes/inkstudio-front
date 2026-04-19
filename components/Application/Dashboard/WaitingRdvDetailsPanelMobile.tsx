@@ -7,6 +7,7 @@ import UpdateRdv from "../RDV/UpdateRdv";
 import ChangeRdv from "../RDV/ChangeRdv";
 import SendMessageRdv from "../RDV/SendMessageRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
+import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { useEffect, useState } from "react";
@@ -403,6 +404,25 @@ export default function WaitingRdvDetailsPanelMobile({
                       </p>
                       <p className="text-white font-one text-xs leading-relaxed">
                         {piercingZoneName}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedAppointment.skin && (
+                    <div>
+                      <p className="text-white/60 text-xs font-one mb-1">
+                        Teinte de peau
+                      </p>
+                      <p className="text-white font-one text-xs inline-flex items-center gap-1.5">
+                        <span
+                          className="inline-block h-3 w-3 rounded-full border border-white/20 flex-shrink-0"
+                          style={{
+                            backgroundColor:
+                              getSkinTonePreviewHex(selectedAppointment.skin) ?? undefined,
+                          }}
+                          aria-hidden="true"
+                        />
+                        {formatSkinTone(selectedAppointment.skin)}
                       </p>
                     </div>
                   )}

@@ -31,6 +31,7 @@ export default function CreateOrUpdateFlash({
     resolver: zodResolver(flashSchema),
     defaultValues: {
       title: existingFlash?.title || "",
+      dimension: existingFlash?.dimension || "",
       description: existingFlash?.description || "",
       imageUrl: existingFlash?.imageUrl || "",
       price: existingFlash?.price || 0,
@@ -213,6 +214,22 @@ export default function CreateOrUpdateFlash({
                     rows={4}
                     className="mt-1 w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 resize-none"
                   />
+                </div>
+
+                <div>
+                  <label className="text-xs text-white/70 font-one">
+                    Dimensions
+                  </label>
+                  <input
+                    {...form.register("dimension")}
+                    placeholder="Ex: 10x15 cm"
+                    className="mt-1 w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400"
+                  />
+                  {form.formState.errors.dimension && (
+                    <p className="text-red-300 text-xs mt-1">
+                      {form.formState.errors.dimension.message}
+                    </p>
+                  )}
                 </div>
 
                 <div>

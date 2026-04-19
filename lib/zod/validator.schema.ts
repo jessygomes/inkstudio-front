@@ -76,6 +76,15 @@ export const prestationEnum = z.enum([
   "PIERCING",
 ]);
 
+export const skinToneEnum = z.enum([
+  "tres_claire",
+  "claire",
+  "claire_moyenne",
+  "mate",
+  "foncee",
+  "tres_foncee",
+]);
+
 export const updateSalonSchema = z.object({
   salonName: z.string().min(2, "Nom requis"),
   firstName: z.string().min(1, "Prénom requis"),
@@ -108,47 +117,64 @@ export const createTatoueurSchema = z.object({
 });
 
 //! RDV
-export const appointmentSchema = z.object({
-  title: z.string().min(1, "Le titre est requis."),
-  clientFirstname: z.string().min(1, "Le prénom est requis."),
-  clientLastname: z.string().min(1, "Le nom est requis."),
-  clientEmail: z.string().email({
-    message: "Votre email n'est pas valide.",
-  }),
-  clientPhone: z.string().min(1, "Le téléphone est requis."),
-  clientBirthdate: z.string().min(1, "La date de naissance est requise."),
-  prestation: z.enum(["TATTOO", "PIERCING", "RETOUCHE", "PROJET", ""]),
-  allDay: z.boolean(),
-  start: z.string(),
-  end: z.string(),
-  tatoueurId: z.string(),
-  status: z.enum(["PENDING", "CONFIRMED", "DECLINED", "CANCELED"]),
-  // champ visio
-  visio: z.boolean().default(false),
-  // champs optionnels pour projet :
-  description: z.string().optional(),
-  zone: z.string().optional(),
-  size: z.string().optional(),
-  colorStyle: z.string().optional(),
-  reference: z.string().optional(),
-  sketch: z.string().optional(),
-  price: z.preprocess(
-    (val) => (val === "" ? undefined : Number(val)),
-    z.number().optional(),
-  ),
-  // prix estimé pour les projets
-  estimatedPrice: z.preprocess(
-    (val) => (val === "" ? undefined : Number(val)),
-    z.number().optional(),
-  ),
-  // Champs spécifiques aux piercings
-  piercingZone: z.string().optional(),
-  piercingZoneOreille: z.string().nullable().optional(),
-  piercingZoneVisage: z.string().nullable().optional(),
-  piercingZoneBouche: z.string().nullable().optional(),
-  piercingZoneCorps: z.string().nullable().optional(),
-  piercingZoneMicrodermal: z.string().nullable().optional(),
-});
+export const appointmentSchema = z
+  .object({
+    title: z.string().min(1, "Le titre est requis."),
+    clientFirstname: z.string().min(1, "Le prénom est requis."),
+    clientLastname: z.string().min(1, "Le nom est requis."),
+    clientEmail: z.string().email({
+      message: "Votre email n'est pas valide.",
+    }),
+    clientPhone: z.string().min(1, "Le téléphone est requis."),
+    clientBirthdate: z.string().min(1, "La date de naissance est requise."),
+    prestation: z.enum(["TATTOO", "PIERCING", "RETOUCHE", "PROJET", ""]),
+    skin: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      skinToneEnum.optional(),
+    ),
+    allDay: z.boolean(),
+    start: z.string(),
+    end: z.string(),
+    tatoueurId: z.string(),
+    status: z.enum(["PENDING", "CONFIRMED", "DECLINED", "CANCELED"]),
+    // champ visio
+    visio: z.boolean().default(false),
+    // champs optionnels pour projet :
+    description: z.string().optional(),
+    zone: z.string().optional(),
+    size: z.string().optional(),
+    colorStyle: z.string().optional(),
+    reference: z.string().optional(),
+    sketch: z.string().optional(),
+    price: z.preprocess(
+      (val) => (val === "" ? undefined : Number(val)),
+      z.number().optional(),
+    ),
+    // prix estimé pour les projets
+    estimatedPrice: z.preprocess(
+      (val) => (val === "" ? undefined : Number(val)),
+      z.number().optional(),
+    ),
+    // Champs spécifiques aux piercings
+    piercingZone: z.string().optional(),
+    piercingZoneOreille: z.string().nullable().optional(),
+    piercingZoneVisage: z.string().nullable().optional(),
+    piercingZoneBouche: z.string().nullable().optional(),
+    piercingZoneCorps: z.string().nullable().optional(),
+    piercingZoneMicrodermal: z.string().nullable().optional(),
+  })
+  .superRefine(({ prestation, skin }, ctx) => {
+    if (
+      ["TATTOO", "RETOUCHE", "PROJET"].includes(prestation) &&
+      !skin
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "La teinte de peau est requise pour cette prestation.",
+        path: ["skin"],
+      });
+    }
+  });
 
 export const updateAppointmentSchema = z.object({
   userId: z.string(),
@@ -244,6 +270,11 @@ export const portfolioSchema = z.object({
 //! FLASHS
 export const flashSchema = z.object({
   title: z.string().min(1, "Le titre est requis."),
+  dimension: z.preprocess((value) => {
+    if (typeof value !== "string") return undefined;
+    const trimmedValue = value.trim();
+    return trimmedValue.length === 0 ? undefined : trimmedValue;
+  }, z.string().max(50, "La dimension doit faire 50 caractères maximum.").optional()),
   description: z.string().optional(),
   imageUrl: z.string().url("L'URL de l'image doit être valide."),
   price: z.number().min(0, "Le prix doit etre superieur ou egal a 0."),

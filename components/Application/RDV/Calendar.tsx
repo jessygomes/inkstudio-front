@@ -27,6 +27,7 @@ export type CalendarEvent = Event & {
   id: string;
   status?: string;
   prestation?: string;
+  skin?: string | null;
   client: {
     firstName: string;
     lastName: string;

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react/no-unescaped-entities */
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { CalendarEvent } from "./Calendar";
@@ -10,6 +8,7 @@ import ChangeRdv from "./ChangeRdv";
 import ChangeStatusButtons from "./ChangeStatusButtons";
 import SendMessageRdv from "./SendMessageRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
+import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import Link from "next/link";
 import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
@@ -595,6 +594,25 @@ export default function ShowRdvDetails({
                           <p className="text-white/60 text-xs font-one">Zone</p>
                           <p className="text-white font-one text-xs">
                             {tattooDetail.zone}
+                          </p>
+                        </div>
+                      )}
+
+                      {selectedEvent.skin && (
+                        <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                          <p className="text-white/60 text-xs font-one">
+                            Teinte de peau
+                          </p>
+                          <p className="text-white font-one text-xs inline-flex items-center gap-1.5">
+                            <span
+                              className="inline-block h-3 w-3 rounded-full border border-white/20 flex-shrink-0"
+                              style={{
+                                backgroundColor:
+                                  getSkinTonePreviewHex(selectedEvent.skin) ?? undefined,
+                              }}
+                              aria-hidden="true"
+                            />
+                            {formatSkinTone(selectedEvent.skin)}
                           </p>
                         </div>
                       )}
