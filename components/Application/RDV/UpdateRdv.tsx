@@ -76,6 +76,14 @@ export default function UpdateRdv({
 
   const rdvDayStr = format(new Date(rdv.start), "yyyy-MM-dd");
 
+  const sectionTitleClass =
+    "mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one";
+  const labelClass = "text-[11px] text-white/65 font-one";
+  const inputClass =
+    "w-full p-2.5 bg-white/6 border border-white/12 rounded-xl text-white text-xs placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-tertiary-400/50 focus:border-transparent transition-colors";
+  const disabledInputClass =
+    "w-full p-2.5 bg-white/5 border border-white/10 rounded-xl text-white/80 text-xs";
+
   // FETCH tatoueurs
   useEffect(() => {
     const fetchTatoueurs = async () => {
@@ -382,7 +390,7 @@ export default function UpdateRdv({
               : new Date(rdv.start).toISOString();
           form.setValue("start", startStr);
         }}
-        className="cursor-pointer px-2.5 py-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 rounded-md text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
+        className="cursor-pointer px-2.5 py-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 rounded-[14px] text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
         title="Modifier ce rendez-vous"
       >
         <svg
@@ -402,98 +410,98 @@ export default function UpdateRdv({
       </button>
 
       {showModal && (
-        <div className="absolute inset-0 z-[9999] bg-transparent flex items-stretch justify-stretch">
-          <div className="bg-noir-500 rounded-none w-full h-full overflow-hidden flex flex-col shadow-none lg:rounded-xl">
+        <div className="absolute inset-0 z-[9999] bg-black/30 backdrop-blur-[1px]">
+          <div className="dashboard-embedded-panel flex h-full w-full flex-col overflow-hidden rounded-[28px]">
             {/* Header */}
-            <div className="p-4 border-b border-white/10 bg-white/5">
+            <div className="dashboard-embedded-header px-4 py-3.5">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-white font-one tracking-wide">
                   Modifier le rendez-vous
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  className="p-1.5 hover:bg-white/10 rounded-xl transition-colors"
                 >
-                  <span className="text-white text-xl">×</span>
+                  <span className="cursor-pointer text-white text-xl">×</span>
                 </button>
               </div>
             </div>
 
             {/* Form Content */}
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto px-3 py-3 min-h-0 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
+                className="space-y-2.5"
               >
                 {/* Client (lecture seule) */}
-                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                  <h3 className="text-sm font-semibold text-white mb-3 font-one uppercase tracking-wide">
+                <div className="dashboard-embedded-section p-3">
+                  <h3 className={sectionTitleClass}>
                     Client{" "}
-                    <span className="text-[10px] font-medium text-white/50">
+                    <span className="text-[10px] font-medium text-white/45 normal-case tracking-normal">
                       (les infos du client ne sont pas modifiables ici.)
                     </span>
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
+                      <label className={labelClass}>
                         Prénom
                       </label>
                       <input
                         {...form.register("client.firstName")}
                         disabled
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs"
+                        className={disabledInputClass}
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
+                      <label className={labelClass}>
                         Nom
                       </label>
                       <input
                         {...form.register("client.lastName")}
                         disabled
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs"
+                        className={disabledInputClass}
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
+                      <label className={labelClass}>
                         Email
                       </label>
                       <input
                         {...form.register("client.email")}
                         disabled
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs"
+                        className={disabledInputClass}
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
+                      <label className={labelClass}>
                         Téléphone
                       </label>
                       <input
                         {...form.register("client.phone")}
                         disabled
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs"
+                        className={disabledInputClass}
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Détails RDV */}
-                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                  <h3 className="text-sm font-semibold text-white mb-3 font-one uppercase tracking-wide">
+                <div className="dashboard-embedded-section p-3">
+                  <h3 className={sectionTitleClass}>
                     Détails du rendez-vous
                   </h3>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                     <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
+                      <label className={labelClass}>
                         Titre
                       </label>
                       <input
                         {...form.register("title")}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        className={inputClass}
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
+                      <label className={labelClass}>
                         Tatoueur
                       </label>
                       <select
@@ -502,7 +510,7 @@ export default function UpdateRdv({
                           setSelectedTatoueur(e.target.value);
                           form.setValue("tatoueurId", e.target.value);
                         }}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        className={inputClass}
                       >
                         {tatoueurs.map((tatoueur) => (
                           <option
@@ -516,12 +524,12 @@ export default function UpdateRdv({
                       </select>
                     </div>
                     <div className="space-y-1 col-span-2">
-                      <label className="text-xs text-white/70 font-one">
+                      <label className={labelClass}>
                         Type
                       </label>
                       <select
                         {...form.register("prestation")}
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                        className={inputClass}
                       >
                         <option value="TATTOO" className="bg-primary-500">
                           Tatouage
@@ -541,13 +549,13 @@ export default function UpdateRdv({
                 </div>
 
                 {/* Créneaux horaires */}
-                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                  <h3 className="text-sm font-semibold text-white mb-3 font-one uppercase tracking-wide">
+                <div className="dashboard-embedded-section p-3">
+                  <h3 className={sectionTitleClass}>
                     Créneaux horaires
                   </h3>
 
                   <div className="space-y-1">
-                    <label className="text-xs text-white/70 font-one">
+                    <label className={labelClass}>
                       Date
                     </label>
                     <input
@@ -580,7 +588,7 @@ export default function UpdateRdv({
                           setInitialSlots([]);
                         }
                       }}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                      className={inputClass}
                       required
                     />
                   </div>
@@ -598,7 +606,7 @@ export default function UpdateRdv({
                     <button
                       type="button"
                       onClick={() => setSelectedSlots([])}
-                      className="cursor-pointer px-2 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one"
+                      className="cursor-pointer px-2.5 py-1.5 bg-white/8 hover:bg-white/14 text-white rounded-xl border border-white/15 transition-colors text-xs font-one"
                     >
                       Tout désélectionner
                     </button>
@@ -646,7 +654,7 @@ export default function UpdateRdv({
                       //    - nouveau (selected sans current) -> green
                       // 3) libre (par défaut)
                       let buttonClass =
-                        "p-2 rounded-lg text-xs font-medium transition-all duration-200 border ";
+                        "p-2 rounded-xl text-xs font-medium transition-all duration-200 border ";
                       let buttonText = `${format(
                         new Date(slot.start),
                         "HH:mm",
@@ -778,47 +786,47 @@ export default function UpdateRdv({
 
                 {/* Sections conditionnelles */}
                 {watchPrestation === "PROJET" && (
-                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                    <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  <div className="dashboard-embedded-section p-3">
+                    <h3 className={sectionTitleClass}>
                       Détails du projet
                     </h3>
                     <div className="space-y-4">
                       <div className="space-y-1">
-                        <label className="text-xs text-white/70 font-one">
+                        <label className={labelClass}>
                           Description
                         </label>
                         <textarea
                           {...form.register("tattooDetail.description")}
                           rows={3}
-                          className="w-full h-44 p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none"
+                          className={`${inputClass} h-44 resize-none`}
                         />
                       </div>
                       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                         <div className="space-y-1">
-                          <label className="text-xs text-white/70 font-one">
+                          <label className={labelClass}>
                             Zone
                           </label>
                           <input
                             {...form.register("tattooDetail.zone")}
-                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                            className={inputClass}
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-white/70 font-one">
+                          <label className={labelClass}>
                             Taille
                           </label>
                           <input
                             {...form.register("tattooDetail.size")}
-                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                            className={inputClass}
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-white/70 font-one">
+                          <label className={labelClass}>
                             Style/Couleur
                           </label>
                           <input
                             {...form.register("tattooDetail.colorStyle")}
-                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                            className={inputClass}
                           />
                         </div>
                       </div>
@@ -871,7 +879,7 @@ export default function UpdateRdv({
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs text-white/70 font-one">
+                        <label className={labelClass}>
                           Prix (€)
                         </label>
                         <input
@@ -880,7 +888,7 @@ export default function UpdateRdv({
                           {...form.register("tattooDetail.estimatedPrice", {
                             valueAsNumber: true,
                           })}
-                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          className={inputClass}
                         />
                       </div>
                     </div>
@@ -888,51 +896,51 @@ export default function UpdateRdv({
                 )}
 
                 {watchPrestation === "TATTOO" && (
-                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                    <h3 className="text-sm font-semibold text-white mb-3 font-one uppercase tracking-wide">
+                  <div className="dashboard-embedded-section p-3">
+                    <h3 className={sectionTitleClass}>
                       Détails du tatouage
                     </h3>
                     <div className="space-y-4">
                       <div className="space-y-1">
-                        <label className="text-xs text-white/70 font-one">
+                        <label className={labelClass}>
                           Description
                         </label>
                         <textarea
                           {...form.register("tattooDetail.description")}
                           rows={3}
-                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none"
+                          className={`${inputClass} resize-none`}
                         />
                       </div>
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         <div className="space-y-1">
-                          <label className="text-xs text-white/70 font-one">
+                          <label className={labelClass}>
                             Zone
                           </label>
                           <input
                             {...form.register("tattooDetail.zone")}
-                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                            className={inputClass}
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-white/70 font-one">
+                          <label className={labelClass}>
                             Taille
                           </label>
                           <input
                             {...form.register("tattooDetail.size")}
-                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                            className={inputClass}
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-white/70 font-one">
+                          <label className={labelClass}>
                             Style/Couleur
                           </label>
                           <input
                             {...form.register("tattooDetail.colorStyle")}
-                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                            className={inputClass}
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-xs text-white/70 font-one">
+                          <label className={labelClass}>
                             Prix (€)
                           </label>
                           <input
@@ -941,7 +949,7 @@ export default function UpdateRdv({
                             {...form.register("tattooDetail.price", {
                               valueAsNumber: true,
                             })}
-                            className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                            className={inputClass}
                           />
                         </div>
                       </div>
@@ -950,31 +958,31 @@ export default function UpdateRdv({
                 )}
 
                 {watchPrestation === "PIERCING" && (
-                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                    <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  <div className="dashboard-embedded-section p-3">
+                    <h3 className={sectionTitleClass}>
                       Détails du piercing
                     </h3>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                       <div className="space-y-1">
-                        <label className="text-xs text-white/70 font-one">
+                        <label className={labelClass}>
                           Description
                         </label>
                         <input
                           {...form.register("tattooDetail.description")}
-                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          className={inputClass}
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs text-white/70 font-one">
+                        <label className={labelClass}>
                           Zone
                         </label>
                         <input
                           {...form.register("tattooDetail.zone")}
-                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          className={inputClass}
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs text-white/70 font-one">
+                        <label className={labelClass}>
                           Prix (€)
                         </label>
                         <input
@@ -983,7 +991,7 @@ export default function UpdateRdv({
                           {...form.register("tattooDetail.price", {
                             valueAsNumber: true,
                           })}
-                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          className={inputClass}
                         />
                       </div>
                     </div>
@@ -991,31 +999,31 @@ export default function UpdateRdv({
                 )}
 
                 {watchPrestation === "RETOUCHE" && (
-                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                    <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                  <div className="dashboard-embedded-section p-3">
+                    <h3 className={sectionTitleClass}>
                       Détails de la retouche
                     </h3>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                       <div className="space-y-1">
-                        <label className="text-xs text-white/70 font-one">
+                        <label className={labelClass}>
                           Description
                         </label>
                         <input
                           {...form.register("tattooDetail.description")}
-                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          className={inputClass}
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs text-white/70 font-one">
+                        <label className={labelClass}>
                           Zone
                         </label>
                         <input
                           {...form.register("tattooDetail.zone")}
-                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          className={inputClass}
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs text-white/70 font-one">
+                        <label className={labelClass}>
                           Prix (€)
                         </label>
                         <input
@@ -1024,7 +1032,7 @@ export default function UpdateRdv({
                           {...form.register("tattooDetail.price", {
                             valueAsNumber: true,
                           })}
-                          className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                          className={inputClass}
                         />
                       </div>
                     </div>
@@ -1041,11 +1049,11 @@ export default function UpdateRdv({
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end gap-3">
+            <div className="dashboard-embedded-footer px-4 py-2.5 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                className="cursor-pointer px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-[14px] border border-white/20 transition-colors font-medium font-one text-xs"
               >
                 Annuler
               </button>
@@ -1053,7 +1061,7 @@ export default function UpdateRdv({
                 type="submit"
                 disabled={loading || mutation.isPending}
                 onClick={form.handleSubmit(onSubmit)}
-                className="cursor-pointer px-6 py-2 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+                className="cursor-pointer px-5 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-500 text-white rounded-[14px] transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
               >
                 {loading || mutation.isPending
                   ? "Modification..."

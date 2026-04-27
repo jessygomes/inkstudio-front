@@ -88,31 +88,50 @@ interface CalendarViewProps {
 
 //! Fonction pour définir le style des événements en fonction de leur statut
 const eventStyleGetter = (event: CalendarEvent) => {
-  let backgroundColor = "#9CA3AF"; // default grey
+  let backgroundColor = "rgba(148, 163, 184, 0.72)";
+  let borderColor = "rgba(148, 163, 184, 0.95)";
 
   switch (event.status) {
     case "PENDING":
-      backgroundColor = "#F59E0B"; // orange
+      backgroundColor = "rgba(245, 158, 11, 0.82)";
+      borderColor = "rgba(251, 191, 36, 0.95)";
       break;
     case "CONFIRMED":
-      backgroundColor = "#10B981"; // green
+      backgroundColor = "rgba(16, 185, 129, 0.82)";
+      borderColor = "rgba(52, 211, 153, 0.95)";
+      break;
+    case "COMPLETED":
+      backgroundColor = "rgba(20, 184, 166, 0.8)";
+      borderColor = "rgba(45, 212, 191, 0.95)";
+      break;
+    case "NO_SHOW":
+      backgroundColor = "rgba(249, 115, 22, 0.82)";
+      borderColor = "rgba(251, 146, 60, 0.95)";
+      break;
+    case "RESCHEDULING":
+      backgroundColor = "rgba(59, 130, 246, 0.82)";
+      borderColor = "rgba(96, 165, 250, 0.95)";
       break;
     case "DECLINED":
-      backgroundColor = "#EF4444"; // red
+      backgroundColor = "rgba(239, 68, 68, 0.82)";
+      borderColor = "rgba(248, 113, 113, 0.95)";
       break;
     case "CANCELED":
-      backgroundColor = "#6B7280"; // dark gray
+      backgroundColor = "rgba(107, 114, 128, 0.82)";
+      borderColor = "rgba(156, 163, 175, 0.95)";
       break;
   }
 
   return {
     style: {
       backgroundColor,
-      borderRadius: "8px",
+      borderRadius: "10px",
       color: "white",
-      border: "none",
-      padding: "4px",
-      fontWeight: "bold",
+      border: `1px solid ${borderColor}`,
+      borderLeft: `3px solid ${borderColor}`,
+      padding: "2px 6px",
+      fontWeight: 600,
+      boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
     },
   };
 };
@@ -144,217 +163,359 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     return styled;
   }, [events]);
 
+  const displayLabel = useMemo(() => {
+    if (currentView === "week") {
+      const startWeek = startOfWeek(currentDate, { weekStartsOn: 1 });
+      const endWeek = new Date(startWeek);
+      endWeek.setDate(startWeek.getDate() + 6);
+
+      return `${startWeek.toLocaleDateString("fr-FR", {
+        day: "numeric",
+        month: "short",
+      })} - ${endWeek.toLocaleDateString("fr-FR", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })}`;
+    }
+
+    return currentDate.toLocaleDateString("fr-FR", {
+      year: "numeric",
+      month: "long",
+      ...(currentView === "day" && {
+        weekday: "long",
+        day: "numeric",
+      }),
+    });
+  }, [currentDate, currentView]);
+
+  const todayAppointments = useMemo(() => {
+    const today = new Date();
+    return styledEvents.filter((event) => {
+      const eventDate = new Date(event.start);
+      return (
+        eventDate.getDate() === today.getDate() &&
+        eventDate.getMonth() === today.getMonth() &&
+        eventDate.getFullYear() === today.getFullYear()
+      );
+    }).length;
+  }, [styledEvents]);
+
+  const pendingAppointments = useMemo(
+    () => styledEvents.filter((event) => event.status === "PENDING").length,
+    [styledEvents],
+  );
+
+  const statusLegend = [
+    { label: "En attente", color: "bg-amber-400" },
+    { label: "Confirmé", color: "bg-emerald-400" },
+    { label: "Complété", color: "bg-teal-400" },
+    { label: "Annulé", color: "bg-red-400" },
+  ];
+
+  const slotStep = currentView === "month" ? 30 : 60;
+  const slotGroups = currentView === "month" ? 2 : 1;
+
   return (
-    <div className="h-full w-full flex flex-col p-6">
-      {/* Header personnalisé avec navigation */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-4">
-          {/* Boutons de vue */}
-          <div className="flex bg-white/10 rounded-xl border border-white/20 overflow-hidden">
-            {(["month", "week", "day"] as View[]).map((view) => (
-              <button
-                key={view}
-                onClick={() => setCurrentView(view)}
-                className={`px-4 py-2 text-xs font-medium transition-all duration-200 ${
-                  currentView === view
-                    ? "bg-secondary-500 text-white"
-                    : "text-white/70 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {view === "month"
-                  ? "Mois"
-                  : view === "week"
-                    ? "Semaine"
-                    : "Jour"}
-              </button>
-            ))}
+    <div className="h-full w-full p-0">
+      <div className="dashboard-embedded-panel flex h-full min-h-0 w-full flex-col overflow-hidden !rounded-[24px] !p-0">
+        <div className="dashboard-embedded-header border-b border-white/8 px-3 py-2 lg:px-3.5 lg:py-2.5">
+          <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div className="col-span-1 flex flex-wrap items-center gap-1.5 lg:col-span-2 lg:justify-between">
+              <div className="flex flex-wrap items-center gap-1.5">
+                 <div className="flex items-center gap-1.5">
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-white/65 font-two whitespace-nowrap">
+                    {displayLabel}
+                  </p>
+                  <div className="inline-flex items-center gap-0.5 rounded-lg border border-white/10 bg-white/5 p-0.5">
+                    <button
+                      onClick={() => {
+                        const newDate = new Date(currentDate);
+                        if (currentView === "month") {
+                          newDate.setMonth(newDate.getMonth() - 1);
+                        } else if (currentView === "week") {
+                          newDate.setDate(newDate.getDate() - 7);
+                        } else {
+                          newDate.setDate(newDate.getDate() - 1);
+                        }
+                        setCurrentDate(newDate);
+                      }}
+                      className="cursor-pointer flex h-6 w-6 items-center justify-center rounded-md text-white/70 hover:text-white hover:bg-white/10"
+                      aria-label="Période précédente"
+                    >
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const newDate = new Date(currentDate);
+                        if (currentView === "month") {
+                          newDate.setMonth(newDate.getMonth() + 1);
+                        } else if (currentView === "week") {
+                          newDate.setDate(newDate.getDate() + 7);
+                        } else {
+                          newDate.setDate(newDate.getDate() + 1);
+                        }
+                        setCurrentDate(newDate);
+                      }}
+                      className="cursor-pointer flex h-6 w-6 items-center justify-center rounded-md text-white/70 hover:text-white hover:bg-white/10"
+                      aria-label="Période suivante"
+                    >
+                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-0.5 w-fit">
+                  {(["month", "week", "day"] as View[]).map((view) => (
+                    <button
+                      key={view}
+                      onClick={() => setCurrentView(view)}
+                      className={`cursor-pointer rounded-lg px-2.5 py-1 text-[10px] font-medium transition-all duration-200 font-one ${
+                        currentView === view
+                          ? "bg-tertiary-500 text-white shadow-[0_4px_14px_rgba(255,85,0,0.35)]"
+                          : "text-white/60 hover:text-white hover:bg-white/10"
+                      }`}
+                    >
+                      {view === "month" ? "Mois" : view === "week" ? "Semaine" : "Jour"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-start gap-1.5 lg:justify-end">
+              <div className="rounded-lg border border-white/10 bg-white/5 px-2 py-1">
+                <p className="text-[8px] uppercase tracking-wider text-white/35 font-one">Aujourd'hui</p>
+                <p className="text-xs text-white font-semibold font-one leading-none mt-0.5">{todayAppointments}</p>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/5 px-2 py-1">
+                <p className="text-[8px] uppercase tracking-wider text-white/35 font-one">En attente</p>
+                <p className="text-xs text-amber-300 font-semibold font-one leading-none mt-0.5">{pendingAppointments}</p>
+              </div>
+            </div>
+            </div>
+
+            
+
+            <div className="col-span-1 lg:col-span-2">
+              <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
+                {statusLegend.map((item) => (
+                  <span
+                    key={item.label}
+                    className="inline-flex items-center gap-1.5 whitespace-nowrap text-[10px] text-white/55 font-one"
+                  >
+                    <span className={`h-2 w-2 rounded-full ${item.color}`} />
+                    {item.label}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Navigation de date */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              const newDate = new Date(currentDate);
-              if (currentView === "month") {
-                newDate.setMonth(newDate.getMonth() - 1);
-              } else if (currentView === "week") {
-                newDate.setDate(newDate.getDate() - 7);
-              } else {
-                newDate.setDate(newDate.getDate() - 1);
-              }
-              setCurrentDate(newDate);
-            }}
-            className="cursor-pointer p-2 bg-white/10 hover:bg-white/20 text-white text-xs rounded-xl border border-white/20 transition-colors"
-          >
-            ←
-          </button>
-
-          {/* <button
-            onClick={() => setCurrentDate(new Date())}
-            className="px-4 py-2 bg-tertiary-400/20 hover:bg-tertiary-400/30 text-white text-xs rounded-xl border border-tertiary-400/50 transition-colors font-medium"
-          >
-            Aujourd'hui
-          </button> */}
-
-          <button
-            onClick={() => {
-              const newDate = new Date(currentDate);
-              if (currentView === "month") {
-                newDate.setMonth(newDate.getMonth() + 1);
-              } else if (currentView === "week") {
-                newDate.setDate(newDate.getDate() + 7);
-              } else {
-                newDate.setDate(newDate.getDate() + 1);
-              }
-              setCurrentDate(newDate);
-            }}
-            className="cursor-pointer p-2 bg-white/10 hover:bg-white/20 text-white text-xs rounded-xl border border-white/20 transition-colors"
-          >
-            →
-          </button>
-        </div>
-      </div>
-
-      {/* Date actuelle affichée */}
-      <div className="mb-4">
-        <p className="text-white/80 font-two text-xs uppercase">
-          {currentView === "week"
-            ? (() => {
-                const startWeek = startOfWeek(currentDate, { weekStartsOn: 1 });
-                const endWeek = new Date(startWeek);
-                endWeek.setDate(startWeek.getDate() + 6);
-
-                return `${startWeek.toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                })} - ${endWeek.toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}`;
-              })()
-            : currentDate.toLocaleDateString("fr-FR", {
-                year: "numeric",
-                month: "long",
-                ...(currentView === "day" && {
-                  weekday: "long",
-                  day: "numeric",
-                }),
-              })}
-        </p>
-      </div>
-
-      {/* Calendrier */}
-      <div className="flex-1 bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+        <div className="flex-1 min-h-0 p-1.5 lg:p-2">
+          <div className="inkera-calendar h-full w-full overflow-hidden rounded-xl bg-white/[0.02]">
         <style jsx global>{`
-          .rbc-calendar {
+          .inkera-calendar .rbc-calendar {
             background: transparent !important;
             color: white !important;
             font-family: inherit !important;
-            font-size: 10px !important;
+            font-size: 11px !important;
+            border: none !important;
           }
 
-          .rbc-toolbar {
+          .inkera-calendar .rbc-toolbar {
             display: none !important;
           }
 
-          .rbc-header {
-            background: rgba(255, 255, 255, 0.1) !important;
-            color: white !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 12px 8px !important;
-            font-weight: 600 !important;
+          .inkera-calendar .rbc-header {
+            background: rgba(255, 255, 255, 0.06) !important;
+            color: rgba(255, 255, 255, 0.85) !important;
+            padding: 5px 4px !important;
+            font-weight: 500 !important;
             font-size: 10px !important;
-          }
-
-          .rbc-month-view,
-          .rbc-time-view {
-            background: transparent !important;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
             border: none !important;
           }
 
-          .rbc-date-cell {
-            padding: 8px !important;
-            background: transparent !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-            font-size: 10px !important;
-          }
-
-          .rbc-day-bg {
-            background: transparent !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-          }
-
-          .rbc-day-bg:hover {
-            background: rgba(255, 255, 255, 0.05) !important;
-          }
-
-          .rbc-off-range-bg {
-            background: rgba(0, 0, 0, 0.1) !important;
-          }
-
-          .rbc-today {
-            background: rgba(255, 138, 0, 0.1) !important;
-            border-radius: 0 !important;
-          }
-
-          .rbc-header.rbc-today {
-            border-radius: 0 !important;
-          }
-
-          .rbc-time-slot {
-            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: rgba(255, 255, 255, 0.7) !important;
-          }
-
-          .rbc-time-gutter {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
-          }
-
-          .rbc-timeslot-group {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-          }
-
-          .rbc-time-content {
-            border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
-          }
-
-          .rbc-current-time-indicator {
-            background-color: #ff8500 !important;
-            height: 2px !important;
-          }
-
-          .rbc-event {
-            border-radius: 8px !important;
+          .inkera-calendar .rbc-time-header,
+          .inkera-calendar .rbc-time-header-content,
+          .inkera-calendar .rbc-time-header-gutter {
             border: none !important;
-            padding: 4px 8px !important;
+            padding: 0 !important;
+          }
+
+          .inkera-calendar .rbc-time-view {
+            border: none !important;
+            padding: 0 !important;
+            display: flex;
+            flex-direction: column;
+          }
+
+          .inkera-calendar .rbc-time-view .rbc-time-header {
+            margin: 0 !important;
+          }
+
+          .inkera-calendar .rbc-date-cell {
+            padding: 4px 3px !important;
+            background: transparent !important;
+            font-size: 9px !important;
+            color: rgba(255, 255, 255, 0.65) !important;
+          }
+
+          .inkera-calendar .rbc-day-bg {
+            background: transparent !important;
+            transition: background-color 0.2s ease;
+          }
+
+          .inkera-calendar .rbc-day-bg:hover {
+            background: rgba(255, 255, 255, 0.03) !important;
+          }
+
+          .inkera-calendar .rbc-off-range-bg {
+            background: rgba(0, 0, 0, 0.14) !important;
+          }
+
+          .inkera-calendar .rbc-today {
+            background: transparent !important;
+            border-radius: 0 !important;
+          }
+
+          .inkera-calendar .rbc-header.rbc-today {
+            border-radius: 0 !important;
+          }
+
+          .inkera-calendar .rbc-time-slot {
+            color: rgba(255, 255, 255, 0.52) !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
+          .inkera-calendar .rbc-day-slot {
+            border: none !important;
+            padding: 0 !important;
+          }
+
+          .inkera-calendar .rbc-time-gutter {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border: none !important;
+          }
+
+          .inkera-calendar .rbc-time-gutter .rbc-label {
+            font-size: 10px !important;
+            color: rgba(255, 255, 255, 0.62) !important;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.02em;
+            font-weight: 500;
+          }
+
+          .inkera-calendar .rbc-time-content .rbc-timeslot-group:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02) !important;
+          }
+
+          .inkera-calendar .rbc-time-content {
+            border: none !important;
+            padding: 0 !important;
+          }
+
+          .inkera-calendar .rbc-timeslot-group {
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
+          .inkera-calendar .rbc-time-view .rbc-day-slot .rbc-events-container {
+            margin-right: 4px !important;
+          }
+
+          .inkera-calendar .rbc-current-time-indicator {
+            display: none !important;
+          }
+
+          .inkera-calendar .rbc-event {
+            border-radius: 10px !important;
+            padding: 3px 6px !important;
             font-size: 10px !important;
             font-weight: 500 !important;
-            margin: 1px !important;
+            margin: 1px 0 !important;
           }
 
-          .rbc-event:hover {
-            transform: scale(1.02) !important;
-            transition: transform 0.2s ease !important;
+          .inkera-calendar .rbc-event:hover {
+            transform: translateY(-1px) !important;
+            transition: transform 0.15s ease !important;
           }
 
-          .rbc-show-more {
-            color: #ff8500 !important;
+          .inkera-calendar .rbc-show-more {
+            color: #ff9d00 !important;
             font-weight: 600 !important;
             font-size: 10px !important;
-            background: rgba(255, 133, 0, 0.1) !important;
+            background: rgba(255, 157, 0, 0.14) !important;
+            border: 1px solid rgba(255, 157, 0, 0.3) !important;
+            border-radius: 999px !important;
             padding: 2px 6px !important;
           }
 
-          .rbc-row-content {
+          .inkera-calendar .rbc-row,
+          .inkera-calendar .rbc-row-cell {
+            border: none !important;
+          }
+
+          .inkera-calendar .rbc-row-content {
             z-index: 1 !important;
           }
 
-          .rbc-addons-dnd .rbc-addons-dnd-drag-preview {
+          .inkera-calendar .rbc-label,
+          .inkera-calendar .rbc-time-header-content .rbc-header,
+          .inkera-calendar .rbc-time-gutter .rbc-timeslot-group {
+            font-family: var(--font-one), sans-serif !important;
+          }
+
+          .inkera-calendar .rbc-day-slot .rbc-time-slot {
+            min-height: 28px !important;
+          }
+
+          .inkera-calendar .rbc-time-view .rbc-day-slot .rbc-time-slot {
+            min-height: 20px !important;
+          }
+
+          .inkera-calendar .rbc-time-view .rbc-time-content,
+          .inkera-calendar .rbc-time-view .rbc-time-header-content,
+          .inkera-calendar .rbc-time-view .rbc-time-gutter {
+            background-clip: padding-box;
+          }
+
+          .inkera-calendar .rbc-agenda-view table.rbc-agenda-table {
+            border: none !important;
+          }
+
+          .inkera-calendar .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
+            border-color: rgba(255, 255, 255, 0.08) !important;
+          }
+
+          .inkera-calendar .rbc-addons-dnd .rbc-addons-dnd-drag-preview {
             opacity: 0.8 !important;
+          }
+
+          @media (max-width: 768px) {
+            .inkera-calendar .rbc-header {
+              font-size: 9px !important;
+              padding: 8px 4px !important;
+            }
+
+            .inkera-calendar .rbc-event {
+              font-size: 9px !important;
+              padding: 2px 4px !important;
+            }
+
+            .inkera-calendar .rbc-date-cell {
+              font-size: 9px !important;
+              padding: 6px 4px !important;
+            }
           }
         `}</style>
 
@@ -365,12 +526,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           startAccessor="start"
           endAccessor="end"
           eventPropGetter={eventStyleGetter}
-          style={{ height: "100%", width: "100%" }}
+          style={{ height: "100%", width: "100%", minHeight: 0 }}
           views={["month", "week", "day"]}
           date={currentDate}
           view={currentView}
-          onNavigate={() => {}} // Désactivé car on utilise nos propres boutons
-          onView={() => {}} // Désactivé car on utilise nos propres boutons
+          onNavigate={(date) => setCurrentDate(date)}
+          onView={(view) => setCurrentView(view)}
           min={new Date(1970, 1, 1, 9, 0)}
           max={new Date(1970, 1, 1, 19, 0)}
           onSelectEvent={onSelectEvent}
@@ -381,8 +542,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               setCurrentView("day");
             }
           }}
-          step={30}
-          timeslots={2}
+          step={slotStep}
+          timeslots={slotGroups}
           messages={{
             next: "Suivant",
             previous: "Précédent",
@@ -413,6 +574,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               localizer?.format(date, "EEEE dd MMMM yyyy", culture) ?? "",
           }}
         />
+          </div>
+        </div>
       </div>
     </div>
   );

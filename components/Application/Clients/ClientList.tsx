@@ -177,21 +177,21 @@ export default function ClientList() {
   };
 
   return (
-    <section>
+    <section className="w-full space-y-4">
       {/* Header responsive */}
-      <div className="mb-6  flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-        <div className="w-full flex items-center gap-3 sm:gap-4 mb-4 md:mb-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
+      <div className="dashboard-hero flex flex-col gap-4 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:py-3">
+        <div className="w-full min-w-0 flex items-center gap-3 sm:gap-4">
+          <div className="h-10 w-10 sm:h-12 sm:w-12 bg-tertiary-400/30 rounded-full flex items-center justify-center shrink-0">
             <RiFileUserLine
               size={20}
               className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
             />
           </div>
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
               Clients
             </h1>
-            <p className="text-white/70 text-xs font-one mt-1">
+            <p className="hidden sm:block text-white/70 text-xs font-one mt-1">
               Gérez les informations de vos clients et consultez leur
               historique.
             </p>
@@ -200,10 +200,10 @@ export default function ClientList() {
 
         {/* Boutons d'action responsive */}
         {!isFreeAccount && (
-          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+          <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap lg:w-auto lg:flex-nowrap lg:justify-end">
             <button
               onClick={handleCreate}
-              className="cursor-pointer flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg whitespace-nowrap"
+              className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2.5 text-xs font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one whitespace-nowrap"
             >
               <svg
                 className="w-4 h-4"
@@ -224,7 +224,7 @@ export default function ClientList() {
             <div className="relative">
               <Link
                 href="/clients/suivi"
-                className="cursor-pointer text-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center justify-center gap-2 whitespace-nowrap"
+                className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-center text-xs font-medium text-white transition-all duration-300 hover:bg-white/14 font-one whitespace-nowrap"
               >
                 <span className="hidden sm:inline">Suivi de cicatrisation</span>
                 <span className="sm:hidden">Suivi cicatrisation</span>
@@ -241,24 +241,39 @@ export default function ClientList() {
         )}
       </div>
 
-      <div>
+      <div className="dashboard-embedded-panel w-full p-4 sm:p-5 lg:p-6">
         {/* Barre de recherche responsive */}
         {!isFreeAccount && (
-          <div className="flex gap-2 items-center mb-4 sm:mb-6 mt-4 sm:mt-6">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Rechercher par client"
-              className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-2 sm:py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
-            />
+          <div className="dashboard-embedded-section mb-4 p-3 sm:p-4">
+            <div className="relative">
+              <svg
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Rechercher un client (nom, email, téléphone)"
+                className="w-full rounded-xl border border-white/16 bg-white/8 py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/35 font-one focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 transition-colors"
+              />
+            </div>
           </div>
         )}
 
         {/* Informations de pagination responsive */}
         {!isFreeAccount && !loading && !error && (
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-            <div className="text-white/70 text-xs font-one">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="inline-flex items-center rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-xs text-white/72 font-one">
               Affichage de{" "}
               {Math.min(
                 (currentPage - 1) * ITEMS_PER_PAGE + 1,
@@ -269,12 +284,12 @@ export default function ClientList() {
               sur {pagination.totalClients} client
               {pagination.totalClients > 1 ? "s" : ""}
               {searchTerm && (
-                <span className="block sm:inline sm:ml-2 text-tertiary-400 mt-1 sm:mt-0">
+                <span className="ml-2 text-tertiary-400">
                   (recherche: "{searchTerm}")
                 </span>
               )}
             </div>
-            <div className="text-white/70 text-xs font-one">
+            <div className="inline-flex items-center rounded-full border border-tertiary-400/25 bg-tertiary-500/10 px-3 py-1.5 text-xs text-white/80 font-one">
               Page {currentPage} sur {pagination.totalPages}
             </div>
           </div>
@@ -282,7 +297,7 @@ export default function ClientList() {
 
         {isFreeAccount ? (
           /* Message pour les comptes Free */
-          <div className="bg-gradient-to-r from-orange-500/10 to-tertiary-500/10 border border-orange-500/30 rounded-2xl p-6">
+          <div className="dashboard-embedded-section rounded-2xl border-orange-500/30 bg-gradient-to-r from-orange-500/10 to-tertiary-500/10 p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg
@@ -365,7 +380,7 @@ export default function ClientList() {
         ) : (
           <div>
             {/* Header de tableau - masqué sur mobile */}
-            <div className="hidden lg:grid grid-cols-6 gap-4 px-6 py-3 mb-4 bg-gradient-to-r from-white/5 to-white/10 rounded-xl text-white font-one text-xs font-semibold tracking-wider uppercase border border-white/10">
+            <div className="dashboard-embedded-section hidden lg:grid grid-cols-6 gap-4 px-6 py-3 mb-4 rounded-xl text-white font-one text-xs font-semibold tracking-wider uppercase">
               <p className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
                 Client
@@ -392,7 +407,7 @@ export default function ClientList() {
                 {[...Array(5)].map((_, i) => (
                   <div
                     key={i}
-                    className="hidden lg:grid grid-cols-6 gap-4 px-6 py-4 items-center bg-gradient-to-r from-white/5 to-white/[0.02] rounded-xl border border-white/10"
+                    className="dashboard-list-item hidden lg:grid grid-cols-6 gap-4 px-6 py-4 items-center"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse"></div>
@@ -416,7 +431,7 @@ export default function ClientList() {
                 {[...Array(5)].map((_, i) => (
                   <div
                     key={`mobile-${i}`}
-                    className="lg:hidden bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl border border-white/10 overflow-hidden"
+                    className="dashboard-list-item lg:hidden overflow-hidden rounded-2xl"
                   >
                     {/* En-tête avec avatar et nom */}
                     <div className="bg-gradient-to-r from-white/10 to-white/5 p-4 border-b border-white/10">
@@ -452,7 +467,7 @@ export default function ClientList() {
               </div>
             ) : error ? (
               <div className="h-full w-full flex">
-                <div className="mt-4 w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+                <div className="dashboard-empty-state mt-4 w-full p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
                     <svg
                       className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
@@ -481,7 +496,7 @@ export default function ClientList() {
               </div>
             ) : clients.length === 0 ? (
               <div className="h-full w-full flex">
-                <div className="w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
+                <div className="dashboard-empty-state w-full p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
                     <svg
                       className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
@@ -514,7 +529,7 @@ export default function ClientList() {
                   {clients.map((client) => (
                     <div key={client.id}>
                       {/* Vue desktop - grille */}
-                      <div className="hidden lg:grid grid-cols-6 gap-4 px-6 py-4 items-center bg-gradient-to-r from-white/5 to-white/[0.02] rounded-xl border border-white/10 hover:border-tertiary-400/50 hover:from-white/10 hover:to-white/5 transition-all duration-300 group shadow-lg hover:shadow-tertiary-400/10">
+                      <div className="dashboard-list-item hidden lg:grid grid-cols-6 gap-4 px-6 py-4 items-center group">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/60 transition-all">
                             <span className="text-white font-bold text-sm font-one">
@@ -564,13 +579,13 @@ export default function ClientList() {
                         </div>
                         <button
                           onClick={() => handleShowReservations(client)}
-                          className="cursor-pointer text-white font-one text-xs mx-auto px-4 py-2 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-lg transition-all duration-200 font-medium group-hover:scale-105"
+                          className="cursor-pointer text-white font-one text-xs mx-auto px-4 py-2 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-2xl transition-all duration-200 font-medium group-hover:scale-105"
                         >
                           Voir infos
                         </button>
                         <div className="flex gap-2 items-center justify-center">
                           <button
-                            className="cursor-pointer p-2 bg-white/10 hover:bg-tertiary-400/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200 group/btn"
+                            className="cursor-pointer p-1.5 bg-white/10 hover:bg-tertiary-400/20 rounded-2xl border border-white/20 hover:border-tertiary-400/50 transition-all duration-200 group/btn"
                             onClick={() => handleEdit(client)}
                           >
                             <IoCreateOutline
@@ -579,7 +594,7 @@ export default function ClientList() {
                             />
                           </button>
                           <button
-                            className="cursor-pointer p-2 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200 group/btn"
+                            className="cursor-pointer p-1.5 bg-white/10 hover:bg-red-500/20 rounded-2xl border border-white/20 hover:border-red-400/50 transition-all duration-200 group/btn"
                             onClick={() => handleDelete(client)}
                           >
                             <AiOutlineDelete
@@ -591,7 +606,7 @@ export default function ClientList() {
                       </div>
 
                       {/* Vue mobile - format carte moderne */}
-                      <div className="lg:hidden bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl border border-white/10 overflow-hidden hover:border-tertiary-400/50 transition-all duration-300 shadow-lg hover:shadow-tertiary-400/10">
+                      <div className="dashboard-list-item lg:hidden overflow-hidden rounded-2xl">
                         {/* En-tête avec avatar et nom */}
                         <div className="bg-gradient-to-r from-white/10 to-white/5 p-4 border-b border-white/10">
                           <div className="flex items-center gap-3">
@@ -689,61 +704,54 @@ export default function ClientList() {
                     <button
                       onClick={handlePreviousPage}
                       disabled={!pagination.hasPreviousPage}
-                      className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
+                      className="dashboard-nav-button cursor-pointer w-full sm:w-auto rounded-xl px-3 py-2 text-xs font-medium text-white font-one disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Précédent
                     </button>
 
                     <div className="flex items-center gap-1 sm:gap-2 order-first sm:order-none">
-                      {Array.from(
-                        {
-                          length: Math.min(
-                            pagination.totalPages,
-                            window.innerWidth < 640 ? 3 : 5,
-                          ),
-                        },
-                        (_, i) => {
-                          const maxButtons = window.innerWidth < 640 ? 3 : 5;
-                          let pageNumber;
-                          if (pagination.totalPages <= maxButtons) {
-                            pageNumber = i + 1;
-                          } else if (
-                            currentPage <=
-                            Math.floor(maxButtons / 2) + 1
-                          ) {
-                            pageNumber = i + 1;
-                          } else if (
-                            currentPage >=
-                            pagination.totalPages - Math.floor(maxButtons / 2)
-                          ) {
-                            pageNumber =
-                              pagination.totalPages - maxButtons + 1 + i;
-                          } else {
-                            pageNumber =
-                              currentPage - Math.floor(maxButtons / 2) + i;
-                          }
+                      {(() => {
+                        const maxButtons = 5;
+                        return Array.from(
+                          {
+                            length: Math.min(pagination.totalPages, maxButtons),
+                          },
+                          (_, i) => {
+                            let pageNumber;
+                            if (pagination.totalPages <= maxButtons) {
+                              pageNumber = i + 1;
+                            } else if (currentPage <= Math.floor(maxButtons / 2) + 1) {
+                              pageNumber = i + 1;
+                            } else if (
+                              currentPage >= pagination.totalPages - Math.floor(maxButtons / 2)
+                            ) {
+                              pageNumber = pagination.totalPages - maxButtons + 1 + i;
+                            } else {
+                              pageNumber = currentPage - Math.floor(maxButtons / 2) + i;
+                            }
 
-                          return (
-                            <button
-                              key={pageNumber}
-                              onClick={() => handlePageChange(pageNumber)}
-                              className={`cursor-pointer w-6 h-6 sm:w-8 sm:h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
-                                currentPage === pageNumber
-                                  ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
-                                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
-                              }`}
-                            >
-                              {pageNumber}
-                            </button>
-                          );
-                        },
-                      )}
+                            return (
+                              <button
+                                key={pageNumber}
+                                onClick={() => handlePageChange(pageNumber)}
+                                className={`cursor-pointer h-8 min-w-8 rounded-lg px-2 text-xs font-medium transition-all duration-200 font-one ${
+                                  currentPage === pageNumber
+                                    ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                                    : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                                }`}
+                              >
+                                {pageNumber}
+                              </button>
+                            );
+                          },
+                        );
+                      })()}
                     </div>
 
                     <button
                       onClick={handleNextPage}
                       disabled={!pagination.hasNextPage}
-                      className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
+                      className="dashboard-nav-button cursor-pointer w-full sm:w-auto rounded-xl px-3 py-2 text-xs font-medium text-white font-one disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Suivant
                     </button>

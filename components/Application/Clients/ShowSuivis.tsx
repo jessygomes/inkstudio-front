@@ -374,681 +374,526 @@ export default function ShowSuivis() {
   };
 
   return (
-    <div className="min-h-screen bg-noir-700">
-      <div className="mx-auto">
-        {/* Header responsive */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10 mb-4 sm:mb-6">
-          <div className="flex items-center gap-3 sm:gap-4 w-full">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
-              <RiFileUserLine
-                size={20}
-                className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
-              />
+    <section className="w-full space-y-3">
+      <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:py-2.5">
+        <div className="flex w-full items-center gap-3 md:w-auto">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-400/30">
+            <RiFileUserLine size={18} className="text-tertiary-400 animate-pulse" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base font-bold uppercase tracking-wide text-white font-one sm:text-lg">
+              Suivi cicatrisation
+            </h1>
+            <p className="mt-0.5 text-[11px] text-white/70 font-one">
+              Répondez aux suivis de vos clients et gardez une traçabilité propre.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="dashboard-embedded-panel rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
+        <div className="mb-2.5 flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/6">
+            <MdFilterList className="h-4 w-4 text-white/75" />
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">Filtres</p>
+            <p className="text-xs text-white/70 font-one">Affinez la liste des suivis</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="sm:col-span-2 xl:col-span-2">
+            <label className="mb-1.5 block text-[10px] uppercase tracking-wider text-white/50 font-one">
+              Rechercher par client
+            </label>
+            <input
+              type="text"
+              value={searchTerm}
+              disabled={loading}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
+              placeholder="Nom du client..."
+              className="w-full rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/45 focus:outline-none font-one disabled:opacity-60"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-[10px] uppercase tracking-wider text-white/50 font-one">
+              Statut
+            </label>
+            <div className="relative">
+              <select
+                value={statusFilter}
+                disabled={loading}
+                onChange={(e) => {
+                  const v = e.target.value as StatusFilter;
+                  setStatusFilter(v);
+                  updateParam("status", v);
+                }}
+                className="w-full appearance-none rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs text-white focus:border-tertiary-400/45 focus:outline-none font-one disabled:opacity-60"
+              >
+                <option value="all" className="bg-noir-500">Tous les statuts</option>
+                <option value="unanswered" className="bg-noir-500">En attente</option>
+                <option value="answered" className="bg-noir-500">Répondus</option>
+              </select>
+              <IoChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/55" />
             </div>
-            <div className="flex-1">
-              <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
-                <span className="hidden sm:inline">
-                  Clients - Suivi de cicatrisation
-                </span>
-                <span className="sm:hidden">Suivi cicatrisation</span>
-              </h1>
-              <p className="text-white/70 text-xs font-one mt-1">
-                <span className="hidden sm:inline">
-                  Répondez aux suivis de cicatrisation de vos clients. Gérez les
-                  photos et les commentaires pour assurer un suivi optimal.
-                </span>
-                <span className="sm:hidden">
-                  Gérez les suivis de vos clients
-                </span>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-[10px] uppercase tracking-wider text-white/50 font-one">
+              Tatoueur
+            </label>
+            <div className="relative">
+              <select
+                value={tatoueurFilter}
+                disabled={loading}
+                onChange={(e) => {
+                  const v = e.target.value as TatoueurFilter;
+                  setTatoueurFilter(v);
+                  updateParam("tatoueurId", v);
+                }}
+                className="w-full appearance-none rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs text-white focus:border-tertiary-400/45 focus:outline-none font-one disabled:opacity-60"
+              >
+                <option value="all" className="bg-noir-500">Tous les tatoueurs</option>
+                {tatoueurs.map((t) => (
+                  <option key={t.id} value={t.id} className="bg-noir-500">
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+              <IoChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/55" />
+            </div>
+          </div>
+
+          <div className="">
+          
+            <div className="rounded-xl border border-white/10 bg-white/4 px-2.5 py-2 text-center">
+              <p className="text-[10px] uppercase tracking-wider text-white/45 font-one">Total</p>
+              <p className="mt-0.5 text-sm font-semibold text-white font-one">
+                {loading ? "-" : (pagination?.totalFollowUps ?? 0)}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Filtres responsive */}
-        <div className="bg-noir-500 rounded-xl border border-white/20 p-3 sm:p-6 mb-4">
-          <div className="flex items-center gap-2 mb-3 sm:mb-4">
-            <MdFilterList className="text-white w-4 h-4 sm:w-5 sm:h-5" />
-            <h2 className="text-white font-one font-semibold text-sm sm:text-base">
-              Filtres
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-            {/* Recherche responsive */}
-            <div className="sm:col-span-2 lg:col-span-2">
-              <label className="block text-xs text-white/70 font-one mb-2">
-                Rechercher par client
-              </label>
-              <input
-                type="text"
-                value={searchTerm}
-                disabled={loading}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                }}
-                placeholder="Nom du client..."
-                className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 py-2 px-3 font-one border border-white/20 rounded-lg focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-60"
-              />
-            </div>
-
-            {/* Statut responsive */}
-            <div className="sm:col-span-1">
-              <label className="block text-xs text-white/70 font-one mb-2">
-                Statut de réponse
-              </label>
-              <div className="relative">
-                <select
-                  value={statusFilter}
-                  disabled={loading}
-                  onChange={(e) => {
-                    const v = e.target.value as StatusFilter;
-                    setStatusFilter(v);
-                    updateParam("status", v);
-                  }}
-                  className="w-full text-sm text-white bg-noir-500/80 py-2 px-3 font-one border border-white/20 rounded-lg focus:outline-none focus:border-tertiary-400 transition-colors appearance-none cursor-pointer disabled:opacity-60"
+        {(statusFilter !== "all" || tatoueurFilter !== "all" || searchTerm) && (
+          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+            {statusFilter !== "all" && (
+              <span className="inline-flex items-center gap-1 rounded-[10px] border border-cyan-400/35 bg-cyan-400/20 px-2 py-0.5 text-[10px] text-cyan-300 font-one">
+                {statusFilter === "unanswered" ? "En attente" : "Répondu"}
+                <button
+                  onClick={() => updateParam("status", "all")}
+                  className="cursor-pointer text-cyan-200 hover:text-white"
+                  aria-label="Supprimer filtre statut"
                 >
-                  <option value="all">Tous les statuts</option>
-                  <option value="unanswered">En attente</option>
-                  <option value="answered">Répondus</option>
-                </select>
-                <IoChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 w-4 h-4 pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Tatoueur responsive */}
-            <div className="sm:col-span-1">
-              <label className="block text-xs text-white/70 font-one mb-2">
-                Tatoueur
-              </label>
-              <div className="relative">
-                <select
-                  value={tatoueurFilter}
-                  disabled={loading}
-                  onChange={(e) => {
-                    const v = e.target.value as TatoueurFilter;
-                    setTatoueurFilter(v);
-                    updateParam("tatoueurId", v);
-                  }}
-                  className="w-full text-sm text-white bg-noir-500/80 py-2 px-3 font-one border border-white/20 rounded-lg focus:outline-none focus:border-tertiary-400 transition-colors appearance-none cursor-pointer disabled:opacity-60"
-                >
-                  <option value="all">Tous les tatoueurs</option>
-                  {tatoueurs.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
-                <IoChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 w-4 h-4 pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Compteurs responsive */}
-            <div className="flex items-end sm:col-span-2 lg:col-span-1">
-              <div className="flex gap-4 sm:gap-6 w-full justify-center sm:justify-start">
-                <div className="text-center">
-                  <p className="text-xs text-white/70 font-one">
-                    <span className="hidden sm:inline">Résultats (page)</span>
-                    <span className="sm:hidden">Page</span>
-                  </p>
-                  <p className="text-lg font-bold text-tertiary-400 font-one">
-                    {loading ? "—" : followUps.length}
-                  </p>
-                </div>
-                {pagination && (
-                  <div className="text-center">
-                    <p className="text-xs text-white/70 font-one">Total</p>
-                    <p className="text-lg font-bold text-white font-one">
-                      {loading ? "—" : pagination.totalFollowUps}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Filtres actifs responsive */}
-          {(statusFilter !== "all" ||
-            tatoueurFilter !== "all" ||
-            searchTerm) && (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-one text-white/50 hidden sm:inline">
-                Filtres actifs :
+                  ×
+                </button>
               </span>
+            )}
 
-              {statusFilter !== "all" && (
-                <span className="inline-flex items-center gap-2 px-2 py-1 bg-cyan-400/20 text-cyan-300 rounded-full text-[10px] font-one border border-cyan-400/30">
-                  <span className="hidden sm:inline">Statut :</span>
-                  {statusFilter === "unanswered" ? "En attente" : "Répondu"}
-                  <button
-                    onClick={() => updateParam("status", "all")}
-                    className="cursor-pointer hover:text-white/90"
-                    aria-label="Supprimer filtre statut"
-                  >
-                    ✕
-                  </button>
+            {tatoueurFilter !== "all" && (
+              <span className="inline-flex items-center gap-1 rounded-[10px] border border-violet-400/35 bg-violet-400/20 px-2 py-0.5 text-[10px] text-violet-300 font-one">
+                <span className="truncate max-w-24">
+                  {tatoueurs.find((t) => t.id === tatoueurFilter)?.name || tatoueurFilter}
                 </span>
-              )}
+                <button
+                  onClick={() => updateParam("tatoueurId", "all")}
+                  className="cursor-pointer text-violet-200 hover:text-white"
+                  aria-label="Supprimer filtre tatoueur"
+                >
+                  ×
+                </button>
+              </span>
+            )}
 
-              {tatoueurFilter !== "all" && (
-                <span className="inline-flex items-center gap-2 px-2 py-1 bg-violet-400/20 text-violet-300 rounded-full text-[10px] font-one border border-violet-400/30">
-                  <span className="hidden sm:inline">Tatoueur :</span>
-                  <span className="truncate max-w-20">
-                    {tatoueurs.find((t) => t.id === tatoueurFilter)?.name ||
-                      tatoueurFilter}
-                  </span>
-                  <button
-                    onClick={() => updateParam("tatoueurId", "all")}
-                    className="cursor-pointer hover:text-white/90"
-                    aria-label="Supprimer filtre tatoueur"
-                  >
-                    ✕
-                  </button>
-                </span>
-              )}
-
-              {searchTerm && (
-                <span className="inline-flex items-center gap-2 px-2 py-1 bg-amber-400/20 text-amber-300 rounded-full text-[10px] font-one border border-amber-400/30">
-                  <span className="hidden sm:inline">Recherche :</span>
-                  <span className="truncate max-w-16">"{searchTerm}"</span>
-                  <button
-                    onClick={() => updateParam("q", undefined)}
-                    className="cursor-pointer hover:text-white/90"
-                    aria-label="Supprimer filtre recherche"
-                  >
-                    ✕
-                  </button>
-                </span>
-              )}
-
-              <button
-                onClick={() => {
-                  const params = new URLSearchParams(searchParams.toString());
-                  params.delete("status");
-                  params.delete("tatoueurId");
-                  params.delete("q");
-                  params.set("page", "1");
-                  router.replace(`${pathname}?${params.toString()}`, {
-                    scroll: false,
-                  });
-                }}
-                className="cursor-pointer px-2 py-1 bg-red-400/20 text-red-300 rounded-full font-one text-[10px] border border-red-400/30 hover:bg-red-400/30 transition-colors"
-              >
-                ✕ Effacer
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Ligne d'info responsive */}
-        <div className="text-white/60 text-xs font-one mb-3">
-          <span className="hidden sm:inline">
-            Affichage de {pagination?.startIndex ?? 0} à{" "}
-            {pagination?.endIndex ?? 0} sur {pagination?.totalFollowUps ?? 0}{" "}
-            suivi{(pagination?.totalFollowUps ?? 0) > 1 ? "s" : ""}
-          </span>
-          <span className="sm:hidden">
-            {pagination?.startIndex ?? 0}-{pagination?.endIndex ?? 0} /{" "}
-            {pagination?.totalFollowUps ?? 0}
-          </span>
-        </div>
-
-        {/* Zone liste responsive */}
-        {error ? (
-          <div className="text-center py-8 sm:py-12 bg-noir-500 rounded-xl border border-white/20">
-            <p className="text-red-400 mb-4 text-base sm:text-lg font-medium">
-              {error}
-            </p>
-            <button
-              onClick={() =>
-                fetchFollowUps({
-                  page: pageFromUrl,
-                  limit: limitFromUrl,
-                  status: statusFromUrl,
-                  tatoueurId: tatoueurFromUrl,
-                  q: queryFromUrl,
-                })
-              }
-              className="px-4 sm:px-6 py-2 sm:py-3 bg-tertiary-500 text-white rounded-lg hover:bg-tertiary-600 transition-colors font-medium text-sm sm:text-base"
-            >
-              Réessayer
-            </button>
-          </div>
-        ) : loading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-noir-500 rounded-xl border border-white/10 p-4 sm:p-6 animate-pulse"
-              >
-                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-lg flex-shrink-0" />
-                  <div className="flex-1 space-y-3 w-full">
-                    <div className="h-3 sm:h-4 bg-white/10 rounded w-1/3" />
-                    <div className="h-2 sm:h-3 bg-white/10 rounded w-1/4" />
-                    <div className="h-2 sm:h-3 bg-white/10 rounded w-1/5" />
-                    <div className="h-16 sm:h-20 bg-white/5 rounded border border-white/10" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : followUps.length === 0 ? (
-          <div className="bg-noir-500 rounded-xl border border-white/20 p-8 sm:p-12 text-center">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MdOutlineRateReview className="w-6 h-6 sm:w-8 sm:h-8 text-gray-500" />
-            </div>
-            <p className="text-white/60 text-base sm:text-lg mb-2">
-              Aucun suivi trouvé
-            </p>
-            <p className="text-white/40 text-sm">
-              Essayez de modifier vos filtres
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-3 sm:gap-4">
-            {followUps.map((followUp) => (
-              <div
-                key={followUp.id}
-                className="bg-noir-500 rounded-xl border border-white/20 p-4 sm:p-6 hover:border-tertiary-400/30 transition-all duration-300"
-              >
-                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
-                  {/* Photo responsive */}
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-white/10 flex-shrink-0 border border-white/20 mx-auto sm:mx-0">
-                    {followUp.photoUrl ? (
-                      <Image
-                        src={followUp.photoUrl}
-                        alt="Photo de cicatrisation"
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform"
-                        onClick={() => window.open(followUp.photoUrl, "_blank")}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <svg
-                          className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Infos responsive */}
-                  <div className="flex-1 min-w-0 w-full text-center sm:text-left">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-white font-semibold font-one text-base sm:text-lg mb-1 truncate">
-                          {followUp.appointment?.client?.firstName}{" "}
-                          {followUp.appointment?.client?.lastName}
-                        </h3>
-                        <p className="text-white/70 text-sm font-one mb-1 break-words">
-                          {followUp.appointment?.title}
-                        </p>
-                        <p className="text-white/50 text-xs font-one">
-                          Tatoueur: {followUp.appointment?.tatoueur?.name}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                        <span
-                          className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium border ${
-                            followUp.isAnswered
-                              ? "bg-green-500/20 text-green-400 border-green-500/30"
-                              : "bg-orange-500/20 text-orange-400 border-orange-500/30"
-                          }`}
-                        >
-                          {followUp.isAnswered ? "Répondu" : "En attente"}
-                        </span>
-                        <span className="text-white/50 text-xs font-one">
-                          {getTimeAgo(followUp.createdAt)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Évaluation responsive */}
-                    <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-3 mb-3">
-                      <span className="text-yellow-400 text-sm">
-                        {getRatingStars(followUp.rating)}
-                      </span>
-                      <span className="text-white/80 text-sm font-one">
-                        {getRatingLabel(followUp.rating)}
-                      </span>
-                    </div>
-
-                    {/* Avis responsive */}
-                    {followUp.review && (
-                      <div className="bg-white/5 p-3 rounded-lg border border-white/10 mb-3">
-                        <p className="text-white/90 text-sm font-one italic break-words">
-                          "{followUp.review}"
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Métadonnées + actions responsive */}
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs text-white/50 font-one gap-2">
-                      <span className="text-center sm:text-left">
-                        Envoyé le {formatDate(followUp.createdAt)}
-                      </span>
-                      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
-                        <span
-                          className={`text-center ${
-                            followUp.isPhotoPublic
-                              ? "text-blue-400"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          Photo {followUp.isPhotoPublic ? "publique" : "privée"}
-                        </span>
-                        <div className="flex items-center justify-center gap-3 sm:gap-2">
-                          {!followUp.isAnswered && (
-                            <button
-                              onClick={() => handleReplyClick(followUp)}
-                              className="cursor-pointer text-tertiary-400 hover:text-tertiary-300 transition-colors font-medium px-2 py-1 rounded border border-tertiary-400/30 hover:bg-tertiary-400/10"
-                            >
-                              Répondre
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDeleteClick(followUp)}
-                            className="cursor-pointer text-red-400 hover:text-red-300 transition-colors font-medium px-2 py-1 rounded border border-red-400/30 hover:bg-red-400/10"
-                            title="Supprimer ce suivi"
-                          >
-                            Supprimer
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Pagination responsive */}
-        {pagination && pagination.totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-2 pt-4">
-            <button
-              onClick={() => goToPage(pagination.currentPage - 1)}
-              disabled={!pagination.hasPreviousPage || loading}
-              className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors text-xs w-full sm:w-auto"
-            >
-              Précédent
-            </button>
-
-            <div className="flex items-center gap-1 order-first sm:order-none">
-              {Array.from(
-                {
-                  length: Math.min(
-                    pagination.totalPages,
-                    typeof window !== "undefined" && window.innerWidth < 640
-                      ? 3
-                      : 5
-                  ),
-                },
-                (_, i) => {
-                  const maxButtons =
-                    typeof window !== "undefined" && window.innerWidth < 640
-                      ? 3
-                      : 5;
-                  const total = pagination.totalPages;
-                  const curr = pagination.currentPage;
-                  let pageNumber: number;
-                  if (total <= maxButtons) pageNumber = i + 1;
-                  else if (curr <= Math.floor(maxButtons / 2) + 1)
-                    pageNumber = i + 1;
-                  else if (curr >= total - Math.floor(maxButtons / 2))
-                    pageNumber = total - maxButtons + 1 + i;
-                  else pageNumber = curr - Math.floor(maxButtons / 2) + i;
-
-                  return (
-                    <button
-                      key={pageNumber}
-                      onClick={() => goToPage(pageNumber)}
-                      disabled={loading}
-                      className={`cursor-pointer w-6 h-6 sm:w-8 sm:h-8 rounded-lg text-xs font-one transition-all ${
-                        curr === pageNumber
-                          ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
-                          : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
-                      } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-                    >
-                      {pageNumber}
-                    </button>
-                  );
-                }
-              )}
-            </div>
+            {searchTerm && (
+              <span className="inline-flex items-center gap-1 rounded-[10px] border border-amber-400/35 bg-amber-400/20 px-2 py-0.5 text-[10px] text-amber-300 font-one">
+                <span className="truncate max-w-24">"{searchTerm}"</span>
+                <button
+                  onClick={() => updateParam("q", undefined)}
+                  className="cursor-pointer text-amber-200 hover:text-white"
+                  aria-label="Supprimer filtre recherche"
+                >
+                  ×
+                </button>
+              </span>
+            )}
 
             <button
-              onClick={() => goToPage(pagination.currentPage + 1)}
-              disabled={!pagination.hasNextPage || loading}
-              className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors text-xs w-full sm:w-auto"
+              onClick={() => {
+                const params = new URLSearchParams(searchParams.toString());
+                params.delete("status");
+                params.delete("tatoueurId");
+                params.delete("q");
+                params.set("page", "1");
+                router.replace(`${pathname}?${params.toString()}`, {
+                  scroll: false,
+                });
+              }}
+              className="cursor-pointer inline-flex items-center rounded-[10px] border border-red-400/35 bg-red-400/20 px-2 py-0.5 text-[10px] text-red-300 transition-colors hover:bg-red-400/30 font-one"
             >
-              Suivant
+              Tout effacer
             </button>
           </div>
         )}
       </div>
 
-      {/* Modale de réponse responsive */}
+      <div className="px-1 text-xs text-white/55 font-one">
+        Affichage de {pagination?.startIndex ?? 0} à {pagination?.endIndex ?? 0} sur {pagination?.totalFollowUps ?? 0}
+      </div>
+
+      {error ? (
+        <div className="dashboard-empty-state rounded-2xl border border-red-500/25 bg-red-500/8 p-6 text-center">
+          <p className="text-sm text-red-300 font-one">{error}</p>
+          <button
+            onClick={() =>
+              fetchFollowUps({
+                page: pageFromUrl,
+                limit: limitFromUrl,
+                status: statusFromUrl,
+                tatoueurId: tatoueurFromUrl,
+                q: queryFromUrl,
+              })
+            }
+            className="cursor-pointer mt-3 inline-flex h-9 items-center justify-center rounded-[14px] bg-tertiary-500 px-4 text-[11px] font-medium text-white transition-colors hover:bg-tertiary-400 font-one"
+          >
+            Réessayer
+          </button>
+        </div>
+      ) : loading ? (
+        <div className="space-y-2.5">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="dashboard-embedded-section animate-pulse rounded-2xl p-3 sm:p-4">
+              <div className="flex items-start gap-3">
+                <div className="h-16 w-16 rounded-xl bg-white/8 sm:h-20 sm:w-20" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-1/3 rounded bg-white/8" />
+                  <div className="h-2 w-1/4 rounded bg-white/8" />
+                  <div className="h-16 rounded-xl border border-white/10 bg-white/4" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : followUps.length === 0 ? (
+        <div className="dashboard-empty-state rounded-2xl border border-white/10 p-8 text-center sm:p-10">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white/7">
+            <MdOutlineRateReview className="h-7 w-7 text-white/40" />
+          </div>
+          <p className="text-base text-white font-one">Aucun suivi trouvé</p>
+          <p className="mt-1 text-xs text-white/55 font-one">Essayez de modifier vos filtres.</p>
+        </div>
+      ) : (
+        <div className="grid gap-2.5">
+          {followUps.map((followUp) => (
+            <article
+              key={followUp.id}
+              className="dashboard-embedded-section rounded-2xl border border-white/10 bg-white/4 p-3 transition-all duration-200 hover:border-tertiary-400/30"
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                <div className="mx-auto h-16 w-16 overflow-hidden rounded-xl border border-white/12 bg-white/8 sm:mx-0 sm:h-20 sm:w-20">
+                  {followUp.photoUrl ? (
+                    <Image
+                      src={followUp.photoUrl}
+                      alt="Photo de cicatrisation"
+                      width={80}
+                      height={80}
+                      className="h-full w-full cursor-pointer object-cover transition-transform hover:scale-105"
+                      onClick={() => window.open(followUp.photoUrl, "_blank")}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <svg className="h-6 w-6 text-white/35" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 text-center sm:text-left">
+                      <h3 className="truncate text-sm font-semibold text-white font-one sm:text-base">
+                        {followUp.appointment?.client?.firstName} {followUp.appointment?.client?.lastName}
+                      </h3>
+                      <p className="mt-0.5 truncate text-xs text-white/70 font-one">
+                        {followUp.appointment?.title}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-white/50 font-one">
+                        Tatoueur: {followUp.appointment?.tatoueur?.name}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-2 sm:justify-end">
+                      <span
+                        className={`rounded-[10px] border px-2 py-0.5 text-[10px] font-medium font-one ${
+                          followUp.isAnswered
+                            ? "border-emerald-500/35 bg-emerald-500/20 text-emerald-300"
+                            : "border-orange-500/35 bg-orange-500/20 text-orange-300"
+                        }`}
+                      >
+                        {followUp.isAnswered ? "Répondu" : "En attente"}
+                      </span>
+                      <span className="text-[11px] text-white/45 font-one">{getTimeAgo(followUp.createdAt)}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-2.5 flex items-center justify-center gap-2 sm:justify-start">
+                    <span className="text-[13px] text-yellow-400">{getRatingStars(followUp.rating)}</span>
+                    <span className="text-[11px] text-white/80 font-one">{getRatingLabel(followUp.rating)}</span>
+                  </div>
+
+                  {followUp.review && (
+                    <div className="mt-2.5 rounded-xl border border-white/10 bg-white/4 px-2.5 py-2">
+                      <p className="text-xs italic text-white/85 font-one">"{followUp.review}"</p>
+                    </div>
+                  )}
+
+                  <div className="mt-2.5 flex flex-col gap-2 text-[11px] text-white/50 sm:flex-row sm:items-center sm:justify-between font-one">
+                    <span className="text-center sm:text-left">Envoyé le {formatDate(followUp.createdAt)}</span>
+                    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-end">
+                      <span className={followUp.isPhotoPublic ? "text-blue-300" : "text-white/40"}>
+                        Photo {followUp.isPhotoPublic ? "publique" : "privée"}
+                      </span>
+
+                      {!followUp.isAnswered && (
+                        <button
+                          onClick={() => handleReplyClick(followUp)}
+                          className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-tertiary-400/30 bg-tertiary-400/12 px-2.5 text-[11px] text-tertiary-300 transition-colors hover:bg-tertiary-400/18"
+                        >
+                          Répondre
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => handleDeleteClick(followUp)}
+                        className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-red-400/30 bg-red-400/10 px-2.5 text-[11px] text-red-300 transition-colors hover:bg-red-400/18"
+                        title="Supprimer ce suivi"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {pagination && pagination.totalPages > 1 && (
+        <div className="dashboard-embedded-panel flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/4 p-2.5 sm:flex-row sm:gap-1.5">
+          <button
+            onClick={() => goToPage(pagination.currentPage - 1)}
+            disabled={!pagination.hasPreviousPage || loading}
+            className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-white/12 bg-white/8 px-2.5 text-[11px] text-white/85 transition-colors hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-50 font-one"
+          >
+            Précédent
+          </button>
+
+          <div className="flex items-center gap-1">
+            {Array.from(
+              {
+                length: Math.min(
+                  pagination.totalPages,
+                  typeof window !== "undefined" && window.innerWidth < 640 ? 3 : 5
+                ),
+              },
+              (_, i) => {
+                const maxButtons =
+                  typeof window !== "undefined" && window.innerWidth < 640 ? 3 : 5;
+                const total = pagination.totalPages;
+                const curr = pagination.currentPage;
+                let pageNumber: number;
+                if (total <= maxButtons) pageNumber = i + 1;
+                else if (curr <= Math.floor(maxButtons / 2) + 1) pageNumber = i + 1;
+                else if (curr >= total - Math.floor(maxButtons / 2)) pageNumber = total - maxButtons + 1 + i;
+                else pageNumber = curr - Math.floor(maxButtons / 2) + i;
+
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => goToPage(pageNumber)}
+                    disabled={loading}
+                    className={`cursor-pointer inline-flex h-8 w-8 items-center justify-center rounded-[10px] text-[11px] transition-colors font-one ${
+                      curr === pageNumber
+                        ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                        : "border border-white/12 bg-white/8 text-white/75 hover:bg-white/12 hover:text-white"
+                    } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              }
+            )}
+          </div>
+
+          <button
+            onClick={() => goToPage(pagination.currentPage + 1)}
+            disabled={!pagination.hasNextPage || loading}
+            className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-white/12 bg-white/8 px-2.5 text-[11px] text-white/85 transition-colors hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-50 font-one"
+          >
+            Suivant
+          </button>
+        </div>
+      )}
+
       {isReplyModalOpen && selectedFollowUp && (
         <div
           data-modal
-          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-hidden"
+          className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-[2px] p-0 sm:p-3 md:p-4 lg:flex lg:items-center lg:justify-center overflow-hidden"
           style={{ height: "100dvh", width: "100vw" }}
         >
-          <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col min-h-0 border border-white/20 shadow-2xl">
-            {/* Header responsive */}
-            <div className="p-4 sm:p-6 border-b border-white/10 bg-white/5">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide">
+          <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none border-0 bg-[#1a1a1a] shadow-none sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)] md:max-h-[90vh]">
+            <div className="dashboard-embedded-header px-4 py-3.5 sm:rounded-t-[28px]">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">Suivi client</p>
+                  <h2 className="mt-1 truncate text-base font-semibold tracking-wide text-white font-one sm:text-lg">
                     Répondre au suivi
                   </h2>
-                  <p className="text-white/70 mt-1 sm:mt-2 text-xs sm:text-sm truncate">
-                    Réponse à {selectedFollowUp.appointment?.client?.firstName}{" "}
-                    {selectedFollowUp.appointment?.client?.lastName}
+                  <p className="mt-0.5 truncate text-xs text-white/65 font-one">
+                    {selectedFollowUp.appointment?.client?.firstName} {selectedFollowUp.appointment?.client?.lastName}
                   </p>
                 </div>
+
                 <button
+                  type="button"
                   onClick={() => setIsReplyModalOpen(false)}
-                  className="p-1 sm:p-2 hover:bg-white/10 rounded-full transition-colors ml-2"
+                  className="shrink-0 rounded-xl p-1.5 text-white/65 transition-colors hover:bg-white/10 hover:text-white"
                 >
-                  <span className="cursor-pointer text-white text-xl">×</span>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
             </div>
 
-            {/* Contenu responsive */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 min-h-0">
-              {/* Récapitulatif responsive */}
-              <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10 mb-4 sm:mb-6">
-                <h3 className="text-white font-semibold font-one mb-3 text-sm sm:text-base">
-                  📋 Récapitulatif du suivi
-                </h3>
+            <div className="space-y-2.5 overflow-y-auto px-3 py-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+              <div className="dashboard-embedded-section p-3">
+                <h3 className="mb-2 text-[12px] font-semibold text-white font-one">Récapitulatif</h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
-                  <div>
-                    <p className="text-xs text-white/70 font-one">Client</p>
-                    <p className="text-white font-one text-sm break-words">
-                      {selectedFollowUp.appointment?.client?.firstName}{" "}
-                      {selectedFollowUp.appointment?.client?.lastName}
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div className="rounded-xl border border-white/8 bg-white/4 px-2.5 py-2">
+                    <p className="text-[10px] uppercase tracking-wider text-white/35 font-one">Client</p>
+                    <p className="mt-0.5 truncate text-xs text-white/90 font-one">
+                      {selectedFollowUp.appointment?.client?.firstName} {selectedFollowUp.appointment?.client?.lastName}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs text-white/70 font-one">Prestation</p>
-                    <p className="text-white font-one text-sm break-words">
+                  <div className="rounded-xl border border-white/8 bg-white/4 px-2.5 py-2">
+                    <p className="text-[10px] uppercase tracking-wider text-white/35 font-one">Prestation</p>
+                    <p className="mt-0.5 truncate text-xs text-white/90 font-one">
                       {selectedFollowUp.appointment?.title}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs text-white/70 font-one">Tatoueur</p>
-                    <p className="text-white font-one text-sm">
+                  <div className="rounded-xl border border-white/8 bg-white/4 px-2.5 py-2">
+                    <p className="text-[10px] uppercase tracking-wider text-white/35 font-one">Tatoueur</p>
+                    <p className="mt-0.5 truncate text-xs text-white/90 font-one">
                       {selectedFollowUp.appointment?.tatoueur?.name}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs text-white/70 font-one">
-                      Date d'envoi
-                    </p>
-                    <p className="text-white font-one text-sm">
-                      {formatDate(selectedFollowUp.createdAt)}
-                    </p>
+                  <div className="rounded-xl border border-white/8 bg-white/4 px-2.5 py-2">
+                    <p className="text-[10px] uppercase tracking-wider text-white/35 font-one">Date</p>
+                    <p className="mt-0.5 text-xs text-white/90 font-one">{formatDate(selectedFollowUp.createdAt)}</p>
                   </div>
                 </div>
 
-                {/* Évaluation */}
-                <div className="flex items-center gap-2 sm:gap-3 mb-3">
-                  <span className="text-xs text-white/70 font-one">
-                    Satisfaction:
-                  </span>
-                  <span className="text-yellow-400 text-sm">
-                    {getRatingStars(selectedFollowUp.rating)}
-                  </span>
-                  <span className="text-white/80 text-xs font-one">
-                    {getRatingLabel(selectedFollowUp.rating)}
-                  </span>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[11px] text-white/55 font-one">Satisfaction :</span>
+                  <span className="text-[13px] text-yellow-400">{getRatingStars(selectedFollowUp.rating)}</span>
+                  <span className="text-[11px] text-white/80 font-one">{getRatingLabel(selectedFollowUp.rating)}</span>
                 </div>
 
-                {/* Avis du client */}
                 {selectedFollowUp.review && (
-                  <div className="mt-3">
-                    <p className="text-xs text-white/70 font-one mb-2">
-                      Avis du client:
-                    </p>
-                    <div className="bg-white/10 p-3 rounded-lg border border-white/20">
-                      <p className="text-white/90 text-sm font-one italic break-words">
-                        "{selectedFollowUp.review}"
-                      </p>
-                    </div>
+                  <div className="mt-2 rounded-xl border border-white/10 bg-white/4 px-2.5 py-2">
+                    <p className="text-[11px] text-white/60 font-one">Avis du client</p>
+                    <p className="mt-0.5 text-xs italic text-white/90 font-one">"{selectedFollowUp.review}"</p>
                   </div>
                 )}
 
-                {/* Photo du client responsive */}
                 {selectedFollowUp.photoUrl && (
-                  <div className="mt-4">
-                    <p className="text-xs text-white/70 font-one mb-2">
-                      Photo de cicatrisation:
-                    </p>
-                    <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden bg-white/10 border border-white/20 mx-auto sm:mx-0">
+                  <div className="mt-2">
+                    <p className="mb-1 text-[11px] text-white/60 font-one">Photo de cicatrisation</p>
+                    <div className="h-24 w-24 overflow-hidden rounded-xl border border-white/10 bg-white/5 sm:h-28 sm:w-28">
                       <Image
                         src={selectedFollowUp.photoUrl}
                         alt="Photo de cicatrisation"
-                        width={128}
-                        height={128}
-                        className="w-full h-full object-cover cursor-pointer"
-                        onClick={() =>
-                          window.open(selectedFollowUp.photoUrl, "_blank")
-                        }
+                        width={112}
+                        height={112}
+                        className="h-full w-full cursor-pointer object-cover"
+                        onClick={() => window.open(selectedFollowUp.photoUrl, "_blank")}
                       />
                     </div>
-                    <p className="text-xs text-white/50 font-one mt-1 text-center sm:text-left">
-                      Cliquez pour voir en grand
-                    </p>
                   </div>
                 )}
               </div>
 
-              {/* Zone de réponse responsive */}
-              <div className="bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-white/10">
-                <h3 className="text-white font-semibold font-one mb-3 text-sm sm:text-base">
-                  ✍️ Votre réponse
-                </h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs text-white/70 font-one mb-2">
-                      Message pour le client
-                    </label>
-                    <textarea
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      placeholder="Rédigez votre réponse personnalisée pour le client..."
-                      className="w-full h-24 sm:h-32 p-3 sm:p-4 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-tertiary-400 focus:border-transparent resize-none transition-colors"
-                      maxLength={1000}
-                      disabled={isReplying}
-                    />
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-2 gap-1">
-                      <p className="text-xs text-white/50 font-one">
-                        Le client recevra votre réponse par email
-                      </p>
-                      <p className="text-xs text-white/50 font-one">
-                        {replyText.length}/1000
-                      </p>
-                    </div>
-                  </div>
+              <div className="dashboard-embedded-section p-3">
+                <h3 className="mb-2 text-[12px] font-semibold text-white font-one">Votre réponse</h3>
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Rédigez votre réponse personnalisée pour le client..."
+                  className="h-28 w-full resize-none rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
+                  maxLength={1000}
+                  disabled={isReplying}
+                />
 
-                  {/* Suggestions responsive */}
-                  <div className="border-t border-white/10 pt-3">
-                    <p className="text-xs text-white/70 font-one mb-2">
-                      💡 Suggestions de réponse :
-                    </p>
-                    <div className="grid grid-cols-1 gap-2">
-                      {[
-                        "Votre tatouage cicatrise parfaitement ! Continuez les soins comme indiqué.",
-                        "Merci pour cette belle photo ! La cicatrisation suit son cours normal.",
-                        "Excellent ! Votre tatouage guérit très bien. N'hésitez pas si vous avez des questions.",
-                      ].map((suggestion, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setReplyText(suggestion)}
-                          disabled={isReplying}
-                          className="cursor-pointer text-left p-2 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 hover:border-tertiary-400/30 transition-all text-xs text-white/80 font-one disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
+                <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-white/45 font-one">
+                  <p>Le client recevra votre réponse par email.</p>
+                  <p>{replyText.length}/1000</p>
+                </div>
+
+                <div className="mt-2 border-t border-white/10 pt-2">
+                  <p className="mb-1.5 text-[11px] text-white/60 font-one">Suggestions</p>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {[
+                      "Votre tatouage cicatrise parfaitement ! Continuez les soins comme indiqué.",
+                      "Merci pour cette belle photo ! La cicatrisation suit son cours normal.",
+                      "Excellent ! Votre tatouage guérit très bien. N'hésitez pas si vous avez des questions.",
+                    ].map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setReplyText(suggestion)}
+                        disabled={isReplying}
+                        className="cursor-pointer rounded-xl border border-white/10 bg-white/4 px-2.5 py-2 text-left text-[11px] text-white/80 transition-colors hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-50 font-one"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Footer responsive */}
-            <div className="p-4 sm:p-6 border-t border-white/10 bg-white/5 flex flex-col sm:flex-row justify-end gap-3">
+            <div className="dashboard-embedded-footer flex items-center justify-end gap-2 px-4 py-2.5 sm:rounded-b-[28px]">
               <button
                 onClick={() => setIsReplyModalOpen(false)}
                 disabled={isReplying}
-                className="cursor-pointer px-4 sm:px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] border border-white/12 bg-white/8 px-3.5 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-50 font-one"
               >
                 Annuler
               </button>
               <button
                 onClick={handleReplySubmit}
                 disabled={isReplying || !replyText.trim()}
-                className="cursor-pointer px-4 sm:px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm flex items-center justify-center gap-2"
+                className="cursor-pointer inline-flex h-9 items-center justify-center gap-1.5 rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:cursor-not-allowed disabled:opacity-50 font-one"
               >
                 {isReplying ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-b-2 border-white" />
                     <span>Envoi...</span>
                   </>
                 ) : (
-                  <>
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                      />
-                    </svg>
-                    <span>Envoyer la réponse</span>
-                  </>
+                  <span>Envoyer la réponse</span>
                 )}
               </button>
             </div>
@@ -1056,62 +901,47 @@ export default function ShowSuivis() {
         </div>
       )}
 
-      {/* Modale de suppression responsive */}
       {isDeleteModalOpen && followUpToDelete && (
         <div
           data-modal
-          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-hidden"
+          className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-[2px] p-0 sm:p-3 md:p-4 lg:flex lg:items-center lg:justify-center overflow-hidden"
           style={{ height: "100dvh", width: "100vw" }}
         >
-          <div className="bg-noir-500 rounded-xl sm:rounded-2xl w-full max-w-md border border-white/20 shadow-2xl min-h-0 overflow-hidden">
-            {/* Header */}
-            <div className="p-4 sm:p-6 border-b border-white/10">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-4 h-4 text-red-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                    />
-                  </svg>
+          <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-lg flex-col overflow-hidden rounded-none border-0 bg-[#1a1a1a] shadow-none sm:h-auto sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)]">
+            <div className="dashboard-embedded-header px-4 py-3.5 sm:rounded-t-[28px]">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-red-300/70 font-one">Suppression</p>
+                  <h2 className="mt-1 text-base font-semibold text-white font-one">Supprimer le suivi</h2>
+                  <p className="mt-0.5 text-xs text-white/65 font-one">Cette action est irréversible.</p>
                 </div>
-                <h2 className="text-base sm:text-lg font-bold text-white font-one">
-                  Supprimer le suivi
-                </h2>
+                <button
+                  type="button"
+                  onClick={handleDeleteCancel}
+                  className="shrink-0 rounded-xl p-1.5 text-white/65 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <p className="text-white/70 text-sm">
-                Cette action est irréversible
-              </p>
             </div>
 
-            {/* Contenu responsive */}
-            <div className="p-4 sm:p-6">
-              <div className="bg-white/5 rounded-lg p-3 sm:p-4 border border-white/10 mb-4">
+            <div className="space-y-2.5 overflow-y-auto px-3 py-3">
+              <div className="dashboard-embedded-section p-3">
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10 border border-white/20 flex-shrink-0">
+                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5">
                     {followUpToDelete.photoUrl ? (
                       <Image
                         src={followUpToDelete.photoUrl}
                         alt="Photo de cicatrisation"
                         width={48}
                         height={48}
-                        className="w-full h-full object-cover"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <svg
-                          className="w-5 h-5 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
+                      <div className="flex h-full w-full items-center justify-center text-white/40">
+                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -1123,112 +953,55 @@ export default function ShowSuivis() {
                     )}
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium text-sm mb-1 break-words">
-                      {followUpToDelete.appointment?.client?.firstName}{" "}
-                      {followUpToDelete.appointment?.client?.lastName}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm text-white font-one">
+                      {followUpToDelete.appointment?.client?.firstName} {followUpToDelete.appointment?.client?.lastName}
                     </p>
-                    <p className="text-white/70 text-xs mb-1 break-words">
+                    <p className="mt-0.5 truncate text-xs text-white/65 font-one">
                       {followUpToDelete.appointment?.title}
                     </p>
-                    <p className="text-white/50 text-xs">
+                    <p className="mt-0.5 text-[11px] text-white/45 font-one">
                       {formatDate(followUpToDelete.createdAt)}
                     </p>
-                    <div className="flex flex-wrap items-center gap-2 mt-1">
-                      <span className="text-yellow-400 text-xs">
-                        {getRatingStars(followUpToDelete.rating)}
-                      </span>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium border ${
-                          followUpToDelete.isAnswered
-                            ? "bg-green-500/20 text-green-400 border-green-500/30"
-                            : "bg-orange-500/20 text-orange-400 border-orange-500/30"
-                        }`}
-                      >
-                        {followUpToDelete.isAnswered ? "Répondu" : "En attente"}
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Warning message */}
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4">
-                <div className="flex items-start gap-2">
-                  <svg
-                    className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <div>
-                    <p className="text-red-300 text-xs font-semibold mb-1">
-                      Attention !
-                    </p>
-                    <p className="text-red-300/80 text-xs">
-                      Cette action supprimera définitivement ce suivi de
-                      cicatrisation.
-                      {!followUpToDelete.isAnswered &&
-                        " Le client ne pourra plus recevoir de réponse."}
-                    </p>
-                  </div>
-                </div>
+              <div className="rounded-xl border border-red-500/35 bg-red-500/10 p-3">
+                <p className="text-xs font-semibold text-red-300 font-one">Attention</p>
+                <p className="mt-1 text-xs text-red-200/90 font-one">
+                  Cette action supprimera définitivement ce suivi de cicatrisation.
+                  {!followUpToDelete.isAnswered && " Le client ne pourra plus recevoir de réponse."}
+                </p>
               </div>
-
-              <p className="text-white/80 text-sm mb-4">
-                Êtes-vous sûr de vouloir supprimer ce suivi ?
-              </p>
             </div>
 
-            {/* Footer responsive */}
-            <div className="p-4 sm:p-6 border-t border-white/10 flex flex-col sm:flex-row justify-end gap-3">
+            <div className="dashboard-embedded-footer flex items-center justify-end gap-2 px-4 py-2.5 sm:rounded-b-[28px]">
               <button
                 onClick={handleDeleteCancel}
                 disabled={isDeleting}
-                className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] border border-white/12 bg-white/8 px-3.5 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-50 font-one"
               >
                 Annuler
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={isDeleting}
-                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm flex items-center justify-center gap-2"
+                className="cursor-pointer inline-flex h-9 items-center justify-center gap-1.5 rounded-[14px] bg-gradient-to-r from-red-500 to-red-600 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-red-600 hover:to-red-700 disabled:cursor-not-allowed disabled:opacity-50 font-one"
               >
                 {isDeleting ? (
                   <>
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-b-2 border-white" />
                     <span>Suppression...</span>
                   </>
                 ) : (
-                  <>
-                    <svg
-                      className="w-3 h-3"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                    <span>Supprimer</span>
-                  </>
+                  <span>Supprimer</span>
                 )}
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

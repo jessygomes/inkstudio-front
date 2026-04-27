@@ -180,17 +180,22 @@ export default function RendezVousToday({ userId }: { userId: string }) {
 
   if (loading) {
     return (
-      <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white font-one">RDV du jour</h3>
-          <div className="w-4 h-4 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
-        </div>
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-12 bg-slate-300/10 rounded-lg"></div>
+      <div className="dashboard-panel dashboard-panel-featured p-4 lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-4">
+            <div>
+              <span className="dashboard-card-kicker">Prioritaire</span>
+              <h3 className="dashboard-card-title mt-3">RDV du jour</h3>
             </div>
-          ))}
+            <div className="w-4 h-4 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
+          </div>
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-16 bg-slate-300/10 rounded-[22px]"></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -198,11 +203,15 @@ export default function RendezVousToday({ userId }: { userId: string }) {
 
   if (error) {
     return (
-      <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
-        <h3 className="text-lg font-bold text-white mb-4 font-one">
-          RDV du jour
-        </h3>
-        <div className="text-center py-6">
+      <div className="dashboard-panel dashboard-panel-featured p-4 lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-4">
+            <div>
+              <span className="dashboard-card-kicker">Prioritaire</span>
+              <h3 className="dashboard-card-title mt-3">RDV du jour</h3>
+            </div>
+          </div>
+          <div className="dashboard-empty-state px-4 py-8 text-center">
           <div className="w-10 h-10 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg
               className="w-5 h-5 text-red-400"
@@ -221,66 +230,70 @@ export default function RendezVousToday({ userId }: { userId: string }) {
           <p className="text-red-400 mb-3 text-sm font-medium">{error}</p>
           <button
             onClick={() => fetchTodayAppointments()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            className="rounded-xl bg-tertiary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-tertiary-600"
           >
             Réessayer
           </button>
+        </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-[550px] bg-noir-700 rounded-xl border border-white/20 p-4 overflow-y-auto custom-scrollbar shadow-2xl relative lg:overflow-hidden">
-      {/* Header avec navigation */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-white font-one">RDV</h3>
-        <button
-          onClick={goToPreviousDay}
-          className="cursor-pointer w-6 h-6 rounded-lg bg-tertiary-500/20 border border-tertiary-500/50 flex items-center justify-center hover:bg-tertiary-500/30 transition-colors"
-        >
-          <svg
-            className="w-3 h-3 text-tertiary-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
-        <div className="text-white text-sm font-one font-medium">
+    <div className="dashboard-panel dashboard-panel-featured relative h-[550px] overflow-y-auto custom-scrollbar p-4 shadow-2xl lg:overflow-hidden lg:p-5">
+      <div className="dashboard-panel-content">
+        <div className="dashboard-card-header mb-5">
+          <div>
+            <span className="dashboard-card-kicker">Prioritaire</span>
+            <h3 className="dashboard-card-title mt-3">Rendez-vous</h3>
+            <p className="dashboard-card-subtitle">
+              Agenda du jour et des prochains jours en un coup d&apos;oeil.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={goToPreviousDay} className="dashboard-nav-button">
+              <svg
+                className="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-2 text-center text-xs font-medium text-white/78 font-one sm:block">
+              {getDateLabel(currentDate)}
+            </div>
+            <button onClick={goToNextDay} className="dashboard-nav-button">
+              <svg
+                className="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+            <div className="dashboard-count-pill">{appointments.length}</div>
+          </div>
+        </div>
+        <div className="mb-4 rounded-full border border-white/8 bg-white/4 px-3 py-2 text-center text-xs font-medium text-white/78 font-one sm:hidden">
           {getDateLabel(currentDate)}
         </div>
-        <button
-          onClick={goToNextDay}
-          className="cursor-pointer w-6 h-6 rounded-lg bg-tertiary-500/20 border border-tertiary-500/50 flex items-center justify-center hover:bg-tertiary-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <svg
-            className="w-3 h-3 text-tertiary-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
-        <div className="px-2 py-1 bg-tertiary-500/20 text-tertiary-400 rounded-lg text-xs font-medium border border-tertiary-500/50">
-          {appointments.length}
-        </div>
-      </div>
       {/* Liste des rendez-vous */}
       {appointments.length === 0 ? (
-        <div className="text-center py-8">
+        <div className="dashboard-empty-state px-4 py-10 text-center">
           <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-3">
             <svg
               className="w-6 h-6 text-gray-500"
@@ -309,15 +322,15 @@ export default function RendezVousToday({ userId }: { userId: string }) {
             <div
               key={appointment.id}
               onClick={() => openAppointmentDetails(appointment)}
-              className={`cursor-pointer border rounded-lg p-3 hover:bg-slate-400/10 transition-all duration-200 ${
+              className={`dashboard-list-item cursor-pointer p-3.5 ${
                 selectedAppointment?.id === appointment.id
-                  ? "bg-tertiary-500/10 border-tertiary-500/50"
-                  : "border-white/20 bg-slate-300/10"
+                  ? "dashboard-list-item-active"
+                  : ""
               }`}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-8 h-8 bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-tertiary-500 to-tertiary-400 flex items-center justify-center flex-shrink-0 shadow-lg shadow-tertiary-500/20">
                     <span className="text-white font-semibold text-xs">
                       {appointment.client.firstName.charAt(0).toUpperCase()}
                     </span>
@@ -330,8 +343,10 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                     <p className="text-[10px] font-one text-gray-300 truncate">
                       {appointment.title}
                     </p>
-                    <div className="flex items-center gap-3 text-xs font-one text-gray-400 mt-1">
-                      <span>{formatTime(appointment.start)}</span>
+                    <div className="mt-1 flex flex-wrap items-center gap-2.5 text-xs font-one text-gray-400">
+                      <span className="rounded-full bg-white/6 px-2.5 py-1 text-white/78">
+                        {formatTime(appointment.start)}
+                      </span>
                       <span>•</span>
                       <span>
                         {calculateDuration(appointment.start, appointment.end)}
@@ -386,7 +401,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                   </div>
                 </div>
                 {appointment.status === "PENDING" ? (
-                  <div className="bg-gradient-to-r from-orange-500/15 to-orange-500/15 border border-orange-400/30 rounded-lg p-2">
+                  <div className="rounded-2xl border border-orange-400/30 bg-gradient-to-r from-orange-500/15 to-orange-500/15 p-2">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
                       <span className="text-orange-300 font-medium font-one text-xs">
@@ -395,7 +410,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                     </div>
                   </div>
                 ) : appointment.status === "RESCHEDULING" ? (
-                  <div className="bg-gradient-to-r from-blue-500/15 to-blue-500/15 border border-blue-400/30 rounded-lg p-2">
+                  <div className="rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-500/15 to-blue-500/15 p-2">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                       <span className="text-blue-300 font-medium font-one text-xs">
@@ -404,7 +419,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                     </div>
                   </div>
                 ) : appointment.status === "CONFIRMED" ? (
-                  <div className="bg-gradient-to-r from-green-500/15 to-green-500/15 border border-green-400/30 rounded-lg p-2">
+                  <div className="rounded-2xl border border-green-400/30 bg-gradient-to-r from-green-500/15 to-green-500/15 p-2">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                       <span className="text-green-300 font-medium font-one text-xs">
@@ -413,7 +428,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                     </div>
                   </div>
                 ) : appointment.status === "COMPLETED" ? (
-                  <div className="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-400/30 rounded-lg p-2">
+                  <div className="rounded-2xl border border-emerald-400/30 bg-gradient-to-r from-emerald-500/15 to-teal-500/15 p-2">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                       <span className="text-emerald-300 font-medium font-one text-xs">
@@ -422,7 +437,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                     </div>
                   </div>
                 ) : appointment.status === "NO_SHOW" ? (
-                  <div className="bg-gradient-to-r from-amber-500/15 to-orange-600/15 border border-amber-400/30 rounded-lg p-2">
+                  <div className="rounded-2xl border border-amber-400/30 bg-gradient-to-r from-amber-500/15 to-orange-600/15 p-2">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
                       <span className="text-amber-300 font-medium font-one text-xs">
@@ -431,7 +446,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
                     </div>
                   </div>
                 ) : appointment.status === "CANCELED" ? (
-                  <div className="bg-gradient-to-r from-red-500/15 to-red-500/15 border border-red-400/30 rounded-lg p-2">
+                  <div className="rounded-2xl border border-red-400/30 bg-gradient-to-r from-red-500/15 to-red-500/15 p-2">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
                       <span className="text-red-300 font-medium font-one text-xs">
@@ -445,6 +460,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
           ))}
         </div>
       )}
+      </div>
       {/* Panneau de détails */}
       {selectedAppointment && (
         <>

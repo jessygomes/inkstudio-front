@@ -83,19 +83,22 @@ export default function LastMessage() {
   //! CHARGEMENT
   if (loading) {
     return (
-      <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white font-one">
-            Messages non lus
-          </h3>
-          <div className="w-4 h-4 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
-        </div>
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-16 bg-slate-300/10 rounded-lg"></div>
+      <div className="dashboard-panel dashboard-panel-featured p-4 lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-4">
+            <div>
+              <span className="dashboard-card-kicker">Messagerie</span>
+              <h3 className="dashboard-card-title mt-3">Messages non lus</h3>
             </div>
-          ))}
+            <div className="w-4 h-4 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
+          </div>
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-20 bg-slate-300/10 rounded-[22px]"></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -104,11 +107,15 @@ export default function LastMessage() {
   //! ERREUR
   if (error) {
     return (
-      <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
-        <h3 className="text-lg font-bold text-white mb-4 font-one">
-          Messages non lus
-        </h3>
-        <div className="text-center py-6">
+      <div className="dashboard-panel dashboard-panel-featured p-4 lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-4">
+            <div>
+              <span className="dashboard-card-kicker">Messagerie</span>
+              <h3 className="dashboard-card-title mt-3">Messages non lus</h3>
+            </div>
+          </div>
+          <div className="dashboard-empty-state px-4 py-8 text-center">
           <div className="w-10 h-10 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg
               className="w-5 h-5 text-red-400"
@@ -127,28 +134,32 @@ export default function LastMessage() {
           <p className="text-red-400 mb-3 text-sm font-medium">{error}</p>
           <button
             onClick={fetchUnreadConversations}
-            className="cursor-pointer px-4 py-2 bg-tertiary-600 text-white rounded-lg hover:bg-tertiary-700 transition-colors text-sm font-medium"
+            className="cursor-pointer rounded-xl bg-tertiary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-tertiary-700"
           >
             Réessayer
           </button>
+        </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-[550px] bg-noir-700 rounded-xl border border-white/20 p-4 overflow-y-auto custom-scrollbar shadow-2xl">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-white font-one">
-          Messages non lus
-        </h3>
-        <div className="px-2 py-1 bg-tertiary-500/20 text-tertiary-400 rounded-lg text-xs font-medium border border-tertiary-500/50">
-          {conversations.length}
+    <div className="dashboard-panel dashboard-panel-featured h-[550px] overflow-y-auto custom-scrollbar p-4 lg:p-5">
+      <div className="dashboard-panel-content">
+        <div className="dashboard-card-header mb-5">
+          <div>
+            <span className="dashboard-card-kicker">Messagerie</span>
+            <h3 className="dashboard-card-title mt-3">Messages non lus</h3>
+            <p className="dashboard-card-subtitle">
+              Les conversations qui demandent votre attention immédiatement.
+            </p>
+          </div>
+          <div className="dashboard-count-pill">{conversations.length}</div>
         </div>
-      </div>
 
       {conversations.length === 0 ? (
-        <div className="text-center py-8">
+        <div className="dashboard-empty-state px-4 py-10 text-center">
           <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-3">
             <svg
               className="w-6 h-6 text-gray-500"
@@ -177,13 +188,13 @@ export default function LastMessage() {
               onClick={() =>
                 handleConversationClick(conversation.conversationId)
               }
-              className="cursor-pointer border border-white/20 rounded-lg p-3 hover:bg-slate-400/10 transition-all duration-200 bg-slate-300/10 hover:border-tertiary-400/40"
+              className="dashboard-list-item cursor-pointer p-3.5 hover:border-tertiary-400/40"
             >
               <div className="flex items-start gap-3">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
                   {conversation.clientImage ? (
-                    <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-tertiary-400/30">
+                    <div className="w-11 h-11 rounded-2xl overflow-hidden ring-2 ring-tertiary-400/20">
                       <Image
                         src={conversation.clientImage}
                         alt={`${conversation.clientFirstName} ${conversation.clientLastName}`}
@@ -193,7 +204,7 @@ export default function LastMessage() {
                       />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-tertiary-400 to-tertiary-600 rounded-full flex items-center justify-center ring-2 ring-tertiary-400/30">
+                    <div className="w-11 h-11 bg-gradient-to-br from-tertiary-400 to-tertiary-600 rounded-2xl flex items-center justify-center ring-2 ring-tertiary-400/20 shadow-lg shadow-tertiary-500/20">
                       <span className="text-white text-sm font-bold font-one">
                         {getClientInitials(
                           conversation.clientFirstName,
@@ -212,7 +223,7 @@ export default function LastMessage() {
                       {conversation.clientLastName}
                     </h4>
                     {conversation.unreadCount > 0 && (
-                      <span className="flex-shrink-0 px-2 py-0.5 bg-tertiary-500 text-white rounded-full text-[10px] font-bold font-one">
+                      <span className="flex-shrink-0 rounded-full border border-tertiary-400/25 bg-tertiary-500/85 px-2.5 py-1 text-[10px] font-bold text-white font-one">
                         {conversation.unreadCount}
                       </span>
                     )}
@@ -224,7 +235,7 @@ export default function LastMessage() {
                     </p>
                   )}
 
-                  <p className="text-white/70 text-xs font-one mb-1 line-clamp-2 bg-gray-500/15 p-1 rounded-md">
+                  <p className="mb-1 line-clamp-2 rounded-xl bg-white/6 px-2.5 py-2 text-xs text-white/74 font-one">
                     {conversation.lastMessage?.content
                       ? truncateMessage(conversation.lastMessage.content)
                       : "Aucun message"}
@@ -239,6 +250,7 @@ export default function LastMessage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

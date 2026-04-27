@@ -92,9 +92,9 @@ export default function FactureDetailsModalMobile({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-noir-900/95 backdrop-blur-sm flex flex-col">
+    <div className="fixed inset-0 z-[9999] bg-noir-900/95 backdrop-blur-sm flex flex-col">
       {/* Header fixe avec fermeture */}
-      <div className="bg-gradient-to-r from-noir-700 to-noir-600 p-3 border-b border-white/10 flex-shrink-0">
+      <div className="dashboard-embedded-header p-3 border-b border-white/10 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold text-white font-one">
@@ -106,7 +106,7 @@ export default function FactureDetailsModalMobile({
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+            className="cursor-pointer flex h-9 w-9 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 transition-colors hover:bg-white/20"
           >
             <svg
               className="w-6 h-6 text-white"
@@ -128,11 +128,11 @@ export default function FactureDetailsModalMobile({
       {/* Contenu scrollable */}
       <div className="flex-1 overflow-y-auto p-2 space-y-2 pb-4">
         {/* Informations générales */}
-        <div className="bg-noir-700 rounded-xl p-2 border border-white/10 space-y-2">
+        <div className="dashboard-embedded-section p-2 space-y-2">
           {/* Statut et prestation */}
           <div className="flex items-center justify-between">
             <span
-              className={`px-3 py-2 rounded-lg text-sm font-medium font-one ${
+              className={`px-3 py-2 rounded-2xl text-sm font-medium font-one ${
                 currentFacture.prestation === "TATTOO"
                   ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
                   : currentFacture.prestation === "PIERCING"
@@ -188,7 +188,7 @@ export default function FactureDetailsModalMobile({
         </div>
 
         {/* Informations client */}
-        <div className="bg-noir-700 rounded-xl p-2 border border-white/10">
+        <div className="dashboard-embedded-section p-2">
           <h3 className="text-sm font-bold text-white font-one mb-2 flex items-center gap-2">
             <svg
               className="w-4 h-4 text-tertiary-400"
@@ -300,7 +300,7 @@ export default function FactureDetailsModalMobile({
 
         {/* Détails de la prestation */}
         {currentFacture.prestationDetails && (
-          <div className="bg-noir-700 rounded-xl p-2 border border-white/10">
+          <div className="dashboard-embedded-section p-2">
             <h3 className="text-sm font-bold text-white font-one mb-2 flex items-center gap-2">
               <svg
                 className="w-4 h-4 text-tertiary-400"
@@ -408,7 +408,7 @@ export default function FactureDetailsModalMobile({
         )}
 
         {/* Informations supplémentaires */}
-        <div className="bg-noir-700 rounded-xl p-2 border border-white/10">
+        <div className="dashboard-embedded-section p-2">
           <h3 className="text-sm font-bold text-white font-one mb-2 flex items-center gap-2">
             <svg
               className="w-4 h-4 text-tertiary-400"
@@ -459,14 +459,14 @@ export default function FactureDetailsModalMobile({
         </div>
 
         {/* Actions */}
-        <div className="bg-noir-700 rounded-xl p-2 border border-white/10">
+        <div className="dashboard-embedded-section p-2">
           <h3 className="text-sm font-bold text-white font-one mb-2">
             Actions
           </h3>
           <div className="space-y-1.5">
             <button 
               onClick={handleGeneratePDF}
-              className="w-full py-1.5 px-2 bg-tertiary-600 text-white rounded-lg hover:bg-tertiary-700 transition-colors font-one font-medium flex items-center justify-center gap-1.5 text-xs"
+              className="cursor-pointer w-full rounded-[14px] border border-tertiary-500/40 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-2 py-1.5 text-xs font-one font-medium text-white transition-colors hover:from-tertiary-500 hover:to-tertiary-600 flex items-center justify-center gap-1.5"
             >
               <svg
                 className="w-4 h-4"
@@ -484,7 +484,7 @@ export default function FactureDetailsModalMobile({
               Télécharger PDF
             </button>
 
-            <button className="w-full py-1.5 px-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-one font-medium flex items-center justify-center gap-1.5 text-xs">
+            <button className="cursor-pointer w-full rounded-[14px] border border-blue-500/40 bg-blue-600 px-2 py-1.5 text-xs font-one font-medium text-white transition-colors hover:bg-blue-700 flex items-center justify-center gap-1.5">
               <svg
                 className="w-3 h-3"
                 fill="none"
@@ -501,7 +501,7 @@ export default function FactureDetailsModalMobile({
               Envoyer par email
             </button>
 
-            <button className="w-full py-1.5 px-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-one font-medium flex items-center justify-center gap-1.5 text-xs">
+            <button className="cursor-pointer w-full rounded-[14px] border border-purple-500/40 bg-purple-600 px-2 py-1.5 text-xs font-one font-medium text-white transition-colors hover:bg-purple-700 flex items-center justify-center gap-1.5">
               <svg
                 className="w-3 h-3"
                 fill="none"
@@ -521,10 +521,10 @@ export default function FactureDetailsModalMobile({
             <button
               onClick={handlePaymentStatusChange}
               disabled={isUpdatingPayment}
-              className={`w-full py-1.5 px-2 text-white rounded-lg transition-colors font-one font-medium flex items-center justify-center gap-1.5 text-xs ${
+              className={`cursor-pointer w-full rounded-[14px] border py-1.5 px-2 text-white transition-colors font-one font-medium flex items-center justify-center gap-1.5 text-xs ${
                 currentFacture.isPayed
-                  ? "bg-orange-600 hover:bg-orange-700"
-                  : "bg-green-600 hover:bg-green-700"
+                  ? "border-orange-500/40 bg-orange-600 hover:bg-orange-700"
+                  : "border-green-500/40 bg-green-600 hover:bg-green-700"
               } ${isUpdatingPayment ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {isUpdatingPayment ? (
@@ -558,7 +558,7 @@ export default function FactureDetailsModalMobile({
               )}
             </button>
 
-            <button className="w-full py-1.5 px-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-one font-medium flex items-center justify-center gap-1.5 text-xs">
+            <button className="cursor-pointer w-full rounded-[14px] border border-orange-500/40 bg-orange-600 px-2 py-1.5 text-xs font-one font-medium text-white transition-colors hover:bg-orange-700 flex items-center justify-center gap-1.5">
               <svg
                 className="w-3 h-3"
                 fill="none"

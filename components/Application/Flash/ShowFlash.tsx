@@ -64,20 +64,20 @@ export default function ShowFlash() {
   };
 
   return (
-    <section className="w-full">
-      <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-        <div className="flex items-center gap-3 sm:gap-4 mb-4 md:mb-0 w-full md:w-auto">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
+    <section className="w-full space-y-3">
+      <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-5 lg:py-2.5">
+        <div className="flex w-full items-center gap-3 md:w-auto">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-400/30">
             <FaBolt
-              size={20}
-              className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
+              size={18}
+              className="text-tertiary-400 animate-pulse"
             />
           </div>
-          <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base sm:text-lg font-bold text-white font-one tracking-wide uppercase">
               Flashs
             </h1>
-            <p className="text-white/70 text-xs font-one mt-1">
+            <p className="mt-0.5 text-[11px] text-white/70 font-one">
               Gérez vos flashs disponibles: création, modification et
               suppression.
             </p>
@@ -85,7 +85,7 @@ export default function ShowFlash() {
         </div>
         <button
           onClick={handleCreate}
-          className="cursor-pointer w-full md:w-[175px] flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+          className="cursor-pointer flex w-full items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-3.5 py-2 text-[11px] font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one md:w-[168px]"
         >
           <svg
             className="w-4 h-4"
@@ -105,14 +105,14 @@ export default function ShowFlash() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
           {[...Array(10)].map((_, i) => (
             <div
               key={i}
-              className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-2xl overflow-hidden border border-white/20"
+              className="overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg sm:rounded-2xl"
             >
               <div className="aspect-square bg-white/10 animate-pulse"></div>
-              <div className="p-3 sm:p-4 space-y-2">
+              <div className="space-y-2 p-3 sm:p-3.5">
                 <div className="h-4 bg-white/10 rounded-lg w-24 animate-pulse"></div>
                 <div className="h-3 bg-white/10 rounded-lg w-16 animate-pulse"></div>
               </div>
@@ -120,26 +120,26 @@ export default function ShowFlash() {
           ))}
         </div>
       ) : flashs.length === 0 ? (
-        <div className="w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center">
-            <FaBolt size={32} className="text-tertiary-400" />
+        <div className="dashboard-empty-state flex w-full flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 p-6 sm:p-8">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 sm:h-16 sm:w-16">
+            <FaBolt size={28} className="text-tertiary-400" />
           </div>
-          <h2 className="text-white font-one text-lg sm:text-xl text-center">
+          <h2 className="text-center text-lg text-white font-one sm:text-xl">
             Aucun flash disponible
           </h2>
           <button
             onClick={handleCreate}
-            className="cursor-pointer mt-2 px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
+            className="cursor-pointer mt-1 rounded-2xl bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-5 py-2 text-xs font-medium text-white shadow-lg transition-all hover:from-tertiary-500 hover:to-tertiary-600 font-one"
           >
             Ajouter un flash
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
           {flashs.map((flash) => (
             <div
               key={flash.id}
-              className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-2xl overflow-hidden border border-white/20 hover:border-tertiary-400/50 transition-all duration-300 shadow-xl"
+              className="overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-noir-500/10 to-noir-500/5 shadow-xl transition-all duration-300 hover:border-tertiary-400/50 backdrop-blur-lg sm:rounded-2xl"
             >
               <div className="aspect-square relative overflow-hidden">
                 <Image
@@ -147,17 +147,17 @@ export default function ShowFlash() {
                   height={500}
                   src={flash.imageUrl}
                   alt={flash.title}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               </div>
 
-              <div className="p-3 sm:p-4 space-y-2">
+              <div className="space-y-2 p-3 sm:p-3.5">
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="text-white font-one text-sm font-bold tracking-wide truncate">
+                  <h3 className="truncate text-[13px] font-bold tracking-wide text-white font-one sm:text-sm">
                     {flash.title}
                   </h3>
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                    className={`rounded-full border px-1.5 py-0.5 text-[9px] ${
                       flash.isAvailable
                         ? "text-green-300 border-green-500/40 bg-green-500/10"
                         : "text-red-300 border-red-500/40 bg-red-500/10"
@@ -167,29 +167,29 @@ export default function ShowFlash() {
                   </span>
                 </div>
 
-                <p className="text-tertiary-300 text-xs font-one font-semibold">
+                <p className="text-xs font-semibold text-tertiary-300 font-one">
                   {flash.price} €
                 </p>
 
                 {flash.dimension && (
-                  <p className="text-white/80 text-xs font-one">
+                  <p className="text-[11px] text-white/80 font-one sm:text-xs">
                     Dimensions: {flash.dimension}
                   </p>
                 )}
 
-                <p className="text-white/70 text-xs font-one line-clamp-2 leading-relaxed min-h-8">
+                <p className="min-h-8 line-clamp-2 text-[11px] leading-relaxed text-white/70 font-one sm:text-xs">
                   {flash.description || "Aucune description"}
                 </p>
 
                 <div className="flex gap-2 justify-end pt-2">
                   <button
-                    className="cursor-pointer p-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-all duration-200"
+                    className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-white/20"
                     onClick={() => handleEdit(flash)}
                   >
                     <IoCreateOutline size={16} className="text-white" />
                   </button>
                   <button
-                    className="cursor-pointer p-1.5 bg-white/10 rounded-lg hover:bg-red-500/20 transition-all duration-200"
+                    className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
                     onClick={() => handleDelete(flash)}
                   >
                     <AiOutlineDelete size={16} className="text-white" />

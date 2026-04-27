@@ -625,9 +625,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   //! Affichage du formulaire de création de rendez-vous
   return (
     <div className="min-h-screen bg-noir-700 pb-8">
-      <div className="container mx-auto w-full">
+      <div className="w-full">
         {/* Form Content */}
-        <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl p-4 sm:p-8 border border-white/20 shadow-2xl">
+        <div className="dashboard-embedded-panel rounded-3xl p-4 sm:p-8">
           <form
             onSubmit={form.handleSubmit(onSubmit, (errors) => {
               console.log("❌ Erreurs de validation", errors);
@@ -635,8 +635,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             className="tablet-inputs space-y-4 sm:space-y-6"
           >
             {/* Section: Recherche client */}
-            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+            <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
+              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
                 🔍 Recherche client
               </h3>
               <div className="space-y-3">
@@ -777,8 +777,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             </div>
 
             {/* Section: Informations client */}
-            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+            <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
+              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
                 👤 Informations client
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -866,8 +866,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             </div>
 
             {/* Section: Informations générales */}
-            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+            <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
+              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
                 📋 Détails du rendez-vous
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4">
@@ -975,7 +975,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             </div>
 
               {isSkinRequired && (
-                <div className="mt-4 w-fit mx-auto rounded-xl border border-white/10 bg-white/5 p-3 sm:p-4">
+                <div className="dashboard-embedded-section mx-auto mt-4 w-fit rounded-2xl p-3 sm:p-4">
                   <SkinToneSelect
                     options={skinToneOptions}
                     value={form.watch("skin")}
@@ -1003,8 +1003,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
             {/* Section: Créneaux horaires */}
             {selectedTatoueur && (
-              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+              <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
+                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
                   🕒 Créneaux horaires
                 </h3>
                 <div className="space-y-4">
@@ -1033,7 +1033,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               <button
                                 type="button"
                                 onClick={() => setSelectedSlots([])}
-                                className="px-2 py-1 rounded border border-white/20 text-white/80 text-xs font-one hover:bg-white/10 transition-colors"
+                                className="rdv-btn-secondary px-2 py-1 rounded border border-white/20 text-white/80 text-xs font-one hover:bg-white/10 transition-colors"
                               >
                                 Désélectionner tout
                               </button>
@@ -1303,8 +1303,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
             {/* Sections conditionnelles selon le type de prestation - responsive */}
             {selectedPrestation === "PROJET" && (
-              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+              <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
+                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
                   🎨 Détails du projet
                 </h3>
                 <div className="space-y-4">
@@ -1409,8 +1409,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {selectedPrestation === "TATTOO" && (
-              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+              <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
+                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
                   🖋️ Détails du tatouage
                 </h3>
                 <div className="space-y-4">
@@ -1475,8 +1475,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {selectedPrestation === "PIERCING" && (
-              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+              <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
+                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
                   💎 Détails du piercing
                 </h3>
                 <div className="space-y-4">
@@ -1611,8 +1611,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {selectedPrestation === "RETOUCHE" && (
-              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+              <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
+                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
                   🔧 Détails de la retouche
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1728,7 +1728,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         onClick={() => {
                           window.location.href = "/parametres";
                         }}
-                        className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
+                        className="rdv-btn-primary cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
                       >
                         📊 Changer de plan
                       </button>
@@ -1736,7 +1736,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       <button
                         type="button"
                         onClick={() => setError("")}
-                        className="cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
+                        className="rdv-btn-secondary cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
                       >
                         Fermer
                       </button>
@@ -1820,7 +1820,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         onClick={() => {
                           window.location.href = "/parametres";
                         }}
-                        className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
+                        className="rdv-btn-primary cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
                       >
                         📊 Changer de plan
                       </button>
@@ -1828,7 +1828,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       <button
                         type="button"
                         onClick={() => setError("")}
-                        className="cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
+                        className="rdv-btn-secondary cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
                       >
                         Fermer
                       </button>
@@ -1853,14 +1853,14 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-white/10">
               <Link
                 href={"/mes-rendez-vous"}
-                className="cursor-pointer px-6 py-3 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm sm:text-xs text-center"
+                className="rdv-btn-secondary cursor-pointer px-6 py-3 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm sm:text-xs text-center"
               >
                 Annuler
               </Link>
               <button
                 type="submit"
                 disabled={loading}
-                className="cursor-pointer px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm sm:text-xs"
+                className="rdv-btn-primary cursor-pointer px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm sm:text-xs"
               >
                 {loading ? "Création..." : "Créer le rendez-vous"}
               </button>

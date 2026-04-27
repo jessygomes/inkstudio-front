@@ -2,15 +2,15 @@
 
 import { useSession } from "next-auth/react";
 import { UpdateSalonUserProps } from "@/lib/type";
-import { CSSProperties, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateSalonSchema } from "@/lib/zod/validator.schema";
 import { z } from "zod";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import PiercingManager from "@/components/Application/MonCompte/PiercingManager";
+import SkeletonForm from "@/components/Skeleton/SkeletonForm";
 import { useRouter } from "next/navigation";
-import BarLoader from "react-spinners/BarLoader";
 import Link from "next/link";
 import { updateUserInfoAction, getUserInfoAction } from "@/lib/queries/user";
 import { toast } from "sonner";
@@ -76,68 +76,49 @@ export default function UpdateAccountPage() {
     }
   };
 
-  const override: CSSProperties = {
-    display: "block",
-    margin: "0 auto",
-    borderColor: "none",
-  };
-  const color = "#ff5500";
+  const sectionTitleClass =
+    "mb-2 text-[14px] font-semibold tracking-widest text-white font-one";
+  const labelClass =
+    "text-[10px] uppercase tracking-wider text-white/50 font-one";
+  const inputClass =
+    "w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one";
 
   if (!salon) {
-    return (
-      <div className="min-h-screen bg-noir-700 flex items-center justify-center">
-        <BarLoader
-          color={color}
-          loading={!salon}
-          cssOverride={override}
-          width={300}
-          height={5}
-          aria-label="Loading Spinner"
-          data-testid="loader"
-        />
-      </div>
-    );
+    return <SkeletonForm />;
   }
 
   return (
-    <div className="w-full bg-noir-700">
-      <div className="pt-10 pb-10 xl:pb-0 xl:pt-24 px-3 lg:px-8">
-        {/* Header responsive */}
-        <div className="flex items-center gap-3 sm:gap-4 lg:max-w-6xl mx-auto mb-6 sm:mb-8">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
+    <div className="wrapper-global pb-16 sm:pb-10 px-3 sm:px-4 lg:px-6">
+      <section className="w-full space-y-3 pt-4 pb-10 xl:pb-0">
+        <div className="dashboard-hero flex items-center gap-3 px-4 py-3 sm:px-5 lg:py-2.5">
+          <div className="flex h-10 w-10 items-center justify-center">
             <Link
               href="/mon-compte"
-              className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 border border-white/20"
+              className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-white/8 text-white/70 transition-colors hover:bg-white/12 hover:text-white"
             >
               ←
             </Link>
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white font-one tracking-widest">
-              <span className="hidden sm:inline">Modifier le salon</span>
-              <span className="sm:hidden">Modifier salon</span>
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">
+              Mon compte
+            </p>
+            <h1 className="text-base font-bold uppercase tracking-wide text-white font-one sm:text-lg">
+              Modifier le salon
             </h1>
-            <p className="text-white/70 text-xs font-one mt-1">
-              <span className="hidden sm:inline">
-                Mettez à jour les informations de votre salon
-              </span>
-              <span className="sm:hidden">Mettez à jour vos infos</span>
+            <p className="mt-0.5 text-[11px] text-white/70 font-one">
+              Mettez a jour les informations de votre salon.
             </p>
           </div>
         </div>
 
-        {/* Form Content responsive */}
-        <div className="w-full lg:max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-2 lg:p-8 border border-white/20 shadow-2xl">
+        <div className=" w-full rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6 sm:space-y-6"
+            className="space-y-2.5"
           >
-            {/* Section: Image responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
-              <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
-                <span className="hidden sm:inline">📸 Photo de profil</span>
-                <span className="sm:hidden">📸 Photo</span>
-              </h3>
+            <div className=" p-3 sm:p-4">
+              <h3 className={sectionTitleClass}>Photo de profil</h3>
               <SalonImageUploader
                 currentImage={form.watch("image") || salon.image || undefined}
                 onImageUpload={(imageUrl) => {
@@ -149,203 +130,140 @@ export default function UpdateAccountPage() {
               />
             </div>
 
-            {/* Section: Informations générales responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-2 lg:p-4 border border-white/10">
-              <h3 className="text-base lg:text-sm font-semibold text-white mb-4 sm:mb-3 font-one uppercase tracking-wide">
-                <span className="hidden sm:inline">
-                  ℹ️ Informations générales
-                </span>
-                <span className="sm:hidden">ℹ️ Infos générales</span>
-              </h3>
-              <div className="space-y-5 sm:space-y-4">
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    Nom du salon
-                  </label>
+            <div className="p-3 sm:p-4">
+              <h3 className={sectionTitleClass}>Informations générales</h3>
+              <div className="space-y-2.5">
+                <div className="space-y-1">
+                  <label className={labelClass}>Nom du salon</label>
                   <input
                     placeholder="Nom du salon"
                     {...form.register("salonName")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className={inputClass}
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4">
-                  <div className="space-y-2 sm:space-y-1">
-                    <label className="text-sm sm:text-xs text-white/70 font-one">
-                      <span className="hidden sm:inline">
-                        Prénom du propriétaire
-                      </span>
-                      <span className="sm:hidden">Prénom</span>
-                    </label>
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <label className={labelClass}>Prénom du propriétaire</label>
                     <input
                       placeholder="Prénom"
                       {...form.register("firstName")}
-                      className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className={inputClass}
                     />
                   </div>
 
-                  <div className="space-y-2 sm:space-y-1">
-                    <label className="text-sm sm:text-xs text-white/70 font-one">
-                      <span className="hidden sm:inline">
-                        Nom du propriétaire
-                      </span>
-                      <span className="sm:hidden">Nom</span>
-                    </label>
+                  <div className="space-y-1">
+                    <label className={labelClass}>Nom du propriétaire</label>
                     <input
                       placeholder="Nom"
                       {...form.register("lastName")}
-                      className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                      className={inputClass}
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Section: Contact et localisation responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
-              <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
-                <span className="hidden sm:inline">
-                  📍 Contact et localisation
-                </span>
-                <span className="sm:hidden">📍 Contact</span>
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4">
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    <span className="hidden sm:inline">N° de téléphone</span>
-                    <span className="sm:hidden">Téléphone</span>
-                  </label>
+            <div className="p-3 sm:p-4">
+              <h3 className={sectionTitleClass}>Contact et localisation</h3>
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <label className={labelClass}>Téléphone</label>
                   <input
                     placeholder="Téléphone"
                     {...form.register("phone")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className={inputClass}
                   />
                 </div>
 
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    Adresse
-                  </label>
+                <div className="space-y-1">
+                  <label className={labelClass}>Adresse</label>
                   <input
                     placeholder="Adresse"
                     {...form.register("address")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className={inputClass}
                   />
                 </div>
 
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    Ville
-                  </label>
+                <div className="space-y-1">
+                  <label className={labelClass}>Ville</label>
                   <input
                     placeholder="Ville"
                     {...form.register("city")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className={inputClass}
                   />
                 </div>
 
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    Code postal
-                  </label>
+                <div className="space-y-1">
+                  <label className={labelClass}>Code postal</label>
                   <input
                     placeholder="Code postal"
                     {...form.register("postalCode")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className={inputClass}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Section: Réseaux sociaux responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
-              <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
-                <span className="hidden sm:inline">
-                  🌐 Réseaux sociaux et site web
-                </span>
-                <span className="sm:hidden">🌐 Réseaux</span>
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4">
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    Instagram
-                  </label>
+            <div className="p-3 sm:p-4">
+              <h3 className={sectionTitleClass}>Réseaux sociaux et site web</h3>
+              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <label className={labelClass}>Instagram</label>
                   <input
                     placeholder="Lien Instagram"
                     {...form.register("instagram")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className={inputClass}
                   />
                 </div>
 
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    Facebook
-                  </label>
+                <div className="space-y-1">
+                  <label className={labelClass}>Facebook</label>
                   <input
                     placeholder="Lien Facebook"
                     {...form.register("facebook")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className={inputClass}
                   />
                 </div>
 
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    TikTok
-                  </label>
+                <div className="space-y-1">
+                  <label className={labelClass}>TikTok</label>
                   <input
                     placeholder="Lien TikTok"
                     {...form.register("tiktok")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className={inputClass}
                   />
                 </div>
 
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    Site Web
-                  </label>
+                <div className="space-y-1">
+                  <label className={labelClass}>Site web</label>
                   <input
                     placeholder="URL de votre site"
                     {...form.register("website")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className={inputClass}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Section: Description responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
-              <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
-                📝 Description
-              </h3>
-              <div className="space-y-2 sm:space-y-1">
-                <label className="text-sm sm:text-xs text-white/70 font-one">
-                  <span className="hidden sm:inline">Description du salon</span>
-                  <span className="sm:hidden">Description</span>
-                </label>
+            <div className="dashboard-embedded-section p-3 sm:p-4">
+              <h3 className={sectionTitleClass}>Description</h3>
+              <div className="space-y-1">
+                <label className={labelClass}>Description du salon</label>
                 <textarea
                   placeholder="Décrivez votre salon, votre style, votre ambiance..."
                   {...form.register("description")}
                   rows={5}
-                  className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
+                  className={`${inputClass} resize-none`}
                 />
               </div>
             </div>
 
-            {/* Section: Prestations responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
-              <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
-                <span className="hidden sm:inline">
-                  💼 Prestations proposées
-                </span>
-                <span className="sm:hidden">💼 Prestations</span>
-              </h3>
+            <div className="dashboard-embedded-section p-3 sm:p-4">
+              <h3 className={sectionTitleClass}>Prestations proposées</h3>
 
-              <p className="text-sm sm:text-[11px] text-white/60 mb-4 sm:mb-3">
-                <span className="hidden sm:inline">
-                  Sélectionnez une ou plusieurs prestations proposées par le
-                  salon.
-                </span>
-                <span className="sm:hidden">Sélectionnez vos prestations</span>
+              <p className="mb-3 text-[11px] text-white/60 font-one">
+                Sélectionnez une ou plusieurs prestations proposées par le salon.
               </p>
 
               {(() => {
@@ -358,17 +276,17 @@ export default function UpdateAccountPage() {
                 const selected = form.watch("prestations") ?? [];
 
                 return (
-                  <div className="flex flex-wrap gap-3 sm:gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {options.map((opt) => {
                       const isActive = selected.includes(opt);
                       return (
                         <label
                           key={opt}
-                          className={`cursor-pointer px-4 py-2.5 sm:px-3 sm:py-1.5 rounded-lg text-sm sm:text-[11px] font-one border transition
+                          className={`cursor-pointer rounded-[10px] border px-2.5 py-1 text-[11px] font-one transition
                 ${
                   isActive
-                    ? "bg-tertiary-500/20 text-tertiary-200 border-tertiary-400/40 text-tertiary-400"
-                    : "bg-white/10 text-white/80 border-white/15 hover:bg-white/15"
+                    ? "border-tertiary-400/40 bg-tertiary-500/20 text-tertiary-500"
+                    : "border-white/15 bg-white/10 text-white/80 hover:bg-white/15"
                 }`}
                         >
                           <input
@@ -386,35 +304,28 @@ export default function UpdateAccountPage() {
               })()}
             </div>
 
-            {/* Footer avec boutons d'action responsive */}
-            <div className="flex flex-col sm:flex-row justify-end gap-4 sm:gap-4 pt-6 sm:pt-6 border-t border-white/10">
+            <div className=" flex flex-col justify-end gap-2 py-3 sm:flex-row sm:items-center sm:rounded-b-2xl">
               <button
                 type="button"
                 onClick={() => router.push("/mon-compte")}
-                className="cursor-pointer px-6 py-3 sm:px-6 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-md lg:text-xs text-center"
+                className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] border border-white/12 bg-white/8 px-4 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 font-one"
               >
                 Annuler
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="cursor-pointer px-8 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-md lg:text-xs"
+                className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:opacity-50 disabled:cursor-not-allowed font-one"
               >
                 {isSubmitting ? (
-                  <span className="hidden sm:inline">Enregistrement...</span>
+                  <span>Enregistrement...</span>
                 ) : (
-                  <>
-                    <span className="hidden sm:inline">
-                      Sauvegarder les modifications
-                    </span>
-                    <span className="sm:hidden">Sauvegarder</span>
-                  </>
+                  <span>Sauvegarder les modifications</span>
                 )}
               </button>
             </div>
           </form>
 
-          {/* Section: Piercing Manager - Conditionally displayed */}
           {(() => {
             const selected = form.watch("prestations") ?? [];
             const showPiercing = selected.includes("PIERCING");
@@ -422,19 +333,14 @@ export default function UpdateAccountPage() {
             if (!showPiercing) return null;
 
             return (
-              <div className="my-10 bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
-                <h3 className="text-base sm:text-sm font-semibold text-tertiary-400 mb-4 sm:mb-3 font-one uppercase tracking-wide">
-                  <span className="hidden sm:inline">
-                    🎯 Configuration Piercing
-                  </span>
-                  <span className="sm:hidden">🎯 Piercing</span>
-                </h3>
+              <div className="dashboard-embedded-section mt-2.5 p-3 sm:p-4">
+                <h3 className={sectionTitleClass}>Configuration piercing</h3>
                 <PiercingManager />
               </div>
             );
           })()}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

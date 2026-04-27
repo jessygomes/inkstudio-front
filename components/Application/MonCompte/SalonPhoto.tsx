@@ -1,10 +1,8 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import SalonGalleryUploader from "./SalonGalleryUploader";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
 import { fetchSalonPhotosAction } from "@/lib/queries/user";
@@ -53,7 +51,7 @@ export default function SalonPhoto() {
   };
 
   //! Récupérer les images du salon
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     if (!salonId) return;
 
     try {
@@ -61,8 +59,6 @@ export default function SalonPhoto() {
 
       if (response.ok) {
         const data = response.data;
-
-        console.log("Photos récupérées :", data);
 
         // Si le backend retourne un tableau de strings, on les convertit en objets
         if (data.salonPhotos && Array.isArray(data.salonPhotos)) {
@@ -86,11 +82,11 @@ export default function SalonPhoto() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [salonId]);
 
   useEffect(() => {
     fetchImages();
-  }, [salonId]);
+  }, [fetchImages]);
 
   //! Fonction pour gérer l'ajout de plusieurs images
   const handleMultipleImagesUploaded = async (imageUrls: string[]) => {
@@ -169,57 +165,75 @@ export default function SalonPhoto() {
 
   if (isLoading) {
     return (
-      <div className="w-full flex flex-col">
-        {/* Header responsive */}
-        <div className="flex justify-between items-center mb-4 sm:mb-6 bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-3 sm:p-4 rounded-xl shadow-xl border border-white/10">
-          <div>
-            <p className="text-white font-semibold font-one text-sm sm:text-lg tracking-widest">
-              <span className="hidden sm:inline">Galerie photos</span>
-              <span className="sm:hidden">Photos</span>
-            </p>
-            <p className="text-xs text-white/60 font-two">Chargement...</p>
+      <div className="w-full flex flex-col gap-3">
+        {/* Header skeleton */}
+        <div className="rounded-2xl bg-noir-700/6 p-3">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
+                Galerie photos
+              </p>
+              <div className="h-5 w-32 rounded-lg bg-white/8 animate-pulse" />
+            </div>
+            <div className="h-8 w-28 rounded-[14px] bg-white/8 animate-pulse" />
           </div>
         </div>
-        {/* Loader responsive */}
-        <div className="w-full flex items-center justify-center py-16 sm:py-20">
-          <div className="w-full rounded-2xl p-8 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
-            <p className="text-white/60 font-two text-xs text-center">
-              Chargement des images...
-            </p>
-          </div>
+        {/* Grid skeleton */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {[...Array(3)].map((_, i) => (
+            <div
+              key={i}
+              className="aspect-square rounded-xl bg-white/6 animate-pulse border border-white/8"
+            />
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header avec compteur responsive */}
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-white font-semibold font-one text-sm tracking-widest">
-            <span className="hidden sm:inline">
-              Galerie photos ({images.length}/6 photos)
-            </span>
-            <span className="sm:hidden">Photos ({images.length}/6)</span>
-          </p>
-          <p className="text-xs text-white/60 font-two">
-            <span className="hidden sm:inline">
-              Gérez les photos de votre salon (maximum 6 images)
-            </span>
-            <span className="sm:hidden">Maximum 6 images</span>
-          </p>
+    <div className="w-full flex flex-col gap-3">
+      {/* Header */}
+      <div className="rounded-2xl bg-noir-700/6 p-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
+              Galerie photos
+            </p>
+            <div className="flex items-end gap-2">
+              <h3 className="text-white font-one text-base font-semibold leading-tight">
+                {images.length} / 6 photos
+              </h3>
+              <p className="text-white/55 font-two text-xs">
+                {6 - images.length} emplacement{6 - images.length > 1 ? "s" : ""} disponible{6 - images.length > 1 ? "s" : ""}
+              </p>
+            </div>
+          </div>
+
+          {/* Barre de progression compacte */}
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="flex gap-1">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 w-6 rounded-full transition-colors ${
+                    i < images.length
+                      ? "bg-tertiary-400"
+                      : "bg-white/15"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Zone d'ajout d'images responsive */}
+      {/* Zone d'ajout */}
       {images.length < 6 && (
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/10">
-          <h4 className="text-white font-medium font-one text-sm mb-3 sm:mb-4">
-            <span className="hidden sm:inline">Ajouter des photos</span>
-            <span className="sm:hidden">Ajouter</span>
-          </h4>
+        <div className="rounded-2xl border border-dashed border-white/15 bg-white/3 p-3 sm:p-4">
+          <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-2.5">
+            Ajouter des photos
+          </p>
           <SalonGalleryUploader
             onImagesUploaded={handleMultipleImagesUploaded}
             maxImages={6}
@@ -228,86 +242,99 @@ export default function SalonPhoto() {
         </div>
       )}
 
-      {/* Galerie d'images responsive */}
+      {/* Galerie */}
       {images.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {images.map((image) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {images.map((image, index) => (
             <div
               key={image.id}
-              className="relative bg-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl overflow-hidden border border-white/10 hover:bg-white/10 transition-all duration-200 group"
+              className="relative rounded-xl overflow-hidden border border-white/10 bg-white/5 group"
             >
               <div className="aspect-square relative">
                 <Image
                   src={image.url}
-                  alt="Photo du salon"
+                  alt={`Photo du salon ${index + 1}`}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
-
-                {/* Overlay avec bouton de suppression responsive */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                {/* Overlay suppression */}
+                <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2">
                   <button
                     onClick={() => {
                       setSelectedImageId(image.id);
                       setIsDeleteModalOpen(true);
                     }}
-                    className="cursor-pointer px-3 sm:px-4 py-2 bg-red-500/80 hover:bg-red-500 text-white rounded-lg text-xs font-one transition-colors"
+                    className="cursor-pointer rounded-[14px] border border-red-500/50 bg-red-500/80 hover:bg-red-500 text-white px-3 py-1.5 text-[11px] font-one transition-colors"
                   >
-                    <span className="hidden sm:inline">Supprimer</span>
-                    <span className="sm:hidden">✕</span>
+                    Supprimer
                   </button>
                 </div>
               </div>
-
-              {/* Informations sur l'image responsive */}
-              <div className="p-2 sm:p-3">
-                <p className="text-xs text-white/50 font-two">
-                  <span className="hidden sm:inline">
-                    Ajoutée le{" "}
-                    {new Date(image.createdAt).toLocaleDateString("fr-FR")}
-                  </span>
-                  <span className="sm:hidden">
-                    {new Date(image.createdAt).toLocaleDateString("fr-FR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                    })}
-                  </span>
-                </p>
+              {/* Badge numéro */}
+              <div className="absolute top-1.5 left-1.5 rounded-[8px] bg-black/50 px-1.5 py-0.5 text-[10px] text-white/70 font-one">
+                {index + 1}
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 sm:p-8 border border-white/10 text-center">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-white font-one text-base sm:text-lg mb-2">
-                Aucune photo ajoutée
-              </h3>
-              <p className="text-white/60 font-two text-xs">
-                <span className="hidden sm:inline">
-                  Commencez par ajouter des photos de votre salon pour attirer
-                  vos clients
-                </span>
-                <span className="sm:hidden">
-                  Ajoutez des photos de votre salon
-                </span>
-              </p>
-            </div>
-          </div>
+        <div className="rounded-2xl border border-white/10 bg-white/4 p-6 text-center">
+          <p className="text-white font-one text-base font-semibold">
+            Aucune photo ajoutée
+          </p>
+          <p className="text-white/60 font-two text-sm mt-1.5">
+            Ajoutez jusqu&apos;à 6 photos pour mettre en valeur votre salon.
+          </p>
         </div>
       )}
 
-      {/* Modale de confirmation responsive */}
+      {/* Modale de suppression */}
       {isDeleteModalOpen && selectedImageId && (
-        <DeleteConfirmationModal
-          tatoueurName="cette image"
-          onCancel={() => {
-            setIsDeleteModalOpen(false);
-            setSelectedImageId(null);
-          }}
-          onConfirm={() => handleImageDelete(selectedImageId)}
-        />
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="dashboard-embedded-panel rounded-2xl w-full max-w-sm border border-white/20 shadow-2xl">
+            <div className="p-4 border-b border-white/10 bg-white/5">
+              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
+                Confirmation
+              </p>
+              <h2 className="text-white font-one text-base font-semibold mt-1">
+                Supprimer cette photo
+              </h2>
+              <p className="text-white/60 font-two text-xs mt-1">
+                Cette action est définitive.
+              </p>
+            </div>
+
+            {/* Aperçu de la photo */}
+            <div className="p-4">
+              <div className="rounded-xl overflow-hidden border border-white/10 aspect-video relative">
+                <Image
+                  src={images.find((img) => img.id === selectedImageId)?.url ?? ""}
+                  alt="Photo à supprimer"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            <div className="dashboard-embedded-footer p-4 border-t border-white/10 flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setIsDeleteModalOpen(false);
+                  setSelectedImageId(null);
+                }}
+                className="cursor-pointer rounded-[14px] border border-white/20 bg-white/10 px-4 py-2 text-xs text-white transition-colors hover:bg-white/20 font-one"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => handleImageDelete(selectedImageId)}
+                className="cursor-pointer rounded-[14px] bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 px-4 py-2 text-xs text-white transition-all duration-300 font-one"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

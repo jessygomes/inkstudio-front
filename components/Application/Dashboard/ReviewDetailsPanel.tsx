@@ -82,10 +82,9 @@ export default function ReviewDetailsPanel({
   };
 
   return (
-    <div className="bg-gradient-to-br from-noir-500/90 to-noir-500/85 backdrop-blur-lg rounded-xl border border-white/20 shadow-2xl h-full flex flex-col">
+    <div className="dashboard-embedded-panel flex h-full flex-col">
       {/* Header */}
-      <div className="relative p-4 border-b border-white/10 bg-gradient-to-r rounded-t-xl from-noir-700/80 to-noir-500/80">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-400/5 to-transparent"></div>
+      <div className="dashboard-embedded-header p-4 rounded-t-[28px]">
         <div className="relative flex items-center justify-between">
           <div className="flex items-center gap-3">
             {selectedReview.author?.image ? (
@@ -175,7 +174,7 @@ export default function ReviewDetailsPanel({
         )}
 
         {selectedReview.comment && (
-          <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+          <div className="dashboard-embedded-section p-3">
             <p className="text-white/70 text-sm font-one leading-relaxed">
               {selectedReview.comment}
             </p>
@@ -187,7 +186,7 @@ export default function ReviewDetailsPanel({
 
         {/* Appointment Info */}
         {selectedReview.appointment && (
-          <div className="bg-gradient-to-r from-tertiary-500/10 to-tertiary-500/10 rounded-xl p-3 border border-tertiary-500/30">
+          <div className="dashboard-embedded-section p-3 border-tertiary-500/25 bg-tertiary-500/6">
             <div className="flex items-start gap-2">
               <div className="w-6 h-6 bg-tertiary-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <svg
@@ -221,7 +220,7 @@ export default function ReviewDetailsPanel({
 
         {/* Images */}
         {selectedReview.photos && selectedReview.photos.length > 0 && (
-          <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+          <div className="dashboard-embedded-section p-3">
             <h5 className="text-white font-one text-sm mb-3 flex items-center gap-2">
               <svg
                 className="w-4 h-4 text-blue-500"
@@ -259,7 +258,7 @@ export default function ReviewDetailsPanel({
 
         {/* Réponse existante */}
         {selectedReview.salonResponse && (
-          <div className="bg-gradient-to-br from-blue-500/10 to-blue-500/10 rounded-xl p-3 border border-blue-500/30">
+          <div className="dashboard-embedded-section p-3 border-blue-500/25 bg-blue-500/6">
             <div className="flex items-start gap-2">
               <div className="w-6 h-6 bg-blue-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <svg
@@ -325,7 +324,7 @@ export default function ReviewDetailsPanel({
       </div>
 
       {/* Footer */}
-      <div className="p-3 border-t border-white/10 bg-white/5 rounded-b-xl">
+      <div className="dashboard-embedded-footer rounded-b-[28px] p-3">
         <button
           onClick={onClose}
           className="cursor-pointer w-full py-2 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one"

@@ -116,14 +116,17 @@ export default function CreateOrUpdateFlash({
       {isClosing && (
         <div
           data-modal
-          className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm flex items-center justify-center overflow-hidden"
+          className="fixed inset-0 z-[10000] bg-black/70 backdrop-blur-[2px] flex items-center justify-center overflow-hidden p-3"
           style={{ height: "100dvh", width: "100vw" }}
         >
-          <div className="bg-noir-500 rounded-2xl p-6 border border-white/20 shadow-2xl">
+          <div className="dashboard-embedded-panel w-full max-w-sm rounded-2xl border border-white/15 bg-[#1a1a1a] p-4 shadow-2xl">
             <div className="flex items-center gap-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tertiary-400"></div>
-              <div className="text-white font-one text-sm">
-                Nettoyage en cours...
+              <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-tertiary-400"></div>
+              <div className="text-white font-one">
+                <p className="text-sm font-medium">Nettoyage en cours...</p>
+                <p className="text-[11px] text-white/60">
+                  Suppression de l'image temporaire
+                </p>
               </div>
             </div>
           </div>
@@ -132,38 +135,58 @@ export default function CreateOrUpdateFlash({
 
       <div
         data-modal
-        className="fixed inset-0 z-[9999] lg:bg-black/60 lg:backdrop-blur-sm bg-noir-700 flex items-end lg:items-center justify-center p-0 lg:p-4 overflow-hidden"
+        className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-[2px] p-0 sm:p-3 md:p-4 lg:flex lg:items-center lg:justify-center overflow-hidden"
         style={{ height: "100dvh", width: "100vw" }}
       >
-        <div className="bg-noir-500 rounded-none lg:rounded-3xl w-full h-full lg:h-auto lg:max-w-4xl lg:max-h-[95vh] overflow-hidden flex flex-col border-0 lg:border lg:border-white/20 lg:shadow-2xl min-h-0">
-          <div className="p-4 border-b border-white/10 bg-white/5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg lg:text-xl font-bold text-white font-one tracking-wide">
-                {existingFlash ? "Modifier le flash" : "Ajouter un flash"}
-              </h2>
+        <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none border-0 bg-[#1a1a1a] shadow-none sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)] md:max-h-[90vh]">
+          <div className="dashboard-embedded-header px-4 py-3.5 sm:rounded-t-[28px]">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">
+                  Flash
+                </p>
+                <h2 className="mt-1 truncate text-base font-semibold tracking-wide text-white font-one sm:text-lg">
+                  {existingFlash ? "Modifier un flash" : "Ajouter un flash"}
+                </h2>
+                <p className="mt-0.5 text-xs text-white/65 font-one">
+                  {existingFlash
+                    ? "Mettez à jour les informations de votre flash"
+                    : "Ajoutez un nouveau flash disponible à la réservation"}
+                </p>
+              </div>
+
               <button
+                type="button"
                 onClick={handleClose}
                 disabled={isClosing || loading}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50"
+                className="shrink-0 rounded-xl p-1.5 text-white/65 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <span className="text-white text-xl cursor-pointer">×</span>
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
               </button>
             </div>
-            <p className="text-white/70 mt-1 text-sm">
-              {existingFlash
-                ? "Modifiez votre flash"
-                : "Ajoutez un nouveau flash disponible"}
-            </p>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 min-h-0">
+          <div className="flex-1 overflow-y-auto px-3 py-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
             <form
+              id="flash-create-update-form"
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-4 lg:space-y-6"
+              className="space-y-2.5"
             >
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                  📸 Image du flash
+              <div className="dashboard-embedded-section p-3">
+                <h3 className="mb-2 text-[12px] font-semibold text-white font-one">
+                  Image du flash
                 </h3>
                 <SalonImageUploader
                   currentImage={
@@ -177,63 +200,63 @@ export default function CreateOrUpdateFlash({
                   onImageRemove={() => form.setValue("imageUrl", "")}
                 />
                 {form.formState.errors.imageUrl && (
-                  <p className="text-red-300 text-xs mt-2">
+                  <p className="mt-2 text-xs text-red-300 font-one">
                     {form.formState.errors.imageUrl.message}
                   </p>
                 )}
               </div>
 
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10 space-y-4">
-                <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                  ℹ️ Informations
+              <div className="dashboard-embedded-section p-3 space-y-2.5">
+                <h3 className="mb-2 text-[12px] font-semibold text-white font-one">
+                  Informations
                 </h3>
 
-                <div>
-                  <label className="text-xs text-white/70 font-one">
+                <div className="space-y-1">
+                  <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
                     Titre
                   </label>
                   <input
                     {...form.register("title")}
                     placeholder="Nom du flash"
-                    className="mt-1 w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400"
+                    className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
                   />
                   {form.formState.errors.title && (
-                    <p className="text-red-300 text-xs mt-1">
+                    <p className="mt-1 text-xs text-red-300 font-one">
                       {form.formState.errors.title.message}
                     </p>
                   )}
                 </div>
 
-                <div>
-                  <label className="text-xs text-white/70 font-one">
+                <div className="space-y-1">
+                  <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
                     Description
                   </label>
                   <textarea
                     {...form.register("description")}
                     placeholder="Description (optionnelle)"
                     rows={4}
-                    className="mt-1 w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 resize-none"
+                    className="h-24 w-full resize-none rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
                   />
                 </div>
 
-                <div>
-                  <label className="text-xs text-white/70 font-one">
+                <div className="space-y-1">
+                  <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
                     Dimensions
                   </label>
                   <input
                     {...form.register("dimension")}
                     placeholder="Ex: 10x15 cm"
-                    className="mt-1 w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400"
+                    className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
                   />
                   {form.formState.errors.dimension && (
-                    <p className="text-red-300 text-xs mt-1">
+                    <p className="mt-1 text-xs text-red-300 font-one">
                       {form.formState.errors.dimension.message}
                     </p>
                   )}
                 </div>
 
-                <div>
-                  <label className="text-xs text-white/70 font-one">
+                <div className="space-y-1">
+                  <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
                     Prix (€)
                   </label>
                   <input
@@ -242,16 +265,16 @@ export default function CreateOrUpdateFlash({
                     step="0.01"
                     {...form.register("price", { valueAsNumber: true })}
                     placeholder="0"
-                    className="mt-1 w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400"
+                    className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
                   />
                   {form.formState.errors.price && (
-                    <p className="text-red-300 text-xs mt-1">
+                    <p className="mt-1 text-xs text-red-300 font-one">
                       {form.formState.errors.price.message}
                     </p>
                   )}
                 </div>
 
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="dashboard-list-item flex cursor-pointer items-center gap-2 rounded-xl border border-white/8 bg-white/4 px-2.5 py-2">
                   <input
                     type="checkbox"
                     checked={form.watch("isAvailable")}
@@ -267,35 +290,40 @@ export default function CreateOrUpdateFlash({
               </div>
 
               {error && (
-                <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
-                  <p className="text-red-300 text-xs">{error}</p>
+                <div className="rounded-xl border border-red-500/45 bg-red-500/14 p-3">
+                  <p className="text-xs text-red-300 font-one">{error}</p>
                 </div>
               )}
 
               {success && (
-                <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-xl">
-                  <p className="text-green-300 text-xs">{success}</p>
+                <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/14 p-3">
+                  <p className="text-xs text-emerald-300 font-one">{success}</p>
                 </div>
               )}
-
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  disabled={loading || isClosing}
-                  className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 font-one text-xs disabled:opacity-50"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading || isClosing}
-                  className="cursor-pointer px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-one text-xs disabled:opacity-50"
-                >
-                  {loading ? "Enregistrement..." : "Enregistrer"}
-                </button>
-              </div>
             </form>
+          </div>
+
+          <div className="dashboard-embedded-footer flex items-center justify-end gap-2 px-4 py-2.5 sm:rounded-b-[28px]">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={loading || isClosing}
+              className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] border border-white/12 bg-white/8 px-3.5 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-50 font-one"
+            >
+              {isClosing ? "Annulation..." : "Annuler"}
+            </button>
+            <button
+              type="submit"
+              form="flash-create-update-form"
+              disabled={loading || isClosing}
+              className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:cursor-not-allowed disabled:opacity-50 font-one"
+            >
+              {loading
+                ? "Enregistrement..."
+                : existingFlash
+                  ? "Modifier le flash"
+                  : "Ajouter le flash"}
+            </button>
           </div>
         </div>
       </div>

@@ -102,19 +102,22 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
 
   if (loading) {
     return (
-      <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white font-one">
-            Suivis en attente
-          </h3>
-          <div className="w-4 h-4 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
-        </div>
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-16 bg-slate-300/10 rounded-lg"></div>
+      <div className="dashboard-panel p-4 lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-4">
+            <div>
+              <span className="dashboard-card-kicker">Suivi client</span>
+              <h3 className="dashboard-card-title mt-3">Suivis en attente</h3>
             </div>
-          ))}
+            <div className="w-4 h-4 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
+          </div>
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-20 bg-slate-300/10 rounded-[22px]"></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -122,11 +125,15 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
 
   if (error) {
     return (
-      <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
-        <h3 className="text-lg font-bold text-white mb-4 font-one">
-          Suivis en attente
-        </h3>
-        <div className="text-center py-6">
+      <div className="dashboard-panel p-4 lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-4">
+            <div>
+              <span className="dashboard-card-kicker">Suivi client</span>
+              <h3 className="dashboard-card-title mt-3">Suivis en attente</h3>
+            </div>
+          </div>
+          <div className="dashboard-empty-state px-4 py-8 text-center">
           <div className="w-10 h-10 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg
               className="w-5 h-5 text-red-400"
@@ -145,10 +152,11 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
           <p className="text-red-400 mb-3 text-sm font-medium">{error}</p>
           <button
             onClick={fetchUnansweredFollowUps}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            className="rounded-xl bg-tertiary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-tertiary-600"
           >
             Réessayer
           </button>
+        </div>
         </div>
       </div>
     );
@@ -166,18 +174,21 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
 
   return (
     <>
-      <div className="h-[550px] bg-noir-700 rounded-xl border border-white/20 p-4 overflow-y-scroll custom-scrollbar shadow-2xl lg:overflow-hidden relative">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white font-one">
-            Suivis en attente
-          </h3>
-          <div className="px-2 py-1 bg-tertiary-500/20 text-tertiary-400 rounded-lg text-xs font-medium border border-tertiary-500/50">
-            {followUps.length}
+      <div className="dashboard-panel relative h-[550px] overflow-y-scroll custom-scrollbar p-4 lg:overflow-hidden lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-5">
+            <div>
+              <span className="dashboard-card-kicker">Suivi client</span>
+              <h3 className="dashboard-card-title mt-3">Suivis en attente</h3>
+              <p className="dashboard-card-subtitle">
+                Répondez plus vite aux retours post-rendez-vous et maintenez une image pro.
+              </p>
+            </div>
+            <div className="dashboard-count-pill">{followUps.length}</div>
           </div>
-        </div>
 
         {followUps.length === 0 ? (
-          <div className="text-center py-8">
+          <div className="dashboard-empty-state px-4 py-10 text-center">
             <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
               <svg
                 className="w-6 h-6 text-gray-500"
@@ -203,11 +214,11 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
             {followUps.map((followUp) => (
               <div
                 key={followUp.id}
-                className="border border-white/20 rounded-lg p-3 hover:bg-slate-400/10 transition-all duration-200 bg-slate-300/10"
+                className="dashboard-list-item p-3.5"
               >
                 <div className="flex items-start gap-3">
                   {/* Photo de cicatrisation */}
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10 flex-shrink-0 border border-white/20">
+                  <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white/10 flex-shrink-0 border border-white/10">
                     {followUp.photoUrl ? (
                       <Image
                         src={followUp.photoUrl}
@@ -242,7 +253,7 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
                         {followUp.appointment.client.firstName}{" "}
                         {followUp.appointment.client.lastName}
                       </h4>
-                      <div className="bg-gradient-to-r from-orange-500/15 to-orange-500/15 border border-orange-400/30 rounded-lg p-2">
+                      <div className="rounded-2xl border border-orange-400/30 bg-gradient-to-r from-orange-500/15 to-orange-500/15 p-2">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
                           <span className="text-orange-300 font-medium font-one text-xs">
@@ -284,9 +295,9 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
                       </span>
                       <button
                         onClick={() => handleReplyClick(followUp)}
-                        className="cursor-pointer text-tertiary-400 hover:text-tertiary-500 transition-colors font-one font-medium"
+                        className="cursor-pointer rounded-full border border-tertiary-400/15 bg-tertiary-500/10 px-3 py-1 text-tertiary-300 transition-colors hover:text-tertiary-200 font-one font-medium"
                       >
-                        Répondre →
+                        Répondre
                       </button>
                     </div>
                   </div>
@@ -295,15 +306,27 @@ export default function NotAnswerClient({ userId }: { userId: string }) {
             ))}
           </div>
         )}
+        </div>
       </div>
 
       {/* Panneau de réponse */}
       {isReplyModalOpen && selectedFollowUp && (
-        <NotAnswerClientReplyPanel
-          selectedFollowUp={selectedFollowUp}
-          onClose={handleCloseReplyModal}
-          onReplySuccess={fetchUnansweredFollowUps}
-        />
+        <>
+          <div className="hidden lg:block absolute inset-0 z-50">
+            <NotAnswerClientReplyPanel
+              selectedFollowUp={selectedFollowUp}
+              onClose={handleCloseReplyModal}
+              onReplySuccess={fetchUnansweredFollowUps}
+            />
+          </div>
+          <div className="lg:hidden fixed inset-0 z-50 bg-noir-700 overflow-hidden">
+            <NotAnswerClientReplyPanel
+              selectedFollowUp={selectedFollowUp}
+              onClose={handleCloseReplyModal}
+              onReplySuccess={fetchUnansweredFollowUps}
+            />
+          </div>
+        </>
       )}
     </>
   );

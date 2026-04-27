@@ -3,10 +3,10 @@ import React from "react";
 
 export default function ClientAvisPage() {
   return (
-    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 pb-10 lg:pb-0">
-      <div className="px-3 lg:px-10 w-full mt-4 xl:mt-23">
+    <div className="wrapper-global px-3 sm:px-4 lg:px-6 pb-24 lg:pb-8">
+      <section className="w-full space-y-3 pt-4">
         <ShowSuivis />
-      </div>
+      </section>
     </div>
   );
 }

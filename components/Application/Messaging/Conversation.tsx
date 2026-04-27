@@ -218,7 +218,7 @@ export default function Conversation() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="dashboard-empty-state flex items-center justify-center min-h-[60vh] rounded-2xl">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
           <p className="text-white font-one">
@@ -231,7 +231,7 @@ export default function Conversation() {
 
   if (error) {
     return (
-      <div className="w-full bg-noir-700 rounded-xl border border-white/20 p-6">
+      <div className="dashboard-empty-state w-full rounded-xl p-6">
         <div className="text-center py-8">
           <div className="w-12 h-12 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
@@ -254,7 +254,7 @@ export default function Conversation() {
           <p className="text-red-400 mb-4 text-sm">{error}</p>
           <button
             onClick={fetchConversation}
-            className="cursor-pointer px-4 py-2 bg-tertiary-600 text-white rounded-lg hover:bg-tertiary-700 transition-colors text-sm font-medium"
+            className="rdv-btn-primary cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white rounded-lg hover:from-tertiary-500 hover:to-tertiary-600 transition-colors text-sm font-medium"
           >
             Réessayer
           </button>
@@ -265,7 +265,7 @@ export default function Conversation() {
 
   if (!conversation) {
     return (
-      <div className="w-full bg-noir-700 rounded-xl border border-white/20 p-6">
+      <div className="dashboard-empty-state w-full rounded-xl p-6">
         <div className="text-center py-8">
           <p className="text-white/70 font-one">Aucune conversation trouvée</p>
         </div>
@@ -276,9 +276,12 @@ export default function Conversation() {
   return (
     <>
       {/* Version Mobile */}
-      <div className="lg:hidden w-full flex flex-col h-[calc(100vh-64px)]">
+      <div
+        className="lg:hidden dashboard-embedded-panel w-full flex flex-col p-3"
+        style={{ height: "calc(100dvh - 7rem)" }}
+      >
         {/* Header */}
-        <div className="flex-shrink-0 flex flex-col gap-2 bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-3 rounded-lg shadow-lg border border-white/10">
+        <div className="dashboard-embedded-header flex-shrink-0 flex flex-col gap-2 p-3 rounded-xl border border-white/10">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <div className="relative flex-shrink-0">
               <Image
@@ -366,7 +369,7 @@ export default function Conversation() {
         {/* Messages List - Scrollable avec padding bas pour l'input fixe */}
         <div
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto p-3 pb-20 space-y-2 scrollbar-thin scrollbar-thumb-tertiary-500/30 scrollbar-track-transparent bg-noir-700/50"
+          className="dashboard-embedded-section flex-1 overflow-y-auto min-h-0 p-3 space-y-2 scrollbar-thin scrollbar-thumb-tertiary-500/30 scrollbar-track-transparent"
         >
           <MessageBubbles
             messages={displayedMessages}
@@ -386,21 +389,21 @@ export default function Conversation() {
           )}
         </div>
 
-        {/* Input Area Mobile - Fixed au dessus de la navbar */}
+        {/* Input Area Mobile */}
         <MessageInput
           onSendMessage={handleSendMessage}
           onInputChange={handleInputChange}
           disabled={!isConnected}
-          className="fixed bottom-18 left-0 right-0 border-t border-white/10 bg-noir-800/95 backdrop-blur-md p-3 z-40"
+          className="mt-3 flex-shrink-0 border-t border-white/10 bg-noir-800/95 backdrop-blur-md p-3 rounded-xl"
         />
       </div>
 
       {/* Version Desktop */}
-      <div className="hidden lg:flex w-full flex-row gap-3 h-[600px]">
+      <div className="hidden lg:flex w-full flex-row gap-3 h-[calc(100vh-100px)]">
         {/* Messages Section - Gauche */}
-        <div className="w-3/5 flex flex-col gap-3 h-full">
+        <div className="dashboard-embedded-panel w-3/5 flex flex-col gap-3 h-full p-3">
           {/* Header */}
-          <div className="flex items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-3 rounded-lg shadow-lg border border-white/10">
+          <div className="dashboard-embedded-header flex items-center justify-between p-3 rounded-xl border border-white/10">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <div className="relative flex-shrink-0">
                 <Image
@@ -463,7 +466,7 @@ export default function Conversation() {
           </div>
 
           {/* Messages Container */}
-          <div className="bg-noir-700/50 border border-white/10 rounded-lg overflow-hidden flex flex-col flex-1 min-h-0">
+          <div className="dashboard-embedded-section border border-white/10 rounded-xl overflow-hidden flex flex-col flex-1 min-h-0">
             {/* Messages List */}
             <div
               ref={messagesContainerRef}

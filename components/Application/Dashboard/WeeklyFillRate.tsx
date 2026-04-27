@@ -113,7 +113,7 @@ export default function WeeklyFillRate({}: WeeklyFillRateProps) {
 
   if (loading) {
     return (
-      <div className="h-full bg-noir-700 rounded-xl border border-white/20 p-3 shadow-2xl">
+      <div className="dashboard-stat-card p-3.5 lg:p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-bold text-white font-one">
             Taux de remplissage
@@ -131,7 +131,7 @@ export default function WeeklyFillRate({}: WeeklyFillRateProps) {
 
   if (error) {
     return (
-      <div className="h-full bg-noir-700 rounded-xl border border-white/20 p-3 shadow-2xl">
+      <div className="dashboard-stat-card p-3.5 lg:p-4">
         <h3 className="text-xs font-bold text-white font-one mb-3">
           Taux de remplissage
         </h3>
@@ -168,7 +168,8 @@ export default function WeeklyFillRate({}: WeeklyFillRateProps) {
   const fillRate = data?.fillRate || 0;
 
   return (
-    <div className="h-full bg-noir-700 rounded-xl border border-white/20 p-3 shadow-2xl">
+    <div className="dashboard-stat-card p-3.5 lg:p-4">
+      <div className="dashboard-stat-inner">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-bold text-white font-one">
           Taux de remplissage
@@ -176,7 +177,7 @@ export default function WeeklyFillRate({}: WeeklyFillRateProps) {
         <div className="flex items-center gap-1">
           <button
             onClick={() => navigateWeek("prev")}
-            className="cursor-pointer w-6 h-6 rounded-lg bg-tertiary-500/20 border border-tertiary-500/50 flex items-center justify-center hover:bg-tertiary-500/30 transition-colors"
+            className="dashboard-nav-button h-6 w-6 cursor-pointer"
           >
             <svg
               className="w-3 h-3 text-tertiary-400"
@@ -192,13 +193,13 @@ export default function WeeklyFillRate({}: WeeklyFillRateProps) {
               />
             </svg>
           </button>
-          <div className="px-2 py-0.5 bg-tertiary-500/20 text-tertiary-400 rounded-lg text-xs font-one font-medium border border-tertiary-500/50 min-w-[70px] text-center">
+          <div className="dashboard-count-pill min-w-[78px] px-2 py-1 text-center">
             {getWeekLabel()}
           </div>
           <button
             onClick={() => navigateWeek("next")}
             disabled={isCurrentWeek()}
-            className="cursor-pointer w-6 h-6 rounded-lg bg-tertiary-500/20 border border-tertiary-500/50 flex items-center justify-center hover:bg-tertiary-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="dashboard-nav-button h-6 w-6 cursor-pointer"
           >
             <svg
               className="w-3 h-3 text-tertiary-400"
@@ -320,6 +321,7 @@ export default function WeeklyFillRate({}: WeeklyFillRateProps) {
             </span>
           </div>
         </div> */}
+      </div>
       </div>
     </div>
   );

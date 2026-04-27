@@ -4,10 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-import // CiBellOn,
-// CiLock,
-// CiMail,
-"react-icons/ci";
+import { CiSettings } from "react-icons/ci";
 import AccountInfoSection from "@/components/Application/Parametres/AccountInfoSection";
 import AppointmentModeSetting from "@/components/Application/Parametres/AppointmentModeSetting";
 import AppointmentConfirmationSetting from "@/components/Application/Parametres/AppointmentConfirmationSetting";
@@ -16,7 +13,6 @@ import SubscriptionSection from "@/components/Application/Parametres/Subscriptio
 import SecuritySection from "@/components/Application/Parametres/SecuritySection";
 import VerificationDocumentsSection from "@/components/Application/Parametres/VerificationDocumentsSection";
 // import { MdOutlinePalette } from "react-icons/md";
-import { CiSettings } from "react-icons/ci";
 import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
 import NotifChatPreference from "@/components/Application/Parametres/NotifChatPreference";
 
@@ -41,35 +37,31 @@ export default function ParamPage() {
   };
 
   return (
-    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 px-3 sm:px-6 lg:px-10 pb-10 lg:pb-0">
-      <div className="flex flex-col relative gap-4 sm:gap-6 w-full mt-4 pb-10 xl:pb-0 xl:mt-23">
-        {/* Header responsive */}
-        <div className="">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
-                <CiSettings
-                  size={20}
-                  className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
-                />
-              </div>
-              <div>
-                <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
-                  <span className="hidden sm:inline">Paramètres du compte</span>
-                  <span className="sm:hidden">Paramètres</span>
+    <div className="wrapper-global px-3 sm:px-4 lg:px-6 pb-24 lg:pb-4">
+      <section className="w-full space-y-3 pt-4">
+        {/* Header */}
+        <div className="dashboard-hero rounded-2xl border border-white/12 bg-noir-700/6 p-3 sm:p-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-tertiary-400/20 border border-tertiary-400/25 flex items-center justify-center">
+              <CiSettings size={20} className="text-tertiary-500" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
+                Paramètres
+              </p>
+              <div className="flex flex-wrap items-end gap-x-2 gap-y-0.5">
+                <h1 className="text-white font-one text-base sm:text-lg font-semibold leading-tight">
+                  Paramètres du compte
                 </h1>
-                <p className="text-white/70 text-xs font-one mt-1">
-                  <span className="hidden sm:inline">
-                    Gérez votre compte, abonnement et préférences
-                  </span>
-                  <span className="sm:hidden">Compte et préférences</span>
+                <p className="text-white/55 font-two text-xs">
+                  Compte, abonnement, notifications et sécurité
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-3">
           {/* Section Informations du compte responsive */}
           <AccountInfoSection
             openSections={openSections}
@@ -78,7 +70,7 @@ export default function ParamPage() {
 
           <VerificationDocumentsSection />
 
-          <div className="w-full flex flex-col sm:flex-row gap-2">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-2.5">
             <AppointmentModeSetting
               userId={session?.user?.id || null}
               saasPlan={session?.user?.saasPlan || null}
@@ -89,9 +81,10 @@ export default function ParamPage() {
             />
           </div>
 
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-2.5">
           <NotifChatPreference />
-
           <ColorProfile />
+          </div>
 
           <SubscriptionSection
             openSections={openSections}
@@ -160,7 +153,7 @@ export default function ParamPage() {
             )}
           </div> */}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

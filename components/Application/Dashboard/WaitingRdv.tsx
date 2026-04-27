@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 import {
-  confirmAppointmentAction,
   paidAppointmentsAction,
   waitingConfirmationAppointmentsAction,
 } from "@/lib/queries/appointment";
@@ -262,19 +261,22 @@ export default function WaitingRdv({ userId }: { userId: string }) {
   //! CHARGEMENT
   if (loading) {
     return (
-      <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white font-one">
-            RDV en attente
-          </h3>
-          <div className="w-4 h-4 border-2 border-orange-500/50 rounded-full animate-spin border-t-orange-400"></div>
-        </div>
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-12 bg-slate-300/10 rounded-lg"></div>
+      <div className="dashboard-panel dashboard-panel-featured p-4 lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-4">
+            <div>
+              <span className="dashboard-card-kicker">Validation client</span>
+              <h3 className="dashboard-card-title mt-3">RDV en attente</h3>
             </div>
-          ))}
+            <div className="w-4 h-4 border-2 border-orange-500/50 rounded-full animate-spin border-t-orange-400"></div>
+          </div>
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-16 bg-slate-300/10 rounded-[22px]"></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -283,11 +285,15 @@ export default function WaitingRdv({ userId }: { userId: string }) {
   //! ERREUR
   if (error) {
     return (
-      <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
-        <h3 className="text-lg font-bold text-white mb-4 font-one">
-          RDV en attente
-        </h3>
-        <div className="text-center py-6">
+      <div className="dashboard-panel dashboard-panel-featured p-4 lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-4">
+            <div>
+              <span className="dashboard-card-kicker">Validation client</span>
+              <h3 className="dashboard-card-title mt-3">RDV en attente</h3>
+            </div>
+          </div>
+          <div className="dashboard-empty-state px-4 py-8 text-center">
           <div className="w-10 h-10 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg
               className="w-5 h-5 text-red-400"
@@ -306,10 +312,11 @@ export default function WaitingRdv({ userId }: { userId: string }) {
           <p className="text-red-400 mb-3 text-sm font-medium">{error}</p>
           <button
             onClick={fetchPendingAppointments}
-            className="cursor-pointer px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
+            className="cursor-pointer rounded-xl bg-orange-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-700"
           >
             Réessayer
           </button>
+        </div>
         </div>
       </div>
     );
@@ -317,219 +324,222 @@ export default function WaitingRdv({ userId }: { userId: string }) {
 
   return (
     <>
-      <div className="h-[550px] bg-noir-700 rounded-xl border border-white/20 p-4 overflow-y-auto custom-scrollbar shadow-2xl relative lg:overflow-hidden">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white font-one">
-            RDV en attente
-          </h3>
-          <div className="px-2 py-1 bg-tertiary-500/20 text-tertiary-400 rounded-lg text-xs font-medium border border-tertiary-500/50">
-            {appointments.length}
-          </div>
-        </div>
-
-        {appointments.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <svg
-                className="w-6 h-6 text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+      <div className="dashboard-panel dashboard-panel-featured relative h-[550px] overflow-y-auto custom-scrollbar p-4 lg:overflow-hidden lg:p-5">
+        <div
+          className={`dashboard-panel-content h-full ${
+            selectedAppointmentDetails ? "lg:pointer-events-none lg:opacity-0" : ""
+          }`}
+        >
+          <div className="dashboard-card-header mb-5">
+            <div>
+              <span className="dashboard-card-kicker">Validation client</span>
+              <h3 className="dashboard-card-title mt-3">RDV en attente</h3>
+              <p className="dashboard-card-subtitle">
+                Les confirmations urgentes et reprogrammations à traiter sans délai.
+              </p>
             </div>
-            <p className="text-gray-400 text-sm">Aucun RDV en attente</p>
-            <p className="text-gray-500 text-xs mt-1">
-              Tous vos rendez-vous sont confirmés
-            </p>
+            <div className="dashboard-count-pill">{appointments.length}</div>
           </div>
-        ) : (
-          <div className="space-y-2">
-            {appointments.map((appointment) => {
-              const daysUntil = getDaysUntilAppointment(appointment.start);
-              const isUrgent = daysUntil <= 2;
 
-              return (
-                <div
-                  key={appointment.id}
-                  onClick={() => openAppointmentDetails(appointment)}
-                  className={`cursor-pointer border rounded-lg p-3 hover:bg-slate-400/10 transition-all duration-200 bg-slate-300/10 ${
-                    isUrgent
-                      ? "border-tertiary-400/40 bg-tertiary-500/5"
-                      : "border-white/20"
-                  } ${
-                    selectedAppointmentDetails?.id === appointment.id
-                      ? "ring-2 ring-tertiary-500/50 border-tertiary-500/50"
-                      : ""
-                  }`}
+          {appointments.length === 0 ? (
+            <div className="dashboard-empty-state px-4 py-10 text-center">
+              <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <svg
+                  className="w-6 h-6 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <div className="flex flex-col gap-2 lg:flex-row lg:gap-0 items-start justify-between">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-8 h-8 bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-semibold text-xs">
-                          {appointment.client.firstName.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-medium text-white text-sm truncate font-one">
-                            {appointment.client.firstName}{" "}
-                            {appointment.client.lastName}
-                          </h4>
-                          {isUrgent && (
-                            <span className="text-orange-400 text-xs">⚠️</span>
-                          )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <p className="text-gray-400 text-sm">Aucun RDV en attente</p>
+              <p className="text-gray-500 text-xs mt-1">
+                Tous vos rendez-vous sont confirmés
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {appointments.map((appointment) => {
+                const daysUntil = getDaysUntilAppointment(appointment.start);
+                const isUrgent = daysUntil <= 2;
+
+                return (
+                  <div
+                    key={appointment.id}
+                    onClick={() => openAppointmentDetails(appointment)}
+                    className={`dashboard-list-item cursor-pointer p-3.5 ${
+                      isUrgent
+                        ? "border-tertiary-400/35 bg-tertiary-500/6"
+                        : ""
+                    } ${
+                      selectedAppointmentDetails?.id === appointment.id
+                        ? "dashboard-list-item-active ring-2 ring-tertiary-500/35"
+                        : ""
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2 lg:flex-row lg:gap-0">
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-tertiary-500 to-tertiary-400 shadow-lg shadow-tertiary-500/20">
+                          <span className="text-xs font-semibold text-white">
+                            {appointment.client.firstName.charAt(0).toUpperCase()}
+                          </span>
                         </div>
-                        <p className="text-[10px] font-one text-gray-300 truncate">
-                          {appointment.title}
-                        </p>
-                        <div className="flex items-center gap-3 text-xs font-one text-gray-400 mt-1">
-                          <span>{formatDate(appointment.start)}</span>
-                          <span>•</span>
-                          <span>
-                            {calculateDuration(
-                              appointment.start,
-                              appointment.end,
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="truncate text-sm font-medium text-white font-one">
+                              {appointment.client.firstName} {appointment.client.lastName}
+                            </h4>
+                            {isUrgent && (
+                              <span className="text-xs text-orange-400">⚠️</span>
                             )}
-                            min
-                          </span>
-                          <span>•</span>
-                          <span>
-                            {appointment.tatoueur?.name || "Non assigné"}
-                          </span>
-                          {/* Indicateur de visio */}
-                          {appointment.visio && (
-                            <>
-                              <span>•</span>
-                              <div className="flex items-center gap-1">
-                                <svg
-                                  className="w-3 h-3 text-blue-400"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                                  />
-                                </svg>
-                                <span className="text-blue-400">Visio</span>
-                              </div>
-                            </>
+                          </div>
+
+                          <p className="truncate text-[10px] text-gray-300 font-one">
+                            {appointment.title}
+                          </p>
+
+                          <div className="mt-1 flex flex-wrap items-center gap-2.5 text-xs text-gray-400 font-one">
+                            <span className="rounded-full bg-white/6 px-2.5 py-1 text-white/78">
+                              {formatDate(appointment.start)}
+                            </span>
+                            <span>•</span>
+                            <span>
+                              {calculateDuration(appointment.start, appointment.end)}
+                              min
+                            </span>
+                            <span>•</span>
+                            <span>{appointment.tatoueur?.name || "Non assigné"}</span>
+                            {appointment.visio && (
+                              <>
+                                <span>•</span>
+                                <div className="flex items-center gap-1">
+                                  <svg
+                                    className="w-3 h-3 text-blue-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                    />
+                                  </svg>
+                                  <span className="text-blue-400">Visio</span>
+                                </div>
+                              </>
+                            )}
+                          </div>
+
+                          {daysUntil <= 1 && appointment.status === "PENDING" && (
+                            <div className="mt-1 text-[10px] font-medium text-orange-300">
+                              {daysUntil === 0
+                                ? "Aujourd'hui - Confirmation urgente !"
+                                : "À confirmer rapidement"}
+                            </div>
                           )}
                         </div>
-                        {daysUntil <= 1 && appointment.status === "PENDING" && (
-                          <div className="text-[10px] text-orange-300 mt-1 font-medium">
-                            {daysUntil === 0
-                              ? "Aujourd'hui - Confirmation urgente !"
-                              : "À confirmer rapidement"}
+                      </div>
+
+                      <div className="flex w-full flex-col gap-1 lg:ml-2 lg:w-auto">
+                        {appointment.status === "RESCHEDULING" ? (
+                          <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 p-2 text-center">
+                            <span className="block text-xs font-medium text-blue-300 font-one">
+                              Reprogrammation
+                            </span>
+                            <span className="text-[10px] text-blue-200/70 font-one">
+                              En attente client
+                            </span>
                           </div>
+                        ) : (
+                          <>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleConfirmClick(appointment);
+                              }}
+                              className="cursor-pointer flex items-center gap-1 rounded-xl border border-green-600/30 bg-green-600/20 px-2.5 py-1.5 text-xs font-medium text-green-400 transition-colors hover:bg-green-600/30 font-one"
+                            >
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                              Confirmer
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCancelClick(appointment);
+                              }}
+                              className="cursor-pointer flex items-center gap-1 rounded-xl border border-red-600/30 bg-red-600/20 px-2.5 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-600/30 font-one"
+                            >
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                              Annuler
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
-
-                    {/* Boutons d'action rapide - empêche la propagation */}
-                    <div className="flex flex-col gap-1 lg:ml-2 w-full lg:w-auto">
-                      {appointment.status === "RESCHEDULING" ? (
-                        // Message pour les RDV en reprogrammation
-                        <div className="bg-blue-500/10 border border-blue-500/30 rounded p-2 text-center">
-                          <span className="text-blue-300 text-xs font-one font-medium block">
-                            Reprogrammation
-                          </span>
-                          <span className="text-blue-200/70 text-[10px] font-one">
-                            En attente client
-                          </span>
-                        </div>
-                      ) : (
-                        // Boutons normaux pour les autres statuts
-                        <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleConfirmClick(appointment);
-                            }}
-                            className="cursor-pointer px-2 py-1 bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/30 rounded text-xs font-one font-medium transition-colors flex items-center gap-1"
-                          >
-                            <svg
-                              className="w-3 h-3"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                            Confirmer
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCancelClick(appointment);
-                            }}
-                            className="cursor-pointer px-2 py-1 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded text-xs font-one font-medium transition-colors flex items-center gap-1"
-                          >
-                            <svg
-                              className="w-3 h-3"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                            Annuler
-                          </button>
-                        </>
-                      )}
-                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
 
-        {/* Panneau de détails */}
+          {selectedAppointmentDetails && (
+            <>
+              <div className="lg:hidden">
+                <WaitingRdvDetailsPanelMobile
+                  selectedAppointment={selectedAppointmentDetails}
+                  onClose={closeAppointmentDetails}
+                  handleRdvUpdated={handleRdvUpdated}
+                  handlePaymentStatusChange={handlePaymentStatusChange}
+                  userId={userId}
+                />
+              </div>
+            </>
+          )}
+        </div>
+
         {selectedAppointmentDetails && (
-          <>
-            {/* Version Mobile */}
-            <div className="lg:hidden">
-              <WaitingRdvDetailsPanelMobile
-                selectedAppointment={selectedAppointmentDetails}
-                onClose={closeAppointmentDetails}
-                handleRdvUpdated={handleRdvUpdated}
-                handlePaymentStatusChange={handlePaymentStatusChange}
-                userId={userId}
-              />
-            </div>
-
-            {/* Version Desktop */}
-            <div className="hidden lg:block absolute inset-0 z-50">
-              <WaitingRdvDetailsPanelDesktop
-                selectedAppointment={selectedAppointmentDetails}
-                onClose={closeAppointmentDetails}
-                handleRdvUpdated={handleRdvUpdated}
-                handlePaymentStatusChange={handlePaymentStatusChange}
-                userId={userId}
-              />
-            </div>
-          </>
+          <div className="absolute inset-0 z-50 hidden lg:block">
+            <WaitingRdvDetailsPanelDesktop
+              selectedAppointment={selectedAppointmentDetails}
+              onClose={closeAppointmentDetails}
+              handleRdvUpdated={handleRdvUpdated}
+              handlePaymentStatusChange={handlePaymentStatusChange}
+              userId={userId}
+            />
+          </div>
         )}
       </div>
 

@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { useSession } from "next-auth/react";
 import {
@@ -212,233 +211,136 @@ export default function StockList() {
     }
   };
 
+  const maxButtons = 5;
+  const pageButtons = Array.from(
+    { length: Math.min(pagination.totalPages, maxButtons) },
+    (_, index) => {
+      if (pagination.totalPages <= maxButtons) {
+        return index + 1;
+      }
+
+      if (currentPage <= Math.floor(maxButtons / 2) + 1) {
+        return index + 1;
+      }
+
+      if (currentPage >= pagination.totalPages - Math.floor(maxButtons / 2)) {
+        return pagination.totalPages - maxButtons + 1 + index;
+      }
+
+      return currentPage - Math.floor(maxButtons / 2) + index;
+    },
+  );
+
   return (
-    <section className="w-full">
-      <div className="mb-6 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-        <div className="w-full flex items-center gap-3 sm:gap-4 mb-4 md:mb-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
-            <FaDatabase
-              size={20}
-              className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
-            />
+    <section className="w-full space-y-3">
+      <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-5 lg:py-2.5">
+        <div className="w-full min-w-0 flex items-center gap-3">
+          <div className="h-10 w-10 bg-tertiary-400/30 rounded-full flex items-center justify-center shrink-0">
+            <FaDatabase size={18} className="text-tertiary-400 animate-pulse" />
           </div>
-          <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base sm:text-lg font-bold text-white font-one tracking-wide uppercase">
               Stocks
             </h1>
-            <p className="text-white/70 text-xs font-one mt-1">
-              Gérez le stock de votre salon
+            <p className="hidden sm:block text-white/70 text-[11px] font-one mt-0.5">
+              Gérez vos consommables, vos quantités et la valeur globale de votre inventaire.
             </p>
           </div>
         </div>
 
-        {/* Boutons d'action responsive */}
         {!isFreeAccount && (
-          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+          <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto lg:justify-end">
             <button
               onClick={handleCreate}
-              className="whitespace-nowrap cursor-pointer flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+              className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-3.5 py-2 text-[11px] font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one whitespace-nowrap"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Créer un nouvel item
+              Nouvel article
             </button>
           </div>
         )}
       </div>
 
-      {/* Statistiques */}
       {!isFreeAccount && !loading && !error && (
-        <div className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-white/60 text-xs font-one">Articles</span>
-            <span className="text-white text-xl font-one font-semibold">
-              {statistics.totalItems}
-            </span>
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
+          <div className="dashboard-stat-card p-2.5 lg:p-3">
+            <div className="dashboard-stat-inner">
+              <p className="dashboard-soft-label text-[10px] leading-none">Articles</p>
+              <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.totalItems}</p>
+            </div>
           </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-white/60 text-xs font-one">
-              Valeur totale
-            </span>
-            <span className="text-white text-xl font-one font-semibold">
-              {statistics.totalValue.toFixed(2)} €
-            </span>
+          <div className="dashboard-stat-card p-2.5 lg:p-3">
+            <div className="dashboard-stat-inner">
+              <p className="dashboard-soft-label text-[10px] leading-none">Valeur totale</p>
+              <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.totalValue.toFixed(2)} €</p>
+            </div>
           </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-white/60 text-xs font-one">Stock bas</span>
-            <span className="text-orange-400 text-xl font-one font-semibold">
-              {statistics.lowStockItems}
-            </span>
+          <div className="dashboard-stat-card p-2.5 lg:p-3">
+            <div className="dashboard-stat-inner">
+              <p className="dashboard-soft-label text-[10px] leading-none">Stock bas</p>
+              <p className="mt-1 text-base font-semibold text-amber-300 font-one lg:text-[17px]">{statistics.lowStockItems}</p>
+            </div>
           </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-white/60 text-xs font-one">Rupture</span>
-            <span className="text-red-400 text-xl font-one font-semibold">
-              {statistics.outOfStockItems}
-            </span>
+          <div className="dashboard-stat-card p-2.5 lg:p-3">
+            <div className="dashboard-stat-inner">
+              <p className="dashboard-soft-label text-[10px] leading-none">Ruptures</p>
+              <p className="mt-1 text-base font-semibold text-red-300 font-one lg:text-[17px]">{statistics.outOfStockItems}</p>
+            </div>
           </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-white/60 text-xs font-one">Catégories</span>
-            <span className="text-white text-xl font-one font-semibold">
-              {statistics.totalCategories}
-            </span>
+          <div className="dashboard-stat-card p-2.5 lg:p-3">
+            <div className="dashboard-stat-inner">
+              <p className="dashboard-soft-label text-[10px] leading-none">Catégories</p>
+              <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.totalCategories}</p>
+            </div>
           </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col gap-1">
-            <span className="text-white/60 text-xs font-one">Valeur moy.</span>
-            <span className="text-white text-xl font-one font-semibold">
-              {statistics.averageValue.toFixed(2)} €
-            </span>
+          <div className="dashboard-stat-card p-2.5 lg:p-3">
+            <div className="dashboard-stat-inner">
+              <p className="dashboard-soft-label text-[10px] leading-none">Valeur moyenne</p>
+              <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.averageValue.toFixed(2)} €</p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Liste des items de stock */}
-
-      <div>
-        {/* Barre de recherche et filtre par catégorie responsive */}
-        {!isFreeAccount && (
-          <div className="flex flex-col sm:flex-row gap-2 items-center mb-4 sm:mb-6 mt-4 sm:mt-6">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Rechercher par article"
-              className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-2 sm:py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
-            />
-
-            {/* Filtre par catégorie */}
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full sm:w-48 text-sm text-white bg-white/10 py-2 sm:py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
-            >
-              <option value="" className="text-black">
-                Toutes les catégories
-              </option>
-              {categories.map((category) => (
-                <option key={category} value={category} className="text-black">
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Informations de pagination responsive */}
-
-        {!isFreeAccount && !loading && !error && (
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-            <div className="text-white/70 text-xs font-one">
-              Affichage de {itemsStock.length > 0 ? 1 : 0} à{" "}
-              {filteredItems.length} sur {itemsStock.length} article
-              {itemsStock.length > 1 ? "s" : ""}
-              {searchTerm && (
-                <span className="block sm:inline sm:ml-2 text-tertiary-400 mt-1 sm:mt-0">
-                  (recherche: "{searchTerm}")
-                </span>
-              )}
-              {categoryFilter && (
-                <span className="block sm:inline sm:ml-2 text-purple-400 mt-1 sm:mt-0">
-                  (catégorie: "{categoryFilter}")
-                </span>
-              )}
-            </div>
-            <div className="text-white/70 text-xs font-one">
-              Page {currentPage} sur {pagination.totalPages}
-            </div>
-          </div>
-        )}
-
-        {isFreeAccount ? (
-          /* Message pour les comptes Free */
-          <div className="bg-gradient-to-r from-orange-500/10 to-tertiary-500/10 border border-orange-500/30 rounded-2xl p-6">
+      {isFreeAccount ? (
+        <div className="dashboard-panel p-6 lg:p-8">
+          <div className="dashboard-panel-content bg-gradient-to-r from-orange-500/4 to-tertiary-500/4 rounded-[24px] p-0">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg
-                  className="w-6 h-6 text-orange-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                  />
+              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-orange-500/25 bg-orange-500/12">
+                <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
 
               <div className="flex-1">
-                <h2 className="text-white font-semibold font-one mb-2">
-                  📦 Gestion des stocks disponible avec un abonnement
+                <h2 className="mb-2 text-white font-semibold font-one">
+                  Gestion des stocks disponible avec un abonnement
                 </h2>
-
-                <p className="text-white/70 text-sm font-one mb-4">
-                  Accédez à la gestion complète de votre stock : suivi des
-                  quantités, alertes de rupture, catégorisation et historique
-                  des mouvements.
+                <p className="mb-4 text-sm text-white/70 font-one">
+                  Accédez à la gestion complète de votre stock : suivi des quantités, alertes de rupture, catégorisation et historique des mouvements.
                 </p>
 
-                <div className="flex flex-wrap gap-3 mb-4">
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      📦 Inventaire complet
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      🔔 Alertes de rupture
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      📊 Suivi des quantités
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      🏷️ Catégorisation
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      📈 Historique des mouvements
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      🔍 Recherche & filtres
-                    </span>
-                  </div>
+                <div className="mb-4 flex flex-wrap gap-3">
+                  <div className="dashboard-chip">Inventaire complet</div>
+                  <div className="dashboard-chip">Alertes de rupture</div>
+                  <div className="dashboard-chip">Suivi des quantités</div>
+                  <div className="dashboard-chip">Catégorisation</div>
+                  <div className="dashboard-chip">Historique des mouvements</div>
+                  <div className="dashboard-chip">Recherche et filtres</div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="mt-4 flex gap-3">
                   <button
                     onClick={() => (window.location.href = "/parametres")}
-                    className="cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-sm font-one font-medium transition-all duration-300"
+                    className="cursor-pointer rounded-xl bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:from-tertiary-500 hover:to-tertiary-600 font-one"
                   >
-                    🚀 Passer à PRO
+                    Passer à PRO
                   </button>
-
                   <button
                     onClick={() => (window.location.href = "/parametres")}
-                    className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-sm font-one font-medium transition-colors"
+                    className="cursor-pointer rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20 font-one"
                   >
                     Voir les plans
                   </button>
@@ -446,393 +348,272 @@ export default function StockList() {
               </div>
             </div>
           </div>
-        ) : (
-          <div>
-            {/* Header de tableau - masqué sur mobile */}
-            <div className="hidden sm:grid grid-cols-8 gap-2 px-4 py-2 mb-2 bg-white/10 rounded-lg text-white font-one text-xs font-semibold tracking-widest">
-              <p>Nom de l'article</p>
-              <p>Catégorie</p>
-              <p>Quantité</p>
-              <p>Quantité min.</p>
-              <p>Prix unitaire</p>
-              <p>Prix total</p>
-              <p className="text-center">Actions</p>
-              <p></p>
+        </div>
+      ) : (
+        <div className="dashboard-embedded-panel p-3.5 sm:p-4 lg:p-5 space-y-3">
+          <div className="dashboard-embedded-section p-3">
+            <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="relative w-full lg:max-w-xl">
+                <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Rechercher un article"
+                  className="w-full rounded-xl border border-white/15 bg-white/8 py-2 pl-9 pr-4 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 font-one"
+                />
+              </div>
+
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="w-full rounded-xl border border-white/15 bg-white/8 px-3 py-2 text-xs text-white focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 font-one sm:w-56"
+              >
+                <option value="" className="text-black">Toutes les catégories</option>
+                {categories.map((category) => (
+                  <option key={category} value={category} className="text-black">
+                    {category}
+                  </option>
+                ))}
+              </select>
             </div>
+          </div>
 
-            {loading ? (
-              <div className="space-y-3 mb-6">
-                {/* Vue desktop - skeletons */}
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="hidden lg:grid grid-cols-6 gap-4 px-6 py-4 items-center bg-gradient-to-r from-white/5 to-white/[0.02] rounded-xl border border-white/10"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse"></div>
-                      <div className="flex-1 space-y-2">
-                        <div className="h-3 bg-white/10 rounded-lg w-24 animate-pulse"></div>
-                        <div className="h-2 bg-white/10 rounded-lg w-16 animate-pulse"></div>
-                      </div>
+          {!loading && !error && (
+            <div className="flex flex-col gap-2 text-xs text-white/65 font-one sm:flex-row sm:items-center sm:justify-between">
+              <p>
+                {filteredItems.length} article{filteredItems.length > 1 ? "s" : ""} visible{filteredItems.length > 1 ? "s" : ""}
+                {searchTerm ? ` · recherche "${searchTerm}"` : ""}
+                {categoryFilter ? ` · catégorie "${categoryFilter}"` : ""}
+              </p>
+              <p>Page {currentPage} sur {pagination.totalPages}</p>
+            </div>
+          )}
+
+          {loading ? (
+            <div className="space-y-2.5">
+              {[...Array(5)].map((_, index) => (
+                <div key={index} className="dashboard-list-item animate-pulse p-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 w-40 rounded-lg bg-white/10" />
+                      <div className="h-3 w-28 rounded-lg bg-white/10" />
                     </div>
-                    <div className="h-3 bg-white/10 rounded-lg w-20 animate-pulse"></div>
-                    <div className="h-3 bg-white/10 rounded-lg w-16 animate-pulse"></div>
-                    <div className="h-3 bg-white/10 rounded-lg w-24 animate-pulse"></div>
-                    <div className="h-6 bg-white/10 rounded-lg w-12 animate-pulse"></div>
-                    <div className="flex gap-2 justify-center">
-                      <div className="h-8 w-8 bg-white/10 rounded-lg animate-pulse"></div>
-                      <div className="h-8 w-8 bg-white/10 rounded-lg animate-pulse"></div>
-                    </div>
+                    <div className="hidden h-8 w-28 rounded-xl bg-white/10 sm:block" />
+                    <div className="h-8 w-18 rounded-xl bg-white/10" />
                   </div>
-                ))}
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="dashboard-empty-state p-6">
+              <div className="text-center py-8">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-900/50">
+                  <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-white font-one font-semibold mb-2">Erreur de chargement</h3>
+                <p className="text-red-400 mb-4 text-sm">{error}</p>
+                <button
+                  onClick={() => fetchStockItems(currentPage, searchTerm)}
+                  className="rdv-btn-primary cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white rounded-lg hover:from-tertiary-500 hover:to-tertiary-600 transition-colors text-sm font-medium"
+                >
+                  Réessayer
+                </button>
+              </div>
+            </div>
+          ) : filteredItems.length === 0 ? (
+            <div className="dashboard-empty-state p-6">
+              <div className="text-center py-10">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-[20px] border border-white/8 bg-white/5">
+                  <svg className="w-7 h-7 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+                <p className="text-white/72 font-one text-base">
+                  {searchTerm || categoryFilter ? "Aucun article trouvé" : "Aucun article"}
+                </p>
+                <p className="mt-1 text-white/45 text-sm font-one">
+                  {searchTerm || categoryFilter
+                    ? `Aucun article ne correspond aux filtres appliqués.`
+                    : "Commencez par créer votre premier article de stock."}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="hidden lg:grid grid-cols-[1.5fr_1fr_1.2fr_1fr_1fr_1fr_auto] gap-3 rounded-2xl border border-white/8 bg-white/6 px-4 py-2.5 text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
+                <p>Article</p>
+                <p>Catégorie</p>
+                <p>Quantité</p>
+                <p>Seuil min.</p>
+                <p>Prix unitaire</p>
+                <p>Valeur</p>
+                <p className="text-right">Actions</p>
+              </div>
 
-                {/* Vue mobile - skeletons */}
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={`mobile-${i}`}
-                    className="lg:hidden bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl border border-white/10 overflow-hidden"
-                  >
-                    {/* En-tête avec avatar et nom */}
-                    <div className="bg-gradient-to-r from-white/10 to-white/5 p-4 border-b border-white/10">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-white/10 animate-pulse flex-shrink-0"></div>
-                        <div className="flex justify-between items-center w-full gap-3">
-                          <div className="h-4 bg-white/10 rounded-lg flex-1 animate-pulse"></div>
-                          <div className="h-6 bg-white/10 rounded-lg w-16 animate-pulse"></div>
+              <div className="space-y-2.5">
+                {filteredItems.map((item) => {
+                  const isOutOfStock = item.quantity === 0;
+                  const isLowStock = Boolean(item.minQuantity) && item.quantity <= (item.minQuantity || 0) && !isOutOfStock;
+
+                  return (
+                    <div key={item.id} className="dashboard-list-item p-3 lg:p-3.5">
+                      <div className="hidden lg:grid lg:grid-cols-[1.5fr_1fr_1.2fr_1fr_1fr_1fr_auto] lg:items-center lg:gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-[13px] font-semibold text-white font-one">{item.name}</p>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {isOutOfStock && <span className="rounded-full border border-red-400/20 bg-red-500/10 px-2 py-0.5 text-[10px] text-red-200 font-one">Rupture</span>}
+                            {isLowStock && <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-200 font-one">Stock bas</span>}
+                          </div>
                         </div>
-                      </div>
-                    </div>
-
-                    {/* Contenu principal */}
-                    <div className="p-4 space-y-3">
-                      <div className="flex items-start gap-2">
-                        <div className="w-4 h-4 bg-white/10 rounded mt-0.5 flex-shrink-0 animate-pulse"></div>
-                        <div className="h-3 bg-white/10 rounded-lg flex-1 animate-pulse"></div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 bg-white/10 rounded flex-shrink-0 animate-pulse"></div>
-                        <div className="h-3 bg-white/10 rounded-lg w-32 animate-pulse"></div>
-                      </div>
-                    </div>
-
-                    {/* Actions - pied de carte */}
-                    <div className="flex items-center gap-2 p-3 bg-white/5 border-t border-white/10">
-                      <div className="flex-1 h-10 bg-white/10 rounded-lg animate-pulse"></div>
-                      <div className="w-10 h-10 bg-white/10 rounded-lg animate-pulse"></div>
-                      <div className="w-10 h-10 bg-white/10 rounded-lg animate-pulse"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : error ? (
-              <div className="h-full w-full flex">
-                <div className="mt-4 w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
-                    <svg
-                      className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                      />
-                    </svg>
-                  </div>
-                  <p className="text-white font-one text-lg sm:text-xl text-center">
-                    {error}
-                  </p>
-                  <button
-                    onClick={() => fetchStockItems(currentPage, searchTerm)}
-                    className="cursor-pointer mt-2 px-4 sm:px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
-                  >
-                    Réessayer
-                  </button>
-                </div>
-              </div>
-            ) : filteredItems.length === 0 ? (
-              <div className="h-full w-full flex">
-                <div className="w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
-                    <svg
-                      className="w-8 h-8 sm:w-10 sm:h-10 text-tertiary-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                      />
-                    </svg>
-                  </div>
-                  <p className="text-white/70 font-one text-base sm:text-lg text-center">
-                    {searchTerm || categoryFilter
-                      ? "Aucun article trouvé"
-                      : "Aucun article"}
-                  </p>
-                  <p className="text-white/50 text-sm font-one text-center">
-                    {searchTerm || categoryFilter
-                      ? `Aucun article ne correspond aux critères${
-                          searchTerm ? ` "${searchTerm}"` : ""
-                        }${
-                          categoryFilter
-                            ? ` dans la catégorie "${categoryFilter}"`
-                            : ""
-                        }`
-                      : "Commencez par ajouter votre premier article"}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Liste des articles responsive */}
-                <div className="space-y-2 mb-6">
-                  {filteredItems.map((item) => (
-                    <div key={item.id}>
-                      {/* Vue desktop - grille */}
-                      <div className="hidden lg:grid grid-cols-8 gap-2 px-4 py-3 items-center mb-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300">
-                        <p className="text-white font-one text-xs">
-                          {item.name}
-                        </p>
-                        <p className="text-white font-one text-xs break-all">
-                          {item.category || "Non renseignée"}
-                        </p>
-                        <div className="flex items-center gap-1">
+                        <p className="truncate text-xs text-white/70 font-one">{item.category || "Non renseignée"}</p>
+                        <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleUpdateQuantity(item, -1)}
                             disabled={item.quantity <= 0}
-                            className="cursor-pointer w-5 h-5 flex items-center justify-center bg-white/10 hover:bg-red-500/20 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white text-xs transition-colors"
-                            title="Diminuer la quantité"
+                            className="cursor-pointer flex h-7 w-7 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-35"
+                            title="Diminuer"
                           >
                             −
                           </button>
-                          <span className="text-white font-one text-xs min-w-[60px] text-center">
+                          <span className="min-w-[80px] rounded-xl border border-white/8 bg-white/4 px-2 py-1 text-center text-[11px] text-white font-one">
                             {item.quantity} {item.unit || "pièce(s)"}
                           </span>
                           <button
                             onClick={() => handleUpdateQuantity(item, 1)}
-                            className="cursor-pointer w-5 h-5 flex items-center justify-center bg-white/10 hover:bg-green-500/20 rounded text-white text-xs transition-colors"
-                            title="Augmenter la quantité"
+                            className="cursor-pointer flex h-7 w-7 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:bg-emerald-500/15"
+                            title="Augmenter"
                           >
                             +
                           </button>
                         </div>
-                        <p className="text-white font-one text-xs text-left">
-                          {item.minQuantity
-                            ? `${item.minQuantity} ${item.unit || "pièce(s)"}`
-                            : "Non définie"}
-                        </p>
-                        <p className="text-white font-one text-xs text-left">
-                          {item.pricePerUnit
-                            ? `${item.pricePerUnit.toFixed(2)} €`
-                            : "Non renseigné"}
-                        </p>
-                        <p className="text-white font-one text-xs text-left font-semibold">
-                          {item.totalPrice
-                            ? `${item.totalPrice.toFixed(2)} €`
-                            : "0,00 €"}
-                        </p>
-
-                        <div className="flex gap-2 text-xs items-center justify-center">
+                        <p className="text-xs text-white/70 font-one">{item.minQuantity ? `${item.minQuantity} ${item.unit || "pièce(s)"}` : "Non défini"}</p>
+                        <p className="text-xs text-white/70 font-one">{item.pricePerUnit ? `${item.pricePerUnit.toFixed(2)} €` : "Non renseigné"}</p>
+                        <p className="text-sm font-semibold text-white font-one">{item.totalPrice ? `${item.totalPrice.toFixed(2)} €` : "0,00 €"}</p>
+                        <div className="flex items-center justify-end gap-2">
                           <button
-                            className="cursor-pointer text-black"
+                            className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:border-tertiary-400/40 hover:bg-white/10"
                             onClick={() => handleEdit(item)}
                             title="Modifier l'article"
                           >
-                            <AiOutlineEdit
-                              size={25}
-                              className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                            />
+                            <AiOutlineEdit size={16} />
                           </button>
                           <button
-                            className="cursor-pointer text-black"
+                            className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:border-red-400/40 hover:bg-red-500/12"
                             onClick={() => handleDelete(item)}
                             title="Supprimer l'article"
                           >
-                            <AiOutlineDelete
-                              size={25}
-                              className="p-1 text-white bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                            />
+                            <AiOutlineDelete size={16} />
                           </button>
                         </div>
                       </div>
 
-                      {/* Vue mobile - format carte */}
-                      <div className="lg:hidden bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 hover:border-tertiary-400/30 transition-all duration-300 mb-4">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1 min-w-0 pr-3">
-                            <h3 className="text-white font-one font-semibold text-sm mb-1">
-                              {item.name}
-                            </h3>
-                            <p className="text-white/80 font-one text-sm break-all mb-1">
-                              Catégorie: {item.category || "Non renseignée"}
-                            </p>
-                            <div className="flex items-center justify-between">
-                              <span className="text-white/70 font-one text-sm">
-                                Quantité:
-                              </span>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => handleUpdateQuantity(item, -1)}
-                                  disabled={item.quantity <= 0}
-                                  className="cursor-pointer w-7 h-7 flex items-center justify-center bg-white/10 hover:bg-red-500/20 disabled:opacity-30 disabled:cursor-not-allowed rounded text-white text-sm transition-colors"
-                                  title="Diminuer la quantité"
-                                >
-                                  −
-                                </button>
-                                <span className="text-white/70 font-one text-sm min-w-[80px] text-center">
-                                  {item.quantity} {item.unit || "pièce(s)"}
-                                </span>
-                                <button
-                                  onClick={() => handleUpdateQuantity(item, 1)}
-                                  className="cursor-pointer w-7 h-7 flex items-center justify-center bg-white/10 hover:bg-green-500/20 rounded text-white text-sm transition-colors"
-                                  title="Augmenter la quantité"
-                                >
-                                  +
-                                </button>
-                              </div>
+                      <div className="space-y-2.5 lg:hidden">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="truncate text-[13px] font-semibold text-white font-one">{item.name}</h3>
+                            <p className="mt-1 text-xs text-white/62 font-one">{item.category || "Non renseignée"}</p>
+                          </div>
+                          <div className="flex flex-col items-end gap-1">
+                            {isOutOfStock && <span className="rounded-full border border-red-400/20 bg-red-500/10 px-2 py-0.5 text-[10px] text-red-200 font-one">Rupture</span>}
+                            {isLowStock && <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-200 font-one">Stock bas</span>}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-[11px] font-one">
+                          <div className="rounded-xl border border-white/8 bg-white/4 px-2.5 py-2">
+                            <p className="text-white/38 uppercase tracking-wider text-[9px]">Seuil min.</p>
+                            <p className="mt-1 text-white/85">{item.minQuantity ? `${item.minQuantity} ${item.unit || "pièce(s)"}` : "Non défini"}</p>
+                          </div>
+                          <div className="rounded-xl border border-white/8 bg-white/4 px-2.5 py-2">
+                            <p className="text-white/38 uppercase tracking-wider text-[9px]">Prix unitaire</p>
+                            <p className="mt-1 text-white/85">{item.pricePerUnit ? `${item.pricePerUnit.toFixed(2)} €` : "Non renseigné"}</p>
+                          </div>
+                          <div className="rounded-xl border border-white/8 bg-white/4 px-2.5 py-2 col-span-2 flex items-center justify-between gap-2">
+                            <div>
+                              <p className="text-white/38 uppercase tracking-wider text-[9px]">Valeur totale</p>
+                              <p className="mt-1 text-[13px] font-semibold text-white">{item.totalPrice ? `${item.totalPrice.toFixed(2)} €` : "0,00 €"}</p>
                             </div>
-                            <p className="text-white/70 font-one text-sm mt-2">
-                              Quantité min.:{" "}
-                              {item.minQuantity
-                                ? `${item.minQuantity} ${
-                                    item.unit || "pièce(s)"
-                                  }`
-                                : "Non définie"}
-                            </p>
-                            <div className="flex justify-between items-center mt-2">
-                              <p className="text-white/70 font-one text-sm">
-                                Prix unitaire:{" "}
-                                <span className="text-white">
-                                  {item.pricePerUnit
-                                    ? `${item.pricePerUnit.toFixed(2)} €`
-                                    : "Non renseigné"}
-                                </span>
-                              </p>
-                              <p className="text-tertiary-400 font-one text-sm font-semibold">
-                                Total:{" "}
-                                {item.totalPrice
-                                  ? `${item.totalPrice.toFixed(2)} €`
-                                  : "0,00 €"}
-                              </p>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => handleUpdateQuantity(item, -1)}
+                                disabled={item.quantity <= 0}
+                                className="cursor-pointer flex h-7 w-7 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-35"
+                              >
+                                −
+                              </button>
+                              <span className="min-w-[76px] rounded-xl border border-white/8 bg-white/4 px-2 py-1 text-center text-[11px] text-white">{item.quantity} {item.unit || "pièce(s)"}</span>
+                              <button
+                                onClick={() => handleUpdateQuantity(item, 1)}
+                                className="cursor-pointer flex h-7 w-7 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:bg-emerald-500/15"
+                              >
+                                +
+                              </button>
                             </div>
                           </div>
                         </div>
 
-                        {/* Actions mobiles - maintenant en bas avec plus d'espace */}
-                        <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
-                          <div className="flex gap-3">
-                            <button
-                              className="cursor-pointer p-2.5 bg-white/10 hover:bg-white/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                              onClick={() => handleEdit(item)}
-                              title="Modifier l'article"
-                            >
-                              <IoCreateOutline
-                                size={20}
-                                className="text-white hover:text-tertiary-400 duration-200"
-                              />
-                            </button>
-                            <button
-                              className="cursor-pointer p-2.5 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200"
-                              onClick={() => handleDelete(item)}
-                              title="Supprimer l'article"
-                            >
-                              <AiOutlineDelete
-                                size={20}
-                                className="text-white hover:text-tertiary-400 duration-200"
-                              />
-                            </button>
-                          </div>
+                        <div className="flex items-center justify-end gap-2 border-t border-white/8 pt-2.5">
+                          <button
+                            className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/6 px-2.5 py-1.5 text-[11px] text-white transition-colors hover:border-tertiary-400/40 hover:bg-white/10 font-one"
+                            onClick={() => handleEdit(item)}
+                          >
+                            <IoCreateOutline size={14} /> Modifier
+                          </button>
+                          <button
+                            className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/6 px-2.5 py-1.5 text-[11px] text-white transition-colors hover:border-red-400/40 hover:bg-red-500/12 font-one"
+                            onClick={() => handleDelete(item)}
+                          >
+                            <AiOutlineDelete size={14} /> Supprimer
+                          </button>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
+              </div>
 
-                {/* Pagination responsive */}
-                {pagination.totalPages > 1 && (
-                  <div className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4">
-                    <button
-                      onClick={handlePreviousPage}
-                      disabled={!pagination.hasPreviousPage}
-                      className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
-                    >
-                      Précédent
-                    </button>
-
-                    <div className="flex items-center gap-1 sm:gap-2 order-first sm:order-none">
-                      {Array.from(
-                        {
-                          length: Math.min(
-                            pagination.totalPages,
-                            typeof window !== "undefined" &&
-                              window.innerWidth < 640
-                              ? 3
-                              : 5,
-                          ),
-                        },
-                        (_, i) => {
-                          const maxButtons =
-                            typeof window !== "undefined" &&
-                            window.innerWidth < 640
-                              ? 3
-                              : 5;
-                          let pageNumber;
-                          if (pagination.totalPages <= maxButtons) {
-                            pageNumber = i + 1;
-                          } else if (
-                            currentPage <=
-                            Math.floor(maxButtons / 2) + 1
-                          ) {
-                            pageNumber = i + 1;
-                          } else if (
-                            currentPage >=
-                            pagination.totalPages - Math.floor(maxButtons / 2)
-                          ) {
-                            pageNumber =
-                              pagination.totalPages - maxButtons + 1 + i;
-                          } else {
-                            pageNumber =
-                              currentPage - Math.floor(maxButtons / 2) + i;
-                          }
-
-                          return (
-                            <button
-                              key={pageNumber}
-                              onClick={() => handlePageChange(pageNumber)}
-                              className={`cursor-pointer w-6 h-6 sm:w-8 sm:h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
-                                currentPage === pageNumber
-                                  ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
-                                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
-                              }`}
-                            >
-                              {pageNumber}
-                            </button>
-                          );
-                        },
-                      )}
-                    </div>
-
-                    <button
-                      onClick={handleNextPage}
-                      disabled={!pagination.hasNextPage}
-                      className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs w-full sm:w-auto"
-                    >
-                      Suivant
-                    </button>
+              {pagination.totalPages > 1 && (
+                <div className="flex flex-col items-center justify-center gap-3 pt-1 sm:flex-row">
+                  <button
+                    onClick={handlePreviousPage}
+                    disabled={!pagination.hasPreviousPage}
+                    className="dashboard-nav-button w-full sm:w-auto sm:px-3 sm:py-1.5 sm:h-auto sm:rounded-xl sm:border sm:border-white/12 sm:bg-white/6 sm:text-[11px] sm:text-white sm:font-one disabled:opacity-45"
+                  >
+                    Précédent
+                  </button>
+                  <div className="flex items-center gap-2">
+                    {pageButtons.map((pageNumber) => (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`cursor-pointer h-7 w-7 rounded-xl text-[11px] font-medium transition-all duration-200 font-one ${
+                          currentPage === pageNumber
+                            ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                            : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    ))}
                   </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </div>
+                  <button
+                    onClick={handleNextPage}
+                    disabled={!pagination.hasNextPage}
+                    className="dashboard-nav-button w-full sm:w-auto sm:px-3 sm:py-1.5 sm:h-auto sm:rounded-xl sm:border sm:border-white/12 sm:bg-white/6 sm:text-[11px] sm:text-white sm:font-one disabled:opacity-45"
+                  >
+                    Suivant
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
 
       {!isFreeAccount && isModalOpen && (
         <CreateOrUpdateItem

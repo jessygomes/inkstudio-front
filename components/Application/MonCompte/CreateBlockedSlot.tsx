@@ -340,162 +340,110 @@ export default function CreateBlockedSlot({
   };
 
   return (
-    <div
-      data-modal
-      className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-hidden"
-      style={{ height: "100dvh", width: "100vw" }}
-    >
-      <div className="bg-noir-500 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20 shadow-2xl min-h-0">
-        {/* Header */}
-        <div className="p-4 border-b border-white/10 bg-white/5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white font-one tracking-wide">
-              🚫 Bloquer un créneau
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors"
-            >
-              <span className="cursor-pointer text-white text-xl">×</span>
-            </button>
-          </div>
-          <p className="text-white/70 mt-2 text-sm">
-            Rendez indisponible une période pour un tatoueur ou le salon complet
-          </p>
+    <div className="rounded-2xl border border-white/10 bg-white/3 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-white/10 bg-white/5">
+        <div>
+          <p className="text-white font-one font-semibold text-md">Bloquer un créneau</p>
+          <p className="text-white/50 font-one text-[11px] mt-0.5">Indisponibilité ou congé</p>
         </div>
+        <button
+          onClick={onClose}
+          className="cursor-pointer p-1.5 hover:bg-white/10 rounded-[10px] transition-colors"
+        >
+          <span className="text-white/60 hover:text-white text-lg leading-none">×</span>
+        </button>
+      </div>
 
-        {/* Form Content */}
-        <div className="flex-1 overflow-y-auto p-4 min-h-0">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Sélection du tatoueur */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                👤 Portée du blocage
-              </h3>
+      {/* Contenu */}
+      <div className="p-3 sm:p-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Portée */}
+          <div className="space-y-1.5">
+            <label className="text-white/50 font-one text-[10px] uppercase tracking-wider">Portée du blocage</label>
+            <select
+              {...form.register("tatoueurId")}
+              className="w-full px-3 py-2 bg-white/6 border border-white/10 rounded-[12px] text-white text-xs font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
+            >
+              <option value="" className="bg-noir-500">Salon complet</option>
+              {tatoueurs.map((t) => (
+                <option key={t.id} value={t.id} className="bg-noir-500">{t.name}</option>
+              ))}
+            </select>
+          </div>
 
-              <div className="space-y-2">
-                <label className="text-xs text-white/70 font-one">
-                  Qui est concerné ?
-                </label>
-                <select
-                  {...form.register("tatoueurId")}
-                  className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                >
-                  <option value="" className="bg-noir-500">
-                    🏢 Salon complet (tous les tatoueurs)
-                  </option>
-                  {tatoueurs.map((tatoueur) => (
-                    <option
-                      key={tatoueur.id}
-                      value={tatoueur.id}
-                      className="bg-noir-500"
-                    >
-                      👤 {tatoueur.name}
-                    </option>
-                  ))}
-                </select>
+          {/* Période */}
+          <div className="space-y-1.5">
+            <label className="text-white/50 font-one text-[10px] uppercase tracking-wider">Période de blocage</label>
+            <div className="grid grid-cols-2 gap-3">
+              {/* Début */}
+              <div className="space-y-1.5">
+                <p className="text-white/40 font-one text-[10px]">Début</p>
+                <input
+                  type="date"
+                  {...form.register("startDate")}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => {
+                    form.setValue("startDate", e.target.value);
+                    handleStartDateChange(e.target.value, form.watch("startTime"));
+                  }}
+                  className="w-full px-2.5 py-1.5 bg-white/6 border border-white/10 rounded-[12px] text-white text-[11px] font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
+                />
+                <input
+                  type="time"
+                  {...form.register("startTime")}
+                  onChange={(e) => {
+                    form.setValue("startTime", e.target.value);
+                    handleStartDateChange(form.watch("startDate"), e.target.value);
+                  }}
+                  className="w-full px-2.5 py-1.5 bg-white/6 border border-white/10 rounded-[12px] text-white text-[11px] font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
+                />
+                {form.formState.errors.startDate && (
+                  <p className="text-red-300 text-[10px]">{form.formState.errors.startDate.message}</p>
+                )}
+                {form.formState.errors.startTime && (
+                  <p className="text-red-300 text-[10px]">{form.formState.errors.startTime.message}</p>
+                )}
+              </div>
+              {/* Fin */}
+              <div className="space-y-1.5">
+                <p className="text-white/40 font-one text-[10px]">Fin</p>
+                <input
+                  type="date"
+                  {...form.register("endDate")}
+                  min={form.watch("startDate") || new Date().toISOString().split("T")[0]}
+                  onChange={(e) => {
+                    form.setValue("endDate", e.target.value);
+                    handleEndDateChange(e.target.value);
+                  }}
+                  className="w-full px-2.5 py-1.5 bg-white/6 border border-white/10 rounded-[12px] text-white text-[11px] font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
+                />
+                <input
+                  type="time"
+                  {...form.register("endTime")}
+                  onChange={(e) => {
+                    form.setValue("endTime", e.target.value);
+                    handleEndTimeChange(e.target.value);
+                  }}
+                  className="w-full px-2.5 py-1.5 bg-white/6 border border-white/10 rounded-[12px] text-white text-[11px] font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
+                />
+                {form.formState.errors.endDate && (
+                  <p className="text-red-300 text-[10px]">{form.formState.errors.endDate.message}</p>
+                )}
+                {form.formState.errors.endTime && (
+                  <p className="text-red-300 text-[10px]">{form.formState.errors.endTime.message}</p>
+                )}
               </div>
             </div>
 
-            {/* Période de blocage avec validation améliorée */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                📅 Période de blocage
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Date et heure de début */}
-                <div className="space-y-2">
-                  <label className="text-xs text-white/70 font-one">
-                    Début
-                  </label>
-                  <div className="space-y-2">
-                    <input
-                      type="date"
-                      {...form.register("startDate")}
-                      min={new Date().toISOString().split("T")[0]}
-                      onChange={(e) => {
-                        form.setValue("startDate", e.target.value);
-                        handleStartDateChange(
-                          e.target.value,
-                          form.watch("startTime")
-                        );
-                      }}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    />
-                    <input
-                      type="time"
-                      {...form.register("startTime")}
-                      onChange={(e) => {
-                        form.setValue("startTime", e.target.value);
-                        handleStartDateChange(
-                          form.watch("startDate"),
-                          e.target.value
-                        );
-                      }}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    />
-                  </div>
-                  {form.formState.errors.startDate && (
-                    <p className="text-red-300 text-xs">
-                      {form.formState.errors.startDate.message}
-                    </p>
-                  )}
-                  {form.formState.errors.startTime && (
-                    <p className="text-red-300 text-xs">
-                      {form.formState.errors.startTime.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Date et heure de fin */}
-                <div className="space-y-2">
-                  <label className="text-xs text-white/70 font-one">Fin</label>
-                  <div className="space-y-2">
-                    <input
-                      type="date"
-                      {...form.register("endDate")}
-                      min={
-                        form.watch("startDate") ||
-                        new Date().toISOString().split("T")[0]
-                      }
-                      onChange={(e) => {
-                        form.setValue("endDate", e.target.value);
-                        handleEndDateChange(e.target.value);
-                      }}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    />
-                    <input
-                      type="time"
-                      {...form.register("endTime")}
-                      onChange={(e) => {
-                        form.setValue("endTime", e.target.value);
-                        handleEndTimeChange(e.target.value);
-                      }}
-                      className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    />
-                  </div>
-                  {form.formState.errors.endDate && (
-                    <p className="text-red-300 text-xs">
-                      {form.formState.errors.endDate.message}
-                    </p>
-                  )}
-                  {form.formState.errors.endTime && (
-                    <p className="text-red-300 text-xs">
-                      {form.formState.errors.endTime.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Indicateur de durée avec validation visuelle */}
-              {form.watch("startDate") &&
-                form.watch("startTime") &&
-                form.watch("endDate") &&
-                form.watch("endTime") && (
-                  <div className="mt-3 p-2 bg-white/5 rounded-lg border border-white/10">
-                    <div className="text-xs text-white/70">
-                      <span className="font-medium">Durée : </span>
+            {/* Indicateur de durée */}
+            {form.watch("startDate") &&
+              form.watch("startTime") &&
+              form.watch("endDate") &&
+              form.watch("endTime") && (
+                <div className="px-3 py-2 bg-white/4 border border-white/8 rounded-[12px]">
+                  <div className="text-xs text-white/60 font-one">
+                    <span className="font-medium text-white/50">Durée : </span>
                       {(() => {
                         try {
                           const start = new Date(
@@ -549,132 +497,92 @@ export default function CreateBlockedSlot({
                     </div>
                   </div>
                 )}
+          </div>
+
+          {/* Motif */}
+          <div className="space-y-1.5">
+            <label className="text-white/50 font-one text-[10px] uppercase tracking-wider">Motif (optionnel)</label>
+            <input
+              type="text"
+              {...form.register("reason")}
+              placeholder="Ex: Congés, formation, pause..."
+              className="w-full px-3 py-2 bg-white/6 border border-white/10 rounded-[12px] text-white placeholder-white/25 text-xs font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
+            />
+          </div>
+
+          {/* Raccourcis */}
+          <div className="space-y-1.5">
+            <label className="text-white/50 font-one text-[10px] uppercase tracking-wider">Raccourcis</label>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  const today = new Date();
+                  form.setValue("startDate", today.toISOString().split("T")[0]);
+                  form.setValue("endDate", today.toISOString().split("T")[0]);
+                  form.setValue("startTime", "12:00");
+                  form.setValue("endTime", "14:00");
+                  form.setValue("reason", "Pause déjeuner");
+                }}
+                className="cursor-pointer px-3 py-2 bg-white/4 hover:bg-white/8 border border-white/8 rounded-[12px] text-white/70 hover:text-white/90 text-[11px] font-one transition-colors text-left"
+              >
+                Maladie
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const today = new Date();
+                  const nextWeek = new Date(today);
+                  nextWeek.setDate(today.getDate() + 7);
+                  form.setValue("startDate", today.toISOString().split("T")[0]);
+                  form.setValue("endDate", nextWeek.toISOString().split("T")[0]);
+                  form.setValue("startTime", "09:00");
+                  form.setValue("endTime", "18:00");
+                  form.setValue("reason", "Congés");
+                }}
+                className="cursor-pointer px-3 py-2 bg-white/4 hover:bg-white/8 border border-white/8 rounded-[12px] text-white/70 hover:text-white/90 text-[11px] font-one transition-colors text-left"
+              >
+                Congés 1 semaine
+              </button>
             </div>
+          </div>
 
-            {/* Raison du blocage */}
-            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
-                💬 Raison (optionnelle)
-              </h3>
-
-              <div className="space-y-2">
-                <textarea
-                  {...form.register("reason")}
-                  placeholder="Ex: Congés, formation, maintenance, événement spécial..."
-                  className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
-                  rows={3}
-                />
-              </div>
+          {/* Erreur */}
+          {error && (
+            <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-[12px]">
+              <svg className="w-4 h-4 text-red-300 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-red-300 text-xs font-one">{error}</p>
             </div>
-
-            {/* Messages d'erreur améliorés */}
-            {error && (
-              <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
-                <div className="flex items-start gap-2">
-                  <svg
-                    className="w-4 h-4 text-red-300 mt-0.5 flex-shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <div>
-                    <p className="text-red-300 text-xs font-medium">
-                      Erreur de validation
-                    </p>
-                    <p className="text-red-300/80 text-xs mt-1">{error}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Raccourcis */}
-            <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-xl p-4">
-              <h4 className="text-tertiary-400 font-semibold text-sm font-one mb-3">
-                ⚡ Raccourcis courants
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const today = new Date();
-                    form.setValue(
-                      "startDate",
-                      today.toISOString().split("T")[0]
-                    );
-                    form.setValue("endDate", today.toISOString().split("T")[0]);
-                    form.setValue("startTime", "12:00");
-                    form.setValue("endTime", "14:00");
-                    form.setValue("reason", "Pause déjeuner");
-                  }}
-                  className="cursor-pointer p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/80 text-xs transition-colors text-left"
-                >
-                  🍽️ Pause déjeuner aujourd&apos;hui
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const today = new Date();
-                    const nextWeek = new Date(today);
-                    nextWeek.setDate(today.getDate() + 7);
-
-                    form.setValue(
-                      "startDate",
-                      today.toISOString().split("T")[0]
-                    );
-                    form.setValue(
-                      "endDate",
-                      nextWeek.toISOString().split("T")[0]
-                    );
-                    form.setValue("startTime", "09:00");
-                    form.setValue("endTime", "18:00");
-                    form.setValue("reason", "Congés");
-                  }}
-                  className="cursor-pointer p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/80 text-xs transition-colors text-left"
-                >
-                  🏖️ Congés d&apos;une semaine
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={loading}
-            className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            onClick={form.handleSubmit(onSubmit)}
-            className="cursor-pointer px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center gap-2"
-          >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                <span>Blocage...</span>
-              </>
-            ) : (
-              <>
-                <span>🚫</span>
+          )}
+          {/* Footer */}
+          <div className=" flex justify-end gap-2 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="cursor-pointer rounded-[14px] border border-white/20 bg-white/10 px-4 py-2 text-xs text-white transition-colors hover:bg-white/20 font-medium font-one disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              onClick={form.handleSubmit(onSubmit)}
+              className="cursor-pointer rounded-[14px] px-5 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
+                  <span>Blocage...</span>
+                </>
+              ) : (
                 <span>Bloquer le créneau</span>
-              </>
-            )}
-          </button>
-        </div>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

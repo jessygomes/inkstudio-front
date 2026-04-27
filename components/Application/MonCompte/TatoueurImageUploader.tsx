@@ -165,9 +165,9 @@ const TatoueurImageUploader = forwardRef<
 
     return (
       <div className="space-y-3">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-2">
           {/* Preview de l'image actuelle */}
-          <div className="relative">
+          <div className="relative w-fit">
             <div
               className={`w-44 h-44 bg-white/10 rounded-xl border border-white/20 overflow-hidden flex items-center justify-center ${
                 isDragOver ? "border-tertiary-400 bg-tertiary-400/10" : ""
@@ -217,7 +217,7 @@ const TatoueurImageUploader = forwardRef<
           </div>
 
           {/* Boutons d'action et informations */}
-          <div className="flex flex-col gap-2">
+          <div className="flex max-w-44 flex-col gap-2">
             <label className="cursor-pointer">
               <input
                 type="file"
@@ -227,7 +227,7 @@ const TatoueurImageUploader = forwardRef<
                 disabled={isUploading || isDeleting}
               />
               <div
-                className={`px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-one text-xs text-center ${
+                className={`w-full px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-one text-xs text-center ${
                   isUploading || isDeleting
                     ? "opacity-50 cursor-not-allowed"
                     : ""

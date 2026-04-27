@@ -95,10 +95,10 @@ export default function FactureDetailsModalDesktop({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-noir-800 rounded-2xl border border-white/20 w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="dashboard-embedded-panel rounded-2xl border border-white/20 w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl">
         {/* Header */}
-        <div className="bg-gradient-to-r from-noir-700 to-noir-600 p-3 border-b border-white/10">
+        <div className="dashboard-embedded-header p-3 border-b border-white/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-tertiary-500/20 rounded-xl flex items-center justify-center">
@@ -151,7 +151,7 @@ export default function FactureDetailsModalDesktop({
               <button
                 onClick={onClose}
                 aria-label="Fermer la modale"
-                className="cursor-pointer w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                className="cursor-pointer flex h-9 w-9 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 hover:bg-white/20 transition-colors"
               >
                 <svg
                   className="w-5 h-5 text-white"
@@ -179,7 +179,7 @@ export default function FactureDetailsModalDesktop({
               {/* Badge prestation */}
               <div className="flex justify-center w-full">
                 <span
-                  className={`px-4 py-2 w-full text-center rounded-lg text-sm font-medium font-one ${
+                  className={`w-full rounded-[14px] border px-4 py-2 text-center text-sm font-medium font-one ${
                     currentFacture.prestation === "TATTOO"
                       ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
                       : currentFacture.prestation === "PIERCING"
@@ -506,7 +506,7 @@ export default function FactureDetailsModalDesktop({
                 <div className="grid grid-cols-1 gap-1">
                   <button
                     onClick={handleGeneratePDF}
-                    className="cursor-pointer py-1.5 px-2 bg-primary-500 text-white rounded-lg hover:bg-tertiary-700 transition-colors font-one font-medium text-xs flex items-center justify-center gap-1"
+                    className="cursor-pointer rounded-[14px] border border-tertiary-500/40 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-2 py-1.5 text-xs font-one font-medium text-white transition-colors hover:from-tertiary-500 hover:to-tertiary-600 flex items-center justify-center gap-1"
                   >
                     <svg
                       className="w-3 h-3"
@@ -578,10 +578,10 @@ export default function FactureDetailsModalDesktop({
                   <button
                     onClick={handlePaymentStatusChange}
                     disabled={isUpdatingPayment}
-                    className={`cursor-pointer py-2 px-3 text-white rounded-lg transition-colors font-one font-medium text-xs flex items-center justify-center gap-1 col-span-2 ${
+                    className={`cursor-pointer rounded-[14px] border py-2 px-3 text-white transition-colors font-one font-medium text-xs flex items-center justify-center gap-1 col-span-2 ${
                       currentFacture.isPayed
-                        ? "bg-orange-600 hover:bg-orange-700"
-                        : "bg-green-600 hover:bg-green-700"
+                        ? "border-orange-500/40 bg-orange-600 hover:bg-orange-700"
+                        : "border-green-500/40 bg-green-600 hover:bg-green-700"
                     } ${
                       isUpdatingPayment ? "opacity-50 cursor-not-allowed" : ""
                     }`}

@@ -12,7 +12,6 @@ import Link from "next/link";
 import TatoueurImageUploader, {
   TatoueurImageUploaderHandle,
 } from "@/components/Application/MonCompte/TatoueurImageUploader";
-
 import { CiUser } from "react-icons/ci";
 import { TbClockHour5 } from "react-icons/tb";
 import { IoClose } from "react-icons/io5";
@@ -31,7 +30,30 @@ const daysOfWeek = [
   { key: "friday", label: "Vendredi" },
   { key: "saturday", label: "Samedi" },
   { key: "sunday", label: "Dimanche" },
-];
+] as const;
+
+type DayKey = (typeof daysOfWeek)[number]["key"];
+
+const defaultTatoueurHours: Horaire = {
+  monday: { start: "", end: "" },
+  tuesday: { start: "", end: "" },
+  wednesday: { start: "", end: "" },
+  thursday: { start: "", end: "" },
+  friday: { start: "", end: "" },
+  saturday: { start: "", end: "" },
+  sunday: null,
+};
+
+const parseHoursSafely = (raw: string | null): Horaire | null => {
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as Horaire;
+    return parsed;
+  } catch {
+    return null;
+  }
+};
 
 export default function AddOrUpdateTatoueurPage() {
   const { data: session } = useSession();
@@ -42,6 +64,7 @@ export default function AddOrUpdateTatoueurPage() {
 
   const tatoueurId = searchParams.get("id");
   const isEditing = !!tatoueurId;
+  const isBusinessPlan = session?.user?.saasPlan === "BUSINESS";
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
@@ -49,7 +72,6 @@ export default function AddOrUpdateTatoueurPage() {
     useState<TatoueurProps | null>(null);
   const [salonHours, setSalonHours] = useState<string | null>(null);
 
-  // Précharger les horaires depuis la session si disponibles
   useEffect(() => {
     const raw = session?.user?.salonHours as unknown;
     if (raw) {
@@ -58,7 +80,6 @@ export default function AddOrUpdateTatoueurPage() {
     }
   }, [session?.user?.salonHours]);
 
-  // Récupérer les données du salon pour les horaires par défaut
   useEffect(() => {
     const fetchSalonData = async () => {
       if (!salonId) return;
@@ -85,7 +106,6 @@ export default function AddOrUpdateTatoueurPage() {
     fetchSalonData();
   }, [salonId]);
 
-  // Récupérer les données du tatoueur en mode édition
   useEffect(() => {
     const fetchTatoueur = async () => {
       if (!tatoueurId) return;
@@ -106,31 +126,38 @@ export default function AddOrUpdateTatoueurPage() {
     fetchTatoueur();
   }, [tatoueurId]);
 
-  const initialHours: Horaire = (existingTatoueur?.hours &&
-    JSON.parse(existingTatoueur.hours)) ||
-    (salonHours && JSON.parse(salonHours)) || {
-      monday: { start: "", end: "" },
-      tuesday: { start: "", end: "" },
-      wednesday: { start: "", end: "" },
-      thursday: { start: "", end: "" },
-      friday: { start: "", end: "" },
-      saturday: { start: "", end: "" },
-      sunday: null,
-    };
+  const initialHours: Horaire =
+    (existingTatoueur?.hours && parseHoursSafely(existingTatoueur.hours)) ||
+    parseHoursSafely(salonHours) ||
+    defaultTatoueurHours;
 
   const [editingHours, setEditingHours] = useState<Horaire>(initialHours);
 
-  // Mettre à jour les horaires d'édition lorsque les horaires du salon arrivent (création uniquement)
   useEffect(() => {
-    if (!isEditing && salonHours) {
-      try {
-        const parsed = JSON.parse(salonHours) as Horaire;
-        setEditingHours(parsed);
-      } catch (e) {
-        console.error("Impossible de parser salonHours", e);
+    if (isEditing) return;
+
+    const salonDefaultHours = parseHoursSafely(salonHours);
+
+    if (!salonDefaultHours) {
+      if (!isBusinessPlan) {
+        setEditingHours(defaultTatoueurHours);
       }
+      return;
     }
-  }, [salonHours, isEditing]);
+
+    if (!isBusinessPlan) {
+      setEditingHours(salonDefaultHours);
+      return;
+    }
+
+    setEditingHours((prev) => {
+      const hasCustomHours = Object.values(prev).some(
+        (value) => value && (value.start !== "" || value.end !== ""),
+      );
+
+      return hasCustomHours ? prev : salonDefaultHours;
+    });
+  }, [salonHours, isEditing, isBusinessPlan]);
 
   const form = useForm<z.infer<typeof createTatoueurSchema>>({
     resolver: zodResolver(createTatoueurSchema),
@@ -146,7 +173,6 @@ export default function AddOrUpdateTatoueurPage() {
     },
   });
 
-  // Mettre à jour le formulaire quand les données sont chargées
   useEffect(() => {
     if (existingTatoueur) {
       form.reset({
@@ -167,7 +193,6 @@ export default function AddOrUpdateTatoueurPage() {
     }
   }, [existingTatoueur, form, salonId]);
 
-  // Pour gérer les badges style et skills
   const [styleInput, setStyleInput] = useState("");
   const [skillsInput, setSkillsInput] = useState("");
   const [styleBadges, setStyleBadges] = useState<string[]>(
@@ -177,13 +202,11 @@ export default function AddOrUpdateTatoueurPage() {
     form.watch("skills") || [],
   );
 
-  // Synchronise badges avec form (utile en édition)
   useEffect(() => {
     setStyleBadges(form.watch("style") || []);
     setSkillsBadges(form.watch("skills") || []);
   }, [existingTatoueur, form]);
 
-  // Ajout badge style
   const handleAddStyle = () => {
     const val = styleInput.trim();
     if (val && !styleBadges.includes(val)) {
@@ -194,7 +217,6 @@ export default function AddOrUpdateTatoueurPage() {
     setStyleInput("");
   };
 
-  // Ajout badge skill
   const handleAddSkill = () => {
     const val = skillsInput.trim();
     if (val && !skillsBadges.includes(val)) {
@@ -205,19 +227,90 @@ export default function AddOrUpdateTatoueurPage() {
     setSkillsInput("");
   };
 
-  // Suppression badge style
   const handleRemoveStyle = (val: string) => {
     const updated = styleBadges.filter((s) => s !== val);
     setStyleBadges(updated);
     form.setValue("style", updated);
   };
 
-  // Suppression badge skill
   const handleRemoveSkill = (val: string) => {
     const updated = skillsBadges.filter((s) => s !== val);
     setSkillsBadges(updated);
     form.setValue("skills", updated);
   };
+
+  const setDayHours = (
+    day: DayKey,
+    value: { start: string; end: string } | null,
+  ) => {
+    setEditingHours((prev) => ({
+      ...prev,
+      [day]: value,
+    }));
+  };
+
+  const updateDayTime = (day: DayKey, field: "start" | "end", time: string) => {
+    setEditingHours((prev) => ({
+      ...prev,
+      [day]: {
+        ...(prev[day] || { start: "09:00", end: "18:00" }),
+        [field]: time,
+      },
+    }));
+  };
+
+  const applyMondayToAllDays = () => {
+    setEditingHours((prev) => {
+      const mondayHours = prev.monday
+        ? { start: prev.monday.start ?? "", end: prev.monday.end ?? "" }
+        : null;
+
+      return {
+        monday: mondayHours ? { ...mondayHours } : null,
+        tuesday: mondayHours ? { ...mondayHours } : null,
+        wednesday: mondayHours ? { ...mondayHours } : null,
+        thursday: mondayHours ? { ...mondayHours } : null,
+        friday: mondayHours ? { ...mondayHours } : null,
+        saturday: mondayHours ? { ...mondayHours } : null,
+        sunday: mondayHours ? { ...mondayHours } : null,
+      };
+    });
+  };
+
+  const openAllDays = () => {
+    setEditingHours({
+      monday: { start: "09:00", end: "18:00" },
+      tuesday: { start: "09:00", end: "18:00" },
+      wednesday: { start: "09:00", end: "18:00" },
+      thursday: { start: "09:00", end: "18:00" },
+      friday: { start: "09:00", end: "18:00" },
+      saturday: { start: "09:00", end: "18:00" },
+      sunday: { start: "09:00", end: "18:00" },
+    });
+  };
+
+  const closeAllDays = () => {
+    setEditingHours({
+      monday: null,
+      tuesday: null,
+      wednesday: null,
+      thursday: null,
+      friday: null,
+      saturday: null,
+      sunday: null,
+    });
+  };
+
+  const sectionTitleClass =
+    "mb-2 flex items-center gap-2 text-[14px] font-semibold tracking-wide text-white font-one";
+  const fieldLabelClass =
+    "text-[10px] uppercase tracking-wider text-white/50 font-one";
+  const fieldInputClass =
+    "w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one";
+  const subSectionTitleClass =
+    "mb-2 text-[11px] uppercase tracking-wide text-white/70 font-one";
+  const badgeClass =
+    "inline-flex items-center gap-1 rounded-[10px] border border-tertiary-400/35 bg-tertiary-500/15 px-2.5 py-1 text-[11px] text-tertiary-500 font-one";
 
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
     if (!salonId) return;
@@ -226,7 +319,6 @@ export default function AddOrUpdateTatoueurPage() {
     setError("");
 
     try {
-      // 1. Uploader l'image en premier si elle est en attente
       if (imageUploaderRef.current) {
         await imageUploaderRef.current.uploadImage();
       }
@@ -247,7 +339,6 @@ export default function AddOrUpdateTatoueurPage() {
         url,
       );
 
-      // Vérifier si c'est une erreur de limite SaaS
       if (result.error) {
         if (
           result.message &&
@@ -279,396 +370,353 @@ export default function AddOrUpdateTatoueurPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-noir-700">
-      <div className="pt-10 pb-10 xl:pb-0 xl:pt-24 px-3 sm:px-6 lg:px-8">
-        {/* Header responsive */}
-        <div className="flex items-center gap-3 sm:gap-4 max-w-6xl mx-auto mb-6 sm:mb-8">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
+    <div className="wrapper-global pb-16 sm:pb-10 px-3 sm:px-4 lg:px-6">
+      <section className="w-full space-y-3 pt-4 pb-10 xl:pb-0">
+        <div className="dashboard-hero flex items-center gap-3 px-4 py-3 sm:px-5 lg:py-2.5">
+          <div className="flex h-10 w-10 items-center justify-center">
             <Link
               href="/mon-compte"
-              className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center text-white/70 hover:text-white transition-all duration-200 border border-white/20"
+              className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-white/8 text-white/70 transition-colors hover:bg-white/12 hover:text-white"
             >
               ←
             </Link>
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white font-one tracking-widest">
-              <span className="hidden sm:inline">
-                {isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
-              </span>
-              <span className="sm:hidden">
-                {isEditing ? "Modifier" : "Ajouter"}
-              </span>
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">
+              Mon compte
+            </p>
+            <h1 className="text-base font-bold uppercase tracking-wide text-white font-one sm:text-lg">
+              {isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
             </h1>
-            <p className="text-white/70 text-xs font-one mt-1">
-              <span className="hidden sm:inline">
-                {isEditing
-                  ? "Modifiez les informations du tatoueur"
-                  : "Ajoutez un nouveau membre à votre équipe"}
-              </span>
-              <span className="sm:hidden">
-                {isEditing ? "Modifier les infos" : "Nouveau membre"}
-              </span>
+            <p className="mt-0.5 text-[11px] text-white/70 font-one">
+              {isEditing
+                ? "Mettez à jour les informations de votre tatoueur."
+                : "Ajoutez un nouveau membre à votre équipe."}
             </p>
           </div>
         </div>
 
-        {/* Form Content responsive */}
-        <div className="max-w-6xl mx-auto bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-2 lg:p-8 border border-white/20 shadow-2xl">
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6 sm:space-y-6"
-          >
-            {/* Section: Informations générales responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-2 sm:p-4 border border-white/10">
-              <h3 className="flex gap-2 items-center text-base sm:text-sm text-white mb-4 sm:mb-3 font-one uppercase tracking-widest">
-                <CiUser size={20} className="sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Informations générales</span>
-                <span className="sm:hidden">Infos générales</span>
-              </h3>
+        <div className="w-full rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2.5">
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] xl:items-start">
+              <div className="p-3">
+                <h3 className={sectionTitleClass}>
+                  <CiUser size={20} className="sm:w-4 sm:h-4" />
+                  Informations générales
+                </h3>
 
-              <div className="space-y-5 sm:space-y-4">
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    Photo du tatoueur
-                  </label>
-                  <TatoueurImageUploader
-                    currentImage={form.watch("img") || existingTatoueur?.img}
-                    onImageUpload={(imageUrl) => {
-                      form.setValue("img", imageUrl);
-                    }}
-                    onImageRemove={() => {
-                      form.setValue("img", "");
-                    }}
-                    ref={imageUploaderRef}
-                  />
-                </div>
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p className={subSectionTitleClass}>Profil</p>
+                    <div className="grid grid-cols-1 gap-3 lg:grid-cols-[220px_minmax(0,1fr)]">
+                      <div className="space-y-1">
+                        <label className={fieldLabelClass}>Photo du tatoueur</label>
+                        <TatoueurImageUploader
+                          currentImage={form.watch("img") || existingTatoueur?.img}
+                          onImageUpload={(imageUrl) => {
+                            form.setValue("img", imageUrl);
+                          }}
+                          onImageRemove={() => {
+                            form.setValue("img", "");
+                          }}
+                          ref={imageUploaderRef}
+                        />
+                      </div>
 
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    Nom du tatoueur *
-                  </label>
-                  <input
-                    placeholder="Nom du tatoueur"
-                    {...form.register("name")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                  />
-                </div>
-
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    Description
-                  </label>
-                  <textarea
-                    rows={5}
-                    placeholder="Description du tatoueur, ses spécialités..."
-                    {...form.register("description")}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4">
-                  <div className="space-y-2 sm:space-y-1">
-                    <label className="text-sm sm:text-xs text-white/70 font-one">
-                      Téléphone
-                    </label>
-                    <input
-                      placeholder="Numéro de téléphone"
-                      {...form.register("phone")}
-                      className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                    />
-                  </div>
-
-                  <div className="space-y-2 sm:space-y-1">
-                    <label className="text-sm sm:text-xs text-white/70 font-one">
-                      Instagram
-                    </label>
-                    <input
-                      placeholder="@nom_instagram"
-                      {...form.register("instagram")}
-                      className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                    />
-                  </div>
-                </div>
-
-                {/* Compétences responsive */}
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    <span className="hidden sm:inline">
-                      Compétences (ex: Tatouage, Piercing)
-                    </span>
-                    <span className="sm:hidden">Compétences</span>
-                  </label>
-                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
-                    <input
-                      type="text"
-                      value={skillsInput}
-                      onChange={(e) => setSkillsInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddSkill();
-                        }
-                      }}
-                      placeholder="Ajouter une compétence"
-                      className="flex-1 p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddSkill}
-                      className="cursor-pointer px-6 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-md lg:text-xs"
-                    >
-                      Ajouter
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-3 sm:mt-2">
-                    {skillsBadges.map((skill) => (
-                      <span
-                        key={skill}
-                        className="bg-tertiary-400/20 text-tertiary-400 px-3 py-2 sm:px-2 sm:py-1 rounded-lg font-one text-sm sm:text-xs flex items-center gap-1"
-                      >
-                        {skill}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveSkill(skill)}
-                          className="ml-1 text-tertiary-400 hover:text-red-400"
-                          title="Supprimer"
-                        >
-                          <IoClose
-                            size={16}
-                            className="sm:w-3.5 sm:h-3.5 cursor-pointer"
+                      <div className="space-y-2.5">
+                        <div className="space-y-1">
+                          <label className={fieldLabelClass}>Nom du tatoueur *</label>
+                          <input
+                            placeholder="Nom du tatoueur"
+                            {...form.register("name")}
+                            className={fieldInputClass}
                           />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                        </div>
 
-                {/* Styles responsive */}
-                <div className="space-y-2 sm:space-y-1">
-                  <label className="text-sm sm:text-xs text-white/70 font-one">
-                    <span className="hidden sm:inline">
-                      Styles (ex: Japonais, Old School)
-                    </span>
-                    <span className="sm:hidden">Styles</span>
-                  </label>
-                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
-                    <input
-                      type="text"
-                      value={styleInput}
-                      onChange={(e) => setStyleInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddStyle();
-                        }
-                      }}
-                      placeholder="Ajouter un style"
-                      className="flex-1 p-4 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-md lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddStyle}
-                      className="cursor-pointer px-6 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-md lg:text-xs"
-                    >
-                      Ajouter
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-3 sm:mt-2">
-                    {styleBadges.map((style) => (
-                      <span
-                        key={style}
-                        className="bg-tertiary-400/20 text-tertiary-400 px-3 py-2 sm:px-2 sm:py-1 rounded-lg font-one text-sm sm:text-xs flex items-center gap-1"
-                      >
-                        {style}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveStyle(style)}
-                          className="ml-1 text-tertiary-400 hover:text-red-400"
-                          title="Supprimer"
-                        >
-                          <IoClose
-                            size={16}
-                            className="sm:w-3.5 sm:h-3.5 cursor-pointer"
+                        <div className="space-y-1">
+                          <label className={fieldLabelClass}>Description</label>
+                          <textarea
+                            rows={5}
+                            placeholder="Description du tatoueur, ses spécialités..."
+                            {...form.register("description")}
+                            className={`${fieldInputClass} resize-none`}
                           />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Autorisation de prise de RDV responsive */}
-                <div className="bg-white/5 rounded-xl p-4 sm:p-3 border border-white/10">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-white font-one mb-2 sm:mb-1 text-sm sm:text-sm">
-                        <span className="hidden sm:inline">
-                          Autoriser la prise de rendez-vous
-                        </span>
-                        <span className="sm:hidden">Prise de RDV</span>
-                      </h4>
-                      <p className="text-white/60 text-sm sm:text-xs font-one">
-                        <span className="hidden sm:inline">
-                          Si activé, les clients peuvent prendre rendez-vous
-                          avec ce tatoueur
-                        </span>
-                        <span className="sm:hidden">
-                          Clients peuvent prendre RDV
-                        </span>
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        {...form.register("rdvBookingEnabled")}
-                        className="sr-only peer"
-                      />
-                      <div className="w-12 h-7 sm:w-11 sm:h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
-                    </label>
-                  </div>
-
-                  {/* Indicateur de statut */}
-                  <div className="mt-4 sm:mt-3 pt-4 sm:pt-3 border-t border-white/10">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`w-2.5 h-2.5 sm:w-2 sm:h-2 rounded-full ${
-                          form.watch("rdvBookingEnabled")
-                            ? "bg-green-400"
-                            : "bg-orange-400"
-                        }`}
-                      ></div>
-                      <span className="text-sm sm:text-xs font-one text-white/70">
-                        {form.watch("rdvBookingEnabled") ? (
-                          <span className="text-green-300">
-                            <span className="hidden sm:inline">
-                              Ce tatoueur apparaîtra dans la liste de sélection
-                              pour les RDV
-                            </span>
-                            <span className="sm:hidden">Visible pour RDV</span>
-                          </span>
-                        ) : (
-                          <span className="text-orange-300">
-                            <span className="hidden sm:inline">
-                              Ce tatoueur ne sera pas disponible pour les prises
-                              de RDV
-                            </span>
-                            <span className="sm:hidden">
-                              Non disponible RDV
-                            </span>
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Section: Horaires responsive */}
-            <div className="bg-white/5 rounded-xl sm:rounded-2xl p-5 sm:p-4 border border-white/10">
-              <h3 className="flex gap-2 items-center text-base sm:text-sm text-white mb-4 sm:mb-3 font-one uppercase tracking-wide">
-                <TbClockHour5 size={20} className="sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Horaires de travail</span>
-                <span className="sm:hidden">Horaires</span>
-              </h3>
-              <p className="text-sm sm:text-xs text-white/60 mb-4 sm:mb-4">
-                <span className="hidden sm:inline">
-                  Horaires du salon par défaut. Modifiez selon les
-                  disponibilités du tatoueur.
-                </span>
-                <span className="sm:hidden">
-                  Modifiez selon les disponibilités
-                </span>
-              </p>
-
-              <div className="space-y-3 sm:space-y-3">
-                {daysOfWeek.map(({ key, label }) => {
-                  const value = editingHours[key];
-                  return (
-                    <div
-                      key={key}
-                      className="bg-white/10 p-3 sm:p-3 rounded-lg border border-white/20"
-                    >
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-                        <span className="w-full sm:w-20 text-sm sm:text-xs text-white font-one">
-                          {label}
-                        </span>
-
-                        {value ? (
-                          <div className="flex items-center gap-2 w-full sm:flex-1">
-                            <input
-                              type="time"
-                              value={value.start}
-                              onChange={(e) =>
-                                setEditingHours((prev) => ({
-                                  ...prev,
-                                  [key]: {
-                                    ...(prev[key] || { start: "", end: "" }),
-                                    start: e.target.value,
-                                  },
-                                }))
-                              }
-                              className="flex-1 p-2 sm:p-1 bg-white/10 border border-white/20 rounded text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400"
-                            />
-                            <span className="text-white/70 text-sm sm:text-xs">
-                              à
-                            </span>
-                            <input
-                              type="time"
-                              value={value.end}
-                              onChange={(e) =>
-                                setEditingHours((prev) => ({
-                                  ...prev,
-                                  [key]: {
-                                    ...(prev[key] || { start: "", end: "" }),
-                                    end: e.target.value,
-                                  },
-                                }))
-                              }
-                              className="flex-1 p-2 sm:p-1 bg-white/10 border border-white/20 rounded text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400"
-                            />
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setEditingHours((prev) => ({
-                                  ...prev,
-                                  [key]: null,
-                                }))
-                              }
-                              className="cursor-pointer px-3 sm:px-3 py-2 sm:py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded text-sm sm:text-xs hover:bg-red-500/30 transition-colors"
-                            >
-                              Fermé
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 w-full sm:flex-1 justify-between sm:justify-end">
-                            <span className="text-red-300 text-sm sm:text-xs">
-                              Fermé
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setEditingHours((prev) => ({
-                                  ...prev,
-                                  [key]: { start: "09:00", end: "18:00" },
-                                }))
-                              }
-                              className="cursor-pointer px-3 sm:px-3 py-2 sm:py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded text-sm sm:text-xs hover:bg-green-500/30 transition-colors"
-                            >
-                              Ouvrir
-                            </button>
-                          </div>
-                        )}
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p className={subSectionTitleClass}>Contact</p>
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <label className={fieldLabelClass}>Téléphone</label>
+                        <input
+                          placeholder="Numéro de téléphone"
+                          {...form.register("phone")}
+                          className={fieldInputClass}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className={fieldLabelClass}>Instagram</label>
+                        <input
+                          placeholder="@nom_instagram"
+                          {...form.register("instagram")}
+                          className={fieldInputClass}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p className={subSectionTitleClass}>Expertises</p>
+                    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                      <div className="space-y-1">
+                        <label className={fieldLabelClass}>
+                          Compétences (ex: tatouage, piercing)
+                        </label>
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <input
+                            type="text"
+                            value={skillsInput}
+                            onChange={(e) => setSkillsInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleAddSkill();
+                              }
+                            }}
+                            placeholder="Ajouter une compétence"
+                            className={fieldInputClass}
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddSkill}
+                            className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:opacity-50 disabled:cursor-not-allowed font-one"
+                          >
+                            Ajouter
+                          </button>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {skillsBadges.map((skill) => (
+                            <span key={skill} className={badgeClass}>
+                              {skill}
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSkill(skill)}
+                                className="ml-0.5 text-tertiary-300 hover:text-red-300"
+                                title="Supprimer"
+                              >
+                                <IoClose size={14} className="cursor-pointer" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className={fieldLabelClass}>
+                          Styles (ex: japonais, old school)
+                        </label>
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <input
+                            type="text"
+                            value={styleInput}
+                            onChange={(e) => setStyleInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleAddStyle();
+                              }
+                            }}
+                            placeholder="Ajouter un style"
+                            className={fieldInputClass}
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddStyle}
+                            className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:opacity-50 disabled:cursor-not-allowed font-one"
+                          >
+                            Ajouter
+                          </button>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {styleBadges.map((style) => (
+                            <span key={style} className={badgeClass}>
+                              {style}
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveStyle(style)}
+                                className="ml-0.5 text-tertiary-300 hover:text-red-300"
+                                title="Supprimer"
+                              >
+                                <IoClose size={14} className="cursor-pointer" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p className={subSectionTitleClass}>Rendez-vous</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-[12px] uppercase tracking-wide text-white font-one">
+                          Autoriser la prise de rendez-vous
+                        </h4>
+                        <p className="mt-1 text-[11px] text-white/60 font-one">
+                          Si activé, les clients peuvent réserver avec ce tatoueur.
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          {...form.register("rdvBookingEnabled")}
+                          className="sr-only peer"
+                        />
+                        <div className="w-12 h-7 sm:w-11 sm:h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
+                      </label>
+                    </div>
+
+                    <div className="mt-3 border-t border-white/10 pt-3">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`h-2.5 w-2.5 rounded-full ${
+                            form.watch("rdvBookingEnabled")
+                              ? "bg-green-400"
+                              : "bg-orange-400"
+                          }`}
+                        ></div>
+                        <span className="text-[11px] font-one text-white/70">
+                          {form.watch("rdvBookingEnabled") ? (
+                            <span className="text-green-300">Ce tatoueur apparaîtra dans la liste de sélection pour les rendez-vous.</span>
+                          ) : (
+                            <span className="text-orange-300">Ce tatoueur ne sera pas disponible pour les prises de rendez-vous.</span>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3">
+                <h3 className={sectionTitleClass}>
+                  <TbClockHour5 size={20} className="sm:w-4 sm:h-4" />
+                  Horaires de travail
+                </h3>
+                <p className="mb-3 text-[11px] text-white/60 font-one">
+                  Définissez les disponibilités puis utilisez les actions rapides
+                  pour appliquer les mêmes horaires.
+                </p>
+
+                <div className="mb-3 flex flex-wrap items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={applyMondayToAllDays}
+                    className="inline-flex h-8 items-center justify-center rounded-[10px] border border-white/15 bg-white/8 px-2.5 text-[12px] text-white/85 transition-colors hover:bg-white/12 font-one"
+                  >
+                    Copier le lundi sur tous les jours
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openAllDays}
+                    className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-emerald-500/35 bg-emerald-500/12 px-2.5 text-[12px] text-emerald-300 transition-colors hover:bg-emerald-500/20 font-one"
+                  >
+                    Tout ouvrir
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeAllDays}
+                    className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-red-500/35 bg-red-500/12 px-2.5 text-[12px] text-red-300 transition-colors hover:bg-red-500/20 font-one"
+                  >
+                    Tout fermer
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 sm:space-y-1.5">
+                  {daysOfWeek.map(({ key, label }) => {
+                    const value = editingHours[key];
+                    const isOpen = Boolean(value);
+                    return (
+                      <div
+                        key={key}
+                        className="rounded-2xl border border-white/20 bg-white/10 p-2.5"
+                      >
+                        <div className="flex flex-col gap-2 sm:gap-1.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[12px] text-white font-one">
+                              {label}
+                            </span>
+
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className={`rounded-[10px] border px-2 py-0.5 text-[10px] font-one ${
+                                  isOpen
+                                    ? "border-emerald-500/35 bg-emerald-500/12 text-emerald-300"
+                                    : "border-red-500/35 bg-red-500/12 text-red-300"
+                                }`}
+                              >
+                                {isOpen ? "Ouvert" : "Fermé"}
+                              </span>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setDayHours(
+                                    key,
+                                    isOpen ? null : { start: "09:00", end: "18:00" },
+                                  )
+                                }
+                                className={`cursor-pointer px-3 py-1.5 rounded-2xl text-[11px] border transition-colors font-one ${
+                                  isOpen
+                                    ? "bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30"
+                                    : "bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30"
+                                }`}
+                              >
+                                {isOpen ? "Fermer" : "Ouvrir"}
+                              </button>
+                            </div>
+                          </div>
+
+                          {value ? (
+                            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                              <input
+                                type="time"
+                                value={value.start}
+                                onChange={(e) =>
+                                  updateDayTime(key, "start", e.target.value)
+                                }
+                                className={fieldInputClass}
+                              />
+                              <input
+                                type="time"
+                                value={value.end}
+                                onChange={(e) =>
+                                  updateDayTime(key, "end", e.target.value)
+                                }
+                                className={fieldInputClass}
+                              />
+                            </div>
+                          ) : (
+                            <div className="rounded border border-dashed border-white/20 bg-white/5 px-2.5 py-2 text-[12px] text-white/60 font-one">
+                              Ce jour est fermé. Activez Ouvrir pour définir des
+                              horaires.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
-            {/* Messages d'erreur responsive */}
             {error && error === "SAAS_LIMIT" ? (
-              <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-xl sm:rounded-2xl p-3 sm:p-4">
+              <div className="rounded-xl border border-orange-500/50 bg-gradient-to-r from-orange-500/20 to-red-500/20 p-3 sm:p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-orange-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <svg
@@ -772,44 +820,35 @@ export default function AddOrUpdateTatoueurPage() {
               </div>
             ) : null}
 
-            {/* Footer avec boutons d'action responsive */}
-            <div className="flex flex-col sm:flex-row justify-end gap-4 sm:gap-4 pt-6 sm:pt-6 border-t border-white/10">
+            <div className="dashboard-embedded-footer flex flex-col justify-end gap-2 py-3 sm:flex-row sm:items-center">
               <Link
                 href="/mon-compte"
-                className="cursor-pointer px-6 py-3 sm:px-6 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-md lg:text-xs text-center"
+                className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] border border-white/12 bg-white/8 px-4 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 font-one"
               >
                 Annuler
               </Link>
               <button
                 type="submit"
                 disabled={loading}
-                className="cursor-pointer px-8 sm:px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-md lg:text-xs"
+                className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:cursor-not-allowed disabled:opacity-50 font-one"
               >
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-5 h-5 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span className="hidden sm:inline">
-                      {isEditing ? "Modification..." : "Création..."}
-                    </span>
-                    <span className="sm:hidden">
-                      {isEditing ? "Modif..." : "Création..."}
-                    </span>
+                    <span>{isEditing ? "Enregistrement..." : "Création..."}</span>
                   </div>
                 ) : (
-                  <>
-                    <span className="hidden sm:inline">
-                      {isEditing ? "Modifier le tatoueur" : "Créer le tatoueur"}
-                    </span>
-                    <span className="sm:hidden">
-                      {isEditing ? "Modifier" : "Créer"}
-                    </span>
-                  </>
+                  <span>
+                    {isEditing
+                      ? "Sauvegarder les modifications"
+                      : "Créer le tatoueur"}
+                  </span>
                 )}
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

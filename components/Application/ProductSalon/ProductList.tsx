@@ -80,30 +80,30 @@ export default function ProductList() {
   };
 
   return (
-    <section className="w-full">
-      <div className="mb-6 flex flex-col md:flex-row items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-        <div className="w-full flex items-center gap-3 sm:gap-4 mb-4 md:mb-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
+    <section className="w-full space-y-3">
+      <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-5 lg:py-2.5">
+        <div className="flex w-full items-center gap-3 md:w-auto">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-400/30">
             <MdOutlineSell
-              size={20}
+              size={18}
               className="text-tertiary-400 animate-pulse"
             />
           </div>
-          <div className="flex-1">
-            <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base sm:text-lg font-bold text-white font-one tracking-wide uppercase">
               Produits
             </h1>
-            <p className="text-white/70 text-xs font-one mt-1">
+            <p className="mt-0.5 text-[11px] text-white/70 font-one">
               Gérez vos produits, consultez les détails de chaque article et
               proposez-les à la vente.
             </p>
           </div>
         </div>
 
-        <div className="flex justify-center gap-4 items-center w-full md:w-auto">
+        <div className="flex w-full items-center justify-center gap-3 md:w-auto">
           <button
             onClick={handleCreate}
-            className="cursor-pointer w-full md:w-[175px] flex justify-center items-center gap-2 py-2 px-4 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+            className="cursor-pointer flex w-full items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-3.5 py-2 text-[11px] font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one md:w-[168px]"
           >
             <svg
               className="w-4 h-4"
@@ -124,16 +124,15 @@ export default function ProductList() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
           {[...Array(10)].map((_, i) => (
             <div
               key={i}
-              className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20"
+              className="overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg sm:rounded-2xl"
             >
               <div className="aspect-square relative overflow-hidden bg-white/10 animate-pulse"></div>
 
-              <div className="p-4 space-y-3">
-                {/* Header avec nom et prix */}
+              <div className="space-y-2.5 p-3 sm:p-3.5">
                 <div className="space-y-1">
                   <div className="flex items-center justify-between gap-2">
                     <div className="h-4 bg-white/10 rounded-lg flex-1 animate-pulse"></div>
@@ -141,14 +140,12 @@ export default function ProductList() {
                   </div>
                 </div>
 
-                {/* Description */}
                 <div className="border-t border-white/10 pt-2 space-y-2">
                   <div className="h-3 bg-white/10 rounded-lg w-full animate-pulse"></div>
                   <div className="h-3 bg-white/10 rounded-lg w-3/4 animate-pulse"></div>
                   <div className="h-3 bg-white/10 rounded-lg w-1/2 animate-pulse"></div>
                 </div>
 
-                {/* Actions au bas */}
                 <div className="flex gap-2 justify-end pt-2 lg:hidden">
                   <div className="w-8 h-8 bg-white/10 rounded-lg animate-pulse"></div>
                   <div className="w-8 h-8 bg-white/10 rounded-lg animate-pulse"></div>
@@ -159,34 +156,34 @@ export default function ProductList() {
         </div>
       ) : products.length === 0 ? (
         <div className="h-full w-full flex">
-          <div className="w-full rounded-2xl shadow-xl border border-white/10 p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-            <div className="w-20 h-20 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 rounded-full flex items-center justify-center mb-2">
+          <div className="dashboard-empty-state mx-auto flex w-full flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 p-6 sm:p-8">
+            <div className="mb-1 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 sm:h-16 sm:w-16">
               <MdOutlineSell
-                size={40}
+                size={28}
                 className="text-tertiary-400 animate-pulse"
               />
             </div>
-            <h2 className="text-white font-one text-xl text-center">
+            <h2 className="text-center text-lg text-white font-one sm:text-xl">
               Aucun produit dans votre boutique
             </h2>
-            <p className="text-white/60 font-two text-xs text-center">
+            <p className="text-center text-xs text-white/60 font-two">
               Ajoutez vos produits pour montrer aux clients ce que vous proposez
               !
             </p>
             <button
               onClick={handleCreate}
-              className="mt-2 px-6 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-medium font-one text-xs shadow-lg transition-all"
+              className="cursor-pointer mt-1 rounded-2xl bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-5 py-2 text-xs font-medium text-white shadow-lg transition-all hover:from-tertiary-500 hover:to-tertiary-600 font-one"
             >
-              Ajouter une photo
+              Ajouter un produit
             </button>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
           {products.map((product) => (
             <div
               key={product.id}
-              className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-2xl overflow-hidden border border-white/20 hover:border-tertiary-400/50 transition-all duration-300 shadow-xl hover:shadow-2xl group"
+              className="group overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-noir-500/10 to-noir-500/5 shadow-xl transition-all duration-300 hover:border-tertiary-400/50 hover:shadow-2xl backdrop-blur-lg sm:rounded-2xl"
             >
               <div className="aspect-square relative overflow-hidden">
                 <Image
@@ -194,10 +191,9 @@ export default function ProductList() {
                   height={500}
                   src={product.imageUrl}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 
-                {/* Overlay avec actions - masqué sur mobile */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden xl:flex items-center justify-center">
                   <div className="flex gap-3">
                     <button
@@ -222,34 +218,29 @@ export default function ProductList() {
                 </div>
               </div>
 
-              <div className="p-4 space-y-3">
-                {/* Header avec nom et prix */}
+              <div className="space-y-2.5 p-3 sm:p-3.5">
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-white font-one text-sm font-bold tracking-wide truncate flex-1">
+                    <h3 className="flex-1 truncate text-[13px] font-bold tracking-wide text-white font-one sm:text-sm">
                       {product.name}
                     </h3>
                     <div className="flex items-center justify-between">
-                      <span className="px-2 py-1 bg-tertiary-500/20 text-tertiary-400 rounded-full text-xs font-one font-medium border border-tertiary-500/30">
+                      <span className="rounded-full border border-tertiary-500/30 bg-tertiary-500/20 px-1.5 py-0.5 text-[10px] font-medium text-tertiary-400 font-one">
                         {product.price}€
                       </span>
                     </div>
                   </div>
-
-                  {/* Prix avec badge */}
                 </div>
 
-                {/* Description */}
                 <div className="border-t border-white/10 pt-2">
-                  <p className="text-white/70 text-xs font-one line-clamp-3 leading-relaxed">
+                  <p className="line-clamp-3 text-[11px] leading-relaxed text-white/70 font-one sm:text-xs">
                     {product.description}
                   </p>
                 </div>
 
-                {/* Actions au bas (version alternative pour mobile) */}
                 <div className="flex gap-2 justify-end pt-2 xl:hidden">
                   <button
-                    className="cursor-pointer p-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-all duration-200"
+                    className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-white/20"
                     onClick={() => handleEdit(product)}
                   >
                     <IoCreateOutline
@@ -258,7 +249,7 @@ export default function ProductList() {
                     />
                   </button>
                   <button
-                    className="cursor-pointer p-1.5 bg-white/10 rounded-lg hover:bg-red-500/20 transition-all duration-200"
+                    className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
                     onClick={() => handleDelete(product)}
                   >
                     <AiOutlineDelete

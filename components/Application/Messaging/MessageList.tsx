@@ -85,28 +85,28 @@ export default function MessageList() {
   }, [currentPage, statusFilter, fetchConversations]);
 
   return (
-    <section>
+    <section className="space-y-4">
       {/* Header responsive */}
-      <div className="mb-6  flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
-        <div className="w-full flex items-center gap-3 sm:gap-4 mb-4 md:mb-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/30 rounded-full flex items-center justify-center">
+      <div className="dashboard-hero flex flex-col gap-4 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:py-3">
+        <div className="w-full min-w-0 flex items-center gap-3 sm:gap-4">
+          <div className="h-10 w-10 sm:h-12 sm:w-12 bg-tertiary-400/30 rounded-full flex items-center justify-center shrink-0">
             <MdOutlineMessage
               size={20}
               className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
             />
           </div>
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-3">
               <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
                 Messagerie
               </h1>
               {unreadCount > 0 && (
-                <span className="bg-tertiary-500 text-white text-xs font-one px-3 py-1 rounded-full">
+                <span className="dashboard-count-pill border border-tertiary-400/40 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white text-xs font-one px-3 py-1 rounded-full">
                   {unreadCount} message{unreadCount > 1 ? "s" : ""} non lu
                 </span>
               )}
             </div>
-            <p className="text-white/70 text-xs font-one mt-1">
+            <p className="hidden sm:block text-white/70 text-xs font-one mt-1">
               Gérez vos conversations avec les clients et l'équipe interne.
             </p>
           </div>
@@ -128,7 +128,7 @@ export default function MessageList() {
               setCurrentPage(1);
               fetchConversations(1, next);
             }}
-            className="cursor-pointer bg-noir-700 border border-white/15 text-white text-xs rounded-lg px-3 py-1 focus:outline-none focus:border-tertiary-400 focus:ring-1 focus:ring-tertiary-400"
+            className="cursor-pointer rounded-xl border border-white/15 bg-white/8 px-3 py-2 text-xs text-white focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20"
           >
             <option value="ACTIVE">Active</option>
             <option value="ARCHIVED">Archivé</option>
@@ -138,8 +138,8 @@ export default function MessageList() {
 
       {/* Message pour les comptes Free */}
       {isFreeAccount && (
-        <div className="mb-6">
-          <div className="bg-gradient-to-r from-orange-500/10 to-tertiary-500/10 border border-orange-500/30 rounded-2xl p-6">
+        <div>
+          <div className="dashboard-embedded-section bg-gradient-to-r from-orange-500/10 to-tertiary-500/10 border border-orange-500/30 rounded-2xl p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg
@@ -209,9 +209,9 @@ export default function MessageList() {
 
       {/* Conversations list - Seulement pour les comptes non-Free */}
       {!isFreeAccount && (
-        <div className="space-y-6">
+        <div className="dashboard-embedded-panel p-3 sm:p-4 lg:p-5 space-y-4">
           {loading && (
-            <div className="bg-noir-700 rounded-xl border border-white/20 p-6">
+            <div className="dashboard-embedded-section rounded-xl border border-white/20 p-6">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
                 <h2 className="text-xl font-bold text-white font-one">
@@ -222,7 +222,7 @@ export default function MessageList() {
           )}
 
           {error && (
-            <div className="bg-noir-700 rounded-xl border border-white/20 p-6">
+            <div className="dashboard-empty-state rounded-xl p-6">
               <div className="text-center py-8">
                 <div className="w-12 h-12 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg
@@ -245,7 +245,7 @@ export default function MessageList() {
                 <p className="text-red-400 mb-4 text-sm">{error}</p>
                 <button
                   onClick={() => fetchConversations(1, statusFilter)}
-                  className="cursor-pointer px-4 py-2 bg-tertiary-600 text-white rounded-lg hover:bg-tertiary-700 transition-colors text-sm font-medium"
+                  className="rdv-btn-primary cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white rounded-lg hover:from-tertiary-500 hover:to-tertiary-600 transition-colors text-sm font-medium"
                 >
                   Réessayer
                 </button>
@@ -254,7 +254,7 @@ export default function MessageList() {
           )}
 
           {!loading && !error && conversations.length === 0 && (
-            <div className="bg-noir-700 rounded-xl border border-white/20 p-6">
+            <div className="dashboard-empty-state rounded-xl p-6">
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-tertiary-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <MdOutlineMessage className="w-8 h-8 text-tertiary-400" />
@@ -289,7 +289,7 @@ export default function MessageList() {
               <button
                 onClick={() => fetchConversations(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 rounded-lg bg-noir-700/50 border border-white/10 text-white text-sm font-medium hover:bg-noir-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="dashboard-nav-button px-4 py-2 rounded-lg text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Précédent
               </button>
@@ -302,8 +302,8 @@ export default function MessageList() {
                       onClick={() => fetchConversations(pageNum, statusFilter)}
                       className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
                         currentPage === pageNum
-                          ? "bg-tertiary-600 text-white"
-                          : "bg-noir-700/50 border border-white/10 text-white hover:bg-noir-700"
+                          ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                          : "bg-white/10 border border-white/10 text-white hover:bg-white/20"
                       }`}
                     >
                       {pageNum}
@@ -317,7 +317,7 @@ export default function MessageList() {
                   fetchConversations(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 rounded-lg bg-noir-700/50 border border-white/10 text-white text-sm font-medium hover:bg-noir-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="dashboard-nav-button px-4 py-2 rounded-lg text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Suivant
               </button>

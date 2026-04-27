@@ -57,7 +57,7 @@ export default function CancelFillRate({ userId }: CancelFillRateProps) {
 
   if (loading) {
     return (
-      <div className="h-full bg-noir-700 rounded-xl border border-white/20 p-3 shadow-2xl">
+      <div className="dashboard-stat-card p-3.5 lg:p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-bold text-white font-one">
             Taux d'annulation
@@ -75,7 +75,7 @@ export default function CancelFillRate({ userId }: CancelFillRateProps) {
 
   if (error) {
     return (
-      <div className="h-full bg-noir-700 rounded-xl border border-white/20 p-3 shadow-2xl">
+      <div className="dashboard-stat-card p-3.5 lg:p-4">
         <h3 className="text-xs font-bold text-white font-one mb-3">
           Taux d'annulation
         </h3>
@@ -112,12 +112,13 @@ export default function CancelFillRate({ userId }: CancelFillRateProps) {
   const cancellationRate = data?.cancellationRate || 0;
 
   return (
-    <div className="h-full bg-noir-700 rounded-xl border border-white/20 p-3 shadow-2xl flex flex-col justify-between">
+    <div className="dashboard-stat-card p-3.5 lg:p-4 flex flex-col justify-between">
+      <div className="dashboard-stat-inner">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-bold text-white font-one">
           Taux d'annulation
         </h3>
-        <div className="px-2 py-0.5 bg-tertiary-500/20 text-tertiary-400 rounded-lg text-xs font-one font-medium border border-tertiary-500/50">
+        <div className="dashboard-count-pill px-2 py-1">
           Global
         </div>
       </div>
@@ -181,6 +182,7 @@ export default function CancelFillRate({ userId }: CancelFillRateProps) {
             </span>
           </div>
         </div> */}
+      </div>
       </div>
     </div>
   );

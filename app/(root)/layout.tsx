@@ -38,12 +38,12 @@ export default async function DashboardLayout({
       <Providers>
         <ColorProvider>
           <MessagingProvider>
-            <div className="absolute top-0 left-0 w-full z-50">
+            <div className="sticky bg-noir-700 top-0 left-0 w-full z-50">
               <HeaderApp />
             </div>
             <VerificationNotification />
             {children}
-            <Footer />
+            {/* <Footer /> */}
           </MessagingProvider>
         </ColorProvider>
       </Providers>

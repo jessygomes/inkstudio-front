@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <footer className="px-4 pb-16 sm:px-20 bg-noir-700">
+    <footer className="px-4 pb-16 lg:pb-0 sm:px-20 bg-noir-700">
       {/* <div className="flex items-center justify-center gap-4 mb-8">
         <Image
           src="/images/logo16.png"

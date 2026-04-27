@@ -96,36 +96,55 @@ export default function DeleteProduct({
     <div>
       <div
         data-modal
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center overflow-hidden"
+        className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm flex items-center justify-center overflow-hidden p-3"
         style={{ height: "100dvh", width: "100vw" }}
       >
-        <div className="bg-noir-500 rounded-lg p-6 w-full max-w-md shadow-lg relative">
-          <h2 className="text-lg font-semibold font-one text-white tracking-widest mb-4 border-b border-white/10 pb-2">
-            {`Confirmer la suppression : ${product.name}`}
-          </h2>
-
-          <p className="text-sm text-white font-one mb-4">
-            Es-tu sûr de vouloir supprimer ce produit ? Cette action est
-            irréversible.
-          </p>
-
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4">
-              <p className="text-red-300 text-xs">{error}</p>
+        <div className="dashboard-embedded-panel w-full max-w-md overflow-hidden">
+          <div className="dashboard-embedded-header px-4 py-3.5 rounded-t-[28px]">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold font-one text-white tracking-wide">
+                Supprimer le produit
+              </h2>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="cursor-pointer p-1.5 hover:bg-white/10 rounded-xl transition-colors text-white"
+              >
+                ×
+              </button>
             </div>
-          )}
+          </div>
 
-          {success && (
-            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 mb-4">
-              <p className="text-green-300 text-xs">{success}</p>
+          <div className="px-4 py-4 space-y-4">
+            <div className="dashboard-embedded-section p-4">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-white/35 font-one">
+                Produit concerne
+              </p>
+              <p className="mt-2 text-base font-semibold text-white font-one">
+                {product.name}
+              </p>
+              <p className="mt-2 text-sm text-white/72 font-one">
+                Cette action est irreversible et supprimera definitivement ce produit de votre boutique.
+              </p>
             </div>
-          )}
 
-          <div className="flex justify-end gap-4">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                <p className="text-red-300 text-xs">{error}</p>
+              </div>
+            )}
+
+            {success && (
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+                <p className="text-green-300 text-xs">{success}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="dashboard-embedded-footer px-4 py-3 flex justify-end gap-3 rounded-b-[28px]">
             <button
               onClick={() => setIsOpen(false)}
               disabled={loading}
-              className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+              className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-[14px] border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Annuler
             </button>
@@ -133,7 +152,7 @@ export default function DeleteProduct({
               type="submit"
               onClick={handleDelete}
               disabled={loading}
-              className="cursor-pointer px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center gap-2"
+              className="cursor-pointer px-6 py-2 bg-gradient-to-r from-red-500/90 to-red-600 hover:from-red-500 hover:to-red-700 text-white rounded-[14px] transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center gap-2"
             >
               {loading ? (
                 <>

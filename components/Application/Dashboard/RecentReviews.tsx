@@ -137,19 +137,22 @@ export default function RecentReviews() {
 
   if (loading) {
     return (
-      <div className="bg-noir-700 rounded-xl border border-white/20 p-4 shadow-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white font-one">
-            Derniers avis
-          </h3>
-          <div className="w-4 h-4 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
-        </div>
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-20 bg-slate-300/10 rounded-lg"></div>
+      <div className="dashboard-panel p-4 lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-4">
+            <div>
+              <span className="dashboard-card-kicker">Réputation</span>
+              <h3 className="dashboard-card-title mt-3">Derniers avis</h3>
             </div>
-          ))}
+            <div className="w-4 h-4 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
+          </div>
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-20 bg-slate-300/10 rounded-[22px]"></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -157,8 +160,8 @@ export default function RecentReviews() {
 
   if (error) {
     return (
-      <div className="bg-noir-700 rounded-xl border border-white/10 p-6 shadow-2xl">
-        <div className="flex items-center justify-center h-40">
+      <div className="dashboard-panel p-4 lg:p-5">
+        <div className="dashboard-panel-content dashboard-empty-state flex h-40 items-center justify-center">
           <div className="text-center">
             <svg
               className="w-8 h-8 text-red-400 mx-auto mb-2"
@@ -182,16 +185,16 @@ export default function RecentReviews() {
 
   if (!reviews || reviews.length === 0) {
     return (
-      <div className="h-[550px] bg-noir-700 rounded-xl border border-white/20 p-4 overflow-y-auto custom-scrollbar shadow-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white font-one">
-            Derniers avis
-          </h3>
-          <div className="px-2 py-1 bg-tertiary-500/20 text-tertiary-400 rounded-lg text-xs font-medium border border-tertiary-500/50">
-            0
+      <div className="dashboard-panel h-[550px] overflow-y-auto custom-scrollbar p-4 lg:p-5">
+        <div className="dashboard-panel-content">
+          <div className="dashboard-card-header mb-5">
+            <div>
+              <span className="dashboard-card-kicker">Réputation</span>
+              <h3 className="dashboard-card-title mt-3">Derniers avis</h3>
+            </div>
+            <div className="dashboard-count-pill">0</div>
           </div>
-        </div>
-        <div className="text-center py-8">
+        <div className="dashboard-empty-state px-4 py-10 text-center">
           <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-3">
             <svg
               className="w-6 h-6 text-gray-500"
@@ -212,21 +215,24 @@ export default function RecentReviews() {
             Les avis de vos clients apparaîtront ici
           </p>
         </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-[550px] bg-noir-700 rounded-xl border border-white/10 p-6 overflow-y-auto custom-scrollbar shadow-2xl relative lg:overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <div>
-          <h3 className="text-white font-semibold font-one">Derniers avis</h3>
-          <p className="text-white/60 text-xs font-one">
-            {reviews.length} avis reçus récemment
-          </p>
+    <div className="dashboard-panel relative h-[550px] overflow-y-auto custom-scrollbar p-4 lg:overflow-hidden lg:p-5">
+      <div className="dashboard-panel-content">
+        <div className="dashboard-card-header mb-5">
+          <div>
+            <span className="dashboard-card-kicker">Réputation</span>
+            <h3 className="dashboard-card-title mt-3">Derniers avis</h3>
+            <p className="dashboard-card-subtitle">
+              {reviews.length} avis récents à consulter ou à traiter.
+            </p>
+          </div>
+          <div className="dashboard-count-pill">{reviews.length}</div>
         </div>
-      </div>
 
       {/* Reviews List */}
       <div className="space-y-2">
@@ -234,16 +240,16 @@ export default function RecentReviews() {
           <div
             key={review.id}
             onClick={() => handleOpenReview(review)}
-            className={`cursor-pointer border rounded-lg p-4 hover:bg-white/5 transition-all duration-200 ${
+            className={`dashboard-list-item cursor-pointer p-4 ${
               selectedReview?.id === review.id
-                ? "bg-blue-500/10 border-blue-500/50"
-                : "border-white/10 bg-white/5"
+                ? "dashboard-list-item-active border-blue-500/35"
+                : ""
             }`}
           >
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3 flex-1 min-w-0">
                 {review.author?.image ? (
-                  <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                  <div className="w-10 h-10 rounded-2xl overflow-hidden flex-shrink-0">
                     <Image
                       src={review.author.image}
                       alt={review.author.name}
@@ -253,7 +259,7 @@ export default function RecentReviews() {
                     />
                   </div>
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-2xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
                     <span className="text-blue-300 font-semibold text-sm">
                       {review.author?.name?.charAt(0) || "?"}
                     </span>
@@ -294,7 +300,7 @@ export default function RecentReviews() {
               </div>
 
               {/* Rating */}
-              <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg px-3 py-1.5 flex items-center gap-2 ml-2 flex-shrink-0">
+              <div className="ml-2 flex flex-shrink-0 items-center gap-2 rounded-2xl border border-yellow-500/40 bg-yellow-500/15 px-3 py-1.5">
                 <svg
                   className="w-4 h-4 text-yellow-400 fill-yellow-400"
                   viewBox="0 0 24 24"
@@ -308,6 +314,7 @@ export default function RecentReviews() {
             </div>
           </div>
         ))}
+      </div>
       </div>
 
       {/* Panel de détails */}

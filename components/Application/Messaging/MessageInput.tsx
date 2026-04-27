@@ -188,10 +188,10 @@ MessageInputProps) {
 
   return (
     <div className={className}>
-      <form onSubmit={handleSendMessage} className="flex flex-col gap-2">
+      <form onSubmit={handleSendMessage} className="tablet-inputs flex flex-col gap-2">
         {/* Aperçu de l'image ou message d'erreur */}
         {preview && !compressionError && (
-          <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-noir-700">
+          <div className="dashboard-embedded-section relative w-20 h-20 rounded-lg overflow-hidden bg-noir-700">
             <Image src={preview} alt="Aperçu" fill className="object-cover" />
             <button
               type="button"
@@ -247,7 +247,7 @@ MessageInputProps) {
 
         {/* Zone input */}
         <div
-          className="flex gap-2"
+          className="dashboard-embedded-section flex gap-2 rounded-xl p-2"
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
@@ -256,7 +256,7 @@ MessageInputProps) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={sendingMessage || isUploading}
-            className="cursor-pointer bg-noir-700 border border-white/20 hover:border-tertiary-400 text-tertiary-500 hover:text-tertiary-300 px-2 py-1.5 rounded transition-colors flex items-center justify-center text-xs flex-shrink-0"
+            className="rdv-btn-secondary cursor-pointer bg-noir-700 border border-white/20 hover:border-tertiary-400 text-tertiary-500 hover:text-tertiary-300 px-2 py-1.5 rounded-lg transition-colors flex items-center justify-center text-xs flex-shrink-0"
             title="Ajouter une image"
           >
             <MdImage className="w-4 h-4" />
@@ -283,7 +283,7 @@ MessageInputProps) {
             placeholder={
               preview ? "Votre message avec l'image..." : "Message..."
             }
-            className="flex-1 bg-noir-700 border border-white/20 rounded px-3 py-1.5 text-white placeholder-white/50 focus:outline-none focus:border-tertiary-400/50 transition-colors text-xs"
+            className="flex-1 bg-noir-700 border border-white/20 rounded-lg px-3 py-1.5 text-white placeholder-white/50 focus:outline-none focus:border-tertiary-400 transition-colors text-xs"
             disabled={sendingMessage || isUploading}
           />
 
@@ -295,7 +295,7 @@ MessageInputProps) {
               isUploading ||
               (!messageInput.trim() && !selectedFile)
             }
-            className="cursor-pointer bg-tertiary-500 hover:bg-tertiary-600 disabled:bg-tertiary-500/50 text-white px-3 py-1.5 rounded font-semibold transition-colors flex items-center gap-1 text-xs flex-shrink-0"
+            className="rdv-btn-primary cursor-pointer bg-tertiary-500 hover:bg-tertiary-600 disabled:bg-tertiary-500/50 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1 text-xs flex-shrink-0"
           >
             {sendingMessage || isUploading ? (
               <div className="w-3 h-3 border-2 border-white/50 rounded-full animate-spin border-t-white"></div>

@@ -1,13 +1,56 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 import React, { useEffect, useState } from "react";
 import { ConversationDto } from "@/lib/queries/conversation.action";
 import { fetchAppointmentById } from "@/lib/queries/appointment";
 import { AppointmentProps } from "@/lib/type";
+import Image from "next/image";
+import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
+import { openImageInNewTab } from "@/lib/utils/openImage";
 
 interface ConversationRDVDetailsProps {
   conversation: ConversationDto;
 }
+
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; dot: string; pill: string }
+> = {
+  PENDING: {
+    label: "En attente",
+    dot: "bg-amber-400 animate-pulse",
+    pill: "bg-amber-500/12 text-amber-300 border-amber-400/25",
+  },
+  CONFIRMED: {
+    label: "Confirmé",
+    dot: "bg-emerald-400",
+    pill: "bg-emerald-500/12 text-emerald-300 border-emerald-400/25",
+  },
+  COMPLETED: {
+    label: "Complété",
+    dot: "bg-teal-400",
+    pill: "bg-teal-500/12 text-teal-300 border-teal-400/25",
+  },
+  NO_SHOW: {
+    label: "Pas présenté",
+    dot: "bg-orange-400",
+    pill: "bg-orange-500/12 text-orange-300 border-orange-400/25",
+  },
+  CANCELLED: {
+    label: "Annulé",
+    dot: "bg-red-400",
+    pill: "bg-red-500/12 text-red-300 border-red-400/25",
+  },
+  CANCELED: {
+    label: "Annulé",
+    dot: "bg-red-400",
+    pill: "bg-red-500/12 text-red-300 border-red-400/25",
+  },
+  RESCHEDULING: {
+    label: "Reprogrammation",
+    dot: "bg-blue-400 animate-pulse",
+    pill: "bg-blue-500/12 text-blue-300 border-blue-400/25",
+  },
+};
 
 export default function ConversationRDVDetails({
   conversation,
@@ -43,7 +86,7 @@ export default function ConversationRDVDetails({
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-lg border border-white/20 shadow-2xl h-full flex items-center justify-center">
+      <div className="dashboard-embedded-panel h-full flex items-center justify-center rounded-2xl">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
           <p className="text-white/50 text-sm font-one">Chargement...</p>
@@ -54,7 +97,7 @@ export default function ConversationRDVDetails({
 
   if (error || !appointment) {
     return (
-      <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-lg border border-white/20 shadow-2xl h-full flex items-center justify-center">
+      <div className="dashboard-empty-state h-full flex items-center justify-center rounded-2xl">
         <div className="text-center p-6">
           <p className="text-white/50 text-sm font-one">
             Aucun rendez-vous associé
@@ -64,32 +107,26 @@ export default function ConversationRDVDetails({
     );
   }
 
-  const statusColors: Record<string, string> = {
-    PENDING: "from-orange-500/15 to-amber-500/15 border-orange-400/30",
-    CONFIRMED: "from-green-500/15 to-emerald-500/15 border-green-400/30",
-    COMPLETED: "from-emerald-500/15 to-teal-500/15 border-emerald-400/30",
-    CANCELLED: "from-red-500/15 to-rose-500/15 border-red-400/30",
-    NO_SHOW: "from-amber-500/15 to-orange-600/15 border-amber-400/30",
-    RESCHEDULING: "from-blue-500/15 to-cyan-500/15 border-blue-400/30",
-  };
+  const statusCfg = STATUS_CONFIG[appointment.status] ?? STATUS_CONFIG.PENDING;
+  const durationMin = Math.round(
+    (new Date(appointment.end).getTime() -
+      new Date(appointment.start).getTime()) /
+      60000,
+  );
 
-  const statusTextColors: Record<string, string> = {
-    PENDING: "text-orange-300",
-    CONFIRMED: "text-green-300",
-    COMPLETED: "text-emerald-300",
-    CANCELLED: "text-red-300",
-    NO_SHOW: "text-amber-300",
-    RESCHEDULING: "text-blue-300",
-  };
-
-  const statusDotColors: Record<string, string> = {
-    PENDING: "bg-orange-400",
-    CONFIRMED: "bg-green-400",
-    COMPLETED: "bg-emerald-400",
-    CANCELLED: "bg-red-400",
-    NO_SHOW: "bg-amber-400",
-    RESCHEDULING: "bg-blue-400",
-  };
+  const startDate = new Date(appointment.start).toLocaleDateString("fr-FR", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+  const startTime = new Date(appointment.start).toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const endTime = new Date(appointment.end).toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   const price =
     appointment.tattooDetail?.price ||
@@ -97,365 +134,207 @@ export default function ConversationRDVDetails({
     0;
 
   return (
-    <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg sm:rounded-lg border border-white/20 shadow-2xl h-full flex flex-col">
-      {/* Header */}
-      <div className="relative p-4 border-b border-white/10 bg-gradient-to-r rounded-t-lg from-noir-700/80 to-noir-500/80">
-        <div className="absolute inset-0 bg-gradient-to-r from-tertiary-400/5 to-transparent"></div>
-        <div className="relative flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500 to-primary-500 rounded-xl flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-sm">
-              {conversation.client.firstName.charAt(0).toUpperCase()}
-            </span>
+    <div className="dashboard-embedded-panel h-full flex flex-col">
+      <div className="dashboard-embedded-header rounded-t-[28px] px-4 pt-4 pb-3">
+        <div className="flex items-start gap-3">
+          <div className="relative shrink-0">
+            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-tertiary-500 to-primary-500 flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-base leading-none">
+                {conversation.client.firstName.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <span
+              className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#1a1a1a] ${statusCfg.dot}`}
+            />
           </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="text-lg font-bold font-one text-white tracking-wide">
-              {conversation.client.firstName} {conversation.client.lastName} -{" "}
+
+          <div className="min-w-0 flex-1">
+            <h4 className="truncate text-base font-bold text-white font-one leading-tight">
+              {conversation.client.firstName} {conversation.client.lastName}
             </h4>
-            <p className="text-white/70 text-xs font-one truncate">
+            <p className="mt-0.5 truncate text-xs text-white/65 font-one">
               {conversation.subject}
             </p>
+            <span
+              className={`mt-1 inline-flex items-center gap-1.5 border rounded-full px-2 py-0.5 text-[10px] font-medium font-one ${statusCfg.pill}`}
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
+              {statusCfg.label}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Contenu scrollable */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-        {/* Statut */}
-        <div className="bg-gradient-to-r from-white/8 to-white/4 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-          <div className="flex items-center justify-between mb-2">
-            <h5 className="text-white font-one text-sm flex items-center gap-2">
-              <svg
-                className="w-4 h-4 text-tertiary-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              Statut
-            </h5>
-          </div>
-
-          <div className="mb-3">
-            <div
-              className={`bg-gradient-to-r ${
-                statusColors[appointment.status] || "from-white/5 to-white/3"
-              } border rounded-lg p-2`}
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-2 h-2 ${
-                    statusDotColors[appointment.status] || "bg-gray-400"
-                  } rounded-full ${
-                    appointment.status === "PENDING" ||
-                    appointment.status === "RESCHEDULING"
-                      ? "animate-pulse"
-                      : ""
-                  }`}
-                ></div>
-                <span
-                  className={`${
-                    statusTextColors[appointment.status] || "text-white"
-                  } font-medium font-one text-xs`}
-                >
-                  {appointment.status === "PENDING"
-                    ? "En attente de confirmation"
-                    : appointment.status === "CONFIRMED"
-                    ? "Confirmé"
-                    : appointment.status === "COMPLETED"
-                    ? "Complété"
-                    : appointment.status === "NO_SHOW"
-                    ? "Pas présenté"
-                    : appointment.status === "CANCELLED"
-                    ? "Annulé"
-                    : appointment.status === "RESCHEDULING"
-                    ? "En attente de reprogrammation"
-                    : appointment.status}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Informations principales */}
-        <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-          <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
-            <svg
-              className="w-4 h-4 text-tertiary-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            Informations
-          </h5>
-
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div className="dashboard-embedded-section p-3">
+          <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">
+            Rendez-vous
+          </p>
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-white/5 rounded-lg p-2 border border-white/5">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-blue-500/20 rounded-md flex items-center justify-center flex-shrink-0">
-                  <svg
-                    className="w-3 h-3 text-blue-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 2m8-2l2 2m-2-2v6a2 2 0 01-2 2H10a2 2 0 01-2-2v-6"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-white/60 text-xs font-one">Date & Heure</p>
-                  <p className="text-white font-one text-xs">
-                    {new Date(appointment.start).toLocaleDateString("fr-FR")}
-                  </p>
-                  <p className="text-white font-one text-xs">
-                    {new Date(appointment.start).toLocaleTimeString("fr-FR", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}{" "}
-                    -{" "}
-                    {new Date(appointment.end).toLocaleTimeString("fr-FR", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
+            <div className="flex items-center gap-2.5 rounded-xl bg-white/4 border border-white/7 px-2.5 py-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-blue-500/12 border border-blue-400/15">
+                <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[9px] uppercase tracking-wider text-white/35 font-one">Date</p>
+                <p className="text-xs font-medium text-white font-one capitalize">{startDate}</p>
               </div>
             </div>
 
-            <div className="bg-white/5 rounded-lg p-2 border border-white/5">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-purple-500/20 rounded-md flex items-center justify-center flex-shrink-0">
-                  <svg
-                    className="w-3 h-3 text-purple-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-white/60 text-xs font-one">Durée</p>
-                  <p className="text-white font-one text-xs">
-                    {Math.round(
-                      (new Date(appointment.end).getTime() -
-                        new Date(appointment.start).getTime()) /
-                        (1000 * 60)
-                    )}{" "}
-                    min
-                  </p>
-                </div>
+            <div className="flex items-center gap-2.5 rounded-xl bg-white/4 border border-white/7 px-2.5 py-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-blue-500/12 border border-blue-400/15">
+                <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[9px] uppercase tracking-wider text-white/35 font-one">Heure</p>
+                <p className="text-xs font-medium text-white font-one tabular-nums">{startTime} - {endTime}</p>
               </div>
             </div>
 
-            <div className="bg-white/5 rounded-lg p-2 border border-white/5">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-green-500/20 rounded-md flex items-center justify-center flex-shrink-0">
-                  <svg
-                    className="w-3 h-3 text-green-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-white/60 text-xs font-one">Prestation</p>
-                  <p className="text-white font-one text-xs">
-                    {appointment.prestation}
-                  </p>
-                </div>
+            <div className="flex items-center gap-2.5 rounded-xl bg-white/4 border border-white/7 px-2.5 py-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-purple-500/12 border border-purple-400/15">
+                <svg className="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[9px] uppercase tracking-wider text-white/35 font-one">Durée</p>
+                <p className="text-xs font-medium text-white/90 font-one">{durationMin} min</p>
               </div>
             </div>
 
-            {appointment.tatoueur && (
-              <div className="bg-white/5 rounded-lg p-2 border border-white/5">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-orange-500/20 rounded-md flex items-center justify-center flex-shrink-0">
-                    <svg
-                      className="w-3 h-3 text-orange-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-white/60 text-xs font-one">Tatoueur</p>
-                    <p className="text-white font-one text-xs">
-                      {appointment.tatoueur.name}
-                    </p>
-                  </div>
-                </div>
+            <div className="flex items-center gap-2.5 rounded-xl bg-white/4 border border-white/7 px-2.5 py-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 border border-emerald-400/15">
+                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
               </div>
-            )}
+              <div className="min-w-0">
+                <p className="text-[9px] uppercase tracking-wider text-white/35 font-one">Prestation</p>
+                <p className="text-xs font-medium text-white/90 font-one truncate">{appointment.prestation}</p>
+              </div>
+            </div>
+
+            <div className="col-span-2 flex items-center gap-2.5 rounded-xl bg-white/4 border border-white/7 px-2.5 py-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-orange-500/12 border border-orange-400/15">
+                <svg className="w-3.5 h-3.5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[9px] uppercase tracking-wider text-white/35 font-one">Artiste</p>
+                <p className="text-xs font-medium text-white/90 font-one truncate">
+                  {appointment.tatoueur?.name || <span className="text-white/35 italic">Non assigné</span>}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Paiement */}
         {(appointment.prestation === "RETOUCHE" ||
           appointment.prestation === "TATTOO" ||
           appointment.prestation === "PIERCING") && (
-          <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-            <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
-              <svg
-                className="w-4 h-4 text-tertiary-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <div className="dashboard-embedded-section p-3">
+            <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">Paiement</p>
+            <div className="flex gap-2">
+              <span
+                className={`inline-flex flex-1 items-center justify-center gap-2 rounded-xl border py-2 px-3 text-xs font-medium font-one ${
+                  appointment.isPayed
+                    ? "bg-emerald-500/15 border-emerald-400/30 text-emerald-300"
+                    : "bg-red-500/15 border-red-400/30 text-red-300"
+                }`}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              Paiement
-            </h5>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                    appointment.isPayed
-                      ? "bg-green-900/40 text-green-300"
-                      : "bg-red-900/40 text-red-300"
-                  }`}
-                >
-                  {appointment.isPayed ? "✓ Payé" : "✗ Non payé"}
-                </span>
-              </div>
+                <span className={`h-2 w-2 rounded-full ${appointment.isPayed ? "bg-emerald-400" : "bg-red-400"}`} />
+                {appointment.isPayed ? "Payé" : "Non payé"}
+              </span>
             </div>
           </div>
         )}
 
-        {/* Détails du tattoo */}
         {appointment.tattooDetail && (
-          <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-            <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
-              <svg
-                className="w-4 h-4 text-tertiary-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                />
-              </svg>
-              Détails : {appointment.prestation}
-            </h5>
+          <div className="dashboard-embedded-section p-3">
+            <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">
+              Détails · {appointment.prestation}
+            </p>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {appointment.tattooDetail.description && (
-                <div className="bg-white/5 rounded-lg p-2 border border-white/5">
-                  <p className="text-white/60 text-xs font-one mb-1">
-                    Description
-                  </p>
-                  <p className="text-white font-one text-xs leading-relaxed">
-                    {appointment.tattooDetail.description}
-                  </p>
+                <div>
+                  <p className="mb-1 text-[9px] uppercase tracking-wider text-white/30 font-one">Description</p>
+                  <p className="text-xs text-white/80 font-one leading-relaxed">{appointment.tattooDetail.description}</p>
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-2">
-                {appointment.tattooDetail.zone && (
-                  <div className="bg-white/5 rounded-lg p-2 border border-white/5">
-                    <p className="text-white/60 text-xs font-one">Zone</p>
-                    <p className="text-white font-one text-xs">
-                      {appointment.tattooDetail.zone}
-                    </p>
-                  </div>
-                )}
+              {(appointment.tattooDetail.zone || appointment.tattooDetail.size || appointment.skin) && (
+                <div className="flex flex-wrap gap-1.5">
+                  {appointment.tattooDetail.zone && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-one text-white/75">
+                      <span className="text-white/40 text-[9px]">Zone</span> {appointment.tattooDetail.zone}
+                    </span>
+                  )}
+                  {appointment.tattooDetail.size && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-one text-white/75">
+                      <span className="text-white/40 text-[9px]">Taille</span> {appointment.tattooDetail.size}
+                    </span>
+                  )}
+                  {appointment.skin && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-one text-white/75">
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-full border border-white/15 shrink-0"
+                        style={{ backgroundColor: getSkinTonePreviewHex(appointment.skin) ?? undefined }}
+                      />
+                      {formatSkinTone(appointment.skin)}
+                    </span>
+                  )}
+                </div>
+              )}
 
-                {appointment.tattooDetail.size && (
-                  <div className="bg-white/5 rounded-lg p-2 border border-white/5">
-                    <p className="text-white/60 text-xs font-one">Taille</p>
-                    <p className="text-white font-one text-xs">
-                      {appointment.tattooDetail.size}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Prix */}
               {price > 0 && (
-                <div className="bg-gradient-to-r from-tertiary-500/10 to-primary-500/10 rounded-lg p-2 border border-tertiary-400/20">
-                  <div className="bg-white/5 rounded-md p-2 border border-white/5">
-                    <p className="text-orange-400 font-one font-semibold text-xs">
-                      💰 Prix : {price}€
-                    </p>
+                <div className="flex items-center justify-between rounded-xl bg-white/4 border border-white/8 px-3 py-2">
+                  <span className="text-[9px] uppercase tracking-wider text-white/35 font-one">Prix</span>
+                  <span className="text-sm font-bold text-white font-one">
+                    {price}
+                    <span className="ml-0.5 text-xs font-medium text-white/55">€</span>
+                  </span>
+                </div>
+              )}
+
+              {(appointment.tattooDetail.reference || appointment.tattooDetail.sketch) && (
+                <div>
+                  <p className="mb-2 text-[9px] uppercase tracking-wider text-white/30 font-one">Images</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {appointment.tattooDetail.reference && (
+                      <button
+                        onClick={() => openImageInNewTab(appointment.tattooDetail?.reference || "")}
+                        className="group relative h-28 w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 cursor-pointer"
+                      >
+                        <Image src={appointment.tattooDetail.reference} alt="Référence" fill className="object-cover group-hover:scale-105 transition-transform duration-200" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex flex-col items-center justify-end pb-2">
+                          <span className="text-[10px] font-one text-white/0 group-hover:text-white/90 transition-colors font-medium">Référence</span>
+                        </div>
+                      </button>
+                    )}
+                    {appointment.tattooDetail.sketch && (
+                      <button
+                        onClick={() => openImageInNewTab(appointment.tattooDetail?.sketch || "")}
+                        className="group relative h-28 w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 cursor-pointer"
+                      >
+                        <Image src={appointment.tattooDetail.sketch} alt="Croquis" fill className="object-cover group-hover:scale-105 transition-transform duration-200" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex flex-col items-center justify-end pb-2">
+                          <span className="text-[10px] font-one text-white/0 group-hover:text-white/90 transition-colors font-medium">Croquis</span>
+                        </div>
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
             </div>
           </div>
         )}
-
-        {/* Notes */}
-        {/* {appointment.notes && (
-          <div className="bg-gradient-to-br from-white/6 to-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
-            <h5 className="text-white font-one text-sm flex items-center gap-2 mb-3">
-              <svg
-                className="w-4 h-4 text-tertiary-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-              Notes
-            </h5>
-            <div className="bg-white/5 rounded-lg p-2 border border-white/5">
-              <p className="text-white/70 font-one text-xs leading-relaxed">
-                {appointment.notes}
-              </p>
-            </div>
-          </div>
-        )} */}
       </div>
     </div>
   );

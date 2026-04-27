@@ -129,7 +129,7 @@ export default function NavbarApp() {
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 mt-4 p-2 w-[400px] bg-noir-700 text-white rounded shadow-lg z-50 flex flex-col gap-2">
+            <div className="absolute right-0 mt-4 p-2 w-[400px] bg-noir-700 text-white rounded-2xl shadow-lg z-50 flex flex-col gap-2">
               <Link
                 href="/mon-compte"
                 className="flex items-center h-12 text-sm font-one w-full text-left hover:bg-noir-500 transition-colors rounded-xl px-4"

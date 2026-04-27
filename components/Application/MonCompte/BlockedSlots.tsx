@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import CreateBlockedSlot from "./CreateBlockedSlot";
 import { deleteBlockedTimeSlotAction } from "@/lib/queries/blocked-time-slots";
@@ -40,7 +40,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch des créneaux bloqués
-  const fetchBlockedSlots = async () => {
+  const fetchBlockedSlots = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -63,11 +63,11 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchBlockedSlots();
-  }, [userId]);
+  }, [fetchBlockedSlots]);
 
   // Supprimer un créneau bloqué
   const handleDeleteSlot = async () => {
@@ -142,94 +142,63 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
 
   if (loading) {
     return (
-      <div className="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base sm:text-lg font-semibold text-white font-one">
-            <span className="hidden sm:inline">🚫 Créneaux bloqués</span>
-            <span className="sm:hidden">🚫 Créneaux</span>
-          </h3>
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-tertiary-400"></div>
-        </div>
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="animate-pulse h-16 bg-white/10 rounded-lg"
-            ></div>
-          ))}
-        </div>
+      <div className="flex items-center justify-center py-4">
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-tertiary-400" />
       </div>
     );
   }
 
   return (
     <>
-      <div className="bg-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10">
-        {/* Header responsive */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-          <div>
-            <h3 className="text-base sm:text-lg font-semibold text-white font-one">
-              <span className="hidden sm:inline">🚫 Créneaux bloqués</span>
-              <span className="sm:hidden">🚫 Créneaux</span>
-            </h3>
-            <p className="text-white/60 text-sm font-one mt-1">
-              <span className="hidden sm:inline">
-                Gérez les indisponibilités et congés
-              </span>
-              <span className="sm:hidden">Gérez les indisponibilités</span>
-            </p>
-          </div>
+      <div className="space-y-2">
+        {/* Barre: filtre + compteur + bouton */}
+        <div className="flex items-center gap-2">
+          <select
+            value={selectedTatoueur}
+            onChange={(e) => setSelectedTatoueur(e.target.value)}
+            className="flex-1 min-w-0 px-2.5 py-1.5 bg-white/6 border border-white/10 rounded-[10px] text-white/80 text-[12px] font-one focus:outline-none focus:border-tertiary-400/50 transition-colors"
+          >
+            <option value="all" className="bg-noir-500">Tous</option>
+            <option value="salon" className="bg-noir-500">Salon complet</option>
+            {tatoueurs.map((tatoueur) => (
+              <option key={tatoueur.id} value={tatoueur.id} className="bg-noir-500">
+                {tatoueur.name}
+              </option>
+            ))}
+          </select>
+          <span className="text-white/35 font-one text-[10px] shrink-0">
+            {filteredSlots.length} bloqué{filteredSlots.length > 1 ? "s" : ""}
+          </span>
           <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+            onClick={() => setIsCreateModalOpen((prev) => !prev)}
+            className="cursor-pointer flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-[14px] transition-all font-one text-xs font-medium shrink-0"
           >
             <span>+</span>
-            <span className="hidden sm:inline">Bloquer un créneau</span>
-            <span className="sm:hidden">Bloquer</span>
+            <span className="hidden sm:inline">
+              {isCreateModalOpen ? "Fermer" : "Bloquer"}
+            </span>
           </button>
         </div>
 
-        {/* Filtres responsive */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <label className="text-xs text-white/70 font-one">
-              Filtrer par :
-            </label>
-            <select
-              value={selectedTatoueur}
-              onChange={(e) => setSelectedTatoueur(e.target.value)}
-              className="flex-1 sm:flex-none px-3 py-2 sm:py-1 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-            >
-              <option value="all" className="bg-noir-500">
-                Tous les créneaux
-              </option>
-              <option value="salon" className="bg-noir-500">
-                Salon complet
-              </option>
-              {tatoueurs.map((tatoueur) => (
-                <option
-                  key={tatoueur.id}
-                  value={tatoueur.id}
-                  className="bg-noir-500"
-                >
-                  {tatoueur.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="text-xs text-white/60 font-one">
-            {filteredSlots.length} créneau{filteredSlots.length > 1 ? "x" : ""}{" "}
-            bloqué{filteredSlots.length > 1 ? "s" : ""}
-          </div>
-        </div>
+        {/* Formulaire de création inline */}
+        {isCreateModalOpen && (
+          <CreateBlockedSlot
+            userId={userId}
+            tatoueurs={tatoueurs}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSuccess={() => {
+              setIsCreateModalOpen(false);
+              fetchBlockedSlots();
+            }}
+          />
+        )}
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 sm:p-4 mb-4">
-            <p className="text-red-300 text-sm">{error}</p>
+          <div className="flex items-center justify-between gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+            <p className="text-red-300 text-[11px] font-one">{error}</p>
             <button
               onClick={fetchBlockedSlots}
-              className="cursor-pointer mt-2 px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded text-xs border border-red-500/50"
+              className="cursor-pointer text-red-400 text-[10px] font-one border border-red-500/30 rounded-[10px] px-2 py-1 hover:bg-red-500/10 transition-colors shrink-0"
             >
               Réessayer
             </button>
@@ -237,114 +206,61 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
         )}
 
         {filteredSlots.length === 0 ? (
-          <div className="text-center py-6 sm:py-8">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-xl sm:text-2xl">🔓</span>
-            </div>
-            <p className="text-white/60 font-one text-sm sm:text-base">
-              {selectedTatoueur === "all"
-                ? "Aucun créneau bloqué"
-                : selectedTatoueur === "salon"
-                ? "Aucun blocage salon"
-                : `Aucun blocage pour ${
-                    tatoueurs.find((t) => t.id === selectedTatoueur)?.name
-                  }`}
-            </p>
-          </div>
+          <p className="text-center text-white/30 font-one text-xs py-4">Aucun créneau bloqué</p>
         ) : (
-          <div className="space-y-3 sm:space-y-4 max-h-80 sm:max-h-96 overflow-y-auto">
+          <div className="space-y-2 max-h-72 overflow-y-auto">
             {Object.entries(groupedSlots)
-              .sort(
-                ([dateA], [dateB]) =>
-                  new Date(dateA).getTime() - new Date(dateB).getTime()
-              )
+              .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
               .map(([date, slots]) => (
-                <div key={date} className="space-y-2">
-                  <div className="sticky top-0 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-                    <h4 className="text-white font-semibold text-sm font-one">
-                      {date}
-                    </h4>
-                  </div>
-
+                <div key={date} className="space-y-1">
+                  <p className="text-white/60 font-one text-[12px] uppercase tracking-wider px-1">{date}</p>
                   {slots.map((slot) => (
                     <div
                       key={slot.id}
-                      className="bg-white/10 rounded-lg p-3 sm:p-4 border border-white/20 hover:bg-white/15 transition-colors"
+                      className="flex items-start gap-2.5 bg-white/4 border border-white/8 rounded-xl px-3 py-2.5 hover:bg-white/6 transition-colors"
                     >
-                      <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-                        <div className="flex-1 w-full">
-                          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                            <div
-                              className={`w-3 h-3 rounded-full ${
-                                slot.tatoueurId ? "bg-orange-400" : "bg-red-400"
-                              }`}
-                            />
-                            <span className="text-white font-medium text-sm font-one truncate">
-                              {slot.tatoueur
-                                ? slot.tatoueur.name
-                                : "Salon complet"}
-                            </span>
-                            <span className="px-2 py-1 bg-red-500/20 text-red-300 rounded-full text-xs border border-red-500/30">
-                              Bloqué
-                            </span>
-                          </div>
-
-                          <div className="space-y-1 text-xs text-white/80 font-one">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                              <span>⏰ {formatDateTime(slot.startDate)}</span>
-                              <span className="hidden sm:inline">→</span>
-                              <span className="sm:hidden">↓</span>
-                              <span>{formatDateTime(slot.endDate)}</span>
-                            </div>
-
-                            {slot.reason && (
-                              <div className="flex items-start gap-2 mt-2">
-                                <span>💬</span>
-                                <span className="text-white/70 break-words">
-                                  {slot.reason}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => openDeleteModal(slot)}
-                          className="cursor-pointer w-full sm:w-auto sm:ml-4 px-3 py-2 sm:py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded text-xs border border-red-500/30 transition-colors"
-                        >
-                          Débloquer
-                        </button>
+                      <div
+                        className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
+                          slot.tatoueurId ? "bg-orange-400" : "bg-red-400"
+                        }`}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-one text-sm font-medium truncate">
+                          {slot.tatoueur?.name || "Salon complet"}
+                        </p>
+                        <p className="text-white/50 font-one text-[11px] mt-0.5">
+                          {formatDateTime(slot.startDate)} → {formatDateTime(slot.endDate)}
+                        </p>
+                        {slot.reason && (
+                          <p className="text-white/35 font-one text-[11px] italic truncate mt-0.5">
+                            &ldquo;{slot.reason}&rdquo;
+                          </p>
+                        )}
                       </div>
+                      <button
+                        onClick={() => openDeleteModal(slot)}
+                        className="cursor-pointer shrink-0 text-red-400 hover:text-red-300 font-one text-[12px] border border-red-500/30 rounded-[10px] px-2 py-1 hover:bg-red-500/10 transition-colors mt-0.5"
+                      >
+                        Débloquer
+                      </button>
                     </div>
                   ))}
                 </div>
               ))}
           </div>
         )}
+
       </div>
 
-      {/* Modal de création */}
-      {isCreateModalOpen && (
-        <CreateBlockedSlot
-          userId={userId}
-          tatoueurs={tatoueurs}
-          onClose={() => setIsCreateModalOpen(false)}
-          onSuccess={() => {
-            setIsCreateModalOpen(false);
-            fetchBlockedSlots();
-          }}
-        />
-      )}
-
-      {/* Modal de déblocage responsive */}
+      {/* Modale de suppression (overlay global) */}
       {isDeleteModalOpen && slotToDelete && (
         <div
           data-modal
           className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-hidden"
           style={{ height: "100dvh", width: "100vw" }}
         >
-          <div className="bg-noir-500 rounded-2xl sm:rounded-3xl w-full max-w-lg max-h-[95vh] sm:max-h-none overflow-hidden flex flex-col border border-white/20 shadow-2xl min-h-0">
-            {/* Header responsive */}
+          <div className="dashboard-embedded-panel rounded-2xl sm:rounded-3xl w-full max-w-lg max-h-[95vh] sm:max-h-none overflow-hidden flex flex-col border border-white/20 shadow-2xl min-h-0">
+            {/* Header */}
             <div className="p-3 sm:p-4 border-b border-white/10 bg-white/5">
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
@@ -371,7 +287,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
             {/* Contenu responsive */}
             <div className="flex-1 overflow-y-auto p-3 sm:p-4 min-h-0">
               {/* Récapitulatif du créneau */}
-              <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 mb-4">
+              <div className="bg-white/5 rounded-2xl p-3 sm:p-4 border border-white/10 mb-4">
                 <div className="flex items-start gap-3">
                   <div
                     className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${
@@ -451,18 +367,18 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
             </div>
 
             {/* Footer responsive */}
-            <div className="p-3 sm:p-4 border-t border-white/10 bg-white/5 flex flex-col sm:flex-row justify-end gap-2">
+            <div className="dashboard-embedded-footer p-3 sm:p-4 border-t border-white/10 bg-white/5 flex flex-col sm:flex-row justify-end gap-2">
               <button
                 onClick={closeDeleteModal}
                 disabled={isDeleting}
-                className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer rounded-[14px] border border-white/20 bg-white/10 px-4 py-2 text-xs text-white transition-colors hover:bg-white/20 font-medium font-one disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Annuler
               </button>
               <button
                 onClick={handleDeleteSlot}
                 disabled={isDeleting}
-                className="cursor-pointer px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer rounded-[14px] px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white transition-all duration-300 font-medium font-one text-xs flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isDeleting ? (
                   <>

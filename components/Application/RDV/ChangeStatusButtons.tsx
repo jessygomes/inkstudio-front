@@ -43,9 +43,9 @@ export default function ChangeStatusButtons({
 
   // Définir les tailles selon le prop size
   const sizeClasses = {
-    sm: "px-2.5 py-1.5 text-xs",
-    md: "px-3 py-2 text-sm",
-    lg: "px-4 py-3 text-base",
+    sm: "px-2.5 py-1.5 text-xs rounded-[14px]",
+    md: "px-3 py-2 text-sm rounded-[14px]",
+    lg: "px-4 py-3 text-base rounded-[16px]",
   };
 
   const buttonSizeClass = sizeClasses[size];
@@ -56,7 +56,7 @@ export default function ChangeStatusButtons({
       {currentStatus !== "COMPLETED" && (
         <button
           onClick={() => handleAppointmentStatusChange("COMPLETED")}
-          className={`cursor-pointer ${buttonSizeClass} bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 text-emerald-300 rounded-md border border-emerald-500/40 hover:border-emerald-500/60 transition-all duration-200 font-one font-medium flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md`}
+          className={`cursor-pointer ${buttonSizeClass} bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 text-emerald-300 border border-emerald-500/40 hover:border-emerald-500/60 transition-all duration-200 font-one font-medium flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md`}
           title="Marquer comme terminé"
         >
           <svg
@@ -74,7 +74,7 @@ export default function ChangeStatusButtons({
       {currentStatus !== "NO_SHOW" && (
         <button
           onClick={() => handleAppointmentStatusChange("NO_SHOW")}
-          className={`cursor-pointer ${buttonSizeClass} bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 rounded-md border border-amber-500/40 hover:border-amber-500/60 transition-all duration-200 font-one font-medium flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md`}
+          className={`cursor-pointer ${buttonSizeClass} bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 hover:border-amber-500/60 transition-all duration-200 font-one font-medium flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md`}
           title="Marquer comme absent"
         >
           <svg

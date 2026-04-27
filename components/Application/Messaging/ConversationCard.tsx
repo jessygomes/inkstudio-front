@@ -72,12 +72,12 @@ export default function ConversationCard({
   return (
     <div
       onClick={handleSelect}
-      className={`p-3 sm:p-3 rounded-lg border transition-all duration-150 ${
+      className={`dashboard-list-item p-3 sm:p-3 rounded-2xl border transition-all duration-150 ${
         isLoading ? "opacity-50" : ""
       } ${
         isSelected
-          ? "bg-noir-700/80 border-tertiary-400/20 shadow-md "
-          : "bg-noir-700/30 border-white/10 hover:bg-noir-700/50 hover:border-white/15"
+          ? "dashboard-list-item-active"
+          : ""
       }`}
     >
       <div className="flex gap-3 sm:gap-3">
@@ -150,7 +150,7 @@ export default function ConversationCard({
               </span>
 
               <Link href={`/messagerie/${conversation.id}`}>
-                <span className="inline-block px-2 py-1 rounded-sm text-xs bg-linear-to-l from-tertiary-400 to-tertiary-500 text-white">
+                <span className="rdv-btn-primary inline-block px-2 py-1 rounded-lg text-xs bg-linear-to-l from-tertiary-400 to-tertiary-500 text-white">
                   Voir la conversation
                 </span>
               </Link>

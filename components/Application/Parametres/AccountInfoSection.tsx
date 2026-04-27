@@ -26,68 +26,87 @@ export default function AccountInfoSection({
   toggleSection,
 }: AccountInfoSectionProps) {
   const user = useUser();
+  const completionCount = [
+    user?.salonName,
+    user?.email,
+    user?.phone,
+    user?.address,
+  ].filter(Boolean).length;
 
   return (
-    <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
+    <div className="dashboard-embedded-panel rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
       <button
         onClick={() => toggleSection("account")}
-        className="w-full flex items-center justify-between mb-3 sm:mb-4"
+        className="w-full flex items-center justify-between"
       >
-        <h2 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl text-white font-one">
-          <CiUser size={20} className="sm:w-6 sm:h-6 text-tertiary-400" />
-          <span className="hidden sm:inline">Informations du compte</span>
-          <span className="sm:hidden">Compte</span>
-        </h2>
-        <div className="text-white/50">{openSections.account ? "−" : "+"}</div>
+        <div className="flex items-center gap-2.5 min-w-0 text-left">
+          <div className="w-9 h-9 rounded-xl border border-tertiary-400/25 bg-tertiary-400/15 flex items-center justify-center shrink-0">
+            <CiUser className="w-5 h-5 text-tertiary-500" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
+              Profil
+            </p>
+            <h2 className="text-white font-one text-sm sm:text-base font-semibold truncate">
+              Informations du compte
+            </h2>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="hidden sm:inline-flex rounded-[10px] border border-white/20 bg-white/10 px-2 py-1 text-[10px] font-one text-white/75">
+            {completionCount}/4 remplis
+          </span>
+          <span className="text-white/50 text-lg leading-none">
+            {openSections.account ? "−" : "+"}
+          </span>
+        </div>
       </button>
 
       {openSections.account && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-              <label className="text-sm text-white/80 font-one mb-2 block">
-                <span className="hidden sm:inline">Nom du salon</span>
-                <span className="sm:hidden">Salon</span>
-              </label>
-              <p className="text-white font-one text-base sm:text-lg break-words">
+        <div className="pt-3 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
+              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
+                Nom du salon
+              </p>
+              <p className="text-white font-one text-sm sm:text-base break-words">
                 {user?.salonName || "Nom non défini"}
               </p>
             </div>
-            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-              <label className="text-sm text-white/80 font-one mb-2 block">
+            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
+              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
                 Email
-              </label>
+              </p>
               <p className="text-white font-one text-sm sm:text-base break-words">
                 {user?.email || "Email non défini"}
               </p>
             </div>
-            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-              <label className="text-sm text-white/80 font-one mb-2 block">
+
+            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
+              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
                 Téléphone
-              </label>
-              <p className="text-white font-one">
+              </p>
+              <p className="text-white font-one text-sm break-words">
                 {user?.phone || "Non renseigné"}
               </p>
             </div>
-            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-              <label className="text-sm text-white/80 font-one mb-2 block">
+
+            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
+              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
                 Adresse
-              </label>
+              </p>
               <p className="text-white font-one text-sm break-words">
                 {user?.address || "Non renseignée"}
               </p>
             </div>
           </div>
 
-          <div className="h-[0.5px] bg-white/10"></div>
-          {/* <div className="flex justify-end">
-            <button className="cursor-pointer w-full sm:w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg">
-              <span className="hidden sm:inline">
-                Modifier les informations
-              </span>
-              <span className="sm:hidden">Modifier</span>
-            </button>
-          </div> */}
+          <div className="rounded-[10px] border border-white/8 bg-white/2 px-3 py-2">
+            <p className="text-[11px] font-two text-white/55">
+              Ces informations sont utilisées pour votre profil public et la facturation.
+            </p>
+          </div>
         </div>
       )}
     </div>

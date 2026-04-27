@@ -119,9 +119,9 @@ export default function CreateOrUpdateClient({
         className="fixed inset-0 z-[9999] lg:bg-black/60 lg:backdrop-blur-sm bg-noir-700 flex items-end lg:items-center justify-center p-0 lg:p-4 overflow-hidden"
         style={{ height: "100dvh", width: "100vw" }}
       >
-        <div className="bg-noir-500 rounded-none lg:rounded-3xl w-full h-full lg:h-auto lg:max-w-5xl lg:max-h-[90vh] overflow-hidden flex flex-col border-0 lg:border lg:border-white/20 lg:shadow-2xl min-h-0">
+        <div className="dashboard-embedded-panel rounded-none lg:rounded-3xl w-full h-full lg:h-auto lg:max-w-5xl lg:max-h-[90vh] overflow-hidden flex flex-col border-0 lg:border lg:border-white/20 lg:shadow-2xl min-h-0">
           {/* Header fixe */}
-          <div className="p-4 lg:p-4 border-b border-white/10 bg-white/5">
+          <div className="dashboard-embedded-header p-4 lg:p-4 border-b border-white/10 bg-white/5">
             <div className="flex items-center justify-between">
               <h2 className="text-lg lg:text-xl font-bold text-white font-one tracking-wide">
                 {existingClient
@@ -130,9 +130,9 @@ export default function CreateOrUpdateClient({
               </h2>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 lg:p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/12 bg-white/8 text-white/80 transition-colors hover:bg-white/14 hover:text-white"
               >
-                <span className="cursor-pointer text-white text-xl lg:text-xl">
+                <span className="text-white text-xl lg:text-xl leading-none">
                   ×
                 </span>
               </button>
@@ -148,10 +148,10 @@ export default function CreateOrUpdateClient({
           <div className="flex-1 overflow-y-auto p-4 lg:p-4 min-h-0">
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-4 lg:space-y-6"
+              className="tablet-inputs space-y-4 lg:space-y-6"
             >
               {/* Informations personnelles */}
-              <div className="bg-white/5 rounded-xl p-4 lg:p-4 border border-white/10">
+              <div className="dashboard-embedded-section rounded-2xl p-4 lg:p-4 border border-white/10">
                 <h3 className="flex items-center gap-2 text-sm lg:text-sm font-semibold text-white font-one uppercase tracking-wide mb-3 lg:mb-2">
                   <CiUser size={20} className="lg:w-5 lg:h-5" /> Informations
                   personnelles
@@ -254,11 +254,11 @@ export default function CreateOrUpdateClient({
               </div>
 
               {/* Section Historique médical */}
-              <div className="bg-white/5 rounded-xl p-4 lg:p-4 border border-white/10">
+              <div className="dashboard-embedded-section rounded-2xl p-4 lg:p-4 border border-white/10">
                 <button
                   type="button"
                   onClick={() => setShowMedicalHistory(!showMedicalHistory)}
-                  className="cursor-pointer w-full flex items-center justify-between mb-3 lg:mb-4"
+                  className="cursor-pointer mb-3 lg:mb-4 flex w-full items-center justify-between rounded-xl border border-white/12 bg-white/6 px-3 py-2.5 transition-colors hover:bg-white/10"
                 >
                   <h3 className="flex items-center gap-2 text-sm lg:text-sm font-semibold text-white font-one uppercase tracking-wide">
                     <RiHealthBookLine size={20} className="lg:w-5 lg:h-5" />{" "}
@@ -343,7 +343,7 @@ export default function CreateOrUpdateClient({
               {/* Messages d'erreur et de succès */}
               {error && error === "SAAS_LIMIT" ? (
                 /* Message spécial pour les limites SaaS */
-                <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-4">
+                <div className="dashboard-embedded-section bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-4">
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 bg-orange-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                       <svg
@@ -418,7 +418,7 @@ export default function CreateOrUpdateClient({
                             // Rediriger vers la page des paramètres
                             window.location.href = "/parametres";
                           }}
-                          className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
+                          className="rdv-btn-primary cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
                         >
                           📊 Changer de plan
                         </button>
@@ -426,7 +426,7 @@ export default function CreateOrUpdateClient({
                         <button
                           type="button"
                           onClick={() => setError("")}
-                          className="cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
+                          className="rdv-btn-secondary cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
                         >
                           Fermer
                         </button>
@@ -436,13 +436,13 @@ export default function CreateOrUpdateClient({
                 </div>
               ) : error ? (
                 /* Message d'erreur standard */
-                <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
+                <div className="dashboard-embedded-section p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
                   <p className="text-red-300 text-xs">{error}</p>
                 </div>
               ) : null}
 
               {success && (
-                <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-xl">
+                <div className="dashboard-embedded-section p-3 bg-green-500/20 border border-green-500/50 rounded-xl">
                   <p className="text-green-300 text-xs">{success}</p>
                 </div>
               )}
@@ -450,11 +450,11 @@ export default function CreateOrUpdateClient({
           </div>
 
           {/* Footer fixe */}
-          <div className="p-4 lg:p-4 border-t border-white/10 bg-white/5 flex justify-end gap-3 lg:gap-3">
+          <div className="dashboard-embedded-footer p-4 lg:p-4 border-t border-white/10 bg-white/5 flex justify-end gap-3 lg:gap-3">
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="cursor-pointer px-4 py-2 lg:px-4 lg:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm lg:text-xs"
+              className="rdv-btn-secondary cursor-pointer px-4 py-2 lg:px-4 lg:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm lg:text-xs"
             >
               Annuler
             </button>
@@ -462,7 +462,7 @@ export default function CreateOrUpdateClient({
               type="submit"
               disabled={loading}
               onClick={form.handleSubmit(onSubmit)}
-              className="cursor-pointer px-6 py-2 lg:px-6 lg:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm lg:text-xs"
+              className="rdv-btn-primary cursor-pointer px-6 py-2 lg:px-6 lg:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm lg:text-xs"
             >
               {loading
                 ? existingClient

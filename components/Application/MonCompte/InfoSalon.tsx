@@ -37,148 +37,135 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="relative w-full lg:w-[180px] h-[180px] rounded-xl overflow-hidden bg-white/10 flex-shrink-0">
+    <div className="space-y-3">
+      {/* Identité salon */}
+      <div className="flex items-center gap-3">
+        <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-white/10 flex-shrink-0">
           {salon.image ? (
             <Image
-              width={180}
-              height={180}
+              width={56}
+              height={56}
               src={salon.image}
               alt="Salon Image"
-              className="w-full h-full object-cover rounded-xl"
+              className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-white/10 flex items-center justify-center">
-              <div className="text-center space-y-2">
-                <div className="text-3xl">📸</div>
-                <span className="text-white/60 font-two text-xs">
-                  Aucune image
-                </span>
-              </div>
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-xl">📸</span>
             </div>
           )}
         </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-white text-base font-one font-bold truncate">
+            {salon.salonName}
+          </h2>
+          <p className="text-white/55 font-two text-xs mt-0.5 truncate">
+            {salon.address}, {salon.postalCode} {salon.city}
+          </p>
+        </div>
+        <Link
+          href="/mon-compte/modifier-salon"
+          className="cursor-pointer flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-[14px] transition-all duration-300 font-medium font-one text-xs shadow-lg"
+        >
+          <span className="hidden sm:inline">Modifier</span>
+          <span className="sm:hidden">Modifier</span>
+        </Link>
+      </div>
 
-        <div className="flex-1 space-y-3">
-          <div>
-            <h1 className="text-white text-xl font-one font-bold mb-1">
-              {salon.salonName}
-            </h1>
-            <p className="text-white/70 font-two text-xs">
-              {salon.address}, {salon.postalCode} {salon.city}
-            </p>
-          </div>
+      {/* Description */}
+      {salon.description && (
+        <div className=" rounded-xl px-3 py-2.5 border border-white/8">
+          <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-1">Description</p>
+          <p className="text-white/85 font-two text-xs leading-relaxed">{salon.description}</p>
+        </div>
+      )}
 
-          {salon.description && (
-            <div>
-              <p className="text-white/60 font-one text-xs mb-1">Description</p>
-              <p className="text-white font-two text-sm">{salon.description}</p>
-            </div>
-          )}
-
+      {/* Prestations + Réseaux */}
+      {((salon.prestations && salon.prestations.length > 0) ||
+        salon.instagram || salon.facebook || salon.tiktok || salon.website) && (
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
           {salon.prestations && salon.prestations.length > 0 && (
             <div>
-              <p className="text-white/60 font-one text-xs mb-1">Prestations</p>
-              <ul className="text-white font-one flex gap-2 text-xs">
+              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-1.5">Prestations</p>
+              <div className="flex flex-wrap gap-1.5">
                 {salon.prestations.map((prestation) => (
-                  <li
-                    className="bg-white/5 px-2 py-1 rounded-lg"
+                  <span
                     key={prestation}
+                    className="rounded-[10px] border border-white/10 bg-white/6 px-2 py-0.5 text-white/80 font-one text-xs"
                   >
                     {prestation}
-                  </li>
+                  </span>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
 
-          {/* Réseaux sociaux */}
-          {(salon.instagram ||
-            salon.facebook ||
-            salon.tiktok ||
-            salon.website) && (
+          {(salon.instagram || salon.facebook || salon.tiktok || salon.website) && (
             <div>
-              <p className="text-white/60 font-one text-xs mb-1">Réseaux</p>
-              <div className="flex flex-wrap gap-2 mt-1">
+              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-1.5">Réseaux</p>
+              <div className="flex flex-wrap gap-1.5">
                 {salon.instagram && (
-                  <Link
-                    href={salon.instagram}
-                    target="_blank"
-                    className="flex items-center gap-2 font-one px-2 py-1 bg-pink-500/20 text-white border border-pink-500/30 rounded-lg text-xs hover:bg-pink-500/30 transition-colors"
-                  >
-                    <CiInstagram size={15} /> Instagram
+                  <Link href={salon.instagram} target="_blank"
+                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-pink-500/15 text-pink-300 border border-pink-500/25 rounded-[10px] text-xs hover:bg-pink-500/25 transition-colors">
+                    <CiInstagram size={14} /> <span className="hidden sm:inline">Instagram</span>
                   </Link>
                 )}
                 {salon.facebook && (
-                  <Link
-                    href={salon.facebook}
-                    target="_blank"
-                    className="flex items-center gap-2 font-one px-2 py-1 bg-blue-500/20 text-white border border-blue-500/30 rounded-lg text-xs hover:bg-blue-500/30 transition-colors"
-                  >
-                    <CiFacebook size={15} /> Facebook
+                  <Link href={salon.facebook} target="_blank"
+                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-blue-500/15 text-blue-300 border border-blue-500/25 rounded-[10px] text-xs hover:bg-blue-500/25 transition-colors">
+                    <CiFacebook size={14} /> <span className="hidden sm:inline">Facebook</span>
                   </Link>
                 )}
                 {salon.tiktok && (
-                  <Link
-                    href={salon.tiktok}
-                    target="_blank"
-                    className="flex items-center gap-2 font-one px-2 py-1 bg-gray-500/20 text-white border border-gray-500/30 rounded-lg text-xs hover:bg-gray-500/30 transition-colors"
-                  >
-                    <PiTiktokLogoThin size={15} /> TikTok
+                  <Link href={salon.tiktok} target="_blank"
+                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-white/8 text-white/70 border border-white/15 rounded-[10px] text-xs hover:bg-white/12 transition-colors">
+                    <PiTiktokLogoThin size={14} /> <span className="hidden sm:inline">TikTok</span>
                   </Link>
                 )}
                 {salon.website && (
-                  <Link
-                    href={salon.website}
-                    target="_blank"
-                    className="flex items-center gap-2 font-one px-2 py-1 bg-green-500/20 text-white border border-green-500/30 rounded-lg text-xs hover:bg-green-500/30 transition-colors"
-                  >
-                    <TfiWorld size={14} /> Site Web
+                  <Link href={salon.website} target="_blank"
+                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-green-500/15 text-green-300 border border-green-500/25 rounded-[10px] text-xs hover:bg-green-500/25 transition-colors">
+                    <TfiWorld size={13} /> <span className="hidden sm:inline">Site Web</span>
                   </Link>
                 )}
               </div>
             </div>
           )}
-          <div>
-            <p className="text-white/60 font-one text-xs mb-1">Profil public</p>
-            <div className="flex items-center gap-2 w-fit relative">
-              <p className="bg-white/5 w-fit p-2 rounded-lg text-white break-all text-xs mb-1 font-one tracking-wide flex-1">
-                {publicProfileHref}
-              </p>
-              <button
-                onClick={handleCopyLink}
-                className="cursor-pointer hover:bg-white/10 p-2 rounded-lg text-white text-xs font-one transition-colors"
-                title="Copier le lien"
-              >
-                <IoCopy size={15} />
-              </button>
-              {copied && (
-                <div className="absolute top-0 right-0 transform -translate-y-full -translate-x-1/2 mb-2 bg-tertiary-500 text-white p-2 rounded text-xs font-one whitespace-nowrap z-10 md:translate-y-0 md:translate-x-full md:mb-0 md:ml-4">
-                  Lien copié !
-                </div>
-              )}
-            </div>
-            <Link
-              href={publicProfileHref}
-              target="_blank"
-              className="text-tertiary-400 text-sm font-one hover:underline"
+        </div>
+      )}
+
+      {/* Profil public */}
+      <div className="bg-white/5 rounded-xl px-3 py-2.5 border border-white/8">
+        <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-1.5">Profil public</p>
+        <div className="flex items-center gap-2">
+          <p className="flex-1 text-white/60 font-one text-[12px] truncate">
+            {publicProfileHref}
+          </p>
+          <div className="relative flex-shrink-0">
+            <button
+              onClick={handleCopyLink}
+              className="cursor-pointer rounded-[10px] border border-white/15 bg-white/8 p-1.5 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
+              title="Copier le lien"
             >
-              Voir mon profil public
-            </Link>
+              <IoCopy size={13} />
+            </button>
+            {copied && (
+              <div className="absolute bottom-full right-0 mb-1.5 bg-tertiary-500 text-white px-2 py-1 rounded-lg text-[12px] font-one whitespace-nowrap z-10">
+                Lien copié !
+              </div>
+            )}
           </div>
         </div>
-      </div>
-
-      {/* Bouton de modification */}
-      <div className="flex justify-end pt-4 border-t border-white/10">
         <Link
-          href="/mon-compte/modifier-salon"
-          className="cursor-pointer w-[175px] flex justify-center items-center gap-2 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-xs shadow-lg"
+          href={publicProfileHref}
+          target="_blank"
+          className="text-white text-[12px] font-one hover:underline mt-1 inline-block"
         >
-          Modifier les informations
+          Voir mon profil public →
         </Link>
       </div>
+
+
     </div>
   );
 }
