@@ -600,7 +600,7 @@ export default function ClientList() {
                               </h3>
                               <div className="flex items-center gap-2">
                                 <div className="px-2 py-0.5 bg-tertiary-400/20 border border-tertiary-400/30 rounded-md">
-                                  <span className="text-tertiary-400 font-one text-xs font-semibold">
+                                  <span className="text-white font-one text-xs">
                                     {client.appointments.length} RDV
                                   </span>
                                 </div>
@@ -653,19 +653,19 @@ export default function ClientList() {
                         <div className="flex items-center gap-2 p-3 bg-white/5 border-t border-white/10">
                           <button
                             onClick={() => handleShowReservations(client)}
-                            className="cursor-pointer flex-1 text-white font-one text-sm font-medium px-4 py-2.5 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-lg transition-all duration-200"
+                            className="cursor-pointer flex-1 text-white font-one text-sm font-medium px-4 py-2.5 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-2xl transition-all duration-200"
                           >
                             📋 Voir les infos
                           </button>
 
                           <button
-                            className="cursor-pointer p-2.5 bg-white/10 hover:bg-tertiary-400/20 rounded-lg border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
+                            className="cursor-pointer p-2 bg-white/10 hover:bg-tertiary-400/20 rounded-2xl border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
                             onClick={() => handleEdit(client)}
                           >
                             <IoCreateOutline size={20} className="text-white" />
                           </button>
                           <button
-                            className="cursor-pointer p-2.5 bg-white/10 hover:bg-red-500/20 rounded-lg border border-white/20 hover:border-red-400/50 transition-all duration-200"
+                            className="cursor-pointer p-2 bg-white/10 hover:bg-red-500/20 rounded-2xl border border-white/20 hover:border-red-400/50 transition-all duration-200"
                             onClick={() => handleDelete(client)}
                           >
                             <AiOutlineDelete size={20} className="text-white" />

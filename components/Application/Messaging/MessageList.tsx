@@ -113,7 +113,7 @@ export default function MessageList() {
           </div>
         </div>
 
-        <div className="w-full md:w-auto flex items-center gap-3">
+        <div className="hidden md:flex w-full md:w-auto items-center gap-3">
           <label
             className="text-white/70 text-xs font-one"
             htmlFor="status-filter"
@@ -135,6 +135,29 @@ export default function MessageList() {
             <option value="ARCHIVED" className="bg-noir-500">Archivé</option>
           </select>
         </div>
+      </div>
+
+      <div className="md:hidden flex items-center gap-3">
+        <label
+          className="text-white/70 text-xs font-one"
+          htmlFor="status-filter-mobile"
+        >
+          Statut
+        </label>
+        <select
+          id="status-filter-mobile"
+          value={statusFilter}
+          onChange={(e) => {
+            const next = e.target.value as ConversationStatus;
+            setStatusFilter(next);
+            setCurrentPage(1);
+            fetchConversations(1, next);
+          }}
+          className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20"
+        >
+          <option value="ACTIVE" className="bg-noir-500">Active</option>
+          <option value="ARCHIVED" className="bg-noir-500">Archivé</option>
+        </select>
       </div>
 
       {/* Message pour les comptes Free */}

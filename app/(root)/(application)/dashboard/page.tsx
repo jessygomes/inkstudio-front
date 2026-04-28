@@ -21,7 +21,7 @@ export default async function DashboardPage() {
   const isFreeAccount = session?.user?.saasPlan === "FREE";
 
   return (
-    <div className="relative overflow-hidden bg-noir-700 px-3 pb-10 lg:px-10 lg:pb-14">
+    <div className="relative overflow-hidden bg-noir-700 px-3 pb-24 lg:px-10 lg:pb-14">
       <div className="relative mt-4 flex w-full flex-col gap-4">
         <div className="dashboard-hero px-4 py-4 lg:px-6 lg:py-2">
 

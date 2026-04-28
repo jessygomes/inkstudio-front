@@ -323,11 +323,11 @@ export default function RDV() {
   return (
     <div className="w-full gap-6 pb-10 xl:pb-0">
       {/* Header toujours affiché */}
-      <div className="dashboard-hero mb-3 flex flex-col gap-4 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:py-3">
-        <div className="w-full min-w-0 flex items-start gap-3 sm:items-center sm:gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-tertiary-400/30 sm:h-12 sm:w-12">
+        <div className="dashboard-hero flex flex-col gap-4 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:py-3 mb-3">
+        <div className="w-full min-w-0 flex items-center gap-3 sm:gap-4">
+          <div className="h-10 w-10 sm:h-12 sm:w-12 bg-tertiary-400/30 rounded-full flex items-center justify-center shrink-0">
             <FaRegCalendarTimes
-              size={28}
+              size={20}
               className="text-tertiary-400 animate-pulse"
             />
           </div>
@@ -342,7 +342,7 @@ export default function RDV() {
           </div>
         </div>
 
-        <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap lg:w-auto lg:flex-nowrap lg:justify-end">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:w-auto lg:flex-nowrap lg:justify-end">
           <div className="relative w-full sm:w-[175px]">
             <div className="bg-white/10 w-full px-5 py-2 text-white rounded-2xl font-medium font-one text-xs flex items-center justify-center gap-2 whitespace-nowrap">
               <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-[12px]">
@@ -519,9 +519,9 @@ export default function RDV() {
         </div>
       ) : (
         <div className="flex flex-col gap-3 w-full">
-          <div className="relative z-0 overflow-visible">
-            <div className="relative z-0 flex flex-wrap items-center gap-2 overflow-visible">
-              <div className="flex bg-white/10 rounded-xl border border-white/20 overflow-hidden">
+          <div className="relative z-0 overflow-visible md:flex md:items-center md:gap-2">
+            <div className="relative z-0 flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 md:flex-1 md:flex-wrap md:overflow-visible md:pb-0">
+              <div className="flex shrink-0 bg-white/10 rounded-xl border border-white/20 overflow-hidden">
                 <button
                   onClick={() => handleViewModeChange("calendar")}
                   className={`cursor-pointer px-3 py-1 text-xs font-medium transition-all duration-200 flex gap-1 items-center font-one whitespace-nowrap ${
@@ -547,7 +547,7 @@ export default function RDV() {
               </div>
 
               <div
-                className={`${viewMode === "calendar" ? "hidden" : "flex"} scrollbar-hidden w-full flex-nowrap items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:flex-wrap sm:overflow-visible font-one`}
+                className={`${viewMode === "calendar" ? "hidden" : "flex"} scrollbar-hidden shrink-0 flex-nowrap items-center gap-2 font-one`}
               >
                 <select
                   value={statusFilter}
@@ -666,12 +666,12 @@ export default function RDV() {
                   </div>
                 )}
               </div>
+            </div>
 
-              <div
-                className={`${viewMode === "calendar" ? "hidden sm:block" : "block"} w-full md:ml-auto md:w-[250px] lg:w-[300px]`}
-              >
-                <Search />
-              </div>
+            <div
+              className={`${viewMode === "calendar" ? "hidden sm:block" : "block"} mt-2 w-full md:mt-0 md:ml-auto md:w-[250px] lg:w-[300px]`}
+            >
+              <Search />
             </div>
           </div>
 
