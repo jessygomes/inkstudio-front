@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 import {
+  confirmAppointmentAction,
   paidAppointmentsAction,
   waitingConfirmationAppointmentsAction,
 } from "@/lib/queries/appointment";
