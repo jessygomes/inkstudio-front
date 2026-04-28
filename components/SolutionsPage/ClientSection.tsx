@@ -77,15 +77,15 @@ export default function ClientSection() {
               </div>
 
               {/* Badge flottant */}
-              <div className="absolute top-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white px-8 py-2 rounded-2xl shadow-xl">
+              <div className="absolute top-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white px-8 py-1.5 rounded-3xl shadow-xl">
                 <span className="font-one text-sm font-bold">
                   Gestion Client INKERA Studio
                 </span>
               </div>
 
               {/* Indicateur de fonctionnalité */}
-              <div className="absolute bottom-2 right-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-8 py-2">
-                <span className="text-white font-one text-xs font-semibold">
+              <div className="absolute bottom-2 right-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl px-8 py-1.5">
+                <span className="text-white font-one text-xs">
                   🔒 Sécurisé
                 </span>
               </div>

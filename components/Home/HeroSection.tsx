@@ -41,7 +41,7 @@ export default function HeroSection() {
         <div className="relative z-10 mx-auto w-full sm:w-auto">
           <Link
             href={"/inscription"}
-            className="group cursor-pointer bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 w-full sm:w-auto max-w-sm text-center text-white font-one py-3 sm:py-4 px-8 sm:px-10 rounded-2xl hover:scale-105 transition-all ease-in-out duration-300 shadow-lg hover:shadow-2xl border border-tertiary-400/20 block"
+            className="group cursor-pointer bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 w-full sm:w-auto max-w-sm text-center text-white font-one py-3 sm:py-2 px-8 sm:px-10 rounded-4xl hover:scale-105 transition-all ease-in-out duration-300 shadow-lg hover:shadow-2xl border border-tertiary-400/20 block"
           >
             <span className="flex items-center justify-center gap-2">
               <svg
@@ -57,8 +57,8 @@ export default function HeroSection() {
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
-              <span className="text-sm sm:text-lg lg:text-base font-semibold">
-                Devenez testeur dès maintenant !
+              <span className="text-sm sm:text-lg lg:text-base font-semibold tracking-wider">
+                Inscrivez-vous gratuitement
               </span>
             </span>
           </Link>

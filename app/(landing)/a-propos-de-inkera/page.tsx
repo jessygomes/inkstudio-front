@@ -534,7 +534,7 @@ export default function AproposPage() {
                   </p>
                   <a
                     href="/contactez-nous"
-                    className="inline-flex bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white font-one font-semibold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105"
+                    className="inline-flex bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white font-one font-semibold px-6 py-2 rounded-3xl transition-all duration-300 transform hover:scale-105"
                   >
                     Nous contacter
                   </a>

@@ -75,7 +75,7 @@ export function NavbarClient({ initialAuthStatus, links }: NavbarClientProps) {
           );
         })}
         <Link href={isLoggedIn ? "/dashboard" : "/connexion"}>
-          <div className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-two text-xs">
+          <div className="cursor-pointer px-8 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-2xl transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-two text-xs">
             {isLoggedIn ? "Dashboard" : "Connexion"}
           </div>
         </Link>

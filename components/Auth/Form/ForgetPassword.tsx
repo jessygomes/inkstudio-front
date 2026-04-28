@@ -8,6 +8,7 @@ import { FormError } from "@/components/Shared/FormError";
 import { FormSuccess } from "@/components/Shared/FormSuccess";
 import { CardWrapper } from "../CardWrapper";
 import Link from "next/link";
+import Image from "next/image";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -63,9 +64,14 @@ export default function ForgotPassword() {
 
   return (
     <div>
-      <h2 className="text-center font-two text-white uppercase mb-6">
-        InkStudio
-      </h2>
+      <div className="flex justify-center items-center">
+        <Image
+          src="/images/logo_white_color.png"
+          alt="Logo"
+          width={100}
+          height={100}
+        />
+      </div>
       <CardWrapper headerLabel="Récupérez l'accès à votre compte">
         <form
           method="post"
@@ -96,7 +102,7 @@ export default function ForgotPassword() {
             <FormSuccess message={success} />
 
             <button
-              className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+              className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-3xl transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
               type="submit"
               disabled={isPending}
             >
@@ -115,13 +121,6 @@ export default function ForgotPassword() {
             Se connecter
           </Link>
         </p>
-        <div className="h-[1px] bg-white w-[300px]"></div>
-        <Link
-          className="relative text-center text-white text-xs hover:text-white/70 transition-all ease-in-out duration-150"
-          href="/inscription"
-        >
-          Créer un nouveau compte
-        </Link>
       </div>
     </div>
   );

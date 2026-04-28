@@ -229,7 +229,7 @@ export default function TarificationPage() {
 
             {/* Avantages rapides */}
             <div className="hidden sm:grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 max-w-2xl mx-auto">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/20">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <FaCheckCircle size={16} className="text-tertiary-400" />
                   <span className="text-sm font-bold text-white font-two">
@@ -240,7 +240,7 @@ export default function TarificationPage() {
                   Flexibilité totale
                 </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/20">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <FaCheckCircle size={16} className="text-tertiary-400" />
                   <span className="text-sm font-bold text-white font-two">
@@ -251,7 +251,7 @@ export default function TarificationPage() {
                   Assistance 7j/7
                 </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/20">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <FaCheckCircle size={16} className="text-tertiary-400" />
                   <span className="text-sm font-bold text-white font-two">
@@ -356,13 +356,13 @@ export default function TarificationPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
               <Link
                 href={"/inscription"}
-                className="bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white font-one font-semibold px-8 py-4 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg"
+                className="bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white font-one font-semibold px-8 py-2 rounded-3xl transition-all duration-300 hover:scale-105 shadow-lg"
               >
-                Devenir testeur
+                Créer mon compte
               </Link>
               <Link
                 href={"/contact"}
-                className="border border-white/20 text-white hover:bg-white/10 font-one font-semibold px-8 py-4 rounded-2xl transition-all duration-300"
+                className="border border-white/20 text-white hover:bg-white/10 font-one font-semibold px-8 py-2 rounded-3xl transition-all duration-300"
               >
                 Contactez-nous
               </Link>

@@ -74,7 +74,7 @@ export default function Section5() {
         <div className="px-4 sm:px-20 relative z-10 mx-auto">
           <Link
             href={"/inscription"}
-            className="group cursor-pointer bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 w-full max-w-sm text-center text-white font-one py-3 px-10 rounded-2xl hover:scale-105 transition-all ease-in-out duration-300 shadow-lg hover:shadow-2xl border border-tertiary-400/20 block"
+            className="group cursor-pointer bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 w-full max-w-sm text-center text-white font-one py-2 px-10 rounded-4xl hover:scale-105 transition-all ease-in-out duration-300 shadow-lg hover:shadow-2xl border border-tertiary-400/20 block"
           >
             <span className="flex items-center justify-center gap-2">
               <svg

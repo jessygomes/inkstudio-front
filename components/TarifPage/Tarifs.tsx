@@ -81,7 +81,7 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
         "Lien direct de contact",
       ],
       popular: false,
-      cta: "Bientot disponible",
+      cta: "Commencer gratuitement",
       color: "blue",
     },
     {
@@ -148,6 +148,7 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
         {/* Grille des tarifs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {plans.map((plan, index) => {
+            const isFreePlan = plan.id === "FREE";
             const paidPlanId = isCheckoutPlanId(plan.id) ? plan.id : null;
             const isPaidPlan = paidPlanId !== null;
             const checkoutLink = paidPlanId
@@ -158,13 +159,16 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
                   `/tarification?checkout=${paidPlanId}`,
                 )}`
               : "";
-            const isActionEnabled = isPaidPlan && Boolean(checkoutLink);
+            const isActionEnabled =
+              isFreePlan || (isPaidPlan && Boolean(checkoutLink));
             const ctaLabel =
-              isPaidPlan && status !== "authenticated"
-                ? "Se connecter / s'inscrire"
-                : plan.cta;
+              isFreePlan && status !== "authenticated"
+                ? "S'inscrire gratuitement"
+                : isPaidPlan && status !== "authenticated"
+                  ? "Se connecter / s'inscrire"
+                  : plan.cta;
 
-            const ctaClasses = `block w-full py-4 px-6 rounded-2xl text-center font-one font-semibold transition-all duration-300 ${
+            const ctaClasses = `block w-full py-2 px-6 rounded-3xl text-center font-one font-semibold transition-all duration-300 ${
               isActionEnabled
                 ? "hover:scale-105"
                 : "cursor-not-allowed opacity-70"
@@ -271,7 +275,17 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
                 </div>
 
                 {/* CTA */}
-                {isPaidPlan && isActionEnabled ? (
+                {isFreePlan ? (
+                  status === "authenticated" ? (
+                    <Link href="/tableau-de-bord" className={ctaClasses}>
+                      {ctaLabel}
+                    </Link>
+                  ) : (
+                    <Link href="/inscription" className={ctaClasses}>
+                      {ctaLabel}
+                    </Link>
+                  )
+                ) : isPaidPlan && isActionEnabled ? (
                   status === "authenticated" ? (
                     <a href={checkoutLink} className={ctaClasses}>
                       {ctaLabel}

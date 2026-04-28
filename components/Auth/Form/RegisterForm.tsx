@@ -181,7 +181,6 @@ export const Register = () => {
       );
 
       const infos = await response.json();
-      console.log("📥 Réponse du serveur:", infos);
 
       if (!response.ok || infos.error) {
         const errorMessage =
@@ -225,7 +224,6 @@ export const Register = () => {
         }
 
         setSuccess("Compte créé. Redirection vers le paiement...");
-        console.log("✅ Redirection vers Stripe...");
 
         // Rediriger l'utilisateur vers Stripe
         setIsPending(false);
@@ -314,7 +312,7 @@ export const Register = () => {
                       placeholder="Ex: Ink Studio, Black Rose Tattoo..."
                       type="text"
                       required
-                      className="bg-white/30 py-3 px-4 rounded-lg text-sm w-full"
+                      className="bg-white/30 py-3 px-4 rounded-2xl text-sm w-full"
                       {...step1Form.register("salonName")}
                     />
                     {step1Form.formState.errors.salonName && (
@@ -325,7 +323,7 @@ export const Register = () => {
                   </div>
 
                   <button
-                    className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-sm mt-4"
+                    className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-2xl transition-all duration-300 font-medium font-one text-sm mt-4"
                     type="submit"
                   >
                     Continuer →
@@ -354,7 +352,7 @@ export const Register = () => {
                     <select
                       id="saasPlan"
                       required
-                      className="bg-white/30 py-3 px-4 rounded-lg text-white text-sm"
+                      className="bg-white/30 py-3 px-4 rounded-2xl text-white text-sm"
                       {...step2Form.register("saasPlan")}
                     >
                       <option value="FREE" className="bg-white text-black">
@@ -369,7 +367,7 @@ export const Register = () => {
                     </select>
 
                     {/* Détails du plan */}
-                    <div className="mt-2 p-3 bg-white/10 rounded-lg border border-white/20">
+                    <div className="mt-2 p-3 bg-white/10 rounded-2xl border border-white/20">
                       {step2Form.watch("saasPlan") === "FREE" && (
                         <div className="text-xs text-white/80">
                           <p className="font-semibold mb-2 text-tertiary-400">
@@ -418,7 +416,7 @@ export const Register = () => {
                     {/* Note sur les plans payants */}
                     {(step2Form.watch("saasPlan") === "STUDIO" ||
                       step2Form.watch("saasPlan") === "PRO") && (
-                      <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-lg p-3 mt-2">
+                      <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-2xl p-3 mt-2">
                         <div className="flex items-start gap-2">
                           <svg
                             className="w-4 h-4 text-tertiary-400 mt-0.5 flex-shrink-0"
@@ -452,12 +450,12 @@ export const Register = () => {
                     <button
                       type="button"
                       onClick={prevStep}
-                      className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm"
+                      className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-3xl border border-white/20 transition-colors font-medium font-one text-sm"
                     >
                       ← Retour
                     </button>
                     <button
-                      className="cursor-pointer flex-1 px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium font-one text-sm"
+                      className="cursor-pointer flex-1 px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-3xl transition-all duration-300 font-medium font-one text-sm"
                       type="submit"
                     >
                       Continuer →
@@ -712,12 +710,12 @@ export const Register = () => {
                       type="button"
                       onClick={prevStep}
                       disabled={isPending}
-                      className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm disabled:opacity-50"
+                      className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-3xl border border-white/20 transition-colors font-medium font-one text-sm disabled:opacity-50"
                     >
                       ← Retour
                     </button>
                     <button
-                      className="cursor-pointer flex-1 px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm"
+                      className="cursor-pointer flex-1 px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-3xl transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm"
                       type="submit"
                       disabled={isPending}
                     >
