@@ -22,7 +22,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="relative overflow-hidden bg-noir-700 px-3 pb-10 lg:px-10 lg:pb-14">
-      <div className="relative mt-4 flex w-full flex-col gap-6">
+      <div className="relative mt-4 flex w-full flex-col gap-4">
         <div className="dashboard-hero px-4 py-4 lg:px-6 lg:py-2">
 
           <div className="relative z-10 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">

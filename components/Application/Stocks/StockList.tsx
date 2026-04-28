@@ -265,37 +265,37 @@ export default function StockList() {
 
       {!isFreeAccount && !loading && !error && (
         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
-          <div className="dashboard-stat-card p-2.5 lg:p-3">
+          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
             <div className="dashboard-stat-inner">
               <p className="dashboard-soft-label text-[10px] leading-none">Articles</p>
               <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.totalItems}</p>
             </div>
           </div>
-          <div className="dashboard-stat-card p-2.5 lg:p-3">
+          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
             <div className="dashboard-stat-inner">
               <p className="dashboard-soft-label text-[10px] leading-none">Valeur totale</p>
               <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.totalValue.toFixed(2)} €</p>
             </div>
           </div>
-          <div className="dashboard-stat-card p-2.5 lg:p-3">
+          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
             <div className="dashboard-stat-inner">
               <p className="dashboard-soft-label text-[10px] leading-none">Stock bas</p>
               <p className="mt-1 text-base font-semibold text-amber-300 font-one lg:text-[17px]">{statistics.lowStockItems}</p>
             </div>
           </div>
-          <div className="dashboard-stat-card p-2.5 lg:p-3">
+          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
             <div className="dashboard-stat-inner">
               <p className="dashboard-soft-label text-[10px] leading-none">Ruptures</p>
               <p className="mt-1 text-base font-semibold text-red-300 font-one lg:text-[17px]">{statistics.outOfStockItems}</p>
             </div>
           </div>
-          <div className="dashboard-stat-card p-2.5 lg:p-3">
+          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
             <div className="dashboard-stat-inner">
               <p className="dashboard-soft-label text-[10px] leading-none">Catégories</p>
               <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.totalCategories}</p>
             </div>
           </div>
-          <div className="dashboard-stat-card p-2.5 lg:p-3">
+          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
             <div className="dashboard-stat-inner">
               <p className="dashboard-soft-label text-[10px] leading-none">Valeur moyenne</p>
               <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.averageValue.toFixed(2)} €</p>
@@ -350,8 +350,8 @@ export default function StockList() {
           </div>
         </div>
       ) : (
-        <div className="dashboard-embedded-panel p-3.5 sm:p-4 lg:p-5 space-y-3">
-          <div className="dashboard-embedded-section p-3">
+        <div className=" space-y-3">
+          <div className="">
             <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
               <div className="relative w-full lg:max-w-xl">
                 <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
