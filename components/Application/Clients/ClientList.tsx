@@ -200,10 +200,10 @@ export default function ClientList() {
 
         {/* Boutons d'action responsive */}
         {!isFreeAccount && (
-          <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap lg:w-auto lg:flex-nowrap lg:justify-end">
+          <div className="flex w-full gap-2 flex-row sm:flex-wrap lg:w-auto lg:flex-nowrap lg:justify-end">
             <button
               onClick={handleCreate}
-              className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2.5 text-xs font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one whitespace-nowrap"
+              className="cursor-pointer w-full inline-flex items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2.5 text-xs font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one whitespace-nowrap"
             >
               <svg
                 className="w-4 h-4"
@@ -241,56 +241,39 @@ export default function ClientList() {
         )}
       </div>
 
-      <div className="dashboard-embedded-panel w-full p-4 sm:p-5 lg:p-6">
+      <div className=" w-full ">
         {/* Barre de recherche responsive */}
         {!isFreeAccount && (
-          <div className="dashboard-embedded-section mb-4 p-3 sm:p-4">
-            <div className="relative">
-              <svg
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+          <div className=" mb-4">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <svg
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Rechercher un client (nom, email, téléphone)"
+                  className="w-full rounded-xl border border-white/16 bg-white/8 py-1 pl-9 pr-3 text-sm text-white placeholder:text-white/35 font-one focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 transition-colors"
                 />
-              </svg>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Rechercher un client (nom, email, téléphone)"
-                className="w-full rounded-xl border border-white/16 bg-white/8 py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/35 font-one focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 transition-colors"
-              />
-            </div>
-          </div>
-        )}
+              </div>
 
-        {/* Informations de pagination responsive */}
-        {!isFreeAccount && !loading && !error && (
-          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="inline-flex items-center rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-xs text-white/72 font-one">
-              Affichage de{" "}
-              {Math.min(
-                (currentPage - 1) * ITEMS_PER_PAGE + 1,
-                pagination.totalClients,
-              )}{" "}
-              à{" "}
-              {Math.min(currentPage * ITEMS_PER_PAGE, pagination.totalClients)}{" "}
-              sur {pagination.totalClients} client
-              {pagination.totalClients > 1 ? "s" : ""}
-              {searchTerm && (
-                <span className="ml-2 text-tertiary-400">
-                  (recherche: "{searchTerm}")
-                </span>
+              {!loading && !error && (
+                <div className="inline-flex shrink-0 items-center rounded-full border border-tertiary-400/25 bg-tertiary-500/10 px-3 py-1.5 text-xs text-white/80 font-one">
+                  Page {currentPage} sur {pagination.totalPages}
+                </div>
               )}
-            </div>
-            <div className="inline-flex items-center rounded-full border border-tertiary-400/25 bg-tertiary-500/10 px-3 py-1.5 text-xs text-white/80 font-one">
-              Page {currentPage} sur {pagination.totalPages}
             </div>
           </div>
         )}
@@ -380,7 +363,7 @@ export default function ClientList() {
         ) : (
           <div>
             {/* Header de tableau - masqué sur mobile */}
-            <div className="dashboard-embedded-section hidden lg:grid grid-cols-6 gap-4 px-6 py-3 mb-4 rounded-xl text-white font-one text-xs font-semibold tracking-wider uppercase">
+            <div className="dashboard-embedded-section hidden lg:grid grid-cols-6 gap-4 px-6 py-2 mb-4 rounded-xl text-white font-one text-xs font-semibold tracking-wider uppercase">
               <p className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
                 Client
@@ -525,11 +508,11 @@ export default function ClientList() {
             ) : (
               <div>
                 {/* Liste des clients responsive */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-3 mb-3">
                   {clients.map((client) => (
                     <div key={client.id}>
                       {/* Vue desktop - grille */}
-                      <div className="dashboard-list-item hidden lg:grid grid-cols-6 gap-4 px-6 py-4 items-center group">
+                      <div className="dashboard-list-item hidden lg:grid grid-cols-6 gap-4 px-6 py-2 items-center group">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/60 transition-all">
                             <span className="text-white font-bold text-sm font-one">
@@ -537,14 +520,9 @@ export default function ClientList() {
                               {client.lastName.charAt(0)}
                             </span>
                           </div>
-                          <div>
-                            <p className="text-white font-one text-sm font-semibold">
-                              {client.firstName} {client.lastName}
-                            </p>
-                            <p className="text-white/50 text-xs font-one">
-                              Client
-                            </p>
-                          </div>
+                          <p className="text-white font-one text-sm font-semibold">
+                            {client.firstName} {client.lastName}
+                          </p>
                         </div>
                         <p className="text-white/80 font-two text-xs break-all">
                           {client.email}
@@ -589,7 +567,7 @@ export default function ClientList() {
                             onClick={() => handleEdit(client)}
                           >
                             <IoCreateOutline
-                              size={18}
+                              size={14}
                               className="text-white group-hover/btn:text-tertiary-400 transition-colors"
                             />
                           </button>
@@ -598,7 +576,7 @@ export default function ClientList() {
                             onClick={() => handleDelete(client)}
                           >
                             <AiOutlineDelete
-                              size={18}
+                              size={14}
                               className="text-white group-hover/btn:text-red-400 transition-colors"
                             />
                           </button>
@@ -698,65 +676,84 @@ export default function ClientList() {
                   ))}
                 </div>
 
-                {/* Pagination responsive */}
-                {pagination.totalPages > 1 && (
-                  <div className="flex flex-col sm:flex-row justify-center items-center gap-4 py-4">
-                    <button
-                      onClick={handlePreviousPage}
-                      disabled={!pagination.hasPreviousPage}
-                      className="dashboard-nav-button cursor-pointer w-full sm:w-auto rounded-xl px-3 py-2 text-xs font-medium text-white font-one disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Précédent
-                    </button>
-
-                    <div className="flex items-center gap-1 sm:gap-2 order-first sm:order-none">
-                      {(() => {
-                        const maxButtons = 5;
-                        return Array.from(
-                          {
-                            length: Math.min(pagination.totalPages, maxButtons),
-                          },
-                          (_, i) => {
-                            let pageNumber;
-                            if (pagination.totalPages <= maxButtons) {
-                              pageNumber = i + 1;
-                            } else if (currentPage <= Math.floor(maxButtons / 2) + 1) {
-                              pageNumber = i + 1;
-                            } else if (
-                              currentPage >= pagination.totalPages - Math.floor(maxButtons / 2)
-                            ) {
-                              pageNumber = pagination.totalPages - maxButtons + 1 + i;
-                            } else {
-                              pageNumber = currentPage - Math.floor(maxButtons / 2) + i;
-                            }
-
-                            return (
-                              <button
-                                key={pageNumber}
-                                onClick={() => handlePageChange(pageNumber)}
-                                className={`cursor-pointer h-8 min-w-8 rounded-lg px-2 text-xs font-medium transition-all duration-200 font-one ${
-                                  currentPage === pageNumber
-                                    ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
-                                    : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
-                                }`}
-                              >
-                                {pageNumber}
-                              </button>
-                            );
-                          },
-                        );
-                      })()}
-                    </div>
-
-                    <button
-                      onClick={handleNextPage}
-                      disabled={!pagination.hasNextPage}
-                      className="dashboard-nav-button cursor-pointer w-full sm:w-auto rounded-xl px-3 py-2 text-xs font-medium text-white font-one disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Suivant
-                    </button>
+                {/* Infos + pagination en bas de liste */}
+                <div className="flex flex-col gap-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="inline-flex items-center w-fit rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-xs text-white/72 font-one">
+                    Affichage de{" "}
+                    {Math.min(
+                      (currentPage - 1) * ITEMS_PER_PAGE + 1,
+                      pagination.totalClients,
+                    )}{" "}
+                    à{" "}
+                    {Math.min(currentPage * ITEMS_PER_PAGE, pagination.totalClients)}{" "}
+                    sur {pagination.totalClients} client
+                    {pagination.totalClients > 1 ? "s" : ""}
+                    {searchTerm && (
+                      <span className="ml-2 text-tertiary-400">
+                        (recherche: "{searchTerm}")
+                      </span>
+                    )}
                   </div>
-                )}
+
+                  {pagination.totalPages > 1 && (
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                      <button
+                        onClick={handlePreviousPage}
+                        disabled={!pagination.hasPreviousPage}
+                        className="dashboard-nav-button cursor-pointer w-full sm:w-auto rounded-xl px-3 py-2 text-xs font-medium text-white font-one disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Précédent
+                      </button>
+
+                      <div className="flex items-center gap-1 sm:gap-2 order-first sm:order-none">
+                        {(() => {
+                          const maxButtons = 5;
+                          return Array.from(
+                            {
+                              length: Math.min(pagination.totalPages, maxButtons),
+                            },
+                            (_, i) => {
+                              let pageNumber;
+                              if (pagination.totalPages <= maxButtons) {
+                                pageNumber = i + 1;
+                              } else if (currentPage <= Math.floor(maxButtons / 2) + 1) {
+                                pageNumber = i + 1;
+                              } else if (
+                                currentPage >= pagination.totalPages - Math.floor(maxButtons / 2)
+                              ) {
+                                pageNumber = pagination.totalPages - maxButtons + 1 + i;
+                              } else {
+                                pageNumber = currentPage - Math.floor(maxButtons / 2) + i;
+                              }
+
+                              return (
+                                <button
+                                  key={pageNumber}
+                                  onClick={() => handlePageChange(pageNumber)}
+                                  className={`cursor-pointer h-8 min-w-8 rounded-lg px-2 text-xs font-medium transition-all duration-200 font-one ${
+                                    currentPage === pageNumber
+                                      ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                                      : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                                  }`}
+                                >
+                                  {pageNumber}
+                                </button>
+                              );
+                            },
+                          );
+                        })()}
+                      </div>
+
+                      <button
+                        onClick={handleNextPage}
+                        disabled={!pagination.hasNextPage}
+                        className="dashboard-nav-button cursor-pointer w-full sm:w-auto rounded-xl px-3 py-2 text-xs font-medium text-white font-one disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Suivant
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>

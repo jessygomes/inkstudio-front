@@ -80,7 +80,7 @@ export default function NavbarApp() {
   ];
 
   return (
-    <nav className="flex justify-end items-center py-4 pb-4 shadow-lg mx-10">
+    <nav className="flex justify-end items-center py-4 pb-4 shadow-lg mx-10 ">
       <div className="absolute bottom-0 left-0 right-0 h-1 animate-pulse bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-2xl"></div>{" "}
       {/* <Link
         href={"/"}

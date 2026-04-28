@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { IoChevronDown, IoChevronUp } from "react-icons/io5";
 import { RiHealthBookLine } from "react-icons/ri";
 import { FaFilePen } from "react-icons/fa6";
@@ -20,6 +21,39 @@ export default function InfoClient({
   isOpen,
   onClose,
 }: InfoClientProps) {
+  const [isMounted, setIsMounted] = useState(false);
+  const [topOffset, setTopOffset] = useState(0);
+  const [bottomOffset, setBottomOffset] = useState(0);
+
+  useEffect(() => {
+    setIsMounted(true);
+
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    const computeOffsets = () => {
+      const header = document.querySelector(
+        "div.sticky.bg-noir-700.top-0.left-0.w-full.z-50",
+      ) as HTMLElement | null;
+      const mobileBottomNavbar = document.querySelector(
+        "div.fixed.bottom-0.left-0.right-0.z-40",
+      ) as HTMLElement | null;
+
+      setTopOffset(header?.offsetHeight ?? 0);
+      setBottomOffset(mobileBottomNavbar?.offsetHeight ?? 0);
+    };
+
+    computeOffsets();
+    window.addEventListener("resize", computeOffsets);
+
+    return () => {
+      window.removeEventListener("resize", computeOffsets);
+    };
+  }, []);
+
   // États locaux pour les sections dépliables
   const [showAppointments, setShowAppointments] = useState(false);
   const [showTattooHistory, setShowTattooHistory] = useState(false);
@@ -48,32 +82,31 @@ export default function InfoClient({
     }
   };
 
-  if (!isOpen || !client) return null;
+  if (!isOpen || !client || !isMounted) return null;
 
-  return (
+  return createPortal(
     <div
       data-modal
-      className="fixed inset-0 z-[9999] lg:bg-black/60 lg:backdrop-blur-sm bg-noir-700 flex items-end lg:items-center justify-center p-0 lg:p-4 overflow-hidden"
-      style={{ height: "100dvh", width: "100vw" }}
+      className="fixed left-0 right-0 z-[45] bg-noir-700 lg:bg-noir-700/60 lg:backdrop-blur-sm flex items-stretch justify-center overflow-hidden"
+      style={{
+        top: `${topOffset}px`,
+        bottom: `${bottomOffset}px`,
+      }}
     >
-      <div className="bg-noir-500 rounded-none lg:rounded-3xl w-full h-full lg:w-[90vw] lg:h-[90vh] overflow-hidden flex flex-col border-0 lg:border-2 lg:border-white/20 lg:shadow-2xl min-h-0">
+      <div className="bg-noir-500 rounded-none w-full h-full overflow-hidden flex flex-col border-0 min-h-0">
         {/* Header fixe responsive moderne */}
-        <div className="relative bg-gradient-to-r from-tertiary-400/20 via-tertiary-500/10 to-transparent border-b border-white/10 px-6 py-4">
+        <div className="relative bg-gradient-to-r from-tertiary-400/20 via-tertiary-500/30 to-transparent border-b border-white/10 px-6 pt-4 pb-2">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border-2 border-tertiary-400/40 shadow-lg">
-              <span className="text-white font-bold text-xl font-one">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border-2 border-tertiary-400/40 shadow-lg">
+              <span className="text-white font-bold text-lg font-one">
                 {client.firstName.charAt(0)}
                 {client.lastName.charAt(0)}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-bold text-white font-one tracking-wide truncate">
+              <h2 className="text-lg font-bold text-white font-one tracking-wide truncate">
                 {client.firstName} {client.lastName}
               </h2>
-              <p className="text-white/70 mt-1 text-sm font-one flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                Fiche client complète
-              </p>
             </div>
             <button
               onClick={onClose}
@@ -100,9 +133,9 @@ export default function InfoClient({
         <div className="flex-1 overflow-y-auto p-3 lg:p-6 min-h-0">
           <div className="space-y-4">
             {/* Informations de base responsive */}
-            <div className="bg-gradient-to-br from-white/5 to-white/[0.02] rounded-xl p-4 border border-white/10 shadow-lg">
+            <div className=" rounded-2xl p-4 border border-white/10 shadow-lg">
               <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30">
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30">
                   <CiUser size={18} className="text-tertiary-400" />
                 </div>
                 <h3 className="text-base font-semibold text-white font-one uppercase tracking-wide">
@@ -110,7 +143,7 @@ export default function InfoClient({
                 </h3>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
-                <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
                   <p className="text-xs text-tertiary-400 font-one font-semibold mb-1">
                     Email
                   </p>
@@ -118,7 +151,7 @@ export default function InfoClient({
                     {client.email}
                   </p>
                 </div>
-                <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
                   <p className="text-xs text-tertiary-400 font-one font-semibold mb-1">
                     Téléphone
                   </p>
@@ -126,7 +159,7 @@ export default function InfoClient({
                     {client.phone || "Non renseigné"}
                   </p>
                 </div>
-                <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
                   <p className="text-xs text-tertiary-400 font-one font-semibold mb-1">
                     Date de naissance
                   </p>
@@ -148,13 +181,13 @@ export default function InfoClient({
             </div>
 
             {/* Section Rendez-vous responsive */}
-            <div className="bg-gradient-to-br from-white/5 to-white/[0.02] rounded-xl p-4 border border-white/10 shadow-lg">
+            <div className="bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl p-4 border border-white/10 shadow-lg">
               <button
                 onClick={() => setShowAppointments(!showAppointments)}
                 className="w-full flex items-center justify-between group hover:opacity-80 transition-opacity"
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/50 transition-all">
+                  <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/50 transition-all">
                     <CiCalendarDate size={18} className="text-tertiary-400" />
                   </div>
                   <h3 className="text-base font-semibold text-white font-one uppercase tracking-wide flex items-center gap-2">
@@ -164,7 +197,7 @@ export default function InfoClient({
                     </span>
                   </h3>
                 </div>
-                <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
+                <div className="cursor-pointer p-1 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
                   {showAppointments ? (
                     <IoChevronUp className="text-white/70 w-5 h-5" />
                   ) : (
@@ -176,8 +209,8 @@ export default function InfoClient({
               {showAppointments && (
                 <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
                   {client.appointments.length === 0 ? (
-                    <div className="text-center py-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-tertiary-400/20">
+                    <div className="col-span-full flex flex-col items-center justify-center py-8 text-center">
+                      <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-tertiary-400/20">
                         <CiCalendarDate className="w-8 h-8 text-tertiary-400" />
                       </div>
                       <p className="text-white/60 text-sm font-one">
@@ -189,7 +222,7 @@ export default function InfoClient({
                       (rdv: AppointmentProps, index: number) => (
                         <div
                           key={index}
-                          className="bg-gradient-to-br from-white/10 to-white/5 p-3 rounded-lg border border-white/20 hover:border-tertiary-400/30 transition-all duration-200"
+                          className="bg-gradient-to-br from-white/10 to-white/5 p-3 rounded-2xl border border-white/20 hover:border-tertiary-400/30 transition-all duration-200"
                         >
                           {/* Header du rendez-vous */}
                           <div className="flex items-start justify-between gap-3 mb-2 pb-2 border-b border-white/10">
@@ -331,7 +364,7 @@ export default function InfoClient({
                     </span>
                   </h3>
                 </div>
-                <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
+                <div className="p-1 cursor-pointer bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
                   {showTattooHistory ? (
                     <IoChevronUp className="text-white/70 w-5 h-5" />
                   ) : (
@@ -483,9 +516,9 @@ export default function InfoClient({
                       )
                     )
                   ) : (
-                    <div className="text-center py-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-tertiary-400/20">
-                        <FaFilePen className="w-8 h-8 text-tertiary-400" />
+                    <div className="col-span-full flex flex-col items-center justify-center py-8 text-center">
+                      <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-tertiary-400/20">
+                        <FaFilePen className="w-6 h-6 text-tertiary-400" />
                       </div>
                       <p className="text-white/60 text-sm font-one">
                         Aucun historique de tatouage
@@ -497,20 +530,20 @@ export default function InfoClient({
             </div>
 
             {/* Section Historique médical responsive */}
-            <div className="bg-gradient-to-br from-white/5 to-white/[0.02] rounded-xl p-4 border border-white/10 shadow-lg">
+            <div className="bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl p-4 border border-white/10 shadow-lg">
               <button
                 onClick={() => setShowTattooCare(!showTattooCare)}
                 className="w-full flex items-center justify-between group hover:opacity-80 transition-opacity"
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/50 transition-all">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/50 transition-all">
                     <RiHealthBookLine size={16} className="text-tertiary-400" />
                   </div>
                   <h3 className="text-base font-semibold text-white font-one uppercase tracking-wide">
                     Historique médical
                   </h3>
                 </div>
-                <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
+                <div className="cursor-pointer p-1 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
                   {showTattooCare ? (
                     <IoChevronUp className="text-white/70 w-5 h-5" />
                   ) : (
@@ -589,9 +622,14 @@ export default function InfoClient({
                       </div>
                     </div>
                   ) : (
-                    <p className="text-white/60 text-sm">
-                      Aucune information médicale disponible
-                    </p>
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mb-4 border border-tertiary-400/20">
+                        <RiHealthBookLine className="w-6 h-6 text-tertiary-400" />
+                      </div>
+                      <p className="text-white/60 text-sm font-one">
+                        Aucune information médicale disponible
+                      </p>
+                    </div>
                   )}
                 </div>
               )}
@@ -606,7 +644,7 @@ export default function InfoClient({
                 className="w-full flex items-center justify-between group hover:opacity-80 transition-opacity"
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/50 transition-all">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/50 transition-all">
                     <MdOutlineRateReview
                       size={16}
                       className="text-tertiary-400"
@@ -614,12 +652,12 @@ export default function InfoClient({
                   </div>
                   <h3 className="text-base font-semibold text-white font-one uppercase tracking-wide flex items-center gap-2">
                     Suivis cicatrisation
-                    <span className="px-2.5 py-1 bg-tertiary-400/20 border border-tertiary-400/30 rounded-md text-xs font-semibold text-tertiary-400">
+                    <span className="px-2 py-1 bg-tertiary-400/20 border border-tertiary-400/30 rounded-2xl text-xs font-semibold text-tertiary-400">
                       {client.FollowUpSubmission?.length || 0}
                     </span>
                   </h3>
                 </div>
-                <div className="p-2 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
+                <div className="cursor-pointer p-1 bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
                   {showFollowUpSubmissions ? (
                     <IoChevronUp className="text-white/70 w-5 h-5" />
                   ) : (
@@ -777,9 +815,9 @@ export default function InfoClient({
                       )
                     )
                   ) : (
-                    <div className="text-center py-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-tertiary-400/20">
-                        <MdOutlineRateReview className="w-8 h-8 text-tertiary-400" />
+                    <div className="col-span-full flex flex-col items-center justify-center py-8 text-center">
+                      <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-tertiary-400/20">
+                        <MdOutlineRateReview className="w-6 h-6 text-tertiary-400" />
                       </div>
                       <p className="text-white/60 text-sm font-one">
                         Aucun suivi de cicatrisation
@@ -793,17 +831,18 @@ export default function InfoClient({
         </div>
 
         {/* Footer fixe responsive moderne */}
-        <div className="p-3 border-t border-white/10 bg-gradient-to-r from-white/5 to-white/[0.02]">
+        <div className="p-3 px-8 border-t border-white/10 bg-gradient-to-r from-white/5 to-white/[0.02]">
           <div className="flex justify-end gap-3">
             <button
               onClick={onClose}
-              className="cursor-pointer px-5 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-semibold font-one text-sm shadow-lg hover:shadow-tertiary-400/30 hover:scale-105"
+              className="cursor-pointer px-5 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-2xl transition-all duration-300 font-one text-sm shadow-lg hover:shadow-tertiary-400/30 hover:scale-105"
             >
               Fermer
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

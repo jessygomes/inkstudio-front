@@ -110,7 +110,7 @@ export default function ConversationCard({
 
           {/* Subject */}
           {conversation.subject && (
-            <p className="text-xs text-tertiary-400 truncate mt-1">
+            <p className="text-xs text-white/70 truncate mt-1">
               {conversation.subject}
             </p>
           )}
@@ -138,7 +138,7 @@ export default function ConversationCard({
           <div className="flex justify-between items-center gap-2 mt-2">
             <div className="flex gap-2 items-center">
               <span
-                className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                className={`inline-block px-2 py-1 rounded-xl text-xs font-medium ${
                   localStatus === "ACTIVE"
                     ? "bg-green-900/40 text-green-300"
                     : localStatus === "ARCHIVED"
@@ -150,7 +150,7 @@ export default function ConversationCard({
               </span>
 
               <Link href={`/messagerie/${conversation.id}`}>
-                <span className="rdv-btn-primary inline-block px-2 py-1 rounded-lg text-xs bg-linear-to-l from-tertiary-400 to-tertiary-500 text-white">
+                <span className="rdv-btn-primary inline-block px-2 py-1 rounded-xl text-xs bg-linear-to-br from-tertiary-400 to-tertiary-500 text-white">
                   Voir la conversation
                 </span>
               </Link>

@@ -12,6 +12,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { MdOutlineMessage } from "react-icons/md";
 import { useMessagingContext } from "@/components/Providers/MessagingProvider";
 import Link from "next/link";
+import MessageListSkeleton from "@/components/Skeleton/MessageListSkeleton";
 
 export default function MessageList() {
   const { data: session } = useSession();
@@ -128,10 +129,10 @@ export default function MessageList() {
               setCurrentPage(1);
               fetchConversations(1, next);
             }}
-            className="cursor-pointer rounded-xl border border-white/15 bg-white/8 px-3 py-2 text-xs text-white focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20"
+            className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20"
           >
-            <option value="ACTIVE">Active</option>
-            <option value="ARCHIVED">Archivé</option>
+            <option value="ACTIVE" className="bg-noir-500">Active</option>
+            <option value="ARCHIVED" className="bg-noir-500">Archivé</option>
           </select>
         </div>
       </div>
@@ -209,16 +210,9 @@ export default function MessageList() {
 
       {/* Conversations list - Seulement pour les comptes non-Free */}
       {!isFreeAccount && (
-        <div className="dashboard-embedded-panel p-3 sm:p-4 lg:p-5 space-y-4">
+        <div className="space-y-4">
           {loading && (
-            <div className="dashboard-embedded-section rounded-xl border border-white/20 p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 border-2 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
-                <h2 className="text-xl font-bold text-white font-one">
-                  Chargement des conversations...
-                </h2>
-              </div>
-            </div>
+            <MessageListSkeleton />
           )}
 
           {error && (

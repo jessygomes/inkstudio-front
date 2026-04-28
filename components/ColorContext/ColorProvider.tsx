@@ -32,6 +32,9 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
   // Fonction pour appliquer les couleurs au conteneur de l'application uniquement
   const applyColorsToDOM = React.useCallback(
     (primary: string, secondary: string) => {
+      const primaryRgb = hexToRgb(primary);
+      const secondaryRgb = hexToRgb(secondary);
+
       if (containerRef.current) {
         containerRef.current.style.setProperty("--color-tertiary-400", primary);
         containerRef.current.style.setProperty(
@@ -42,13 +45,25 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
         // Optionnel : créer des versions avec opacité
         containerRef.current.style.setProperty(
           "--color-tertiary-400-rgb",
-          hexToRgb(primary)
+          primaryRgb
         );
         containerRef.current.style.setProperty(
           "--color-tertiary-500-rgb",
-          hexToRgb(secondary)
+          secondaryRgb
         );
       }
+
+      // Appliquer aussi globalement pour les composants rendus via portal (ex: modales)
+      document.documentElement.style.setProperty("--color-tertiary-400", primary);
+      document.documentElement.style.setProperty("--color-tertiary-500", secondary);
+      document.documentElement.style.setProperty(
+        "--color-tertiary-400-rgb",
+        primaryRgb
+      );
+      document.documentElement.style.setProperty(
+        "--color-tertiary-500-rgb",
+        secondaryRgb
+      );
     },
     []
   );

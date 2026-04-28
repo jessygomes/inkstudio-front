@@ -3,7 +3,7 @@ import React from "react";
 
 export default function MessageriePage() {
   return (
-    <div className="wrapper-global pb-10 lg:pb-0">
+    <div className="wrapper-global pb-20 lg:pb-8">
       <div className="w-full mt-4">
         <MessageList />
       </div>

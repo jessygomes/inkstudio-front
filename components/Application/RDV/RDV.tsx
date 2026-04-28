@@ -323,7 +323,7 @@ export default function RDV() {
   return (
     <div className="w-full gap-6 pb-10 xl:pb-0">
       {/* Header toujours affiché */}
-      <div className="dashboard-hero mb-4 flex flex-col gap-4 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:py-3">
+      <div className="dashboard-hero mb-3 flex flex-col gap-4 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:py-3">
         <div className="w-full min-w-0 flex items-start gap-3 sm:items-center sm:gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-tertiary-400/30 sm:h-12 sm:w-12">
             <FaRegCalendarTimes
@@ -518,13 +518,13 @@ export default function RDV() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-6 w-full">
-          <div className="relative isolate z-[80] overflow-visible">
-            <div className="relative z-[80] flex flex-wrap items-center gap-2 overflow-visible">
+        <div className="flex flex-col gap-3 w-full">
+          <div className="relative z-0 overflow-visible">
+            <div className="relative z-0 flex flex-wrap items-center gap-2 overflow-visible">
               <div className="flex bg-white/10 rounded-xl border border-white/20 overflow-hidden">
                 <button
                   onClick={() => handleViewModeChange("calendar")}
-                  className={`cursor-pointer px-3 py-1.5 text-xs font-medium transition-all duration-200 flex gap-1.5 items-center font-one whitespace-nowrap ${
+                  className={`cursor-pointer px-3 py-1 text-xs font-medium transition-all duration-200 flex gap-1 items-center font-one whitespace-nowrap ${
                     viewMode === "calendar"
                       ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
                       : "text-white/70 hover:text-white hover:bg-white/10"
@@ -535,7 +535,7 @@ export default function RDV() {
                 </button>
                 <button
                   onClick={() => handleViewModeChange("list")}
-                  className={`cursor-pointer flex gap-1.5 items-center font-one px-3 py-1.5 text-xs font-medium transition-all duration-200 whitespace-nowrap ${
+                  className={`cursor-pointer flex gap-1.5 items-center font-one px-3 py-1 text-xs font-medium transition-all duration-200 whitespace-nowrap ${
                     viewMode === "list"
                       ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
                       : "text-white/70 hover:text-white hover:bg-white/10"
@@ -547,12 +547,12 @@ export default function RDV() {
               </div>
 
               <div
-                className={`${viewMode === "calendar" ? "hidden sm:flex" : "flex"} scrollbar-hidden w-full flex-nowrap items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:flex-wrap sm:overflow-visible`}
+                className={`${viewMode === "calendar" ? "hidden" : "flex"} scrollbar-hidden w-full flex-nowrap items-center gap-2 overflow-x-auto pb-1 sm:w-auto sm:flex-wrap sm:overflow-visible font-one`}
               >
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="relative z-[90] min-w-[92px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                  className="relative z-0 min-w-[92px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                 >
                   <option value="all" className="bg-noir-500">Statut</option>
                   <option value="PENDING" className="bg-noir-500">En attente</option>
@@ -565,7 +565,7 @@ export default function RDV() {
                 <select
                   value={prestationFilter}
                   onChange={(e) => setPrestationFilter(e.target.value)}
-                  className="relative z-[90] min-w-[92px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                  className="relative z-0 min-w-[92px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                 >
                   <option value="all" className="bg-noir-500">Type</option>
                   {uniquePrestations.map((prestation: any) => (
@@ -578,7 +578,7 @@ export default function RDV() {
                 <select
                   value={tatoueurFilter}
                   onChange={(e) => setTatoueurFilter(e.target.value)}
-                  className="relative z-[90] min-w-[96px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                  className="relative z-0 min-w-[92px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                 >
                   <option value="all" className="bg-noir-500">Tatoueur</option>
                   {uniqueTatoueurs.map((tatoueur: any) => (
@@ -592,7 +592,7 @@ export default function RDV() {
                   <select
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
-                    className="relative z-[90] min-w-[86px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                    className="relative z-0 min-w-[86px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                   >
                     <option value="all" className="bg-noir-500">Tous</option>
                     <option value="upcoming" className="bg-noir-500">À venir</option>
@@ -905,110 +905,113 @@ export default function RDV() {
                         })}
                       </div>
 
-                      {/* Pagination - responsive */}
-                      {totalPages > 1 && (
-                        <div className="flex justify-center items-center gap-2 sm:gap-4 pt-4 border-t border-white/10">
-                          <button
-                            onClick={() =>
-                              setCurrentPage((prev) => Math.max(prev - 1, 1))
-                            }
-                            disabled={currentPage === 1}
-                            className="cursor-pointer px-2 sm:px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
-                          >
-                            <span className="hidden sm:inline">Précédent</span>
-                            <span className="sm:hidden">‹</span>
-                          </button>
-
-                          <div className="flex items-center gap-1 sm:gap-2">
-                            {Array.from(
-                              { length: Math.min(totalPages, 3) },
-                              (_, i) => {
-                                // Moins de boutons sur mobile
-                                let pageNumber;
-                                if (totalPages <= 3) {
-                                  pageNumber = i + 1;
-                                } else if (currentPage <= 2) {
-                                  pageNumber = i + 1;
-                                } else if (currentPage >= totalPages - 1) {
-                                  pageNumber = totalPages - 2 + i;
-                                } else {
-                                  pageNumber = currentPage - 1 + i;
-                                }
-
-                                return (
-                                  <button
-                                    key={pageNumber}
-                                    onClick={() => setCurrentPage(pageNumber)}
-                                    className={`cursor-pointer w-6 h-6 sm:w-8 sm:h-8 rounded-lg text-xs font-medium transition-all duration-200 font-one ${
-                                      currentPage === pageNumber
-                                        ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
-                                        : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
-                                    }`}
-                                  >
-                                    {pageNumber}
-                                  </button>
-                                );
-                              },
-                            )}
+                      {/* Pagination + informations sur une même ligne */}
+                      <div className="mt-2 border-t border-white/10 pt-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="text-left text-white/60 text-xs font-one">
+                            <span className="sm:hidden">
+                              {hasActiveFilters
+                                ? 1
+                                : Math.min(
+                                    (currentPage - 1) * ITEMS_PER_PAGE + 1,
+                                    totalAppointments,
+                                  )}
+                              -
+                              {hasActiveFilters
+                                ? filteredEvents.length
+                                : Math.min(
+                                    currentPage * ITEMS_PER_PAGE,
+                                    totalAppointments,
+                                  )}{" "}
+                              sur{" "}
+                              {hasActiveFilters
+                                ? filteredEvents.length
+                                : totalAppointments}
+                            </span>
+                            <span className="hidden sm:inline">
+                              Affichage de{" "}
+                              {hasActiveFilters
+                                ? 1
+                                : Math.min(
+                                    (currentPage - 1) * ITEMS_PER_PAGE + 1,
+                                    totalAppointments,
+                                  )}{" "}
+                              à{" "}
+                              {hasActiveFilters
+                                ? filteredEvents.length
+                                : Math.min(
+                                    currentPage * ITEMS_PER_PAGE,
+                                    totalAppointments,
+                                  )}{" "}
+                              sur{" "}
+                              {hasActiveFilters
+                                ? filteredEvents.length
+                                : totalAppointments}{" "}
+                              rendez-vous
+                            </span>
                           </div>
 
-                          <button
-                            onClick={() =>
-                              setCurrentPage((prev) =>
-                                Math.min(prev + 1, totalPages),
-                              )
-                            }
-                            disabled={currentPage === totalPages}
-                            className="cursor-pointer px-2 sm:px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
-                          >
-                            <span className="hidden sm:inline">Suivant</span>
-                            <span className="sm:hidden">›</span>
-                          </button>
-                        </div>
-                      )}
+                          {totalPages > 1 && (
+                            <div className="flex items-center gap-2 sm:gap-4">
+                              <button
+                                onClick={() =>
+                                  setCurrentPage((prev) => Math.max(prev - 1, 1))
+                                }
+                                disabled={currentPage === 1}
+                                className="cursor-pointer px-2 sm:px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                              >
+                                <span className="hidden sm:inline">Précédent</span>
+                                <span className="sm:hidden">‹</span>
+                              </button>
 
-                      {/* Informations de pagination - condensées sur mobile */}
-                      <div className="text-center text-white/60 text-xs mt-2 font-one">
-                        <span className="sm:hidden">
-                          {hasActiveFilters
-                            ? 1
-                            : Math.min(
-                                (currentPage - 1) * ITEMS_PER_PAGE + 1,
-                                totalAppointments,
-                              )}
-                          -
-                          {hasActiveFilters
-                            ? filteredEvents.length
-                            : Math.min(
-                                currentPage * ITEMS_PER_PAGE,
-                                totalAppointments,
-                              )}{" "}
-                          sur{" "}
-                          {hasActiveFilters
-                            ? filteredEvents.length
-                            : totalAppointments}
-                        </span>
-                        <span className="hidden sm:inline">
-                          Affichage de{" "}
-                          {hasActiveFilters
-                            ? 1
-                            : Math.min(
-                                (currentPage - 1) * ITEMS_PER_PAGE + 1,
-                                totalAppointments,
-                              )}{" "}
-                          à{" "}
-                          {hasActiveFilters
-                            ? filteredEvents.length
-                            : Math.min(
-                                currentPage * ITEMS_PER_PAGE,
-                                totalAppointments,
-                              )}{" "}
-                          sur{" "}
-                          {hasActiveFilters
-                            ? filteredEvents.length
-                            : totalAppointments}{" "}
-                          rendez-vous
-                        </span>
+                              <div className="flex items-center gap-1 sm:gap-2">
+                                {Array.from(
+                                  { length: Math.min(totalPages, 3) },
+                                  (_, i) => {
+                                    // Moins de boutons sur mobile
+                                    let pageNumber;
+                                    if (totalPages <= 3) {
+                                      pageNumber = i + 1;
+                                    } else if (currentPage <= 2) {
+                                      pageNumber = i + 1;
+                                    } else if (currentPage >= totalPages - 1) {
+                                      pageNumber = totalPages - 2 + i;
+                                    } else {
+                                      pageNumber = currentPage - 1 + i;
+                                    }
+
+                                    return (
+                                      <button
+                                        key={pageNumber}
+                                        onClick={() => setCurrentPage(pageNumber)}
+                                        className={`cursor-pointer w-6 h-6 rounded-2xl text-xs font-medium transition-all duration-200 font-one ${
+                                          currentPage === pageNumber
+                                            ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                                            : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                                        }`}
+                                      >
+                                        {pageNumber}
+                                      </button>
+                                    );
+                                  },
+                                )}
+                              </div>
+
+                              <button
+                                onClick={() =>
+                                  setCurrentPage((prev) =>
+                                    Math.min(prev + 1, totalPages),
+                                  )
+                                }
+                                disabled={currentPage === totalPages}
+                                className="cursor-pointer px-2 sm:px-3 py-1 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs"
+                              >
+                                <span className="hidden sm:inline">Suivant</span>
+                                <span className="sm:hidden">›</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ) : (

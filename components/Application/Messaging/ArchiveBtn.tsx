@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { archiveConversationAction } from "@/lib/queries/conversation.action";
 import { toast } from "sonner";
 import { MdArchive } from "react-icons/md";
@@ -17,8 +18,14 @@ export default function ArchiveBtn({
   onArchiveSuccess,
   onStatusChange,
 }: ArchiveBtnProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   const isArchived = status === "ARCHIVED";
   const isClosed = status === "CLOSED";
@@ -52,7 +59,7 @@ export default function ArchiveBtn({
       <button
         onClick={() => setIsOpen(true)}
         disabled={isClosed}
-        className="cursor-pointer p-2 rounded-lg bg-noir-700/40 border border-white/10 hover:bg-noir-700/60 hover:border-white/20 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+        className="cursor-pointer p-2 rounded-2xl bg-noir-700/40 border border-white/10 hover:bg-noir-700/60 hover:border-white/20 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
         title={
           isClosed
             ? "Impossible d'archiver une conversation fermée"
@@ -62,6 +69,7 @@ export default function ArchiveBtn({
         }
       >
         <MdArchive
+          size={14}
           className={`transition-colors ${
             isArchived
               ? "text-white/40 group-hover:text-white/60"
@@ -71,57 +79,60 @@ export default function ArchiveBtn({
       </button>
 
       {/* Modal de Confirmation */}
-      {isOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-noir-700 border border-white/10 rounded-xl shadow-2xl max-w-sm w-full animate-in fade-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="border-b border-white/10 px-6 py-4">
-              <h2 className="text-white text-lg font-one">
-                {isArchived
-                  ? "Réactiver la conversation"
-                  : "Archiver la conversation"}
-              </h2>
-            </div>
+      {isOpen &&
+        isMounted &&
+        createPortal(
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+            <div className="bg-noir-700 border border-white/10 rounded-xl shadow-2xl max-w-sm w-full animate-in fade-in zoom-in-95 duration-200">
+              {/* Header */}
+              <div className="border-b border-white/10 px-6 py-4">
+                <h2 className="text-white text-lg font-one">
+                  {isArchived
+                    ? "Réactiver la conversation"
+                    : "Archiver la conversation"}
+                </h2>
+              </div>
 
-            {/* Content */}
-            <div className="px-6 py-4">
-              <p className="text-white/70 text-sm font-one">
-                {isArchived
-                  ? "Êtes-vous sûr de vouloir réactiver cette conversation ? Elle réapparaîtra dans votre liste active."
-                  : "Êtes-vous sûr de vouloir archiver cette conversation ? Vous pourrez la retrouver dans votre dossier des conversations archivées."}
-              </p>
-            </div>
+              {/* Content */}
+              <div className="px-6 py-4">
+                <p className="text-white/70 text-sm font-one">
+                  {isArchived
+                    ? "Êtes-vous sûr de vouloir réactiver cette conversation ? Elle réapparaîtra dans votre liste active."
+                    : "Êtes-vous sûr de vouloir archiver cette conversation ? Vous pourrez la retrouver dans votre dossier des conversations archivées."}
+                </p>
+              </div>
 
-            {/* Footer */}
-            <div className="border-t border-white/10 px-6 py-4 flex gap-3 justify-end">
-              <button
-                onClick={() => setIsOpen(false)}
-                disabled={isLoading}
-                className="cursor-pointer px-4 py-2 rounded-lg bg-noir-700 border border-white/10 text-white/70 hover:text-white hover:bg-noir-700/80 transition-all duration-200 text-sm font-one disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleToggleArchive}
-                disabled={isLoading}
-                className="cursor-pointer px-4 py-2 rounded-lg bg-tertiary-400/20 border border-tertiary-400/50 text-tertiary-400 hover:bg-tertiary-400/30 hover:border-tertiary-400/70 transition-all duration-200 text-sm font-one disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
-                    {isArchived ? "Réactivation..." : "Archivage..."}
-                  </>
-                ) : (
-                  <>
-                    <MdArchive />
-                    {isArchived ? "Réactiver" : "Archiver"}
-                  </>
-                )}
-              </button>
+              {/* Footer */}
+              <div className="border-t border-white/10 px-6 py-4 flex gap-3 justify-end">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  disabled={isLoading}
+                  className="cursor-pointer px-4 py-2 rounded-2xl bg-noir-700 border border-white/10 text-white/70 hover:text-white hover:bg-noir-700/80 transition-all duration-200 text-sm font-one disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleToggleArchive}
+                  disabled={isLoading}
+                  className="cursor-pointer px-4 py-2 rounded-2xl bg-tertiary-400/20 border border-tertiary-400/50 text-white hover:bg-tertiary-400/30 hover:border-tertiary-400/70 transition-all duration-200 text-sm font-one disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                      {isArchived ? "Réactivation..." : "Archivage..."}
+                    </>
+                  ) : (
+                    <>
+                      <MdArchive />
+                      {isArchived ? "Réactiver" : "Archiver"}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
