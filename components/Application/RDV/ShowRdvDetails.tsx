@@ -215,7 +215,7 @@ export default function ShowRdvDetails({
                 onClick={() => {
                   window.location.href = `/messagerie/${selectedEvent.conversation?.id}`;
                 }}
-                className="cursor-pointer px-2.5 py-1.5 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 hover:from-teal-500/30 hover:to-emerald-500/30 text-teal-300 border border-teal-500/40 rounded-md text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
+                className="cursor-pointer px-2.5 py-1 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 hover:from-teal-500/30 hover:to-emerald-500/30 text-teal-300 border border-teal-500/40 rounded-2xl text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
                 title="Rejoindre la conversation"
               >
                 <svg
@@ -350,12 +350,12 @@ export default function ShowRdvDetails({
           <div className="dashboard-embedded-section p-3">
             <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">Paiement</p>
             <div className="flex gap-2">
-              <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border py-2 px-3 transition-all ${selectedEvent.isPayed === false ? "bg-red-500/15 border-red-400/30 text-red-300" : "bg-white/4 border-white/8 text-white/40 hover:bg-white/7"}`}>
+              <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl border py-1 px-3 transition-all ${selectedEvent.isPayed === false ? "bg-red-500/15 border-red-400/30 text-red-300" : "bg-white/4 border-white/8 text-white/40 hover:bg-white/7"}`}>
                 <input type="radio" name={`payment-${selectedEvent.id}`} checked={selectedEvent.isPayed === false} onChange={() => handlePaymentStatusChange(selectedEvent.id, false)} className="sr-only" />
                 <span className={`w-2 h-2 rounded-full ${selectedEvent.isPayed === false ? "bg-red-400" : "bg-white/20"}`} />
                 <span className="text-xs font-medium font-one">Non payé</span>
               </label>
-              <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border py-2 px-3 transition-all ${selectedEvent.isPayed === true ? "bg-emerald-500/15 border-emerald-400/30 text-emerald-300" : "bg-white/4 border-white/8 text-white/40 hover:bg-white/7"}`}>
+              <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl border py-1 px-3 transition-all ${selectedEvent.isPayed === true ? "bg-emerald-500/15 border-emerald-400/30 text-emerald-300" : "bg-white/4 border-white/8 text-white/40 hover:bg-white/7"}`}>
                 <input type="radio" name={`payment-${selectedEvent.id}`} checked={selectedEvent.isPayed === true} onChange={() => handlePaymentStatusChange(selectedEvent.id, true)} className="sr-only" />
                 <span className={`w-2 h-2 rounded-full ${selectedEvent.isPayed === true ? "bg-emerald-400" : "bg-white/20"}`} />
                 <span className="text-xs font-medium font-one">Payé</span>
@@ -497,7 +497,7 @@ export default function ShowRdvDetails({
         </p>
         <button
           onClick={onClose}
-          className="cursor-pointer inline-flex items-center justify-center rounded-[14px] border border-white/10 bg-white/6 px-4 py-1.5 text-[11px] font-medium text-white/70 hover:text-white hover:bg-white/12 transition-all duration-200 font-one"
+          className="cursor-pointer inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/6 px-4 py-1 text-[11px] font-medium text-white/70 hover:text-white hover:bg-white/12 transition-all duration-200 font-one"
         >
           Fermer
         </button>

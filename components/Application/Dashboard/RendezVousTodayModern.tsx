@@ -351,6 +351,10 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
           </div>
 
           <div className="flex items-center gap-2">
+              <div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-2 text-center text-xs font-medium text-white/78 font-one sm:block">
+              {getDateLabel(currentDate)}
+            </div>
+
             <button onClick={() => changeDay(-1)} className="dashboard-nav-button cursor-pointer">
               <svg
                 className="h-3.5 w-3.5"
@@ -366,10 +370,6 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
                 />
               </svg>
             </button>
-
-            <div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-2 text-center text-xs font-medium text-white/78 font-one sm:block">
-              {getDateLabel(currentDate)}
-            </div>
 
             <button onClick={() => changeDay(1)} className="dashboard-nav-button cursor-pointer">
               <svg

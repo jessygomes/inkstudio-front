@@ -57,7 +57,7 @@ export default function MessageBubbles({
             >
               <div className="flex items-start gap-1">
                 <div
-                  className={`px-3 py-2 rounded text-xs ${
+                  className={`px-3 py-2 rounded-2xl text-xs ${
                     isOwnMessage
                       ? "bg-linear-to-l from-secondary-500/80 to-secondary-600/80 text-white/90 rounded-br-none"
                       : "bg-linear-to-l from-tertiary-400/80 to-tertiary-500/80 text-white rounded-bl-none"

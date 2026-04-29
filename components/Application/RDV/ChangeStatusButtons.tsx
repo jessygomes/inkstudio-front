@@ -43,9 +43,9 @@ export default function ChangeStatusButtons({
 
   // Définir les tailles selon le prop size
   const sizeClasses = {
-    sm: "px-2.5 py-1.5 text-xs rounded-[14px]",
-    md: "px-3 py-2 text-sm rounded-[14px]",
-    lg: "px-4 py-3 text-base rounded-[16px]",
+    sm: "px-2.5 py-1 text-xs rounded-2xl",
+    md: "px-3 py-1 text-sm rounded-2xl",
+    lg: "px-4 py-1 text-base rounded-2xl",
   };
 
   const buttonSizeClass = sizeClasses[size];
@@ -56,7 +56,7 @@ export default function ChangeStatusButtons({
       {currentStatus !== "COMPLETED" && (
         <button
           onClick={() => handleAppointmentStatusChange("COMPLETED")}
-          className={`cursor-pointer ${buttonSizeClass} bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 text-emerald-300 border border-emerald-500/40 hover:border-emerald-500/60 transition-all duration-200 font-one font-medium flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md`}
+          className={`cursor-pointer ${buttonSizeClass} bg-linear-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 text-emerald-300 border border-emerald-500/40 hover:border-emerald-500/60 transition-all duration-200 font-one font-medium flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md`}
           title="Marquer comme terminé"
         >
           <svg

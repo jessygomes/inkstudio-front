@@ -20,6 +20,7 @@ import ConversationRDVDetails from "./ConversationRDVDetails";
 import MessageBubbles from "./MessageBubbles";
 import MessageInput from "./MessageInput";
 import ConversationRDVModal from "./ConversationRDVModal";
+import ConversationSkeleton from "@/components/Skeleton/ConversationSkeleton";
 import { useMessaging } from "@/lib/hook/useMessaging";
 import ArchiveBtn from "./ArchiveBtn";
 import DeleteConversationBtn from "./DeleteConversationBtn";
@@ -217,16 +218,7 @@ export default function Conversation() {
   }, [displayedMessages, scrollToBottom]);
 
   if (loading) {
-    return (
-      <div className="dashboard-empty-state flex items-center justify-center min-h-[60vh] rounded-2xl">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
-          <p className="text-white font-one">
-            Chargement de la conversation...
-          </p>
-        </div>
-      </div>
-    );
+    return <ConversationSkeleton />;
   }
 
   if (error) {
@@ -430,7 +422,7 @@ export default function Conversation() {
 
             <div className="flex items-center gap-2 flex-shrink-0">
               <span
-                className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                className={`inline-block px-2 py-1 rounded-2xl text-xs font-medium ${
                   conversation.status === "ACTIVE"
                     ? "bg-green-900/40 text-green-300"
                     : conversation.status === "ARCHIVED"
@@ -442,7 +434,7 @@ export default function Conversation() {
               </span>
 
               <span
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium ${
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-2xl text-[11px] font-medium ${
                   isConnected
                     ? "bg-green-900/40 text-green-300"
                     : "bg-red-900/40 text-red-300"
@@ -501,7 +493,7 @@ export default function Conversation() {
         </div>
 
         {/* RDV Details Section - Droite */}
-        <div className="w-2/5">
+        <div className="w-3/5">
           <ConversationRDVDetails conversation={conversation} />
         </div>
       </div>

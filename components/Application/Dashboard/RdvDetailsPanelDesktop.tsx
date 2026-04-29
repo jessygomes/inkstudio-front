@@ -271,7 +271,7 @@ export default function RdvDetailsPanelDesktop({
             {selectedAppointment.conversation?.id && (
               <button
                 onClick={() => { window.location.href = `/messagerie/${selectedAppointment.conversation?.id}`; }}
-                className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-teal-500/12 hover:bg-teal-500/22 border border-teal-400/20 text-teal-300 text-[11px] font-one font-medium transition-colors whitespace-nowrap"
+                className="cursor-pointer inline-flex items-center gap-1.5 px-2 py-1 rounded-2xl bg-teal-500/12 hover:bg-teal-500/22 border border-teal-400/20 text-teal-300 text-[11px] font-one font-medium transition-colors whitespace-nowrap"
               >
                 <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
@@ -348,12 +348,12 @@ export default function RdvDetailsPanelDesktop({
           <div className="dashboard-embedded-section p-3">
             <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">Paiement</p>
             <div className="flex gap-2">
-              <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border py-2 px-3 transition-all ${selectedAppointment.isPayed === false ? "bg-red-500/15 border-red-400/30 text-red-300" : "bg-white/4 border-white/8 text-white/40 hover:bg-white/7"}`}>
+              <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl border py-1 px-3 transition-all ${selectedAppointment.isPayed === false ? "bg-red-500/15 border-red-400/30 text-red-300" : "bg-white/4 border-white/8 text-white/40 hover:bg-white/7"}`}>
                 <input type="radio" name={`payment-${selectedAppointment.id}`} checked={selectedAppointment.isPayed === false} onChange={() => handlePaymentStatusChange(selectedAppointment.id, false)} className="sr-only" />
                 <span className={`w-2 h-2 rounded-full ${selectedAppointment.isPayed === false ? "bg-red-400" : "bg-white/20"}`} />
                 <span className="text-xs font-medium font-one">Non payé</span>
               </label>
-              <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border py-2 px-3 transition-all ${selectedAppointment.isPayed === true ? "bg-emerald-500/15 border-emerald-400/30 text-emerald-300" : "bg-white/4 border-white/8 text-white/40 hover:bg-white/7"}`}>
+              <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl border py-1 px-3 transition-all ${selectedAppointment.isPayed === true ? "bg-emerald-500/15 border-emerald-400/30 text-emerald-300" : "bg-white/4 border-white/8 text-white/40 hover:bg-white/7"}`}>
                 <input type="radio" name={`payment-${selectedAppointment.id}`} checked={selectedAppointment.isPayed === true} onChange={() => handlePaymentStatusChange(selectedAppointment.id, true)} className="sr-only" />
                 <span className={`w-2 h-2 rounded-full ${selectedAppointment.isPayed === true ? "bg-emerald-400" : "bg-white/20"}`} />
                 <span className="text-xs font-medium font-one">Payé</span>

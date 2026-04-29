@@ -149,18 +149,20 @@ export default function ConversationRDVDetails({
           </div>
 
           <div className="min-w-0 flex-1">
-            <h4 className="truncate text-base font-bold text-white font-one leading-tight">
-              {conversation.client.firstName} {conversation.client.lastName}
-            </h4>
+            <div className="flex items-center gap-2 justify-between">
+              <h4 className="truncate text-base font-bold text-white font-one leading-tight">
+                {conversation.client.firstName} {conversation.client.lastName}
+              </h4>
+              <span
+                className={`inline-flex items-center gap-1.5 border rounded-full px-2 py-0.5 text-[10px] font-medium font-one flex-shrink-0 ${statusCfg.pill}`}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
+                {statusCfg.label}
+              </span>
+            </div>
             <p className="mt-0.5 truncate text-xs text-white/65 font-one">
               {conversation.subject}
             </p>
-            <span
-              className={`mt-1 inline-flex items-center gap-1.5 border rounded-full px-2 py-0.5 text-[10px] font-medium font-one ${statusCfg.pill}`}
-            >
-              <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dot}`} />
-              {statusCfg.label}
-            </span>
           </div>
         </div>
       </div>

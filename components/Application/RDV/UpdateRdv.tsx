@@ -390,7 +390,7 @@ export default function UpdateRdv({
               : new Date(rdv.start).toISOString();
           form.setValue("start", startStr);
         }}
-        className="cursor-pointer px-2.5 py-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 rounded-[14px] text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
+        className="cursor-pointer px-2.5 py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 rounded-2xl text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
         title="Modifier ce rendez-vous"
       >
         <svg
@@ -411,7 +411,7 @@ export default function UpdateRdv({
 
       {showModal && (
         <div className="absolute inset-0 z-[9999] bg-black/30 backdrop-blur-[1px]">
-          <div className="dashboard-embedded-panel flex h-full w-full flex-col overflow-hidden rounded-[28px]">
+          <div className="dashboard-embedded-panel flex h-full w-full flex-col overflow-hidden rounded-2xl">
             {/* Header */}
             <div className="dashboard-embedded-header px-4 py-3.5">
               <div className="flex items-center justify-between">
