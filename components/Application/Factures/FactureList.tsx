@@ -6,6 +6,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { PiInvoiceDuotone } from "react-icons/pi";
 import FactureDetailsModal from "./FactureDetailsModal";
 import Link from "next/link";
+import PageHeader from "@/components/Shared/PageHeader";
 
 export default function FactureList() {
   const { data: session } = useSession();
@@ -183,25 +184,10 @@ export default function FactureList() {
 
   return (
     <section className="w-full space-y-3">
-      <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-5 lg:py-2.5">
-        <div className="flex w-full items-center gap-3 md:w-auto">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-400/30">
-            <PiInvoiceDuotone
-              size={18}
-              className="text-tertiary-400 animate-pulse"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-base sm:text-lg font-bold text-white font-one tracking-wide uppercase">
-              Factures
-            </h1>
-            <p className="mt-0.5 text-[11px] text-white/70 font-one">
-              Gérez les informations de vos clients et consultez leur
-              historique.
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<PiInvoiceDuotone size={20} className="text-tertiary-400" />}
+        title="Factures"
+      />
 
       {/* Message pour les comptes Free */}
       {isFreeAccount && (

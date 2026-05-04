@@ -223,6 +223,7 @@ export default function Home() {
   };
 
   return (
+    <div style={{ "--color-tertiary-400": "#ff9d00", "--color-tertiary-500": "#ff5500" } as React.CSSProperties}>
     <>
       <Script
         id="schema-homepage"
@@ -280,5 +281,6 @@ export default function Home() {
       <Section6 />
       <Footer />
     </>
+    </div>
   );
 }

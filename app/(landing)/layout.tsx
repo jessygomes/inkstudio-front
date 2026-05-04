@@ -63,10 +63,7 @@ export default async function LandingLayout({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
-      <div>
-        {/* <div className="absolute top-0 left-0 w-full h-screen">
-          <Header />
-        </div> */}
+      <div style={{ "--color-tertiary-400": "#ff9d00", "--color-tertiary-500": "#ff5500" } as React.CSSProperties}>
         {children}
         <Footer />
       </div>

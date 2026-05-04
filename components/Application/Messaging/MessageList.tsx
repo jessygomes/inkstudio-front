@@ -10,9 +10,11 @@ import {
 import ConversationCard from "./ConversationCard";
 import React, { useEffect, useState, useCallback } from "react";
 import { MdOutlineMessage } from "react-icons/md";
+import { CiSearch } from "react-icons/ci";
 import { useMessagingContext } from "@/components/Providers/MessagingProvider";
 import Link from "next/link";
 import MessageListSkeleton from "@/components/Skeleton/MessageListSkeleton";
+import PageHeader from "@/components/Shared/PageHeader";
 
 export default function MessageList() {
   const { data: session } = useSession();
@@ -30,6 +32,7 @@ export default function MessageList() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] =
     useState<ConversationStatus>("ACTIVE");
+  const [search, setSearch] = useState("");
 
   //! Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -87,37 +90,29 @@ export default function MessageList() {
 
   return (
     <section className="space-y-4">
-      {/* Header responsive */}
-      <div className="dashboard-hero flex flex-col gap-4 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:py-3">
-        <div className="w-full min-w-0 flex items-center gap-3 sm:gap-4">
-          <div className="h-10 w-10 sm:h-12 sm:w-12 bg-tertiary-400/30 rounded-full flex items-center justify-center shrink-0">
-            <MdOutlineMessage
-              size={20}
-              className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
-                Messagerie
-              </h1>
-              {unreadCount > 0 && (
-                <span className="dashboard-count-pill border border-tertiary-400/40 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white text-xs font-one px-3 py-1 rounded-full">
-                  {unreadCount} message{unreadCount > 1 ? "s" : ""} non lu
-                </span>
-              )}
-            </div>
-            <p className="hidden sm:block text-white/70 text-xs font-one mt-1">
-              Gérez vos conversations avec les clients et l'équipe interne.
-            </p>
-          </div>
+      <PageHeader
+        icon={<MdOutlineMessage size={20} className="text-tertiary-400" />}
+        title="Messagerie"
+      >
+        {unreadCount > 0 && (
+          <span className="dashboard-count-pill border border-tertiary-400/40 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white text-xs font-one px-3 py-1 rounded-full">
+            {unreadCount} message{unreadCount > 1 ? "s" : ""} non lu
+          </span>
+        )}
+        {/* Recherche */}
+        <div className="relative hidden md:flex items-center">
+          <CiSearch size={15} className="absolute left-3 text-white/40 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Rechercher un client..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-8 pr-3 py-1 rounded-2xl border border-white/15 bg-white/8 text-xs font-one text-white placeholder:text-white/30 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 w-48"
+          />
         </div>
 
-        <div className="hidden md:flex w-full md:w-auto items-center gap-3">
-          <label
-            className="text-white/70 text-xs font-one"
-            htmlFor="status-filter"
-          >
+        <div className="hidden md:flex items-center gap-3">
+          <label className="text-white/70 text-xs font-one" htmlFor="status-filter">
             Statut
           </label>
           <select
@@ -135,6 +130,18 @@ export default function MessageList() {
             <option value="ARCHIVED" className="bg-noir-500">Archivé</option>
           </select>
         </div>
+      </PageHeader>
+
+      {/* Recherche mobile */}
+      <div className="md:hidden relative flex items-center">
+        <CiSearch size={15} className="absolute left-3 text-white/40 pointer-events-none" />
+        <input
+          type="text"
+          placeholder="Rechercher un client..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-8 pr-3 py-1 rounded-2xl border border-white/15 bg-white/8 text-xs font-one text-white placeholder:text-white/30 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 w-full"
+        />
       </div>
 
       <div className="md:hidden flex items-center gap-3">
@@ -287,16 +294,40 @@ export default function MessageList() {
           )}
 
           {!loading && !error && conversations.length > 0 && (
-            <div className="space-y-3">
-              {conversations.map((conversation) => (
-                <ConversationCard
-                  key={conversation.id}
-                  conversation={conversation}
-                  isSelected={selectedConversation?.id === conversation.id}
-                  onSelect={setSelectedConversation}
-                  currentUserId={session?.user?.id ?? undefined}
-                />
-              ))}
+            <div className="space-y-2.5">
+              {(() => {
+                const filtered = conversations.filter((conversation) => {
+                  if (!search.trim()) return true;
+                  const q = search.trim().toLowerCase();
+                  const otherUser =
+                    conversation.salonId === session?.user?.id
+                      ? conversation.client
+                      : conversation.salon;
+                  const name = (
+                    otherUser?.salonName ||
+                    `${otherUser?.firstName || ""} ${otherUser?.lastName || ""}`.trim()
+                  ).toLowerCase();
+                  return name.includes(q) || (conversation.subject || "").toLowerCase().includes(q);
+                });
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="text-center py-8 text-white/40 text-sm font-one">
+                      Aucun résultat pour &quot;{search}&quot;
+                    </div>
+                  );
+                }
+
+                return filtered.map((conversation) => (
+                  <ConversationCard
+                    key={conversation.id}
+                    conversation={conversation}
+                    isSelected={selectedConversation?.id === conversation.id}
+                    onSelect={setSelectedConversation}
+                    currentUserId={session?.user?.id ?? undefined}
+                  />
+                ));
+              })()}
             </div>
           )}
 

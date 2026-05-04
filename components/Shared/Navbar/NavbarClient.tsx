@@ -2,33 +2,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 
 interface NavbarClientProps {
-  initialAuthStatus: boolean;
-  links: Array<{ href: string; label: string }>;
+  links: Array<{ href: string; label: string; highlight?: boolean }>;
 }
 
-export function NavbarClient({ initialAuthStatus, links }: NavbarClientProps) {
-  const [isLoggedIn] = useState(initialAuthStatus);
+export function NavbarClient({ links }: NavbarClientProps) {
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated" && !!session?.user;
   const pathname = usePathname();
   const navRef = useRef<HTMLUListElement>(null);
-
-  // Optionnel: écouter les changements côté client
-  useEffect(() => {
-    // On peut surveiller les changements de localStorage ou d'autres événements
-    const handleStorageChange = () => {
-      // Recharger la page ou faire une nouvelle vérification
-      window.location.reload();
-    };
-
-    // Écouter les événements de déconnexion
-    window.addEventListener("logout", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("logout", handleStorageChange);
-    };
-  }, []);
 
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -63,6 +48,21 @@ export function NavbarClient({ initialAuthStatus, links }: NavbarClientProps) {
         {links.map((link, index) => {
           const isActive = pathname === link.href;
 
+          if (link.highlight) {
+            return (
+              <li key={index}>
+                <Link
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-2xl border border-tertiary-400/40 bg-tertiary-400/10 px-4 py-1.5 text-xs font-two font-medium text-tertiary-500 tracking-widest transition-all duration-300 hover:bg-tertiary-400/20 hover:text-white hover:border-tertiary-400/70"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            );
+          }
+
           return (
             <li
               key={index}
@@ -70,7 +70,12 @@ export function NavbarClient({ initialAuthStatus, links }: NavbarClientProps) {
                 isActive ? "active font-two text-white font-bold" : "font-thin"
               } pb-1 text-white text-sm font-two pt-1 px-2 tracking-widest hover:text-white/70 transition-all duration-300`}
             >
-              <Link href={link.href}>{link.label}</Link>
+              <Link
+                href={link.href}
+                {...(link.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              >
+                {link.label}
+              </Link>
             </li>
           );
         })}

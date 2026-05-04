@@ -9,6 +9,8 @@ import { FaBolt } from "react-icons/fa6";
 import { FlashProps } from "@/lib/type";
 import CreateOrUpdateFlash from "./CreateOrUpdateFlash";
 import DeleteFlash from "./DeleteFlash";
+import PageHeader from "@/components/Shared/PageHeader";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 export default function ShowFlash() {
   const { data: session } = useSession();
@@ -65,44 +67,17 @@ export default function ShowFlash() {
 
   return (
     <section className="w-full space-y-3">
-      <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-5 lg:py-2.5">
-        <div className="flex w-full items-center gap-3 md:w-auto">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-400/30">
-            <FaBolt
-              size={18}
-              className="text-tertiary-400 animate-pulse"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-base sm:text-lg font-bold text-white font-one tracking-wide uppercase">
-              Flashs
-            </h1>
-            <p className="mt-0.5 text-[11px] text-white/70 font-one">
-              Gérez vos flashs disponibles: création, modification et
-              suppression.
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={handleCreate}
-          className="cursor-pointer flex w-full items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-3.5 py-2 text-[11px] font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one md:w-[168px]"
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
+      <PageHeader
+        icon={<FaBolt size={20} className="text-tertiary-400" />}
+        title="Flashs"
+      >
+        <DashboardButton onClick={handleCreate}>
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Nouveau flash
-        </button>
-      </div>
+        </DashboardButton>
+      </PageHeader>
 
       {loading ? (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">

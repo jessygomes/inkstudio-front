@@ -25,7 +25,6 @@ import {
 import { FaArrowLeft } from "react-icons/fa6";
 import { CiCalendar, CiCalendarDate } from "react-icons/ci";
 import { Search } from "@/components/Shared/Search";
-import Link from "next/link";
 import { toast } from "sonner";
 import { FaRegCalendarTimes } from "react-icons/fa";
 import ShowRdvDetails from "./ShowRdvDetails";
@@ -33,6 +32,8 @@ import ShowRdvDetailsMobile from "./ShowRdvDetailsMobile";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { useSession } from "next-auth/react";
 import RdvListSkeleton from "@/components/Skeleton/RdvListSkeleton";
+import PageHeader from "@/components/Shared/PageHeader";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 export default function RDV() {
   const { data: session } = useSession();
@@ -322,94 +323,25 @@ export default function RDV() {
 
   return (
     <div className="w-full gap-6 pb-10 xl:pb-0">
-      {/* Header toujours affiché */}
-        <div className="dashboard-hero flex flex-col gap-4 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:py-3 mb-3">
-        <div className="w-full min-w-0 flex items-center gap-3 sm:gap-4">
-          <div className="h-10 w-10 sm:h-12 sm:w-12 bg-tertiary-400/30 rounded-full flex items-center justify-center shrink-0">
-            <FaRegCalendarTimes
-              size={20}
-              className="text-tertiary-400 animate-pulse"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-lg font-bold uppercase tracking-wide text-white font-one sm:text-xl">
-              Mes rendez-vous
-            </h1>
-            <p className="mt-1 hidden text-xs text-white/70 font-one sm:block">
-              Gérez vos rendez-vous, consultez les détails de chaque client et
-              suivez l&apos;historique de vos visites.
-            </p>
-          </div>
+      <PageHeader
+        icon={<FaRegCalendarTimes size={20} className="text-tertiary-400" />}
+        title="Mes rendez-vous"
+      >
+        <div className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/6 px-4 py-2 text-xs font-medium text-white font-one">
+          <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[11px]">
+            {pendingAppointmentsCount > 99 ? "99+" : pendingAppointmentsCount}
+          </span>
+          RDV en attente
         </div>
-
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:w-auto lg:flex-nowrap lg:justify-end">
-          <div className="relative w-full sm:w-[175px]">
-            <div className="bg-white/10 w-full px-5 py-2 text-white rounded-2xl font-medium font-one text-xs flex items-center justify-center gap-2 whitespace-nowrap">
-              <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-[12px]">
-                {pendingAppointmentsCount > 99
-                  ? "99+"
-                  : pendingAppointmentsCount}
-              </span>
-              RDV en attente
-            </div>
-          </div>
-
-          {/* <div className="relative w-full sm:w-[175px]">
-            <div className="bg-white/10  px-5 py-2 text-white rounded-2xl font-medium font-one text-xs flex items-center justify-center gap-2 whitespace-nowrap">
-              <span className="bg-gradient-to-br from-blue-400 to-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-[12px]">
-                {reschedulingAppointmentsCount > 99
-                  ? "99+"
-                  : reschedulingAppointmentsCount}
-              </span>
-              RDV reprogrammer
-            </div>
-          </div> */}
-          {!isFreeAccount && (
-            <Link
-              href={"/mes-rendez-vous/creer"}
-              className="hidden min-w-[170px] items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2.5 text-xs font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one sm:inline-flex"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Créer un rendez-vous
-            </Link>
-          )}
-        </div>
-
         {!isFreeAccount && (
-          <Link
-            href={"/mes-rendez-vous/creer"}
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-tertiary-400 to-tertiary-500 py-2 text-xs font-medium text-white shadow-lg transition-all duration-300 hover:from-tertiary-500 hover:to-tertiary-600 sm:hidden"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
+          <DashboardButton href="/mes-rendez-vous/creer">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Créer un rendez-vous
-          </Link>
+          </DashboardButton>
         )}
-      </div>
-      {/* Fin header toujours affiché */}
+      </PageHeader>
 
       {error ? (
         <div className="h-[80vh] w-full flex items-center justify-center relative">
@@ -518,7 +450,7 @@ export default function RDV() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-3 w-full">
+        <div className="flex flex-col gap-3 w-full mt-3">
           <div className="relative z-0 overflow-visible md:flex md:items-center md:gap-2">
             <div className="relative z-0 flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 md:flex-1 md:flex-wrap md:overflow-visible md:pb-0">
               <div className="flex shrink-0 bg-white/10 rounded-xl border border-white/20 overflow-hidden">

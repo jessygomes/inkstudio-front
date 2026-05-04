@@ -50,7 +50,7 @@ export const Search = () => {
         type="text"
         placeholder="Rechercher..."
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-1 px-4 font-one border-[1px] rounded-lg border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
+        className="w-full text-sm text-white bg-white/10 placeholder:text-white/30 placeholder:text-xs py-1 px-4 font-one border-[1px] rounded-2xl border-white/20 focus:outline-none focus:border-tertiary-400 transition-colors"
       />
     </div>
   );

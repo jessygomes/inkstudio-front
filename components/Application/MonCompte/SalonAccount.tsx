@@ -13,6 +13,7 @@ import { IoBusinessOutline } from "react-icons/io5";
 import { TbClockHour5 } from "react-icons/tb";
 import { PiUsersLight } from "react-icons/pi";
 import { HiOutlinePhotograph } from "react-icons/hi";
+import PageHeader from "@/components/Shared/PageHeader";
 import AccountSkeleton from "@/components/Skeleton/AccountSkeleton";
 
 export default function SalonAccount() {
@@ -49,29 +50,10 @@ export default function SalonAccount() {
   if (!salon) {
     return (
       <section className="w-full space-y-3">
-        <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-5 lg:py-2.5">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="h-10 w-10 bg-tertiary-400/30 rounded-full flex items-center justify-center">
-              <IoBusinessOutline
-                size={18}
-                className="text-tertiary-400 animate-pulse"
-              />
-            </div>
-            <div>
-              <h1 className="text-base sm:text-lg font-bold text-white font-one tracking-wide uppercase mb-1">
-                Mon Compte
-              </h1>
-              <p className="text-white/60 text-[11px] font-one">
-                <span className="hidden sm:inline">
-                  Gérez les infos du salon, horaires, équipe et galerie.
-                </span>
-                <span className="sm:hidden">Gérez votre salon</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Skeletons de chargement */}
+        <PageHeader
+          icon={<IoBusinessOutline size={20} className="text-tertiary-400" />}
+          title="Mon Compte"
+        />
         <AccountSkeleton />
       </section>
     );
@@ -79,27 +61,10 @@ export default function SalonAccount() {
 
   return (
     <section className="w-full space-y-3">
-      <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-5 lg:py-2.5">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="h-10 w-10 bg-tertiary-400/30 rounded-full flex items-center justify-center">
-            <IoBusinessOutline
-              size={18}
-              className="text-tertiary-400 animate-pulse"
-            />
-          </div>
-          <div>
-            <h1 className="text-base sm:text-lg font-bold text-white font-one tracking-wide uppercase mb-1">
-              Mon Compte
-            </h1>
-            <p className="text-white/60 text-[11px] font-one">
-              <span className="hidden sm:inline">
-                Gérez les infos du salon, horaires, équipe et galerie.
-              </span>
-              <span className="sm:hidden">Gérez votre salon</span>
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<IoBusinessOutline size={20} className="text-tertiary-400" />}
+        title="Mon Compte"
+      />
 
       <div className="dashboard-embedded-panel p-3 sm:p-8 bg-blue-500">
           <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">

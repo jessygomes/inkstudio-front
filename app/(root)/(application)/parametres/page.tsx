@@ -15,6 +15,7 @@ import VerificationDocumentsSection from "@/components/Application/Parametres/Ve
 // import { MdOutlinePalette } from "react-icons/md";
 import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
 import NotifChatPreference from "@/components/Application/Parametres/NotifChatPreference";
+import PageHeader from "@/components/Shared/PageHeader";
 
 export default function ParamPage() {
   const { data: session } = useSession();
@@ -39,27 +40,10 @@ export default function ParamPage() {
   return (
     <div className="wrapper-global px-3 sm:px-4 lg:px-6 pb-24 lg:pb-4">
       <section className="w-full space-y-3 pt-4">
-        {/* Header */}
-        <div className="dashboard-hero rounded-2xl border border-white/12 bg-noir-700/6 p-3 sm:p-4">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-tertiary-400/20 border border-tertiary-400/25 flex items-center justify-center">
-              <CiSettings size={20} className="text-tertiary-500" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
-                Paramètres
-              </p>
-              <div className="flex flex-wrap items-end gap-x-2 gap-y-0.5">
-                <h1 className="text-white font-one text-base sm:text-lg font-semibold leading-tight">
-                  Paramètres du compte
-                </h1>
-                <p className="text-white/55 font-two text-xs">
-                  Compte, abonnement, notifications et sécurité
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          icon={<CiSettings size={20} className="text-tertiary-400" />}
+          title="Paramètres du compte"
+        />
 
         <div className="space-y-3">
           {/* Section Informations du compte responsive */}

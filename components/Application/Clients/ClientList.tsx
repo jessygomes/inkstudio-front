@@ -13,6 +13,8 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { RiFileUserLine } from "react-icons/ri";
 import Link from "next/link";
 import { getSalonClientsAction } from "@/lib/queries/client";
+import PageHeader from "@/components/Shared/PageHeader";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 export default function ClientList() {
   const { data: session } = useSession();
@@ -178,70 +180,35 @@ export default function ClientList() {
 
   return (
     <section className="w-full space-y-4">
-      {/* Header responsive */}
-      <div className="dashboard-hero flex flex-col gap-4 px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:py-3">
-        <div className="w-full min-w-0 flex items-center gap-3 sm:gap-4">
-          <div className="h-10 w-10 sm:h-12 sm:w-12 bg-tertiary-400/30 rounded-full flex items-center justify-center shrink-0">
-            <RiFileUserLine
-              size={20}
-              className="sm:w-7 sm:h-7 text-tertiary-400 animate-pulse"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-lg sm:text-xl font-bold text-white font-one tracking-wide uppercase">
-              Clients
-            </h1>
-            <p className="hidden sm:block text-white/70 text-xs font-one mt-1">
-              Gérez les informations de vos clients et consultez leur
-              historique.
-            </p>
-          </div>
-        </div>
-
-        {/* Boutons d'action responsive */}
+      <PageHeader
+        icon={<RiFileUserLine className="h-5 w-5 text-tertiary-400 lg:h-6 lg:w-6" />}
+        title="Clients"
+      >
         {!isFreeAccount && (
-          <div className="flex w-full gap-2 flex-row sm:flex-wrap lg:w-auto lg:flex-nowrap lg:justify-end">
-            <button
-              onClick={handleCreate}
-              className="cursor-pointer w-full inline-flex items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2.5 text-xs font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one whitespace-nowrap"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
+          <>
+            <DashboardButton onClick={handleCreate}>
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               Nouveau client
-            </button>
+            </DashboardButton>
 
-            <div className="relative">
-              <Link
-                href="/clients/suivi"
-                className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-4 py-2.5 text-center text-xs font-medium text-white transition-all duration-300 hover:bg-white/14 font-one whitespace-nowrap"
-              >
-                <span className="hidden sm:inline">Suivi de cicatrisation</span>
-                <span className="sm:hidden">Suivi cicatrisation</span>
-                {unansweredFollowUpsCount > 0 && (
-                  <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
-                    {unansweredFollowUpsCount > 99
-                      ? "99+"
-                      : unansweredFollowUpsCount}
-                  </span>
-                )}
-              </Link>
-            </div>
-          </div>
+            <DashboardButton href="/clients/suivi" variant="secondary">
+              <svg className="h-4 w-4 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              Suivi cicatrisation
+              {unansweredFollowUpsCount > 0 && (
+                <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                  {unansweredFollowUpsCount > 99 ? "99+" : unansweredFollowUpsCount}
+                </span>
+              )}
+            </DashboardButton>
+          </>
         )}
-      </div>
+      </PageHeader>
 
-      <div className=" w-full ">
+      <div className="w-full">
         {/* Barre de recherche responsive */}
         {!isFreeAccount && (
           <div className=" mb-4">

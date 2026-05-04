@@ -9,6 +9,7 @@ import {
   respondToReviewAction,
 } from "@/lib/queries/review";
 import { getFavoriteCountBySalon } from "@/lib/queries/favorite";
+import PageHeader from "@/components/Shared/PageHeader";
 
 interface Review {
   id: string;
@@ -252,41 +253,22 @@ export default function AvisList() {
 
   return (
     <section className="w-full space-y-3">
-      <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-5 lg:py-2.5">
-        <div className="flex w-full items-center gap-3 md:w-auto">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-400/30">
-            <svg
-              className="h-5 w-5 text-tertiary-400 animate-pulse"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6l1.5 3.5L17 11l-3.5 1.5L12 16l-1.5-3.5L7 11l3.5-1.5L12 6z"
-              />
-            </svg>
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-base sm:text-lg font-bold text-white font-one tracking-wide uppercase">
-              Avis clients
-            </h1>
-            <p className="mt-0.5 text-[11px] text-white/70 font-one">
-              Consultez et gérez les avis reçus sur votre salon.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 whitespace-nowrap rounded-xl border border-white/12 bg-white/6 px-2.5 py-1.5 text-[11px] text-white/70 font-one">
+      <PageHeader
+        icon={
+          <svg className="h-5 w-5 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6l1.5 3.5L17 11l-3.5 1.5L12 16l-1.5-3.5L7 11l3.5-1.5L12 6z" />
+          </svg>
+        }
+        title="Avis clients"
+      >
+        <div className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-white/12 bg-white/6 px-2.5 py-1.5 text-[11px] text-white/70 font-one">
           <span>
             Page {page}
             {totalPages ? ` / ${totalPages}` : ""}
             {total ? ` • ${total} avis` : ""}
           </span>
         </div>
-      </div>
+      </PageHeader>
 
       <div className="grid grid-cols-2 gap-1.5 md:grid-cols-3 lg:grid-cols-5">
         <div className="dashboard-stat-card p-2 lg:p-2.5">

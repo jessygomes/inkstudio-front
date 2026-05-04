@@ -1,4 +1,3 @@
-import { getAuthStatus } from "./AuthStatus";
 import { NavbarClient } from "./NavbarClient";
 
 export default async function Navbar() {
@@ -7,10 +6,8 @@ export default async function Navbar() {
     { href: "/solutions", label: "Solutions" },
     { href: "/tarification", label: "Tarification" },
     { href: "/a-propos-de-inkera", label: "A propos de INKERA" },
+    { href: "https://www.theinkera.com/", label: "Je veux me faire tatouer", highlight: true },
   ];
 
-  // Vérifier l'état d'authentification côté server
-  const isAuthenticated = await getAuthStatus();
-
-  return <NavbarClient links={links} initialAuthStatus={isAuthenticated} />;
+  return <NavbarClient links={links} />;
 }

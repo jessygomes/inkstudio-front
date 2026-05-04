@@ -10,6 +10,7 @@ import { IoChevronDown } from "react-icons/io5";
 import { toast } from "sonner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RiFileUserLine } from "react-icons/ri";
+import PageHeader from "@/components/Shared/PageHeader";
 import {
   deleteSuiviAction,
   getFollowUpAction,
@@ -375,21 +376,10 @@ export default function ShowSuivis() {
 
   return (
     <section className="w-full space-y-3">
-      <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:py-2.5">
-        <div className="flex w-full items-center gap-3 md:w-auto">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-400/30">
-            <RiFileUserLine size={18} className="text-tertiary-400 animate-pulse" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-base font-bold uppercase tracking-wide text-white font-one sm:text-lg">
-              Suivi cicatrisation
-            </h1>
-            <p className="mt-0.5 text-[11px] text-white/70 font-one">
-              Répondez aux suivis de vos clients et gardez une traçabilité propre.
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        icon={<RiFileUserLine size={20} className="text-tertiary-400" />}
+        title="Suivi cicatrisation"
+      />
 
       <div className="dashboard-embedded-panel rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
         <div className="mb-2.5 flex items-center gap-2">

@@ -13,6 +13,8 @@ import Link from "next/link";
 import { LuLayoutDashboard } from "react-icons/lu";
 import LastMessage from "@/components/Application/Dashboard/LastMessage";
 import { auth } from "@/auth";
+import PageHeader from "@/components/Shared/PageHeader";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -23,63 +25,24 @@ export default async function DashboardPage() {
   return (
     <div className="relative overflow-hidden bg-noir-700 px-3 pb-24 lg:px-10 lg:pb-14">
       <div className="relative mt-4 flex w-full flex-col gap-4">
-        <div className="dashboard-hero px-4 py-4 lg:px-6 lg:py-2">
+        <PageHeader
+          icon={<LuLayoutDashboard className="h-5 w-5 text-tertiary-400 lg:h-6 lg:w-6" />}
+          title="Dashboard"
+        >
+          <DashboardButton href="/mes-rendez-vous/creer">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Nouveau RDV
+          </DashboardButton>
 
-          <div className="relative z-10 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <div className="max-w-3xl">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center lg:h-12 lg:w-12">
-                  <LuLayoutDashboard className="h-5.5 w-5.5 text-tertiary-400 lg:h-6 lg:w-6" />
-                </div>
-                <h1 className="text-xl font-bold uppercase tracking-[0.14em] text-white font-one sm:text-2xl">
-                  Dashboard
-                </h1>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2.5 sm:flex-row xl:justify-end">
-              <Link
-                href="/mes-rendez-vous/creer"
-                className="inline-flex min-w-[170px] items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2.5 text-xs font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one"
-              >
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Nouveau RDV
-              </Link>
-
-              <Link
-                href="/clients"
-                className="inline-flex min-w-[170px] items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/5 px-4 py-2.5 text-xs font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/8 font-one"
-              >
-                <svg
-                  className="h-4 w-4 text-tertiary-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5V10H2v10h5m10 0v-2a4 4 0 00-4-4H11a4 4 0 00-4 4v2m10 0H7m5-10a3 3 0 110-6 3 3 0 010 6z"
-                  />
-                </svg>
-                Nouveau client
-              </Link>
-            </div>
-          </div>
-        </div>
+          <DashboardButton href="/clients" variant="secondary">
+            <svg className="h-4 w-4 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5V10H2v10h5m10 0v-2a4 4 0 00-4-4H11a4 4 0 00-4 4v2m10 0H7m5-10a3 3 0 110-6 3 3 0 010 6z" />
+            </svg>
+            Nouveau client
+          </DashboardButton>
+        </PageHeader>
 
         {!isFreeAccount && (
           <>

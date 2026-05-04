@@ -8,6 +8,8 @@ import { IoCreateOutline } from "react-icons/io5";
 import { AiOutlineDelete } from "react-icons/ai";
 import DeletePhoto from "./DeletePhoto";
 import { FaIdCardClip } from "react-icons/fa6";
+import PageHeader from "@/components/Shared/PageHeader";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 export default function ShowPortfolio() {
   const { data: session } = useSession();
@@ -81,52 +83,17 @@ export default function ShowPortfolio() {
 
   return (
     <section className="w-full space-y-3">
-      <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-5 lg:py-2.5">
-        <div className="flex w-full items-center gap-3 md:w-auto">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary-400/30">
-            <FaIdCardClip
-              size={18}
-              className="text-tertiary-400 animate-pulse"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-base sm:text-lg font-bold text-white font-one tracking-wide uppercase">
-              Portfolio
-            </h1>
-            <p className="mt-0.5 text-[11px] text-white/70 font-one">
-              <span className="hidden sm:inline">
-                Gérez le portfolio de votre salon, ajoutez, modifiez ou
-                supprimez des photos de vos œuvres.
-              </span>
-              <span className="sm:hidden">
-                Gérez vos photos de réalisations
-              </span>
-            </p>
-          </div>
-        </div>
-        <div className="flex w-full items-center justify-center gap-3 md:w-auto">
-          <button
-            onClick={handleCreate}
-            className="cursor-pointer flex w-full items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-3.5 py-2 text-[11px] font-medium text-white shadow-xl shadow-tertiary-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-tertiary-500 hover:to-tertiary-600 font-one md:w-[168px]"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            <span className="hidden sm:inline">Nouvelle photo</span>
-            <span className="sm:hidden">Ajouter photo</span>
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        icon={<FaIdCardClip size={20} className="text-tertiary-400" />}
+        title="Portfolio"
+      >
+        <DashboardButton onClick={handleCreate}>
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Nouvelle photo
+        </DashboardButton>
+      </PageHeader>
 
       <div className="w-full h-full">
         {loading ? (

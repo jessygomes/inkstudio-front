@@ -75,41 +75,53 @@ export default function NavbarApp() {
     { href: "/mes-flashs", label: "Flashs" },
     { href: "/mes-produits", label: "Produits" },
     { href: "/review", label: "Avis" },
-    { href: "/factures", label: "Factures" },
+    // { href: "/factures", label: "Factures" },
     // { href: "/mon-compte", label: "Mon Compte" },
   ];
 
   return (
-    <nav className="flex justify-end items-center py-4 pb-4 shadow-lg mx-10 ">
-      <div className="absolute bottom-0 left-0 right-0 h-1 animate-pulse bg-gradient-to-r from-tertiary-500 to-tertiary-400 rounded-2xl"></div>{" "}
-      {/* <Link
-        href={"/"}
-        className="font-two uppercase font-bold text-lg text-white"
-      >
-        {user?.salonName || "INKERA"}
-      </Link> */}
-      <ul ref={navRef} className="flex justify-center items-center gap-8">
+    <nav className="relative flex items-center py-3 pb-3 shadow-lg mx-10">
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 animate-pulse bg-gradient-to-r from-transparent via-tertiary-400 to-transparent rounded-full"></div>
+
+      {/* Logo à gauche */}
+      <Link href="/" className="flex-shrink-0">
+        <Image
+          src="/images/LogoProfil.png"
+          alt="Inkera"
+          width={32}
+          height={32}
+          className="h-9 w-9 object-contain opacity-90 hover:opacity-100 transition-opacity duration-200"
+        />
+      </Link>
+
+      {/* Links centrés */}
+      <ul className="absolute left-1/2 -translate-x-1/2 flex flex-nowrap items-center gap-2 whitespace-nowrap">
         {links.map((link, index) => {
           const isActive = pathname === link.href;
-
           return (
-            <li
-              key={index}
-              className={`${
-                isActive
-                  ? "active font-three text-white font-bold"
-                  : "font-thin"
-              } pb-1 text-white text-xs font-three pt-1 px-2 tracking-widest hover:text-white/70 transition-all duration-300 relative`}
-            >
-              <Link href={link.href}>{link.label}</Link>
-              {link.label === "Messagerie" && unreadCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[24px] text-center">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
-              )}
+            <li key={index}>
+              <Link
+                href={link.href}
+                className={`relative flex items-center px-3 py-1.5 text-xs font-three tracking-widest transition-all duration-300 rounded-2xl ${
+                  isActive
+                    ? "bg-tertiary-400/15 border border-tertiary-400/30 text-white font-semibold shadow-sm shadow-tertiary-500/10"
+                    : "text-white/60 hover:text-white border border-transparent hover:bg-white/5"
+                }`}
+              >
+                {link.label}
+                {link.label === "Messagerie" && unreadCount > 0 && (
+                  <span className="ml-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gradient-to-br from-tertiary-400 to-tertiary-500 px-1 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </Link>
             </li>
           );
         })}
+      </ul>
+
+      {/* Profil à droite */}
+      <ul ref={navRef} className="ml-auto flex items-center">
         <li className="relative z-[9999]">
           <button
             onClick={toggleMenu}
