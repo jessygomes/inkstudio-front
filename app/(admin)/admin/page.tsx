@@ -2,7 +2,7 @@
 
 import { useUser } from "@/components/Auth/Context/UserContext";
 import Link from "next/link";
-import { FiUsers, FiShield, FiSettings, FiBarChart2 } from "react-icons/fi";
+import { FiUsers, FiShield, FiSettings, FiBarChart2, FiFileText } from "react-icons/fi";
 import { LuShieldCheck } from "react-icons/lu";
 import DashboardStats from "@/components/Admin/DashboardStats";
 
@@ -85,6 +85,22 @@ export default function AdminPage() {
                       </p>
                       <p className="text-xs text-white/60">
                         Analyser l&apos;utilisation de la plateforme
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              </Link>
+
+              <Link href="/admin/articles">
+                <button className="cursor-pointer w-full text-left px-4 py-3 rounded-lg bg-gradient-to-r from-tertiary-500/20 to-primary-400/10 hover:from-tertiary-500/30 hover:to-primary-400/20 border border-tertiary-400/30 hover:border-tertiary-400/50 transition-all duration-300">
+                  <div className="flex items-center gap-3">
+                    <FiFileText className="w-5 h-5 text-tertiary-400" />
+                    <div>
+                      <p className="font-medium text-white font-one">
+                        Gerer les articles
+                      </p>
+                      <p className="text-xs text-white/60">
+                        Creer, modifier et supprimer les articles
                       </p>
                     </div>
                   </div>
