@@ -108,6 +108,7 @@ export interface SalonUserProps {
   tiktok: string | null;
   website: string | null;
   image: string | null;
+  profileImage?: string | null;
   Tatoueur: TatoueurProps[];
   prestations: string[]; // Liste des prestations
 }
@@ -130,6 +131,7 @@ export interface UpdateSalonUserProps {
   tiktok: string | null;
   website: string | null;
   image: string | null;
+  profileImage?: string | null;
   prestations: string[]; // Liste des prestations
 }
 

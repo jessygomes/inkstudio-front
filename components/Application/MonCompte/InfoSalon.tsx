@@ -36,40 +36,60 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
     }
   };
 
+  console.log("SALON INFO:", salon);
+
   return (
     <div className="space-y-3">
       {/* Identité salon */}
-      <div className="flex items-center gap-3">
-        <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-white/10 flex-shrink-0">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+        <div className="relative h-44 sm:h-56 lg:h-64">
           {salon.image ? (
             <Image
-              width={56}
-              height={56}
+              fill
               src={salon.image}
-              alt="Salon Image"
-              className="w-full h-full object-cover"
+              alt="Banniere du salon"
+              className="object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-xl">📸</span>
-            </div>
+            <div className="h-full w-full bg-gradient-to-r from-white/10 via-white/5 to-white/10" />
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/20" />
         </div>
-        <div className="min-w-0 flex-1">
-          <h2 className="text-white text-base font-one font-bold truncate">
-            {salon.salonName}
-          </h2>
-          <p className="text-white/55 font-two text-xs mt-0.5 truncate">
-            {salon.address}, {salon.postalCode} {salon.city}
-          </p>
+
+        <div className="relative px-3 pb-3 pt-0 sm:px-4 sm:pb-4">
+          <div className="-mt-10 flex items-end gap-3 sm:-mt-11">
+            <div className="relative h-[96px] w-[96px] overflow-hidden rounded-full border-2 border-white/20 bg-black/40 shadow-xl sm:h-26 sm:w-26">
+              {salon.profileImage ? (
+                <Image
+                  fill
+                  src={salon.profileImage}
+                  alt="Photo de profil du salon"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <span className="text-2xl">👤</span>
+                </div>
+              )}
+            </div>
+
+            <div className="min-w-0 flex-1 pb-1">
+              <h2 className="truncate text-base font-bold text-white font-one sm:text-lg">
+                {salon.salonName}
+              </h2>
+              <p className="mt-0.5 truncate text-xs text-white/70 font-two">
+                {salon.address}, {salon.postalCode} {salon.city}
+              </p>
+            </div>
+
+            <Link
+              href="/mon-compte/modifier-salon"
+              className="cursor-pointer flex-shrink-0 rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-3 py-1.5 text-xs font-medium text-white shadow-lg transition-all duration-300 hover:from-tertiary-500 hover:to-tertiary-600 font-one"
+            >
+              Modifier
+            </Link>
+          </div>
         </div>
-        <Link
-          href="/mon-compte/modifier-salon"
-          className="cursor-pointer flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-[14px] transition-all duration-300 font-medium font-one text-xs shadow-lg"
-        >
-          <span className="hidden sm:inline">Modifier</span>
-          <span className="sm:hidden">Modifier</span>
-        </Link>
       </div>
 
       {/* Description */}

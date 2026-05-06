@@ -44,6 +44,7 @@ export default function UpdateAccountPage() {
             website: result.data.website ?? undefined,
             description: result.data.description ?? undefined,
             image: result.data.image ?? undefined,
+            profileImage: result.data.profileImage ?? undefined,
             prestations: result.data.prestations ?? [],
           });
         } else {
@@ -73,6 +74,37 @@ export default function UpdateAccountPage() {
       console.error("Erreur lors de la mise à jour:", error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const persistImageRemoval = async (field: "image" | "profileImage") => {
+    if (!salon) return;
+
+    const previousValue = form.getValues(field);
+
+    form.setValue(field, undefined, { shouldDirty: true, shouldTouch: true });
+    setSalon((prev) => (prev ? { ...prev, [field]: null } : prev));
+
+    try {
+      const payload = {
+        ...form.getValues(),
+        [field]: null,
+      };
+
+      const result = await updateUserInfoAction(payload);
+      if (!result.ok) {
+        form.setValue(field, previousValue);
+        setSalon((prev) => (prev ? { ...prev, [field]: previousValue ?? null } : prev));
+        toast.error("Suppression impossible. Veuillez reessayer.");
+        return;
+      }
+
+      toast.success("Image supprimee avec succes");
+    } catch (error) {
+      console.error("Erreur lors de la suppression persistante:", error);
+      form.setValue(field, previousValue);
+      setSalon((prev) => (prev ? { ...prev, [field]: previousValue ?? null } : prev));
+      toast.error("Suppression impossible. Veuillez reessayer.");
     }
   };
 
@@ -117,17 +149,34 @@ export default function UpdateAccountPage() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-2.5"
           >
-            <div className=" p-3 sm:p-4">
-              <h3 className={sectionTitleClass}>Photo de profil</h3>
-              <SalonImageUploader
-                currentImage={form.watch("image") || salon.image || undefined}
-                onImageUpload={(imageUrl) => {
-                  form.setValue("image", imageUrl);
-                }}
-                onImageRemove={() => {
-                  form.setValue("image", undefined);
-                }}
-              />
+            <div className=" p-3 sm:p-4 space-y-5">
+              <div>
+                <h3 className={sectionTitleClass}>Photo de profil</h3>
+                <SalonImageUploader
+                  compact
+                  variant="profile"
+                  currentImage={form.watch("profileImage") ?? undefined}
+                  onImageUpload={(imageUrl) => {
+                    form.setValue("profileImage", imageUrl);
+                  }}
+                  onImageRemove={() => persistImageRemoval("profileImage")}
+                />
+              </div>
+
+              <div>
+                <h3 className={sectionTitleClass}>Banniere du salon</h3>
+                <p className="mb-2 text-[11px] text-white/60 font-one">
+                  Cette image est affichee comme couverture de votre salon.
+                </p>
+                <SalonImageUploader
+                  variant="banner"
+                  currentImage={form.watch("image") ?? undefined}
+                  onImageUpload={(imageUrl) => {
+                    form.setValue("image", imageUrl);
+                  }}
+                  onImageRemove={() => persistImageRemoval("image")}
+                />
+              </div>
             </div>
 
             <div className="p-3 sm:p-4">

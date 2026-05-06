@@ -99,6 +99,7 @@ export const updateSalonSchema = z.object({
   website: z.string().optional(),
   description: z.string().optional(),
   image: z.string().optional(),
+  profileImage: z.string().optional(),
   prestations: z.array(prestationEnum).optional().default([]),
 });
 

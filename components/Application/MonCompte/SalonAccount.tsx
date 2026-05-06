@@ -29,6 +29,7 @@ export default function SalonAccount() {
           `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}`,
           {
             method: "GET",
+            cache: "no-store",
           },
         );
 
