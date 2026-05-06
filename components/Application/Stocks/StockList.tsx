@@ -199,7 +199,13 @@ export default function StockList() {
         setItemsStock((prevItems) =>
           prevItems.map((prevItem) =>
             prevItem.id === item.id
-              ? { ...prevItem, quantity: newQuantity }
+              ? {
+                  ...prevItem,
+                  quantity: newQuantity,
+                  totalPrice: prevItem.pricePerUnit
+                    ? prevItem.pricePerUnit * newQuantity
+                    : 0,
+                }
               : prevItem,
           ),
         );

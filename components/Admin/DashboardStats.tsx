@@ -56,7 +56,7 @@ export default function DashboardStats() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-lg animate-pulse"
+              className="bg-linear-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 shadow-lg animate-pulse"
             >
               <div className="h-20" />
             </div>
@@ -66,7 +66,7 @@ export default function DashboardStats() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-lg animate-pulse"
+              className="bg-linear-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 shadow-lg animate-pulse"
             >
               <div className="h-20" />
             </div>
@@ -81,7 +81,7 @@ export default function DashboardStats() {
       {/* Statistiques principales */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Salons */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-tertiary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
+        <div className="bg-gradient-to-br from-noir-700/10 to-noir-500/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-tertiary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-white/70 font-one">
               Total Salons
@@ -95,7 +95,7 @@ export default function DashboardStats() {
         </div>
 
         {/* Total Clients */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-tertiary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
+        <div className="bg-gradient-to-br from-noir-700/10 to-noir-500/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-tertiary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-white/70 font-one">
               Total Clients
@@ -109,7 +109,7 @@ export default function DashboardStats() {
         </div>
 
         {/* Vérifications en attente */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-primary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
+        <div className="bg-gradient-to-br from-noir-700/10 to-noir-500/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-primary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-white/70 font-one">
               En attente
@@ -123,7 +123,7 @@ export default function DashboardStats() {
         </div>
 
         {/* Salons vérifiés */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-green-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
+        <div className="bg-gradient-to-br from-noir-700/10 to-noir-500/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-green-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-white/70 font-one">
               Vérifiés
@@ -140,7 +140,7 @@ export default function DashboardStats() {
       {/* Statistiques secondaires */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Nouveaux salons ce mois */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-tertiary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
+        <div className="bg-gradient-to-br from-noir-700/10 to-noir-500/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-tertiary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-white/70 font-one">
               Nouveaux Salons
@@ -154,7 +154,7 @@ export default function DashboardStats() {
         </div>
 
         {/* Nouveaux clients ce mois */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-cuatro-500/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
+        <div className="bg-gradient-to-br from-noir-700/10 to-noir-500/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-cuatro-500/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-white/70 font-one">
               Nouveaux Clients
@@ -168,12 +168,12 @@ export default function DashboardStats() {
         </div>
 
         {/* Total Tatoueurs */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-secondary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
+        <div className="bg-gradient-to-br from-noir-700/10 to-noir-500/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-secondary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-white/70 font-one">
               Tatoueurs
             </h3>
-            <FiUsers className="w-5 h-5 text-secondary-400" />
+            <FiUsers className="w-5 h-5 text-white" />
           </div>
           <div className="text-3xl font-bold text-white font-one">
             {stats?.totalTatoueurs ?? 0}
@@ -182,7 +182,7 @@ export default function DashboardStats() {
         </div>
 
         {/* Total Rendez-vous */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-primary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
+        <div className="bg-gradient-to-br from-noir-700/10 to-noir-500/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-primary-400/50 hover:from-white/15 transition-all duration-300 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-white/70 font-one">
               Rendez-vous
@@ -197,13 +197,13 @@ export default function DashboardStats() {
       </div>
 
       {/* Répartition par plan SaaS */}
-      <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-lg">
+      <div className="bg-gradient-to-br from-white/5 to-noir-500/5 backdrop-blur-sm rounded-2xl border border-white/10 p-6 shadow-lg">
         <h3 className="text-base font-bold text-white font-one mb-4 flex items-center gap-2">
           <FiBarChart2 className="w-5 h-5 text-tertiary-400" />
           Répartition par Plan SaaS
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+          <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
             <div>
               <p className="text-xs text-white/60 font-one uppercase tracking-wide">
                 FREE
@@ -217,7 +217,7 @@ export default function DashboardStats() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+          <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
             <div>
               <p className="text-xs text-white/60 font-one uppercase tracking-wide">
                 PRO
@@ -231,7 +231,7 @@ export default function DashboardStats() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+          <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
             <div>
               <p className="text-xs text-white/60 font-one uppercase tracking-wide">
                 BUSINESS

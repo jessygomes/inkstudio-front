@@ -37,18 +37,20 @@ export default function UserCard({ user, type, onDetails }: UserCardProps) {
     });
   };
 
-  const getPlanColor = (plan?: string) => {
+  const getPlanBadgeClasses = (plan?: string) => {
     switch (plan?.toUpperCase()) {
       case "FREE":
-        return "text-white/50";
+        return "border-white/15 bg-white/8 text-white/75";
+      case "PRO":
       case "STARTER":
-        return "text-primary-400";
+        return "border-primary-400/35 bg-primary-500/15 text-primary-400";
+      case "BUSINESS":
       case "PREMIUM":
-        return "text-tertiary-400";
+        return "border-tertiary-400/35 bg-tertiary-500/15 text-tertiary-400";
       case "ENTERPRISE":
-        return "text-cuatro-500";
+        return "border-cuatro-500/35 bg-cuatro-500/15 text-cuatro-500";
       default:
-        return "text-white/50";
+        return "border-white/15 bg-white/8 text-white/75";
     }
   };
 
@@ -60,10 +62,9 @@ export default function UserCard({ user, type, onDetails }: UserCardProps) {
       : `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Sans nom";
 
   return (
-    <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:border-tertiary-400/50 hover:from-white/15 transition-all duration-300 p-5 shadow-lg">
-      {/* Header with Image */}
-      <div className="flex items-start gap-4 mb-4">
-        <div className="relative w-16 h-16 rounded-full overflow-hidden bg-white/10 flex-shrink-0">
+    <article className="group rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 via-white/6 to-transparent p-4 shadow-lg transition-all duration-300 hover:border-tertiary-400/35 hover:shadow-xl">
+      <div className="mb-3 flex items-start gap-3">
+        <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/10">
           {user.image ? (
             <Image
               src={user.image}
@@ -72,7 +73,7 @@ export default function UserCard({ user, type, onDetails }: UserCardProps) {
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-white/50 font-bold font-one text-xl">
+            <div className="flex h-full w-full items-center justify-center text-lg font-bold text-white/55 font-one">
               {displayName.charAt(0).toUpperCase()}
             </div>
           )}
@@ -80,33 +81,37 @@ export default function UserCard({ user, type, onDetails }: UserCardProps) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-white font-one font-bold text-lg truncate">
+            <h3 className="truncate text-[15px] font-semibold text-white font-one">
               {displayName}
             </h3>
             {type === "salon" && user.verifiedSalon && (
               <LuShieldCheck
-                className="text-tertiary-400 flex-shrink-0"
-                size={20}
+                className="mt-0.5 flex-shrink-0 text-tertiary-400"
+                size={16}
                 title="Salon vérifié"
               />
             )}
           </div>
 
+          <p className="mt-0.5 truncate text-[11px] text-white/55 font-one">
+            {type === "salon" ? "Compte salon" : "Compte client"}
+          </p>
+
           {type === "salon" && (
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
               {user.saasPlan && (
-                <p
-                  className={`text-xs font-one font-medium uppercase ${getPlanColor(
-                    user.saasPlan
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase font-one ${getPlanBadgeClasses(
+                    user.saasPlan,
                   )}`}
                 >
-                  Plan {user.saasPlan}
-                </p>
+                  {user.saasPlan}
+                </span>
               )}
               <span
-                className={`text-[11px] font-one font-semibold px-2 py-0.5 rounded-full border ${
+                className={`rounded-full border px-2 py-0.5 text-[10px] font-one ${
                   user.verifiedSalon
-                    ? "text-tertiary-300 border-tertiary-400/50 bg-tertiary-500/10"
+                    ? "text-tertiary-400 border-tertiary-400/50 bg-tertiary-500/10"
                     : "text-white/50 border-white/20 bg-white/5"
                 }`}
               >
@@ -117,23 +122,28 @@ export default function UserCard({ user, type, onDetails }: UserCardProps) {
         </div>
       </div>
 
-      {/* Contact Info */}
-      <div className="space-y-2 mb-4">
-        <div className="flex items-center gap-2 text-white/60 text-sm">
-          <FiMail className="flex-shrink-0" size={14} />
+      {user.description && type === "salon" && (
+        <p className="mb-3 line-clamp-1 rounded-2xl text-[11px] text-white/65 font-one">
+          {user.description}
+        </p>
+      )}
+
+      <div className="space-y-2.5">
+        <div className="flex items-center gap-2 rounded-2xl border border-white/8 bg-white/4 px-2.5 py-2 text-[12px] text-white/75">
+          <FiMail className="flex-shrink-0 text-white/45" size={13} />
           <span className="truncate font-one">{user.email}</span>
         </div>
 
         {user.phone && (
-          <div className="flex items-center gap-2 text-white/60 text-sm">
-            <FiPhone className="flex-shrink-0" size={14} />
+          <div className="flex items-center gap-2 rounded-2xl border border-white/8 bg-white/4 px-2.5 py-2 text-[12px] text-white/75">
+            <FiPhone className="flex-shrink-0 text-white/45" size={13} />
             <span className="font-one">{user.phone}</span>
           </div>
         )}
 
         {(user.city || user.postalCode) && (
-          <div className="flex items-center gap-2 text-white/60 text-sm">
-            <FiMapPin className="flex-shrink-0" size={14} />
+          <div className="flex items-center gap-2 rounded-2xl border border-white/8 bg-white/4 px-2.5 py-2 text-[12px] text-white/75">
+            <FiMapPin className="flex-shrink-0 text-white/45" size={13} />
             <span className="font-one">
               {user.postalCode && `${user.postalCode} `}
               {user.city}
@@ -142,10 +152,9 @@ export default function UserCard({ user, type, onDetails }: UserCardProps) {
         )}
       </div>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-white/10">
-        <div className="flex items-center gap-1 text-white/50 text-xs">
-          <FiCalendar size={12} />
+      <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
+        <div className="flex items-center gap-1 text-[10px] text-white/45 font-one">
+          <FiCalendar size={11} />
           <span className="font-one">
             Inscrit le {formatDate(user.createdAt)}
           </span>
@@ -154,19 +163,19 @@ export default function UserCard({ user, type, onDetails }: UserCardProps) {
         {type === "salon" ? (
           <Link
             href={`/admin/users/${user.id}`}
-            className="px-3 py-1 bg-tertiary-500/20 hover:bg-tertiary-500/30 border border-tertiary-400/30 hover:border-tertiary-400/50 text-tertiary-400 rounded-lg transition-all duration-300 text-xs font-one font-medium"
+            className="rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-3 py-1 text-[11px] font-medium text-tertiary-400 transition-colors duration-300 hover:bg-tertiary-500/25 font-one"
           >
             Détails
           </Link>
         ) : (
           <button
             onClick={() => onDetails?.(user)}
-            className="px-3 py-1 bg-tertiary-500/20 hover:bg-tertiary-500/30 border border-tertiary-400/30 hover:border-tertiary-400/50 text-tertiary-400 rounded-lg transition-all duration-300 text-xs font-one font-medium"
+            className="rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-3 py-1 text-[11px] font-medium text-tertiary-400 transition-colors duration-300 hover:bg-tertiary-500/25 font-one"
           >
             Détails
           </button>
         )}
       </div>
-    </div>
+    </article>
   );
 }

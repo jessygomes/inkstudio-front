@@ -9,9 +9,10 @@ import {
   FiCalendar,
   FiChevronLeft,
   FiExternalLink,
+  FiUsers,
 } from "react-icons/fi";
-import { LuShieldCheck } from "react-icons/lu";
 import VerificationDocumentsSection from "@/components/Admin/VerificationDocumentsSection";
+import PageHeader from "@/components/Shared/PageHeader";
 
 // Page serveur : nécessite l'auth admin via le layout parent
 export default async function AdminUserDetail({
@@ -183,322 +184,240 @@ export default async function AdminUserDetail({
   const salonHoursObj = parseHours(salon?.salonHours);
 
   return (
-    <div className="bg-noir-700 min-h-screen px-3 lg:px-20 py-6 flex flex-col gap-4">
-      {/* Header */}
-      <div className="relative overflow-hidden rounded-xl border border-white/10 shadow-xl">
-        <div className="absolute inset-0 bg-gradient-to-r from-noir-700/90 via-noir-600/70 to-noir-500/60" />
-        <div className="relative p-4 md:p-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative w-28 h-28 rounded-full overflow-hidden bg-white/10 ring-2 ring-tertiary-400/40">
-              {salon.image ? (
-                <Image
-                  src={salon.image}
-                  alt={displayName}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-white/50 font-bold font-one text-2xl">
-                  {displayName.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </div>
-            <div className="space-y-2">
-              <p className="text-[10px] text-white/60 font-one uppercase tracking-wide">
-                Salon
-              </p>
-              <h1 className="text-xl md:text-2xl font-extrabold font-one bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-                {displayName}
-              </h1>
-              <div className="flex items-center gap-2 text-sm text-white/80 mt-0.5">
-                <span className="px-1.5 py-0.5 rounded-md bg-white/10 border border-white/15 font-one uppercase text-[10px] tracking-wide">
-                  {salon.saasPlan || "-"}
-                </span>
-                <span
-                  className={`px-1.5 py-0.5 rounded-md border text-[10px] font-one tracking-wide ${
-                    salon.verifiedSalon
-                      ? "text-tertiary-300 border-tertiary-400/50 bg-tertiary-500/10"
-                      : "text-white/50 border-white/20 bg-white/5"
-                  }`}
-                >
-                  {salon.verifiedSalon ? (
-                    <span className="inline-flex items-center gap-1">
-                      <LuShieldCheck size={14} /> Vérifié
-                    </span>
-                  ) : (
-                    "Non vérifié"
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
+    <div className="wrapper-global pb-10">
+      <section className="w-full space-y-3 pt-4">
+        <PageHeader
+          icon={<FiUsers size={20} className="text-tertiary-400" />}
+          title="Fiche Utilisateur"
+        >
           <Link
             href="/admin/users"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/10 font-one text-xs transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/8 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/15 font-one"
           >
             <FiChevronLeft size={14} /> Retour
           </Link>
-        </div>
-      </div>
+        </PageHeader>
 
-      {/* Top section: Profile Info + Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Profile info */}
-        <div className="lg:col-span-2">
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-lg">
-            <h2 className="text-base font-one font-bold text-white mb-3 flex items-center gap-2">
+        <div className="dashboard-embedded-panel p-3 sm:p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-white/15 bg-white/10 sm:h-20 sm:w-20">
+                {salon.image ? (
+                  <Image src={salon.image} alt={displayName} fill className="object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xl font-bold text-white/55 font-one">
+                    {displayName.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+
+              <div className="min-w-0">
+                <h1 className="truncate text-base font-semibold text-white font-one sm:text-lg">
+                  {displayName}
+                </h1>
+                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                  <span className="rounded-full border border-white/15 bg-white/8 px-2 py-0.5 text-[10px] uppercase text-white/75 font-one">
+                    {salon.saasPlan || "-"}
+                  </span>
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold font-one ${
+                      salon.verifiedSalon
+                        ? "border-tertiary-400/45 bg-tertiary-500/15 text-tertiary-300"
+                        : "border-white/15 bg-white/8 text-white/65"
+                    }`}
+                  >
+                    {salon.verifiedSalon ? "Verifie" : "Non verifie"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-1.5 text-[11px] text-white/70 font-one sm:text-right">
+              <p>ID: <span className="font-mono text-white/60">{salon.id}</span></p>
+              <p>Cree le {formatDate(salon.createdAt)}</p>
+              <p>Mis a jour le {formatDate(salon.updatedAt)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+          <div className="dashboard-embedded-panel p-3 sm:p-4 lg:col-span-2">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
               <FiMail size={16} className="text-tertiary-400" />
-              Informations de contact
+              Informations De Contact
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-white/80 font-one">
-              <div className="space-y-2">
-                <div>
-                  <p className="text-white/50 text-xs mb-1 uppercase tracking-wide">
-                    Email
-                  </p>
-                  <p className="flex items-center gap-2 text-white">
-                    <FiMail size={14} className="text-white/60" /> {salon.email}
-                  </p>
-                </div>
-                {salon.phone && (
-                  <div>
-                    <p className="text-white/50 text-xs mb-1 uppercase tracking-wide">
-                      Téléphone
-                    </p>
-                    <p className="flex items-center gap-2 text-white">
-                      <FiPhone size={14} className="text-white/60" />{" "}
-                      {salon.phone}
-                    </p>
-                  </div>
-                )}
-                {(salon.city || salon.postalCode) && (
-                  <div>
-                    <p className="text-white/50 text-xs mb-1 uppercase tracking-wide">
-                      Localisation
-                    </p>
-                    <p className="flex items-center gap-2 text-white">
-                      <FiMapPin size={14} className="text-white/60" />
-                      <span>
-                        {salon.postalCode && `${salon.postalCode} `}
-                        {salon.city}
-                      </span>
-                    </p>
-                  </div>
-                )}
+
+            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white/80 font-one">
+                <p className="mb-1 text-[10px] uppercase text-white/45">Email</p>
+                <p className="flex items-center gap-2 text-white"><FiMail size={13} className="text-white/55" />{salon.email}</p>
               </div>
-              <div className="space-y-2">
-                <div>
-                  <p className="text-white/50 text-[10px] mb-0.5 uppercase tracking-wide">
-                    Créé le
-                  </p>
-                  <p className="flex items-center gap-2 text-white text-xs">
-                    <FiCalendar size={12} className="text-white/60" />
-                    {formatDate(salon.createdAt)}
-                  </p>
+
+              {salon.phone && (
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white/80 font-one">
+                  <p className="mb-1 text-[10px] uppercase text-white/45">Telephone</p>
+                  <p className="flex items-center gap-2 text-white"><FiPhone size={13} className="text-white/55" />{salon.phone}</p>
                 </div>
-                <div>
-                  <p className="text-white/50 text-[10px] mb-0.5 uppercase tracking-wide">
-                    Dernière mise à jour
-                  </p>
-                  <p className="flex items-center gap-2 text-white text-xs">
-                    <FiCalendar size={12} className="text-white/60" />
-                    {formatDate(salon.updatedAt)}
-                  </p>
+              )}
+
+              {(salon.city || salon.postalCode) && (
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white/80 font-one md:col-span-2">
+                  <p className="mb-1 text-[10px] uppercase text-white/45">Localisation</p>
+                  <p className="flex items-center gap-2 text-white"><FiMapPin size={13} className="text-white/55" />{salon.postalCode && `${salon.postalCode} `}{salon.city}</p>
                 </div>
-                <div>
-                  <p className="text-white/50 text-[10px] mb-0.5 uppercase tracking-wide">
-                    Identifiant
-                  </p>
-                  <p className="text-white/70 text-[10px] font-mono">
-                    {salon.id}
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
-        </div>
 
-        {/* Actions */}
-        <div>
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-lg">
-            <h3 className="text-sm font-one font-bold text-white mb-3">
-              Actions rapides
+          <div className="dashboard-embedded-panel p-3 sm:p-4">
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
+              Actions Rapides
             </h3>
-            <div className="space-y-1.5 text-sm">
-              <button className="w-full px-3 py-1.5 rounded-lg bg-tertiary-500/20 hover:bg-tertiary-500/30 border border-tertiary-400/30 hover:border-tertiary-400/50 text-white font-one text-xs transition-colors">
-                ✓ Marquer vérifié
+            <div className="space-y-2">
+              <button className="w-full rounded-xl border border-tertiary-400/35 bg-tertiary-500/15 px-3 py-1.5 text-xs text-white transition-colors hover:bg-tertiary-500/25 font-one">
+                Marquer verifie
               </button>
-              <button className="w-full px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-white font-one text-xs transition-colors">
-                ✉ Contacter
+              <button className="w-full rounded-xl border border-white/15 bg-white/8 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/15 font-one">
+                Contacter
               </button>
-              <button className="w-full px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-200 font-one text-xs transition-colors">
-                ⚠ Suspendre
+              <button className="w-full rounded-xl border border-red-500/35 bg-red-500/12 px-3 py-1.5 text-xs text-red-200 transition-colors hover:bg-red-500/20 font-one">
+                Suspendre
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Middle section: Hours & Description */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Horaires du salon */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-lg">
-          <h2 className="text-base font-one font-bold text-white mb-3 flex items-center gap-2">
-            <FiCalendar size={16} className="text-tertiary-400" />
-            Horaires d&apos;ouverture
-          </h2>
-          {Object.keys(salonHoursObj).length > 0 ? (
-            renderHours(salonHoursObj)
-          ) : (
-            <p className="text-white/60 text-sm font-one">
-              Horaires non renseignés
-            </p>
-          )}
-        </div>
-
-        {/* Description */}
-        {salon.description && (
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-lg">
-            <h2 className="text-base font-one font-bold text-white mb-2">
-              À propos
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className="dashboard-embedded-panel p-3 sm:p-4">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
+              <FiCalendar size={16} className="text-tertiary-400" />
+              Horaires D&apos;ouverture
             </h2>
-            <p className="text-white/80 text-xs font-one leading-relaxed">
-              {salon.description}
-            </p>
+            {Object.keys(salonHoursObj).length > 0 ? (
+              renderHours(salonHoursObj)
+            ) : (
+              <p className="text-xs text-white/60 font-one">Horaires non renseignes</p>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Tattooers section - full width */}
-      <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-lg">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-one font-bold text-white flex items-center gap-2">
-            👤 Équipe ({tattooers.length})
-          </h2>
-          {tattooers.length > 0 && (
-            <span className="px-2 py-0.5 rounded-lg bg-white/10 border border-white/15 text-white/80 text-[10px] font-one">
-              {tattooers.length} tatoueur{tattooers.length > 1 ? "s" : ""}
-            </span>
+          {salon.description && (
+            <div className="dashboard-embedded-panel p-3 sm:p-4">
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
+                A Propos
+              </h2>
+              <p className="text-xs leading-relaxed text-white/80 font-one">{salon.description}</p>
+            </div>
           )}
         </div>
-        {tattooers.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {tattooers.map((t: Tattooer) => {
-              return (
-                <div
-                  key={t.id}
-                  className="rounded-lg border border-white/10 bg-white/5 p-3"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="relative w-8 h-8 rounded-full overflow-hidden bg-white/10 ring-1 ring-white/15 flex-shrink-0">
-                      {t?.img ? (
-                        <Image
-                          src={t.img}
-                          alt={t?.name || "Tatoueur"}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-white/50 font-one">
-                          {(t?.name || "T").charAt(0)}
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-white font-one text-xs truncate">
-                        {t?.name || "Tatoueur"}
-                      </p>
-                      {t?.description && (
-                        <p className="text-white/60 text-[10px] line-clamp-2">
-                          {t.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-2 space-y-1.5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px] font-one">
-                      {t?.phone && (
-                        <p className="flex items-center gap-1.5 text-white/80">
-                          <FiPhone size={10} className="text-white/60" />{" "}
-                          {t.phone}
-                        </p>
-                      )}
-                      {t?.instagram && (
-                        <p className="flex items-center gap-1.5 text-white/80 truncate">
-                          <FiExternalLink size={10} className="text-white/60" />
-                          <a
-                            href={t.instagram}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:underline truncate"
-                            title={t.instagram}
-                          >
-                            {t.instagram}
-                          </a>
-                        </p>
-                      )}
-                    </div>
 
-                    {t?.skills && t.skills.length > 0 && (
-                      <div>
-                        <p className="text-white/60 text-[10px] mb-0.5">
-                          Compétences
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {t.skills.map((s, i) => (
-                            <span
-                              key={i}
-                              className="px-1.5 py-0.5 rounded-md bg-white/5 border border-white/10 text-white/80 text-[9px] uppercase tracking-wide"
-                            >
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {t?.style && t.style.length > 0 && (
-                      <div>
-                        <p className="text-white/60 text-[10px] mb-0.5">
-                          Styles
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {t.style.map((s, i) => (
-                            <span
-                              key={i}
-                              className="px-1.5 py-0.5 rounded-md bg-white/5 border border-white/10 text-white/80 text-[9px] uppercase tracking-wide"
-                            >
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {(t?.createdAt || t?.updatedAt) && (
-                      <div className="flex items-center gap-2 text-[9px] text-white/50">
-                        {t?.createdAt && (
-                          <span>Créé le {formatDate(t.createdAt)}</span>
-                        )}
-                        {t?.updatedAt && (
-                          <span>• Mis à jour le {formatDate(t.updatedAt)}</span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+        <div className="dashboard-embedded-panel p-3 sm:p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
+              Equipe ({tattooers.length})
+            </h2>
+            {tattooers.length > 0 && (
+              <span className="rounded-xl border border-white/15 bg-white/8 px-2 py-0.5 text-[10px] text-white/75 font-one">
+                {tattooers.length} tatoueur{tattooers.length > 1 ? "s" : ""}
+              </span>
+            )}
           </div>
-        ) : (
-          <p className="text-white/60 text-sm font-one">
-            Aucun tatoueur enregistré pour ce salon
-          </p>
-        )}
-      </div>
 
-      {/* Verification Documents - full width */}
-      <VerificationDocumentsSection documents={verificationDocs} />
+          {tattooers.length > 0 ? (
+            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-3">
+              {tattooers.map((t: Tattooer) => {
+                return (
+                  <div key={t.id} className="rounded-2xl border border-white/10 bg-white/5 p-3">
+                    <div className="flex items-center gap-2">
+                      <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full border border-white/15 bg-white/10">
+                        {t?.img ? (
+                          <Image src={t.img} alt={t?.name || "Tatoueur"} fill className="object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-white/50 font-one">
+                            {(t?.name || "T").charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-xs text-white font-one">{t?.name || "Tatoueur"}</p>
+                        {t?.description && (
+                          <p className="line-clamp-2 text-[10px] text-white/60">{t.description}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-2 space-y-1.5">
+                      <div className="grid grid-cols-1 gap-1.5 text-[10px] font-one sm:grid-cols-2">
+                        {t?.phone && (
+                          <p className="flex items-center gap-1.5 text-white/80">
+                            <FiPhone size={10} className="text-white/60" /> {t.phone}
+                          </p>
+                        )}
+                        {t?.instagram && (
+                          <p className="flex items-center gap-1.5 truncate text-white/80">
+                            <FiExternalLink size={10} className="text-white/60" />
+                            <a
+                              href={t.instagram}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="truncate hover:underline"
+                              title={t.instagram}
+                            >
+                              {t.instagram}
+                            </a>
+                          </p>
+                        )}
+                      </div>
+
+                      {t?.skills && t.skills.length > 0 && (
+                        <div>
+                          <p className="mb-0.5 text-[10px] text-white/60">Competences</p>
+                          <div className="flex flex-wrap gap-1">
+                            {t.skills.map((s, i) => (
+                              <span
+                                key={i}
+                                className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white/80"
+                              >
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {t?.style && t.style.length > 0 && (
+                        <div>
+                          <p className="mb-0.5 text-[10px] text-white/60">Styles</p>
+                          <div className="flex flex-wrap gap-1">
+                            {t.style.map((s, i) => (
+                              <span
+                                key={i}
+                                className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-white/80"
+                              >
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {(t?.createdAt || t?.updatedAt) && (
+                        <div className="flex items-center gap-2 text-[9px] text-white/50">
+                          {t?.createdAt && <span>Cree le {formatDate(t.createdAt)}</span>}
+                          {t?.updatedAt && <span>• Mis a jour le {formatDate(t.updatedAt)}</span>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-xs text-white/60 font-one">Aucun tatoueur enregistre pour ce salon</p>
+          )}
+        </div>
+
+        <VerificationDocumentsSection documents={verificationDocs} />
+      </section>
     </div>
   );
 }

@@ -110,7 +110,7 @@ export default function SalonsList() {
             placeholder="Rechercher un salon (nom, email, ville)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-tertiary-400/50 transition-colors font-one"
+            className="w-full pl-9 pr-3 py-1 text-xs bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:border-tertiary-400/50 transition-colors font-one"
           />
         </div>
 
@@ -118,7 +118,7 @@ export default function SalonsList() {
           value={plan}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onChange={(e) => setPlan(e.target.value as any)}
-          className="sm:w-44 px-3 py-2 text-xs bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-tertiary-400/50 font-one"
+          className="sm:w-44 px-3 py-1 text-xs bg-white/10 border border-white/20 rounded-2xl text-white focus:outline-none focus:border-tertiary-400/50 font-one"
         >
           <option value="ALL" className="bg-noir-700">
             Tous les plans
@@ -138,7 +138,7 @@ export default function SalonsList() {
           value={verified}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onChange={(e) => setVerified(e.target.value as any)}
-          className="sm:w-44 px-3 py-2 text-xs bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-tertiary-400/50 font-one"
+          className="sm:w-44 px-3 py-1 text-xs bg-white/10 border border-white/20 rounded-2xl text-white focus:outline-none focus:border-tertiary-400/50 font-one"
         >
           <option value="ALL" className="bg-noir-700">
             Tous les statuts
@@ -153,7 +153,7 @@ export default function SalonsList() {
 
         <button
           type="submit"
-          className="px-4 py-2 text-xs bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-one font-medium"
+          className="px-4 py-1 text-xs bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-2xl transition-all duration-300 font-one font-medium"
         >
           Rechercher
         </button>
