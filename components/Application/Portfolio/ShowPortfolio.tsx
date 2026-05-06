@@ -2,7 +2,7 @@
 import { useSession } from "next-auth/react";
 import { PortfolioProps } from "@/lib/type";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import CreateOrUpdatePhoto from "./CreateOrUpdatePhoto";
 import { IoCreateOutline } from "react-icons/io5";
 import { AiOutlineDelete } from "react-icons/ai";
@@ -10,14 +10,25 @@ import DeletePhoto from "./DeletePhoto";
 import { FaIdCardClip } from "react-icons/fa6";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
+import {
+  getPortfolioPhotosAction,
+  getSalonTatoueursForPortfolioAction,
+  PortfolioTatoueurDto,
+} from "@/lib/queries/portfolio";
 
 export default function ShowPortfolio() {
   const { data: session } = useSession();
 
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [tatoueurFilter, setTatoueurFilter] = useState("all");
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   //! State
   const [photos, setPhotos] = useState<PortfolioProps[]>([]);
+  const [tatoueurs, setTatoueurs] = useState<PortfolioTatoueurDto[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<PortfolioProps | null>(
     null,
   );
@@ -27,43 +38,105 @@ export default function ShowPortfolio() {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
 
   //! Récupère les photos du portfolio
-  const fetchPhotos = async () => {
+  const fetchPhotos = useCallback(async (page: number = 1, reset: boolean = true) => {
+    if (!session?.user?.id) {
+      setPhotos([]);
+      setHasNextPage(false);
+      setCurrentPage(1);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/portfolio/${session?.user?.id}`,
-        {
-          cache: "no-store",
-        },
+      if (reset) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const result = await getPortfolioPhotosAction(
+        session.user.id,
+        tatoueurFilter,
+        page,
       );
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      if (!result.ok || !result.data) {
+        if (reset) {
+          setPhotos([]);
+          setHasNextPage(false);
+          setCurrentPage(1);
+        }
+        return;
       }
 
-      const data = await res.json();
-
-      // Vérifier que data est un tableau
-      if (Array.isArray(data)) {
-        setPhotos(data);
+      const nextPhotos = result.data.photos as PortfolioProps[];
+      if (reset) {
+        setPhotos(nextPhotos);
       } else {
-        console.error("La réponse n'est pas un tableau:", data);
-        setPhotos([]);
+        setPhotos((prev) => [...prev, ...nextPhotos]);
       }
+
+      setHasNextPage(result.data.pagination.hasNextPage);
+      setCurrentPage(result.data.pagination.page);
     } catch (err) {
       console.error("Erreur lors du chargement des photos :", err);
-      setPhotos([]); // S'assurer que photos reste un tableau
+      if (reset) {
+        setPhotos([]);
+        setHasNextPage(false);
+        setCurrentPage(1);
+      }
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  };
+  }, [session?.user?.id, tatoueurFilter]);
+
+  const fetchTatoueurs = useCallback(async () => {
+    if (!session?.user?.id) {
+      setTatoueurs([]);
+      return;
+    }
+
+    try {
+      const result = await getSalonTatoueursForPortfolioAction(session.user.id);
+
+      if (!result.ok || !result.data) {
+        setTatoueurs([]);
+        return;
+      }
+
+      setTatoueurs(result.data);
+    } catch (error) {
+      console.error("Erreur lors du chargement des tatoueurs:", error);
+      setTatoueurs([]);
+    }
+  }, [session?.user?.id]);
 
   useEffect(() => {
     if (session?.user?.id) {
-      fetchPhotos();
+      fetchPhotos(1, true);
+      fetchTatoueurs();
     } else {
       setLoading(false);
     }
-  }, [session?.user?.id, fetchPhotos]);
+  }, [session?.user?.id, fetchPhotos, fetchTatoueurs]);
+
+  useEffect(() => {
+    if (!loadMoreRef.current || loading || loadingMore || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && hasNextPage && !loadingMore) {
+          fetchPhotos(currentPage + 1, false);
+        }
+      },
+      { rootMargin: "240px" },
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [currentPage, fetchPhotos, hasNextPage, loading, loadingMore]);
 
   //! Handlers pour les actions
   const handleCreate = () => {
@@ -87,6 +160,29 @@ export default function ShowPortfolio() {
         icon={<FaIdCardClip size={20} className="text-tertiary-400" />}
         title="Portfolio"
       >
+        <div className="hidden md:flex items-center gap-2">
+          <label htmlFor="tatoueur-filter" className="text-xs text-white/60 font-one">
+            Tatoueur
+          </label>
+          <select
+            id="tatoueur-filter"
+            value={tatoueurFilter}
+            onChange={(event) => {
+              setTatoueurFilter(event.target.value);
+              setCurrentPage(1);
+              setHasNextPage(false);
+            }}
+            className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
+          >
+            <option value="all" className="bg-noir-500">Tous</option>
+            {tatoueurs.map((tatoueur) => (
+              <option key={tatoueur.id} value={tatoueur.id} className="bg-noir-500">
+                {tatoueur.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <DashboardButton onClick={handleCreate}>
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -94,6 +190,29 @@ export default function ShowPortfolio() {
           Nouvelle photo
         </DashboardButton>
       </PageHeader>
+
+      <div className="md:hidden flex items-center gap-2 px-1">
+        <label htmlFor="tatoueur-filter-mobile" className="text-xs text-white/60 font-one">
+          Tatoueur
+        </label>
+        <select
+          id="tatoueur-filter-mobile"
+          value={tatoueurFilter}
+          onChange={(event) => {
+            setTatoueurFilter(event.target.value);
+            setCurrentPage(1);
+            setHasNextPage(false);
+          }}
+          className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
+        >
+          <option value="all" className="bg-noir-500">Tous</option>
+          {tatoueurs.map((tatoueur) => (
+            <option key={tatoueur.id} value={tatoueur.id} className="bg-noir-500">
+              {tatoueur.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div className="w-full h-full">
         {loading ? (
@@ -197,6 +316,11 @@ export default function ShowPortfolio() {
                     <p className="line-clamp-2 text-[11px] leading-relaxed text-white/70 font-one sm:line-clamp-3 sm:text-xs">
                       {photo.description}
                     </p>
+                    {photo.tatoueur?.name && (
+                      <p className="mt-1 text-[10px] text-tertiary-300 font-one">
+                        Tatoueur: {photo.tatoueur.name}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex gap-2 justify-end pt-2 xl:hidden">
@@ -224,15 +348,27 @@ export default function ShowPortfolio() {
             ))}
           </div>
         )}
+
+        {!loading && photos.length > 0 && (
+          <div ref={loadMoreRef} className="flex items-center justify-center py-4">
+            {loadingMore && (
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/25 border-t-tertiary-400" />
+            )}
+            {!hasNextPage && !loadingMore && (
+              <p className="text-[11px] text-white/45 font-one">Vous avez atteint la fin de la liste</p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Modales existantes */}
       {isModalOpen && (
         <CreateOrUpdatePhoto
           onCreate={() => {
-            fetchPhotos();
+            fetchPhotos(1, true);
             setIsModalOpen(false);
           }}
+          tatoueurs={tatoueurs}
           setIsOpen={setIsModalOpen}
           existingPhoto={selectedPhoto ?? undefined}
         />
@@ -241,7 +377,7 @@ export default function ShowPortfolio() {
       {isModalDeleteOpen && (
         <DeletePhoto
           onDelete={() => {
-            fetchPhotos();
+            fetchPhotos(1, true);
             setIsModalDeleteOpen(false);
           }}
           setIsOpen={setIsModalDeleteOpen}

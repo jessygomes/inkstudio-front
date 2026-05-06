@@ -265,6 +265,7 @@ export const portfolioSchema = z.object({
   title: z.string().min(1, "Le titre est requis."),
   description: z.string().optional(),
   imageUrl: z.string().url("L'URL de l'image doit être valide."),
+  tatoueurId: z.string().optional(),
 });
 
 //! FLASHS

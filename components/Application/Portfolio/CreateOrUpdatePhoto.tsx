@@ -10,13 +10,16 @@ import { portfolioSchema } from "@/lib/zod/validator.schema";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
 import { createOrUpdatePortfolioAction } from "@/lib/queries/portfolio";
+import { PortfolioTatoueurDto } from "@/lib/queries/portfolio";
 
 export default function CreateOrUpdatePhoto({
   onCreate,
+  tatoueurs,
   existingPhoto,
   setIsOpen = () => {},
 }: {
   onCreate: () => void;
+  tatoueurs: PortfolioTatoueurDto[];
   existingPhoto?: PortfolioProps | null;
   setIsOpen?: (isOpen: boolean) => void;
 }) {
@@ -32,6 +35,7 @@ export default function CreateOrUpdatePhoto({
       title: existingPhoto?.title || "",
       description: existingPhoto?.description || "",
       imageUrl: existingPhoto?.imageUrl || "",
+      tatoueurId: existingPhoto?.tatoueurId || "",
     },
   });
 
@@ -107,7 +111,10 @@ export default function CreateOrUpdatePhoto({
 
     try {
       const result = await createOrUpdatePortfolioAction(
-        { ...data },
+        {
+          ...data,
+          tatoueurId: data.tatoueurId ? data.tatoueurId : undefined,
+        },
         existingPhoto ? "PUT" : "POST",
         url
       );
@@ -289,6 +296,29 @@ export default function CreateOrUpdatePhoto({
                         {form.formState.errors.title.message}
                       </p>
                     )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
+                      Tatoueur (optionnel)
+                    </label>
+                    <select
+                      {...form.register("tatoueurId")}
+                      className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white focus:border-tertiary-400/40 focus:outline-none font-one"
+                    >
+                      <option value="" className="bg-noir-500">
+                        Aucun tatoueur assigné
+                      </option>
+                      {tatoueurs.map((tatoueur) => (
+                        <option
+                          key={tatoueur.id}
+                          value={tatoueur.id}
+                          className="bg-noir-500"
+                        >
+                          {tatoueur.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="space-y-1">

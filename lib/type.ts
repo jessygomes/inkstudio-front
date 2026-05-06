@@ -223,7 +223,11 @@ export interface PortfolioProps {
   imageUrl: string; // URL de l'image
   createdAt: string; // Date de création au format ISO
   updatedAt: string; // Date de mise à jour au format ISO
-  tatoueurId: string; // ID du tatoueur associé
+  tatoueurId?: string | null; // ID du tatoueur associé
+  tatoueur?: {
+    id: string;
+    name: string;
+  } | null;
 }
 
 //! FLASHS

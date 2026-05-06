@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { IoCreateOutline } from "react-icons/io5";
@@ -11,44 +11,98 @@ import CreateOrUpdateFlash from "./CreateOrUpdateFlash";
 import DeleteFlash from "./DeleteFlash";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
+import { getAvailableFlashsByUserAction } from "@/lib/queries/flash";
 
 export default function ShowFlash() {
   const { data: session } = useSession();
 
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
   const [flashs, setFlashs] = useState<FlashProps[]>([]);
   const [selectedFlash, setSelectedFlash] = useState<FlashProps | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
 
-  const fetchFlashs = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/flash/${session?.user?.id}`,
-        { cache: "no-store" },
-      );
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+  const fetchFlashs = useCallback(
+    async (page: number = 1, reset: boolean = true) => {
+      if (!session?.user?.id) {
+        setFlashs([]);
+        setHasNextPage(false);
+        setCurrentPage(1);
+        setLoading(false);
+        return;
       }
 
-      const data = await res.json();
-      setFlashs(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Erreur lors du chargement des flashs :", error);
-      setFlashs([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [session?.user?.id]);
+      try {
+        if (reset) {
+          setLoading(true);
+        } else {
+          setLoadingMore(true);
+        }
+
+        const result = await getAvailableFlashsByUserAction(session.user.id, page);
+
+        if (!result.ok || !result.data) {
+          if (reset) {
+            setFlashs([]);
+            setHasNextPage(false);
+            setCurrentPage(1);
+          }
+          return;
+        }
+
+        const nextFlashs = result.data.flashs as FlashProps[];
+        if (reset) {
+          setFlashs(nextFlashs);
+        } else {
+          setFlashs((prev) => [...prev, ...nextFlashs]);
+        }
+
+        setHasNextPage(result.data.pagination.hasNextPage);
+        setCurrentPage(result.data.pagination.page);
+      } catch (error) {
+        console.error("Erreur lors du chargement des flashs :", error);
+        if (reset) {
+          setFlashs([]);
+          setHasNextPage(false);
+          setCurrentPage(1);
+        }
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [session?.user?.id],
+  );
 
   useEffect(() => {
     if (session?.user?.id) {
-      fetchFlashs();
+      fetchFlashs(1, true);
     } else {
       setLoading(false);
     }
   }, [session?.user?.id, fetchFlashs]);
+
+  useEffect(() => {
+    if (!loadMoreRef.current || loading || loadingMore || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && hasNextPage && !loadingMore) {
+          fetchFlashs(currentPage + 1, false);
+        }
+      },
+      { rootMargin: "240px" },
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [currentPage, fetchFlashs, hasNextPage, loading, loadingMore]);
 
   const handleCreate = () => {
     setSelectedFlash(null);
@@ -176,10 +230,21 @@ export default function ShowFlash() {
         </div>
       )}
 
+      {!loading && flashs.length > 0 && (
+        <div ref={loadMoreRef} className="flex items-center justify-center py-4">
+          {loadingMore && (
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/25 border-t-tertiary-400" />
+          )}
+          {!hasNextPage && !loadingMore && (
+            <p className="text-[11px] text-white/45 font-one">Vous avez atteint la fin de la liste</p>
+          )}
+        </div>
+      )}
+
       {isModalOpen && (
         <CreateOrUpdateFlash
           onCreate={() => {
-            fetchFlashs();
+            fetchFlashs(1, true);
             setIsModalOpen(false);
           }}
           setIsOpen={setIsModalOpen}
@@ -190,7 +255,7 @@ export default function ShowFlash() {
       {isModalDeleteOpen && (
         <DeleteFlash
           onDelete={() => {
-            fetchFlashs();
+            fetchFlashs(1, true);
             setIsModalDeleteOpen(false);
           }}
           setIsOpen={setIsModalDeleteOpen}

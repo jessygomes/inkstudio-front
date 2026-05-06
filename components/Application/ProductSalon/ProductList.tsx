@@ -1,8 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { ProductSalonProps } from "@/lib/type";
-import { useEffect, useState } from "react";
 import { IoCreateOutline } from "react-icons/io5";
 import { AiOutlineDelete } from "react-icons/ai";
 import { MdOutlineSell } from "react-icons/md";
@@ -11,11 +11,16 @@ import CreateOrUpdateProduct from "./CreateOrUpdateProduct";
 import DeleteProduct from "./DeleteProduct";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
+import { getProductsAction } from "@/lib/queries/productSalon";
 
 export default function ProductList() {
   const { data: session } = useSession();
 
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   //! State
   const [products, setProducts] = useState<ProductSalonProps[]>([]);
@@ -26,46 +31,84 @@ export default function ProductList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
 
-  //! Récupère les photos du portfolio
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/product-salon/${session?.user?.id}`,
-        {
-          cache: "no-store",
-        },
-      );
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      // Vérifier que data est un tableau
-      if (Array.isArray(data)) {
-        setProducts(data);
-      } else {
-        console.error("La réponse n'est pas un tableau:", data);
+  //! Récupère les produits (paginé)
+  const fetchProducts = useCallback(
+    async (page: number = 1, reset: boolean = true) => {
+      if (!session?.user?.id) {
         setProducts([]);
+        setHasNextPage(false);
+        setCurrentPage(1);
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      console.error("Erreur lors du chargement des produits :", err);
-      setProducts([]); // S'assurer que produits reste un tableau
-    } finally {
-      setLoading(false);
-    }
-  };
+
+      try {
+        if (reset) {
+          setLoading(true);
+        } else {
+          setLoadingMore(true);
+        }
+
+        const result = await getProductsAction(session.user.id, page);
+
+        if (!result.ok || !result.data) {
+          if (reset) {
+            setProducts([]);
+            setHasNextPage(false);
+            setCurrentPage(1);
+          }
+          return;
+        }
+
+        const nextProducts = result.data.products as ProductSalonProps[];
+        if (reset) {
+          setProducts(nextProducts);
+        } else {
+          setProducts((prev) => [...prev, ...nextProducts]);
+        }
+
+        setHasNextPage(result.data.pagination.hasNextPage);
+        setCurrentPage(result.data.pagination.page);
+      } catch (error) {
+        console.error("Erreur lors du chargement des produits :", error);
+        if (reset) {
+          setProducts([]);
+          setHasNextPage(false);
+          setCurrentPage(1);
+        }
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [session?.user?.id],
+  );
 
   useEffect(() => {
     if (session?.user?.id) {
-      fetchProducts();
+      fetchProducts(1, true);
     } else {
       setLoading(false);
     }
   }, [session?.user?.id, fetchProducts]);
 
-  //! Handlers pour les actions
+  useEffect(() => {
+    if (!loadMoreRef.current || loading || loadingMore || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && hasNextPage && !loadingMore) {
+          fetchProducts(currentPage + 1, false);
+        }
+      },
+      { rootMargin: "240px" },
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [currentPage, fetchProducts, hasNextPage, loading, loadingMore]);
+
   const handleCreate = () => {
     setSelectedProduct(null);
     setIsModalOpen(true);
@@ -235,11 +278,22 @@ export default function ProductList() {
           ))}
         </div>
       )}
+
+      {/* Sentinel infinite scroll */}
+      <div ref={loadMoreRef} className="flex items-center justify-center py-4">
+        {loadingMore && (
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-tertiary-400 border-t-transparent" />
+        )}
+        {!hasNextPage && !loadingMore && products.length > 0 && (
+          <p className="text-xs font-one text-white/30">Tous les produits sont affichés</p>
+        )}
+      </div>
+
       {isModalOpen && (
         <CreateOrUpdateProduct
           userId={session?.user?.id ?? ""}
           onCreate={() => {
-            fetchProducts();
+            fetchProducts(1, true);
             setIsModalOpen(false);
           }}
           setIsOpen={setIsModalOpen}
@@ -249,7 +303,7 @@ export default function ProductList() {
       {isModalDeleteOpen && (
         <DeleteProduct
           onDelete={() => {
-            fetchProducts();
+            fetchProducts(1, true);
             setIsModalDeleteOpen(false);
           }}
           setIsOpen={setIsModalDeleteOpen}
