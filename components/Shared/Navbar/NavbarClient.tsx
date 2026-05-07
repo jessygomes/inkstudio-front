@@ -42,6 +42,7 @@ export function NavbarClient({ links }: NavbarClientProps) {
           alt="Logo"
           width={150}
           height={50}
+          className="h-auto w-[150px]"
         />
       </Link>
       <ul ref={navRef} className="flex gap-8">

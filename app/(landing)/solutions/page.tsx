@@ -128,7 +128,7 @@ export default function SolutionsPage() {
             {/* Badge moderne */}
             <div className="inline-flex items-center gap-2">
               <Image
-                src="/images/Logo13.png"
+                src="/images/Logo16.png"
                 alt="Logo"
                 width={50}
                 height={50}
@@ -137,9 +137,8 @@ export default function SolutionsPage() {
 
             {/* Titre principal */}
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white uppercase font-two tracking-wide leading-tight">
-              <span className="block mb-1">Toutes les solutions</span>
-              <span className="block bg-gradient-to-r from-tertiary-500 to-cuatro-500 bg-clip-text text-transparent">
-                pour gérer votre salon
+              <span className="block bg-gradient-to-r from-tertiary-500 to-tertiary-400 bg-clip-text text-transparent">
+                Gérer votre salon
               </span>
               <span className="block">de tatouage</span>
             </h1>
@@ -300,7 +299,7 @@ export default function SolutionsPage() {
       </div>
 
       {/* Section finale CTA */}
-      <section className="bg-gradient-to-t from-noir-700 to-noir-500 py-20">
+      <section className="bg-gradient-to-t from-noir-700 to-noir-700 py-20">
         <div className="container mx-auto px-4 sm:px-8 text-center">
           <div className="max-w-4xl mx-auto space-y-8">
             <h2 className="text-3xl sm:text-4xl font-bold text-white font-two">
@@ -318,13 +317,13 @@ export default function SolutionsPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
               <Link
                 href={"/inscription"}
-                className="bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white font-one font-semibold px-8 py-2 rounded-3xl transition-all duration-300 hover:scale-105 shadow-lg"
+                className="bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white font-one text-xs font-semibold px-8 py-2 rounded-3xl transition-all duration-300 hover:scale-105 shadow-lg"
               >
                 Créer mon compte
               </Link>
               <Link
                 href={"/contact"}
-                className="border border-white/20 text-white hover:bg-white/10 font-one font-semibold px-8 py-2 rounded-3xl transition-all duration-300"
+                className="border border-white/20 text-white hover:bg-white/10 font-one text-xs font-semibold px-8 py-2 rounded-3xl transition-all duration-300"
               >
                 Contactez-nous
               </Link>

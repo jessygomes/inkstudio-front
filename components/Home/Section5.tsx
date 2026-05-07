@@ -6,16 +6,30 @@ import React from "react";
 export default function Section5() {
   return (
     <section className="bg-secondary-600 flex flex-col lg:flex-row lg:h-screen">
-      {/* Section image - même disposition que Section3 */}
-      <div className="w-full lg:w-1/2 h-[50vh] lg:h-full flex justify-center items-center p-10 sm:p-8">
-        <div className="flex flex-col items-center justify-center">
-          <Image
-            src="/images/profil.png"
-            alt="sec3"
-            width={1000}
-            height={1000}
-            className="object-cover w-full max-w-md sm:max-w-xl rounded-2xl shadow-[15px_15px_30px_0px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-300"
-          />
+      {/* Section image - version modernisée */}
+      <div className="relative flex h-[50vh] w-full items-center justify-center overflow-hidden p-8 sm:p-10 lg:h-full lg:w-1/2">
+        {/* <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-[14%] top-[18%] h-32 w-32 rounded-full bg-tertiary-500/20 blur-3xl sm:h-44 sm:w-44" />
+          <div className="absolute bottom-[18%] right-[16%] h-36 w-36 rounded-full bg-primary-500/20 blur-3xl sm:h-48 sm:w-48" />
+        </div> */}
+
+        <div className="relative w-[45%] max-w-[280px] sm:w-[42%] sm:max-w-[250px] md:w-[36%] md:max-w-[220px] lg:w-[40%] lg:max-w-[300px]">
+          <div className="absolute -inset-3 rounded-[34px] bg-gradient-to-br from-white/15 via-white/5 to-transparent opacity-80 blur-xl" />
+
+          <div className="relative rounded-[30px] border border-white/20 bg-gradient-to-br from-white/12 to-white/4 p-2.5 shadow-[0_24px_60px_rgba(0,0,0,0.5)] backdrop-blur-md">
+            <div className="overflow-hidden rounded-[24px] border border-white/15 bg-noir-700/30">
+              <Image
+                src="/images/iphone_profil.webp"
+                alt="Application INKERA sur mobile"
+                width={1000}
+                height={1000}
+                className="h-auto max-h-[42vh] w-full object-contain transition-transform duration-500 hover:scale-[1.03] sm:max-h-[38vh] md:max-h-[34vh] lg:max-h-none"
+                priority
+              />
+            </div>
+          </div>
+
+          <div className="pointer-events-none absolute -bottom-5 left-1/2 h-8 w-4/5 -translate-x-1/2 rounded-full bg-black/45 blur-xl" />
         </div>
       </div>
 

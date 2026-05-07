@@ -20,25 +20,19 @@ export default function ReservationSection() {
       icon: <FaCircleInfo size={24} className="text-tertiary-400" />,
       title: "Informations client complètes",
       description:
-        "Collecte automatique des données essentielles : coordonnées, informations médicales et préférences personnelles.",
+        "Collecte automatique des données essentielles mises par le client : coordonnées, informations médicales et préférences personnelles.",
     },
     {
       icon: <FaChalkboardUser size={24} className="text-tertiary-400" />,
       title: "Confirmation intelligente",
       description:
-        "Notifications automatiques par email et SMS avec possibilité de validation ou reprogrammation instantanée.",
+        "Notifications automatiques par email avec possibilité de validation ou reprogrammation.",
     },
     {
       icon: <FaCreativeCommonsBy size={24} className="text-tertiary-400" />,
       title: "Fiche client automatisée",
       description:
         "Génération instantanée des fiches clients avec toutes les données de réservation pré-remplies.",
-    },
-    {
-      icon: <RiPassValidFill size={24} className="text-tertiary-400" />,
-      title: "Validation flexible",
-      description:
-        "Système de validation adaptable : automatique pour les clients fidèles, manuelle pour les nouveaux.",
     },
     {
       icon: <FaEye size={24} className="text-tertiary-400" />,
@@ -49,155 +43,119 @@ export default function ReservationSection() {
   ];
 
   return (
-    <section className="bg-noir-700 py-20 sm:py-16 relative overflow-hidden">
-      {/* Éléments décoratifs de fond */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-tertiary-400/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-tertiary-500/3 rounded-full blur-3xl"></div>
+    <section className="relative overflow-hidden bg-noir-700 py-20 sm:py-16">
+    
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-8">
+        <div className="mb-14 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center">
+          <div className="lg:col-span-7">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-tertiary-400/25 bg-tertiary-500/10 px-4 py-2">
+              <FaCalendarAlt size={15} className="text-tertiary-400" />
+              <span className="text-sm font-semibold text-tertiary-400 font-one">
+                Réservation Intelligente
+              </span>
+            </div>
 
-      <div className="container mx-auto px-4 sm:px-8 max-w-7xl relative z-10">
-        {/* Header premium */}
-        <div className="text-center mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 bg-tertiary-500/10 border border-tertiary-400/20 rounded-full px-4 py-2 mb-6">
-            <FaCalendarAlt size={16} className="text-tertiary-400" />
-            <span className="text-tertiary-400 font-one text-sm font-semibold">
-              Réservation Intelligente
-            </span>
+            <h2 className="text-3xl font-bold uppercase leading-tight text-white font-two sm:text-4xl lg:text-5xl">
+              Réduisez la friction,
+              <br />
+              <span
+                style={{
+                  background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                accélérez chaque réservation
+              </span>
+            </h2>
+
+            <p className="mt-6 max-w-3xl text-base leading-relaxed text-white/72 font-one sm:text-lg">
+              Offrez un tunnel de prise de rendez-vous fluide, automatisé et
+              rassurant. Vos clients réservent plus vite, vous récupérez moins
+              de messages manuels et vous gardez la maîtrise complète de votre
+              planning.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-2.5">
+              <span className="rounded-full border border-white/15 bg-white/8 px-3 py-1 text-xs text-white/80 font-one">
+                Disponibilité en temps réel
+              </span>
+              <span className="rounded-full border border-white/15 bg-white/8 px-3 py-1 text-xs text-white/80 font-one">
+                Confirmation intelligente
+              </span>
+              <span className="rounded-full border border-white/15 bg-white/8 px-3 py-1 text-xs text-white/80 font-one">
+                Fiche client automatique
+              </span>
+            </div>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-two uppercase text-white font-bold leading-tight mb-6">
-            Prise de{" "}
-            <span
-              style={{
-                background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              rendez-vous automatisée
-            </span>
-          </h2>
+          <div className="lg:col-span-5">
+            <div className="group relative mx-auto max-w-xl">
+              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-tertiary-400/25 via-tertiary-500/20 to-tertiary-600/20 blur-xl transition-all duration-700 group-hover:blur-2xl" />
 
-          <div className="w-24 h-1 bg-gradient-to-r from-tertiary-400 to-tertiary-500 rounded-full mx-auto mb-8"></div>
-
-          <p className="text-xl text-white/70 font-one leading-relaxed max-w-4xl mx-auto">
-            Révolutionnez votre gestion de rendez-vous avec un système
-            intelligent qui{" "}
-            <span className="text-white font-semibold">
-              réduit votre charge administrative
-            </span>{" "}
-            tout en offrant une{" "}
-            <span className="text-tertiary-400 font-semibold">
-              expérience client premium
-            </span>
-          </p>
-        </div>
-
-        {/* Image showcase moderne */}
-        <div className="mb-20">
-          <div className="max-w-6xl mx-auto">
-            <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-tertiary-400/20 via-tertiary-500/20 to-tertiary-600/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-700"></div>
-              <div className="relative bg-noir-800/50 backdrop-blur-sm rounded-3xl p-4">
+              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-noir-800/60 p-3 backdrop-blur-sm">
                 <Image
-                  src="/images/rdv.png"
+                  src="/images/Rdv_app.png"
                   alt="Interface de réservation moderne"
                   width={1400}
                   height={900}
-                  className="object-contain w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] rounded-2xl"
+                  className="w-full rounded-2xl"
+                  style={{ height: "auto" }}
                 />
               </div>
 
-              {/* Badge flottant principal */}
-              <div className="absolute top-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white px-8 py-1.5 rounded-3xl shadow-xl">
-                <span className="font-one text-sm font-bold">
-                  Interface INKERA Studio
-                </span>
+              <div className="absolute left-4 top-4 rounded-2xl border border-white/20 bg-black/35 px-3 py-1 text-[11px] text-white/90 backdrop-blur-md font-one">
+                Interface INKERA Studio
               </div>
-
-              {/* Indicateur de fonctionnalité */}
-              <div className="absolute bottom-2 right-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl px-8 py-1.5">
-                <span className="text-white font-one text-xs">
-                  Temps réel
-                </span>
+              <div className="absolute bottom-4 right-4 rounded-2xl border border-white/20 bg-black/35 px-3 py-1 text-[11px] text-white/90 backdrop-blur-md font-one">
+                Synchronisation instantanée
               </div>
             </div>
           </div>
         </div>
 
-        {/* Grid des fonctionnalités premium */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mb-20">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="group relative bg-gradient-to-br from-noir-600/30 to-noir-800/30 backdrop-blur-xl rounded-3xl p-8 border border-white/5 hover:border-tertiary-400/20 transition-all duration-500 hover:transform hover:scale-[1.02]"
-            >
-              {/* Effet de lueur */}
-              <div className="absolute inset-0 bg-gradient-to-br from-tertiary-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"></div>
+        <div className="mb-8 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-center">
+            <p className="text-xl font-bold text-white font-two">24/7</p>
+            <p className="text-[11px] text-white/55 font-one">Prise de RDV</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-center">
+            <p className="text-xl font-bold text-white font-two">-70%</p>
+            <p className="text-[11px] text-white/55 font-one">Coordination manuelle</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-center">
+            <p className="text-xl font-bold text-white font-two">+85%</p>
+            <p className="text-[11px] text-white/55 font-one">Satisfaction client</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-center">
+            <p className="text-xl font-bold text-white font-two">1 clic</p>
+            <p className="text-[11px] text-white/55 font-one">Validation flexible</p>
+          </div>
+        </div>
 
-              <div className="relative z-10">
-                <div className="flex items-start gap-6 mb-6">
-                  <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center group-hover:from-tertiary-500/30 group-hover:to-tertiary-600/30 transition-all duration-500">
-                    {feature.icon}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-white font-two text-lg group-hover:text-tertiary-400 transition-colors duration-300 mb-3">
-                      {feature.title}
-                    </h3>
-                    <p className="text-white/60 font-one text-sm leading-relaxed group-hover:text-white/80 transition-colors duration-300">
-                      {feature.description}
-                    </p>
-                  </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {features.map((feature, index) => (
+            <article
+              key={index}
+              className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-noir-600/35 to-noir-800/30 p-5 transition-all duration-300 hover:border-tertiary-400/30 hover:bg-noir-600/45"
+            >
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-tertiary-400/6 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="relative z-10 flex items-start gap-3">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-500/15">
+                  {feature.icon}
+                </div>
+                <div>
+                  <h3 className="mb-2 text-base font-semibold text-white font-two group-hover:text-tertiary-300">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-white/62 font-one group-hover:text-white/78">
+                    {feature.description}
+                  </p>
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
-
-        {/* Section avantages */}
-        {/* <div className="bg-gradient-to-br from-tertiary-500/5 to-tertiary-600/5 backdrop-blur-xl rounded-3xl p-8 sm:p-12 border border-tertiary-400/10">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-full flex items-center justify-center">
-                <FaEye size={32} className="text-tertiary-400" />
-              </div>
-            </div>
-
-            <h3 className="text-2xl sm:text-3xl font-bold text-white font-two mb-4">
-              Résultats garantis
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-tertiary-400 font-two mb-2">
-                  -70%
-                </div>
-                <p className="text-white/70 font-one text-sm">
-                  Messages de coordination
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-tertiary-400 font-two mb-2">
-                  +85%
-                </div>
-                <p className="text-white/70 font-one text-sm">
-                  Satisfaction client
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-tertiary-400 font-two mb-2">
-                  24/7
-                </div>
-                <p className="text-white/70 font-one text-sm">Disponibilité</p>
-              </div>
-            </div>
-
-            <div className="mt-8 p-6 bg-white/5 rounded-2xl">
-              <p className="text-tertiary-400 font-one font-semibold text-lg">
-                ✨ Transformez votre salon en référence digitale du secteur
-              </p>
-            </div>
-          </div>
-        </div> */}
       </div>
     </section>
   );

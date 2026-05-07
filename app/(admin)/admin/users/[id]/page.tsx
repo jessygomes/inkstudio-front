@@ -99,8 +99,6 @@ export default async function AdminUserDetail({
     salon?.SalonVerificationDocument ??
     [];
 
-  console.log("Salon details:", salon);
-
   if (!salon) {
     notFound();
   }

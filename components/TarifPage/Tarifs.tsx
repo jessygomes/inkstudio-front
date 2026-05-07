@@ -129,10 +129,6 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
 
   return (
     <section className="py-20 sm:py-28 relative overflow-hidden">
-      {/* Éléments décoratifs de fond */}
-      <div className="absolute top-0 left-0 w-80 h-80 bg-tertiary-400/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/3 rounded-full blur-3xl"></div>
-
       <div className="container mx-auto px-4 sm:px-8 max-w-7xl relative z-10">
         {/* Header moderne */}
         <div className="text-center mb-16">
@@ -354,7 +350,7 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
             </div>
 
             <div className="text-center mt-8 p-6 bg-white/5 rounded-2xl">
-              <p className="text-tertiary-400 font-one font-semibold">
+              <p className="text-white tracking-widest font-one font-semibold">
                 30 jours d'essai gratuit sur tous les plans - Aucune carte
                 bancaire requise
               </p>

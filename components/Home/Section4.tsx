@@ -22,7 +22,7 @@ export default function Section4() {
           <span
             className="text-tertiary-500 font-bold uppercase"
             style={{
-              background: "linear-gradient(90deg, #ba01d3, #ff4d41)",
+              background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
