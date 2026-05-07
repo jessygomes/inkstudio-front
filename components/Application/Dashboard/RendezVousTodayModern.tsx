@@ -10,8 +10,9 @@ import { formatTime } from "@/lib/utils/formatTime";
 import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import { calculateDuration } from "@/lib/utils/calculateDuration";
 import { getDateLabel } from "@/lib/utils/getDateLabel";
-import RdvDetailsPanelDesktop from "./RdvDetailsPanelDesktop";
-import RdvDetailsPanelMobile from "./RdvDetailsPanelMobile";
+import ShowRdvDetails from "../RDV/ShowRdvDetails";
+import ShowRdvDetailsMobile from "../RDV/ShowRdvDetailsMobile";
+import type { CalendarEvent } from "../RDV/Calendar";
 
 interface Client {
   firstName: string;
@@ -339,7 +340,7 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="dashboard-panel dashboard-panel-featured relative h-[540px] overflow-y-auto p-3.5 shadow-2xl lg:overflow-hidden lg:p-4">
+    <div className="dashboard-panel dashboard-panel-featured relative h-[540px] overflow-y-auto p-3.5 shadow-2xl lg:min-h-[520px] lg:overflow-hidden lg:p-4">
       <div
         className={`dashboard-panel-content flex h-full flex-col ${
           selectedAppointment ? "lg:pointer-events-none lg:opacity-0" : ""
@@ -536,25 +537,33 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
         <>
           {!isMobile && (
             <div className="absolute inset-0 z-50">
-              <RdvDetailsPanelDesktop
-                selectedAppointment={selectedAppointment}
+              <ShowRdvDetails
+                selectedEvent={selectedAppointment as unknown as CalendarEvent}
                 onClose={() => setSelectedAppointment(null)}
                 handleRdvUpdated={handleRdvUpdated}
                 handleStatusChange={handleStatusChange}
                 handlePaymentStatusChange={handlePaymentStatusChange}
                 userId={userId}
+                price={
+                  selectedAppointment.tattooDetail?.price ??
+                  selectedAppointment.tattooDetail?.estimatedPrice
+                }
               />
             </div>
           )}
 
           {isMobile && (
-            <RdvDetailsPanelMobile
-              selectedAppointment={selectedAppointment}
+            <ShowRdvDetailsMobile
+              selectedEvent={selectedAppointment as unknown as CalendarEvent}
               onClose={() => setSelectedAppointment(null)}
               handleRdvUpdated={handleRdvUpdated}
               handleStatusChange={handleStatusChange}
               handlePaymentStatusChange={handlePaymentStatusChange}
               userId={userId}
+              price={
+                selectedAppointment.tattooDetail?.price ??
+                selectedAppointment.tattooDetail?.estimatedPrice
+              }
             />
           )}
         </>

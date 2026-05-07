@@ -43,20 +43,20 @@ export default function ChangeStatusButtons({
 
   // Définir les tailles selon le prop size
   const sizeClasses = {
-    sm: "px-2.5 py-1 text-xs rounded-2xl",
-    md: "px-3 py-1 text-sm rounded-2xl",
-    lg: "px-4 py-1 text-base rounded-2xl",
+    sm: "py-2.5 text-xs",
+    md: "py-2.5 text-sm",
+    lg: "py-2.5 text-base",
   };
 
   const buttonSizeClass = sizeClasses[size];
 
   return (
-    <div className={`flex gap-1.5 ${className}`}>
+    <div className={`flex w-full ${className}`}>
       {/* Bouton Terminé - Affiché si le statut n'est pas COMPLETED */}
       {currentStatus !== "COMPLETED" && (
         <button
           onClick={() => handleAppointmentStatusChange("COMPLETED")}
-          className={`cursor-pointer ${buttonSizeClass} bg-linear-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 text-emerald-300 border border-emerald-500/40 hover:border-emerald-500/60 transition-all duration-200 font-one font-medium flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md`}
+          className={`cursor-pointer flex-1 ${buttonSizeClass} text-emerald-300 hover:text-emerald-200 border-r border-white/10 transition-colors duration-200 font-one font-medium flex items-center justify-center gap-1.5 hover:bg-white/6`}
           title="Marquer comme terminé"
         >
           <svg
@@ -74,7 +74,7 @@ export default function ChangeStatusButtons({
       {currentStatus !== "NO_SHOW" && (
         <button
           onClick={() => handleAppointmentStatusChange("NO_SHOW")}
-          className={`cursor-pointer ${buttonSizeClass} bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 hover:border-amber-500/60 transition-all duration-200 font-one font-medium flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md`}
+          className={`cursor-pointer flex-1 ${buttonSizeClass} text-amber-300 hover:text-amber-200 transition-colors duration-200 font-one font-medium flex items-center justify-center gap-1.5 hover:bg-white/6`}
           title="Marquer comme absent"
         >
           <svg

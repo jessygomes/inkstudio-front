@@ -732,27 +732,27 @@ export default function RDV() {
                                     className="w-full cursor-pointer"
                                   >
                                     {event.status === "CANCELED" ? (
-                                      <span className="inline-block px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg text-xs font-medium font-one hover:bg-red-500/30 transition-all duration-200 whitespace-nowrap">
+                                      <span className="inline-block px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-2xl text-xs font-medium font-one hover:bg-red-500/30 transition-all duration-200 whitespace-nowrap">
                                         Annulé
                                       </span>
                                     ) : event.status === "RESCHEDULING" ? (
-                                      <span className="inline-block px-1 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-one font-medium hover:bg-blue-500/30 transition-all duration-200 whitespace-nowrap">
+                                      <span className="inline-block px-1 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-2xl text-xs font-one font-medium hover:bg-blue-500/30 transition-all duration-200 whitespace-nowrap">
                                         En attente de reprogrammation
                                       </span>
                                     ) : event.status === "COMPLETED" ? (
-                                      <span className="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-medium font-one hover:bg-emerald-500/30 transition-all duration-200 whitespace-nowrap">
+                                      <span className="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-2xl text-xs font-medium font-one hover:bg-emerald-500/30 transition-all duration-200 whitespace-nowrap">
                                         Complété
                                       </span>
                                     ) : event.status === "NO_SHOW" ? (
-                                      <span className="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium font-one hover:bg-amber-500/30 transition-all duration-200 whitespace-nowrap">
+                                      <span className="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-2xl text-xs font-medium font-one hover:bg-amber-500/30 transition-all duration-200 whitespace-nowrap">
                                         Pas présenté
                                       </span>
                                     ) : event.status === "PENDING" ? (
-                                      <span className="inline-block px-2 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-lg text-xs font-medium font-one hover:bg-orange-500/30 transition-all duration-200 whitespace-nowrap">
+                                      <span className="inline-block px-2 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-2xl text-xs font-medium font-one hover:bg-orange-500/30 transition-all duration-200 whitespace-nowrap">
                                         En attente
                                       </span>
                                     ) : (
-                                      <span className="inline-block px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-lg text-xs font-medium font-one hover:bg-green-500/30 transition-all duration-200 whitespace-nowrap">
+                                      <span className="inline-block px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-2xl text-xs font-medium font-one hover:bg-green-500/30 transition-all duration-200 whitespace-nowrap">
                                         Confirmé
                                       </span>
                                     )}

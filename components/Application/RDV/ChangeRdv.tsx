@@ -62,7 +62,7 @@ export default function ChangeRdv({
   return (
     <>
       <button
-        className="cursor-pointer px-2.5 py-1 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 border border-cyan-500/40 rounded-2xl text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
+        className="w-full cursor-pointer px-2 py-2.5 text-cyan-300 hover:text-cyan-200 text-xs font-one font-medium transition-colors duration-200 flex items-center justify-center gap-1.5 hover:bg-white/6"
         onClick={() => setShowModal(true)}
         title="Proposer une reprogrammation"
       >

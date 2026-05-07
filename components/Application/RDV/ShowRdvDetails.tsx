@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { CalendarEvent } from "./Calendar";
 import ConfirmRdv from "./ConfirmRdv";
@@ -7,11 +8,16 @@ import CancelRdv from "./CancelRdv";
 import ChangeRdv from "./ChangeRdv";
 import ChangeStatusButtons from "./ChangeStatusButtons";
 import SendMessageRdv from "./SendMessageRdv";
+import ConversationRdv from "./ConversationRdv";
 import { UpdateRdvFormProps } from "@/lib/type";
 import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import Link from "next/link";
 import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
+import {
+  getMoodboardByAppointmentAction,
+  MoodboardDto,
+} from "@/lib/queries/moodboard";
 
 const STATUS_CONFIG = {
   PENDING: { label: "En attente", dot: "bg-amber-400 animate-pulse", pill: "bg-amber-500/12 text-amber-300 border-amber-400/25" },
@@ -42,6 +48,10 @@ export default function ShowRdvDetails({
   price,
 }: ShowRdvDetailsProps) {
   const [piercingZoneName, setPiercingZoneName] = useState<string | null>(null);
+  const [isMoodboardOpen, setIsMoodboardOpen] = useState(false);
+  const [moodboardLoading, setMoodboardLoading] = useState(false);
+  const [moodboardError, setMoodboardError] = useState<string | null>(null);
+  const [moodboardData, setMoodboardData] = useState<MoodboardDto | null>(null);
 
   useEffect(() => {
     async function fetchPiercingDetails() {
@@ -102,9 +112,141 @@ export default function ShowRdvDetails({
     price ?? selectedEvent.tattooDetail?.price ?? selectedEvent.tattooDetail?.estimatedPrice;
   const hasPrice = typeof displayPrice === "number" && displayPrice > 0;
   const tattooDetail = selectedEvent.tattooDetail;
+  const isPastOrDone =
+    (selectedEvent.status === "CONFIRMED" &&
+      new Date(selectedEvent.end) < new Date()) ||
+    selectedEvent.status === "COMPLETED" ||
+    selectedEvent.status === "NO_SHOW";
+
+  const openMoodboard = async () => {
+    setIsMoodboardOpen(true);
+    setMoodboardLoading(true);
+    setMoodboardError(null);
+
+    try {
+      const result = await getMoodboardByAppointmentAction(selectedEvent.id);
+
+      if (!result.ok) {
+        setMoodboardData(null);
+        setMoodboardError(result.message || "Impossible de charger le moodboard.");
+        return;
+      }
+
+      setMoodboardData(result.data ?? null);
+    } catch {
+      setMoodboardData(null);
+      setMoodboardError("Impossible de charger le moodboard.");
+    } finally {
+      setMoodboardLoading(false);
+    }
+  };
+
+  const renderMoodboardImage = (image: {
+    imageUrl?: string;
+    url?: string;
+  }) => image.imageUrl || image.url || "";
+
+  const moodboardModal =
+    isMoodboardOpen &&
+    createPortal(
+      <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-3xl border border-white/15 bg-noir-700 shadow-2xl">
+          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+            <div>
+              <h4 className="text-white font-one font-semibold text-base">
+                Moodboard de {selectedEvent.client.firstName} {selectedEvent.client.lastName}
+              </h4>
+              {moodboardData?.name && (
+                <p className="text-white/65 text-xs font-one mt-1">{moodboardData.name}</p>
+              )}
+            </div>
+            <button
+              onClick={() => setIsMoodboardOpen(false)}
+              className="cursor-pointer rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10"
+            >
+              Fermer
+            </button>
+          </div>
+
+          <div className="max-h-[calc(90vh-72px)] overflow-y-auto p-5">
+            {moodboardLoading ? (
+              <p className="text-white/70 text-sm font-one">Chargement du moodboard...</p>
+            ) : moodboardError ? (
+              <p className="text-red-300 text-sm font-one">{moodboardError}</p>
+            ) : !moodboardData ? (
+              <p className="text-white/70 text-sm font-one">
+                Aucun moodboard n&apos;est associé à ce rendez-vous.
+              </p>
+            ) : (
+              <div className="space-y-5">
+                {(moodboardData.title || moodboardData.name) && (
+                  <div>
+                    <h5 className="text-white text-lg font-semibold font-one">
+                      {moodboardData.title || moodboardData.name}
+                    </h5>
+                    {moodboardData.description && (
+                      <p className="mt-2 text-white/75 text-sm leading-relaxed font-one">
+                        {moodboardData.description}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {Array.isArray(moodboardData.images) && moodboardData.images.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {moodboardData.images.map((image) => {
+                      const imageUrl = renderMoodboardImage(image);
+
+                      if (!imageUrl) return null;
+
+                      return (
+                        <button
+                          key={image.id}
+                          onClick={() => openImageInNewTab(imageUrl)}
+                          className="group text-left"
+                          type="button"
+                        >
+                          <div className="relative h-48 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                            <Image
+                              src={imageUrl}
+                              alt={image.title || image.caption || "Image du moodboard"}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                          </div>
+                          {(image.caption || image.title || image.description) && (
+                            <div className="mt-2 space-y-1">
+                              {image.title && (
+                                <p className="text-sm font-semibold text-white font-one">{image.title}</p>
+                              )}
+                              {image.caption && (
+                                <p className="text-xs text-white/70 font-one">{image.caption}</p>
+                              )}
+                              {image.description && (
+                                <p className="text-xs text-white/60 font-one">{image.description}</p>
+                              )}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-white/70 text-sm font-one">
+                    Ce moodboard ne contient pas encore d&apos;images.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>,
+      document.body,
+    );
 
   return (
-    <div className="dashboard-embedded-panel flex h-full flex-col">
+    <>
+      <div className="dashboard-embedded-panel flex h-full flex-col">
       <div className="dashboard-embedded-header rounded-t-[28px] px-4 pt-4 pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -206,112 +348,82 @@ export default function ShowRdvDetails({
           </div>
         </div>
 
-        <div className="dashboard-embedded-section p-3">
-          <p className="mb-2 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">Actions</p>
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Bouton Rejoindre la conversation - si une conversation existe */}
-            {selectedEvent.conversation?.id && (
-              <button
-                onClick={() => {
-                  window.location.href = `/messagerie/${selectedEvent.conversation?.id}`;
-                }}
-                className="cursor-pointer px-2.5 py-1 bg-gradient-to-r from-teal-500/20 to-emerald-500/20 hover:from-teal-500/30 hover:to-emerald-500/30 text-teal-300 border border-teal-500/40 rounded-2xl text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
-                title="Rejoindre la conversation"
-              >
-                <svg
-                  className="w-3.5 h-3.5 flex-shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+        <div className="dashboard-embedded-section overflow-hidden">
+          <div className="grid grid-cols-3">
+            {/* ── Ligne 1 ── */}
+            {isPastOrDone ? (
+              <>
+                <div className="col-span-2 border-r border-b border-white/10 flex">
+                  <ChangeStatusButtons
+                    rdvId={selectedEvent.id}
+                    currentStatus={selectedEvent.status}
+                    onStatusChange={handleStatusChange}
+                    size="sm"
+                    className="w-full"
                   />
-                </svg>
-                <span>Conversation</span>
-              </button>
+                </div>
+                <div className="border-b border-white/10" />
+              </>
+            ) : (
+              <>
+                {/* Confirmer */}
+                <div className="border-r border-b border-white/10 flex">
+                  {selectedEvent.status !== "CONFIRMED" &&
+                    selectedEvent.status !== "RESCHEDULING" && (
+                      <ConfirmRdv
+                        rdvId={selectedEvent.id}
+                        appointment={selectedEvent}
+                        onConfirm={() => handleRdvUpdated(selectedEvent.id)}
+                      />
+                    )}
+                </div>
+                {/* Modifier */}
+                <div className="border-r border-b border-white/10 flex">
+                  <UpdateRdv
+                    rdv={selectedEvent as unknown as UpdateRdvFormProps}
+                    userId={userId || ""}
+                    onUpdate={() => handleRdvUpdated(selectedEvent.id)}
+                  />
+                </div>
+                {/* Reprogrammer */}
+                <div className="border-b border-white/10 flex">
+                  <ChangeRdv
+                    rdvId={selectedEvent.id}
+                    appointment={selectedEvent}
+                    userId={userId || ""}
+                  />
+                </div>
+              </>
             )}
 
-            {/* Bouton Confirmer - pas pour CONFIRMED, RESCHEDULING, COMPLETED, NO_SHOW */}
-            {selectedEvent.status !== "CONFIRMED" &&
-              selectedEvent.status !== "RESCHEDULING" &&
-              selectedEvent.status !== "COMPLETED" &&
-              selectedEvent.status !== "NO_SHOW" && (
-                <ConfirmRdv
+            {/* ── Ligne 2 ── */}
+            {/* Conversation */}
+            <div className="border-r border-white/10 flex">
+              {selectedEvent.conversation?.id && (
+                <ConversationRdv conversationId={selectedEvent.conversation.id} />
+              )}
+            </div>
+            {/* Mail */}
+            <div className="border-r border-white/10 flex">
+              {selectedEvent.status !== "CANCELED" && (
+                <SendMessageRdv
                   rdvId={selectedEvent.id}
                   appointment={selectedEvent}
-                  onConfirm={() => handleRdvUpdated(selectedEvent.id)}
+                  onMessageSent={() => handleRdvUpdated(selectedEvent.id)}
+                  buttonLabel="Mail"
                 />
               )}
-
-            {/* Bouton Modifier - pas pour RDV passés confirmés, COMPLETED, NO_SHOW */}
-            {!(
-              selectedEvent.status === "CONFIRMED" &&
-              new Date(selectedEvent.end) < new Date()
-            ) &&
-              selectedEvent.status !== "COMPLETED" &&
-              selectedEvent.status !== "NO_SHOW" && (
-                <UpdateRdv
-                  rdv={selectedEvent as unknown as UpdateRdvFormProps}
-                  userId={userId || ""}
-                  onUpdate={() => handleRdvUpdated(selectedEvent.id)}
-                />
-              )}
-
-            {/* Bouton Notifier changement - pas pour RDV passés confirmés, COMPLETED, NO_SHOW */}
-            {!(
-              selectedEvent.status === "CONFIRMED" &&
-              new Date(selectedEvent.end) < new Date()
-            ) &&
-              selectedEvent.status !== "COMPLETED" &&
-              selectedEvent.status !== "NO_SHOW" && (
-                <ChangeRdv
-                  rdvId={selectedEvent.id}
-                  appointment={selectedEvent}
-                  userId={userId || ""}
-                />
-              )}
-
-            {/* Bouton Annuler - pas pour CANCELED, RDV passés confirmés, COMPLETED, NO_SHOW */}
-            {selectedEvent.status !== "CANCELED" &&
-              selectedEvent.status !== "COMPLETED" &&
-              selectedEvent.status !== "NO_SHOW" &&
-              !(
-                selectedEvent.status === "CONFIRMED" &&
-                new Date(selectedEvent.end) < new Date()
-              ) && (
+            </div>
+            {/* Annuler */}
+            <div className="flex">
+              {!isPastOrDone && selectedEvent.status !== "CANCELED" && (
                 <CancelRdv
                   rdvId={selectedEvent.id}
                   appointment={selectedEvent}
                   onCancel={() => handleRdvUpdated(selectedEvent.id)}
                 />
               )}
-
-            {/* Boutons pour changer le statut - pour RDV confirmés passés, COMPLETED, NO_SHOW */}
-            {((selectedEvent.status === "CONFIRMED" &&
-              new Date(selectedEvent.end) < new Date()) ||
-              selectedEvent.status === "COMPLETED" ||
-              selectedEvent.status === "NO_SHOW") && (
-              <ChangeStatusButtons
-                rdvId={selectedEvent.id}
-                currentStatus={selectedEvent.status}
-                onStatusChange={handleStatusChange}
-                size="sm"
-              />
-            )}
-
-            {/* Bouton Message - disponible pour tous les rendez-vous sauf CANCELED */}
-            {selectedEvent.status !== "CANCELED" && (
-              <SendMessageRdv
-                rdvId={selectedEvent.id}
-                appointment={selectedEvent}
-                onMessageSent={() => handleRdvUpdated(selectedEvent.id)}
-                buttonLabel="Envoyer un mail"
-              />
-            )}
+            </div>
           </div>
         </div>
 
@@ -455,6 +567,27 @@ export default function ShowRdvDetails({
                   </div>
                 </div>
               )}
+              <button
+              type="button"
+              onClick={openMoodboard}
+              className="cursor-pointer border-l border-white/15 px-3 py-1.5 text-indigo-300 hover:text-indigo-200 text-xs font-one font-medium transition-colors duration-200 flex items-center gap-1.5 whitespace-nowrap hover:bg-white/6"
+              title="Voir le moodboard du client"
+            >
+              <svg
+                className="w-3.5 h-3.5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <span>Voir le moodboard</span>
+            </button>
             </div>
           </div>
         )}
@@ -502,6 +635,8 @@ export default function ShowRdvDetails({
           Fermer
         </button>
       </div>
-    </div>
+      </div>
+      {moodboardModal}
+    </>
   );
 }

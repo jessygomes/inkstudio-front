@@ -46,7 +46,7 @@ export default function ConfirmRdv({
   return (
     <>
       <button
-        className="cursor-pointer px-2.5 py-1 bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 text-emerald-300 border border-emerald-500/40 rounded-2xl text-xs font-one font-medium transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shadow-sm hover:shadow-md"
+        className="w-full cursor-pointer px-2 py-2.5 text-emerald-300 hover:text-emerald-200 text-xs font-one font-medium transition-colors duration-200 flex items-center justify-center gap-1.5 hover:bg-white/6"
         onClick={() => setShowModal(true)}
         title="Confirmer ce rendez-vous"
       >

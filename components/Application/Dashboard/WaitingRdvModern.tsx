@@ -9,8 +9,9 @@ import {
 } from "@/lib/queries/appointment";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { calculateDuration } from "@/lib/utils/calculateDuration";
-import WaitingRdvDetailsPanelMobile from "./WaitingRdvDetailsPanelMobile";
-import WaitingRdvDetailsPanelDesktop from "./WaitingRdvDetailsPanelDesktop";
+import ShowRdvDetailsMobile from "../RDV/ShowRdvDetailsMobile";
+import ShowRdvDetails from "../RDV/ShowRdvDetails";
+import type { CalendarEvent } from "../RDV/Calendar";
 
 interface Client {
   firstName: string;
@@ -196,6 +197,10 @@ export default function WaitingRdvModern({ userId }: { userId: string }) {
     syncSelectedDetails(nextAppointments, updatedId);
   };
 
+  const handleStatusChange = () => {
+    // No-op: les rendez-vous en attente n'affichent pas les actions "terminé/absent".
+  };
+
   const handleConfirmClick = (appointment: PendingAppointment) => {
     setSelectedAppointment(appointment);
     setActionType("confirm");
@@ -339,7 +344,7 @@ export default function WaitingRdvModern({ userId }: { userId: string }) {
 
   return (
     <>
-      <div className="dashboard-panel dashboard-panel-featured relative h-[540px] overflow-y-auto p-3.5 lg:overflow-hidden lg:p-4">
+      <div className="dashboard-panel dashboard-panel-featured relative h-[540px] overflow-y-auto p-3.5 lg:h-[620px] lg:overflow-hidden lg:p-4">
         <div
           className={`dashboard-panel-content flex h-full flex-col ${
             selectedAppointmentDetails ? "lg:pointer-events-none lg:opacity-0" : ""
@@ -536,24 +541,34 @@ export default function WaitingRdvModern({ userId }: { userId: string }) {
           )}
 
           {selectedAppointmentDetails && isMobile && (
-            <WaitingRdvDetailsPanelMobile
-              selectedAppointment={selectedAppointmentDetails}
+            <ShowRdvDetailsMobile
+              selectedEvent={selectedAppointmentDetails as unknown as CalendarEvent}
               onClose={() => setSelectedAppointmentDetails(null)}
               handleRdvUpdated={handleRdvUpdated}
+              handleStatusChange={handleStatusChange}
               handlePaymentStatusChange={handlePaymentStatusChange}
               userId={userId}
+              price={
+                selectedAppointmentDetails.tattooDetail?.price ??
+                selectedAppointmentDetails.tattooDetail?.estimatedPrice
+              }
             />
           )}
         </div>
 
         {selectedAppointmentDetails && !isMobile && (
           <div className="absolute inset-0 z-50">
-            <WaitingRdvDetailsPanelDesktop
-              selectedAppointment={selectedAppointmentDetails}
+            <ShowRdvDetails
+              selectedEvent={selectedAppointmentDetails as unknown as CalendarEvent}
               onClose={() => setSelectedAppointmentDetails(null)}
               handleRdvUpdated={handleRdvUpdated}
+              handleStatusChange={handleStatusChange}
               handlePaymentStatusChange={handlePaymentStatusChange}
               userId={userId}
+              price={
+                selectedAppointmentDetails.tattooDetail?.price ??
+                selectedAppointmentDetails.tattooDetail?.estimatedPrice
+              }
             />
           </div>
         )}

@@ -64,6 +64,11 @@ export type CalendarEvent = Event & {
     piercingZone?: string;
     piercingServicePriceId?: string;
   };
+  moodboard?: {
+    id: string;
+    name?: string | null;
+    description?: string | null;
+  } | null;
   salonReview?: {
     id: string;
     rating: number;
