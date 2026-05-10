@@ -44,35 +44,15 @@ export default function ClientSection() {
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-8">
         {/* Hero split */}
         <div className="mb-14 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center">
-          {/* Image côté gauche */}
-          <div className="lg:col-span-5">
+          {/* Texte côté gauche */}
+          <div className="lg:col-span-7">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-tertiary-400/25 bg-tertiary-500/10 px-4 py-2">
               <FaUsers size={15} className="text-tertiary-400" />
               <span className="text-sm font-semibold text-tertiary-400 font-one">
                 Gestion Client Avancée
               </span>
             </div>
-            <div className="group relative mx-auto max-w-xl">
-              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-tertiary-400/25 via-tertiary-500/20 to-tertiary-600/20 blur-xl transition-all duration-700 group-hover:blur-2xl" />
-              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-noir-700/60 p-3 backdrop-blur-sm">
-                <Image
-                  src="/images/Client_app.png"
-                  alt="Interface de gestion client"
-                  width={1400}
-                  height={900}
-                  className="w-full rounded-2xl"
-                  style={{ height: "auto" }}
-                />
-              </div>
-              <div className="absolute left-4 top-4 rounded-2xl border border-white/20 bg-black/35 px-3 py-1 text-[11px] text-white/90 backdrop-blur-md font-one">
-                Gestion Client INKERA Studio
-              </div>
-          
-            </div>
-          </div>
 
-          {/* Texte côté droit */}
-          <div className="lg:col-span-7">
             <h2 className="text-3xl font-bold uppercase leading-tight text-white font-two sm:text-4xl lg:text-5xl">
               Centralisez vos clients,
               <br />
@@ -104,6 +84,29 @@ export default function ClientSection() {
               <span className="rounded-full border border-white/15 bg-white/8 px-3 py-1 text-xs text-white/80 font-one">
                 Suivi post-tatouage
               </span>
+            </div>
+          </div>
+
+          {/* Image côté droit */}
+          <div className="lg:col-span-5">
+            <div className="group relative mx-auto max-w-xl">
+              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-tertiary-400/25 via-tertiary-500/20 to-tertiary-600/20 blur-xl transition-all duration-700 group-hover:blur-2xl" />
+              <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-noir-800/60 p-3 backdrop-blur-sm">
+                <Image
+                  src="/images/Client_app.png"
+                  alt="Interface de gestion client"
+                  width={1400}
+                  height={900}
+                  className="w-full rounded-2xl"
+                  style={{ height: "auto" }}
+                />
+              </div>
+              <div className="absolute left-4 top-4 rounded-2xl border border-white/20 bg-black/35 px-3 py-1 text-[11px] text-white/90 backdrop-blur-md font-one">
+                Gestion Client INKERA Studio
+              </div>
+              <div className="absolute bottom-4 right-4 rounded-2xl border border-white/20 bg-black/35 px-3 py-1 text-[11px] text-white/90 backdrop-blur-md font-one">
+                Conformité RGPD automatisée
+              </div>
             </div>
           </div>
         </div>

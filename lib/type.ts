@@ -57,6 +57,8 @@ export interface AppointmentProps {
     sketch?: string;
     price?: number;
     estimatedPrice?: number;
+    piercingZone?: string | null;
+    piercingServicePriceId?: string | null;
   };
   conversation: {
     id: string;

@@ -18,6 +18,7 @@ declare module "next-auth" {
       salonHours?: string | null;
     } & DefaultSession["user"];
     accessToken: string;
+    error?: "AccessTokenExpired";
   }
 
   interface User extends DefaultUser {
@@ -43,5 +44,7 @@ declare module "next-auth/jwt" {
     address: string;
     verifiedSalon: boolean;
     salonHours?: string | null;
+    accessTokenExpiry?: number | null;
+    error?: "AccessTokenExpired";
   }
 }

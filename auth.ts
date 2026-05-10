@@ -2,6 +2,22 @@ import NextAuth from "next-auth";
 import authConfig from "./auth.config";
 
 /**
+ * Décode un JWT sans vérification de signature pour extraire l'expiry (exp)
+ */
+function decodeJwtExpiry(token: string): number | null {
+  try {
+    const base64Payload = token.split(".")[1];
+    if (!base64Payload) return null;
+    const payload = JSON.parse(
+      Buffer.from(base64Payload, "base64url").toString("utf-8"),
+    );
+    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Configuration principale de NextAuth
  * Gère l'authentification avec JWT et les callbacks
  */
@@ -41,6 +57,18 @@ export const {
             : rawHoursUnknown
               ? JSON.stringify(rawHoursUnknown)
               : null;
+        // Stocker l'expiry du backend token
+        token.accessTokenExpiry = decodeJwtExpiry(user.accessToken);
+        token.error = undefined;
+      }
+
+      // Vérifier si le backend access token est expiré
+      if (
+        token.accessTokenExpiry &&
+        Date.now() > token.accessTokenExpiry
+      ) {
+        console.warn("⚠️ [JWT Callback] Backend access token expiré");
+        return { ...token, error: "AccessTokenExpired" as const };
       }
 
       // Support pour la mise à jour de session
@@ -76,6 +104,10 @@ export const {
             : tokenHours
               ? JSON.stringify(tokenHours)
               : null;
+        // Propager l'erreur d'expiration vers le client
+        if (token.error) {
+          session.error = token.error;
+        }
       } else {
         console.warn("⚠️  [Session Callback] Token non disponible");
       }

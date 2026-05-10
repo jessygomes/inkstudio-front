@@ -88,9 +88,9 @@ export default function ConversationCard({
         <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-tertiary-400 to-tertiary-500 rounded-l-2xl" />
       )}
 
-      <div className="flex items-center gap-3 px-3 py-2.5">
+      <div className="flex items-start gap-3 px-3 py-2.5">
         {/* Avatar */}
-        <div className="relative flex-shrink-0">
+        <div className="relative flex-shrink-0 mt-0.5">
           <Image
             src={otherUser?.image || "/images/default-avatar.png"}
             width={36}
@@ -108,46 +108,58 @@ export default function ConversationCard({
           )}
         </div>
 
-        {/* Centre — nom + aperçu */}
+        {/* Contenu principal — occupe toute la largeur restante */}
         <div className="min-w-0 flex-1 font-one">
-          <div className="flex items-baseline gap-2">
-            <h3 className={`truncate text-xs font-semibold ${hasUnread ? "text-white" : "text-white/75"}`}>
-              {displayName}
-            </h3>
-            {conversation.subject && (
-              <span className="flex-shrink-0 whitespace-nowrap text-[12px] text-tertiary-500/90">
-                {conversation.subject}
-              </span>
-            )}
+
+          {/* Ligne 1 : nom + (sujet desktop) + time + unread */}
+          <div className="flex items-baseline justify-between gap-1">
+            <div className="flex min-w-0 items-baseline gap-1.5">
+              <h3 className={`truncate text-xs font-semibold ${hasUnread ? "text-white" : "text-white/75"}`}>
+                {displayName}
+              </h3>
+              {conversation.subject && (
+                <span className="hidden sm:block flex-shrink-0 whitespace-nowrap text-[11px] text-tertiary-500/90">
+                  {conversation.subject}
+                </span>
+              )}
+            </div>
+            <div className="flex flex-shrink-0 items-center gap-1.5 ml-2">
+              <span className="text-[10px] text-white/35 whitespace-nowrap">{timeString}</span>
+              {hasUnread && (
+                <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-1 text-[9px] font-bold text-white">
+                  {conversation.unreadCount! > 99 ? "99+" : conversation.unreadCount}
+                </span>
+              )}
+            </div>
           </div>
-          <p className={`truncate text-[12px] leading-snug ${hasUnread ? "text-white/60" : "text-white/35"}`}>
+
+          {/* Ligne 2 : aperçu */}
+          <p className={`truncate text-[12px] leading-snug mt-0.5 ${hasUnread ? "text-white/60" : "text-white/35"}`}>
             {lastMessagePreview}
           </p>
-        </div>
 
-        {/* Droite — time + badges + actions */}
-        <div className="flex flex-shrink-0 gap-3">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-white/35">{timeString}</span>
-            {hasUnread && (
-              <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-1 text-[9px] font-bold text-white">
-                {conversation.unreadCount! > 99 ? "99+" : conversation.unreadCount}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
-            {/* Status dot */}
-            <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-              localStatus === "ACTIVE" ? "bg-emerald-400" : localStatus === "ARCHIVED" ? "bg-amber-400" : "bg-red-400"
-            }`} />
-            <Link
-              href={`/messagerie/${conversation.id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="rounded-2xl border border-tertiary-400/25 bg-tertiary-400/10 px-2 py-0.5 text-[10px] font-medium text-tertiary-500 transition-all duration-200 hover:bg-tertiary-400/20"
-            >
-              Ouvrir
-            </Link>
-            <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2">
+          {/* Ligne 3 : sujet (mobile) + actions */}
+          <div className="flex items-center justify-between gap-2 mt-1.5">
+            <div className="flex items-center gap-2 min-w-0">
+              {/* Sujet visible uniquement mobile */}
+              {conversation.subject && (
+                <span className="sm:hidden truncate text-[11px] text-tertiary-500/90">
+                  {conversation.subject}
+                </span>
+              )}
+              {/* Status dot */}
+              <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${
+                localStatus === "ACTIVE" ? "bg-emerald-400" : localStatus === "ARCHIVED" ? "bg-amber-400" : "bg-red-400"
+              }`} />
+            </div>
+            <div className="flex flex-shrink-0 items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <Link
+                href={`/messagerie/${conversation.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="rounded-2xl border border-tertiary-400/25 bg-tertiary-400/10 px-2 py-0.5 text-[10px] font-medium text-tertiary-500 transition-all duration-200 hover:bg-tertiary-400/20 whitespace-nowrap"
+              >
+                Ouvrir
+              </Link>
               <ArchiveBtn
                 conversationId={conversation.id}
                 status={localStatus}
@@ -156,6 +168,7 @@ export default function ConversationCard({
               <DeleteConversationBtn conversationId={conversation.id} />
             </div>
           </div>
+
         </div>
       </div>
     </div>

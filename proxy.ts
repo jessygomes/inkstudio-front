@@ -31,8 +31,8 @@ export default auth((req) => {
   );
   const isAuthPath = authPaths.some((path) => nextUrl.pathname.startsWith(path));
 
-  // Si on essaie d'accéder à une page protégée sans être connecté
-  if (isProtectedPath && !isLoggedIn) {
+  // Si on essaie d'accéder à une page protégée sans être connecté ou avec token expiré
+  if (isProtectedPath && (!isLoggedIn || req.auth?.error === "AccessTokenExpired")) {
     console.log(
       "🔒 Accès à une page protégée sans authentification - Redirection"
     );

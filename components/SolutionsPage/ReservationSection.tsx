@@ -5,7 +5,6 @@ import {
   FaChalkboardUser,
   FaCreativeCommonsBy,
 } from "react-icons/fa6";
-import { RiPassValidFill } from "react-icons/ri";
 import { FaEye, FaCalendarAlt } from "react-icons/fa";
 
 export default function ReservationSection() {

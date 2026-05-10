@@ -7,6 +7,7 @@ import { CookieConsentProvider } from "@/components/Cookies/CookieConsentContext
 import CookieBanner from "@/components/Cookies/CookieBanner";
 import GoogleAnalytics from "@/components/Cookies/GoogleAnalytics";
 import { NextAuthProvider } from "@/components/Providers/NextAuthProvider";
+import { SessionExpiredWatcher } from "@/components/Providers/SessionExpiredWatcher";
 
 export const dynamic = "force-dynamic";
 
@@ -151,6 +152,7 @@ export default function RootLayout({
         className={`${didact_gothic.variable} ${exo_2.variable} ${montserrat_alternates.variable} antialiased relative`}
       >
         <NextAuthProvider>
+          <SessionExpiredWatcher />
           <CookieConsentProvider>
             {/* Google Analytics avec consentement */}
             <GoogleAnalytics measurementId="G-W3LKS9M53F" />
