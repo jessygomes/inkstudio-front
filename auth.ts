@@ -63,10 +63,12 @@ export const {
       }
 
       // Vérifier si le backend access token est expiré
-      if (
-        token.accessTokenExpiry &&
-        Date.now() > token.accessTokenExpiry
-      ) {
+      const accessTokenExpiry =
+        typeof token.accessTokenExpiry === "number"
+          ? token.accessTokenExpiry
+          : null;
+
+      if (accessTokenExpiry && Date.now() > accessTokenExpiry) {
         console.warn("⚠️ [JWT Callback] Backend access token expiré");
         return { ...token, error: "AccessTokenExpired" as const };
       }
@@ -105,7 +107,7 @@ export const {
               ? JSON.stringify(tokenHours)
               : null;
         // Propager l'erreur d'expiration vers le client
-        if (token.error) {
+        if (token.error === "AccessTokenExpired") {
           session.error = token.error;
         }
       } else {
