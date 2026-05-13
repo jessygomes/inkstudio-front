@@ -2,12 +2,14 @@
 import { UpdateSalonUserProps } from "@/lib/type";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { CiInstagram, CiFacebook } from "react-icons/ci";
 import { PiTiktokLogoThin } from "react-icons/pi";
 import { TfiWorld } from "react-icons/tfi";
 import { IoCopy } from "react-icons/io5";
+import { QRCodeSVG } from "qrcode.react";
 import { makeCitySlug, makeSlug } from "@/lib/utils/makeLink";
 
 interface InfoSalonProps {
@@ -16,15 +18,22 @@ interface InfoSalonProps {
 
 export default function InfoSalon({ salon }: InfoSalonProps) {
   const [copied, setCopied] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const salonWithMaybeSlug = salon as UpdateSalonUserProps & { slug?: string };
   const salonSlug = salonWithMaybeSlug.slug ?? makeSlug(salon.salonName);
-
-  const publicProfileHref =
+  const publicProfilePath =
     salon?.city && salon?.postalCode
-      ? `${
-          process.env.NEXT_PUBLIC_FRONTENDPUBLIC_URL
-        }/salon/${salonSlug}/${makeCitySlug(salon.city)}-${salon.postalCode}`
+      ? `/salon/${salonSlug}/${makeCitySlug(salon.city)}-${salon.postalCode}`
       : `/salon/${salonSlug}`;
+  const frontendPublicUrl = process.env.NEXT_PUBLIC_FRONTENDPUBLIC_URL?.replace(
+    /\/$/,
+    ""
+  );
+
+  const publicProfileHref = frontendPublicUrl
+    ? `${frontendPublicUrl}${publicProfilePath}`
+    : publicProfilePath;
 
   const handleCopyLink = async () => {
     try {
@@ -35,6 +44,21 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
       console.error("Erreur lors de la copie:", err);
     }
   };
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isQrModalOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isQrModalOpen]);
 
   console.log("SALON INFO:", salon);
 
@@ -155,35 +179,107 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
       )}
 
       {/* Profil public */}
-      <div className="bg-white/5 rounded-xl px-3 py-2.5 border border-white/8">
-        <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-1.5">Profil public</p>
-        <div className="flex items-center gap-2">
-          <p className="flex-1 text-white/60 font-one text-[12px] truncate">
-            {publicProfileHref}
-          </p>
-          <div className="relative flex-shrink-0">
-            <button
-              onClick={handleCopyLink}
-              className="cursor-pointer rounded-[10px] border border-white/15 bg-white/8 p-1.5 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
-              title="Copier le lien"
-            >
-              <IoCopy size={13} />
-            </button>
-            {copied && (
-              <div className="absolute bottom-full right-0 mb-1.5 bg-tertiary-500 text-white px-2 py-1 rounded-lg text-[12px] font-one whitespace-nowrap z-10">
-                Lien copié !
+      <div className="rounded-xl border border-white/8 bg-white/[0.04] p-3 sm:p-4">
+        <p className="mb-2 text-[10px] uppercase tracking-wider text-white/50 font-one">
+          Profil public
+        </p>
+
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div className="space-y-2">
+            <div className="rounded-lg border border-white/10 bg-black/20 p-2">
+              <p className="mb-1 text-[10px] uppercase tracking-wider text-white/45 font-one">
+                URL publique
+              </p>
+              <p className="truncate text-[12px] text-white/75 font-one">
+                {publicProfileHref}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative">
+                <button
+                  onClick={handleCopyLink}
+                  className="cursor-pointer rounded-[10px] border border-white/15 bg-white/8 px-2.5 py-1.5 text-[12px] text-white/80 font-one transition-colors hover:bg-white/15 hover:text-white"
+                  title="Copier le lien"
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <IoCopy size={13} />
+                    Copier le lien
+                  </span>
+                </button>
+                {copied && (
+                  <div className="absolute -top-9 left-0 z-10 whitespace-nowrap rounded-lg bg-tertiary-500 px-2 py-1 text-[12px] text-white font-one">
+                    Lien copie !
+                  </div>
+                )}
               </div>
-            )}
+
+              <Link
+                href={publicProfileHref}
+                target="_blank"
+                className="inline-flex items-center rounded-[10px] border border-tertiary-400/30 bg-tertiary-500/15 px-2.5 py-1.5 text-[12px] text-white font-one transition-colors hover:bg-tertiary-500/25"
+              >
+                Voir mon profil public
+              </Link>
+
+              <button
+                onClick={() => setIsQrModalOpen(true)}
+                className="inline-flex items-center rounded-[10px] border border-white/20 bg-white/10 px-2.5 py-1.5 text-[12px] text-white font-one transition-colors hover:bg-white/15 sm:hidden"
+                title="Afficher le QR code"
+              >
+                QRCODE
+              </button>
+            </div>
+          </div>
+
+          <div className="mx-auto hidden w-fit rounded-xl border border-white/15 bg-white p-2.5 shadow-sm sm:mx-0 sm:block">
+            <QRCodeSVG
+              value={publicProfileHref}
+              size={92}
+              includeMargin
+              level="M"
+              bgColor="#ffffff"
+              fgColor="#111111"
+            />
           </div>
         </div>
-        <Link
-          href={publicProfileHref}
-          target="_blank"
-          className="text-white text-[12px] font-one hover:underline mt-1 inline-block"
-        >
-          Voir mon profil public →
-        </Link>
       </div>
+
+      {isClient &&
+        isQrModalOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex h-[100svh] items-center justify-center bg-black/70 p-4 sm:hidden">
+            <div
+              className="absolute inset-0"
+              onClick={() => setIsQrModalOpen(false)}
+              aria-hidden="true"
+            />
+
+            <div className="relative w-full max-w-xs rounded-2xl border border-white/15 bg-[#151515] p-4 shadow-2xl">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-sm text-white font-one">Profil public</p>
+                <button
+                  onClick={() => setIsQrModalOpen(false)}
+                  className="rounded-md border border-white/20 bg-white/10 px-2 py-1 text-[11px] text-white/90 font-one"
+                >
+                  Fermer
+                </button>
+              </div>
+
+              <div className="mx-auto w-fit rounded-xl bg-white p-3">
+                <QRCodeSVG
+                  value={publicProfileHref}
+                  size={220}
+                  includeMargin
+                  level="M"
+                  bgColor="#ffffff"
+                  fgColor="#111111"
+                />
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
 
     </div>

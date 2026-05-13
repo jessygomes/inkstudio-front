@@ -1,10 +1,13 @@
 "use client";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { LogoutBtn } from "@/components/Auth/LogoutBtn";
+import { makeSlug } from "@/lib/utils/makeLink";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { MdMenu, MdClose } from "react-icons/md";
+import { QRCodeSVG } from "qrcode.react";
 // import { CgProfile } from "react-icons/cg";
 import { CiSettings } from "react-icons/ci";
 import { FaDatabase } from "react-icons/fa";
@@ -16,6 +19,7 @@ import {
   MdShoppingBag,
   MdAccountCircle,
   MdOutlineMessage,
+  MdQrCode,
 } from "react-icons/md";
 import { PiInvoiceDuotone } from "react-icons/pi";
 
@@ -23,15 +27,38 @@ export default function NavbarMobile() {
   const user = useUser();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const [origin, setOrigin] = useState("");
   // const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   // const profileRef = useRef<HTMLDivElement>(null);
+
+  const frontendPublicUrl = process.env.NEXT_PUBLIC_FRONTENDPUBLIC_URL?.replace(
+    /\/$/,
+    ""
+  );
+  const qrProfilePath = user?.salonName
+    ? `/salon/${makeSlug(user.salonName)}`
+    : "";
+  const qrPublicHref = qrProfilePath
+    ? frontendPublicUrl
+      ? `${frontendPublicUrl}${qrProfilePath}`
+      : origin
+      ? `${origin}${qrProfilePath}`
+      : qrProfilePath
+    : "";
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => {
     setIsOpen(false);
     // setShowProfileMenu(false);
   };
+  const openQrModal = () => {
+    setIsOpen(false);
+    setIsQrModalOpen(true);
+  };
+  const closeQrModal = () => setIsQrModalOpen(false);
 
   // const toggleProfileMenu = () => {
   //   // setShowProfileMenu((prev) => !prev);
@@ -105,19 +132,37 @@ export default function NavbarMobile() {
   useEffect(() => {
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      // Empêcher le scroll du body quand la navbar est ouverte
-      document.body.style.overflow = "hidden";
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
-      // Restaurer le scroll du body
-      document.body.style.overflow = "unset";
     }
+
+    document.body.style.overflow = isOpen || isQrModalOpen ? "hidden" : "unset";
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.body.style.overflow = "unset";
     };
-  }, [isOpen]);
+  }, [isOpen, isQrModalOpen]);
+
+  useEffect(() => {
+    setIsClient(true);
+    setOrigin(window.location.origin);
+  }, []);
+
+  useEffect(() => {
+    if (!isQrModalOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeQrModal();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [isQrModalOpen]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isScrolled, setIsScrolled] = useState(false);
@@ -155,7 +200,7 @@ export default function NavbarMobile() {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/20 bg-noir-600">
           <div className="text-lg font-bold font-two">
-            {user?.salonName || "InkStudio"}
+            {user?.salonName || "Inkera Studio"}
           </div>
           <button
             onClick={handleClose}
@@ -196,6 +241,14 @@ export default function NavbarMobile() {
 
             {/* Profile Section */}
             <div className="space-y-2">
+              <button
+                onClick={openQrModal}
+                className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-white/5 hover:text-tertiary-400 rounded-lg transition-all duration-300"
+              >
+                <MdQrCode size={20} />
+                <span className="font-one text-sm">QR code</span>
+              </button>
+
               <Link
                 href="/parametres"
                 onClick={handleClose}
@@ -341,6 +394,17 @@ export default function NavbarMobile() {
 
           {/* Menu Plus */}
           <button
+            onClick={openQrModal}
+            disabled={!qrPublicHref}
+            className="flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 text-white/70 hover:text-white active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Afficher le QR code du salon"
+          >
+            <MdQrCode size={20} />
+            <span className="text-[10px] sm:text-xs font-one mt-1">QR code</span>
+          </button>
+
+          {/* Menu Plus */}
+          <button
             onClick={handleOpen}
             className="flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 text-white/70 hover:text-white active:scale-95"
           >
@@ -352,6 +416,47 @@ export default function NavbarMobile() {
         {/* Indicateur de page active */}
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-tertiary-500 to-tertiary-400"></div>
       </div>
+
+      {isClient &&
+        isQrModalOpen &&
+        qrPublicHref &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] flex h-[100svh] items-center justify-center bg-black/70 p-4 xl:hidden">
+            <div
+              className="absolute inset-0"
+              onClick={closeQrModal}
+              aria-hidden="true"
+            />
+
+            <div className="relative w-full max-w-xs rounded-2xl border border-white/15 bg-[#151515] p-4 shadow-2xl">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-sm text-white font-one">Profil public</p>
+                <button
+                  onClick={closeQrModal}
+                  className="rounded-md border border-white/20 bg-white/10 px-2 py-1 text-[11px] text-white/90 font-one"
+                >
+                  Fermer
+                </button>
+              </div>
+
+              <div className="mx-auto w-fit rounded-xl bg-white p-3">
+                <QRCodeSVG
+                  value={qrPublicHref}
+                  size={220}
+                  includeMargin
+                  level="M"
+                  bgColor="#ffffff"
+                  fgColor="#111111"
+                />
+              </div>
+
+              <p className="mt-3 truncate text-center text-[11px] text-white/65 font-one">
+                {qrPublicHref}
+              </p>
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   );
 }

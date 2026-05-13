@@ -32,13 +32,13 @@ export function NavbarClient({ links }: NavbarClientProps) {
 
   return (
     <nav
-      className={`flex justify-between items-center py-4 px-20  ${
+      className={`flex justify-between items-center py-6 px-20  ${
         isScrolled ? "backdrop-blur-md" : "backdrop-blur-none"
       }`}
     >
       <Link href={"/"} className="flex items-center gap-2">
         <Image
-          src="/images/logo_inline_studio_white.png"
+          src="/logo/logo_inline_studio_white_2.png"
           alt="Logo"
           width={150}
           height={50}

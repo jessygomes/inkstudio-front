@@ -71,13 +71,13 @@ export function NavMobileClient({
   return (
     <nav>
       <div
-        className={`flex items-center justify-between text-white w-full ${
-          isScrolled ? "backdrop-blur-md rounded-md" : "backdrop-blur-none"
+        className={`flex items-center justify-between text-white w-full p-2 ${
+          isScrolled ? "backdrop-blur-lg rounded-2xl shadow-2xl" : "backdrop-blur-none"
         }`}
       >
         <Link href={"/"} className="flex items-center gap-1">
           <Image
-            src="/images/logo_inline_studio_white.png"
+            src="/logo/logo_inline_studio_white_2.png"
             alt="Logo"
             width={110}
             height={50}
@@ -106,7 +106,13 @@ export function NavMobileClient({
         {/* Header moderne */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold font-two">INKERA Studio</h2>
+          <Image
+            src="/logo/logo_inline_studio_white_2.png"
+            alt="Logo"
+            width={110}
+            height={50}
+            className="w-[170px] md:w-[140px] h-auto"
+          />
           </div>
           <button
             onClick={handleClose}
