@@ -12,6 +12,7 @@ import RecentReviews from "@/components/Application/Dashboard/RecentReviews";
 import Link from "next/link";
 import { LuLayoutDashboard } from "react-icons/lu";
 import LastMessage from "@/components/Application/Dashboard/LastMessage";
+import ProfileViewsStats from "@/components/Application/Dashboard/ProfileViewsStats";
 import { auth } from "@/auth";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
@@ -68,6 +69,10 @@ export default async function DashboardPage() {
                   <NewClientsCount userId={session?.user?.id ?? ""} />
                   <TotalPayed userId={session?.user?.id ?? ""} />
                 </div>
+              </div>
+
+              <div className="col-span-12">
+                <ProfileViewsStats userId={session?.user?.id ?? ""} />
               </div>
 
               <div className="col-span-12 xl:col-span-7">
