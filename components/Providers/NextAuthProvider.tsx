@@ -8,5 +8,9 @@ import { ReactNode } from "react";
  * Permet d'utiliser useSession() dans les composants clients
  */
 export function NextAuthProvider({ children }: { children: ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <SessionProvider refetchInterval={60} refetchOnWindowFocus>
+      {children}
+    </SessionProvider>
+  );
 }

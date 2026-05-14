@@ -8,18 +8,25 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
+  const hasExpiredToken = req.auth?.error === "AccessTokenExpired";
+  const isAuthenticated = isLoggedIn && !hasExpiredToken;
 
   // Pages qui nécessitent une authentification
   const protectedPaths = [
     "/dashboard",
     "/rdv",
+    "/mes-rendez-vous",
     "/clients",
     "/portfolio",
+    "/mon-portfolio",
     "/mes-produits",
+    "/mes-flashs",
     "/mon-compte",
     "/parametres",
     "/stocks",
     "/factures",
+    "/messagerie",
+    "/review",
     "/admin",
   ];
 
@@ -32,7 +39,7 @@ export default auth((req) => {
   const isAuthPath = authPaths.some((path) => nextUrl.pathname.startsWith(path));
 
   // Si on essaie d'accéder à une page protégée sans être connecté ou avec token expiré
-  if (isProtectedPath && (!isLoggedIn || req.auth?.error === "AccessTokenExpired")) {
+  if (isProtectedPath && !isAuthenticated) {
     console.log(
       "🔒 Accès à une page protégée sans authentification - Redirection"
     );
@@ -42,7 +49,7 @@ export default auth((req) => {
   }
 
   // Si on est connecté et qu'on essaie d'accéder aux pages d'auth, rediriger vers le dashboard
-  if (isAuthPath && isLoggedIn) {
+  if (isAuthPath && isAuthenticated) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 

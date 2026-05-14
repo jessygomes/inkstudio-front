@@ -21,6 +21,10 @@ export default async function DashboardLayout({
     redirect("/connexion");
   }
 
+  if (session.error === "AccessTokenExpired") {
+    redirect("/connexion?reason=session_expired");
+  }
+
   // ✅ Création de l'objet user pour le UserProvider
   const user = {
     id: session.user.id,
