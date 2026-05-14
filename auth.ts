@@ -49,6 +49,9 @@ export const {
         token.phone = user.phone;
         token.address = user.address;
         token.verifiedSalon = user.verifiedSalon;
+        token.profileImage =
+          (user as unknown as { profileImage?: string | null }).profileImage ??
+          null;
         const rawHoursUnknown = (user as unknown as { salonHours?: unknown })
           .salonHours;
         token.salonHours =
@@ -97,6 +100,9 @@ export const {
         session.user.phone = token.phone as string;
         session.user.address = token.address as string;
         session.user.verifiedSalon = token.verifiedSalon as boolean;
+        session.user.profileImage =
+          (token as unknown as { profileImage?: string | null }).profileImage ??
+          null;
         session.accessToken = token.accessToken as string;
         const tokenHours = (token as unknown as { salonHours?: unknown })
           .salonHours;

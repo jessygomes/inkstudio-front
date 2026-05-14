@@ -60,8 +60,6 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
     };
   }, [isQrModalOpen]);
 
-  console.log("SALON INFO:", salon);
-
   return (
     <div className="space-y-3">
       {/* Identité salon */}

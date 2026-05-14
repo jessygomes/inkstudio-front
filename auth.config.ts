@@ -15,6 +15,7 @@ type BackendLoginResponse = {
   email?: string;
   salonName?: string;
   image?: string | null;
+  profileImage?: string | null;
   role?: string;
   access_token?: string;
   saasPlan?: string;
@@ -140,6 +141,7 @@ export default {
             email: data.email || email,
             name: data.salonName || email,
             image: data.image || null,
+            profileImage: data.profileImage || null,
             role: data.role || "user",
             accessToken: data.access_token,
             salonName: data.salonName || "",

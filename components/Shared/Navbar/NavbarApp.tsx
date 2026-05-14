@@ -14,6 +14,7 @@ import Image from "next/image";
 export default function NavbarApp() {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const avatarSrc = session?.user?.profileImage || session?.user?.image || null;
 
   // Utiliser le contexte global pour le unreadCount
   const { unreadCount, setUnreadCount } = useMessagingContext();
@@ -127,9 +128,9 @@ export default function NavbarApp() {
             onClick={toggleMenu}
             className="cursor-pointer items-center text-white hover:text-white/70 transition duration-300"
           >
-            {session?.user?.image ? (
+            {avatarSrc ? (
               <Image
-                src={session.user.image}
+                src={avatarSrc}
                 alt="Salon"
                 width={32}
                 height={32}
