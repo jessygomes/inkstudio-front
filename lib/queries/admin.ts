@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
 
@@ -32,7 +33,6 @@ export async function getAdminDashboardStats() {
           data.message || "Erreur lors de la récupération des statistiques",
       };
     }
-    console.log("Admin dashboard stats data:", data);
     return {
       ok: true,
       stats: data.stats,
@@ -79,8 +79,6 @@ export async function getAllRegisteredSalons(
     if (verified !== undefined) {
       params.append("verifiedSalon", verified.toString());
     }
-
-    console.log("Fetching salons with params:", params.toString());
 
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACK_URL}/admin/salons?${params.toString()}`,
@@ -395,8 +393,6 @@ export async function getMonthlyEvolution(months: number = 6) {
 
     const data = await response.json();
 
-    console.log("Monthly evolution data:", data);
-
     if (data.error) {
       return {
         ok: false,
@@ -420,5 +416,60 @@ export async function getMonthlyEvolution(months: number = 6) {
       ok: false,
       message: "Erreur lors de la récupération des données d'évolution",
     };
+  }
+}
+
+
+//! ----------------------------------------------------------------------------
+
+//! RECUPERER LES TOP SALONS
+
+//! ----------------------------------------------------------------------------
+interface TopSalon {
+  id: string;
+  name: string;
+  image?: string;
+  city: string;
+  views: number;
+  rank: number;
+}
+
+export async function getTopSalons(limit = 10, days = 30): Promise<TopSalon[]> {
+  try {
+    const headers = await getAuthHeaders();
+    
+    const params = new URLSearchParams({
+      limit: limit.toString(),
+      days: days.toString(),
+    });
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/salon-analytics/admin/top-salons?${params.toString()}`,
+      {
+        method: 'GET',
+        headers,
+        cache: 'no-store',
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch top salons: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    // Transform backend data to match TopSalon interface
+    const transformedData: TopSalon[] = data.map((item: any, index: number) => ({
+      id: item.salon?.id || '',
+      name: item.salon?.salonName || 'N/A',
+      city: item.salon?.city || 'N/A',
+      views: item.viewCount || 0,
+      rank: index + 1,
+    })).filter((item: TopSalon) => item.id); // Filter out items without valid salon
+    
+    return transformedData;
+  } catch (error) {
+    console.error('Error fetching top salons:', error);
+    throw error;
   }
 }

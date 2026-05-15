@@ -92,7 +92,7 @@ export default function DocumentReviewActions({
           <button
             onClick={handleApprove}
             disabled={loading}
-            className="cursor-pointer flex-1 px-2 py-1 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 hover:border-green-400/50 text-green-400 rounded transition-all duration-300 text-[10px] font-one font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+            className="cursor-pointer flex-1 px-2 py-1 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 hover:border-green-400/50 text-green-400 rounded-2xl transition-all duration-300 text-[10px] font-one font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
             title="Approuver"
           >
             <FiCheck size={12} />
@@ -103,7 +103,7 @@ export default function DocumentReviewActions({
         <button
           onClick={() => setShowRejectModal(true)}
           disabled={loading}
-          className={`cursor-pointer px-2 py-1 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 hover:border-red-400/50 text-red-400 rounded transition-all duration-300 text-[10px] font-one font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 ${
+          className={`cursor-pointer px-2 py-1 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 hover:border-red-400/50 text-red-400 rounded-2xl transition-all duration-300 text-[10px] font-one font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 ${
             isApproved ? "flex-1" : "flex-1"
           }`}
           title="Rejeter"

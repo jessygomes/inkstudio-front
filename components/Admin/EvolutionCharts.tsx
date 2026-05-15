@@ -42,16 +42,16 @@ export default function EvolutionCharts() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-6 animate-pulse">
-          <div className="h-64" />
+      <div className="space-y-4">
+        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-4 animate-pulse">
+          <div className="h-40" />
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-6 animate-pulse">
-            <div className="h-48" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-4 animate-pulse">
+            <div className="h-32" />
           </div>
-          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-6 animate-pulse">
-            <div className="h-48" />
+          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-4 animate-pulse">
+            <div className="h-32" />
           </div>
         </div>
       </div>
@@ -60,7 +60,7 @@ export default function EvolutionCharts() {
 
   if (monthsData.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-6">
+      <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-4">
         <p className="text-white/60 text-center font-one">
           Aucune donnée d&apos;évolution disponible
         </p>
@@ -71,9 +71,6 @@ export default function EvolutionCharts() {
   const maxSalons = Math.max(...monthsData.map((d) => d.salons), 1);
   const maxAppointments = Math.max(...monthsData.map((d) => d.appointments), 1);
   const maxRevenue = Math.max(...monthsData.map((d) => d.revenue), 1);
-
-  console.log("Max values:", { maxSalons, maxAppointments, maxRevenue });
-  console.log("Months data:", monthsData);
 
   // Calculer les taux de croissance
   const calculateGrowth = (current: number, initial: number) => {
@@ -105,10 +102,10 @@ export default function EvolutionCharts() {
       : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Nouveaux inscrits */}
-      <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-6">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl border border-white/10 shadow-lg p-4">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-tertiary-500/20 rounded-lg flex items-center justify-center">
               <FiUsers className="w-5 h-5 text-tertiary-400" />
@@ -128,9 +125,9 @@ export default function EvolutionCharts() {
           </div>
         </div>
 
-        <div className="flex items-end justify-between gap-3 h-48">
+        <div className="flex items-end justify-between gap-2 h-40">
           {monthsData.map((data, index) => {
-            const maxHeight = 192; // h-48 = 192px
+            const maxHeight = 160; // h-40 = 160px
             const heightPx = (data.salons / maxSalons) * maxHeight;
             const barHeight = data.salons > 0 ? Math.max(heightPx, 40) : 0;
 
@@ -142,7 +139,7 @@ export default function EvolutionCharts() {
                 <div className="relative w-full flex items-end justify-center h-full">
                   {data.salons > 0 ? (
                     <div
-                      className="w-full bg-gradient-to-t from-tertiary-500 to-tertiary-400 rounded-t-lg transition-all duration-500 hover:from-tertiary-400 hover:to-tertiary-300"
+                      className="w-full bg-gradient-to-t from-tertiary-500 to-tertiary-400 rounded-t-2xl transition-all duration-500 hover:from-tertiary-400 hover:to-tertiary-300"
                       style={{ height: `${barHeight}px` }}
                     >
                       <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-white font-one">
@@ -166,12 +163,12 @@ export default function EvolutionCharts() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Rendez-vous */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl border border-white/10 shadow-lg p-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary-500/20 rounded-2xl flex items-center justify-center">
                 <FiCalendar className="w-5 h-5 text-primary-400" />
               </div>
               <div>
@@ -191,13 +188,13 @@ export default function EvolutionCharts() {
             </div>
           </div>
 
-          <div className="flex items-end justify-between gap-2 h-32">
+          <div className="flex items-end justify-between gap-1.5 h-28">
             {monthsData.map((data, index) => {
-              const maxHeight = 128; // h-32 = 128px
+              const maxHeight = 112; // h-28 = 112px
               const heightPx =
                 (data.appointments / maxAppointments) * maxHeight;
               const barHeight =
-                data.appointments > 0 ? Math.max(heightPx, 25) : 0;
+                data.appointments > 0 ? Math.max(heightPx, 20) : 0;
 
               return (
                 <div
@@ -207,7 +204,7 @@ export default function EvolutionCharts() {
                   <div className="relative w-full flex items-end justify-center h-full">
                     {data.appointments > 0 ? (
                       <div
-                        className="w-full bg-gradient-to-t from-primary-500 to-primary-400 rounded-t-lg transition-all duration-500 hover:from-primary-400 hover:to-primary-300"
+                        className="w-full bg-gradient-to-t from-primary-500 to-primary-400 rounded-t-2xl transition-all duration-500 hover:from-primary-400 hover:to-primary-300"
                         style={{ height: `${barHeight}px` }}
                       >
                         <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white font-one">
@@ -215,7 +212,7 @@ export default function EvolutionCharts() {
                         </span>
                       </div>
                     ) : (
-                      <div className="w-full h-1.5 bg-white/5 rounded">
+                      <div className="w-full h-1.5 bg-white/5 rounded-2xl">
                         <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white/40 font-one">
                           0
                         </span>
@@ -232,10 +229,10 @@ export default function EvolutionCharts() {
         </div>
 
         {/* Revenus */}
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl border border-white/10 shadow-lg p-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-cuatro-500/20 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-cuatro-500/20 rounded-2xl flex items-center justify-center">
                 <FiDollarSign className="w-5 h-5 text-cuatro-500" />
               </div>
               <div>
@@ -253,11 +250,11 @@ export default function EvolutionCharts() {
             </div>
           </div>
 
-          <div className="flex items-end justify-between gap-2 h-32">
+          <div className="flex items-end justify-between gap-1.5 h-28">
             {monthsData.map((data, index) => {
-              const maxHeight = 128; // h-32 = 128px
+              const maxHeight = 112; // h-28 = 112px
               const heightPx = (data.revenue / maxRevenue) * maxHeight;
-              const barHeight = data.revenue > 0 ? Math.max(heightPx, 25) : 0;
+              const barHeight = data.revenue > 0 ? Math.max(heightPx, 20) : 0;
 
               return (
                 <div
@@ -267,7 +264,7 @@ export default function EvolutionCharts() {
                   <div className="relative w-full flex items-end justify-center h-full">
                     {data.revenue > 0 ? (
                       <div
-                        className="w-full bg-gradient-to-t from-cuatro-500 to-cuatro-400 rounded-t-lg transition-all duration-500 hover:from-cuatro-400 hover:to-cuatro-300"
+                        className="w-full bg-gradient-to-t from-cuatro-500 to-cuatro-400 rounded-t-2xl transition-all duration-500 hover:from-cuatro-400 hover:to-cuatro-300"
                         style={{ height: `${barHeight}px` }}
                       >
                         <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white font-one whitespace-nowrap">
@@ -275,7 +272,7 @@ export default function EvolutionCharts() {
                         </span>
                       </div>
                     ) : (
-                      <div className="w-full h-1.5 bg-white/5 rounded">
+                      <div className="w-full h-1.5 bg-white/5 rounded-2xl">
                         <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white/40 font-one whitespace-nowrap">
                           0€
                         </span>

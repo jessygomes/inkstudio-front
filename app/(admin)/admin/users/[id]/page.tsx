@@ -8,7 +8,9 @@ import {
   FiMapPin,
   FiCalendar,
   FiChevronLeft,
+  FiClock,
   FiExternalLink,
+  FiShield,
   FiUsers,
 } from "react-icons/fi";
 import VerificationDocumentsSection from "@/components/Admin/VerificationDocumentsSection";
@@ -152,24 +154,37 @@ export default async function AdminUserDetail({
       "sunday",
     ];
     return (
-      <div className="divide-y divide-white/10 rounded-lg overflow-hidden border border-white/10 bg-white/5">
+      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
         {order.map((d: DayKey) => {
           const slot = (hoursObj || {})[d] as HoursSlot | null | undefined;
+          const start = slot?.start;
+          const end = slot?.end;
+          const isOpen = Boolean(start && end);
           return (
             <div
               key={d}
-              className="flex items-center justify-between px-2.5 py-1.5"
+              className="rounded-xl border border-white/10 bg-white/5 px-2.5 py-2"
             >
-              <span className="text-white/80 text-xs font-one">
+              <p className="text-[10px] uppercase tracking-wide text-white/45 font-one">
                 {dayLabels[d]}
-              </span>
-              {slot && slot.start && slot.end ? (
-                <span className="text-white text-xs font-one">
-                  {slot.start} - {slot.end}
-                </span>
+              </p>
+              {isOpen ? (
+                <p className="mt-1 text-xs text-white font-one">
+                  {start} - {end}
+                </p>
               ) : (
-                <span className="text-white/50 text-xs font-one">Fermé</span>
+                <p className="mt-1 text-xs text-white/55 font-one">Fermé</p>
               )}
+              <div className="mt-1 flex items-center gap-1 text-[10px] font-one">
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    isOpen ? "bg-tertiary-400" : "bg-white/35"
+                  }`}
+                />
+                <span className={isOpen ? "text-tertiary-300" : "text-white/45"}>
+                  {isOpen ? "Ouvert" : "Fermé"}
+                </span>
+              </div>
             </div>
           );
         })}
@@ -180,6 +195,21 @@ export default async function AdminUserDetail({
   const tattooers: Tattooer[] =
     (entity as Salon)?.Tatoueur ?? salon?.Tatoueur ?? [];
   const salonHoursObj = parseHours(salon?.salonHours);
+
+  const approvedDocsCount = verificationDocs.filter((doc) => {
+    const status = (doc?.status || "").toLowerCase();
+    return (
+      status === "approved" ||
+      status === "approuve" ||
+      status === "validé" ||
+      status === "valide"
+    );
+  }).length;
+  const pendingDocsCount = verificationDocs.length - approvedDocsCount;
+  const completionRate =
+    verificationDocs.length > 0
+      ? Math.round((approvedDocsCount / verificationDocs.length) * 100)
+      : 0;
 
   return (
     <div className="wrapper-global pb-10">
@@ -196,116 +226,162 @@ export default async function AdminUserDetail({
           </Link>
         </PageHeader>
 
-        <div className="dashboard-embedded-panel p-3 sm:p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-white/15 bg-white/10 sm:h-20 sm:w-20">
-                {salon.image ? (
-                  <Image src={salon.image} alt={displayName} fill className="object-cover" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xl font-bold text-white/55 font-one">
-                    {displayName.charAt(0).toUpperCase()}
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-12">
+          <div className="dashboard-embedded-panel p-3 sm:p-4 xl:col-span-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl border border-white/15 bg-white/10 sm:h-20 sm:w-20">
+                  {salon.image ? (
+                    <Image
+                      src={salon.image}
+                      alt={displayName}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xl font-bold text-white/55 font-one">
+                      {displayName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+
+                <div className="min-w-0">
+                  <h1 className="truncate text-base font-semibold text-white font-one sm:text-lg">
+                    {displayName}
+                  </h1>
+                  <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                    <span className="rounded-full border border-white/15 bg-white/8 px-2 py-0.5 text-[10px] uppercase text-white/75 font-one">
+                      Plan {salon.saasPlan || "-"}
+                    </span>
+                    <span
+                      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold font-one ${
+                        salon.verifiedSalon
+                          ? "border-tertiary-400/45 bg-tertiary-500/15 text-tertiary-500"
+                          : "border-white/15 bg-white/8 text-white/65"
+                      }`}
+                    >
+                      {salon.verifiedSalon ? "Vérifié" : "Non vérifié"}
+                    </span>
                   </div>
+
+                  <div className="mt-2 grid grid-cols-4 gap-1 text-[11px] text-white/70 font-one">
+                    <p>
+                      ID : <span className="font-mono text-white/60">{salon.id}</span>
+                    </p>
+                    <p>Créé le {formatDate(salon.createdAt)}</p>
+                    <p>Mis à jour le {formatDate(salon.updatedAt)}</p>
+                  </div>
+
+                  {salon.description && (
+                    <p className="mt-2 text-xs leading-relaxed text-white/70 font-one whitespace-pre-line">
+                      {salon.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white/80 font-one">
+                <p className="mb-1 text-[10px] uppercase text-white/45">Contact principal</p>
+                <p className="flex items-center gap-2 text-white">
+                  <FiMail size={13} className="text-white/55" />
+                  <span className="truncate">{salon.email || "-"}</span>
+                </p>
+                {salon.phone && (
+                  <p className="mt-1 flex items-center gap-2 text-white/85">
+                    <FiPhone size={13} className="text-white/55" />
+                    {salon.phone}
+                  </p>
                 )}
               </div>
 
-              <div className="min-w-0">
-                <h1 className="truncate text-base font-semibold text-white font-one sm:text-lg">
-                  {displayName}
-                </h1>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                  <span className="rounded-full border border-white/15 bg-white/8 px-2 py-0.5 text-[10px] uppercase text-white/75 font-one">
-                    {salon.saasPlan || "-"}
-                  </span>
-                  <span
-                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold font-one ${
-                      salon.verifiedSalon
-                        ? "border-tertiary-400/45 bg-tertiary-500/15 text-tertiary-300"
-                        : "border-white/15 bg-white/8 text-white/65"
-                    }`}
-                  >
-                    {salon.verifiedSalon ? "Verifie" : "Non verifie"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-1.5 text-[11px] text-white/70 font-one sm:text-right">
-              <p>ID: <span className="font-mono text-white/60">{salon.id}</span></p>
-              <p>Cree le {formatDate(salon.createdAt)}</p>
-              <p>Mis a jour le {formatDate(salon.updatedAt)}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-          <div className="dashboard-embedded-panel p-3 sm:p-4 lg:col-span-2">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
-              <FiMail size={16} className="text-tertiary-400" />
-              Informations De Contact
-            </h2>
-
-            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
               <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white/80 font-one">
-                <p className="mb-1 text-[10px] uppercase text-white/45">Email</p>
-                <p className="flex items-center gap-2 text-white"><FiMail size={13} className="text-white/55" />{salon.email}</p>
+                <p className="mb-1 text-[10px] uppercase text-white/45">Localisation</p>
+                <p className="flex items-center gap-2 text-white">
+                  <FiMapPin size={13} className="text-white/55" />
+                  <span>
+                    {salon.postalCode && `${salon.postalCode} `}
+                    {salon.city || "-"}
+                  </span>
+                </p>
+                <p className="mt-1 flex items-center gap-2 text-white/70">
+                  <FiCalendar size={13} className="text-white/55" />
+                  Client depuis {formatDate(salon.createdAt)}
+                </p>
               </div>
 
-              {salon.phone && (
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white/80 font-one">
-                  <p className="mb-1 text-[10px] uppercase text-white/45">Telephone</p>
-                  <p className="flex items-center gap-2 text-white"><FiPhone size={13} className="text-white/55" />{salon.phone}</p>
-                </div>
-              )}
-
-              {(salon.city || salon.postalCode) && (
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white/80 font-one md:col-span-2">
-                  <p className="mb-1 text-[10px] uppercase text-white/45">Localisation</p>
-                  <p className="flex items-center gap-2 text-white"><FiMapPin size={13} className="text-white/55" />{salon.postalCode && `${salon.postalCode} `}{salon.city}</p>
-                </div>
-              )}
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs text-white/80 font-one md:col-span-2">
+                <h2 className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-white font-one sm:text-xs">
+                  <FiClock size={14} className="text-tertiary-400" />
+                  Horaires D&apos;ouverture
+                </h2>
+                {Object.keys(salonHoursObj).length > 0 ? (
+                  renderHours(salonHoursObj)
+                ) : (
+                  <p className="text-xs text-white/60 font-one">
+                    Horaires non renseignés
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="dashboard-embedded-panel p-3 sm:p-4">
+          <div className="dashboard-embedded-panel p-3 sm:p-4 xl:col-span-4">
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
+              Aperçu Rapide
+            </h3>
+
+            <div className="grid grid-cols-2 gap-1.5">
+              <div className="rounded-xl border border-white/10 bg-white/5 px-2.5 py-2">
+                <p className="text-[10px] uppercase text-white/45 font-one">Équipe</p>
+                <p className="mt-0.5 text-sm text-white font-one">{tattooers.length}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/5 px-2.5 py-2">
+                <p className="text-[10px] uppercase text-white/45 font-one">Documents</p>
+                <p className="mt-0.5 text-sm text-white font-one">{verificationDocs.length}</p>
+              </div>
+              <div className="rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 px-2.5 py-2">
+                <p className="text-[10px] uppercase text-tertiary-500/80 font-one">Validés</p>
+                <p className="mt-0.5 text-sm text-tertiary-500 font-one">{approvedDocsCount}</p>
+              </div>
+              <div className="rounded-xl border border-amber-400/25 bg-amber-500/10 px-2.5 py-2">
+                <p className="text-[10px] uppercase text-amber-300/80 font-one">En attente</p>
+                <p className="mt-0.5 text-sm text-amber-300 font-one">{pendingDocsCount}</p>
+              </div>
+            </div>
+
+            <div className="mt-2.5 rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5">
+              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] text-white/70 font-one">
+                <FiShield size={12} className="text-tertiary-300" />
+                Progression de validation
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-tertiary-400 to-tertiary-500"
+                  style={{ width: `${completionRate}%` }}
+                />
+              </div>
+              <p className="mt-1.5 text-[11px] text-white/65 font-one">
+                {completionRate}% des documents validés
+              </p>
+            </div>
+
+            <h3 className="mb-2 mt-3 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
               Actions Rapides
             </h3>
-            <div className="space-y-2">
-              <button className="w-full rounded-xl border border-tertiary-400/35 bg-tertiary-500/15 px-3 py-1.5 text-xs text-white transition-colors hover:bg-tertiary-500/25 font-one">
-                Marquer verifie
+            <div className="grid grid-cols-3 gap-1.5">
+              <button className="cursor-pointer w-full rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-3 py-1.5 text-xs text-white transition-colors hover:bg-tertiary-500/25 font-one">
+                Marquer vérifié
               </button>
-              <button className="w-full rounded-xl border border-white/15 bg-white/8 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/15 font-one">
+              <button className="cursor-pointer w-full rounded-2xl border border-white/15 bg-white/8 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/15 font-one">
                 Contacter
               </button>
-              <button className="w-full rounded-xl border border-red-500/35 bg-red-500/12 px-3 py-1.5 text-xs text-red-200 transition-colors hover:bg-red-500/20 font-one">
+              <button className="cursor-pointer w-full rounded-2xl border border-red-500/35 bg-red-500/12 px-3 py-1.5 text-xs text-red-200 transition-colors hover:bg-red-500/20 font-one">
                 Suspendre
               </button>
             </div>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <div className="dashboard-embedded-panel p-3 sm:p-4">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
-              <FiCalendar size={16} className="text-tertiary-400" />
-              Horaires D&apos;ouverture
-            </h2>
-            {Object.keys(salonHoursObj).length > 0 ? (
-              renderHours(salonHoursObj)
-            ) : (
-              <p className="text-xs text-white/60 font-one">Horaires non renseignes</p>
-            )}
-          </div>
-
-          {salon.description && (
-            <div className="dashboard-embedded-panel p-3 sm:p-4">
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
-                A Propos
-              </h2>
-              <p className="text-xs leading-relaxed text-white/80 font-one">{salon.description}</p>
-            </div>
-          )}
         </div>
 
         <div className="dashboard-embedded-panel p-3 sm:p-4">
@@ -400,8 +476,8 @@ export default async function AdminUserDetail({
 
                       {(t?.createdAt || t?.updatedAt) && (
                         <div className="flex items-center gap-2 text-[9px] text-white/50">
-                          {t?.createdAt && <span>Cree le {formatDate(t.createdAt)}</span>}
-                          {t?.updatedAt && <span>• Mis a jour le {formatDate(t.updatedAt)}</span>}
+                          {t?.createdAt && <span>Créé le {formatDate(t.createdAt)}</span>}
+                          {t?.updatedAt && <span>• Mis à jour le {formatDate(t.updatedAt)}</span>}
                         </div>
                       )}
                     </div>

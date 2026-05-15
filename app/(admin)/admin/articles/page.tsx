@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FiChevronLeft, FiEdit2, FiFileText, FiPlus, FiTrash2 } from "react-icons/fi";
+import PageHeader from "@/components/Shared/PageHeader";
 import { toast } from "sonner";
 import ArticleImagesUploader from "@/components/Shared/UploadImage/ArticleImagesUploader";
 import {
@@ -137,40 +138,24 @@ export default function AdminArticlesPage() {
   };
 
   return (
-    <div className="bg-noir-700 flex flex-col gap-4 px-3 lg:px-20 pb-10 min-h-screen">
-      <div className="flex flex-col relative gap-6 w-full mt-2 lg:mt-10">
-        <div className="flex flex-col md:flex-row md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-3 rounded-xl shadow-xl border border-white/10 gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-tertiary-500/30 rounded-full flex items-center justify-center">
-              <FiFileText size={20} className="text-tertiary-400" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-white font-one tracking-wide uppercase">
-                Gestion des Articles
-              </h1>
-              <p className="text-white/70 text-[10px] font-one mt-0.5">
-                Creez, modifiez et supprimez vos articles publics
-              </p>
-            </div>
-          </div>
+    <div className="wrapper-global">
+      <section className="w-full space-y-3 pt-4">
+        <PageHeader icon={<FiFileText size={18} />} title="Gestion des Articles">
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl border border-white/10 font-one text-xs transition-colors"
+          >
+            <FiChevronLeft size={14} /> Retour
+          </Link>
+          <Link
+            href="/admin/articles/nouveau"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-400 text-white rounded-2xl font-one text-xs transition-all"
+          >
+            <FiPlus size={14} /> Nouvel article
+          </Link>
+        </PageHeader>
 
-          <div className="flex items-center gap-2">
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/10 font-one text-xs transition-colors"
-            >
-              <FiChevronLeft size={14} /> Retour
-            </Link>
-            <Link
-              href="/admin/articles/nouveau"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-one text-xs transition-all"
-            >
-              <FiPlus size={14} /> Nouvel article
-            </Link>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-4">
+        <div className="">
           {loading && (
             <p className="text-sm text-white/60 font-one">Chargement des articles...</p>
           )}
@@ -180,7 +165,7 @@ export default function AdminArticlesPage() {
               <p className="text-sm text-red-300 font-one">{error}</p>
               <button
                 onClick={loadArticles}
-                className="cursor-pointer rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-one text-white hover:bg-white/20"
+                className="cursor-pointer rounded-2xl border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-one text-white hover:bg-white/20"
               >
                 Reessayer
               </button>
@@ -201,7 +186,7 @@ export default function AdminArticlesPage() {
                 return (
                   <div
                     key={article.id}
-                    className="rounded-xl border border-white/10 bg-white/5 p-3"
+                    className="rounded-2xl border border-white/10 bg-white/5 p-3"
                   >
                     {isEditing ? (
                       <div className="space-y-3">
@@ -210,7 +195,7 @@ export default function AdminArticlesPage() {
                           onChange={(e) =>
                             setEditForm((prev) => ({ ...prev, title: e.target.value }))
                           }
-                          className="w-full rounded-lg border border-white/15 bg-noir-500/60 px-3 py-2 text-sm text-white outline-none focus:border-tertiary-400"
+                          className="w-full rounded-2xl border border-white/15 bg-noir-500/60 px-3 py-2 text-xs text-white outline-none focus:border-tertiary-400"
                           placeholder="Titre"
                         />
 
@@ -219,7 +204,7 @@ export default function AdminArticlesPage() {
                           onChange={(e) =>
                             setEditForm((prev) => ({ ...prev, author: e.target.value }))
                           }
-                          className="w-full rounded-lg border border-white/15 bg-noir-500/60 px-3 py-2 text-sm text-white outline-none focus:border-tertiary-400"
+                          className="w-full rounded-2xl border border-white/15 bg-noir-500/60 px-3 py-2 text-xs text-white outline-none focus:border-tertiary-400"
                           placeholder="Auteur"
                         />
 
@@ -228,8 +213,8 @@ export default function AdminArticlesPage() {
                           onChange={(e) =>
                             setEditForm((prev) => ({ ...prev, content: e.target.value }))
                           }
-                          rows={6}
-                          className="w-full rounded-lg border border-white/15 bg-noir-500/60 px-3 py-2 text-sm text-white outline-none focus:border-tertiary-400"
+                          rows={20}
+                          className="w-full rounded-2xl border border-white/15 bg-noir-500/60 px-3 py-2 text-xs text-white outline-none focus:border-tertiary-400"
                           placeholder="Contenu"
                         />
 
@@ -245,57 +230,73 @@ export default function AdminArticlesPage() {
                           <button
                             onClick={() => saveEdit(article.id)}
                             disabled={isSaving}
-                            className="cursor-pointer rounded-lg bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-3 py-1.5 text-xs text-white disabled:opacity-50"
+                            className="cursor-pointer rounded-2xl bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-3 py-1.5 text-xs text-white disabled:opacity-50"
                           >
                             {isSaving ? "Sauvegarde..." : "Sauvegarder"}
                           </button>
                           <button
                             onClick={cancelEdit}
-                            className="cursor-pointer rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs text-white hover:bg-white/20"
+                            className="cursor-pointer rounded-2xl border border-white/20 bg-white/10 px-3 py-1.5 text-xs text-white hover:bg-white/20"
                           >
                             Annuler
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-2">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <h2 className="text-sm font-semibold text-white font-one truncate">
-                              {article.title}
-                            </h2>
-                            <p className="text-[11px] text-white/60 font-one">
-                              Par {article.author} • {new Date(article.createdAt).toLocaleDateString("fr-FR")}
-                            </p>
+                      <div className="flex gap-3">
+                        {/* Image */}
+                        {article.imageUrls?.length > 0 ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={article.imageUrls[0]}
+                            alt={article.title}
+                            className="w-20 h-20 rounded-xl object-cover flex-shrink-0 border border-white/10"
+                          />
+                        ) : (
+                          <div className="w-20 h-20 rounded-xl flex-shrink-0 bg-white/5 border border-white/10 flex items-center justify-center">
+                            <FiFileText size={22} className="text-white/20" />
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => startEdit(article)}
-                              className="cursor-pointer rounded-lg border border-white/20 bg-white/10 p-2 text-white hover:bg-white/20"
-                              aria-label="Modifier l'article"
-                            >
-                              <FiEdit2 size={14} />
-                            </button>
-                            <button
-                              onClick={() => removeArticle(article.id)}
-                              disabled={isDeleting}
-                              className="cursor-pointer rounded-lg border border-red-400/30 bg-red-400/10 p-2 text-red-300 hover:bg-red-400/20 disabled:opacity-50"
-                              aria-label="Supprimer l'article"
-                            >
-                              <FiTrash2 size={14} />
-                            </button>
-                          </div>
-                        </div>
-
-                        <p className="text-xs text-white/70 font-one line-clamp-3">
-                          {article.content}
-                        </p>
-
-                        {article.imageUrls?.length > 0 && (
-                          <p className="text-[11px] text-white/50 font-one">
-                            {article.imageUrls.length} image{article.imageUrls.length > 1 ? "s" : ""}
-                          </p>
                         )}
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <h2 className="text-sm font-semibold text-white font-one truncate">
+                                {article.title}
+                              </h2>
+                              <p className="text-[11px] text-white/60 font-one">
+                                Par {article.author} • {new Date(article.createdAt).toLocaleDateString("fr-FR")}
+                              </p>
+                              {article.imageUrls?.length > 1 && (
+                                <p className="text-[10px] text-white/40 font-one">
+                                  {article.imageUrls.length} images
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              <button
+                                onClick={() => startEdit(article)}
+                                className="cursor-pointer rounded-lg border border-white/20 bg-white/10 p-2 text-white hover:bg-white/20"
+                                aria-label="Modifier l'article"
+                              >
+                                <FiEdit2 size={14} />
+                              </button>
+                              <button
+                                onClick={() => removeArticle(article.id)}
+                                disabled={isDeleting}
+                                className="cursor-pointer rounded-lg border border-red-400/30 bg-red-400/10 p-2 text-red-300 hover:bg-red-400/20 disabled:opacity-50"
+                                aria-label="Supprimer l'article"
+                              >
+                                <FiTrash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-white/70 font-one line-clamp-2">
+                            {article.content}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -304,7 +305,7 @@ export default function AdminArticlesPage() {
             </div>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

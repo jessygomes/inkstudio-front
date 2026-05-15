@@ -66,6 +66,7 @@ export default function ClientsList() {
 
   useEffect(() => {
     fetchClients(1, search);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -78,22 +79,25 @@ export default function ClientsList() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Search Bar */}
-      <form onSubmit={handleSearch} className="flex gap-2">
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
-          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50" />
+          <FiSearch
+            className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-white/50"
+            size={14}
+          />
           <input
             type="text"
             placeholder="Rechercher un client (nom, prénom, email, ville)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-tertiary-400/50 transition-colors font-one"
+            className="w-full pl-9 pr-3 py-1 text-xs bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/50 focus:outline-none focus:border-tertiary-400/50 transition-colors font-one"
           />
         </div>
         <button
           type="submit"
-          className="px-6 py-3 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-one font-medium"
+          className="px-4 py-1 text-xs bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-2xl transition-all duration-300 font-one font-medium"
         >
           Rechercher
         </button>
@@ -127,7 +131,7 @@ export default function ClientsList() {
 
       {/* Clients Grid */}
       {!loading && !error && clients.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {clients.map((client) => (
             <UserCard key={client.id} user={client} type="client" />
           ))}
@@ -143,13 +147,13 @@ export default function ClientsList() {
 
       {/* Pagination */}
       {!loading && !error && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-1.5">
           <button
             onClick={() => handlePageChange(pagination.currentPage - 1)}
             disabled={!pagination.hasPreviousPage}
-            className="p-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-white/30 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+            className="p-1.5 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-white/30 text-white rounded transition-colors disabled:cursor-not-allowed"
           >
-            <FiChevronLeft size={20} />
+            <FiChevronLeft size={16} />
           </button>
 
           <div className="flex gap-1">
@@ -158,7 +162,7 @@ export default function ClientsList() {
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 rounded-lg font-one font-medium transition-colors ${
+                  className={`px-3 py-1.5 text-sm rounded font-one font-medium transition-colors ${
                     page === pagination.currentPage
                       ? "bg-tertiary-500 text-white"
                       : "bg-white/10 hover:bg-white/20 text-white"
@@ -173,9 +177,9 @@ export default function ClientsList() {
           <button
             onClick={() => handlePageChange(pagination.currentPage + 1)}
             disabled={!pagination.hasNextPage}
-            className="p-2 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-white/30 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+            className="p-1.5 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:text-white/30 text-white rounded transition-colors disabled:cursor-not-allowed"
           >
-            <FiChevronRight size={20} />
+            <FiChevronRight size={16} />
           </button>
         </div>
       )}
