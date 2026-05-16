@@ -198,6 +198,14 @@ export interface ClientProps {
   phone: string;
   birthDate: string | null; // Date de naissance au format ISO
   address: string;
+  consentSigned?: boolean;
+  consentSignedAt?: string | null;
+  consentFileUrl?: string | null;
+  isMinor?: boolean;
+  guardianName?: string | null;
+  guardianPhone?: string | null;
+  tags?: string[] | string | null;
+  marketingConsent?: boolean;
   appointments: AppointmentProps[]; // Liste des rendez-vous
   tattooHistory: TattooHistoryProps[]; // Historique des tatouages
   medicalHistory: {
@@ -205,6 +213,7 @@ export interface ClientProps {
     healthIssues: string | null; // Problèmes de santé
     medications: string | null; // Médicaments
     pregnancy: boolean; // Indique si la personne est enceinte
+    previousReactions?: string | null;
     tattooHistory: string | null; // Historique des tatouages
   };
   FollowUpSubmission?: {

@@ -40,12 +40,24 @@ export default function CreateOrUpdateClient({
         ? new Date(existingClient.birthDate).toISOString().split("T")[0]
         : "",
       address: existingClient?.address || "",
-
+      consentSigned: existingClient?.consentSigned || false,
+      consentSignedAt: existingClient?.consentSignedAt
+        ? new Date(existingClient.consentSignedAt).toISOString().split("T")[0]
+        : "",
+      consentFileUrl: existingClient?.consentFileUrl || "",
+      isMinor: existingClient?.isMinor || false,
+      guardianName: existingClient?.guardianName || "",
+      guardianPhone: existingClient?.guardianPhone || "",
+      tags: Array.isArray(existingClient?.tags)
+        ? existingClient?.tags.join(", ")
+        : existingClient?.tags || "",
+      marketingConsent: existingClient?.marketingConsent || false,
       // Historique médical
       allergies: existingClient?.medicalHistory?.allergies || "",
       healthIssues: existingClient?.medicalHistory?.healthIssues || "",
       medications: existingClient?.medicalHistory?.medications || "",
       pregnancy: existingClient?.medicalHistory?.pregnancy || false,
+      previousReactions: existingClient?.medicalHistory?.previousReactions || "",
       tattooHistory: existingClient?.medicalHistory?.tattooHistory || "",
     },
   });
@@ -55,12 +67,12 @@ export default function CreateOrUpdateClient({
     setError("");
     setSuccess("");
 
-    // Convertir la date de naissance au format ISO si elle existe
+    // Convertir les champs spéciaux (dates, tags)
     const processedData = {
       ...data,
-      birthDate: data.birthDate
-        ? new Date(data.birthDate).toISOString()
-        : undefined,
+      birthDate: data.birthDate ? new Date(data.birthDate).toISOString() : undefined,
+      consentSignedAt: data.consentSignedAt ? new Date(data.consentSignedAt).toISOString() : undefined,
+      tags: typeof data.tags === "string" ? data.tags.split(",").map((t) => t.trim()).filter(Boolean) : data.tags,
     };
 
     const url = existingClient
@@ -150,105 +162,94 @@ export default function CreateOrUpdateClient({
               onSubmit={form.handleSubmit(onSubmit)}
               className="tablet-inputs space-y-4 lg:space-y-6"
             >
-              {/* Informations personnelles */}
+              {/* Informations personnelles + consentement + mineur */}
               <div className="dashboard-embedded-section rounded-2xl p-4 lg:p-4 border border-white/10">
                 <h3 className="flex items-center gap-2 text-sm lg:text-sm font-semibold text-white font-one uppercase tracking-wide mb-3 lg:mb-2">
-                  <CiUser size={20} className="lg:w-5 lg:h-5" /> Informations
-                  personnelles
+                  <CiUser size={20} className="lg:w-5 lg:h-5" /> Informations personnelles
                 </h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-4">
+                  {/* ...Prénom, Nom, Email, Téléphone, Date de naissance, Adresse... */}
                   <div className="space-y-1 lg:space-y-1">
-                    <label className="text-xs lg:text-xs text-white/70 font-one">
-                      Prénom
-                    </label>
-                    <input
-                      {...form.register("firstName")}
-                      className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    />
+                    <label className="text-xs lg:text-xs text-white/70 font-one">Prénom</label>
+                    <input {...form.register("firstName")} className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors" />
                     {form.formState.errors.firstName && (
-                      <p className="text-red-300 text-xs lg:text-xs mt-1">
-                        {form.formState.errors.firstName.message}
-                      </p>
+                      <p className="text-red-300 text-xs lg:text-xs mt-1">{form.formState.errors.firstName.message}</p>
                     )}
                   </div>
-
                   <div className="space-y-1 lg:space-y-1">
-                    <label className="text-xs lg:text-xs text-white/70 font-one">
-                      Nom
-                    </label>
-                    <input
-                      {...form.register("lastName")}
-                      className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    />
+                    <label className="text-xs lg:text-xs text-white/70 font-one">Nom</label>
+                    <input {...form.register("lastName")} className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors" />
                     {form.formState.errors.lastName && (
-                      <p className="text-red-300 text-xs lg:text-xs mt-1">
-                        {form.formState.errors.lastName.message}
-                      </p>
+                      <p className="text-red-300 text-xs lg:text-xs mt-1">{form.formState.errors.lastName.message}</p>
                     )}
                   </div>
-
                   <div className="space-y-1 lg:space-y-1">
-                    <label className="text-xs lg:text-xs text-white/70 font-one">
-                      Email
-                    </label>
-                    <input
-                      {...form.register("email")}
-                      type="email"
-                      className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    />
+                    <label className="text-xs lg:text-xs text-white/70 font-one">Email</label>
+                    <input {...form.register("email")} type="email" className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors" />
                     {form.formState.errors.email && (
-                      <p className="text-red-300 text-xs lg:text-xs mt-1">
-                        {form.formState.errors.email.message}
-                      </p>
+                      <p className="text-red-300 text-xs lg:text-xs mt-1">{form.formState.errors.email.message}</p>
                     )}
                   </div>
-
                   <div className="space-y-1 lg:space-y-1">
-                    <label className="text-xs lg:text-xs text-white/70 font-one">
-                      Téléphone (optionnel)
-                    </label>
-                    <input
-                      {...form.register("phone")}
-                      type="tel"
-                      className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    />
+                    <label className="text-xs lg:text-xs text-white/70 font-one">Téléphone (optionnel)</label>
+                    <input {...form.register("phone")} type="tel" className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors" />
                     {form.formState.errors.phone && (
-                      <p className="text-red-300 text-xs lg:text-xs mt-1">
-                        {form.formState.errors.phone.message}
-                      </p>
+                      <p className="text-red-300 text-xs lg:text-xs mt-1">{form.formState.errors.phone.message}</p>
                     )}
                   </div>
-
                   <div className="space-y-1 lg:space-y-1">
-                    <label className="text-xs lg:text-xs text-white/70 font-one">
-                      Date de naissance (optionnelle)
-                    </label>
-                    <input
-                      {...form.register("birthDate")}
-                      type="date"
-                      className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    />
+                    <label className="text-xs lg:text-xs text-white/70 font-one">Date de naissance (optionnelle)</label>
+                    <input {...form.register("birthDate")} type="date" className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors" />
                     {form.formState.errors.birthDate && (
-                      <p className="text-red-300 text-xs lg:text-xs mt-1">
-                        {form.formState.errors.birthDate.message}
-                      </p>
+                      <p className="text-red-300 text-xs lg:text-xs mt-1">{form.formState.errors.birthDate.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-1 lg:space-y-1">
+                    <label className="text-xs lg:text-xs text-white/70 font-one">Adresse (optionnel)</label>
+                    <input {...form.register("address")} className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors" placeholder="Adresse complète" />
+                    {form.formState.errors.address && (
+                      <p className="text-red-300 text-xs lg:text-xs mt-1">{form.formState.errors.address.message}</p>
                     )}
                   </div>
 
-                  <div className="space-y-1 lg:space-y-1">
-                    <label className="text-xs lg:text-xs text-white/70 font-one">
-                      Adresse (optionnel)
-                    </label>
-                    <input
-                      {...form.register("address")}
-                      className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                      placeholder="Adresse complète"
-                    />
-                    {form.formState.errors.address && (
-                      <p className="text-red-300 text-xs lg:text-xs mt-1">
-                        {form.formState.errors.address.message}
-                      </p>
-                    )}
+                  {/* Consentement signé */}
+                  <div className="space-y-1 lg:space-y-1 col-span-1 lg:col-span-2 flex items-center gap-2 mt-2">
+                    <input {...form.register("consentSigned")} type="checkbox" className="w-4 h-4 text-tertiary-400 bg-white/10 border-white/20 rounded focus:ring-tertiary-400" id="consentSigned" />
+                    <label htmlFor="consentSigned" className="text-xs lg:text-xs text-white/70 font-one">Consentement signé</label>
+                    <input {...form.register("consentSignedAt")} type="date" className="ml-4 w-[160px] p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors" placeholder="Date signature" />
+                    <input {...form.register("consentFileUrl")} type="url" className="ml-4 flex-1 p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors" placeholder="URL du PDF signé" />
+                  </div>
+                  {/* Champs mineur */}
+                  <div className="space-y-1 lg:space-y-1 col-span-1 lg:col-span-2 flex items-center gap-2 mt-2">
+                    <input {...form.register("isMinor")} type="checkbox" className="w-4 h-4 text-tertiary-400 bg-white/10 border-white/20 rounded focus:ring-tertiary-400" id="isMinor" />
+                    <label htmlFor="isMinor" className="text-xs lg:text-xs text-white/70 font-one">Client mineur</label>
+                  </div>
+                  {form.watch("isMinor") && (
+                    <>
+                      <div className="space-y-1 lg:space-y-1">
+                        <label className="text-xs lg:text-xs text-white/70 font-one">Nom du tuteur</label>
+                        <input {...form.register("guardianName")} className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors" placeholder="Nom du tuteur" />
+                        {form.formState.errors.guardianName && (
+                          <p className="text-red-300 text-xs lg:text-xs mt-1">{form.formState.errors.guardianName.message}</p>
+                        )}
+                      </div>
+                      <div className="space-y-1 lg:space-y-1">
+                        <label className="text-xs lg:text-xs text-white/70 font-one">Téléphone du tuteur</label>
+                        <input {...form.register("guardianPhone")} className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors" placeholder="Téléphone du tuteur" />
+                        {form.formState.errors.guardianPhone && (
+                          <p className="text-red-300 text-xs lg:text-xs mt-1">{form.formState.errors.guardianPhone.message}</p>
+                        )}
+                      </div>
+                    </>
+                  )}
+                  {/* Tags et marketing */}
+                  <div className="space-y-1 lg:space-y-1 col-span-1 lg:col-span-2 flex items-center gap-2 mt-2">
+                    <label className="text-xs lg:text-xs text-white/70 font-one">Tags (séparés par virgule)</label>
+                    <input {...form.register("tags")} className="flex-1 p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors" placeholder="ex: fidèle, VIP, allergique, etc." />
+                  </div>
+                  <div className="space-y-1 lg:space-y-1 col-span-1 lg:col-span-2 flex items-center gap-2 mt-2">
+                    <input {...form.register("marketingConsent")} type="checkbox" className="w-4 h-4 text-tertiary-400 bg-white/10 border-white/20 rounded focus:ring-tertiary-400" id="marketingConsent" />
+                    <label htmlFor="marketingConsent" className="text-xs lg:text-xs text-white/70 font-one">Consentement marketing</label>
                   </div>
                 </div>
               </div>
@@ -314,15 +315,12 @@ export default function CreateOrUpdateClient({
                       </div>
 
                       <div className="space-y-1 lg:space-y-1">
-                        <label className="text-xs lg:text-xs text-white/70 font-one">
-                          Historique des tatouages
-                        </label>
-                        <textarea
-                          {...form.register("tattooHistory")}
-                          className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none"
-                          rows={3}
-                          placeholder="Tatouages précédents, réactions..."
-                        />
+                        <label className="text-xs lg:text-xs text-white/70 font-one">Historique des tatouages</label>
+                        <textarea {...form.register("tattooHistory")} className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none" rows={3} placeholder="Tatouages précédents, réactions..." />
+                      </div>
+                      <div className="space-y-1 lg:space-y-1">
+                        <label className="text-xs lg:text-xs text-white/70 font-one">Réactions antérieures (médical)</label>
+                        <textarea {...form.register("previousReactions")} className="w-full p-3 lg:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm lg:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none" rows={3} placeholder="Réactions allergiques, infections, etc." />
                       </div>
                     </div>
 

@@ -253,11 +253,28 @@ export const clientSchema = z.object({
     ),
   address: z.string().optional(),
 
+  // Nouveaux champs consentement et mineur
+  consentSigned: z.boolean().optional(),
+  consentSignedAt: z.string().optional(), // à transformer en date côté backend
+  consentFileUrl: z.string().optional().refine(
+    (val) => !val || val.trim() === "" || /^https?:\/\/.+\..+/.test(val),
+    { message: "L'URL du PDF doit être valide." }
+  ),
+  isMinor: z.boolean().optional(),
+  guardianName: z.string().optional(),
+  guardianPhone: z.string().optional(),
+  tags: z.union([
+    z.array(z.string()),
+    z.string()
+  ]).optional(),
+  marketingConsent: z.boolean().optional(),
+
   // Historique médical (optionnel)
   allergies: z.string().optional(),
   healthIssues: z.string().optional(),
   medications: z.string().optional(),
   pregnancy: z.boolean().optional(),
+  previousReactions: z.string().optional(),
   tattooHistory: z.string().optional(),
 });
 
