@@ -10,11 +10,22 @@ import { FormSuccess } from "@/components/Shared/FormSuccess";
 import { CardWrapper } from "../CardWrapper";
 import Link from "next/link";
 
+const PASSWORD_NUMBER_REGEX = /\d/;
+const PASSWORD_SPECIAL_REGEX = /[^A-Za-z0-9]/;
+
 const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+      .min(8, "Le mot de passe doit contenir au moins 8 caractères")
+      .regex(
+        PASSWORD_NUMBER_REGEX,
+        "Le mot de passe doit contenir au moins un chiffre",
+      )
+      .regex(
+        PASSWORD_SPECIAL_REGEX,
+        "Le mot de passe doit contenir au moins un caractère spécial",
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {

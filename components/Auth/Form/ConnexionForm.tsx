@@ -29,6 +29,10 @@ export const LoginForm = () => {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
+  const [signupNotice, setSignupNotice] = useState<{
+    email?: string | null;
+    plan?: string | null;
+  } | null>(null);
 
   // ✅ Vérifier si l'utilisateur arrive avec un callback ou erreur
   useEffect(() => {
@@ -41,15 +45,10 @@ export const LoginForm = () => {
       const signupPlan = sessionStorage.getItem("signup_notice_plan");
 
       if (hasSignupNotice === "1") {
-        const accountMsg = signupEmail
-          ? `Compte créé pour ${signupEmail}. Vérifiez votre boîte mail pour confirmer votre adresse.`
-          : "Compte créé. Vérifiez votre boîte mail pour confirmer votre adresse.";
-
-        const planMsg = signupPlan && signupPlan !== "FREE"
-          ? `Le plan ${signupPlan} sera activé uniquement après paiement validé. En attendant, votre compte reste en version FREE.`
-          : "";
-
-        setSuccess(planMsg ? `${accountMsg} ${planMsg}` : accountMsg);
+        setSignupNotice({
+          email: signupEmail,
+          plan: signupPlan,
+        });
 
         // Message one-shot: on le retire après affichage.
         sessionStorage.removeItem("signup_notice_pending");
@@ -80,6 +79,7 @@ export const LoginForm = () => {
   const onSubmit = async (data: z.infer<typeof userLoginSchema>) => {
     setError("");
     setSuccess("");
+    setSignupNotice(null);
     setIsPending(true);
 
     try {
@@ -214,6 +214,31 @@ export const LoginForm = () => {
             </div>
 
             <FormError message={error} />
+            {signupNotice && (
+              <div className="rounded-2xl border border-emerald-400/35 bg-emerald-500/15 p-3 text-emerald-100">
+                <p className="text-sm font-semibold font-one mb-2">
+                  Compte créé avec succès
+                </p>
+                <div className="space-y-1.5 text-xs font-two leading-relaxed">
+                  <p>
+                    {signupNotice.email
+                      ? `Adresse liée au compte : ${signupNotice.email}`
+                      : "Votre compte a bien été créé."}
+                  </p>
+                  <p>
+                    Un email de vérification vous a été envoyé. Pensez à confirmer
+                    votre adresse avant votre première connexion complète.
+                  </p>
+                  {signupNotice.plan && signupNotice.plan !== "FREE" && (
+                    <p>
+                      Le plan {signupNotice.plan} sera activé après validation du
+                      paiement Stripe. En attendant, votre compte reste en version
+                      FREE.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
             <FormSuccess message={success} />
 
             <button

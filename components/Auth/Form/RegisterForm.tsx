@@ -22,6 +22,9 @@ const step2Schema = z.object({
   saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]),
 });
 
+const PASSWORD_NUMBER_REGEX = /\d/;
+const PASSWORD_SPECIAL_REGEX = /[^A-Za-z0-9]/;
+
 const step3Schema = z
   .object({
     firstName: z.string().min(1, "Le prénom est requis"),
@@ -30,7 +33,15 @@ const step3Schema = z
     email: z.string().email("Email invalide"),
     password: z
       .string()
-      .min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+      .min(8, "Le mot de passe doit contenir au moins 8 caractères")
+      .regex(
+        PASSWORD_NUMBER_REGEX,
+        "Le mot de passe doit contenir au moins un chiffre",
+      )
+      .regex(
+        PASSWORD_SPECIAL_REGEX,
+        "Le mot de passe doit contenir au moins un caractère spécial",
+      ),
     passwordConfirmation: z.string(),
   })
   .refine((data) => data.password === data.passwordConfirmation, {
@@ -572,9 +583,9 @@ export const Register = () => {
                     <div className="relative">
                       <input
                         id="password"
-                        placeholder="Minimum 6 caractères"
+                        placeholder="Minimum 8 caractères"
                         type={showPassword ? "text" : "password"}
-                        minLength={6}
+                        minLength={8}
                         required
                         className="bg-white/30 py-2 px-4 pr-10 rounded-lg text-sm w-full"
                         {...step3Form.register("password")}
@@ -621,6 +632,16 @@ export const Register = () => {
                         )}
                       </button>
                     </div>
+                    <div className="rounded-lg border border-white/15 bg-white/5 px-3 py-2">
+                      <p className="text-[11px] font-semibold text-white/90 mb-1">
+                        Critères de sécurité du mot de passe
+                      </p>
+                      <ul className="text-[11px] text-white/75 space-y-0.5">
+                        <li>• 8 caractères minimum</li>
+                        <li>• Au moins 1 chiffre</li>
+                        <li>• Au moins 1 caractère spécial (ex: ! @ # $ %)</li>
+                      </ul>
+                    </div>
                     {step3Form.formState.errors.password && (
                       <p className="text-red-400 text-xs">
                         {step3Form.formState.errors.password.message}
@@ -637,7 +658,7 @@ export const Register = () => {
                         id="passwordConfirmation"
                         placeholder="Confirmer le mot de passe"
                         type={showPasswordConfirmation ? "text" : "password"}
-                        minLength={6}
+                        minLength={8}
                         required
                         className="bg-white/30 py-2 px-4 pr-10 rounded-lg text-sm w-full"
                         {...step3Form.register("passwordConfirmation")}

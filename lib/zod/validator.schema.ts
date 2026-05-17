@@ -1,5 +1,9 @@
 import * as z from "zod";
 
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_NUMBER_REGEX = /\d/;
+const PASSWORD_SPECIAL_REGEX = /[^A-Za-z0-9]/;
+
 //! USER
 export const userLoginSchema = z.object({
   email: z.string().email({
@@ -21,7 +25,18 @@ export const userRegisterSchema = z
     saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]).default("FREE"),
     password: z
       .string()
-      .min(6, "Votre mot de passe doit contenir au moins 6 caractères."),
+      .min(
+        PASSWORD_MIN_LENGTH,
+        "Votre mot de passe doit contenir au moins 8 caractères.",
+      )
+      .regex(
+        PASSWORD_NUMBER_REGEX,
+        "Votre mot de passe doit contenir au moins un chiffre.",
+      )
+      .regex(
+        PASSWORD_SPECIAL_REGEX,
+        "Votre mot de passe doit contenir au moins un caractère spécial.",
+      ),
     passwordConfirmation: z.string(),
   })
   .superRefine(({ passwordConfirmation, password }, ctx) => {
@@ -60,7 +75,18 @@ export const changePasswordSchema = z
     currentPassword: z.string().min(1, "Mot de passe actuel requis"),
     newPassword: z
       .string()
-      .min(6, "Le nouveau mot de passe doit contenir au moins 6 caractères"),
+      .min(
+        PASSWORD_MIN_LENGTH,
+        "Le nouveau mot de passe doit contenir au moins 8 caractères",
+      )
+      .regex(
+        PASSWORD_NUMBER_REGEX,
+        "Le nouveau mot de passe doit contenir au moins un chiffre",
+      )
+      .regex(
+        PASSWORD_SPECIAL_REGEX,
+        "Le nouveau mot de passe doit contenir au moins un caractère spécial",
+      ),
     confirmPassword: z.string().min(1, "Confirmation requise"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
