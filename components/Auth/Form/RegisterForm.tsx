@@ -276,7 +276,7 @@ export const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center py-3 px-4">
-      <div className="w-full">
+      <div className="w-full max-w-2xl lg:max-w-4xl">
         <CardWrapper headerLabel={getStepTitle()}>
           {/* Indicateur d'étapes */}
           <div className="flex items-center justify-center mb-6">
@@ -576,145 +576,148 @@ export const Register = () => {
                   </div>
 
                   {/* Mots de passe */}
-                  <div className="flex flex-col gap-2 font-one">
-                    <label htmlFor="password" className="text-xs">
-                      Mot de passe *
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="password"
-                        placeholder="Minimum 8 caractères"
-                        type={showPassword ? "text" : "password"}
-                        minLength={8}
-                        required
-                        className="bg-white/30 py-2 px-4 pr-10 rounded-lg text-sm w-full"
-                        {...step3Form.register("password")}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors"
-                      >
-                        {showPassword ? (
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        )}
-                      </button>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-2 font-one">
+                      <label htmlFor="password" className="text-xs">
+                        Mot de passe *
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="password"
+                          placeholder="*************"
+                          type={showPassword ? "text" : "password"}
+                          minLength={8}
+                          required
+                          className="bg-white/30 py-2 px-4 pr-10 rounded-lg text-sm w-full"
+                          {...step3Form.register("password")}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                        >
+                          {showPassword ? (
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      {step3Form.formState.errors.password && (
+                        <p className="text-red-400 text-xs">
+                          {step3Form.formState.errors.password.message}
+                        </p>
+                      )}
                     </div>
-                    <div className="rounded-lg border border-white/15 bg-white/5 px-3 py-2">
-                      <p className="text-[11px] font-semibold text-white/90 mb-1">
-                        Critères de sécurité du mot de passe
-                      </p>
-                      <ul className="text-[11px] text-white/75 space-y-0.5">
-                        <li>• 8 caractères minimum</li>
-                        <li>• Au moins 1 chiffre</li>
-                        <li>• Au moins 1 caractère spécial (ex: ! @ # $ %)</li>
-                      </ul>
+
+                    <div className="flex flex-col gap-2 font-one">
+                      <label htmlFor="passwordConfirmation" className="text-xs">
+                        Confirmer le mot de passe *
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="passwordConfirmation"
+                          placeholder="*************"
+                          type={showPasswordConfirmation ? "text" : "password"}
+                          minLength={8}
+                          required
+                          className="bg-white/30 py-2 px-4 pr-10 rounded-lg text-sm w-full"
+                          {...step3Form.register("passwordConfirmation")}
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowPasswordConfirmation(!showPasswordConfirmation)
+                          }
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                        >
+                          {showPasswordConfirmation ? (
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      {step3Form.formState.errors.passwordConfirmation && (
+                        <p className="text-red-400 text-xs">
+                          {
+                            step3Form.formState.errors.passwordConfirmation
+                              .message
+                          }
+                        </p>
+                      )}
                     </div>
-                    {step3Form.formState.errors.password && (
-                      <p className="text-red-400 text-xs">
-                        {step3Form.formState.errors.password.message}
-                      </p>
-                    )}
                   </div>
 
-                  <div className="flex flex-col gap-2 font-one">
-                    <label htmlFor="passwordConfirmation" className="text-xs">
-                      Confirmer le mot de passe *
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="passwordConfirmation"
-                        placeholder="Confirmer le mot de passe"
-                        type={showPasswordConfirmation ? "text" : "password"}
-                        minLength={8}
-                        required
-                        className="bg-white/30 py-2 px-4 pr-10 rounded-lg text-sm w-full"
-                        {...step3Form.register("passwordConfirmation")}
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowPasswordConfirmation(!showPasswordConfirmation)
-                        }
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors"
-                      >
-                        {showPasswordConfirmation ? (
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-                    {step3Form.formState.errors.passwordConfirmation && (
-                      <p className="text-red-400 text-xs">
-                        {
-                          step3Form.formState.errors.passwordConfirmation
-                            .message
-                        }
-                      </p>
-                    )}
+                  <div className="rounded-lg border border-white/15 bg-white/5 px-3 py-2">
+                    <p className="text-[11px] font-semibold text-white/90 mb-1">
+                      Critères de sécurité du mot de passe
+                    </p>
+                    <ul className="text-[11px] text-white/75 space-y-0.5">
+                      <li>• 8 caractères minimum</li>
+                      <li>• Au moins 1 chiffre</li>
+                      <li>• Au moins 1 caractère spécial (ex: ! @ # $ %)</li>
+                    </ul>
                   </div>
 
                   {/* Messages d'erreur et de succès */}
