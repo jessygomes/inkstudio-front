@@ -157,7 +157,7 @@ export default function ShowPortfolio() {
   return (
     <section className="w-full space-y-3">
       <PageHeader
-        icon={<FaIdCardClip size={20} className="text-tertiary-400" />}
+        icon={<FaIdCardClip size={15} className="text-tertiary-400" />}
         title="Portfolio"
       >
         <div className="hidden md:flex items-center gap-2">

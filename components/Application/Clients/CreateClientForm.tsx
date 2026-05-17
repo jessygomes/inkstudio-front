@@ -79,10 +79,10 @@ export default function CreateClientForm({ userId }: { userId: string }) {
   const consentSigned = form.watch("consentSigned");
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="tablet-inputs space-y-4 mx-auto mt-2 bg-noir-500 p-4 rounded-2xl ">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="tablet-inputs space-y-4 mx-auto p-4 rounded-2xl ">
       <div className="dashboard-embedded-section rounded-2xl border border-white/10 p-4">
         <div className="mb-3 flex items-center gap-2">
-          <CiUser size={18} className="text-tertiary-400" />
+          <CiUser size={18} className="text-white" />
           <h3 className="text-sm font-semibold uppercase tracking-wide text-white font-one">
             Identité et contact
           </h3>
@@ -218,7 +218,7 @@ export default function CreateClientForm({ userId }: { userId: string }) {
         </div>
       )}
 
-      <div className="dashboard-embedded-footer flex justify-end gap-3 border-t border-white/10 bg-white/5 p-4">
+      <div className="flex justify-end">
         <DashboardButton type="submit" disabled={loading}>
           {loading ? "Création..." : "Créer le client"}
         </DashboardButton>

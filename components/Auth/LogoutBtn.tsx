@@ -21,12 +21,12 @@ export const LogoutBtn = ({ children }: LogoutBtnProps) => {
     try {
       const result = await signOut({
         redirect: false,
-        redirectTo: "/connexion",
+        redirectTo: "/",
       });
 
       toast.success("Déconnexion réussie");
 
-      const nextUrl = result?.url || "/connexion";
+      const nextUrl = result?.url || "/";
 
       // Met à jour l'état Next.js immédiatement
       router.replace(nextUrl);

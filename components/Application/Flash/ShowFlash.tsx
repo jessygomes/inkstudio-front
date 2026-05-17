@@ -122,7 +122,7 @@ export default function ShowFlash() {
   return (
     <section className="w-full space-y-3">
       <PageHeader
-        icon={<FaBolt size={20} className="text-tertiary-400" />}
+        icon={<FaBolt size={15} className="text-tertiary-400" />}
         title="Flashs"
       >
         <DashboardButton onClick={handleCreate}>

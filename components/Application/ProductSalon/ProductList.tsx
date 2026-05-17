@@ -127,7 +127,7 @@ export default function ProductList() {
   return (
     <section className="w-full space-y-3">
       <PageHeader
-        icon={<MdOutlineSell size={20} className="text-tertiary-400" />}
+        icon={<MdOutlineSell size={15} className="text-tertiary-400" />}
         title="Produits"
       >
         <DashboardButton onClick={handleCreate}>

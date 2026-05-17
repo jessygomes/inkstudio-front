@@ -34,6 +34,7 @@ import { useSession } from "next-auth/react";
 import RdvListSkeleton from "@/components/Skeleton/RdvListSkeleton";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
+import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
 
 export default function RDV() {
   const { data: session } = useSession();
@@ -324,22 +325,24 @@ export default function RDV() {
   return (
     <div className="w-full gap-6 pb-10 xl:pb-0">
       <PageHeader
-        icon={<FaRegCalendarTimes size={20} className="text-tertiary-400" />}
+        icon={<FaRegCalendarTimes size={15} className="text-tertiary-400" />}
         title="Mes rendez-vous"
       >
-        <div className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/6 px-4 py-2 text-xs font-medium text-white font-one">
-          <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[11px]">
-            {pendingAppointmentsCount > 99 ? "99+" : pendingAppointmentsCount}
-          </span>
-          RDV en attente
-        </div>
         {!isFreeAccount && (
-          <DashboardButton href="/mes-rendez-vous/creer">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Créer un rendez-vous
-          </DashboardButton>
+          <div className="flex gap-2">
+            <div className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/6 px-4 py-2 text-xs font-medium text-white font-one">
+              <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[11px]">
+                {pendingAppointmentsCount > 99 ? "99+" : pendingAppointmentsCount}
+              </span>
+              RDV en attente
+            </div>
+            <DashboardButton href="/mes-rendez-vous/creer">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Créer un rendez-vous
+            </DashboardButton>
+          </div>
         )}
       </PageHeader>
 
@@ -368,86 +371,35 @@ export default function RDV() {
         <div className="w-full">
           {!isFreeAccount && <Search />}
 
-          <div className="bg-gradient-to-r from-orange-500/10 to-tertiary-500/10 border border-orange-500/30 rounded-2xl p-6 mt-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg
-                  className="w-6 h-6 text-orange-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v8a2 2 0 002 2h4a2 2 0 002-2v-8m-6 0h8m-8 0V7a2 2 0 012-2h4a2 2 0 012 2v4m0 0v8a2 2 0 01-2 2H10a2 2 0 01-2-2v-8m0 0h8"
-                  />
-                </svg>
-              </div>
-
-              <div className="flex-1">
-                <h2 className="text-white font-semibold font-one mb-2">
-                  📅 Gestion des rendez-vous disponible avec un abonnement
-                </h2>
-
-                <p className="text-white/70 text-sm font-one mb-4">
-                  Accédez à la gestion complète de vos rendez-vous :
-                  planification, suivi des clients, historique des séances et
-                  bien plus.
-                </p>
-
-                <div className="flex flex-wrap gap-3 mb-4">
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      📅 Calendrier interactif
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      👥 Gestion des clients
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      💰 Suivi des paiements
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      📊 Statistiques détaillées
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      🔔 Notifications automatiques
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      📝 Historique complet
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => (window.location.href = "/parametres")}
-                    className="cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-sm font-one font-medium transition-all duration-300"
-                  >
-                    🚀 Passer à PRO
-                  </button>
-
-                  <button
-                    onClick={() => (window.location.href = "/parametres")}
-                    className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-sm font-one font-medium transition-colors"
-                  >
-                    Voir les plans
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <LockedFeatureCard
+            className="dashboard-embedded-section mt-5"
+            icon={
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v8a2 2 0 002 2h4a2 2 0 002-2v-8m-6 0h8m-8 0V7a2 2 0 012-2h4a2 2 0 012 2v4m0 0v8a2 2 0 01-2 2H10a2 2 0 01-2-2v-8m0 0h8"
+                />
+              </svg>
+            }
+            title="Gestion des rendez-vous disponible avec un abonnement"
+            description="Accédez à la gestion complète de vos rendez-vous : planification, suivi des clients, historique des séances et bien plus."
+            features={[
+              "Calendrier interactif",
+              "Gestion des clients",
+              "Suivi des paiements",
+              "Statistiques détaillées",
+              "Notifications automatiques",
+              "Historique complet",
+            ]}
+            primaryLabel="Passer à PRO"
+          />
         </div>
       ) : (
         <div className="flex flex-col gap-3 w-full mt-3">

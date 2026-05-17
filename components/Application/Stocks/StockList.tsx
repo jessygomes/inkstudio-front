@@ -16,6 +16,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import { toast } from "sonner";
+import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
 
 export default function StockList() {
   const { data: session } = useSession();
@@ -242,7 +243,7 @@ export default function StockList() {
   return (
     <section className="w-full space-y-3">
       <PageHeader
-        icon={<FaDatabase size={20} className="text-tertiary-400" />}
+        icon={<FaDatabase size={15} className="text-tertiary-400" />}
         title="Stocks"
       >
         {!isFreeAccount && (
@@ -297,50 +298,35 @@ export default function StockList() {
       )}
 
       {isFreeAccount ? (
-        <div className="dashboard-panel p-6 lg:p-8">
-          <div className="dashboard-panel-content bg-gradient-to-r from-orange-500/4 to-tertiary-500/4 rounded-[24px] p-0">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-orange-500/25 bg-orange-500/12">
-                <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-
-              <div className="flex-1">
-                <h2 className="mb-2 text-white font-semibold font-one">
-                  Gestion des stocks disponible avec un abonnement
-                </h2>
-                <p className="mb-4 text-sm text-white/70 font-one">
-                  Accédez à la gestion complète de votre stock : suivi des quantités, alertes de rupture, catégorisation et historique des mouvements.
-                </p>
-
-                <div className="mb-4 flex flex-wrap gap-3">
-                  <div className="dashboard-chip">Inventaire complet</div>
-                  <div className="dashboard-chip">Alertes de rupture</div>
-                  <div className="dashboard-chip">Suivi des quantités</div>
-                  <div className="dashboard-chip">Catégorisation</div>
-                  <div className="dashboard-chip">Historique des mouvements</div>
-                  <div className="dashboard-chip">Recherche et filtres</div>
-                </div>
-
-                <div className="mt-4 flex gap-3">
-                  <button
-                    onClick={() => (window.location.href = "/parametres")}
-                    className="cursor-pointer rounded-xl bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:from-tertiary-500 hover:to-tertiary-600 font-one"
-                  >
-                    Passer à PRO
-                  </button>
-                  <button
-                    onClick={() => (window.location.href = "/parametres")}
-                    className="cursor-pointer rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20 font-one"
-                  >
-                    Voir les plans
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <LockedFeatureCard
+          className="dashboard-panel p-6 lg:p-8"
+          icon={
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              />
+            </svg>
+          }
+          title="Gestion des stocks disponible avec un abonnement"
+          description="Accédez à la gestion complète de votre stock : suivi des quantités, alertes de rupture, catégorisation et historique des mouvements."
+          features={[
+            "Inventaire complet",
+            "Alertes de rupture",
+            "Suivi des quantités",
+            "Catégorisation",
+            "Historique des mouvements",
+            "Recherche et filtres",
+          ]}
+          primaryLabel="Passer à PRO"
+        />
       ) : (
         <div className=" space-y-3">
           <div className="">

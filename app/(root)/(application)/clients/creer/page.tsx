@@ -29,12 +29,11 @@ export default async function CreerClientPage() {
     <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 pb-20">
       <div className="flex flex-col relative w-full bg-noir-700 mt-4 pb-4 px-3 sm:px-6 lg:px-10">
         <PageHeader
-          icon={<FiUserPlus size={28} className="text-tertiary-400 animate-pulse" />} 
+          icon={<FiUserPlus size={15} className="text-tertiary-400 animate-pulse" />} 
           title="Créer un client"
         >
-          {/* actions éventuelles à droite, si besoin */}
         </PageHeader>
-        <div className="w-full mt-3">
+        <div className="w-full">
           <CreateClientForm userId={userId ?? ""} />
         </div>
       </div>

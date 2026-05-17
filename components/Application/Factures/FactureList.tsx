@@ -5,8 +5,8 @@ import { FactureProps, PaginationInfo, FactureStatistics } from "@/lib/type";
 import React, { useEffect, useState, useCallback } from "react";
 import { PiInvoiceDuotone } from "react-icons/pi";
 import FactureDetailsModal from "./FactureDetailsModal";
-import Link from "next/link";
 import PageHeader from "@/components/Shared/PageHeader";
+import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
 
 export default function FactureList() {
   const { data: session } = useSession();
@@ -191,62 +191,33 @@ export default function FactureList() {
 
       {/* Message pour les comptes Free */}
       {isFreeAccount && (
-        <div className="mb-6">
-          <div className="dashboard-panel p-6">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-orange-500/25 bg-orange-500/12">
-                <svg
-                  className="w-6 h-6 text-orange-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              </div>
-
-              <div className="flex-1">
-                <h2 className="text-white font-semibold font-one mb-2">
-                  Gestion de factures avancée disponible avec un abonnement
-                </h2>
-
-                <p className="text-white/70 text-sm font-one mb-4">
-                  Débloquez la gestion complète de vos factures : création
-                  automatique, suivi des paiements, statistiques détaillées et
-                  exports.
-                </p>
-
-                <div className="flex flex-wrap gap-2.5">
-                  <div className="dashboard-chip">Statistiques détaillées</div>
-                  <div className="dashboard-chip">Suivi des paiements</div>
-                  <div className="dashboard-chip">Exports PDF</div>
-                  <div className="dashboard-chip">Factures illimitées</div>
-                </div>
-
-                <div className="flex gap-3 mt-4">
-                  <Link
-                    href="/parametres"
-                    className="cursor-pointer rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2 text-sm font-one font-medium text-white transition-all duration-300 hover:from-tertiary-500 hover:to-tertiary-600"
-                  >
-                    Passer à PRO
-                  </Link>
-
-                  <Link
-                    href="/parametres"
-                    className="cursor-pointer rounded-[14px] border border-white/20 bg-white/10 px-4 py-2 text-sm font-one font-medium text-white transition-colors hover:bg-white/20"
-                  >
-                    Voir les plans
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <LockedFeatureCard
+          className="mb-6 dashboard-panel p-6"
+          icon={
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          }
+          title="Gestion de factures avancée disponible avec un abonnement"
+          description="Débloquez la gestion complète de vos factures : création automatique, suivi des paiements, statistiques détaillées et exports."
+          features={[
+            "Statistiques détaillées",
+            "Suivi des paiements",
+            "Exports PDF",
+            "Factures illimitées",
+          ]}
+          primaryLabel="Passer à PRO"
+        />
       )}
 
       {!isFreeAccount && (

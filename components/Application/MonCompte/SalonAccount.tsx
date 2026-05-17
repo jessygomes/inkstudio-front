@@ -52,7 +52,7 @@ export default function SalonAccount() {
     return (
       <section className="w-full space-y-3">
         <PageHeader
-          icon={<IoBusinessOutline size={20} className="text-tertiary-400" />}
+          icon={<IoBusinessOutline size={15} className="text-tertiary-400" />}
           title="Mon Compte"
         />
         <AccountSkeleton />
@@ -62,10 +62,10 @@ export default function SalonAccount() {
 
   return (
     <section className="w-full space-y-3">
-      <PageHeader
-        icon={<IoBusinessOutline size={20} className="text-tertiary-400" />}
+      {/* <PageHeader
+        icon={<IoBusinessOutline size={15} className="text-tertiary-400" />}
         title="Mon Compte"
-      />
+      /> */}
 
       <div className="dashboard-embedded-panel p-3 sm:p-8 bg-blue-500">
           <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">

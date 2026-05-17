@@ -15,15 +15,14 @@ interface PageHeaderProps {
  */
 export default function PageHeader({ icon, title, children }: PageHeaderProps) {
   return (
-    <div className="dashboard-hero px-4 py-4 lg:px-6 lg:py-2">
+    <div className="px-4 py-4 lg:px-0 lg:py-0">
       <div className="relative z-10 flex flex-col gap-4 md:flex-row xl:items-center md:justify-between">
         <div className="max-w-3xl">
-          <div className="flex items-center gap-3">
-            
-            <div className="flex h-10 w-10 bg-tertiary-400/20 rounded-full shrink-0 items-center justify-center lg:h-12 lg:w-12">
+          <div className="flex items-center gap-3 bg-noir-500 p-2 rounded-2xl">
+            <div className="flex h-10 w-10 bg-tertiary-400/20 rounded-full shrink-0 items-center justify-center lg:h-8 lg:w-8">
               {icon}
             </div>
-            <h1 className="text-xl font-bold uppercase tracking-[0.14em] text-white font-one sm:text-2xl">
+            <h1 className="text-xl font-bold uppercase tracking-[0.14em] text-white font-one sm:text-lg">
               {title}
             </h1>
           </div>

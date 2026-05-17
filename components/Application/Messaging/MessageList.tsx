@@ -12,9 +12,9 @@ import React, { useEffect, useState, useCallback } from "react";
 import { MdOutlineMessage } from "react-icons/md";
 import { CiSearch } from "react-icons/ci";
 import { useMessagingContext } from "@/components/Providers/MessagingProvider";
-import Link from "next/link";
 import MessageListSkeleton from "@/components/Skeleton/MessageListSkeleton";
 import PageHeader from "@/components/Shared/PageHeader";
+import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
 
 export default function MessageList() {
   const { data: session } = useSession();
@@ -91,7 +91,7 @@ export default function MessageList() {
   return (
     <section className="space-y-4">
       <PageHeader
-        icon={<MdOutlineMessage size={20} className="text-tertiary-400" />}
+        icon={<MdOutlineMessage size={15} className="text-tertiary-400" />}
         title="Messagerie"
       >
         {unreadCount > 0 && (
@@ -169,73 +169,32 @@ export default function MessageList() {
 
       {/* Message pour les comptes Free */}
       {isFreeAccount && (
-        <div>
-          <div className="dashboard-embedded-section bg-gradient-to-r from-orange-500/10 to-tertiary-500/10 border border-orange-500/30 rounded-2xl p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg
-                  className="w-6 h-6 text-orange-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                  />
-                </svg>
-              </div>
-
-              <div className="flex-1">
-                <h2 className="text-white font-semibold font-one mb-2">
-                  💬 Messagerie améliorée disponible avec un abonnement
-                </h2>
-
-                <p className="text-white/70 text-sm font-one mb-4">
-                  Débloquez des fonctionnalités avancées de messagerie :
-                  notifications en temps réel, messagerie interne illimitée,
-                  pièces jointes et bien plus.
-                </p>
-
-                <div className="flex flex-wrap gap-3">
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      💼 Messagerie interne illimitée
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      📎 Pièces jointes
-                    </span>
-                  </div>
-                  <div className="bg-white/10 rounded-lg px-3 py-1">
-                    <span className="text-white/80 text-xs font-one">
-                      ⭐ Réponses automatiques
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 mt-4">
-                  <Link
-                    href="/parametres"
-                    className="cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-sm font-one font-medium transition-all duration-300"
-                  >
-                    🚀 Passer à PRO
-                  </Link>
-
-                  <Link
-                    href="/parametres"
-                    className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-sm font-one font-medium transition-colors"
-                  >
-                    Voir les plans
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <LockedFeatureCard
+          className="dashboard-embedded-section"
+          icon={
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+              />
+            </svg>
+          }
+          title="Messagerie améliorée disponible avec un abonnement"
+          description="Débloquez des fonctionnalités avancées de messagerie : notifications en temps réel, messagerie interne illimitée, pièces jointes et bien plus."
+          features={[
+            "Messagerie interne illimitée",
+            "Pièces jointes",
+            "Réponses automatiques",
+          ]}
+          primaryLabel="Passer à PRO"
+        />
       )}
 
       {/* Conversations list - Seulement pour les comptes non-Free */}
