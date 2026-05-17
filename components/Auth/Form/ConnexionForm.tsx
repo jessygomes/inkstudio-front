@@ -35,6 +35,29 @@ export const LoginForm = () => {
     const errorParam = searchParams.get("error");
     const codeParam = searchParams.get("code");
 
+    if (typeof window !== "undefined") {
+      const hasSignupNotice = sessionStorage.getItem("signup_notice_pending");
+      const signupEmail = sessionStorage.getItem("signup_notice_email");
+      const signupPlan = sessionStorage.getItem("signup_notice_plan");
+
+      if (hasSignupNotice === "1") {
+        const accountMsg = signupEmail
+          ? `Compte créé pour ${signupEmail}. Vérifiez votre boîte mail pour confirmer votre adresse.`
+          : "Compte créé. Vérifiez votre boîte mail pour confirmer votre adresse.";
+
+        const planMsg = signupPlan && signupPlan !== "FREE"
+          ? `Le plan ${signupPlan} sera activé uniquement après paiement validé. En attendant, votre compte reste en version FREE.`
+          : "";
+
+        setSuccess(planMsg ? `${accountMsg} ${planMsg}` : accountMsg);
+
+        // Message one-shot: on le retire après affichage.
+        sessionStorage.removeItem("signup_notice_pending");
+        sessionStorage.removeItem("signup_notice_email");
+        sessionStorage.removeItem("signup_notice_plan");
+      }
+    }
+
     if (errorParam === "CredentialsSignin") {
       if (codeParam && codeParam !== "credentials") {
         setError(codeParam);

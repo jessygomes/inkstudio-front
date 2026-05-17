@@ -223,6 +223,12 @@ export const Register = () => {
 
         setSuccess("Compte créé. Redirection vers le paiement...");
 
+        // Mémoriser le contexte d'inscription pour afficher un message clair
+        // sur la page de connexion si l'utilisateur revient depuis Stripe.
+        sessionStorage.setItem("signup_notice_pending", "1");
+        sessionStorage.setItem("signup_notice_email", data.email);
+        sessionStorage.setItem("signup_notice_plan", selectedPlan);
+
         // Rediriger l'utilisateur vers Stripe
         setIsPending(false);
         window.location.href = checkoutUrl;
