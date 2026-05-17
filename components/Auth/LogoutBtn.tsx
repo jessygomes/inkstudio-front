@@ -1,4 +1,6 @@
 "use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AiOutlineLogout } from "react-icons/ai";
 import { signOut } from "next-auth/react";
@@ -8,32 +10,46 @@ interface LogoutBtnProps {
 }
 
 export const LogoutBtn = ({ children }: LogoutBtnProps) => {
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const onClick = async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+
     try {
-      // ✅ Utiliser NextAuth pour la déconnexion
-      await signOut({
+      const result = await signOut({
         redirect: false,
-        callbackUrl: "/",
+        redirectTo: "/connexion",
       });
 
       toast.success("Déconnexion réussie");
 
-      // 🔄 Forcer un refresh complet pour que le middleware réévalue l'état d'authentification
-      // Sans ceci, le cache client peut continuer à penser qu'on est connecté
-      window.location.href = "/";
+      const nextUrl = result?.url || "/connexion";
+
+      // Met à jour l'état Next.js immédiatement
+      router.replace(nextUrl);
+      router.refresh();
+
+      // Sécurise le logout en vidant le cache de navigation client
+      window.location.replace(nextUrl);
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
       toast.error("Erreur lors de la déconnexion");
+      setIsLoggingOut(false);
     }
   };
 
   return (
-    <span
+    <button
+      type="button"
       onClick={onClick}
-      className="cursor-pointer px-4 py-2 text-sm w-full flex items-center gap-2 rounded-xl hover:bg-noir-500 transition-colors"
+      disabled={isLoggingOut}
+      className="cursor-pointer px-4 py-2 text-sm w-full flex items-center gap-2 rounded-xl hover:bg-noir-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
     >
       <AiOutlineLogout size={20} className="inline-block mr-2" />
-      {children}
-    </span>
+      {isLoggingOut ? "Déconnexion..." : children}
+    </button>
   );
 };

@@ -19,7 +19,7 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  saasPlan: z.enum(["FREE", "STUDIO", "PRO"]),
+  saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]),
 });
 
 const step3Schema = z
@@ -38,7 +38,7 @@ const step3Schema = z
     path: ["passwordConfirmation"],
   });
 
-type SignupPlan = "FREE" | "STUDIO" | "PRO";
+type SignupPlan = "FREE" | "PRO" | "BUSINESS";
 
 export const Register = () => {
   const router = useRouter();
@@ -58,7 +58,7 @@ export const Register = () => {
       const url = new URL(safeCallbackUrl, "https://inkera-studio.local");
       const checkoutPlan = url.searchParams.get("checkout");
 
-      if (checkoutPlan === "STUDIO" || checkoutPlan === "PRO") {
+      if (checkoutPlan === "PRO" || checkoutPlan === "BUSINESS") {
         return checkoutPlan;
       }
 
@@ -165,8 +165,6 @@ export const Register = () => {
         // Ajouter le plan sélectionné pour créer la checkout session Stripe
         checkoutPlan: selectedPlan !== "FREE" ? selectedPlan : null,
       };
-
-      console.log("📤 Données finales envoyées:", finalData);
 
       // Créer le compte utilisateur et obtenir la checkout URL si plan payant
       const response = await fetch(
@@ -358,11 +356,11 @@ export const Register = () => {
                       <option value="FREE" className="bg-white text-black">
                         Free - 0€/mois
                       </option>
-                      <option value="STUDIO" className="bg-white text-black">
-                        Studio - 35,99€/mois
-                      </option>
                       <option value="PRO" className="bg-white text-black">
-                        Pro - 85,99€/mois
+                        Pro - 29,99€/mois
+                      </option>
+                      <option value="BUSINESS" className="bg-white text-black">
+                        Business - 59,99€/mois
                       </option>
                     </select>
 
@@ -382,10 +380,10 @@ export const Register = () => {
                           </div>
                         </div>
                       )}
-                      {step2Form.watch("saasPlan") === "STUDIO" && (
+                      {step2Form.watch("saasPlan") === "PRO" && (
                         <div className="text-xs text-white/80">
                           <p className="font-semibold mb-2 text-tertiary-400">
-                            Plan Studio - 35,99€/mois :
+                            Plan Pro - 29,99€/mois :
                           </p>
                           <div className="text-xs space-y-1">
                             <p>• 1 tatoueur</p>
@@ -396,15 +394,15 @@ export const Register = () => {
                           </div>
                         </div>
                       )}
-                      {step2Form.watch("saasPlan") === "PRO" && (
+                      {step2Form.watch("saasPlan") === "BUSINESS" && (
                         <div className="text-xs text-white/80">
                           <p className="font-semibold mb-2 text-tertiary-400">
-                            Plan Pro - 85,99€/mois :
+                            Plan Business - 59,99€/mois :
                           </p>
                           <div className="text-xs space-y-1">
                             <p>• Tatoueurs illimités</p>
                             <p>• Gestion du stock</p>
-                            <p>• Tout du plan Studio</p>
+                            <p>• Tout du plan Pro</p>
                             <p>• Statistiques détaillées</p>
                             <p>• Support prioritaire</p>
                             <p>• Formations incluses</p>
@@ -414,8 +412,8 @@ export const Register = () => {
                     </div>
 
                     {/* Note sur les plans payants */}
-                    {(step2Form.watch("saasPlan") === "STUDIO" ||
-                      step2Form.watch("saasPlan") === "PRO") && (
+                    {(step2Form.watch("saasPlan") === "PRO" ||
+                      step2Form.watch("saasPlan") === "BUSINESS") && (
                       <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-2xl p-3 mt-2">
                         <div className="flex items-start gap-2">
                           <svg
@@ -543,7 +541,7 @@ export const Register = () => {
 
                     <div className="flex flex-col gap-2 font-one">
                       <label htmlFor="phone" className="text-xs">
-                        Téléphone (optionnel)
+                        Téléphone
                       </label>
                       <input
                         id="phone"

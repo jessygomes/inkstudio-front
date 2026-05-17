@@ -37,7 +37,7 @@ export default async function DashboardPage() {
             Nouveau RDV
           </DashboardButton>
 
-          <DashboardButton href="/clients" variant="secondary">
+          <DashboardButton href="/clients/creer" variant="secondary">
             <svg className="h-4 w-4 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5V10H2v10h5m10 0v-2a4 4 0 00-4-4H11a4 4 0 00-4 4v2m10 0H7m5-10a3 3 0 110-6 3 3 0 010 6z" />
             </svg>

@@ -118,7 +118,7 @@ export const LoginForm = () => {
                 placeholder="johndoe@domaine.com"
                 type="text"
                 required
-                className="bg-white/30 py-2 px-4 rounded-lg"
+                className="bg-white/30 py-2 px-4 rounded-2xl"
                 {...form.register("email")}
               />
               {form.formState.errors.email && (
@@ -138,7 +138,7 @@ export const LoginForm = () => {
                   placeholder="Mot de passe"
                   type={showPassword ? "text" : "password"}
                   required
-                  className="bg-white/30 py-2 px-4 pr-10 rounded-lg text-sm w-full"
+                  className="bg-white/30 py-2 px-4 pr-10 rounded-2xl text-sm w-full"
                   {...form.register("password")}
                 />
                 <button
