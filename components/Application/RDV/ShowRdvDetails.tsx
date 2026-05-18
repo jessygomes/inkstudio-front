@@ -18,6 +18,7 @@ import {
   getMoodboardByAppointmentAction,
   MoodboardDto,
 } from "@/lib/queries/moodboard";
+import ConsumablesList from "./Consumables/ConsumablesList";
 
 const STATUS_CONFIG = {
   PENDING: { label: "En attente", dot: "bg-amber-400 animate-pulse", pill: "bg-amber-500/12 text-amber-300 border-amber-400/25" },
@@ -589,6 +590,15 @@ export default function ShowRdvDetails({
               <span>Voir le moodboard</span>
             </button>
             </div>
+          </div>
+        )}
+
+        {/* Consommables */}
+        {(selectedEvent.prestation === "TATTOO" ||
+          selectedEvent.prestation === "PIERCING" ||
+          selectedEvent.prestation === "RETOUCHE") && (
+          <div className="dashboard-embedded-section p-3">
+            <ConsumablesList appointmentId={selectedEvent.id} />
           </div>
         )}
 

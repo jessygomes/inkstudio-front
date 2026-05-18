@@ -271,6 +271,13 @@ export interface StockItemProps {
   id: string;
   name: string;
   category: string | null;
+  type?: string | null;
+  brand?: string | null;
+  reference?: string | null;
+  pigment?: string | null;
+  lotNumber?: string | null;
+  expirationDate?: string | null;
+  notes?: string | null;
   quantity: number;
   unit: string | null;
   minQuantity: number | null;
@@ -359,3 +366,38 @@ export interface UpdateColorProfileDto {
   colorProfile: string;
   colorProfileBis: string;
 }
+
+//! CONSOMMABLES RDV
+export type ConsumableCategory = "INK" | "NEEDLE" | "GLOVE" | "SOAP" | "FILM" | "OTHER";
+
+export const CONSUMABLE_CATEGORY_LABELS: Record<ConsumableCategory, string> = {
+  INK: "Encre",
+  NEEDLE: "Aiguille",
+  GLOVE: "Gant",
+  SOAP: "Savon",
+  FILM: "Film",
+  OTHER: "Autre",
+};
+
+export interface AppointmentConsumable {
+  id: string;
+  appointmentId: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  stockItemId?: string | null;
+  category?: ConsumableCategory | null;
+  productName?: string | null;
+  brand?: string | null;
+  reference?: string | null;
+  pigment?: string | null;
+  lotNumber?: string | null;
+  expirationDate?: string | null;
+  quantity?: number | null;
+  unit?: string | null;
+  notes?: string | null;
+}
+
+export type CreateConsumablePayload = Omit<AppointmentConsumable, "id" | "appointmentId" | "userId" | "createdAt" | "updatedAt">;
+
+export type UpdateConsumablePayload = Partial<CreateConsumablePayload>;

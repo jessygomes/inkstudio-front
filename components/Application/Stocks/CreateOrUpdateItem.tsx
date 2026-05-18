@@ -28,6 +28,13 @@ export default function CreateOrUpdateItem({
     defaultValues: {
       name: existingProduct?.name || "",
       category: existingProduct?.category || "",
+      type: existingProduct?.type || "",
+      brand: existingProduct?.brand || "",
+      reference: existingProduct?.reference || "",
+      pigment: existingProduct?.pigment || "",
+      lotNumber: existingProduct?.lotNumber || "",
+      expirationDate: existingProduct?.expirationDate ? existingProduct.expirationDate.split("T")[0] : "",
+      notes: existingProduct?.notes || "",
       quantity: existingProduct?.quantity || 0,
       unit: existingProduct?.unit || "",
       minQuantity: existingProduct?.minQuantity || 0,
@@ -134,7 +141,7 @@ export default function CreateOrUpdateItem({
                       Nom de l'article *
                     </label>
                     <input
-                      placeholder="Encre noire, Aiguilles, Gants..."
+                      placeholder="BLKout Black, Aiguilles Round Liner 7RL, etc."
                       {...form.register("name")}
                       className={inputClass}
                     />
@@ -145,20 +152,111 @@ export default function CreateOrUpdateItem({
                     )}
                   </div>
 
-                  <div className="space-y-1 lg:space-y-1">
-                    <label className={labelClass}>
-                      Catégorie (optionnelle)
-                    </label>
-                    <input
-                      placeholder="Consommables, Équipement, Hygiène..."
-                      {...form.register("category")}
-                      className={inputClass}
-                    />
-                    {form.formState.errors.category && (
-                      <p className="text-red-300 text-xs lg:text-xs mt-1">
-                        {form.formState.errors.category.message}
-                      </p>
-                    )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1 lg:space-y-1">
+                      <label className={labelClass}>
+                        Catégorie (optionnelle)
+                      </label>
+                      <input
+                        placeholder="Consommables, Équipement, Hygiène..."
+                        {...form.register("category")}
+                        className={inputClass}
+                      />
+                      {form.formState.errors.category && (
+                        <p className="text-red-300 text-xs lg:text-xs mt-1">
+                          {form.formState.errors.category.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-1 lg:space-y-1">
+                      <label className={labelClass}>Type</label>
+                      <input
+                        placeholder="Ex : Encre, crème, etc."
+                        {...form.register("type")}
+                        className={inputClass}
+                      />
+                      {form.formState.errors.type && (
+                        <p className="text-red-300 text-xs lg:text-xs mt-1">
+                          {form.formState.errors.type.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Champs supplémentaires pour consommables */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className={labelClass}>Marque</label>
+                      <input
+                        placeholder="Ex : Dynamic, Kwadron..."
+                        {...form.register("brand")}
+                        className={inputClass}
+                      />
+                      {form.formState.errors.brand && (
+                        <p className="text-red-300 text-xs mt-1">{form.formState.errors.brand.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <label className={labelClass}>Référence</label>
+                      <input
+                        placeholder="Ex : DY-BLK-240, KW-RL7..."
+                        {...form.register("reference")}
+                        className={inputClass}
+                      />
+                      {form.formState.errors.reference && (
+                        <p className="text-red-300 text-xs mt-1">{form.formState.errors.reference.message}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className={labelClass}>Pigment</label>
+                      <input
+                        placeholder="Ex : Carbon Black..."
+                        {...form.register("pigment")}
+                        className={inputClass}
+                      />
+                      {form.formState.errors.pigment && (
+                        <p className="text-red-300 text-xs mt-1">{form.formState.errors.pigment.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <label className={labelClass}>N° de lot</label>
+                      <input
+                        placeholder="Ex : LOT-2026-0042..."
+                        {...form.register("lotNumber")}
+                        className={inputClass}
+                      />
+                      {form.formState.errors.lotNumber && (
+                        <p className="text-red-300 text-xs mt-1">{form.formState.errors.lotNumber.message}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className={labelClass}>Date d'expiration</label>
+                      <input
+                        type="date"
+                        {...form.register("expirationDate")}
+                        className={inputClass + " [color-scheme:dark]"}
+                      />
+                      {form.formState.errors.expirationDate && (
+                        <p className="text-red-300 text-xs mt-1">{form.formState.errors.expirationDate.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <label className={labelClass}>Notes</label>
+                      <textarea
+                        rows={2}
+                        placeholder="Remarques, usage, etc."
+                        {...form.register("notes")}
+                        className={inputClass + " resize-none"}
+                      />
+                      {form.formState.errors.notes && (
+                        <p className="text-red-300 text-xs mt-1">{form.formState.errors.notes.message}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

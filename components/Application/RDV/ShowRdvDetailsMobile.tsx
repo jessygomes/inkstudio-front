@@ -5,6 +5,7 @@ import ConfirmRdv from "./ConfirmRdv";
 import UpdateRdv from "./UpdateRdv";
 import CancelRdv from "./CancelRdv";
 import ChangeRdv from "./ChangeRdv";
+import ConsumablesList from "./Consumables/ConsumablesList";
 import { UpdateRdvFormProps } from "@/lib/type";
 import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import { calculateDuration } from "@/lib/utils/calculateDuration";
@@ -743,6 +744,15 @@ export default function ShowRdvDetailsMobile({
                     </div>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Section Consommables mobiles */}
+            {(selectedEvent.prestation === "TATTOO" ||
+              selectedEvent.prestation === "PIERCING" ||
+              selectedEvent.prestation === "RETOUCHE") && (
+              <div className="rounded-xl border border-white/10 p-3 backdrop-blur-sm">
+                <ConsumablesList appointmentId={selectedEvent.id} />
               </div>
             )}
 

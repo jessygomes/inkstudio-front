@@ -7,12 +7,11 @@ import {
 } from "@/lib/queries/stocks";
 import { PaginationInfo, StockItemProps } from "@/lib/type";
 import { useEffect, useState, useCallback } from "react";
-import { IoCreateOutline } from "react-icons/io5";
-import { AiOutlineEdit } from "react-icons/ai";
+// import { AiOutlineEdit } from "react-icons/ai";
 import { FaDatabase } from "react-icons/fa";
 import CreateOrUpdateItem from "./CreateOrUpdateItem";
 import DeleteItemStock from "./DeleteItemStock";
-import { AiOutlineDelete } from "react-icons/ai";
+import StockTable from "./StockTable";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import { toast } from "sonner";
@@ -126,10 +125,25 @@ export default function StockList() {
     }
   }, [session?.user?.id, fetchCategories]);
 
-  //! Filtrage local par catégorie
-  const filteredItems = categoryFilter
+
+  //! Tri par type
+  const [sortByType, setSortByType] = useState<null | 'asc' | 'desc'>(null);
+
+  // Filtrage local par catégorie
+  let filteredItems = categoryFilter
     ? itemsStock.filter((item) => item.category === categoryFilter)
     : itemsStock;
+
+  // Tri par type si activé
+  if (sortByType) {
+    filteredItems = [...filteredItems].sort((a, b) => {
+      const typeA = a.type?.toLowerCase() || '';
+      const typeB = b.type?.toLowerCase() || '';
+      if (typeA < typeB) return sortByType === 'asc' ? -1 : 1;
+      if (typeA > typeB) return sortByType === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
 
   //! Calcul des statistiques
   const statistics = {
@@ -423,137 +437,14 @@ export default function StockList() {
             </div>
           ) : (
             <>
-              <div className="hidden lg:grid grid-cols-[1.5fr_1fr_1.2fr_1fr_1fr_1fr_auto] gap-3 rounded-2xl border border-white/8 bg-white/6 px-4 py-2.5 text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
-                <p>Article</p>
-                <p>Catégorie</p>
-                <p>Quantité</p>
-                <p>Seuil min.</p>
-                <p>Prix unitaire</p>
-                <p>Valeur</p>
-                <p className="text-right">Actions</p>
-              </div>
-
-              <div className="space-y-2.5">
-                {filteredItems.map((item) => {
-                  const isOutOfStock = item.quantity === 0;
-                  const isLowStock = Boolean(item.minQuantity) && item.quantity <= (item.minQuantity || 0) && !isOutOfStock;
-
-                  return (
-                    <div key={item.id} className="dashboard-list-item p-3 lg:p-3.5">
-                      <div className="hidden lg:grid lg:grid-cols-[1.5fr_1fr_1.2fr_1fr_1fr_1fr_auto] lg:items-center lg:gap-3">
-                        <div className="min-w-0">
-                          <p className="truncate text-[13px] font-semibold text-white font-one">{item.name}</p>
-                          <div className="mt-1 flex flex-wrap gap-1">
-                            {isOutOfStock && <span className="rounded-full border border-red-400/20 bg-red-500/10 px-2 py-0.5 text-[10px] text-red-200 font-one">Rupture</span>}
-                            {isLowStock && <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-200 font-one">Stock bas</span>}
-                          </div>
-                        </div>
-                        <p className="truncate text-xs text-white/70 font-one">{item.category || "Non renseignée"}</p>
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => handleUpdateQuantity(item, -1)}
-                            disabled={item.quantity <= 0}
-                            className="cursor-pointer flex h-7 w-7 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-35"
-                            title="Diminuer"
-                          >
-                            −
-                          </button>
-                          <span className="min-w-[80px] rounded-xl border border-white/8 bg-white/4 px-2 py-1 text-center text-[11px] text-white font-one">
-                            {item.quantity} {item.unit || "pièce(s)"}
-                          </span>
-                          <button
-                            onClick={() => handleUpdateQuantity(item, 1)}
-                            className="cursor-pointer flex h-7 w-7 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:bg-emerald-500/15"
-                            title="Augmenter"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <p className="text-xs text-white/70 font-one">{item.minQuantity ? `${item.minQuantity} ${item.unit || "pièce(s)"}` : "Non défini"}</p>
-                        <p className="text-xs text-white/70 font-one">{item.pricePerUnit ? `${item.pricePerUnit.toFixed(2)} €` : "Non renseigné"}</p>
-                        <p className="text-sm font-semibold text-white font-one">{item.totalPrice ? `${item.totalPrice.toFixed(2)} €` : "0,00 €"}</p>
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:border-tertiary-400/40 hover:bg-white/10"
-                            onClick={() => handleEdit(item)}
-                            title="Modifier l'article"
-                          >
-                            <AiOutlineEdit size={16} />
-                          </button>
-                          <button
-                            className="cursor-pointer flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:border-red-400/40 hover:bg-red-500/12"
-                            onClick={() => handleDelete(item)}
-                            title="Supprimer l'article"
-                          >
-                            <AiOutlineDelete size={16} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2.5 lg:hidden">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0 flex-1">
-                            <h3 className="truncate text-[13px] font-semibold text-white font-one">{item.name}</h3>
-                            <p className="mt-1 text-xs text-white/62 font-one">{item.category || "Non renseignée"}</p>
-                          </div>
-                          <div className="flex flex-col items-end gap-1">
-                            {isOutOfStock && <span className="rounded-full border border-red-400/20 bg-red-500/10 px-2 py-0.5 text-[10px] text-red-200 font-one">Rupture</span>}
-                            {isLowStock && <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-200 font-one">Stock bas</span>}
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 text-[11px] font-one">
-                          <div className="rounded-xl border border-white/8 bg-white/4 px-2.5 py-2">
-                            <p className="text-white/38 uppercase tracking-wider text-[9px]">Seuil min.</p>
-                            <p className="mt-1 text-white/85">{item.minQuantity ? `${item.minQuantity} ${item.unit || "pièce(s)"}` : "Non défini"}</p>
-                          </div>
-                          <div className="rounded-xl border border-white/8 bg-white/4 px-2.5 py-2">
-                            <p className="text-white/38 uppercase tracking-wider text-[9px]">Prix unitaire</p>
-                            <p className="mt-1 text-white/85">{item.pricePerUnit ? `${item.pricePerUnit.toFixed(2)} €` : "Non renseigné"}</p>
-                          </div>
-                          <div className="rounded-xl border border-white/8 bg-white/4 px-2.5 py-2 col-span-2 flex items-center justify-between gap-2">
-                            <div>
-                              <p className="text-white/38 uppercase tracking-wider text-[9px]">Valeur totale</p>
-                              <p className="mt-1 text-[13px] font-semibold text-white">{item.totalPrice ? `${item.totalPrice.toFixed(2)} €` : "0,00 €"}</p>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                onClick={() => handleUpdateQuantity(item, -1)}
-                                disabled={item.quantity <= 0}
-                                className="cursor-pointer flex h-7 w-7 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-35"
-                              >
-                                −
-                              </button>
-                              <span className="min-w-[76px] rounded-xl border border-white/8 bg-white/4 px-2 py-1 text-center text-[11px] text-white">{item.quantity} {item.unit || "pièce(s)"}</span>
-                              <button
-                                onClick={() => handleUpdateQuantity(item, 1)}
-                                className="cursor-pointer flex h-7 w-7 items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white transition-colors hover:bg-emerald-500/15"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-end gap-2 border-t border-white/8 pt-2.5">
-                          <button
-                            className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/6 px-2.5 py-1.5 text-[11px] text-white transition-colors hover:border-tertiary-400/40 hover:bg-white/10 font-one"
-                            onClick={() => handleEdit(item)}
-                          >
-                            <IoCreateOutline size={14} /> Modifier
-                          </button>
-                          <button
-                            className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/6 px-2.5 py-1.5 text-[11px] text-white transition-colors hover:border-red-400/40 hover:bg-red-500/12 font-one"
-                            onClick={() => handleDelete(item)}
-                          >
-                            <AiOutlineDelete size={14} /> Supprimer
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <StockTable
+                items={filteredItems}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onUpdateQuantity={handleUpdateQuantity}
+                sortByType={sortByType}
+                setSortByType={setSortByType}
+              />
 
               {pagination.totalPages > 1 && (
                 <div className="flex flex-col items-center justify-center gap-3 pt-1 sm:flex-row">

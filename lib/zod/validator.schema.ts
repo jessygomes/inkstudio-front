@@ -359,6 +359,13 @@ export const followUpSubmissionSchema = z.object({
 export const stockItemSchema = z.object({
   name: z.string().min(2, "Le nom est requis"),
   category: z.string().optional(),
+  type: z.string().max(100, "100 caractères maximum").optional().nullable(),
+  brand: z.string().max(100, "100 caractères maximum").optional().nullable(),
+  reference: z.string().max(100, "100 caractères maximum").optional().nullable(),
+  pigment: z.string().max(100, "100 caractères maximum").optional().nullable(),
+  lotNumber: z.string().max(100, "100 caractères maximum").optional().nullable(),
+  expirationDate: z.string().optional().nullable(),
+  notes: z.string().max(500, "500 caractères maximum").optional().nullable(),
   quantity: z.number().min(0, "La quantité doit être positive"),
   unit: z.string().optional(),
   minQuantity: z
@@ -370,4 +377,19 @@ export const stockItemSchema = z.object({
     .min(0, "Le prix unitaire doit être positif")
     .optional(),
   userId: z.string(),
+});
+
+//! CONSOMMABLES RDV
+export const consumableSchema = z.object({
+  stockItemId: z.string().optional().nullable(),
+  category: z.enum(["INK", "NEEDLE", "GLOVE", "SOAP", "FILM", "OTHER"]).optional().nullable(),
+  productName: z.string().max(100, "100 caractères maximum").optional().nullable(),
+  brand: z.string().max(100, "100 caractères maximum").optional().nullable(),
+  reference: z.string().max(100, "100 caractères maximum").optional().nullable(),
+  pigment: z.string().max(100, "100 caractères maximum").optional().nullable(),
+  lotNumber: z.string().max(100, "100 caractères maximum").optional().nullable(),
+  expirationDate: z.string().optional().nullable(),
+  quantity: z.number().positive("La quantité doit être positive").optional().nullable(),
+  unit: z.string().max(30, "30 caractères maximum").optional().nullable(),
+  notes: z.string().max(500, "500 caractères maximum").optional().nullable(),
 });
