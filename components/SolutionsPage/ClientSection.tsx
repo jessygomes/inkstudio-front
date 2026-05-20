@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { FaCircleInfo, FaUsers } from "react-icons/fa6";
-import { BiDetail } from "react-icons/bi";
 import { FaNotesMedical, FaHistory } from "react-icons/fa";
 import { AiOutlineMonitor } from "react-icons/ai";
 
@@ -9,13 +8,7 @@ const features = [
     icon: <FaCircleInfo size={24} className="text-tertiary-400" />,
     title: "Données essentielles",
     description:
-      "Coordonnées, vérification de majorité et conformité légale automatisée dès la prise de RDV.",
-  },
-  {
-    icon: <BiDetail size={24} className="text-tertiary-400" />,
-    title: "Détails du projet",
-    description:
-      "Planification matériel, prévention des malentendus et traçabilité complète de chaque prestation.",
+      "Coordonnées, vérification de majorité et conformité légale automatisée dès la prise de RDV. Génération de fiche de consentement éclairé pour chaque client.",
   },
   {
     icon: <FaNotesMedical size={24} className="text-tertiary-400" />,
@@ -33,7 +26,7 @@ const features = [
     icon: <AiOutlineMonitor size={24} className="text-tertiary-400" />,
     title: "Suivi post-tatouage",
     description:
-      "Email de soin automatique après séance et lien de contrôle photo envoyé à J+15 automatiquement.",
+      "Email de soin automatique après séance et lien de contrôle photo envoyé à J+15 automatiquement. Puis envoi d'un email de retouche à J+30 si besoin.",
   },
 ];
 

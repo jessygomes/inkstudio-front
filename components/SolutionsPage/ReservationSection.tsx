@@ -19,13 +19,13 @@ export default function ReservationSection() {
       icon: <FaCircleInfo size={24} className="text-tertiary-400" />,
       title: "Informations client complètes",
       description:
-        "Collecte automatique des données essentielles mises par le client : coordonnées, informations médicales et préférences personnelles.",
+        "Collecte automatique des données essentielles mises par le client : ses coordonnées, le moodboard de son projet et ses préférences personnelles.",
     },
     {
       icon: <FaChalkboardUser size={24} className="text-tertiary-400" />,
       title: "Confirmation intelligente",
       description:
-        "Notifications automatiques par email avec possibilité de validation ou reprogrammation.",
+        "Envoi d'emails et rappels automatiques pour chaque événement : création, confirmation, modification et annulation du rendez-vous.",
     },
     {
       icon: <FaCreativeCommonsBy size={24} className="text-tertiary-400" />,

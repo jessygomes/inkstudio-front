@@ -12,13 +12,13 @@ const features = [
     icon: <FaGlobe size={24} className="text-tertiary-400" />,
     title: "Visibilité 24h/24",
     description:
-      "Visible en ligne même sans site web personnel. Référencé par ville, région ou style artistique.",
+      "Visible en ligne même sans site web personnel. Référencé par ville, région et style artistique pour attirer un trafic local qualifié, être trouvé plus rapidement par des clients prêts à réserver et augmenter durablement vos demandes entrantes.",
   },
   {
     icon: <FaImages size={24} className="text-tertiary-400" />,
     title: "Portfolio & Galerie",
     description:
-      "Vos œuvres, photos du salon et réalisations des artistes dans une galerie professionnelle soignée.",
+      "Vos œuvres, vos flashs, photos du salon et réalisations des artistes dans une galerie professionnelle soignée.",
   },
   {
     icon: <FaUsers size={24} className="text-tertiary-400" />,
@@ -30,7 +30,7 @@ const features = [
     icon: <FaCalendarAlt size={24} className="text-tertiary-400" />,
     title: "Réservation directe",
     description:
-      "Prise de rendez-vous directement depuis votre profil public, sans passer par d'autres plateformes.",
+      "Prise de rendez-vous directement depuis votre profil public, avec possibilité pour le client de réserver un flash en vente par le salon.",
   },
   {
     icon: <FaEye size={24} className="text-tertiary-400" />,
@@ -38,9 +38,9 @@ const features = [
     description:
       "Contrôle total de la visibilité de vos informations personnelles et de celles de votre salon.",
   },
-   {
+  {
     icon: <FaGlobe size={24} className="text-tertiary-400" />,
-    title: "Gratuit pour les salons",
+    title: "Gratuit et sans engagement",
     description:
       "Profitez de cette vitrine pro gratuitement en vous inscrivant sur Inkera Studio avec le Plan FREE.",
   },
@@ -49,8 +49,6 @@ const features = [
 export default function ProfilSection() {
   return (
     <section className="relative overflow-hidden bg-noir-700 py-20 sm:py-16">
-     
-
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-8">
         {/* Hero split */}
         <div className="mb-14 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center">
@@ -130,7 +128,7 @@ export default function ProfilSection() {
             <p className="text-[11px] text-white/55 font-one">Site web requis</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-center">
-            <p className="text-xl font-bold text-white font-two">1 lien</p>
+            <p className="text-xl font-bold text-white font-two">1 lien + QR Code</p>
             <p className="text-[11px] text-white/55 font-one">Partageable partout</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-center">

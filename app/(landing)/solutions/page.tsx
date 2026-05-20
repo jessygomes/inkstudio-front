@@ -1,11 +1,10 @@
-/* eslint-disable react/no-unescaped-entities */
 import Header from "@/components/Shared/Header";
 import ClientSection from "@/components/SolutionsPage/ClientSection";
 import ProfilSection from "@/components/SolutionsPage/ProfilSection";
 import ReservationSection from "@/components/SolutionsPage/ReservationSection";
 import Image from "next/image";
 import Link from "next/link";
-import { FaArrowDown, FaCalendarAlt, FaUsers, FaGlobe } from "react-icons/fa";
+import { FaArrowDown, FaCalendarAlt, FaUsers, FaGlobe, FaComments, FaBoxes, FaChartLine } from "react-icons/fa";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -157,7 +156,7 @@ export default function SolutionsPage() {
             <div className="hidden sm:grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 max-w-xl mx-auto">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/20">
                 <div className="text-xl font-bold text-tertiary-400 font-two">
-                  3
+                  4
                 </div>
                 <div className="text-sm text-white/80 font-one">
                   Solutions complètes
@@ -200,7 +199,7 @@ export default function SolutionsPage() {
         <div className="container mx-auto px-4 sm:px-8 max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-white font-two mb-4">
-              Nos 3 solutions essentielles
+              Nos solutions essentielles
             </h2>
             <p className="text-white/70 font-one text-lg max-w-2xl mx-auto">
               Chaque solution répond à un besoin spécifique de votre salon pour
@@ -220,11 +219,9 @@ export default function SolutionsPage() {
                 </h3>
                 <p className="text-white/70 font-one leading-relaxed">
                   Automatisez vos prises de rendez-vous avec un système
-                  intelligent et professionnel
+                  intelligent et professionnel, avec un agenda commun ou un
+                  agenda par tatoueur
                 </p>
-                <div className="text-tertiary-400 font-one text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                  Découvrir →
-                </div>
               </div>
             </div>
 
@@ -238,12 +235,10 @@ export default function SolutionsPage() {
                   Gestion clients
                 </h3>
                 <p className="text-white/70 font-one leading-relaxed">
-                  Centralisez toutes les informations clients avec un suivi
-                  complet et intelligent
+                  Centralisez les informations client, les données médicales,
+                  l&apos;historique des rendez-vous et générez facilement une fiche
+                  de consentement
                 </p>
-                <div className="text-tertiary-400 font-one text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                  Découvrir →
-                </div>
               </div>
             </div>
 
@@ -258,11 +253,54 @@ export default function SolutionsPage() {
                 </h3>
                 <p className="text-white/70 font-one leading-relaxed">
                   Votre vitrine professionnelle en ligne pour attirer de
-                  nouveaux clients
+                  nouveaux clients, avec accès aux statistiques détaillées
+                  des visites directement dans votre dashboard.
                 </p>
-                <div className="text-tertiary-400 font-one text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                  Découvrir →
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-noir-600/50 to-noir-800/50 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:border-tertiary-400/30 transition-all duration-300 group cursor-pointer">
+              <div className="flex flex-col items-center text-center space-y-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-3xl flex items-center justify-center group-hover:from-tertiary-500/40 group-hover:to-tertiary-600/40 transition-all duration-300">
+                  <FaBoxes size={32} className="text-tertiary-400" />
                 </div>
+                <h3 className="text-xl font-bold text-white font-two group-hover:text-tertiary-400 transition-colors">
+                  Stock & traçabilité
+                </h3>
+                <p className="text-white/70 font-one leading-relaxed">
+                  Pilotez vos stocks et assurez la traçabilité des
+                  consommables pour chaque rendez-vous tattoo, piercing ou retouche
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-noir-600/50 to-noir-800/50 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:border-tertiary-400/30 transition-all duration-300 group cursor-pointer">
+              <div className="flex flex-col items-center text-center space-y-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-3xl flex items-center justify-center group-hover:from-tertiary-500/40 group-hover:to-tertiary-600/40 transition-all duration-300">
+                  <FaComments size={32} className="text-tertiary-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white font-two group-hover:text-tertiary-400 transition-colors">
+                  Messagerie
+                </h3>
+                <p className="text-white/70 font-one leading-relaxed">
+                  Échangez facilement avec vos clients grâce à des
+                  conversations centralisées et un suivi fluide
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-noir-600/50 to-noir-800/50 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:border-tertiary-400/30 transition-all duration-300 group cursor-pointer">
+              <div className="flex flex-col items-center text-center space-y-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-3xl flex items-center justify-center group-hover:from-tertiary-500/40 group-hover:to-tertiary-600/40 transition-all duration-300">
+                  <FaChartLine size={32} className="text-tertiary-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white font-two group-hover:text-tertiary-400 transition-colors">
+                  Suivi des performances
+                </h3>
+                <p className="text-white/70 font-one leading-relaxed">
+                  Visualisez les indicateurs clés de votre studio pour suivre
+                  l&apos;activité, identifier les tendances et piloter vos décisions
+                </p>
               </div>
             </div>
           </div>
