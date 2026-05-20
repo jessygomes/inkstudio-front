@@ -130,7 +130,7 @@ export default function BaseInfoSection({ client }: BaseInfoSectionProps) {
               href={client.consentFileUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center rounded-xl border border-tertiary-400/35 bg-tertiary-500/10 px-3 py-1.5 text-xs font-one text-tertiary-200 transition-colors hover:bg-tertiary-500/20"
+              className="inline-flex items-center rounded-xl border border-tertiary-400/35 bg-tertiary-500/10 px-3 py-1.5 text-xs font-one text-tertiary-500 transition-colors hover:bg-tertiary-500/20"
             >
               Ouvrir le PDF de consentement
             </a>

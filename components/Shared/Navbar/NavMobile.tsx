@@ -6,6 +6,7 @@ export default async function NavMobile() {
     { href: "/", label: "Accueil", icon: "🏠" },
     { href: "/solutions", label: "Solutions", icon: "⚡" },
     { href: "/tarification", label: "Tarification", icon: "💰" },
+    { href: "https://www.theinkera.com/", label: "Je veux me faire tatouer" },
     { href: "/a-propos-de-inkera", label: "A propos de InkEra" },
   ];
 
