@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MdMenu, MdClose } from "react-icons/md";
+import { ROUTES } from "@/lib/routes";
 
 interface NavMobileClientProps {
   initialAuthStatus: boolean;
@@ -75,13 +76,14 @@ export function NavMobileClient({
           isScrolled ? "backdrop-blur-lg rounded-2xl shadow-2xl" : "backdrop-blur-none"
         }`}
       >
-        <Link href={"/"} className="flex items-center gap-1">
+        <Link href={ROUTES.home} className="flex items-center gap-1">
           <Image
             src="/logo/logo_inline_studio_white_2.png"
             alt="Logo"
             width={110}
             height={50}
             className="w-[100px] md:w-[140px] h-auto"
+            style={{ height: "auto" }}
           />
         </Link>
         <button
@@ -112,6 +114,7 @@ export function NavMobileClient({
             width={110}
             height={50}
             className="w-[170px] md:w-[140px] h-auto"
+            style={{ height: "auto" }}
           />
           </div>
           <button
@@ -167,7 +170,7 @@ export function NavMobileClient({
         {/* Footer avec bouton connexion/dashboard modernisé */}
         <div className="p-6 border-t border-white/10">
           <Link
-            href={isLoggedIn ? "/dashboard" : "/connexion"}
+            href={isLoggedIn ? ROUTES.dashboard : ROUTES.connexion}
             onClick={handleClose}
             className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 px-6 py-4 rounded-2xl transition-all duration-300 font-two font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105"
           >

@@ -1,5 +1,6 @@
 import ForgotPassword from "@/components/Auth/Form/ForgetPassword";
 import { getAuthenticatedUser } from "@/lib/auth.server";
+import { ROUTES } from "@/lib/routes";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -20,7 +21,7 @@ export default async function ForgotPasswordPage() {
   try {
     // Si l'utilisateur est connecté, on le redirige
     await getAuthenticatedUser();
-    redirect("/dashboard");
+    redirect(ROUTES.dashboard);
   } catch {
     // L'utilisateur n'est pas connecté, on affiche le formulaire
     return (

@@ -30,6 +30,16 @@ export const fileRouter = {
       console.log("File URL:", file.ufsUrl);
       return { uploadedBy: metadata.userId };
     }),
+  consentPdf: f({
+    pdf: { maxFileSize: "8MB", maxFileCount: 1 },
+  })
+    .middleware(async () => {
+      return { userId: "salon-user" };
+    })
+    .onUploadComplete(async ({ file }) => {
+      console.log("Consent PDF uploaded:", file.ufsUrl);
+      return { url: file.ufsUrl };
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof fileRouter;

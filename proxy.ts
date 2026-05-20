@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { ROUTES } from "@/lib/routes";
 import { NextResponse } from "next/server";
 
 /**
@@ -13,7 +14,7 @@ export default auth((req) => {
 
   // Pages qui nécessitent une authentification
   const protectedPaths = [
-    "/dashboard",
+    ROUTES.dashboard,
     "/rdv",
     "/mes-rendez-vous",
     "/clients",
@@ -31,7 +32,7 @@ export default auth((req) => {
   ];
 
   // Pages d'authentification (connexion, inscription)
-  const authPaths = ["/connexion", "/inscription"];
+  const authPaths = [ROUTES.connexion, ROUTES.inscription];
 
   const isProtectedPath = protectedPaths.some((path) =>
     nextUrl.pathname.startsWith(path)
@@ -44,13 +45,13 @@ export default auth((req) => {
       "🔒 Accès à une page protégée sans authentification - Redirection"
     );
     return NextResponse.redirect(
-      new URL("/connexion?callbackUrl=" + nextUrl.pathname, req.url)
+      new URL(`${ROUTES.connexion}?callbackUrl=${nextUrl.pathname}`, req.url)
     );
   }
 
   // Si on est connecté et qu'on essaie d'accéder aux pages d'auth, rediriger vers le dashboard
   if (isAuthPath && isAuthenticated) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(new URL(ROUTES.dashboard, req.url));
   }
 
   return NextResponse.next();

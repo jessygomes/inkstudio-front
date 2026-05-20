@@ -9,6 +9,7 @@ import MedicalHistorySection from "./Fiche/MedicalHistorySection";
 import { MdOutlineRateReview } from "react-icons/md";
 import { CiCalendarDate } from "react-icons/ci";
 import { RiHealthBookLine } from "react-icons/ri";
+import { FiFileText } from "react-icons/fi";
 import DashboardButton from "@/components/Shared/DashboardButton";
 
 
@@ -16,6 +17,7 @@ interface InfoClientProps {
   client: ClientProps;
   isOpen: boolean;
   onClose: () => void;
+  salonName?: string;
 }
 export default function InfoClient({
   client,

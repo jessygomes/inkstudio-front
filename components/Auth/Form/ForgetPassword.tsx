@@ -70,6 +70,7 @@ export default function ForgotPassword() {
           alt="Logo"
           width={100}
           height={100}
+          style={{ height: "auto" }}
         />
       </div>
       <CardWrapper headerLabel="Récupérez l'accès à votre compte">

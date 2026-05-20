@@ -12,6 +12,7 @@ import { FormSuccess } from "@/components/Shared/FormSuccess";
 import Link from "next/link";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
+import { ROUTES } from "@/lib/routes";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -22,8 +23,8 @@ export const LoginForm = () => {
     ? rawCallbackUrl
     : null;
   const signupHref = safeCallbackUrl
-    ? `/inscription?callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
-    : "/inscription";
+    ? `${ROUTES.inscription}?callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
+    : ROUTES.inscription;
 
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -103,7 +104,7 @@ export const LoginForm = () => {
       setSuccess("Connexion réussie !");
 
       // Récupérer le callbackUrl ou rediriger vers dashboard
-      const callbackUrl = safeCallbackUrl || "/dashboard";
+      const callbackUrl = safeCallbackUrl || ROUTES.dashboard;
 
       setSuccess("Redirection...");
       router.push(callbackUrl);
@@ -123,6 +124,7 @@ export const LoginForm = () => {
           alt="Logo"
           width={100}
           height={100}
+          style={{ height: "auto" }}
         />
       </div>
       <CardWrapper headerLabel="Connectez-vous et gérez votre salon">

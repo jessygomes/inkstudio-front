@@ -110,3 +110,52 @@ export const deleteClient = async (clientId: string) => {
     };
   }
 };
+
+//! ----------------------------------------------------------------------------
+
+//! METTRE À JOUR LE CONSENTEMENT D'UN CLIENT
+
+//! ----------------------------------------------------------------------------
+export const updateClientConsent = async (
+  clientId: string,
+  consentFileUrl: string,
+  consentSignedAt: string
+) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/clients/${clientId}/consent`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          consentSigned: true,
+          consentSignedAt,
+          consentFileUrl,
+        }),
+      }
+    );
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        error: true,
+        status: response.status,
+        message: data?.message || "Erreur lors de la mise à jour du consentement",
+      };
+    }
+
+    return { ok: true, error: false, status: response.status, data };
+  } catch (error) {
+    console.error("Error updating client consent:", error);
+    return {
+      ok: false,
+      error: true,
+      status: 500,
+      message: "Erreur lors de la mise à jour du consentement",
+    };
+  }
+};

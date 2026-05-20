@@ -7,10 +7,12 @@ import { useSession } from "next-auth/react";
 import CreateOrUpdateClient from "./CreateOrUpdateClient";
 import DeleteClient from "./DeleteClient";
 import InfoClient from "./InfoClient";
+import ConsentFormModal from "./ConsentFormModal";
 
 import { IoCreateOutline } from "react-icons/io5";
 import { AiOutlineDelete } from "react-icons/ai";
 import { RiFileUserLine } from "react-icons/ri";
+import { FiFileText } from "react-icons/fi";
 import { getSalonClientsAction } from "@/lib/queries/client";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
@@ -56,6 +58,34 @@ export default function ClientList() {
 
   //! Nouveau state pour les suivis non répondus
   const [unansweredFollowUpsCount, setUnansweredFollowUpsCount] = useState(0);
+
+  //! State pour la modale consentement
+  const [consentClient, setConsentClient] = useState<ClientProps | null>(null);
+  const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
+
+  const handleOpenConsent = (client: ClientProps) => {
+    setConsentClient(client);
+    setIsConsentModalOpen(true);
+  };
+
+  const handleConsentSaved = (
+    clientId: string,
+    url: string,
+    signedAt: string
+  ) => {
+    setClients((prev) =>
+      prev.map((c) =>
+        c.id === clientId
+          ? {
+              ...c,
+              consentFileUrl: url,
+              consentSigned: true,
+              consentSignedAt: signedAt,
+            }
+          : c
+      )
+    );
+  };
 
   //! Récupère les clients avec pagination
   const fetchClients = useCallback(
@@ -470,12 +500,28 @@ export default function ClientList() {
                             RDV
                           </span>
                         </div>
-                        <button
-                          onClick={() => handleShowReservations(client)}
-                          className="cursor-pointer text-white font-one text-xs mx-auto px-4 py-2 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-2xl transition-all duration-200 font-medium group-hover:scale-105"
-                        >
-                          Voir infos
-                        </button>
+                        <div className="flex items-center gap-2 justify-center">
+                          <button
+                            onClick={() => handleShowReservations(client)}
+                            className="cursor-pointer text-white font-one text-xs px-3 py-2 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-2xl transition-all duration-200 font-medium group-hover:scale-105"
+                          >
+                            Voir infos
+                          </button>
+                          <button
+                            onClick={() => handleOpenConsent(client)}
+                            title="Formulaire de consentement"
+                            className={`cursor-pointer p-1.5 rounded-2xl border transition-all duration-200 group/btn ${
+                              client.consentSigned
+                                ? "bg-green-500/10 border-green-500/30 hover:bg-green-500/20"
+                                : "bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20"
+                            }`}
+                          >
+                            <FiFileText
+                              size={14}
+                              className={client.consentSigned ? "text-green-400" : "text-orange-400"}
+                            />
+                          </button>
+                        </div>
                         <div className="flex gap-2 items-center justify-center">
                           <button
                             className="cursor-pointer p-1.5 bg-white/10 hover:bg-tertiary-400/20 rounded-2xl border border-white/20 hover:border-tertiary-400/50 transition-all duration-200 group/btn"
@@ -571,6 +617,21 @@ export default function ClientList() {
                             className="cursor-pointer flex-1 text-white font-one text-sm font-medium px-4 py-2.5 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-2xl transition-all duration-200"
                           >
                             📋 Voir les infos
+                          </button>
+
+                          <button
+                            onClick={() => handleOpenConsent(client)}
+                            title="Formulaire de consentement"
+                            className={`cursor-pointer p-2 rounded-2xl border transition-all duration-200 ${
+                              client.consentSigned
+                                ? "bg-green-500/10 border-green-500/30 hover:bg-green-500/20"
+                                : "bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20"
+                            }`}
+                          >
+                            <FiFileText
+                              size={20}
+                              className={client.consentSigned ? "text-green-400" : "text-orange-400"}
+                            />
                           </button>
 
                           <button
@@ -680,6 +741,18 @@ export default function ClientList() {
             client={clientForInfos!}
             isOpen={isFullInfoModalOpen}
             onClose={() => setIsFullInfoModalOpen(false)}
+            salonName={session?.user?.salonName ?? "Mon Salon"}
+          />
+        )}
+
+        {/* Modal CONSENTEMENT */}
+        {!isFreeAccount && consentClient && (
+          <ConsentFormModal
+            client={consentClient}
+            salonName={session?.user?.salonName ?? "Mon Salon"}
+            isOpen={isConsentModalOpen}
+            onClose={() => setIsConsentModalOpen(false)}
+            onConsentSaved={handleConsentSaved}
           />
         )}
       </div>

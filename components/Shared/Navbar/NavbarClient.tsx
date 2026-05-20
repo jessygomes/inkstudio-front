@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
+import { ROUTES } from "@/lib/routes";
 
 interface NavbarClientProps {
   links: Array<{ href: string; label: string; highlight?: boolean }>;
@@ -36,13 +37,14 @@ export function NavbarClient({ links }: NavbarClientProps) {
         isScrolled ? "backdrop-blur-md" : "backdrop-blur-none"
       }`}
     >
-      <Link href={"/"} className="flex items-center gap-2">
+      <Link href={ROUTES.home} className="flex items-center gap-2">
         <Image
           src="/logo/logo_inline_studio_white_2.png"
           alt="Logo"
           width={150}
           height={50}
           className="h-auto w-[150px]"
+          style={{ height: "auto" }}
         />
       </Link>
       <ul ref={navRef} className="flex gap-8">
@@ -80,7 +82,7 @@ export function NavbarClient({ links }: NavbarClientProps) {
             </li>
           );
         })}
-        <Link href={isLoggedIn ? "/dashboard" : "/connexion"}>
+        <Link href={isLoggedIn ? ROUTES.dashboard : ROUTES.connexion}>
           <div className="cursor-pointer px-8 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-2xl transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-two text-xs">
             {isLoggedIn ? "Dashboard" : "Connexion"}
           </div>

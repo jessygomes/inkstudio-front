@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 // import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { ROUTES } from "@/lib/routes";
 
 export const metadata: Metadata = {
   title: "Se connecter",
@@ -39,7 +40,7 @@ export default async function page({ searchParams }: AuthPageProps) {
 
   const user = await currentUser();
   if (user) {
-    redirect(safeCallbackUrl || "/dashboard");
+    redirect(safeCallbackUrl || ROUTES.dashboard);
   }
 
   return (
