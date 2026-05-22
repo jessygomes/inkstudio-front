@@ -148,13 +148,7 @@ export default function LastMessage() {
     <div className="dashboard-panel dashboard-panel-featured h-[550px] overflow-y-auto custom-scrollbar p-4 lg:p-5">
       <div className="dashboard-panel-content">
         <div className="dashboard-card-header mb-5">
-          <div>
-            <span className="dashboard-card-kicker">Messagerie</span>
-            <h3 className="dashboard-card-title mt-3">Messages non lus</h3>
-            <p className="dashboard-card-subtitle">
-              Les conversations qui demandent votre attention immédiatement.
-            </p>
-          </div>
+          <h3 className="dashboard-card-title">Messages non lus</h3>
           <div className="dashboard-count-pill">{conversations.length}</div>
         </div>
 

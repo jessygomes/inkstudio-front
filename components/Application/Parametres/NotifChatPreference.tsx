@@ -7,6 +7,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { CiBellOn } from "react-icons/ci";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 type EmailFrequency = "IMMEDIATE" | "HOURLY" | "DAILY" | "NEVER";
 
@@ -136,7 +137,7 @@ export default function NotifChatPreference() {
         </div>
 
         <span
-          className={`rounded-[10px] px-2 py-1 text-[10px] font-one border ${
+          className={`rounded-2xl px-2 py-1 text-[10px] font-one border ${
             emailNotificationsEnabled
               ? "border-green-500/30 bg-green-500/15 text-green-300"
               : "border-white/20 bg-white/10 text-white/60"
@@ -147,14 +148,14 @@ export default function NotifChatPreference() {
       </div>
 
       <div className="pt-3 space-y-2.5">
-        <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
+        <div className="rounded-2xl border border-white/10 bg-white/3 px-3 py-2.5">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-white font-one text-xs sm:text-sm font-medium">
                 Activer les notifications
               </p>
               <p className="text-white/55 font-two text-[11px] sm:text-xs mt-0.5">
-                Recevoir un email en fonction de la frequence choisie.
+                Recevoir un email en fonction de la fréquence choisie.
               </p>
             </div>
 
@@ -172,16 +173,16 @@ export default function NotifChatPreference() {
         </div>
 
         {emailNotificationsEnabled && (
-          <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5 space-y-2">
+          <div className="rounded-2xl border border-white/10 bg-white/3 px-3 py-2.5 space-y-2">
             <p className="text-white font-one text-xs sm:text-sm font-medium">
-              Frequence des notifications
+              Fréquence des notifications
             </p>
 
             <select
               value={emailFrequency}
               onChange={(e) => setEmailFrequency(e.target.value as EmailFrequency)}
               disabled={saving}
-              className="w-full h-9 px-2.5 font-one bg-noir-500 border border-white/20 rounded-[10px] text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-50 cursor-pointer"
+              className="w-full h-9 px-2.5 font-one bg-noir-500 border border-white/20 rounded-2xl text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-50 cursor-pointer"
             >
               <option value="IMMEDIATE">Immediat</option>
               <option value="HOURLY">Toutes les heures</option>
@@ -195,7 +196,7 @@ export default function NotifChatPreference() {
           </div>
         )}
 
-        <div className="rounded-xl border border-white/8 bg-white/2 px-3 py-2">
+        <div className="rounded-2xl border border-white/8 bg-white/2 px-3 py-2">
           <p className="text-[11px] font-one text-white/70">
             Statut actuel: {emailNotificationsEnabled ? "Active" : "Inactive"}
             {emailNotificationsEnabled && (
@@ -211,10 +212,10 @@ export default function NotifChatPreference() {
             </span>
           )}
 
-          <button
+          <DashboardButton
             onClick={handleSave}
             disabled={saving || !hasChanges || !pref}
-            className="cursor-pointer min-w-[150px] h-9 px-3 rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white transition-all duration-300 font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="min-w-[150px] h-9 px-3"
           >
             {saving ? (
               <>
@@ -224,7 +225,7 @@ export default function NotifChatPreference() {
             ) : (
               "Sauvegarder"
             )}
-          </button>
+          </DashboardButton>
         </div>
       </div>
     </div>

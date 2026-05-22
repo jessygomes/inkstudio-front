@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { extractUploadThingKey } from "@/lib/utils/uploadImg/extractUploadThingKey";
 import { deleteTatoueurAction } from "@/lib/queries/tatoueur";
 import { TatoueurProps } from "@/lib/type"; // Utiliser le type centralisé
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 export default function TatoueurSalon({
   tatoueurs,
@@ -127,14 +128,14 @@ export default function TatoueurSalon({
             </div>
           </div>
 
-          <Link
+          <DashboardButton
             href="/mon-compte/ajouter-tatoueur"
-            className="cursor-pointer w-full sm:w-[190px] flex justify-center items-center gap-2 px-3 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-[14px] transition-all duration-300 font-medium font-one text-xs"
+            className="w-full sm:w-[190px] min-w-0 px-3 py-2 text-xs"
           >
             <span>+</span>
             <span className="hidden sm:inline">Ajouter un tatoueur</span>
             <span className="sm:hidden">Ajouter</span>
-          </Link>
+          </DashboardButton>
         </div>
       </div>
 

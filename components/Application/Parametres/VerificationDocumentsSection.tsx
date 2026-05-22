@@ -185,9 +185,9 @@ export default function VerificationDocumentsSection() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
+    <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
       <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-tertiary-400/30 flex items-center justify-center">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-tertiary-400/30 flex items-center justify-center">
           <MdOutlineVerified className="w-5 h-5 sm:w-6 sm:h-6 text-tertiary-400" />
         </div>
         <h2 className="text-lg sm:text-xl text-white font-one font-semibold">
@@ -201,7 +201,7 @@ export default function VerificationDocumentsSection() {
       </p>
 
       {error && (
-        <div className="mb-4 bg-red-500/10 border border-red-500/50 rounded-lg p-3 flex items-start gap-3">
+        <div className="mb-4 bg-red-500/10 border border-red-500/50 rounded-2xl p-3 flex items-start gap-3">
           <svg
             className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5"
             fill="currentColor"
@@ -229,16 +229,16 @@ export default function VerificationDocumentsSection() {
             return (
               <div
                 key={docType.id}
-                className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-xl p-4 flex flex-col gap-3 hover:border-tertiary-400/30 transition-all duration-200"
+                className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-2xl p-4 flex flex-col gap-3 hover:border-tertiary-400/30 transition-all duration-200"
               >
                 {/* Header avec icône et statut */}
                 <div className="flex items-start justify-between gap-2">
-                  <div className="w-10 h-10 rounded-lg bg-tertiary-400/20 flex items-center justify-center text-tertiary-400 flex-shrink-0">
+                  <div className="w-10 h-10 rounded-2xl bg-tertiary-400/20 flex items-center justify-center text-tertiary-400 flex-shrink-0">
                     {docType.icon}
                   </div>
                   {doc && (
                     <span
-                      className={`px-2 py-1 rounded-md text-xs font-semibold border ${getStatusColor(
+                      className={`px-2 py-1 rounded-2xl text-xs font-semibold border ${getStatusColor(
                         doc.status,
                       )}`}
                     >
@@ -259,7 +259,7 @@ export default function VerificationDocumentsSection() {
 
                 {/* Document actuel ou upload */}
                 {doc && doc.status !== "REJECTED" ? (
-                  <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                  <div className="bg-white/5 rounded-2xl p-3 border border-white/10">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <p className="text-white/80 text-xs font-one truncate mb-1">
@@ -293,7 +293,7 @@ export default function VerificationDocumentsSection() {
                   </div>
                 ) : (
                   <label className="cursor-pointer">
-                    <div className="bg-white/5 border-2 border-dashed border-white/20 hover:border-tertiary-400/50 rounded-lg p-4 flex flex-col items-center justify-center gap-2 transition-all duration-200">
+                    <div className="bg-white/5 border-2 border-dashed border-white/20 hover:border-tertiary-400/50 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all duration-200">
                       <FiUploadCloud className="w-5 h-5 text-white/70 group-hover:text-tertiary-400" />
                       <div className="text-center">
                         <p className="text-white text-xs font-semibold font-one">
@@ -320,7 +320,7 @@ export default function VerificationDocumentsSection() {
 
                 {doc && doc.status === "REJECTED" && (
                   <label className="cursor-pointer">
-                    <div className="bg-red-500/10 border-2 border-dashed border-red-500/30 hover:border-red-500/50 rounded-lg p-4 flex flex-col items-center justify-center gap-2 transition-all duration-200">
+                    <div className="bg-red-500/10 border-2 border-dashed border-red-500/30 hover:border-red-500/50 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all duration-200">
                       <FiUploadCloud className="w-5 h-5 text-red-400" />
                       <div className="text-center">
                         <p className="text-white text-xs font-semibold font-one">
@@ -351,7 +351,7 @@ export default function VerificationDocumentsSection() {
       )}
 
       {/* Info message */}
-      <div className="mt-6 bg-tertiary-500/10 border border-tertiary-500/30 rounded-lg p-4 flex items-start gap-3">
+      <div className="mt-6 bg-tertiary-500/10 border border-tertiary-500/30 rounded-2xl p-4 flex items-start gap-3">
         <div className="w-5 h-5 rounded-full bg-tertiary-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
           <svg
             className="w-3 h-3 text-tertiary-400"
@@ -370,7 +370,7 @@ export default function VerificationDocumentsSection() {
             Seule le document "Hygiène & Salubrité" est obligatoire pour
             vérifier votre salon.
           </p>
-          <p className="text-tertiary-400/80 text-xs font-one leading-relaxed">
+          <p className="text-white/70 text-xs font-one leading-relaxed">
             Votre salon sera marqué comme vérifié, augmentant ainsi la confiance
             de vos clients. Nous vous recommandons de déposer tous les documents
             pour maximiser vos chances d'approbation et augmenter votre

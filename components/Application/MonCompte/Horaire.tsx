@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import BlockedSlots from "./BlockedSlots";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 interface HoraireProps {
   hours: string | null;
@@ -78,14 +78,14 @@ export default function Horaire({ hours, salonId }: HoraireProps) {
     <div className="space-y-4">
       {/* Horaires */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pb-1">
           <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">Planning hebdomadaire</p>
-          <Link
+          <DashboardButton
             href="/mon-compte/horaires"
-            className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-[14px] transition-all duration-300 font-medium font-one text-xs"
+            className="min-w-0 px-3 py-1.5 text-xs"
           >
             {hasHours ? "Modifier" : "Configurer"}
-          </Link>
+          </DashboardButton>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">

@@ -12,7 +12,7 @@ import { TatoueurProps, TimeSlotProps } from "@/lib/type";
 import { addMinutes, format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
-import Link from "next/link";
+import DashboardButton from "@/components/Shared/DashboardButton";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import SkinToneSelect, { SkinToneOption } from "@/components/Application/RDV/SkinToneSelect";
 import { createAppointment } from "@/lib/queries/appointment";
@@ -999,12 +999,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 </div>
               )}
 
-             
-
             {/* Section: Créneaux horaires */}
             {selectedTatoueur && (
               <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
-                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
+                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white font-one sm:text-xs">
                   🕒 Créneaux horaires
                 </h3>
                 <div className="space-y-4">
@@ -1033,7 +1031,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               <button
                                 type="button"
                                 onClick={() => setSelectedSlots([])}
-                                className="rdv-btn-secondary px-2 py-1 rounded border border-white/20 text-white/80 text-xs font-one hover:bg-white/10 transition-colors"
+                                className="rdv-btn-secondary px-2 py-1 rounded-xl border border-white/20 text-white/80 text-xs font-one hover:bg-white/10 transition-colors tracking-widest cursor-pointer"
                               >
                                 Désélectionner tout
                               </button>
@@ -1086,7 +1084,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
                               // Déterminer la couleur et l'état du bouton
                               let buttonClass =
-                                "cursor-pointer px-2 py-2 sm:py-1 rounded text-xs text-white font-one transition-all duration-200 border text-center ";
+                                "cursor-pointer px-2 py-2 sm:py-2 rounded-2xl text-xs text-white font-one transition-all duration-200 border text-center ";
                               let buttonText = `${startTime}-${endTime}`;
                               let isDisabled = false;
 
@@ -1169,7 +1167,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         </div>
                       ) : (
                         /* Message quand le salon est fermé */
-                        <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+                        <div className="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-4">
                           <div className="flex items-start gap-3">
                             <div className="w-8 h-8 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                               <svg
@@ -1235,10 +1233,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
                   {/* Message d'information sur les créneaux sélectionnés */}
                   {selectedSlots.length > 0 && (
-                    <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-lg p-3">
+                    <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-2xl p-3">
                       <div className="flex items-center gap-2 mb-2">
                         <svg
-                          className="w-4 h-4 text-tertiary-400 flex-shrink-0"
+                          className="w-4 h-4 text-white flex-shrink-0"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -1250,13 +1248,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                             d="M5 13l4 4L19 7"
                           />
                         </svg>
-                        <span className="text-tertiary-400 font-semibold font-one text-sm">
+                        <span className="text-white font-one text-sm">
                           {selectedSlots.length} créneau
                           {selectedSlots.length > 1 ? "x" : ""} sélectionné
                           {selectedSlots.length > 1 ? "s" : ""}
                         </span>
                       </div>
-                      <div className="text-tertiary-400/80 text-xs font-one">
+                      <div className="text-white text-xs font-one">
                         <p className="mb-1">
                           Durée totale :{" "}
                           <strong>{selectedSlots.length * 30} minutes</strong>
@@ -1304,11 +1302,11 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             {/* Sections conditionnelles selon le type de prestation - responsive */}
             {selectedPrestation === "PROJET" && (
               <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
-                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
+                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white font-one sm:text-xs">
                   🎨 Détails du projet
                 </h3>
                 <div className="space-y-4">
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <label className="text-xs text-white/70 font-one">
                       Description du projet
                     </label>
@@ -1316,41 +1314,41 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       placeholder="Description du projet"
                       {...form.register("description")}
                       rows={3}
-                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
+                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
                     />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <label className="text-xs text-white/70 font-one">
                         Zone du corps
                       </label>
                       <input
                         placeholder="Bras avant droit"
                         {...form.register("zone")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <label className="text-xs text-white/70 font-one">
                         Taille (cm)
                       </label>
                       <input
                         placeholder="20cm x 30cm"
                         {...form.register("size")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <label className="text-xs text-white/70 font-one">
                         Style/Couleur
                       </label>
                       <input
                         placeholder="Style gothique, rouge et noir"
                         {...form.register("colorStyle")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <label className="text-xs text-white/70 font-one">
                         Prix estimé (€)
                       </label>
@@ -1361,7 +1359,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         {...form.register("estimatedPrice", {
                           valueAsNumber: true,
                         })}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
                       />
                     </div>
                   </div>
@@ -1851,19 +1849,20 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
             {/* Footer avec boutons d'action - responsive */}
             <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-white/10">
-              <Link
-                href={"/mes-rendez-vous"}
-                className="rdv-btn-secondary cursor-pointer px-6 py-3 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm sm:text-xs text-center"
+              <DashboardButton
+                href="/mes-rendez-vous"
+                variant="secondary"
+                className="w-full sm:w-auto"
               >
                 Annuler
-              </Link>
-              <button
+              </DashboardButton>
+              <DashboardButton
                 type="submit"
                 disabled={loading}
-                className="rdv-btn-primary cursor-pointer px-8 py-3 sm:py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm sm:text-xs"
+                className="w-full sm:w-auto"
               >
                 {loading ? "Création..." : "Créer le rendez-vous"}
-              </button>
+              </DashboardButton>
             </div>
           </form>
         </div>

@@ -8,6 +8,7 @@ import { FaCheck } from "react-icons/fa";
 import { availablePlans, getPlanDetails } from "@/lib/saasPlan.data";
 import { Subscription } from "@/lib/type";
 import { changePlanAction } from "@/lib/queries/stripe";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 interface SubscriptionSectionProps {
   openSections: {
@@ -159,7 +160,7 @@ export default function SubscriptionSection({
 
           <div className="flex items-center gap-2">
             {subscription && (
-              <span className="hidden sm:inline-flex rounded-[10px] border border-white/20 bg-white/10 px-2 py-1 text-[10px] font-one text-white/75">
+              <span className="hidden sm:inline-flex rounded-3xl border border-white/20 bg-white/10 px-2 py-1 text-[10px] font-one text-white/75">
                 {getPlanDetails(subscription.currentPlan, subscription).name}
               </span>
             )}
@@ -173,13 +174,13 @@ export default function SubscriptionSection({
           <div className="pt-3 space-y-3">
             {loading ? (
               <div className="animate-pulse space-y-2.5">
-                <div className="h-16 rounded-xl bg-white/8" />
-                <div className="h-9 rounded-xl bg-white/8" />
+                <div className="h-16 rounded-2xl bg-white/8" />
+                <div className="h-9 rounded-2xl bg-white/8" />
               </div>
             ) : subscription && currentPlanDetails ? (
               <>
                 <div
-                  className={`${currentPlanDetails.bgColor} ${currentPlanDetails.borderColor} border rounded-xl p-3`}
+                  className={`${currentPlanDetails.bgColor} ${currentPlanDetails.borderColor} border rounded-2xl p-3`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -209,7 +210,7 @@ export default function SubscriptionSection({
                   <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="rounded-[10px] border border-white/10 bg-white/5 px-2.5 py-2">
                       <p className="text-white/45 font-one text-[10px] uppercase tracking-wider">
-                        Debut
+                        Début
                       </p>
                       <p className="text-white font-two text-xs mt-0.5">
                         {new Date(subscription.startDate).toLocaleDateString("fr-FR")}
@@ -218,7 +219,7 @@ export default function SubscriptionSection({
 
                     <div className="rounded-[10px] border border-white/10 bg-white/5 px-2.5 py-2">
                       <p className="text-white/45 font-one text-[10px] uppercase tracking-wider">
-                        Prochaine echeance
+                        Prochaine écheance
                       </p>
                       <p className="text-white font-two text-xs mt-0.5">
                         {subscription.nextPaymentDate
@@ -233,7 +234,7 @@ export default function SubscriptionSection({
                   {subscription.trialEndDate && (
                     <div className="mt-3 rounded-[10px] border border-tertiary-500/25 bg-tertiary-500/10 px-2.5 py-2">
                       <p className="text-tertiary-300 font-one text-xs font-semibold">
-                        Periode d'essai active
+                        Période d'essai active
                       </p>
                       <p className="text-tertiary-200/80 font-two text-[11px] mt-0.5">
                         Expire le {new Date(subscription.trialEndDate).toLocaleDateString("fr-FR")}
@@ -243,20 +244,21 @@ export default function SubscriptionSection({
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-end gap-2">
-                  <button
+                  <DashboardButton
                     onClick={() => setShowCancelModal(true)}
                     disabled={isChangingPlan || subscription.currentPlan === "FREE"}
-                    className="cursor-pointer h-9 px-3 rounded-[14px] border border-red-500/35 bg-red-500/15 text-red-300 hover:bg-red-500/25 transition-colors text-xs font-one disabled:opacity-50 disabled:cursor-not-allowed"
+                    variant="secondary"
+                    className="h-9 min-w-0 px-3 border-red-500/35 bg-red-500/15 text-red-300 hover:bg-red-500/25"
                   >
                     Annuler l'abonnement
-                  </button>
+                  </DashboardButton>
 
-                  <button
+                  <DashboardButton
                     onClick={() => setShowPlanModal(true)}
-                    className="cursor-pointer h-9 px-4 rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white transition-all duration-300 text-xs font-one font-medium"
+                    className="h-9 min-w-0 px-4"
                   >
                     Changer de plan
-                  </button>
+                  </DashboardButton>
                 </div>
               </>
             ) : (
@@ -291,7 +293,7 @@ export default function SubscriptionSection({
                   setShowPlanModal(false);
                   setSelectedPlan("");
                 }}
-                className="cursor-pointer rounded-[10px] border border-white/15 bg-white/5 hover:bg-white/10 w-8 h-8 text-white"
+                className="cursor-pointer rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 w-8 h-8 text-white"
               >
                 ×
               </button>
@@ -316,7 +318,7 @@ export default function SubscriptionSection({
                       onClick={() => !isCurrentPlan && setSelectedPlan(plan.id)}
                     >
                       {isCurrentPlan && (
-                        <span className="absolute top-2 right-2 rounded-[10px] border border-green-500/35 bg-green-500/20 px-2 py-0.5 text-[10px] text-green-300 font-one">
+                        <span className="absolute top-2 right-2 rounded-2xl border border-green-500/35 bg-green-500/20 px-2 py-0.5 text-[10px] text-green-300 font-one">
                           Actuel
                         </span>
                       )}
@@ -371,7 +373,7 @@ export default function SubscriptionSection({
                 })}
               </div>
 
-              <div className="rounded-xl border border-tertiary-500/25 bg-tertiary-500/10 px-3 py-2.5">
+              <div className="rounded-2xl border border-tertiary-500/25 bg-tertiary-500/10 px-3 py-2.5">
                 <p className="text-white font-one text-xs font-semibold">À savoir</p>
                 <ul className="text-white/70 text-xs font-two mt-1.5 space-y-1">
                   <li>Le changement prend effet immédiatement.</li>
@@ -381,21 +383,22 @@ export default function SubscriptionSection({
             </div>
 
             <div className="p-3 sm:p-4 border-t border-white/10 bg-white/5 flex flex-col sm:flex-row justify-end gap-2">
-              <button
+              <DashboardButton
                 onClick={() => {
                   setShowPlanModal(false);
                   setSelectedPlan("");
                 }}
                 disabled={isChangingPlan}
-                className="cursor-pointer h-9 px-4 rounded-[14px] border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-one disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="secondary"
+                className="h-9 min-w-0 px-4"
               >
                 Annuler
-              </button>
+              </DashboardButton>
 
-              <button
+              <DashboardButton
                 onClick={() => selectedPlan && handlePlanChange(selectedPlan)}
                 disabled={!selectedPlan || isChangingPlan}
-                className="cursor-pointer h-9 px-4 rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white text-xs font-one disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="h-9 min-w-0 px-4"
               >
                 {isChangingPlan ? (
                   <>
@@ -412,7 +415,7 @@ export default function SubscriptionSection({
                     )}
                   </>
                 )}
-              </button>
+              </DashboardButton>
             </div>
           </div>
         </div>

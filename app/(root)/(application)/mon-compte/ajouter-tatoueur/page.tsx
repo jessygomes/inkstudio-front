@@ -17,6 +17,8 @@ import { TbClockHour5 } from "react-icons/tb";
 import { IoClose } from "react-icons/io5";
 import { createOrUpdateTatoueur } from "@/lib/queries/tatoueur";
 import { toast } from "sonner";
+import PageHeader from "@/components/Shared/PageHeader";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 type Horaire = {
   [key: string]: { start: string; end: string } | null;
@@ -306,11 +308,11 @@ export default function AddOrUpdateTatoueurPage() {
   const fieldLabelClass =
     "text-[10px] uppercase tracking-wider text-white/50 font-one";
   const fieldInputClass =
-    "w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one";
+    "w-full rounded-2xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one";
   const subSectionTitleClass =
     "mb-2 text-[11px] uppercase tracking-wide text-white/70 font-one";
   const badgeClass =
-    "inline-flex items-center gap-1 rounded-[10px] border border-tertiary-400/35 bg-tertiary-500/15 px-2.5 py-1 text-[11px] text-tertiary-500 font-one";
+    "inline-flex items-center gap-1 rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-2.5 py-1 text-xs text-tertiary-500 font-one";
 
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
     if (!salonId) return;
@@ -372,31 +374,26 @@ export default function AddOrUpdateTatoueurPage() {
   return (
     <div className="wrapper-global pb-16 sm:pb-10 px-3 sm:px-4 lg:px-6">
       <section className="w-full space-y-3 pt-4 pb-10 xl:pb-0">
-        <div className="dashboard-hero flex items-center gap-3 px-4 py-3 sm:px-5 lg:py-2.5">
-          <div className="flex h-10 w-10 items-center justify-center">
-            <Link
-              href="/mon-compte"
-              className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-white/8 text-white/70 transition-colors hover:bg-white/12 hover:text-white"
-            >
-              ←
-            </Link>
-          </div>
-          <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">
-              Mon compte
-            </p>
-            <h1 className="text-base font-bold uppercase tracking-wide text-white font-one sm:text-lg">
-              {isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
-            </h1>
-            <p className="mt-0.5 text-[11px] text-white/70 font-one">
-              {isEditing
-                ? "Mettez à jour les informations de votre tatoueur."
-                : "Ajoutez un nouveau membre à votre équipe."}
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          icon={<CiUser size={15} className="text-tertiary-400" />}
+          title={isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
+        >
+          <Link
+            href="/mon-compte"
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl border border-white/15 bg-white/8 px-3 text-xs text-white/85 transition-colors hover:bg-white/12 hover:text-white font-one"
+          >
+            <span aria-hidden="true">←</span>
+            <span>Retour</span>
+          </Link>
+        </PageHeader>
 
-        <div className="w-full rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
+        <p className="px-4 text-[11px] text-white/70 font-one sm:px-0">
+          {isEditing
+            ? "Mettez à jour les informations de votre tatoueur."
+            : "Ajoutez un nouveau membre à votre équipe."}
+        </p>
+
+        <div className="w-full rounded-3xl border border-white/10 bg-white/4 p-3 sm:p-4">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2.5">
             <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] xl:items-start">
               <div className="p-3">
@@ -406,7 +403,7 @@ export default function AddOrUpdateTatoueurPage() {
                 </h3>
 
                 <div className="space-y-3">
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-3">
                     <p className={subSectionTitleClass}>Profil</p>
                     <div className="grid grid-cols-1 gap-3 lg:grid-cols-[220px_minmax(0,1fr)]">
                       <div className="space-y-1">
@@ -446,7 +443,7 @@ export default function AddOrUpdateTatoueurPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-3">
                     <p className={subSectionTitleClass}>Contact</p>
                     <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                       <div className="space-y-1">
@@ -469,7 +466,7 @@ export default function AddOrUpdateTatoueurPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-3">
                     <p className={subSectionTitleClass}>Expertises</p>
                     <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                       <div className="space-y-1">
@@ -560,7 +557,7 @@ export default function AddOrUpdateTatoueurPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-3">
                     <p className={subSectionTitleClass}>Rendez-vous</p>
                     <div className="flex items-center justify-between">
                       <div>
@@ -604,38 +601,41 @@ export default function AddOrUpdateTatoueurPage() {
               </div>
 
               <div className="p-3">
-                <h3 className={sectionTitleClass}>
-                  <TbClockHour5 size={20} className="sm:w-4 sm:h-4" />
-                  Horaires de travail
-                </h3>
-                <p className="mb-3 text-[11px] text-white/60 font-one">
+                <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                  <h3 className={`${sectionTitleClass} mb-0`}>
+                    <TbClockHour5 size={20} className="sm:w-4 sm:h-4" />
+                    Horaires de travail
+                  </h3>
+
+                  <div className="flex flex-wrap items-center gap-1.5 lg:justify-end">
+                    <button
+                      type="button"
+                      onClick={applyMondayToAllDays}
+                      className="inline-flex h-7 items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-2.5 text-[10px] text-white/85 transition-colors hover:bg-white/12 font-one"
+                    >
+                      Copier le lundi sur tous les jours
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openAllDays}
+                      className="cursor-pointer inline-flex h-7 items-center justify-center rounded-2xl border border-emerald-500/35 bg-emerald-500/12 px-2.5 text-[10px] text-emerald-300 transition-colors hover:bg-emerald-500/20 font-one"
+                    >
+                      Tout ouvrir
+                    </button>
+                    <button
+                      type="button"
+                      onClick={closeAllDays}
+                      className="cursor-pointer inline-flex h-7 items-center justify-center rounded-2xl border border-red-500/35 bg-red-500/12 px-2.5 text-[10px] text-red-300 transition-colors hover:bg-red-500/20 font-one"
+                    >
+                      Tout fermer
+                    </button>
+                  </div>
+                </div>
+
+                {/* <p className="mb-3 text-[11px] text-white/60 font-one">
                   Définissez les disponibilités puis utilisez les actions rapides
                   pour appliquer les mêmes horaires.
-                </p>
-
-                <div className="mb-3 flex flex-wrap items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={applyMondayToAllDays}
-                    className="inline-flex h-8 items-center justify-center rounded-[10px] border border-white/15 bg-white/8 px-2.5 text-[12px] text-white/85 transition-colors hover:bg-white/12 font-one"
-                  >
-                    Copier le lundi sur tous les jours
-                  </button>
-                  <button
-                    type="button"
-                    onClick={openAllDays}
-                    className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-emerald-500/35 bg-emerald-500/12 px-2.5 text-[12px] text-emerald-300 transition-colors hover:bg-emerald-500/20 font-one"
-                  >
-                    Tout ouvrir
-                  </button>
-                  <button
-                    type="button"
-                    onClick={closeAllDays}
-                    className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-red-500/35 bg-red-500/12 px-2.5 text-[12px] text-red-300 transition-colors hover:bg-red-500/20 font-one"
-                  >
-                    Tout fermer
-                  </button>
-                </div>
+                </p> */}
 
                 <div className="space-y-1.5 sm:space-y-1.5">
                   {daysOfWeek.map(({ key, label }) => {
@@ -644,17 +644,17 @@ export default function AddOrUpdateTatoueurPage() {
                     return (
                       <div
                         key={key}
-                        className="rounded-2xl border border-white/20 bg-white/10 p-2.5"
+                        className="rounded-3xl border border-white/20 bg-white/10 p-2.5"
                       >
                         <div className="flex flex-col gap-2 sm:gap-1.5">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[12px] text-white font-one">
+                            <span className="text-xs text-white font-one">
                               {label}
                             </span>
 
                             <div className="flex items-center gap-1.5">
                               <span
-                                className={`rounded-[10px] border px-2 py-0.5 text-[10px] font-one ${
+                                className={`rounded-2xl border px-2 py-0.5 text-xs font-one ${
                                   isOpen
                                     ? "border-emerald-500/35 bg-emerald-500/12 text-emerald-300"
                                     : "border-red-500/35 bg-red-500/12 text-red-300"
@@ -671,7 +671,7 @@ export default function AddOrUpdateTatoueurPage() {
                                     isOpen ? null : { start: "09:00", end: "18:00" },
                                   )
                                 }
-                                className={`cursor-pointer px-3 py-1.5 rounded-2xl text-[11px] border transition-colors font-one ${
+                                className={`cursor-pointer px-3 py-1.5 rounded-2xl text-xs border transition-colors font-one ${
                                   isOpen
                                     ? "bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30"
                                     : "bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30"
@@ -702,7 +702,7 @@ export default function AddOrUpdateTatoueurPage() {
                               />
                             </div>
                           ) : (
-                            <div className="rounded border border-dashed border-white/20 bg-white/5 px-2.5 py-2 text-[12px] text-white/60 font-one">
+                            <div className="rounded-2xl border border-dashed border-white/20 bg-white/5 px-2.5 py-2 text-xs text-white/60 font-one">
                               Ce jour est fermé. Activez Ouvrir pour définir des
                               horaires.
                             </div>
@@ -743,7 +743,7 @@ export default function AddOrUpdateTatoueurPage() {
                       actuel.
                     </p>
 
-                    <div className="bg-white/10 rounded-lg p-3 mb-3">
+                    <div className="bg-white/10 rounded-3xl p-3 mb-3">
                       <h4 className="text-white font-semibold font-one text-xs mb-2">
                         📈 Solutions disponibles :
                       </h4>
@@ -821,16 +821,17 @@ export default function AddOrUpdateTatoueurPage() {
             ) : null}
 
             <div className="dashboard-embedded-footer flex flex-col justify-end gap-2 py-3 sm:flex-row sm:items-center">
-              <Link
+              <DashboardButton
                 href="/mon-compte"
-                className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] border border-white/12 bg-white/8 px-4 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 font-one"
+                variant="secondary"
+                className="h-9 px-4 text-[11px]"
               >
                 Annuler
-              </Link>
-              <button
+              </DashboardButton>
+              <DashboardButton
                 type="submit"
                 disabled={loading}
-                className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:cursor-not-allowed disabled:opacity-50 font-one"
+                className="h-9 px-4 text-[11px]"
               >
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">
@@ -844,7 +845,7 @@ export default function AddOrUpdateTatoueurPage() {
                       : "Créer le tatoueur"}
                   </span>
                 )}
-              </button>
+              </DashboardButton>
             </div>
           </form>
         </div>

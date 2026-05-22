@@ -9,6 +9,7 @@ import {
 } from "@/lib/queries/user";
 import { generateSecondaryColor, isLightColor } from "@/lib/utils/colorUtils";
 import { toast } from "sonner";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 const DEFAULT_TERTIARY_400 = "#ff9d00";
 const DEFAULT_TERTIARY_500 = "#ff5500";
@@ -222,10 +223,10 @@ export default function ColorProfile() {
           className={`rounded-[10px] px-2 py-1 text-[10px] font-one border ${
             isDefaultMode
               ? "border-white/20 bg-white/10 text-white/70"
-              : "border-tertiary-500/30 bg-tertiary-500/15 text-tertiary-300"
+              : "border-tertiary-500/30 bg-tertiary-500/15 text-white"
           }`}
         >
-          {isDefaultMode ? "Systeme" : "Personnalise"}
+          {isDefaultMode ? "Système" : "Personnalisé"}
         </span>
       </div>
 
@@ -233,7 +234,7 @@ export default function ColorProfile() {
         <div className="rounded-xl border border-white/10 bg-white/3 p-3 space-y-2">
           <div className="flex items-center justify-between gap-2">
             <p className="text-white font-one text-xs sm:text-sm font-medium">
-              Palette recommandee
+              Palette recommandée
             </p>
             <span className="text-[11px] text-white/50 font-two">
               12 couleurs
@@ -248,7 +249,7 @@ export default function ColorProfile() {
                 onClick={() => setColorProfile(item.color)}
                 title={item.name}
                 disabled={loading}
-                className={`h-8 w-full rounded-[10px] border-2 transition-all duration-200 ${
+                className={`h-8 w-full rounded-2xl border-2 transition-all duration-200 ${
                   colorProfile === item.color
                     ? "border-white ring-2 ring-white/30"
                     : "border-white/20 hover:border-white/45"
@@ -274,13 +275,13 @@ export default function ColorProfile() {
             {isDefaultMode ? (
               <>
                 <div
-                  className="h-8 rounded-[10px] text-white text-xs font-one flex items-center justify-center"
+                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
                   style={{ backgroundColor: DEFAULT_TERTIARY_400 }}
                 >
                   Tertiary 400
                 </div>
                 <div
-                  className="h-8 rounded-[10px] text-white text-xs font-one flex items-center justify-center"
+                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
                   style={{ backgroundColor: DEFAULT_TERTIARY_500 }}
                 >
                   Tertiary 500
@@ -289,13 +290,13 @@ export default function ColorProfile() {
             ) : isLightColor(colorProfile) ? (
               <>
                 <div
-                  className="h-8 rounded-[10px] text-white text-xs font-one flex items-center justify-center"
+                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
                   style={{ backgroundColor: colorProfile }}
                 >
                   Principal
                 </div>
                 <div
-                  className="h-8 rounded-[10px] text-white text-xs font-one flex items-center justify-center"
+                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
                   style={{ backgroundColor: colorProfileBis }}
                 >
                   Générée
@@ -304,13 +305,13 @@ export default function ColorProfile() {
             ) : (
               <>
                 <div
-                  className="h-8 rounded-[10px] text-white text-xs font-one flex items-center justify-center"
+                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
                   style={{ backgroundColor: colorProfileBis }}
                 >
                   Générée
                 </div>
                 <div
-                  className="h-8 rounded-[10px] text-white text-xs font-one flex items-center justify-center"
+                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
                   style={{ backgroundColor: colorProfile }}
                 >
                   Principal
@@ -327,19 +328,20 @@ export default function ColorProfile() {
             </span>
           )}
 
-          <button
+          <DashboardButton
             type="button"
             onClick={resetToDefault}
             disabled={loading || isDefaultMode}
-            className="cursor-pointer h-9 px-3 rounded-[14px] border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="secondary"
+            className="h-9 min-w-0 px-3"
           >
             Système
-          </button>
+          </DashboardButton>
 
-          <button
+          <DashboardButton
             type="submit"
             disabled={loading || !hasChanges}
-            className="cursor-pointer h-9 min-w-[120px] px-3 rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white transition-all duration-300 font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="h-9 min-w-[120px] px-3"
           >
             {loading ? (
               <>
@@ -349,7 +351,7 @@ export default function ColorProfile() {
             ) : (
               "Sauvegarder"
             )}
-          </button>
+          </DashboardButton>
         </div>
       </form>
     </div>

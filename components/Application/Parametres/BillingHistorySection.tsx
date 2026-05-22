@@ -189,7 +189,7 @@ export default function BillingHistorySection({
   };
 
   return (
-    <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
+    <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
@@ -211,7 +211,7 @@ export default function BillingHistorySection({
           <button
             onClick={handleOpenPortal}
             disabled={isOpeningPortal || !userId}
-            className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-3xl border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isOpeningPortal ? "Ouverture..." : "Ouvrir le portail Stripe"}
           </button>

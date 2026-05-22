@@ -45,7 +45,7 @@ export default function ParamPage() {
           title="Paramètres du compte"
         />
 
-        <div className="space-y-3">
+        <div className="space-y-6">
           {/* Section Informations du compte responsive */}
           <AccountInfoSection
             openSections={openSections}
@@ -54,7 +54,7 @@ export default function ParamPage() {
 
           <VerificationDocumentsSection />
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <AppointmentModeSetting
               userId={session?.user?.id || null}
               saasPlan={session?.user?.saasPlan || null}
@@ -65,7 +65,7 @@ export default function ParamPage() {
             />
           </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <NotifChatPreference />
           <ColorProfile />
           </div>

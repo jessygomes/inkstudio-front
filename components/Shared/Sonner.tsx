@@ -14,14 +14,28 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       position="bottom-center"
       toastOptions={{
+        unstyled: true,
         classNames: {
           toast:
-            "group toast group-[.toaster]:w-[300px] group-[.toaster]:bg-gradient-to-r from-[#8f1728] to-[#4d0c10] group-[.toaster]:text-white font-one group-[.toaster]:border-none group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-white font-base",
+            "w-[min(92vw,420px)] rounded-2xl bg-linear-to-br from-noir-500/95 to-noir-700/95 text-white backdrop-blur-xl shadow-[0_16px_40px_rgba(0,0,0,0.45)] font-one px-4 py-4 flex items-center gap-2 font-one border",
+          title: "text-white tracking-wide font-one text-xs",
+          description: "text-white/75 text-xs font-one",
+          success:
+            "border-tertiary-400/35 bg-linear-to-r from-tertiary-500/70 to-tertiary-400/95",
+          error:
+            "border-red-400/35 bg-linear-to-r from-red-900/70 to-red-800/95",
+          warning:
+            "border-orange-400/35 bg-linear-to-br from-orange-500/20 to-noir-700/95",
+          info:
+            "border-tertiary-400/35 bg-linear-to-br from-tertiary-500/20 to-tertiary-400/95",
+          loading:
+            "border-white/20 bg-linear-to-br from-white/10 to-noir-700/95",
           actionButton:
-            "group-[.toast]:bg-secondary-500 group-[.toast]:text-primary-foreground",
+            "bg-linear-to-r from-tertiary-400 to-tertiary-500 text-white border-0 rounded-xl px-3 py-1.5 text-xs font-one",
           cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            "bg-white/10 text-white/80 border border-white/15 rounded-xl px-3 py-1.5 text-xs font-one",
+          closeButton:
+            "bg-white/10 text-white/70 border border-white/20 rounded-full hover:bg-white/20 hover:text-white",
         },
       }}
       {...props}

@@ -11,6 +11,7 @@ import { TfiWorld } from "react-icons/tfi";
 import { IoCopy } from "react-icons/io5";
 import { QRCodeSVG } from "qrcode.react";
 import { makeCitySlug, makeSlug } from "@/lib/utils/makeLink";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 interface InfoSalonProps {
   salon: UpdateSalonUserProps;
@@ -79,8 +80,8 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
         </div>
 
         <div className="relative px-3 pb-3 pt-0 sm:px-4 sm:pb-4">
-          <div className="-mt-10 flex items-end gap-3 sm:-mt-11">
-            <div className="relative h-[96px] w-[96px] overflow-hidden rounded-full border-2 border-white/20 bg-black/40 shadow-xl sm:h-26 sm:w-26">
+          <div className="-mt-10 flex flex-col sm:flex-row sm:items-end gap-3 sm:-mt-11">
+            <div className="relative h-[96px] w-[96px] self-center overflow-hidden rounded-full border-2 border-white/20 bg-black/40 shadow-xl sm:h-26 sm:w-26 sm:self-auto">
               {salon.profileImage ? (
                 <Image
                   fill
@@ -95,7 +96,7 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
               )}
             </div>
 
-            <div className="min-w-0 flex-1 pb-1">
+            <div className="min-w-0 flex-1 pb-1 text-center sm:text-left">
               <h2 className="truncate text-base font-bold text-white font-one sm:text-lg">
                 {salon.salonName}
               </h2>
@@ -104,12 +105,12 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
               </p>
             </div>
 
-            <Link
+            <DashboardButton
               href="/mon-compte/modifier-salon"
-              className="cursor-pointer flex-shrink-0 rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-3 py-1.5 text-xs font-medium text-white shadow-lg transition-all duration-300 hover:from-tertiary-500 hover:to-tertiary-600 font-one"
+              className="min-w-0 flex-shrink-0 px-3 py-1.5 text-xs"
             >
               Modifier
-            </Link>
+            </DashboardButton>
           </div>
         </div>
       </div>
@@ -148,25 +149,25 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
               <div className="flex flex-wrap gap-1.5">
                 {salon.instagram && (
                   <Link href={salon.instagram} target="_blank"
-                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-pink-500/15 text-pink-300 border border-pink-500/25 rounded-[10px] text-xs hover:bg-pink-500/25 transition-colors">
+                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-pink-500/15 text-pink-300 border border-pink-500/25 rounded-2xl text-xs hover:bg-pink-500/25 transition-colors">
                     <CiInstagram size={14} /> <span className="hidden sm:inline">Instagram</span>
                   </Link>
                 )}
                 {salon.facebook && (
                   <Link href={salon.facebook} target="_blank"
-                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-blue-500/15 text-blue-300 border border-blue-500/25 rounded-[10px] text-xs hover:bg-blue-500/25 transition-colors">
+                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-blue-500/15 text-blue-300 border border-blue-500/25 rounded-2xl text-xs hover:bg-blue-500/25 transition-colors">
                     <CiFacebook size={14} /> <span className="hidden sm:inline">Facebook</span>
                   </Link>
                 )}
                 {salon.tiktok && (
                   <Link href={salon.tiktok} target="_blank"
-                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-white/8 text-white/70 border border-white/15 rounded-[10px] text-xs hover:bg-white/12 transition-colors">
+                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-white/8 text-white/70 border border-white/15 rounded-2xl text-xs hover:bg-white/12 transition-colors">
                     <PiTiktokLogoThin size={14} /> <span className="hidden sm:inline">TikTok</span>
                   </Link>
                 )}
                 {salon.website && (
                   <Link href={salon.website} target="_blank"
-                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-green-500/15 text-green-300 border border-green-500/25 rounded-[10px] text-xs hover:bg-green-500/25 transition-colors">
+                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-green-500/15 text-green-300 border border-green-500/25 rounded-2xl text-xs hover:bg-green-500/25 transition-colors">
                     <TfiWorld size={13} /> <span className="hidden sm:inline">Site Web</span>
                   </Link>
                 )}
@@ -184,7 +185,7 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
 
         <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
           <div className="space-y-2">
-            <div className="rounded-lg border border-white/10 bg-black/20 p-2">
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-2">
               <p className="mb-1 text-[10px] uppercase tracking-wider text-white/45 font-one">
                 URL publique
               </p>
@@ -197,7 +198,7 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
               <div className="relative">
                 <button
                   onClick={handleCopyLink}
-                  className="cursor-pointer rounded-[10px] border border-white/15 bg-white/8 px-2.5 py-1.5 text-[12px] text-white/80 font-one transition-colors hover:bg-white/15 hover:text-white"
+                  className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-2.5 py-1.5 text-[12px] text-white/80 font-one transition-colors hover:bg-white/15 hover:text-white"
                   title="Copier le lien"
                 >
                   <span className="inline-flex items-center gap-1.5">
@@ -206,8 +207,8 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
                   </span>
                 </button>
                 {copied && (
-                  <div className="absolute -top-9 left-0 z-10 whitespace-nowrap rounded-lg bg-tertiary-500 px-2 py-1 text-[12px] text-white font-one">
-                    Lien copie !
+                  <div className="absolute -top-9 left-0 z-10 whitespace-nowrap rounded-2xl bg-tertiary-500 px-2 py-1 text-[12px] text-white font-one">
+                    Lien copié !
                   </div>
                 )}
               </div>
@@ -215,14 +216,14 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
               <Link
                 href={publicProfileHref}
                 target="_blank"
-                className="inline-flex items-center rounded-[10px] border border-tertiary-400/30 bg-tertiary-500/15 px-2.5 py-1.5 text-[12px] text-white font-one transition-colors hover:bg-tertiary-500/25"
+                className="inline-flex items-center rounded-2xl border border-tertiary-400/30 bg-tertiary-500/15 px-2.5 py-1.5 text-[12px] text-white font-one transition-colors hover:bg-tertiary-500/25"
               >
                 Voir mon profil public
               </Link>
 
               <button
                 onClick={() => setIsQrModalOpen(true)}
-                className="inline-flex items-center rounded-[10px] border border-white/20 bg-white/10 px-2.5 py-1.5 text-[12px] text-white font-one transition-colors hover:bg-white/15 sm:hidden"
+                className="inline-flex items-center rounded-2xl border border-white/20 bg-white/10 px-2.5 py-1.5 text-[12px] text-white font-one transition-colors hover:bg-white/15 sm:hidden"
                 title="Afficher le QR code"
               >
                 QRCODE
