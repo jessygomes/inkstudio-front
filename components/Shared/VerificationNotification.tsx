@@ -8,6 +8,14 @@ type UserPlanResponse = {
   planStatus?: string;
 };
 
+const getTodayIsoDate = () => new Date().toISOString().slice(0, 10);
+
+const getPastDueSessionStorageKey = (userId: string) =>
+  `inkera:notification:past-due:dismissed-date:${userId}`;
+
+const getVerificationSessionStorageKey = (userId: string) =>
+  `inkera:notification:verification:dismissed-date:${userId}`;
+
 export default function VerificationNotification() {
   const { data: session, status } = useSession();
   const user = session?.user;
@@ -15,12 +23,41 @@ export default function VerificationNotification() {
   const [isVerificationVisible, setIsVerificationVisible] = useState(false);
   const [isPastDueVisible, setIsPastDueVisible] = useState(false);
 
+  const dismissPastDueNotice = () => {
+    if (user?.id) {
+      sessionStorage.setItem(getPastDueSessionStorageKey(user.id), getTodayIsoDate());
+    }
+    setIsPastDueVisible(false);
+  };
+
+  const dismissVerificationNotice = () => {
+    if (user?.id) {
+      sessionStorage.setItem(
+        getVerificationSessionStorageKey(user.id),
+        getTodayIsoDate(),
+      );
+    }
+    setIsVerificationVisible(false);
+  };
+
   useEffect(() => {
     // N'afficher la notification que si le salon n'est pas vérifié et que la session est chargée
-    if (status === "authenticated" && user && user.verifiedSalon === false) {
-      setIsVerificationVisible(true);
+    if (status !== "authenticated" || !user?.id) {
+      return;
     }
-  }, [user, status]);
+
+    const verificationSessionStorageKey =
+      getVerificationSessionStorageKey(user.id);
+    const dismissedDate = sessionStorage.getItem(verificationSessionStorageKey);
+    const dismissedToday = dismissedDate === getTodayIsoDate();
+
+    if (user.verifiedSalon === false) {
+      setIsVerificationVisible(!dismissedToday);
+    } else {
+      sessionStorage.removeItem(verificationSessionStorageKey);
+      setIsVerificationVisible(false);
+    }
+  }, [status, user?.id, user?.verifiedSalon]);
 
   useEffect(() => {
     const fetchPlanStatus = async () => {
@@ -49,8 +86,16 @@ export default function VerificationNotification() {
           .toLowerCase()
           .replaceAll("_", "-");
 
+        const todayIsoDate = getTodayIsoDate();
+        const pastDueSessionStorageKey = getPastDueSessionStorageKey(user.id);
+        const dismissedDate = sessionStorage.getItem(pastDueSessionStorageKey);
+        const dismissedToday = dismissedDate === todayIsoDate;
+
         if (normalizedPlanStatus === "past-due") {
-          setIsPastDueVisible(true);
+          setIsPastDueVisible(!dismissedToday);
+        } else {
+          sessionStorage.removeItem(pastDueSessionStorageKey);
+          setIsPastDueVisible(false);
         }
       } catch (error) {
         console.error(
@@ -93,7 +138,7 @@ export default function VerificationNotification() {
               </div>
             </div>
             <button
-              onClick={() => setIsPastDueVisible(false)}
+              onClick={dismissPastDueNotice}
               className="text-white/50 hover:text-white/80 transition-colors flex-shrink-0 cursor-pointer"
             >
               <svg
@@ -113,13 +158,16 @@ export default function VerificationNotification() {
           </div>
           <div className="mt-3 flex gap-2">
             <button
-              onClick={() => setIsPastDueVisible(false)}
+              onClick={dismissPastDueNotice}
               className="cursor-pointer flex-1 px-3 py-1.5 text-xs font-one rounded-lg border border-red-500/40 text-red-100 bg-red-500/10 hover:bg-red-500/20 transition-colors"
             >
               Fermer
             </button>
             <button
-              onClick={() => router.push("/parametres")}
+              onClick={() => {
+                dismissPastDueNotice();
+                router.push("/parametres");
+              }}
               className="cursor-pointer flex-1 px-3 py-1.5 text-xs font-one rounded-lg border border-red-500/60 text-white bg-red-500/40 hover:bg-red-500/50 transition-colors font-semibold"
             >
               Régler maintenant
@@ -146,7 +194,7 @@ export default function VerificationNotification() {
               </div>
             </div>
             <button
-              onClick={() => setIsVerificationVisible(false)}
+              onClick={dismissVerificationNotice}
               className="text-white/50 hover:text-white/80 transition-colors flex-shrink-0 cursor-pointer"
             >
               <svg
@@ -166,13 +214,16 @@ export default function VerificationNotification() {
           </div>
           <div className="mt-3 flex gap-2">
             <button
-              onClick={() => setIsVerificationVisible(false)}
+              onClick={dismissVerificationNotice}
               className="cursor-pointer flex-1 px-3 py-1.5 text-xs font-one rounded-lg border border-amber-500/40 text-amber-100 bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
             >
               Fermer
             </button>
             <button
-              onClick={() => router.push("/parametres")}
+              onClick={() => {
+                dismissVerificationNotice();
+                router.push("/parametres");
+              }}
               className="cursor-pointer flex-1 px-3 py-1.5 text-xs font-one rounded-lg border border-amber-500/60 text-white bg-amber-500/40 hover:bg-amber-500/50 transition-colors font-semibold"
             >
               Aller aux paramètres

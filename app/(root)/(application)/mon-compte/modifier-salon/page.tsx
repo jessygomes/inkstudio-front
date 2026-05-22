@@ -67,6 +67,7 @@ export default function UpdateAccountPage() {
 
       if (result.ok) {
         toast.success("Salon mis à jour avec succès !");
+        router.push("/mon-compte");
       } else {
         console.error("Erreur lors de la mise à jour:", result.message);
       }

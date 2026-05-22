@@ -21,6 +21,13 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
   const [copied, setCopied] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const hasProfileImage = Boolean(salon.profileImage);
+  const hasPrestations = Boolean(salon.prestations && salon.prestations.length > 0);
+  const hasAddress = Boolean(
+    salon.address?.trim() && salon.city?.trim() && salon.postalCode?.trim(),
+  );
+  const shouldShowDirectoryIncompleteNotice =
+    !hasProfileImage && !hasPrestations && !hasAddress;
   const salonWithMaybeSlug = salon as UpdateSalonUserProps & { slug?: string };
   const salonSlug = salonWithMaybeSlug.slug ?? makeSlug(salon.salonName);
   const publicProfilePath =
@@ -182,6 +189,16 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
         <p className="mb-2 text-[10px] uppercase tracking-wider text-white/50 font-one">
           Profil public
         </p>
+
+        {shouldShowDirectoryIncompleteNotice && (
+          <div className="mb-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+            <p className="text-[12px] text-amber-100/95 font-one leading-relaxed">
+              Votre profil public sera affiché dans l&apos;annuaire quand vous aurez
+              ajouté une photo de profil, au moins une prestation et votre
+              adresse complète.
+            </p>
+          </div>
+        )}
 
         <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
           <div className="space-y-2">
