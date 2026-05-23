@@ -30,6 +30,7 @@ const step3Schema = z
     firstName: z.string().min(1, "Le prénom est requis"),
     lastName: z.string().min(1, "Le nom est requis"),
     phone: z.string().optional(),
+    website: z.string().optional(),
     email: z.string().email("Email invalide"),
     password: z
       .string()
@@ -99,6 +100,7 @@ export const Register = () => {
     firstName: "",
     lastName: "",
     phone: "",
+    website: "",
     email: "",
     password: "",
     passwordConfirmation: "",
@@ -121,6 +123,7 @@ export const Register = () => {
       firstName: formData.firstName,
       lastName: formData.lastName,
       phone: formData.phone,
+      website: formData.website,
       email: formData.email,
       password: formData.password,
       passwordConfirmation: formData.passwordConfirmation,
@@ -153,6 +156,7 @@ export const Register = () => {
     firstName: string;
     lastName: string;
     phone?: string;
+    website?: string;
     email: string;
     password: string;
     passwordConfirmation: string;
@@ -169,6 +173,7 @@ export const Register = () => {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
+        website: data.website,
         email: data.email,
         password: data.password,
         // Le compte reste en FREE tant que le paiement Stripe n'est pas validé.
@@ -573,6 +578,20 @@ export const Register = () => {
                         </p>
                       )}
                     </div>
+                  </div>
+
+                  <div
+                    className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden"
+                    aria-hidden="true"
+                  >
+                    <label htmlFor="website">Website</label>
+                    <input
+                      id="website"
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      {...step3Form.register("website")}
+                    />
                   </div>
 
                   {/* Mots de passe */}
