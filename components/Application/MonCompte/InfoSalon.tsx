@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { UpdateSalonUserProps } from "@/lib/type";
 import Image from "next/image";
@@ -104,9 +105,16 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
             </div>
 
             <div className="min-w-0 flex-1 pb-1 text-center sm:text-left">
-              <h2 className="truncate text-base font-bold text-white font-one sm:text-lg">
-                {salon.salonName}
-              </h2>
+              <div className="flex items-center justify-center gap-2 sm:justify-start">
+                <h2 className="truncate text-base font-bold text-white font-one sm:text-lg">
+                  {salon.salonName}
+                </h2>
+                {salon.verifiedSalon === true && (
+                  <span className="inline-flex items-center rounded-full border border-emerald-400/35 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-one uppercase tracking-wider text-emerald-200">
+                    Vérifié
+                  </span>
+                )}
+              </div>
               <p className="mt-0.5 truncate text-xs text-white/70 font-two">
                 {salon.address}, {salon.postalCode} {salon.city}
               </p>
@@ -192,10 +200,10 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
 
         {shouldShowDirectoryIncompleteNotice && (
           <div className="mb-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3 py-2">
-            <p className="text-[12px] text-amber-100/95 font-one leading-relaxed">
+            <p className="text-[12px] text-amber-100/95 font-one leading-relaxed tracking-widest">
               Votre profil public sera affiché dans l&apos;annuaire quand vous aurez
-              ajouté une photo de profil, au moins une prestation et votre
-              adresse complète.
+              ajouté votre <strong>photo de profil</strong>, au moins une <strong>prestation</strong>, votre
+              <strong> adresse complète</strong> et au moins un <strong>tatoueur</strong>. Cliquez sur le bouton "Modifier" pour compléter les informations de votre salon et ainsi rendre votre profil public visible aux clients !
             </p>
           </div>
         )}

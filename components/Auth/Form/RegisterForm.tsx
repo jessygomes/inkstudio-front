@@ -11,44 +11,14 @@ import { CardWrapper } from "../CardWrapper";
 // import { FormError } from "@/components/Shared/FormError";
 // import { FormSuccess } from "@/components/Shared/FormSuccess";
 import Link from "next/link";
+import { step1Schema, step2Schema, step3Schema } from "@/lib/zod/validator.schema";
 // import { createSession } from "@/lib/session";
 
-// Schémas pour chaque étape
-const step1Schema = z.object({
-  salonName: z.string().min(1, "Le nom du salon est requis"),
-});
 
-const step2Schema = z.object({
-  saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]),
-});
 
 const PASSWORD_NUMBER_REGEX = /\d/;
 const PASSWORD_SPECIAL_REGEX = /[^A-Za-z0-9]/;
 
-const step3Schema = z
-  .object({
-    firstName: z.string().min(1, "Le prénom est requis"),
-    lastName: z.string().min(1, "Le nom est requis"),
-    phone: z.string().optional(),
-    website: z.string().optional(),
-    email: z.string().email("Email invalide"),
-    password: z
-      .string()
-      .min(8, "Le mot de passe doit contenir au moins 8 caractères")
-      .regex(
-        PASSWORD_NUMBER_REGEX,
-        "Le mot de passe doit contenir au moins un chiffre",
-      )
-      .regex(
-        PASSWORD_SPECIAL_REGEX,
-        "Le mot de passe doit contenir au moins un caractère spécial",
-      ),
-    passwordConfirmation: z.string(),
-  })
-  .refine((data) => data.password === data.passwordConfirmation, {
-    message: "Les mots de passe ne correspondent pas",
-    path: ["passwordConfirmation"],
-  });
 
 type SignupPlan = "FREE" | "PRO" | "BUSINESS";
 

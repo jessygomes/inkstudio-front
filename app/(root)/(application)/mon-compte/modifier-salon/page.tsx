@@ -82,14 +82,15 @@ export default function UpdateAccountPage() {
     if (!salon) return;
 
     const previousValue = form.getValues(field);
+    const clearedValue = "";
 
-    form.setValue(field, undefined, { shouldDirty: true, shouldTouch: true });
+    form.setValue(field, clearedValue, { shouldDirty: true, shouldTouch: true });
     setSalon((prev) => (prev ? { ...prev, [field]: null } : prev));
 
     try {
       const payload = {
         ...form.getValues(),
-        [field]: null,
+        [field]: clearedValue,
       };
 
       const result = await updateUserInfoAction(payload);
@@ -103,7 +104,7 @@ export default function UpdateAccountPage() {
       toast.success("Image supprimee avec succes");
     } catch (error) {
       console.error("Erreur lors de la suppression persistante:", error);
-      form.setValue(field, previousValue);
+      form.setValue(field, previousValue ?? undefined);
       setSalon((prev) => (prev ? { ...prev, [field]: previousValue ?? null } : prev));
       toast.error("Suppression impossible. Veuillez reessayer.");
     }

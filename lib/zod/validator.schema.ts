@@ -49,6 +49,41 @@ export const userRegisterSchema = z
     }
   });
 
+  // Schémas pour chaque étape
+  export const step1Schema = z.object({
+    salonName: z.string().min(1, "Le nom du salon est requis"),
+  });
+
+  export const step2Schema = z.object({
+    saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]),
+  });
+
+  export const step3Schema = z
+    .object({
+      firstName: z.string().min(1, "Le prénom est requis"),
+      lastName: z.string().min(1, "Le nom est requis"),
+      phone: z.string().optional(),
+      website: z.string().optional(),
+      email: z.string().email("Email invalide"),
+      password: z
+        .string()
+        .min(8, "Le mot de passe doit contenir au moins 8 caractères")
+        .regex(
+          PASSWORD_NUMBER_REGEX,
+          "Le mot de passe doit contenir au moins un chiffre",
+        )
+        .regex(
+          PASSWORD_SPECIAL_REGEX,
+          "Le mot de passe doit contenir au moins un caractère spécial",
+        ),
+      passwordConfirmation: z.string(),
+    })
+    .refine((data) => data.password === data.passwordConfirmation, {
+      message: "Les mots de passe ne correspondent pas",
+      path: ["passwordConfirmation"],
+    });
+  
+
 export const tokenSchema = z.object({
   token: z.string(),
 });

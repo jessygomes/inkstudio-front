@@ -100,9 +100,12 @@ SalonImageUploaderProps) {
   const [isDeleting, setIsDeleting] = useState(false); // État pour le loader de suppression
 
   const { startUpload, isUploading } = useUploadThing("imageUploader", {
-    onClientUploadComplete: (res: { url: string; key: string }[]) => {
+    onClientUploadComplete: (res: { url?: string; ufsUrl?: string; key: string }[]) => {
       if (res && res[0]) {
-        onImageUpload(res[0].url);
+        const uploadedUrl = res[0].ufsUrl ?? res[0].url;
+        if (uploadedUrl) {
+          onImageUpload(uploadedUrl);
+        }
       }
       setProgress(100);
     },
