@@ -69,3 +69,91 @@ export const deleteTatoueurAction = async (tatoueurId: string) => {
     throw error;
   }
 };
+
+//! ----------------------------------------------------------------------------
+
+//! RECUPERER LES TATOUEURS D'UN SALON (CREES + RELIES)
+
+//! ----------------------------------------------------------------------------
+export const getTatoueursByUserIdAction = async (userId: string) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${userId}`,
+      {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      }
+    );
+
+    const data = await response.json().catch(() => ([]));
+
+    if (!response.ok || (data && data.error)) {
+      const message =
+        data?.message || `Erreur lors de l'opération (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return {
+      ok: true,
+      error: false,
+      status: response.status,
+      data: Array.isArray(data) ? data : [],
+    };
+  } catch (error) {
+    console.error("Erreur lors de la récupération des tatoueurs du salon:", error);
+    return {
+      ok: false,
+      error: true,
+      status: 500,
+      message: "Impossible de récupérer les tatoueurs du salon.",
+      data: [],
+    };
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
+//! RETIRER UN TATOUEUR USER RELIE DE L'EQUIPE
+
+//! ----------------------------------------------------------------------------
+export const unlinkLinkedTatoueurAction = async (tatoueurUserId: string) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/team-requests/linked/${tatoueurUserId}`,
+      {
+        method: "DELETE",
+        headers,
+      }
+    );
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data?.error) {
+      const message =
+        data?.message || `Erreur lors de l'opération (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return {
+      ok: true,
+      error: false,
+      status: response.status,
+      message: data?.message,
+      data,
+    };
+  } catch (error) {
+    console.error("Erreur lors du retrait du tatoueur lié:", error);
+    return {
+      ok: false,
+      error: true,
+      status: 500,
+      message: "Impossible de retirer ce tatoueur de l'équipe.",
+      data: null,
+    };
+  }
+};

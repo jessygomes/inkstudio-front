@@ -15,6 +15,7 @@ export const userLoginSchema = z.object({
 
 export const userRegisterSchema = z
   .object({
+    role: z.enum(["user_salon", "user_tatoueur"]),
     salonName: z
       .string()
       .min(2, "Le nom du salon doit contenir au moins 2 caractères"),
@@ -51,11 +52,12 @@ export const userRegisterSchema = z
 
   // Schémas pour chaque étape
   export const step1Schema = z.object({
-    salonName: z.string().min(1, "Le nom du salon est requis"),
+  role: z.enum(["user_salon", "user_tatoueur"]),
+  salonName: z.string().min(1, "Le nom affiché est requis"),
   });
 
   export const step2Schema = z.object({
-    saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]),
+  saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]),
   });
 
   export const step3Schema = z
@@ -162,6 +164,7 @@ export const updateSalonSchema = z.object({
   image: z.string().optional(),
   profileImage: z.string().optional(),
   prestations: z.array(prestationEnum).optional().default([]),
+  style: z.array(z.string()).optional().default([]),
 });
 
 //! TATOUEUR

@@ -138,8 +138,9 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
         </div>
       )}
 
-      {/* Prestations + Réseaux */}
+      {/* Prestations + Styles + Réseaux */}
       {((salon.prestations && salon.prestations.length > 0) ||
+        (salon.style && salon.style.length > 0) ||
         salon.instagram || salon.facebook || salon.tiktok || salon.website) && (
         <div className="flex flex-wrap gap-x-6 gap-y-2">
           {salon.prestations && salon.prestations.length > 0 && (
@@ -152,6 +153,22 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
                     className="rounded-[10px] border border-white/10 bg-white/6 px-2 py-0.5 text-white/80 font-one text-xs"
                   >
                     {prestation}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {salon.style && salon.style.length > 0 && (
+            <div>
+              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-1.5">Styles</p>
+              <div className="flex flex-wrap gap-1.5">
+                {salon.style.map((style) => (
+                  <span
+                    key={style}
+                    className="rounded-[10px] border border-white/10 bg-white/6 px-2 py-0.5 text-white/80 font-one text-xs"
+                  >
+                    {style}
                   </span>
                 ))}
               </div>

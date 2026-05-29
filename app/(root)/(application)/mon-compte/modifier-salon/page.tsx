@@ -14,16 +14,23 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { updateUserInfoAction, getUserInfoAction } from "@/lib/queries/user";
 import { toast } from "sonner";
+import { IoClose } from "react-icons/io5";
 
 export default function UpdateAccountPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [salon, setSalon] = useState<UpdateSalonUserProps | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [styleInput, setStyleInput] = useState("");
+  const [styleBadges, setStyleBadges] = useState<string[]>([]);
 
   const form = useForm<z.infer<typeof updateSalonSchema>>({
     resolver: zodResolver(updateSalonSchema),
   });
+
+  useEffect(() => {
+    form.register("style");
+  }, [form]);
 
   useEffect(() => {
     const fetchSalon = async () => {
@@ -46,7 +53,9 @@ export default function UpdateAccountPage() {
             image: result.data.image ?? undefined,
             profileImage: result.data.profileImage ?? undefined,
             prestations: result.data.prestations ?? [],
+            style: result.data.style ?? [],
           });
+          setStyleBadges(result.data.style ?? []);
         } else {
           console.error("Error fetching salon data:", result.message);
         }
@@ -63,16 +72,23 @@ export default function UpdateAccountPage() {
 
     setIsSubmitting(true);
     try {
-      const result = await updateUserInfoAction(data);
+      const payload = {
+        ...data,
+        style: styleBadges,
+      };
+
+      const result = await updateUserInfoAction(payload);
 
       if (result.ok) {
         toast.success("Salon mis à jour avec succès !");
         router.push("/mon-compte");
       } else {
         console.error("Erreur lors de la mise à jour:", result.message);
+        toast.error(result.message || "Erreur lors de la mise à jour du salon.");
       }
     } catch (error) {
       console.error("Erreur lors de la mise à jour:", error);
+      toast.error("Erreur lors de la mise à jour du salon.");
     } finally {
       setIsSubmitting(false);
     }
@@ -91,6 +107,7 @@ export default function UpdateAccountPage() {
       const payload = {
         ...form.getValues(),
         [field]: clearedValue,
+        style: styleBadges,
       };
 
       const result = await updateUserInfoAction(payload);
@@ -116,6 +133,24 @@ export default function UpdateAccountPage() {
     "text-[10px] uppercase tracking-wider text-white/50 font-one";
   const inputClass =
     "w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one";
+  const badgeClass =
+    "inline-flex items-center gap-1 rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-2.5 py-1 text-xs text-tertiary-500 font-one";
+
+  const handleAddStyle = () => {
+    const val = styleInput.trim();
+    if (val && !styleBadges.includes(val)) {
+      const updated = [...styleBadges, val];
+      setStyleBadges(updated);
+      form.setValue("style", updated, { shouldDirty: true, shouldTouch: true });
+    }
+    setStyleInput("");
+  };
+
+  const handleRemoveStyle = (val: string) => {
+    const updated = styleBadges.filter((s) => s !== val);
+    setStyleBadges(updated);
+    form.setValue("style", updated, { shouldDirty: true, shouldTouch: true });
+  };
 
   if (!salon) {
     return <SkeletonForm />;
@@ -353,6 +388,53 @@ export default function UpdateAccountPage() {
                   </div>
                 );
               })()}
+            </div>
+
+            <div className="dashboard-embedded-section p-3 sm:p-4">
+              <h3 className={sectionTitleClass}>Styles du salon</h3>
+
+              <p className="mb-3 text-[11px] text-white/60 font-one">
+                Ajoutez les styles pratiqués (ex: japonais, old school, realism).
+              </p>
+
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  type="text"
+                  value={styleInput}
+                  onChange={(e) => setStyleInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddStyle();
+                    }
+                  }}
+                  placeholder="Ajouter un style"
+                  className={inputClass}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddStyle}
+                  className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 font-one"
+                >
+                  Ajouter
+                </button>
+              </div>
+
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {styleBadges.map((style) => (
+                  <span key={style} className={badgeClass}>
+                    {style}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveStyle(style)}
+                      className="ml-0.5 text-tertiary-300 hover:text-red-300"
+                      title="Supprimer"
+                    >
+                      <IoClose size={14} className="cursor-pointer" />
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
 
             <div className=" flex flex-col justify-end gap-2 py-3 sm:flex-row sm:items-center sm:rounded-b-2xl">

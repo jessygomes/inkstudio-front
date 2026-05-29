@@ -5,9 +5,36 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { extractUploadThingKey } from "@/lib/utils/uploadImg/extractUploadThingKey";
-import { deleteTatoueurAction } from "@/lib/queries/tatoueur";
+import {
+  deleteTatoueurAction,
+  unlinkLinkedTatoueurAction,
+} from "@/lib/queries/tatoueur";
 import { TatoueurProps } from "@/lib/type"; // Utiliser le type centralisé
 import DashboardButton from "@/components/Shared/DashboardButton";
+
+type TeamTatoueur = TatoueurProps & {
+  canBeEditedBySalon?: boolean;
+  isLinkedAccount?: boolean;
+  isLinkedUser?: boolean;
+  isReadOnly?: boolean;
+  linkedUserId?: string;
+  tatoueurUserId?: string;
+  role?: string;
+  image?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+};
+
+const isReadOnlyLinkedTatoueur = (tatoueur: TeamTatoueur) => {
+  if (tatoueur.canBeEditedBySalon === false) return true;
+  if (tatoueur.isLinkedAccount) return true;
+  if (tatoueur.isReadOnly) return true;
+  if (tatoueur.isLinkedUser) return true;
+  if (tatoueur.linkedUserId || tatoueur.tatoueurUserId) return true;
+  if (tatoueur.role === "user_tatoueur") return true;
+  return false;
+};
 
 export default function TatoueurSalon({
   tatoueurs,
@@ -17,10 +44,18 @@ export default function TatoueurSalon({
   salonHours: string | null;
 }) {
   const [selectedTatoueur, setSelectedTatoueur] =
-    useState<TatoueurProps | null>(null);
+    useState<TeamTatoueur | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUnlinkingById, setIsUnlinkingById] = useState<Record<string, boolean>>({});
   const [isMobile, setIsMobile] = useState(false);
+  const [teamTatoueurs, setTeamTatoueurs] = useState<TeamTatoueur[]>(
+    (tatoueurs as TeamTatoueur[]) || []
+  );
+
+  useEffect(() => {
+    setTeamTatoueurs((tatoueurs as TeamTatoueur[]) || []);
+  }, [tatoueurs]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 639px)");
@@ -66,6 +101,13 @@ export default function TatoueurSalon({
   const handleDeleteTatoueur = async () => {
     if (!selectedTatoueur) return;
 
+    if (isReadOnlyLinkedTatoueur(selectedTatoueur as TeamTatoueur)) {
+      toast.info("Ce profil est lié à un compte indépendant et ne peut pas être supprimé ici.");
+      setIsDeleteModalOpen(false);
+      setSelectedTatoueur(null);
+      return;
+    }
+
     setIsDeleting(true);
 
     try {
@@ -92,7 +134,7 @@ export default function TatoueurSalon({
       }
 
       toast.success("Tatoueur supprimé avec succès");
-      window.location.reload();
+      setTeamTatoueurs((prev) => prev.filter((item) => item.id !== selectedTatoueur.id));
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
       toast.error("Erreur lors de la suppression du tatoueur");
@@ -103,7 +145,35 @@ export default function TatoueurSalon({
     }
   };
 
-  const rdvEnabledCount = tatoueurs.filter(
+  const handleUnlinkLinkedTatoueur = async (tatoueur: TeamTatoueur) => {
+    const linkedUserId = tatoueur.linkedUserId || tatoueur.tatoueurUserId;
+
+    if (!linkedUserId) {
+      toast.error("Impossible de retirer ce profil: identifiant lié introuvable.");
+      return;
+    }
+
+    setIsUnlinkingById((prev) => ({ ...prev, [tatoueur.id]: true }));
+
+    try {
+      const result = await unlinkLinkedTatoueurAction(linkedUserId);
+
+      if (!result.ok) {
+        toast.error(result.message || "Retrait impossible.");
+        return;
+      }
+
+      setTeamTatoueurs((prev) => prev.filter((item) => item.id !== tatoueur.id));
+      toast.success(result.message || "Tatoueur retiré de l'équipe.");
+    } catch (error) {
+      console.error("Erreur lors du retrait du tatoueur lié:", error);
+      toast.error("Une erreur est survenue lors du retrait.");
+    } finally {
+      setIsUnlinkingById((prev) => ({ ...prev, [tatoueur.id]: false }));
+    }
+  };
+
+  const rdvEnabledCount = teamTatoueurs.filter(
     (tatoueur) => tatoueur.rdvBookingEnabled
   ).length;
 
@@ -119,7 +189,7 @@ export default function TatoueurSalon({
             <div className="flex gap-2 items-end">
 
             <h3 className="text-white font-one text-base sm:text-lg font-semibold leading-tight">
-              {tatoueurs.length} tatoueur{tatoueurs.length > 1 ? "s" : ""}
+              {teamTatoueurs.length} tatoueur{teamTatoueurs.length > 1 ? "s" : ""}
             </h3>
             <p className="text-white/55 font-two text-xs">
               {rdvEnabledCount} profil{rdvEnabledCount > 1 ? "s" : ""} avec
@@ -140,7 +210,7 @@ export default function TatoueurSalon({
       </div>
 
       {/* Loader responsive */}
-      {tatoueurs === undefined && (
+      {teamTatoueurs === undefined && (
         <div className="w-full flex items-center justify-center py-16 sm:py-20">
           <div className="w-full rounded-2xl p-8 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
             <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-tertiary-400 mx-auto mb-4"></div>
@@ -172,9 +242,14 @@ export default function TatoueurSalon({
         </div>
       )} */}
       {/* Liste des tatoueurs */}
-      {tatoueurs.length > 0 ? (
+      {teamTatoueurs.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-          {tatoueurs.map((tatoueur) => {
+          {teamTatoueurs.map((tatoueur) => {
+            const isReadOnly = isReadOnlyLinkedTatoueur(tatoueur);
+            const derivedName = `${tatoueur.firstName || ""} ${tatoueur.lastName || ""}`.trim();
+            const displayName = tatoueur.name || derivedName || tatoueur.email || "Tatoueur";
+            const displayImage = tatoueur.img || tatoueur.image;
+            const isUnlinking = Boolean(isUnlinkingById[tatoueur.id]);
             const visibleSkills = tatoueur.skills?.slice(
               0,
               isMobile ? 2 : tatoueur.skills.length
@@ -192,24 +267,24 @@ export default function TatoueurSalon({
                 {/* Identité */}
                 <div className="flex items-start gap-2.5">
                   <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-tertiary-400/25 to-tertiary-500/20 border border-tertiary-400/25 overflow-hidden flex items-center justify-center flex-shrink-0">
-                    {tatoueur.img ? (
+                    {displayImage ? (
                       <Image
-                        src={tatoueur.img}
-                        alt={tatoueur.name}
+                        src={displayImage}
+                        alt={displayName}
                         width={44}
                         height={44}
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <span className="text-tertiary-300 font-bold font-one text-sm">
-                        {tatoueur.name.charAt(0).toUpperCase()}
+                        {displayName.charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-1">
                       <h4 className="text-white font-one text-sm font-semibold truncate">
-                        {tatoueur.name}
+                        {displayName}
                       </h4>
                       {tatoueur.rdvBookingEnabled ? (
                         <span className="shrink-0 rounded-[8px] border border-green-500/30 bg-green-500/15 px-1.5 py-0.5 text-[9px] font-one text-green-300">
@@ -227,6 +302,11 @@ export default function TatoueurSalon({
                     {tatoueur.phone && (
                       <p className="text-white/40 font-one text-[10px] mt-1">
                         {tatoueur.phone}
+                      </p>
+                    )}
+                    {tatoueur.instagram && (
+                      <p className="text-white/35 font-one text-[10px] mt-0.5 truncate">
+                        @{tatoueur.instagram.replace(/^@/, "")}
                       </p>
                     )}
                   </div>
@@ -290,21 +370,39 @@ export default function TatoueurSalon({
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 mt-auto">
-                  <Link
-                    href={`/mon-compte/ajouter-tatoueur?id=${tatoueur.id}`}
-                    className="flex-1 w-fit rounded-[14px] border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] text-white transition-colors hover:bg-white/20 font-one text-center"
-                  >
-                    Modifier
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setSelectedTatoueur(tatoueur);
-                      setIsDeleteModalOpen(true);
-                    }}
-                    className="cursor-pointer rounded-[14px] border border-red-500/35 bg-red-500/20 px-3 py-1.5 text-[11px] text-red-300 transition-colors hover:bg-red-500/30 font-one"
-                  >
-                    Supprimer
-                  </button>
+                  {isReadOnly ? (
+                    <div className="flex w-full items-center gap-2">
+                      <span className="flex-1 rounded-[14px] border border-sky-500/35 bg-sky-500/15 px-3 py-1.5 text-center text-[11px] text-sky-200 font-one">
+                        Profil lié au compte indé (lecture seule)
+                      </span>
+                      <button
+                        type="button"
+                        disabled={isUnlinking}
+                        onClick={() => handleUnlinkLinkedTatoueur(tatoueur)}
+                        className="cursor-pointer rounded-[14px] border border-red-500/35 bg-red-500/20 px-3 py-1.5 text-[11px] text-red-300 transition-colors hover:bg-red-500/30 font-one disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isUnlinking ? "Retrait..." : "Retirer"}
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <Link
+                        href={`/mon-compte/ajouter-tatoueur?id=${tatoueur.id}`}
+                        className="flex-1 w-fit rounded-[14px] border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] text-white transition-colors hover:bg-white/20 font-one text-center"
+                      >
+                        Modifier
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setSelectedTatoueur(tatoueur);
+                          setIsDeleteModalOpen(true);
+                        }}
+                        className="cursor-pointer rounded-[14px] border border-red-500/35 bg-red-500/20 px-3 py-1.5 text-[11px] text-red-300 transition-colors hover:bg-red-500/30 font-one"
+                      >
+                        Supprimer
+                      </button>
+                    </>
+                  )}
                 </div>
               </article>
             );

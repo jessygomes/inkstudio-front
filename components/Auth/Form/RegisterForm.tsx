@@ -1,6 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -15,12 +14,8 @@ import { step1Schema, step2Schema, step3Schema } from "@/lib/zod/validator.schem
 // import { createSession } from "@/lib/session";
 
 
-
-const PASSWORD_NUMBER_REGEX = /\d/;
-const PASSWORD_SPECIAL_REGEX = /[^A-Za-z0-9]/;
-
-
 type SignupPlan = "FREE" | "PRO" | "BUSINESS";
+type SignupRole = "user_salon" | "user_tatoueur";
 
 export const Register = () => {
   const router = useRouter();
@@ -65,6 +60,7 @@ export const Register = () => {
 
   // Données collectées à travers les étapes
   const [formData, setFormData] = useState(() => ({
+    role: "user_salon" as SignupRole,
     salonName: "",
     saasPlan: preselectedPlan as SignupPlan,
     firstName: "",
@@ -79,7 +75,7 @@ export const Register = () => {
   // Formulaires pour chaque étape
   const step1Form = useForm({
     resolver: zodResolver(step1Schema),
-    defaultValues: { salonName: formData.salonName },
+    defaultValues: { role: formData.role, salonName: formData.salonName },
   });
 
   const step2Form = useForm({
@@ -112,8 +108,12 @@ export const Register = () => {
   };
 
   // Gestionnaires pour chaque étape
-  const handleStep1Submit = (data: { salonName: string }) => {
-    setFormData({ ...formData, salonName: data.salonName });
+  const handleStep1Submit = (data: { role: SignupRole; salonName: string }) => {
+    setFormData({
+      ...formData,
+      role: data.role,
+      salonName: data.salonName,
+    });
     nextStep();
   };
 
@@ -140,14 +140,14 @@ export const Register = () => {
 
       const finalData = {
         ...formData,
+        role: formData.role,
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
         website: data.website,
         email: data.email,
         password: data.password,
-        // Le compte reste en FREE tant que le paiement Stripe n'est pas validé.
-        saasPlan: "FREE",
+        saasPlan: selectedPlan,
         // Ajouter le plan sélectionné pour créer la checkout session Stripe
         checkoutPlan: selectedPlan !== "FREE" ? selectedPlan : null,
       };
@@ -239,7 +239,7 @@ export const Register = () => {
   const getStepTitle = () => {
     switch (currentStep) {
       case 1:
-        return "Créez votre compte";
+        return "Choisissez votre profil";
       case 2:
         return "Choisissez votre plan";
       case 3:
@@ -289,17 +289,40 @@ export const Register = () => {
                 <div className="flex flex-col gap-4 p-2">
                   <div className="text-center mb-4">
                     <p className="text-white/80 text-sm">
-                      Commençons par le nom de votre salon de tatouage
+                      Commencez par indiquer si votre compte est pour un salon
+                      ou pour un tatoueur indépendant.
                     </p>
                   </div>
 
                   <div className="flex flex-col gap-2 font-one">
-                    <label htmlFor="salonName" className="text-xs">
-                      Nom du salon *
-                    </label>
+                    <select
+                      id="role"
+                      required
+                      className="bg-white/30 py-3 px-4 rounded-2xl text-white text-sm"
+                      {...step1Form.register("role")}
+                    >
+                      <option value="user_salon" className="bg-white text-black">
+                        Salon
+                      </option>
+                      <option value="user_tatoueur" className="bg-white text-black">
+                        Indépendant
+                      </option>
+                    </select>
+                    {step1Form.formState.errors.role && (
+                      <p className="text-red-400 text-xs">
+                        {step1Form.formState.errors.role.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2 font-one">
                     <input
                       id="salonName"
-                      placeholder="Ex: Ink Studio, Black Rose Tattoo..."
+                      placeholder={
+                        step1Form.watch("role") === "user_salon"
+                          ? "Ex: Ink Studio, Black Rose Tattoo..."
+                          : "Ex: Nom d'artiste, pseudo professionnel..."
+                      }
                       type="text"
                       required
                       className="bg-white/30 py-3 px-4 rounded-2xl text-sm w-full"
@@ -307,7 +330,9 @@ export const Register = () => {
                     />
                     {step1Form.formState.errors.salonName && (
                       <p className="text-red-400 text-xs">
-                        {step1Form.formState.errors.salonName.message}
+                        {step1Form.watch("role") === "user_salon"
+                          ? "Le nom du salon est requis."
+                          : "Le nom affiché est requis."}
                       </p>
                     )}
                   </div>

@@ -8,6 +8,7 @@ import Horaire from "./Horaire";
 import InfoSalon from "./InfoSalon";
 import TatoueurSalon from "./TatoueurSalon";
 import SalonPhoto from "./SalonPhoto";
+import IndependentTeamSection from "./IndependentTeamSection";
 
 import { IoBusinessOutline } from "react-icons/io5";
 import { TbClockHour5 } from "react-icons/tb";
@@ -15,12 +16,16 @@ import { PiUsersLight } from "react-icons/pi";
 import { HiOutlinePhotograph } from "react-icons/hi";
 import PageHeader from "@/components/Shared/PageHeader";
 import AccountSkeleton from "@/components/Skeleton/AccountSkeleton";
+import { getTatoueursByUserIdAction } from "@/lib/queries/tatoueur";
+import { TatoueurProps } from "@/lib/type";
 
 export default function SalonAccount() {
   const { data: session } = useSession();
   const salonId = session?.user?.id;
+  const isIndependentAccount = session?.user?.role === "user_tatoueur";
 
   const [salon, setSalon] = useState<SalonUserProps>();
+  const [teamTatoueurs, setTeamTatoueurs] = useState<TatoueurProps[]>([]);
 
   useEffect(() => {
     const fetchSalon = async () => {
@@ -47,6 +52,23 @@ export default function SalonAccount() {
       fetchSalon();
     }
   }, [salonId]);
+
+  useEffect(() => {
+    const fetchTeamTatoueurs = async () => {
+      if (!salonId || isIndependentAccount) return;
+
+      const result = await getTatoueursByUserIdAction(salonId);
+
+      if (!result.ok) {
+        console.error("Erreur récupération équipe tatoueurs:", result.message);
+        return;
+      }
+
+      setTeamTatoueurs((result.data || []) as TatoueurProps[]);
+    };
+
+    fetchTeamTatoueurs();
+  }, [salonId, isIndependentAccount]);
 
   if (!salon) {
     return (
@@ -88,18 +110,22 @@ export default function SalonAccount() {
           />
       </div>
 
-      <div className="dashboard-embedded-panel p-3 sm:p-8">
-          <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">
-            <PiUsersLight size={16} className="sm:w-5 sm:h-5" />{" "}
-            <span className="hidden sm:inline">Équipe de tatoueurs</span>
-            <span className="sm:hidden">Tatoueurs</span>
-          </h3>
-          <TatoueurSalon
-            tatoueurs={salon.Tatoueur}
-            salonId={session?.user?.id || ""}
-            salonHours={salon.salonHours || ""}
-          />
-      </div>
+      {!isIndependentAccount && (
+        <div className="dashboard-embedded-panel p-3 sm:p-8">
+            <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">
+              <PiUsersLight size={16} className="sm:w-5 sm:h-5" />{" "}
+              <span className="hidden sm:inline">Équipe de tatoueurs</span>
+              <span className="sm:hidden">Tatoueurs</span>
+            </h3>
+            <TatoueurSalon
+              tatoueurs={teamTatoueurs}
+              salonId={session?.user?.id || ""}
+              salonHours={salon.salonHours || ""}
+            />
+        </div>
+      )}
+
+          {isIndependentAccount && <IndependentTeamSection />}
 
       <div className="dashboard-embedded-panel p-3 sm:p-8">
           <h3 className="flex gap-2 items-center text-sm text-white mb-3 font-one uppercase tracking-widest">

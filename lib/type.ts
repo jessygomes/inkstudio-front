@@ -114,6 +114,7 @@ export interface SalonUserProps {
   verifiedSalon?: boolean;
   Tatoueur: TatoueurProps[];
   prestations: string[]; // Liste des prestations
+  style?: string[];
 }
 
 export interface UpdateSalonUserProps {
@@ -137,6 +138,7 @@ export interface UpdateSalonUserProps {
   profileImage?: string | null;
   verifiedSalon?: boolean;
   prestations: string[]; // Liste des prestations
+  style?: string[];
 }
 
 export interface Subscription {

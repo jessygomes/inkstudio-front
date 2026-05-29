@@ -19,6 +19,7 @@ import { createOrUpdateTatoueur } from "@/lib/queries/tatoueur";
 import { toast } from "sonner";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
+import InviteRegisteredTatoueurSection from "../../../../../components/Application/MonCompte/InviteRegisteredTatoueurSection";
 
 type Horaire = {
   [key: string]: { start: string; end: string } | null;
@@ -57,11 +58,33 @@ const parseHoursSafely = (raw: string | null): Horaire | null => {
   }
 };
 
+type TeamTatoueur = TatoueurProps & {
+  canBeEditedBySalon?: boolean;
+  isLinkedAccount?: boolean;
+  isLinkedUser?: boolean;
+  isReadOnly?: boolean;
+  linkedUserId?: string;
+  tatoueurUserId?: string;
+  role?: string;
+};
+
+const isReadOnlyLinkedTatoueur = (tatoueur: TeamTatoueur | null) => {
+  if (!tatoueur) return false;
+  if (tatoueur.canBeEditedBySalon === false) return true;
+  if (tatoueur.isLinkedAccount) return true;
+  if (tatoueur.isReadOnly) return true;
+  if (tatoueur.isLinkedUser) return true;
+  if (tatoueur.linkedUserId || tatoueur.tatoueurUserId) return true;
+  if (tatoueur.role === "user_tatoueur") return true;
+  return false;
+};
+
 export default function AddOrUpdateTatoueurPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const salonId = session?.user?.id;
+  const isIndependentAccount = session?.user?.role === "user_tatoueur";
   const imageUploaderRef = useRef<TatoueurImageUploaderHandle>(null);
 
   const tatoueurId = searchParams.get("id");
@@ -73,6 +96,17 @@ export default function AddOrUpdateTatoueurPage() {
   const [existingTatoueur, setExistingTatoueur] =
     useState<TatoueurProps | null>(null);
   const [salonHours, setSalonHours] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!session?.user) return;
+
+    if (isIndependentAccount) {
+      toast.error(
+        "Compte indépendant: la gestion d'une équipe de tatoueurs n'est pas disponible.",
+      );
+      router.replace("/mon-compte");
+    }
+  }, [session?.user, isIndependentAccount, router]);
 
   useEffect(() => {
     const raw = session?.user?.salonHours as unknown;
@@ -194,6 +228,17 @@ export default function AddOrUpdateTatoueurPage() {
       }
     }
   }, [existingTatoueur, form, salonId]);
+
+  useEffect(() => {
+    if (!isEditing || !existingTatoueur) return;
+
+    if (isReadOnlyLinkedTatoueur(existingTatoueur as TeamTatoueur)) {
+      toast.info(
+        "Ce tatoueur est lié à un compte indépendant. Ses informations sont modifiables uniquement depuis son compte.",
+      );
+      router.replace("/mon-compte");
+    }
+  }, [isEditing, existingTatoueur, router]);
 
   const [styleInput, setStyleInput] = useState("");
   const [skillsInput, setSkillsInput] = useState("");
@@ -317,6 +362,11 @@ export default function AddOrUpdateTatoueurPage() {
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
     if (!salonId) return;
 
+    if (isEditing && isReadOnlyLinkedTatoueur(existingTatoueur as TeamTatoueur)) {
+      toast.error("Modification non autorisée pour ce profil lié.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -371,6 +421,10 @@ export default function AddOrUpdateTatoueurPage() {
     return <div className="text-white">Chargement...</div>;
   }
 
+  if (isIndependentAccount) {
+    return <div className="text-white">Redirection...</div>;
+  }
+
   return (
     <div className="wrapper-global pb-16 sm:pb-10 px-3 sm:px-4 lg:px-6">
       <section className="w-full space-y-3 pt-4 pb-10 xl:pb-0">
@@ -392,6 +446,8 @@ export default function AddOrUpdateTatoueurPage() {
             ? "Mettez à jour les informations de votre tatoueur."
             : "Ajoutez un nouveau membre à votre équipe."}
         </p>
+
+        {!isEditing && <InviteRegisteredTatoueurSection />}
 
         <div className="w-full rounded-3xl border border-white/10 bg-white/4 p-3 sm:p-4">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2.5">
