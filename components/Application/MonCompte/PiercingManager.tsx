@@ -12,7 +12,7 @@ import {
   type PiercingZone,
   type PiercingPrice,
 } from "@/lib/queries/piercing";
-import { FaPlus, FaTimes } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import { toast } from "sonner";
 
 interface PiercingManagerProps {
@@ -57,7 +57,9 @@ export default function PiercingManager({}: PiercingManagerProps) {
   const labelClass =
     "mb-1 block text-[10px] uppercase tracking-wider text-white/45 font-one";
   const fieldClass =
-    "w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one";
+    "w-full rounded-2xl border border-white/10 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-white/25 focus:outline-none font-one";
+  const zoneCardClass =
+    "rounded-2xl border border-white/10 bg-white/[0.03] p-4";
 
   useEffect(() => {
     loadPiercingData();
@@ -363,17 +365,17 @@ export default function PiercingManager({}: PiercingManagerProps) {
         </h4>
 
         {/* Sélection des zones globales */}
-        <div className="dashboard-embedded-section mb-2.5 p-3">
+        <div className="mb-2.5 p-2">
           <p className="mb-2 text-[11px] text-white/60 font-one">
             Sélectionnez les zones de piercing que votre salon propose :
           </p>
-          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+          <div className="flex flex-wrap gap-2">
             {allAvailableZones.map((zone) => {
               const isSelected = selectedZones.includes(zone);
               return (
                 <label
                   key={zone}
-                  className={`cursor-pointer flex items-center justify-center rounded-[10px] border px-2.5 py-1.5 text-[11px] font-one transition
+                  className={`cursor-pointer flex items-center justify-center rounded-3xl border px-3 py-1.5 text-[11px] font-one transition
                     ${
                       isSelected
                         ? "border-tertiary-400/40 bg-tertiary-500/20 text-tertiary-500"
@@ -402,36 +404,84 @@ export default function PiercingManager({}: PiercingManagerProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          <h5 className={sectionTitleClass}>
-            Configuration des prix
-          </h5>
+        <div className="space-y-3">
+          <div className="">
+            <h5 className={sectionTitleClass}>
+              Configuration des prix
+            </h5>
+            <p className="text-[11px] text-white/50 font-one">
+              Configurez chaque service rapidement : type, tarif, statut puis
+              enregistrez ligne par ligne.
+            </p>
+          </div>
           {piercingZones.map((zone) => (
             <div
               key={zone.id}
-              className="dashboard-embedded-section rounded-xl p-3"
+              className={zoneCardClass}
             >
-              <div className="mb-2.5 flex items-center justify-between">
-                <span className="text-white font-medium text-sm font-one">
-                  {zone.piercingZone}
-                </span>
-                <span className="rounded-[10px] border border-white/10 bg-white/6 px-2 py-0.5 text-[10px] text-white/55 font-one">
-                  {(services[zone.id] || []).filter((s) => s.isActive).length}{" "}
-                  actif(s) / {(services[zone.id] || []).length} total
-                </span>
+              <div className="mb-3 border-b border-white/10 pb-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold tracking-wide text-white font-one">
+                      {zone.piercingZone}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
+                      Services
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-white/55 font-one">
+                    {(services[zone.id] || []).filter((s) => s.isActive).length} actifs / {(services[zone.id] || []).length} total
+                  </span>
+                </div>
               </div>
 
               {/* Services pour cette zone */}
-              <div className="space-y-1.5">
+              <div className="space-y-2">
+                <div className="hidden border-b border-white/10 px-1 pb-2 md:grid md:grid-cols-[minmax(0,1fr)_130px_100px_120px_120px] md:items-center md:gap-2">
+                  <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
+                    Type spécifique
+                  </span>
+                  <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
+                    Prix (€)
+                  </span>
+                  <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
+                    Statut
+                  </span>
+                  <span className="text-[10px] uppercase tracking-wider text-white/45 font-one text-center">
+                    Sauvegarde
+                  </span>
+                  <span className="text-[10px] uppercase tracking-wider text-white/45 font-one text-center">
+                    Suppression
+                  </span>
+                </div>
+
+                {(services[zone.id] || []).length === 0 && (
+                  <div className="rounded-3xl border border-dashed border-white/15 bg-transparent px-3 py-5 text-center">
+                    <p className="text-[11px] text-white/55 font-one">
+                      Aucun service pour cette zone. Ajoutez-en un pour commencer.
+                    </p>
+                  </div>
+                )}
                 {(services[zone.id] || []).map((service, idx) => (
                   <div
-                    key={idx}
-                    className="rounded-xl border border-white/10 bg-white/4 p-2.5"
+                    key={service.id || `${zone.id}-${idx}`}
+                    className="rounded-3xl bg-black/15 p-3 sm:p-2"
                   >
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_96px_78px_auto_auto] sm:items-end">
+                    <div className="mb-2 flex items-center justify-between md:hidden">
+                      <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
+                        Service {idx + 1}
+                      </span>
+                      {service.isModified && (
+                        <span className="text-[10px] text-amber-200 font-one">
+                          Non sauvegardé
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2 md:grid-cols-[minmax(0,1fr)_130px_100px_120px_120px] md:items-end">
                       <div>
-                        <label className={labelClass}>
-                        Type spécifique
+                        <label className={`${labelClass} md:sr-only`}>
+                          Type spécifique
                         </label>
                         <select
                           value={service.zone}
@@ -439,6 +489,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
                             updateService(zone.id, idx, "zone", e.target.value)
                           }
                           className={fieldClass}
+                          aria-label="Type spécifique du service"
                         >
                           <option value="">Sélectionner...</option>
                           {getZoneSpecificOptions(zone.piercingZone).map(
@@ -456,13 +507,14 @@ export default function PiercingManager({}: PiercingManagerProps) {
                       </div>
 
                       <div>
-                        <label className={labelClass}>
-                        Prix (€)
+                        <label className={`${labelClass} md:sr-only`}>
+                          Prix (EUR)
                         </label>
                         <input
                           type="number"
                           min="0"
                           step="0.01"
+                          inputMode="decimal"
                           value={service.price}
                           onChange={(e) =>
                             updateService(
@@ -474,14 +526,18 @@ export default function PiercingManager({}: PiercingManagerProps) {
                           }
                           className={fieldClass}
                           placeholder="0"
+                          aria-label="Prix du service"
                         />
                       </div>
 
-                      <div>
-                        <label className={labelClass}>
-                        Actif
+                      <div className="md:flex md:justify-center">
+                        <label className={`${labelClass} md:sr-only`}>
+                          Statut
                         </label>
-                        <label className="relative inline-flex cursor-pointer items-center">
+                        <label className="inline-flex h-9 w-full cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 md:w-auto md:justify-center md:px-3">
+                          <span className="text-[11px] text-white/70 font-one md:sr-only">
+                            Actif
+                          </span>
                           <input
                             type="checkbox"
                             checked={service.isActive}
@@ -495,11 +551,11 @@ export default function PiercingManager({}: PiercingManagerProps) {
                             }
                             className="peer sr-only"
                           />
-                          <div
-                            className={`h-5 w-9 rounded-full transition-colors ${
+                          <span
+                            className={`relative h-5 w-9 rounded-full transition-colors ${
                               service.isActive ? "bg-tertiary-500" : "bg-white/20"
                             } peer-checked:after:translate-x-4 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all`}
-                          ></div>
+                          ></span>
                         </label>
                       </div>
 
@@ -512,21 +568,25 @@ export default function PiercingManager({}: PiercingManagerProps) {
                           !service.zone ||
                           service.price <= 0
                         }
-                        className={`inline-flex h-9 w-9 items-center justify-center rounded-[10px] text-xs transition-colors ${
+                        className={`inline-flex h-9 w-full items-center justify-center rounded-2xl px-2 text-[11px] transition-colors ${
                           service.isModified && service.zone && service.price > 0
-                            ? "cursor-pointer border border-green-500/35 bg-green-500/20 text-green-300 hover:bg-green-500/30"
+                            ? "cursor-pointer border border-white/20 bg-white/10 text-white hover:bg-white/15"
                             : "cursor-not-allowed border border-white/10 bg-white/8 text-white/30"
                         }`}
+                        aria-label="Sauvegarder le service"
+                        title="Sauvegarder"
                       >
-                        {service.isSaving ? "..." : "✓"}
+                        {service.isSaving ? "En cours..." : "Sauvegarder"}
                       </button>
 
                       <button
                         type="button"
                         onClick={() => removeService(zone.id, idx)}
-                        className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-[10px] border border-red-500/35 bg-red-500/15 text-red-300 transition-colors hover:bg-red-500/25"
+                        className="cursor-pointer inline-flex h-9 w-full items-center justify-center rounded-2xl px-2 text-[11px] border border-white/15 bg-transparent text-white/75 transition-colors hover:bg-white/8"
+                        aria-label="Supprimer le service"
+                        title="Supprimer"
                       >
-                        <FaTimes className="h-3 w-3" />
+                        Supprimer
                       </button>
                     </div>
                   </div>
@@ -535,7 +595,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
                 <button
                   type="button"
                   onClick={() => addService(zone.id)}
-                  className="cursor-pointer inline-flex h-9 w-full items-center justify-center gap-1 rounded-[10px] border border-dashed border-white/20 bg-white/4 text-xs text-white/60 transition-colors hover:border-tertiary-400/50 hover:text-tertiary-300 font-one"
+                  className="cursor-pointer inline-flex h-10 w-full items-center justify-center gap-1 rounded-3xl border border-dashed border-white/20 bg-transparent text-xs text-white/70 transition-colors hover:bg-white/8 hover:text-white font-one"
                 >
                   <FaPlus className="h-3 w-3" />
                   Ajouter un service

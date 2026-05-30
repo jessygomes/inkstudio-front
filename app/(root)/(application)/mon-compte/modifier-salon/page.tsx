@@ -8,10 +8,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateSalonSchema } from "@/lib/zod/validator.schema";
 import { z } from "zod";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
-import PiercingManager from "@/components/Application/MonCompte/PiercingManager";
+import DashboardButton from "@/components/Shared/DashboardButton";
 import SkeletonForm from "@/components/Skeleton/SkeletonForm";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { updateUserInfoAction, getUserInfoAction } from "@/lib/queries/user";
 import { toast } from "sonner";
 import { IoClose } from "react-icons/io5";
@@ -159,25 +158,27 @@ export default function UpdateAccountPage() {
   return (
     <div className="wrapper-global pb-16 sm:pb-10 px-3 sm:px-4 lg:px-6">
       <section className="w-full space-y-3 pt-4 pb-10 xl:pb-0">
-        <div className="dashboard-hero flex items-center gap-3 px-4 py-3 sm:px-5 lg:py-2.5">
-          <div className="flex h-10 w-10 items-center justify-center">
-            <Link
-              href="/mon-compte"
-              className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-white/8 text-white/70 transition-colors hover:bg-white/12 hover:text-white"
-            >
-              ←
-            </Link>
-          </div>
+        <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:py-2.5">
           <div className="min-w-0">
             <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">
               Mon compte
             </p>
             <h1 className="text-base font-bold uppercase tracking-wide text-white font-one sm:text-lg">
-              Modifier le salon
+              Modifier mes informations
             </h1>
-            <p className="mt-0.5 text-[11px] text-white/70 font-one">
-              Mettez a jour les informations de votre salon.
-            </p>
+              <p className="mt-0.5 text-[11px] text-white/70 font-one">
+                Mettez à jour les informations de votre salon, ajoutez des photos, gérez vos réseaux sociaux et configurez les prestations proposées.
+              </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <DashboardButton
+              href="/mon-compte"
+              className="min-w-0 px-4 text-[11px]"
+              variant="secondary"
+            >
+              Retour au salon
+            </DashboardButton>
           </div>
         </div>
 
@@ -332,7 +333,7 @@ export default function UpdateAccountPage() {
               </div>
             </div>
 
-            <div className="dashboard-embedded-section p-3 sm:p-4">
+            <div className="p-3 sm:p-4">
               <h3 className={sectionTitleClass}>Description</h3>
               <div className="space-y-1">
                 <label className={labelClass}>Description du salon</label>
@@ -345,7 +346,8 @@ export default function UpdateAccountPage() {
               </div>
             </div>
 
-            <div className="dashboard-embedded-section p-3 sm:p-4">
+          <section className="flex gap-5">
+            <div className="dashboard-embedded-section p-3 sm:p-4 w-full">
               <h3 className={sectionTitleClass}>Prestations proposées</h3>
 
               <p className="mb-3 text-[11px] text-white/60 font-one">
@@ -390,7 +392,7 @@ export default function UpdateAccountPage() {
               })()}
             </div>
 
-            <div className="dashboard-embedded-section p-3 sm:p-4">
+            <div className="dashboard-embedded-section p-3 sm:p-4 w-full">
               <h3 className={sectionTitleClass}>Styles du salon</h3>
 
               <p className="mb-3 text-[11px] text-white/60 font-one">
@@ -436,26 +438,27 @@ export default function UpdateAccountPage() {
                 ))}
               </div>
             </div>
+            </section>
 
             <div className=" flex flex-col justify-end gap-2 py-3 sm:flex-row sm:items-center sm:rounded-b-2xl">
-              <button
-                type="button"
+              <DashboardButton
+                variant="secondary"
                 onClick={() => router.push("/mon-compte")}
-                className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] border border-white/12 bg-white/8 px-4 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 font-one"
+                className="min-w-0 px-4 text-[11px]"
               >
                 Annuler
-              </button>
-              <button
+              </DashboardButton>
+              <DashboardButton
                 type="submit"
                 disabled={isSubmitting}
-                className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:opacity-50 disabled:cursor-not-allowed font-one"
+                className="min-w-0 px-4 text-[11px]"
               >
                 {isSubmitting ? (
                   <span>Enregistrement...</span>
                 ) : (
                   <span>Sauvegarder les modifications</span>
                 )}
-              </button>
+              </DashboardButton>
             </div>
           </form>
 
@@ -467,8 +470,21 @@ export default function UpdateAccountPage() {
 
             return (
               <div className="dashboard-embedded-section mt-2.5 p-3 sm:p-4">
-                <h3 className={sectionTitleClass}>Configuration piercing</h3>
-                <PiercingManager />
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className={sectionTitleClass}>Configuration piercing</h3>
+                    <p className="text-[11px] text-white/60 font-one">
+                      Configurer les zones, services et tarifs de votre prestation piercing.
+                    </p>
+                  </div>
+
+                  <DashboardButton
+                    href="/mon-compte/piercing"
+                    className="min-w-0 px-4 text-[11px]"
+                  >
+                    Configurer
+                  </DashboardButton>
+                </div>
               </div>
             );
           })()}

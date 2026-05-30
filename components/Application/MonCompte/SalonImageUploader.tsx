@@ -236,10 +236,10 @@ SalonImageUploaderProps) {
     variant === "profile"
       ? "rounded-full"
       : variant === "banner"
-        ? "rounded-xl sm:rounded-2xl"
+        ? "rounded-2xl sm:rounded-2xl"
         : compact
-          ? "rounded-lg"
-          : "rounded-xl sm:rounded-3xl";
+          ? "rounded-2xl"
+          : "rounded-2xl sm:rounded-2xl";
 
   const previewSizeClass =
     variant === "profile"
