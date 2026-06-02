@@ -15,6 +15,7 @@ import VerificationDocumentsSection from "@/components/Application/Parametres/Ve
 // import { MdOutlinePalette } from "react-icons/md";
 import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
 import NotifChatPreference from "@/components/Application/Parametres/NotifChatPreference";
+import InspirationSalonSetting from "@/components/Application/Parametres/InspirationSalonSetting";
 import PageHeader from "@/components/Shared/PageHeader";
 
 export default function ParamPage() {
@@ -54,7 +55,7 @@ export default function ParamPage() {
 
           <VerificationDocumentsSection />
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <AppointmentModeSetting
               userId={session?.user?.id || null}
               saasPlan={session?.user?.saasPlan || null}
@@ -63,11 +64,14 @@ export default function ParamPage() {
             <AppointmentConfirmationSetting
               userId={session?.user?.id || null}
             />
+
+            <InspirationSalonSetting userId={session?.user?.id || null} />
           </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <NotifChatPreference />
           <ColorProfile />
+      
           </div>
 
           <SubscriptionSection
