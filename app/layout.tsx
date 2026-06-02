@@ -37,7 +37,7 @@ const montserrat_alternates = Montserrat_Alternates({
 
 export const metadata: Metadata = {
   title: {
-    default: "INKERA Studio - Plateforme de Gestion pour Salons de Tatouage",
+    default: "INKERA Studio - Plateforme de Gestion pour Salons ou Tatoueurs Indépendants",
     template: "%s | INKERA Studio",
   },
   description:

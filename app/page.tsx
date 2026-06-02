@@ -13,9 +13,9 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   title:
-    "INKERA Studio - Plateforme de Gestion pour Studios de Tatouage | Logiciel Professionnel",
+    "INKERA Studio - Plateforme de Gestion pour Studios de Tatouage et Tatoueurs Indépendants | Logiciel Professionnel & Vitrine en ligne",
   description:
-    "🏆 Plateforme #1 pour la gestion de salons de tatouage en France. Rendez-vous, portfolio, clients, stock - tout en un..",
+    "🏆 Plateforme pour la gestion de salons de tatouage et tatoueurs indépendants en France. Vitrine en ligne, rendez-vous, portfolio, clients, stock - tout en un..",
   keywords: [
     "logiciel salon tatouage",
     "gestion studio tattoo",
@@ -29,6 +29,18 @@ export const metadata: Metadata = {
     "logiciel pour tatoueurs",
     "studio management tattoo",
     "INKERA Studio",
+    "vitrine en ligne tatouage",
+    "gestion stock tatouage",
+    "suivi client salon tatouage",
+    "fiche client tatouage",
+    "gestion rendez-vous tatouage",
+    "logiciel de gestion pour tatoueurs",
+    "fiche de consentement tatouage",
+    "gestion des artistes tatoueurs",
+    "gestion des clients salon tatouage",
+    "gestion des rendez-vous en ligne pour tatoueurs",
+    "logiciel de gestion de salon de tatouage",
+    "vitrine en ligne pour tatoueurs indépendants",
   ],
   authors: [{ name: "INKERA Studio", url: "https://inkera-studio.com" }],
   creator: "INKERA Studio",
@@ -64,7 +76,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "INKERA Studio - Plateforme #1 Studios Tatouage",
+    title: "INKERA Studio - Solution Studios Tatouage",
     description: "Gérez votre salon comme un pro : RDV, clients, portfolio.",
     images: ["https://inkera-studio.com/images/twitter-homepage.jpg"],
     creator: "@inkera_studio",
@@ -104,7 +116,7 @@ export default function Home() {
         },
         description:
           "Plateforme de gestion complète pour studios de tatouage et artistes tatoueurs professionnels en France",
-        foundingDate: "2024",
+        foundingDate: "2026",
         slogan: "Votre partenaire tatouage pour une gestion professionnelle",
         contactPoint: {
           "@type": "ContactPoint",
@@ -130,6 +142,10 @@ export default function Home() {
           "Réservation tatouage en ligne",
           "Gestion des stocks tatouage",
           "Suivi clientèle salon",
+          "Fiche client tatouage",
+          "Fiche de consentement tatouage",
+          "Gestion des artistes tatoueurs",
+          "Vitrine en ligne pour tatoueurs indépendants",
         ],
       },
       {
@@ -189,14 +205,14 @@ export default function Home() {
             {
               "@type": "Offer",
               name: "Plan Pro",
-              price: "29",
+              price: "29.99",
               priceCurrency: "EUR",
               description: "Fonctionnalités avancées pour professionnels",
             },
             {
               "@type": "Offer",
               name: "Plan Business",
-              price: "69",
+              price: "59.99",
               priceCurrency: "EUR",
               description: "Solution complète pour studios",
             },
@@ -210,6 +226,9 @@ export default function Home() {
             "Planning multi-tatoueurs",
             "Facturation intégrée",
             "Statistiques détaillées",
+            "Support client dédié",
+            "Vitrine en ligne pour attirer de nouveaux clients",
+            "Fiche de consentement numérique",
           ],
           aggregateRating: {
             "@type": "AggregateRating",
