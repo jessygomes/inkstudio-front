@@ -250,7 +250,7 @@ export const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-3 px-4">
+    <div className="min-h-screen flex items-center justify-center py-10 sm:py-3 px-0 sm:px-4">
       <div className="w-full max-w-2xl lg:max-w-4xl">
         <CardWrapper headerLabel={getStepTitle()}>
           {/* Indicateur d'étapes */}
@@ -287,11 +287,49 @@ export const Register = () => {
                 onSubmit={step1Form.handleSubmit(handleStep1Submit)}
               >
                 <div className="flex flex-col gap-4 p-2">
-                  <div className="text-center mb-4">
-                    <p className="text-white/80 text-sm">
-                      Commencez par indiquer si votre compte est pour un salon
+                  <div className=" mb-4">
+                    <p className="text-white/80 text-sm border-b border-white/20 pb-2 text-center">
+                      Indiquer si votre compte est pour un salon
                       ou pour un tatoueur indépendant.
                     </p>
+                    <div className="mt-3 rounded-2xl border border-white/15 bg-white/[0.06] px-3 py-3">
+                      <div className="flex items-start gap-2.5">
+                        <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-tertiary-500/20 text-tertiary-400">
+                          <svg
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+
+                        <div className="space-y-2">
+                          <p className="text-xs font-semibold text-tertiary-400 uppercase tracking-wide">
+                            Bon à savoir
+                          </p>
+                          <p className="text-xs text-white/80 leading-relaxed">
+                            Un compte SALON permet d&apos;ajouter un tatoueur non
+                            inscrit ou de relier un tatoueur déjà présent sur
+                            la plateforme.
+                          </p>
+                          <p className="text-xs text-white/80 leading-relaxed">
+                            Un compte INDÉPENDANT peut aussi être relié à un
+                            salon dans lequel il travaille, ce qui renforce
+                            votre référencement et votre visibilité.
+                          </p>
+                          <p className="text-xs text-white/80 leading-relaxed">
+                            Créer un profil public est totalement gratuit, même pour les salons. Les plans payants offrent des fonctionnalités supplémentaires mais ne sont pas obligatoires pour être présent sur la plateforme.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-2 font-one">
