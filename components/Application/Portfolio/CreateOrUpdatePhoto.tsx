@@ -1,10 +1,11 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 import { PortfolioProps } from "@/lib/type";
 import { portfolioSchema } from "@/lib/zod/validator.schema";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
@@ -23,11 +24,70 @@ export default function CreateOrUpdatePhoto({
   existingPhoto?: PortfolioProps | null;
   setIsOpen?: (isOpen: boolean) => void;
 }) {
+  const { data: session } = useSession();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [loading, setLoading] = useState(false);
   const [isClosing, setIsClosing] = useState(false); // Nouvel état pour le loader d'annulation
   const [initialImageUrl] = useState(existingPhoto?.imageUrl || ""); // Stocker l'URL initiale
+  const [styleInput, setStyleInput] = useState("");
+  const isUserTatoueur =
+    session?.user?.role?.toLowerCase() === "user_tatoueur";
+  const uniqueTatoueur = useMemo(
+    () => (tatoueurs.length === 1 ? tatoueurs[0] : undefined),
+    [tatoueurs]
+  );
+
+  const getTatoueurDisplayName = (tatoueur?: {
+    name?: string | null;
+    salonName?: string | null;
+    role?: string | null;
+  } | null) => {
+    if (!tatoueur) return "";
+
+    const isUserSalon = tatoueur.role?.toLowerCase() === "user_salon";
+    if (isUserSalon && tatoueur.salonName?.trim()) {
+      return tatoueur.salonName;
+    }
+
+    return tatoueur.name || tatoueur.salonName || "";
+  };
+
+  const normalizeStyles = (styles: string[]): string[] => {
+    return Array.from(
+      new Set(
+        styles
+          .map((style) => style.trim())
+          .filter((style) => style.length > 0)
+      )
+    );
+  };
+
+  const addStylesFromInput = () => {
+    const parsedStyles = styleInput
+      .split(",")
+      .map((style) => style.trim())
+      .filter((style) => style.length > 0);
+
+    if (parsedStyles.length === 0) {
+      return;
+    }
+
+    const mergedStyles = normalizeStyles([
+      ...(form.getValues("style") || []),
+      ...parsedStyles,
+    ]);
+
+    form.setValue("style", mergedStyles, { shouldValidate: true });
+    setStyleInput("");
+  };
+
+  const removeStyle = (styleToRemove: string) => {
+    const nextStyles = (form.getValues("style") || []).filter(
+      (style) => style !== styleToRemove
+    );
+    form.setValue("style", nextStyles, { shouldValidate: true });
+  };
 
   const form = useForm<z.infer<typeof portfolioSchema>>({
     resolver: zodResolver(portfolioSchema),
@@ -36,8 +96,18 @@ export default function CreateOrUpdatePhoto({
       description: existingPhoto?.description || "",
       imageUrl: existingPhoto?.imageUrl || "",
       tatoueurId: existingPhoto?.tatoueurId || "",
+      style: existingPhoto?.style || [],
     },
   });
+
+  useEffect(() => {
+    if (!existingPhoto && isUserTatoueur && uniqueTatoueur?.id) {
+      form.setValue("tatoueurId", uniqueTatoueur.id, {
+        shouldValidate: true,
+        shouldDirty: false,
+      });
+    }
+  }, [existingPhoto, form, isUserTatoueur, uniqueTatoueur?.id]);
 
   // Fonction pour supprimer une image d'UploadThing
   const deleteFromUploadThing = async (imageUrl: string): Promise<boolean> => {
@@ -110,10 +180,15 @@ export default function CreateOrUpdatePhoto({
       : `${process.env.NEXT_PUBLIC_BACK_URL}/portfolio`;
 
     try {
+      const resolvedTatoueurId = isUserTatoueur
+        ? data.tatoueurId || uniqueTatoueur?.id
+        : data.tatoueurId;
+
       const result = await createOrUpdatePortfolioAction(
         {
           ...data,
-          tatoueurId: data.tatoueurId ? data.tatoueurId : undefined,
+          tatoueurId: resolvedTatoueurId ? resolvedTatoueurId : undefined,
+          style: normalizeStyles(data.style || []),
         },
         existingPhoto ? "PUT" : "POST",
         url
@@ -300,25 +375,99 @@ export default function CreateOrUpdatePhoto({
 
                   <div className="space-y-1">
                     <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
-                      Tatoueur (optionnel)
+                      Tatoueur {isUserTatoueur ? "(automatique)" : "(optionnel)"}
                     </label>
-                    <select
-                      {...form.register("tatoueurId")}
-                      className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white focus:border-tertiary-400/40 focus:outline-none font-one"
-                    >
-                      <option value="" className="bg-noir-500">
-                        Aucun tatoueur assigné
-                      </option>
-                      {tatoueurs.map((tatoueur) => (
-                        <option
-                          key={tatoueur.id}
-                          value={tatoueur.id}
-                          className="bg-noir-500"
-                        >
-                          {tatoueur.name}
+                    {isUserTatoueur ? (
+                      <>
+                        <input
+                          value={
+                            session?.user?.salonName ||
+                            getTatoueurDisplayName(uniqueTatoueur) ||
+                            "Tatoueur du compte"
+                          }
+                          readOnly
+                          className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white/85 focus:outline-none font-one"
+                        />
+                        <p className="text-[10px] text-white/55 font-one">
+                          Cette oeuvre sera rattachée automatiquement à votre
+                          compte tatoueur.
+                        </p>
+                      </>
+                    ) : (
+                      <select
+                        {...form.register("tatoueurId")}
+                        className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white focus:border-tertiary-400/40 focus:outline-none font-one"
+                      >
+                        <option value="" className="bg-noir-500">
+                          Aucun tatoueur assigné
                         </option>
-                      ))}
-                    </select>
+                        {tatoueurs.map((tatoueur) => (
+                          <option
+                            key={tatoueur.id}
+                            value={tatoueur.id}
+                            className="bg-noir-500"
+                          >
+                            {getTatoueurDisplayName(tatoueur)}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
+                      Styles (optionnel)
+                    </label>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={styleInput}
+                        onChange={(event) => setStyleInput(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === ",") {
+                            event.preventDefault();
+                            addStylesFromInput();
+                          }
+                        }}
+                        onBlur={addStylesFromInput}
+                        placeholder="Ex: Blackwork, Fine Line, Réaliste"
+                        className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
+                      />
+                      <button
+                        type="button"
+                        onClick={addStylesFromInput}
+                        className="cursor-pointer inline-flex h-8 shrink-0 items-center justify-center rounded-lg border border-white/12 bg-white/8 px-3 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 font-one"
+                      >
+                        Ajouter
+                      </button>
+                    </div>
+
+                    {(form.watch("style") || []).length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {(form.watch("style") || []).map((style) => (
+                          <span
+                            key={style}
+                            className="inline-flex items-center gap-1 rounded-full border border-tertiary-400/35 bg-tertiary-500/10 px-2 py-1 text-[11px] text-white font-one"
+                          >
+                            {style}
+                            <button
+                              type="button"
+                              onClick={() => removeStyle(style)}
+                              className="cursor-pointer text-tertiary-200/75 hover:text-tertiary-100"
+                              aria-label={`Retirer le style ${style}`}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {form.formState.errors.style && (
+                      <p className="mt-1 text-xs text-red-300 font-one">
+                        {form.formState.errors.style.message as string}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-1">

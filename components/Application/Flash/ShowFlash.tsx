@@ -12,20 +12,80 @@ import DeleteFlash from "./DeleteFlash";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import { getAvailableFlashsByUserAction } from "@/lib/queries/flash";
+import {
+  getSalonTatoueursForPortfolioAction,
+  PortfolioTatoueurDto,
+} from "@/lib/queries/portfolio";
 
 export default function ShowFlash() {
   const { data: session } = useSession();
+  type AvailabilityFilter = "all" | "available" | "unavailable";
+
+  const getTatoueurDisplayName = (tatoueur?: {
+    name?: string | null;
+    salonName?: string | null;
+    role?: string | null;
+  } | null) => {
+    if (!tatoueur) return "";
+
+    const isUserSalon = tatoueur.role?.toLowerCase() === "user_salon";
+    if (isUserSalon && tatoueur.salonName?.trim()) {
+      return tatoueur.salonName;
+    }
+
+    return tatoueur.name || tatoueur.salonName || "";
+  };
 
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [availabilityFilter, setAvailabilityFilter] =
+    useState<AvailabilityFilter>("all");
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const [flashs, setFlashs] = useState<FlashProps[]>([]);
+  const [tatoueurs, setTatoueurs] = useState<PortfolioTatoueurDto[]>([]);
   const [selectedFlash, setSelectedFlash] = useState<FlashProps | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+
+  const isLinkedFlash = (flash: FlashProps) => {
+    if (session?.user?.role?.toLowerCase() !== "user_salon") {
+      return false;
+    }
+    return Boolean(flash.userId && flash.userId !== session.user.id);
+  };
+
+  const getFlashTatoueurName = (flash: FlashProps) => {
+    const directName = getTatoueurDisplayName(flash.tatoueur);
+    if (directName) {
+      return directName;
+    }
+
+    if (flash.tatoueurId) {
+      const byTatoueurId = tatoueurs.find(
+        (tatoueur) => tatoueur.id === flash.tatoueurId,
+      );
+      const matchedName = getTatoueurDisplayName(byTatoueurId);
+      if (matchedName) {
+        return matchedName;
+      }
+    }
+
+    if (flash.userId && session?.user?.id && flash.userId !== session.user.id) {
+      const byLinkedUser = tatoueurs.find(
+        (tatoueur) =>
+          tatoueur.linkedUserId === flash.userId || tatoueur.id === flash.userId,
+      );
+      const linkedName = getTatoueurDisplayName(byLinkedUser);
+      if (linkedName) {
+        return linkedName;
+      }
+    }
+
+    return "";
+  };
 
   const fetchFlashs = useCallback(
     async (page: number = 1, reset: boolean = true) => {
@@ -44,7 +104,16 @@ export default function ShowFlash() {
           setLoadingMore(true);
         }
 
-        const result = await getAvailableFlashsByUserAction(session.user.id, page);
+        const isAvailableParam =
+          availabilityFilter === "all"
+            ? undefined
+            : availabilityFilter === "available";
+
+        const result = await getAvailableFlashsByUserAction(
+          session.user.id,
+          page,
+          isAvailableParam,
+        );
 
         if (!result.ok || !result.data) {
           if (reset) {
@@ -76,16 +145,38 @@ export default function ShowFlash() {
         setLoadingMore(false);
       }
     },
-    [session?.user?.id],
+    [availabilityFilter, session?.user?.id],
   );
+
+  const fetchTatoueurs = useCallback(async () => {
+    if (!session?.user?.id) {
+      setTatoueurs([]);
+      return;
+    }
+
+    try {
+      const result = await getSalonTatoueursForPortfolioAction(session.user.id);
+
+      if (!result.ok || !result.data) {
+        setTatoueurs([]);
+        return;
+      }
+
+      setTatoueurs(result.data);
+    } catch (error) {
+      console.error("Erreur lors du chargement des tatoueurs:", error);
+      setTatoueurs([]);
+    }
+  }, [session?.user?.id]);
 
   useEffect(() => {
     if (session?.user?.id) {
       fetchFlashs(1, true);
+      fetchTatoueurs();
     } else {
       setLoading(false);
     }
-  }, [session?.user?.id, fetchFlashs]);
+  }, [session?.user?.id, fetchFlashs, fetchTatoueurs]);
 
   useEffect(() => {
     if (!loadMoreRef.current || loading || loadingMore || !hasNextPage) return;
@@ -125,6 +216,26 @@ export default function ShowFlash() {
         icon={<FaBolt size={15} className="text-tertiary-400" />}
         title="Flashs"
       >
+        <div className="hidden md:flex items-center gap-2">
+          <label htmlFor="availability-filter" className="text-xs text-white/60 font-one">
+            Disponibilité
+          </label>
+          <select
+            id="availability-filter"
+            value={availabilityFilter}
+            onChange={(event) => {
+              setAvailabilityFilter(event.target.value as AvailabilityFilter);
+              setCurrentPage(1);
+              setHasNextPage(false);
+            }}
+            className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
+          >
+            <option value="all" className="bg-noir-500">Tous</option>
+            <option value="available" className="bg-noir-500">Disponibles</option>
+            <option value="unavailable" className="bg-noir-500">Indisponibles</option>
+          </select>
+        </div>
+
         <DashboardButton onClick={handleCreate}>
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -132,6 +243,26 @@ export default function ShowFlash() {
           Nouveau flash
         </DashboardButton>
       </PageHeader>
+
+      <div className="md:hidden flex items-center gap-2 px-1">
+        <label htmlFor="availability-filter-mobile" className="text-xs text-white/60 font-one">
+          Disponibilité
+        </label>
+        <select
+          id="availability-filter-mobile"
+          value={availabilityFilter}
+          onChange={(event) => {
+            setAvailabilityFilter(event.target.value as AvailabilityFilter);
+            setCurrentPage(1);
+            setHasNextPage(false);
+          }}
+          className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
+        >
+          <option value="all" className="bg-noir-500">Tous</option>
+          <option value="available" className="bg-noir-500">Disponibles</option>
+          <option value="unavailable" className="bg-noir-500">Indisponibles</option>
+        </select>
+      </div>
 
       {loading ? (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
@@ -196,7 +327,7 @@ export default function ShowFlash() {
                   </span>
                 </div>
 
-                <p className="text-xs font-semibold text-tertiary-300 font-one">
+                <p className="text-xs font-semibold text-white font-one">
                   {flash.price} €
                 </p>
 
@@ -210,20 +341,43 @@ export default function ShowFlash() {
                   {flash.description || "Aucune description"}
                 </p>
 
-                <div className="flex gap-2 justify-end pt-2">
-                  <button
-                    className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-white/20"
-                    onClick={() => handleEdit(flash)}
-                  >
-                    <IoCreateOutline size={16} className="text-white" />
-                  </button>
-                  <button
-                    className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
-                    onClick={() => handleDelete(flash)}
-                  >
-                    <AiOutlineDelete size={16} className="text-white" />
-                  </button>
-                </div>
+                {flash.style && flash.style.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {flash.style.map((styleItem) => (
+                      <span
+                        key={`${flash.id}-${styleItem}`}
+                        className="rounded-full border border-tertiary-400/35 bg-tertiary-500/10 px-2 py-0.5 text-[10px] text-tertiary-400 font-one"
+                      >
+                        {styleItem}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {session?.user?.role?.toLowerCase() === "user_salon" &&
+                  getFlashTatoueurName(flash) && (
+                  <p className="text-[10px] text-white/50 font-one">
+                    Tatoueur : {getFlashTatoueurName(flash)}
+                    {isLinkedFlash(flash) ? " (lecture seule)" : ""}
+                  </p>
+                )}
+
+                {!isLinkedFlash(flash) && (
+                  <div className="flex gap-2 justify-end pt-2">
+                    <button
+                      className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-white/20"
+                      onClick={() => handleEdit(flash)}
+                    >
+                      <IoCreateOutline size={16} className="text-white" />
+                    </button>
+                    <button
+                      className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
+                      onClick={() => handleDelete(flash)}
+                    >
+                      <AiOutlineDelete size={16} className="text-white" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -247,6 +401,7 @@ export default function ShowFlash() {
             fetchFlashs(1, true);
             setIsModalOpen(false);
           }}
+          tatoueurs={tatoueurs}
           setIsOpen={setIsModalOpen}
           existingFlash={selectedFlash ?? undefined}
         />

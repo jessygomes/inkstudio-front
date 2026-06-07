@@ -5,13 +5,19 @@ import { getAuthHeaders } from "../session";
 export interface PortfolioTatoueurDto {
   id: string;
   name: string;
+  salonName?: string;
+  role?: string;
+  isLinkedUser?: boolean;
+  linkedUserId?: string;
 }
 
 export interface PortfolioPhotoDto {
   id: string;
+  userId?: string;
   title: string;
   description: string | null;
   imageUrl: string;
+  style?: string[];
   createdAt: string;
   updatedAt: string;
   tatoueurId?: string | null;

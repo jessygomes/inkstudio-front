@@ -235,15 +235,21 @@ export interface ClientProps {
 //! PORTFOLIO
 export interface PortfolioProps {
   id: string;
+  userId?: string;
   title: string;
   description: string | null;
   imageUrl: string; // URL de l'image
+  style?: string[];
   createdAt: string; // Date de création au format ISO
   updatedAt: string; // Date de mise à jour au format ISO
   tatoueurId?: string | null; // ID du tatoueur associé
   tatoueur?: {
     id: string;
     name: string;
+    salonName?: string;
+    role?: string;
+    isLinkedUser?: boolean;
+    linkedUserId?: string;
   } | null;
 }
 
@@ -251,14 +257,22 @@ export interface PortfolioProps {
 export interface FlashProps {
   id: string;
   userId: string;
+  tatoueurId?: string | null;
   title: string;
   dimension?: string | null;
   description: string | null;
   imageUrl: string;
+  style?: string[];
   price: number;
   isAvailable: boolean;
   createdAt: string;
   updatedAt: string;
+  tatoueur?: {
+    id: string;
+    name: string;
+    salonName?: string;
+    role?: string;
+  } | null;
 }
 
 //! PRODUCTS

@@ -348,6 +348,7 @@ export const portfolioSchema = z.object({
   description: z.string().optional(),
   imageUrl: z.string().url("L'URL de l'image doit être valide."),
   tatoueurId: z.string().optional(),
+  style: z.array(z.string().trim().min(1)).optional().default([]),
 });
 
 //! FLASHS
@@ -362,6 +363,8 @@ export const flashSchema = z.object({
   imageUrl: z.string().url("L'URL de l'image doit être valide."),
   price: z.number().min(0, "Le prix doit etre superieur ou egal a 0."),
   isAvailable: z.boolean().default(true),
+  tatoueurId: z.string().optional(),
+  style: z.array(z.string().trim().min(1)).optional().default([]),
 });
 
 //! PRODUCT SALON

@@ -13,12 +13,21 @@ export interface FlashPaginationDto {
 
 export interface FlashItemDto {
   id: string;
+  userId?: string;
+  tatoueurId?: string | null;
   title: string;
   dimension: string | null;
   imageUrl: string;
   description: string | null;
+  style?: string[];
   price: number;
   isAvailable: boolean;
+  tatoueur?: {
+    id: string;
+    name: string;
+    salonName?: string;
+    role?: string;
+  } | null;
 }
 
 export interface FlashsResponseDto {
@@ -29,11 +38,15 @@ export interface FlashsResponseDto {
 export const getAvailableFlashsByUserAction = async (
   userId: string,
   page: number = 1,
+  isAvailable?: boolean,
 ) => {
   try {
     const base = process.env.NEXT_PUBLIC_BACK_URL!;
-    const url = new URL(`${base}/flash/${userId}`);
+    const url = new URL(`${base}/flash/${userId}/all`);
     url.searchParams.set("page", String(page));
+    if (typeof isAvailable === "boolean") {
+      url.searchParams.set("isAvailable", String(isAvailable));
+    }
 
     const res = await fetch(url.toString(), {
       method: "GET",

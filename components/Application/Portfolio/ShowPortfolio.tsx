@@ -19,12 +19,40 @@ import {
 export default function ShowPortfolio() {
   const { data: session } = useSession();
 
+  const getTatoueurDisplayName = (tatoueur?: {
+    name?: string | null;
+    salonName?: string | null;
+    role?: string | null;
+  } | null) => {
+    if (!tatoueur) return "";
+
+    const isUserSalon = tatoueur.role?.toLowerCase() === "user_salon";
+    if (isUserSalon && tatoueur.salonName?.trim()) {
+      return tatoueur.salonName;
+    }
+
+    return tatoueur.name || tatoueur.salonName || "";
+  };
+
+  const isLinkedPortfolioPhoto = (photo: PortfolioProps) => {
+    if (photo.tatoueur?.isLinkedUser) {
+      return true;
+    }
+
+    if (session?.user?.role?.toLowerCase() !== "user_salon") {
+      return false;
+    }
+
+    return Boolean(photo.userId && photo.userId !== session.user.id);
+  };
+
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [tatoueurFilter, setTatoueurFilter] = useState("all");
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const tatoueursRef = useRef<PortfolioTatoueurDto[]>([]);
 
   //! State
   const [photos, setPhotos] = useState<PortfolioProps[]>([]);
@@ -32,6 +60,10 @@ export default function ShowPortfolio() {
   const [selectedPhoto, setSelectedPhoto] = useState<PortfolioProps | null>(
     null,
   );
+
+  useEffect(() => {
+    tatoueursRef.current = tatoueurs;
+  }, [tatoueurs]);
 
   //! Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,9 +86,48 @@ export default function ShowPortfolio() {
         setLoadingMore(true);
       }
 
+      const isLinkedTatoueurFilter = (tatoueur?: PortfolioTatoueurDto) => {
+        if (!tatoueur) return false;
+
+        return (
+          tatoueur.isLinkedUser === true ||
+          Boolean(tatoueur.linkedUserId) ||
+          tatoueur.role?.toLowerCase() === "user_tatoueur"
+        );
+      };
+
+      const photoMatchesLinkedTatoueur = (
+        photo: PortfolioProps,
+        tatoueur?: PortfolioTatoueurDto,
+      ) => {
+        if (!tatoueur) return false;
+
+        const selectedName = getTatoueurDisplayName(tatoueur)
+          .trim()
+          .toLowerCase();
+        const photoTatoueurName = getTatoueurDisplayName(photo.tatoueur)
+          .trim()
+          .toLowerCase();
+
+        return (
+          (Boolean(selectedName) && photoTatoueurName === selectedName) ||
+          (Boolean(tatoueur.linkedUserId) &&
+            photo.tatoueur?.linkedUserId === tatoueur.linkedUserId) ||
+          (Boolean(tatoueur.linkedUserId) &&
+            photo.userId === tatoueur.linkedUserId) ||
+          photo.tatoueur?.id === tatoueur.id ||
+          photo.userId === tatoueur.id
+        );
+      };
+
+      const selectedTatoueur = tatoueursRef.current.find(
+        (tatoueur) => tatoueur.id === tatoueurFilter,
+      );
+      const isLinkedFilter = isLinkedTatoueurFilter(selectedTatoueur);
+
       const result = await getPortfolioPhotosAction(
         session.user.id,
-        tatoueurFilter,
+        isLinkedFilter ? undefined : tatoueurFilter,
         page,
       );
 
@@ -69,7 +140,12 @@ export default function ShowPortfolio() {
         return;
       }
 
-      const nextPhotos = result.data.photos as PortfolioProps[];
+      const photosFromApi = result.data.photos as PortfolioProps[];
+      const nextPhotos = isLinkedFilter
+        ? photosFromApi.filter((photo) =>
+            photoMatchesLinkedTatoueur(photo, selectedTatoueur),
+          )
+        : photosFromApi;
       if (reset) {
         setPhotos(nextPhotos);
       } else {
@@ -114,12 +190,17 @@ export default function ShowPortfolio() {
 
   useEffect(() => {
     if (session?.user?.id) {
-      fetchPhotos(1, true);
       fetchTatoueurs();
+    }
+  }, [session?.user?.id, fetchTatoueurs]);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchPhotos(1, true);
     } else {
       setLoading(false);
     }
-  }, [session?.user?.id, fetchPhotos, fetchTatoueurs]);
+  }, [session?.user?.id, fetchPhotos]);
 
   useEffect(() => {
     if (!loadMoreRef.current || loading || loadingMore || !hasNextPage) return;
@@ -177,7 +258,7 @@ export default function ShowPortfolio() {
             <option value="all" className="bg-noir-500">Tous</option>
             {tatoueurs.map((tatoueur) => (
               <option key={tatoueur.id} value={tatoueur.id} className="bg-noir-500">
-                {tatoueur.name}
+                {getTatoueurDisplayName(tatoueur)}
               </option>
             ))}
           </select>
@@ -208,7 +289,7 @@ export default function ShowPortfolio() {
           <option value="all" className="bg-noir-500">Tous</option>
           {tatoueurs.map((tatoueur) => (
             <option key={tatoueur.id} value={tatoueur.id} className="bg-noir-500">
-              {tatoueur.name}
+              {getTatoueurDisplayName(tatoueur)}
             </option>
           ))}
         </select>
@@ -268,6 +349,7 @@ export default function ShowPortfolio() {
         ) : (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
             {photos.map((photo) => (
+              
               <div
                 key={photo.id}
                 className="group overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-noir-500/10 to-noir-500/5 shadow-xl transition-all duration-300 hover:border-tertiary-400/50 hover:shadow-2xl backdrop-blur-lg sm:rounded-2xl"
@@ -281,28 +363,30 @@ export default function ShowPortfolio() {
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
 
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden xl:flex">
-                    <div className="flex gap-3">
-                      <button
-                        className="cursor-pointer p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
-                        onClick={() => handleEdit(photo)}
-                      >
-                        <IoCreateOutline
-                          size={20}
-                          className="text-white hover:text-tertiary-400 transition-colors"
-                        />
-                      </button>
-                      <button
-                        className="cursor-pointer p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-500/30 transition-all duration-200"
-                        onClick={() => handleDelete(photo)}
-                      >
-                        <AiOutlineDelete
-                          size={20}
-                          className="text-white hover:text-red-400 transition-colors"
-                        />
-                      </button>
+                  {!isLinkedPortfolioPhoto(photo) && (
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden xl:flex">
+                      <div className="flex gap-3">
+                        <button
+                          className="cursor-pointer p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
+                          onClick={() => handleEdit(photo)}
+                        >
+                          <IoCreateOutline
+                            size={20}
+                            className="text-white hover:text-tertiary-400 transition-colors"
+                          />
+                        </button>
+                        <button
+                          className="cursor-pointer p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-500/30 transition-all duration-200"
+                          onClick={() => handleDelete(photo)}
+                        >
+                          <AiOutlineDelete
+                            size={20}
+                            className="text-white hover:text-red-400 transition-colors"
+                          />
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="space-y-2.5 p-3 sm:p-3.5">
@@ -316,33 +400,47 @@ export default function ShowPortfolio() {
                     <p className="line-clamp-2 text-[11px] leading-relaxed text-white/70 font-one sm:line-clamp-3 sm:text-xs">
                       {photo.description}
                     </p>
-                    {photo.tatoueur?.name && (
-                      <p className="mt-1 text-[10px] text-tertiary-300 font-one">
-                        Tatoueur: {photo.tatoueur.name}
+                    {photo.style && photo.style.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {photo.style.map((styleItem) => (
+                          <span
+                            key={`${photo.id}-${styleItem}`}
+                            className="rounded-full border border-tertiary-400/35 bg-tertiary-500/10 px-2 py-0.5 text-[10px] text-tertiary-400 font-one"
+                          >
+                            {styleItem}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {getTatoueurDisplayName(photo.tatoueur) && (
+                      <p className="mt-1 text-[10px] text-white/50 font-one">
+                          Photo issue du portfolio Tatoueur : {getTatoueurDisplayName(photo.tatoueur)} (lecture seule)
                       </p>
                     )}
                   </div>
 
-                  <div className="flex gap-2 justify-end pt-2 xl:hidden">
-                    <button
-                      className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-white/20"
-                      onClick={() => handleEdit(photo)}
-                    >
-                      <IoCreateOutline
-                        size={16}
-                        className="text-white hover:text-tertiary-400 transition-colors"
-                      />
-                    </button>
-                    <button
-                      className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
-                      onClick={() => handleDelete(photo)}
-                    >
-                      <AiOutlineDelete
-                        size={16}
-                        className="text-white hover:text-red-400 transition-colors"
-                      />
-                    </button>
-                  </div>
+                  {!isLinkedPortfolioPhoto(photo) && (
+                    <div className="flex gap-2 justify-end pt-2 xl:hidden">
+                      <button
+                        className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-white/20"
+                        onClick={() => handleEdit(photo)}
+                      >
+                        <IoCreateOutline
+                          size={16}
+                          className="text-white hover:text-tertiary-400 transition-colors"
+                        />
+                      </button>
+                      <button
+                        className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
+                        onClick={() => handleDelete(photo)}
+                      >
+                        <AiOutlineDelete
+                          size={16}
+                          className="text-white hover:text-red-400 transition-colors"
+                        />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
