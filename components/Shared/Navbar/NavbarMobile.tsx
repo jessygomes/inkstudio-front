@@ -26,6 +26,10 @@ import { PiInvoiceDuotone } from "react-icons/pi";
 export default function NavbarMobile() {
   const user = useUser();
   const pathname = usePathname();
+  const isFreePlan =
+    String(user?.saasPlan || "")
+      .trim()
+      .toUpperCase() === "FREE";
   const [isOpen, setIsOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -124,10 +128,22 @@ export default function NavbarMobile() {
     // },
     {
       href: "/mon-compte",
-      label: "Mon Compte",
+      label: "Mon profil",
       icon: <MdAccountCircle size={20} />,
     },
   ];
+
+  const filteredLinks = isFreePlan
+    ? links.filter(
+        (link) =>
+          ![
+            "/mes-rendez-vous",
+            "/clients",
+            "/messagerie",
+            "/stocks",
+          ].includes(link.href)
+      )
+    : links;
 
   useEffect(() => {
     if (isOpen) {
@@ -214,7 +230,7 @@ export default function NavbarMobile() {
         <div className="flex flex-col h-full pb-16 bg-noir-700">
           <div className="flex-1 overflow-y-auto p-4">
             <ul className="flex flex-col space-y-2">
-              {links.map((link, index) => {
+              {filteredLinks.map((link, index) => {
                 const isActive = pathname === link.href;
 
                 return (
@@ -293,61 +309,65 @@ export default function NavbarMobile() {
             </span>
           </Link>
 
-          {/* RDV */}
-          <Link
-            href="/mes-rendez-vous"
-            className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-              pathname === "/mes-rendez-vous"
-                ? "text-tertiary-400"
-                : "text-white/70 hover:text-white active:scale-95"
-            }`}
-          >
-            <MdEvent size={20} />
-            <span className="text-[10px] sm:text-xs font-one mt-1">RDV</span>
-          </Link>
+          {!isFreePlan && (
+            <>
+              {/* RDV */}
+              <Link
+                href="/mes-rendez-vous"
+                className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
+                  pathname === "/mes-rendez-vous"
+                    ? "text-tertiary-400"
+                    : "text-white/70 hover:text-white active:scale-95"
+                }`}
+              >
+                <MdEvent size={20} />
+                <span className="text-[10px] sm:text-xs font-one mt-1">RDV</span>
+              </Link>
 
-          {/* Clients */}
-          <Link
-            href="/clients"
-            className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-              pathname === "/clients"
-                ? "text-tertiary-400"
-                : "text-white/70 hover:text-white active:scale-95"
-            }`}
-          >
-            <MdPeople size={20} />
-            <span className="text-[10px] sm:text-xs font-one mt-1">
-              Clients
-            </span>
-          </Link>
+              {/* Clients */}
+              <Link
+                href="/clients"
+                className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
+                  pathname === "/clients"
+                    ? "text-tertiary-400"
+                    : "text-white/70 hover:text-white active:scale-95"
+                }`}
+              >
+                <MdPeople size={20} />
+                <span className="text-[10px] sm:text-xs font-one mt-1">
+                  Clients
+                </span>
+              </Link>
 
-          {/* Messagerie */}
-          <Link
-            href="/messagerie"
-            className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-              pathname === "/messagerie"
-                ? "text-tertiary-400"
-                : "text-white/70 hover:text-white active:scale-95"
-            }`}
-          >
-            <MdOutlineMessage size={20} />
-            <span className="text-[10px] sm:text-xs font-one mt-1">
-              Messages
-            </span>
-          </Link>
+              {/* Messagerie */}
+              <Link
+                href="/messagerie"
+                className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
+                  pathname === "/messagerie"
+                    ? "text-tertiary-400"
+                    : "text-white/70 hover:text-white active:scale-95"
+                }`}
+              >
+                <MdOutlineMessage size={20} />
+                <span className="text-[10px] sm:text-xs font-one mt-1">
+                  Messages
+                </span>
+              </Link>
 
-          {/* Stocks - visible à partir de sm (640px) */}
-          <Link
-            href="/stocks"
-            className={`hidden sm:flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-              pathname === "/stocks"
-                ? "text-tertiary-400"
-                : "text-white/70 hover:text-white active:scale-95"
-            }`}
-          >
-            <FaDatabase size={18} />
-            <span className="text-[10px] sm:text-xs font-one mt-1">Stocks</span>
-          </Link>
+              {/* Stocks - visible à partir de sm (640px) */}
+              <Link
+                href="/stocks"
+                className={`hidden sm:flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
+                  pathname === "/stocks"
+                    ? "text-tertiary-400"
+                    : "text-white/70 hover:text-white active:scale-95"
+                }`}
+              >
+                <FaDatabase size={18} />
+                <span className="text-[10px] sm:text-xs font-one mt-1">Stocks</span>
+              </Link>
+            </>
+          )}
 
           {/* Portfolio - visible à partir de md (768px) */}
           <Link

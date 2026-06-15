@@ -11,7 +11,7 @@ import { FormError } from "@/components/Shared/FormError";
 import { FormSuccess } from "@/components/Shared/FormSuccess";
 import Link from "next/link";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { ROUTES } from "@/lib/routes";
 
 export const LoginForm = () => {
@@ -103,8 +103,20 @@ export const LoginForm = () => {
 
       setSuccess("Connexion réussie !");
 
-      // Récupérer le callbackUrl ou rediriger vers dashboard
-      const callbackUrl = safeCallbackUrl || ROUTES.dashboard;
+      // Récupérer le callbackUrl ou rediriger selon le plan utilisateur.
+      let callbackUrl = safeCallbackUrl || ROUTES.dashboard;
+
+      if (!safeCallbackUrl) {
+        const session = await getSession();
+        const isFreePlan =
+          String(session?.user?.saasPlan || "")
+            .trim()
+            .toUpperCase() === "FREE";
+
+        if (isFreePlan) {
+          callbackUrl = "/mon-compte";
+        }
+      }
 
       setSuccess("Redirection...");
       router.push(callbackUrl);

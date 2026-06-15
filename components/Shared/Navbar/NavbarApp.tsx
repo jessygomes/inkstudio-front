@@ -15,6 +15,10 @@ export default function NavbarApp() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const avatarSrc = session?.user?.profileImage || session?.user?.image || null;
+  const isFreePlan =
+    String(session?.user?.saasPlan || "")
+      .trim()
+      .toUpperCase() === "FREE";
 
   // Utiliser le contexte global pour le unreadCount
   const { unreadCount, setUnreadCount } = useMessagingContext();
@@ -68,6 +72,7 @@ export default function NavbarApp() {
 
   const links = [
     { href: "/dashboard", label: "Dashboard" },
+    { href: "/mon-compte", label: "Mon profil" },
     { href: "/mes-rendez-vous", label: "Rendez-vous" },
     { href: "/clients", label: "Clients" },
     { href: "/messagerie", label: "Messagerie" },
@@ -77,8 +82,19 @@ export default function NavbarApp() {
     { href: "/mes-produits", label: "Produits" },
     { href: "/review", label: "Avis" },
     // { href: "/factures", label: "Factures" },
-    // { href: "/mon-compte", label: "Mon Compte" },
   ];
+
+  const filteredLinks = isFreePlan
+    ? links.filter(
+        (link) =>
+          ![
+            "/mes-rendez-vous",
+            "/clients",
+            "/messagerie",
+            "/stocks",
+          ].includes(link.href)
+      )
+    : links;
 
   return (
     <nav className="relative flex items-center py-3 pb-3 shadow-lg mx-10">
@@ -97,7 +113,7 @@ export default function NavbarApp() {
 
       {/* Links centrés */}
       <ul className="absolute left-1/2 -translate-x-1/2 flex flex-nowrap items-center gap-2 whitespace-nowrap">
-        {links.map((link, index) => {
+        {filteredLinks.map((link, index) => {
           const isActive = pathname === link.href;
           return (
             <li key={index}>

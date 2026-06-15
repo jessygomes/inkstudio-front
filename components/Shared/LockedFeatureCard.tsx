@@ -51,7 +51,7 @@ export default function LockedFeatureCard({
                 key={feature}
                 className="rounded-2xl border border-white/10 bg-white/10 px-3 py-1"
               >
-                <span className="font-one text-xs text-white/80">
+                <span className="font-one text-sm text-white/80">
                   {feature}
                 </span>
               </div>

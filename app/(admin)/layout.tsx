@@ -1,6 +1,6 @@
 import { UserProvider } from "@/components/Auth/Context/UserContext";
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import React from "react";
 
 export default async function AdminLayout({
@@ -14,6 +14,11 @@ export default async function AdminLayout({
     // ✅ Si pas de session, redirection (normalement géré par le middleware)
     if (!session || !session.user) {
       redirect("/connexion");
+    }
+
+    // ✅ Si l'utilisateur n'est pas admin, masquer la route admin
+    if (session.user.role !== "admin") {
+      notFound();
     }
 
     // ✅ Création de l'objet user pour le UserProvider

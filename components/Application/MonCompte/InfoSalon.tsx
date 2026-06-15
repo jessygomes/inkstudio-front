@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { UpdateSalonUserProps } from "@/lib/type";
 import Image from "next/image";
@@ -22,6 +21,7 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
   const [copied, setCopied] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const emptyFieldLabel = "Non renseigné";
   const hasProfileImage = Boolean(salon.profileImage);
   const hasPrestations = Boolean(salon.prestations && salon.prestations.length > 0);
   const hasAddress = Boolean(
@@ -39,6 +39,45 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
     /\/$/,
     ""
   );
+  const locationLine = [salon.address, salon.postalCode, salon.city]
+    .map((value) => value?.trim())
+    .filter(Boolean)
+    .join(", ");
+  const socialLinks = [
+    {
+      href: salon.instagram,
+      label: "Instagram",
+      icon: <CiInstagram size={14} />,
+      className:
+        "border-pink-500/25 bg-pink-500/15 text-pink-300 hover:bg-pink-500/25",
+    },
+    {
+      href: salon.facebook,
+      label: "Facebook",
+      icon: <CiFacebook size={14} />,
+      className:
+        "border-blue-500/25 bg-blue-500/15 text-blue-300 hover:bg-blue-500/25",
+    },
+    {
+      href: salon.tiktok,
+      label: "TikTok",
+      icon: <PiTiktokLogoThin size={14} />,
+      className:
+        "border-white/15 bg-white/8 text-white/70 hover:bg-white/12",
+    },
+    {
+      href: salon.website,
+      label: "Site web",
+      icon: <TfiWorld size={13} />,
+      className:
+        "border-green-500/25 bg-green-500/15 text-green-300 hover:bg-green-500/25",
+    },
+  ] as Array<{
+    href?: string;
+    label: string;
+    icon: React.ReactNode;
+    className: string;
+  }>;
 
   const publicProfileHref = frontendPublicUrl
     ? `${frontendPublicUrl}${publicProfilePath}`
@@ -70,10 +109,9 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
   }, [isQrModalOpen]);
 
   return (
-    <div className="space-y-3">
-      {/* Identité salon */}
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-        <div className="relative h-44 sm:h-56 lg:h-64">
+    <div className="space-y-4">
+      <div className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] shadow-[0_20px_80px_rgba(0,0,0,0.22)]">
+        <div className="relative h-48 sm:h-56 lg:h-64">
           {salon.image ? (
             <Image
               fill
@@ -82,47 +120,55 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
               className="object-cover"
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-r from-white/10 via-white/5 to-white/10" />
+            <div className="flex h-full w-full flex-col items-center justify-center  px-4 text-center">
+              <p className="mt-2 text-[10px] leading-relaxed text-white/45 font-two">
+                Aucune image de couverture
+              </p>
+            </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-noir-700 via-black/35 to-black/10" />
         </div>
 
-        <div className="relative px-3 pb-3 pt-0 sm:px-4 sm:pb-4">
-          <div className="-mt-10 flex flex-col sm:flex-row sm:items-end gap-3 sm:-mt-11">
-            <div className="relative h-[96px] w-[96px] self-center overflow-hidden rounded-full border-2 border-white/20 bg-black/40 shadow-xl sm:h-26 sm:w-26 sm:self-auto">
-              {salon.profileImage ? (
-                <Image
-                  fill
-                  src={salon.profileImage}
-                  alt="Photo de profil du salon"
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center">
-                  <span className="text-2xl">👤</span>
-                </div>
-              )}
-            </div>
-
-            <div className="min-w-0 flex-1 pb-1 text-center sm:text-left">
-              <div className="flex items-center justify-center gap-2 sm:justify-start">
-                <h2 className="truncate text-base font-bold text-white font-one sm:text-lg">
-                  {salon.salonName}
-                </h2>
-                {salon.verifiedSalon === true && (
-                  <span className="inline-flex items-center rounded-full border border-emerald-400/35 bg-emerald-500/15 px-2 py-0.5 text-[10px] font-one uppercase tracking-wider text-emerald-200">
-                    Vérifié
-                  </span>
+        <div className="relative px-4 pb-4 pt-0 sm:px-5 sm:pb-5 lg:px-6">
+          <div className="-mt-12 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end">
+              <div className="relative mx-auto h-[104px] w-[104px] overflow-hidden rounded-[26px] border border-white/20 bg-black/35 shadow-2xl sm:mx-0 sm:h-[118px] sm:w-[118px]">
+                {salon.profileImage ? (
+                  <Image
+                    fill
+                    src={salon.profileImage}
+                    alt="Photo de profil du salon"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.14),transparent_55%),linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] px-3 text-center">
+                    <p className="mt-2 text-[10px] leading-relaxed text-white/45 font-two">
+                      Aucune image de profil
+                    </p>
+                  </div>
                 )}
               </div>
-              <p className="mt-0.5 truncate text-xs text-white/70 font-two">
-                {salon.address}, {salon.postalCode} {salon.city}
-              </p>
+
+              <div className="min-w-0 space-y-2 text-center sm:text-left">
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                  <h2 className="truncate text-lg font-bold text-white font-one sm:text-xl">
+                    {salon.salonName}
+                  </h2>
+                  {salon.verifiedSalon === true && (
+                    <span className="inline-flex items-center rounded-full border border-emerald-400/35 bg-emerald-500/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-emerald-200 font-one">
+                      Vérifié
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-white/72 font-two">
+                  {locationLine || emptyFieldLabel}
+                </p>
+              </div>
             </div>
 
             <DashboardButton
               href="/mon-compte/modifier-salon"
-              className="min-w-0 flex-shrink-0 px-3 py-1.5 text-xs"
+              className="min-w-0 self-center px-3 py-1.5 text-xs lg:self-auto"
             >
               Modifier
             </DashboardButton>
@@ -130,108 +176,130 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
         </div>
       </div>
 
-      {/* Description */}
-      {salon.description && (
-        <div className=" rounded-xl px-3 py-2.5 border border-white/8">
-          <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-1">Description</p>
-          <p className="text-white/85 font-two text-xs leading-relaxed">{salon.description}</p>
-        </div>
-      )}
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)] xl:items-stretch">
 
-      {/* Prestations + Styles + Réseaux */}
-      {((salon.prestations && salon.prestations.length > 0) ||
-        (salon.style && salon.style.length > 0) ||
-        salon.instagram || salon.facebook || salon.tiktok || salon.website) && (
-        <div className="flex flex-wrap gap-x-6 gap-y-2">
-          {salon.prestations && salon.prestations.length > 0 && (
-            <div>
-              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-1.5">Prestations</p>
-              <div className="flex flex-wrap gap-1.5">
-                {salon.prestations.map((prestation) => (
-                  <span
-                    key={prestation}
-                    className="rounded-[10px] border border-white/10 bg-white/6 px-2 py-0.5 text-white/80 font-one text-xs"
-                  >
-                    {prestation}
-                  </span>
-                ))}
+        
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            {shouldShowDirectoryIncompleteNotice && (
+              <div className="mb-0 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 md:col-span-2">
+                <p className="text-sm leading-relaxed text-amber-100/92 font-two">
+                  Votre profil public sera affiché dans l&apos;annuaire quand vous aurez
+                  ajouté votre <strong>photo de profil</strong>, au moins une <strong>prestation</strong>,
+                  votre <strong>adresse complète</strong>.
+                </p>
+              </div>
+            )}
+
+            <div className="rounded-[24px] border border-white/8 bg-white/[0.035] p-4 md:col-span-2">
+              <p className="mb-2 text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
+                Description
+              </p>
+              <p className="text-xs leading-relaxed text-white/82 font-two">
+                {salon.description?.trim() || emptyFieldLabel}
+              </p>
+            </div>
+
+            <div className="rounded-[24px] border border-white/8 bg-white/[0.035] p-4">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <p className="text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
+                  Prestations
+                </p>
+                <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-[10px] text-white/60 font-one">
+                  {salon.prestations?.length ?? 0}
+                </span>
+              </div>
+              {hasPrestations ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {salon.prestations?.map((prestation) => (
+                    <span
+                      key={prestation}
+                      className="rounded-2xl border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs text-white/82 font-one"
+                    >
+                      {prestation}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-white/55 font-two">Aucune prestation renseignée</p>
+              )}
+            </div>
+
+            <div className="rounded-[24px] border border-white/8 bg-white/[0.035] p-4">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <p className="text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
+                  Styles
+                </p>
+                <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-[10px] text-white/60 font-one">
+                  {salon.style?.length ?? 0}
+                </span>
+              </div>
+              {salon.style && salon.style.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {salon.style.map((style) => (
+                    <span
+                      key={style}
+                      className="rounded-2xl border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs text-white/82 font-one"
+                    >
+                      {style}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-white/55 font-two">Aucun style renseigné</p>
+              )}
+            </div>
+
+            <div className="rounded-[24px] border border-white/8 bg-white/[0.035] p-4 md:col-span-2">
+              <p className="mb-2 text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
+                Réseaux et liens
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {socialLinks.map((socialLink) =>
+                  socialLink.href ? (
+                    <Link
+                      key={socialLink.label}
+                      href={socialLink.href}
+                      target="_blank"
+                      className={`inline-flex items-center justify-between gap-2 rounded-2xl border px-3 py-2 text-xs font-one transition-colors ${socialLink.className}`}
+                    >
+                      <span className="inline-flex items-center gap-1.5">
+                        {socialLink.icon}
+                        <span>{socialLink.label}</span>
+                      </span>
+                      <span className="text-[10px] uppercase tracking-[0.14em] text-current/80">Ouvrir</span>
+                    </Link>
+                  ) : (
+                    <div
+                      key={socialLink.label}
+                      className="inline-flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-white/55 font-one"
+                    >
+                      <span className="inline-flex items-center gap-1.5 text-white/72">
+                        {socialLink.icon}
+                        <span>{socialLink.label}</span>
+                      </span>
+                      <span className="text-[10px] uppercase tracking-[0.14em] text-white/40">{emptyFieldLabel}</span>
+                    </div>
+                  )
+                )}
               </div>
             </div>
-          )}
-
-          {salon.style && salon.style.length > 0 && (
-            <div>
-              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-1.5">Styles</p>
-              <div className="flex flex-wrap gap-1.5">
-                {salon.style.map((style) => (
-                  <span
-                    key={style}
-                    className="rounded-[10px] border border-white/10 bg-white/6 px-2 py-0.5 text-white/80 font-one text-xs"
-                  >
-                    {style}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {(salon.instagram || salon.facebook || salon.tiktok || salon.website) && (
-            <div>
-              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-1.5">Réseaux</p>
-              <div className="flex flex-wrap gap-1.5">
-                {salon.instagram && (
-                  <Link href={salon.instagram} target="_blank"
-                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-pink-500/15 text-pink-300 border border-pink-500/25 rounded-2xl text-xs hover:bg-pink-500/25 transition-colors">
-                    <CiInstagram size={14} /> <span className="hidden sm:inline">Instagram</span>
-                  </Link>
-                )}
-                {salon.facebook && (
-                  <Link href={salon.facebook} target="_blank"
-                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-blue-500/15 text-blue-300 border border-blue-500/25 rounded-2xl text-xs hover:bg-blue-500/25 transition-colors">
-                    <CiFacebook size={14} /> <span className="hidden sm:inline">Facebook</span>
-                  </Link>
-                )}
-                {salon.tiktok && (
-                  <Link href={salon.tiktok} target="_blank"
-                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-white/8 text-white/70 border border-white/15 rounded-2xl text-xs hover:bg-white/12 transition-colors">
-                    <PiTiktokLogoThin size={14} /> <span className="hidden sm:inline">TikTok</span>
-                  </Link>
-                )}
-                {salon.website && (
-                  <Link href={salon.website} target="_blank"
-                    className="flex items-center gap-1.5 font-one px-2 py-1 bg-green-500/15 text-green-300 border border-green-500/25 rounded-2xl text-xs hover:bg-green-500/25 transition-colors">
-                    <TfiWorld size={13} /> <span className="hidden sm:inline">Site Web</span>
-                  </Link>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Profil public */}
-      <div className="rounded-xl border border-white/8 bg-white/[0.04] p-3 sm:p-4">
-        <p className="mb-2 text-[10px] uppercase tracking-wider text-white/50 font-one">
-          Profil public
-        </p>
-
-        {shouldShowDirectoryIncompleteNotice && (
-          <div className="mb-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3 py-2">
-            <p className="text-[12px] text-amber-100/95 font-one leading-relaxed tracking-widest">
-              Votre profil public sera affiché dans l&apos;annuaire quand vous aurez
-              ajouté votre <strong>photo de profil</strong>, au moins une <strong>prestation</strong>, votre
-              <strong> adresse complète</strong> et au moins un <strong>tatoueur</strong>. Cliquez sur le bouton "Modifier" pour compléter les informations de votre salon et ainsi rendre votre profil public visible aux clients !
-            </p>
           </div>
-        )}
+        </div>
 
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
-          <div className="space-y-2">
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-2">
-              <p className="mb-1 text-[10px] uppercase tracking-wider text-white/45 font-one">
+        <div className="flex h-full flex-col rounded-[24px] border border-white/8 bg-white/[0.04] p-4 sm:p-5">
+          <p className="mb-2 text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
+            Profil public
+          </p>
+
+         
+
+          <div className="mt-0 flex flex-1 flex-col space-y-4">
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+              <p className="mb-1 text-[10px] uppercase tracking-[0.22em] text-white/40 font-one">
                 URL publique
               </p>
-              <p className="truncate text-[12px] text-white/75 font-one">
+              <p className="break-all text-xs text-white/78 font-two">
                 {publicProfileHref}
               </p>
             </div>
@@ -240,7 +308,7 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
               <div className="relative">
                 <button
                   onClick={handleCopyLink}
-                  className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-2.5 py-1.5 text-[12px] text-white/80 font-one transition-colors hover:bg-white/15 hover:text-white"
+                  className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-2.5 py-1.5 text-xs text-white/80 font-one transition-colors hover:bg-white/15 hover:text-white"
                   title="Copier le lien"
                 >
                   <span className="inline-flex items-center gap-1.5">
@@ -249,7 +317,7 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
                   </span>
                 </button>
                 {copied && (
-                  <div className="absolute -top-9 left-0 z-10 whitespace-nowrap rounded-2xl bg-tertiary-500 px-2 py-1 text-[12px] text-white font-one">
+                  <div className="absolute -top-9 left-0 z-10 whitespace-nowrap rounded-2xl bg-tertiary-500 px-2 py-1 text-xs text-white font-one">
                     Lien copié !
                   </div>
                 )}
@@ -258,30 +326,32 @@ export default function InfoSalon({ salon }: InfoSalonProps) {
               <Link
                 href={publicProfileHref}
                 target="_blank"
-                className="inline-flex items-center rounded-2xl border border-tertiary-400/30 bg-tertiary-500/15 px-2.5 py-1.5 text-[12px] text-white font-one transition-colors hover:bg-tertiary-500/25"
+                className="inline-flex items-center rounded-2xl border border-tertiary-400/30 bg-tertiary-500/15 px-2.5 py-1.5 text-xs text-white font-one transition-colors hover:bg-tertiary-500/25"
               >
                 Voir mon profil public
               </Link>
 
               <button
                 onClick={() => setIsQrModalOpen(true)}
-                className="inline-flex items-center rounded-2xl border border-white/20 bg-white/10 px-2.5 py-1.5 text-[12px] text-white font-one transition-colors hover:bg-white/15 sm:hidden"
+                className="inline-flex items-center rounded-2xl border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs text-white font-one transition-colors hover:bg-white/15 sm:hidden"
                 title="Afficher le QR code"
               >
-                QRCODE
+                QR code
               </button>
             </div>
-          </div>
 
-          <div className="mx-auto hidden w-fit rounded-xl border border-white/15 bg-white p-2.5 shadow-sm sm:mx-0 sm:block">
-            <QRCodeSVG
-              value={publicProfileHref}
-              size={92}
-              includeMargin
-              level="M"
-              bgColor="#ffffff"
-              fgColor="#111111"
-            />
+            <div className="mt-auto hidden rounded-[22px] border border-white/10 bg-black/20 p-3 sm:block">
+              <div className="mx-auto w-fit rounded-xl bg-white p-2.5 shadow-sm">
+                <QRCodeSVG
+                  value={publicProfileHref}
+                  size={112}
+                  includeMargin
+                  level="M"
+                  bgColor="#ffffff"
+                  fgColor="#111111"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

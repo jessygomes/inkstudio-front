@@ -1,6 +1,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
+import { UTApi } from "uploadthing/server";
+
+const utapi = new UTApi();
+
+function extractUploadThingKeysFromPayload(payload: unknown): string[] {
+  const foundKeys = new Set<string>();
+
+  const walk = (value: unknown) => {
+    if (!value) return;
+
+    if (typeof value === "string") {
+      if (value.includes("utfs.io") || value.includes("uploadthing")) {
+        const match = value.match(/\/f\/([^\/\?]+)/);
+        if (match?.[1]) {
+          foundKeys.add(match[1]);
+        }
+      }
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      for (const item of value) walk(item);
+      return;
+    }
+
+    if (typeof value === "object") {
+      for (const nested of Object.values(value as Record<string, unknown>)) {
+        walk(nested);
+      }
+    }
+  };
+
+  walk(payload);
+  return Array.from(foundKeys);
+}
 
 //! ----------------------------------------------------------------------------
 
@@ -57,7 +92,8 @@ export async function getAllRegisteredSalons(
   limit: number = 10,
   search?: string,
   saasPlan?: "FREE" | "PRO" | "BUSINESS",
-  verified?: boolean
+  verified?: boolean,
+  role?: "user_salon" | "user_tatoueur"
 ) {
   try {
     const headers = await getAuthHeaders();
@@ -78,6 +114,10 @@ export async function getAllRegisteredSalons(
 
     if (verified !== undefined) {
       params.append("verifiedSalon", verified.toString());
+    }
+
+    if (role) {
+      params.append("role", role);
     }
 
     const response = await fetch(
@@ -471,5 +511,185 @@ export async function getTopSalons(limit = 10, days = 30): Promise<TopSalon[]> {
   } catch (error) {
     console.error('Error fetching top salons:', error);
     throw error;
+  }
+}
+
+//! ----------------------------------------------------------------------------
+
+//! SUPPRIMER UN UTILISATEUR
+
+//! ----------------------------------------------------------------------------
+export async function deleteAdminUserAction(id: string) {
+  try {
+    const headers = await getAuthHeaders();
+
+    // 1) Récupérer les données liées au user pour identifier les fichiers UploadThing
+    const detailsResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/admin/users/${id}`,
+      {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      }
+    );
+
+    if (detailsResponse.ok) {
+      const detailsData = await detailsResponse.json().catch(() => ({}));
+      const uploadThingKeys = extractUploadThingKeysFromPayload(detailsData);
+
+      if (uploadThingKeys.length > 0) {
+        try {
+          await utapi.deleteFiles(uploadThingKeys);
+        } catch (uploadThingError) {
+          console.error(
+            "Erreur lors de la suppression des fichiers UploadThing:",
+            uploadThingError
+          );
+        }
+      }
+    }
+
+    // 2) Supprimer l'utilisateur et ses dépendances côté backend
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/admin/users/${id}`,
+      {
+        method: "DELETE",
+        headers,
+        cache: "no-store",
+      }
+    );
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || (data && data.error)) {
+      const message =
+        data?.message || `Erreur lors de l'opération (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return {
+      ok: true,
+      error: false,
+      status: response.status,
+      message: data?.message || "Utilisateur supprimé avec succès",
+      data,
+    };
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'utilisateur:", error);
+    return {
+      ok: false,
+      error: true,
+      message: "Erreur lors de la suppression de l'utilisateur",
+    };
+  }
+}
+
+//! ----------------------------------------------------------------------------
+
+//! ENVOYER UN EMAIL A UN UTILISATEUR (ADMIN)
+
+//! ----------------------------------------------------------------------------
+export async function sendAdminEmailToClientAction({
+  id,
+  userId,
+  clientId,
+  subject,
+  message,
+}: {
+  id?: string;
+  userId?: string;
+  clientId?: string;
+  subject: string;
+  message: string;
+}) {
+  try {
+    const headers = await getAuthHeaders();
+
+    const candidateClientIds = Array.from(
+      new Set([clientId, id, userId].filter((value): value is string => Boolean(value?.trim())))
+    );
+
+    if (candidateClientIds.length === 0) {
+      return {
+        ok: false,
+        error: true,
+        message: "Aucun identifiant client à contacter",
+      };
+    }
+
+    const endpoints = candidateClientIds.map(
+      (candidateId) => `${process.env.NEXT_PUBLIC_BACK_URL}/admin/clients/${candidateId}/email`
+    );
+
+    let lastFailure: {
+      status?: number;
+      message?: string;
+    } = {};
+
+    for (const endpoint of endpoints) {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ subject, message }),
+        cache: "no-store",
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      const backendMessage = String(data?.message || "").toLowerCase();
+      const hasBusinessError =
+        data?.error === true ||
+        data?.success === false ||
+        backendMessage.includes("introuvable") ||
+        backendMessage.includes("not found");
+
+      if (response.ok && !hasBusinessError) {
+        return {
+          ok: true,
+          error: false,
+          status: response.status,
+          message: data?.message || "Email envoyé avec succès",
+        };
+      }
+
+      const failureMessage =
+        data?.message || `Erreur lors de l'opération (${response.status})`;
+
+      lastFailure = {
+        status: response.status,
+        message: failureMessage,
+      };
+
+      const normalizedFailureMessage = String(failureMessage).toLowerCase();
+      const shouldTryNextEndpoint =
+        response.status === 404 ||
+        response.status === 405 ||
+        response.status === 400 ||
+        response.status === 201 ||
+        normalizedFailureMessage.includes("introuvable") ||
+        normalizedFailureMessage.includes("not found");
+
+      // On tente l'endpoint suivant si la route est invalide ou si la ressource n'existe pas sur ce type d'entité.
+      if (!shouldTryNextEndpoint) {
+        break;
+      }
+    }
+
+    return {
+      ok: false,
+      error: true,
+      status: lastFailure.status,
+      message: lastFailure.message || "Erreur lors de l'envoi de l'email",
+    };
+  } catch (error) {
+    console.error("Erreur lors de l'envoi de l'email admin:", error);
+    return {
+      ok: false,
+      error: true,
+      message: "Erreur lors de l'envoi de l'email",
+    };
   }
 }

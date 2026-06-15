@@ -119,13 +119,15 @@ export default async function DashboardPage() {
                   />
                 </svg>
               }
-              title="Statistiques avancées disponibles avec un abonnement"
-              description="Débloquez des statistiques détaillées sur votre activité : taux de remplissage, revenus, analyse des annulations et bien plus."
+              title="Découvrez INKERA PRO"
+              description="Avec un abonnement, vous débloquez les outils métier pour piloter votre activité au quotidien : organisation, suivi client, communication et performance."
               features={[
-                "📈 Statistiques hebdomadaires",
-                "💰 Revenus totaux",
-                "👥 Nouveaux clients",
-                "📉 Taux d'annulation",
+                "📅 Gestion avancée des rendez-vous",
+                "👥 Gestion des clients et historique",
+                "💬 Messagerie intégrée",
+                "📦 Gestion des stocks et produits",
+                "📈 Statistiques détaillées (remplissage, revenus, annulations)",
+                "🧾 Traçabilité",
               ]}
             />
           )}

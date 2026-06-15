@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { getAllClients } from "@/lib/queries/admin";
 import { FiSearch, FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import UserCard from "./UserCard";
+import Image from "next/image";
 
 interface Client {
   id: string;
@@ -129,12 +129,95 @@ export default function ClientsList() {
         </div>
       )}
 
-      {/* Clients Grid */}
+      {/* Clients Table */}
       {!loading && !error && clients.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {clients.map((client) => (
-            <UserCard key={client.id} user={client} type="client" />
-          ))}
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035]">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-white/10">
+              <thead className="bg-white/[0.03]">
+                <tr className="text-left text-[10px] uppercase tracking-[0.18em] text-white/45 font-one">
+                  <th className="px-4 py-3">Client</th>
+                  <th className="px-4 py-3">Contact</th>
+                  <th className="px-4 py-3">Localisation</th>
+                  <th className="px-4 py-3">Créé le</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/8">
+                {clients.map((client) => {
+                  const displayName =
+                    `${client.firstName || ""} ${client.lastName || ""}`.trim() ||
+                    "Sans nom";
+
+                  return (
+                    <tr key={client.id} className="align-middle hover:bg-white/[0.025]">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/10">
+                            {client.image ? (
+                              <Image
+                                src={client.image}
+                                alt={displayName}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-sm font-bold text-white/50 font-one">
+                                {displayName.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-white font-one">
+                              {displayName}
+                            </p>
+                            <p className="truncate text-[11px] text-white/50 font-one">
+                              Compte client
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-4 text-xs text-white/75 font-one">
+                        <div className="space-y-0.5">
+                          <p className="truncate">{client.email}</p>
+                          {client.phone && <p className="truncate text-white/55">{client.phone}</p>}
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-4 text-xs text-white/75 font-one">
+                        {client.postalCode || client.city ? (
+                          <p className="truncate">
+                            {client.postalCode && `${client.postalCode} `}
+                            {client.city || "-"}
+                          </p>
+                        ) : (
+                          <span className="text-white/45">-</span>
+                        )}
+                      </td>
+
+                      <td className="px-4 py-4 text-xs text-white/70 font-one">
+                        {new Date(client.createdAt).toLocaleDateString("fr-FR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })}
+                      </td>
+
+                      <td className="px-4 py-4 text-right">
+                        <a
+                          href={`mailto:${client.email}`}
+                          className="inline-flex rounded-2xl border border-white/15 bg-white/8 px-3 py-1.5 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/15 font-one"
+                        >
+                          Contacter
+                        </a>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

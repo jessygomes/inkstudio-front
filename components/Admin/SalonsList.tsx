@@ -3,10 +3,13 @@
 import { useState, useEffect } from "react";
 import { getAllRegisteredSalons } from "@/lib/queries/admin";
 import { FiSearch, FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import UserCard from "./UserCard";
+import Image from "next/image";
+import Link from "next/link";
+import { LuShieldCheck } from "react-icons/lu";
 
 interface Salon {
   id: string;
+  role: string;
   email: string;
   firstName: string | null;
   lastName: string | null;
@@ -44,6 +47,7 @@ export default function SalonsList() {
   const [search, setSearch] = useState("");
   const [plan, setPlan] = useState<"ALL" | "FREE" | "PRO" | "BUSINESS">("ALL");
   const [verified, setVerified] = useState<"ALL" | "true" | "false">("ALL");
+  const [role, setRole] = useState<"ALL" | "user_salon" | "user_tatoueur">("ALL");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,7 +55,8 @@ export default function SalonsList() {
     page: number = 1,
     searchQuery: string = "",
     planFilter: "ALL" | "FREE" | "PRO" | "BUSINESS" = plan,
-    verifiedFilter: "ALL" | "true" | "false" = verified
+    verifiedFilter: "ALL" | "true" | "false" = verified,
+    roleFilter: "ALL" | "user_salon" | "user_tatoueur" = role
   ) => {
     try {
       setLoading(true);
@@ -62,7 +67,8 @@ export default function SalonsList() {
         10,
         searchQuery,
         planFilter !== "ALL" ? planFilter : undefined,
-        verifiedFilter !== "ALL" ? verifiedFilter === "true" : undefined
+        verifiedFilter !== "ALL" ? verifiedFilter === "true" : undefined,
+        roleFilter !== "ALL" ? roleFilter : undefined
       );
 
       if (!result.ok) {
@@ -83,23 +89,23 @@ export default function SalonsList() {
   console.log("Salons:", salons);
 
   useEffect(() => {
-    fetchSalons(1, search, plan, verified);
+    fetchSalons(1, search, plan, verified, role);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan, verified]);
+  }, [plan, verified, role]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchSalons(1, search, plan, verified);
+    fetchSalons(1, search, plan, verified, role);
   };
 
   const handlePageChange = (newPage: number) => {
-    fetchSalons(newPage, search, plan, verified);
+    fetchSalons(newPage, search, plan, verified, role);
   };
 
   return (
     <div className="space-y-3">
       {/* Search + Filters */}
-      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
+      <form onSubmit={handleSearch} className="flex flex-col gap-2 lg:flex-row">
         <div className="relative flex-1">
           <FiSearch
             className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-white/50"
@@ -151,6 +157,30 @@ export default function SalonsList() {
           </option>
         </select>
 
+        <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-white/10 bg-white/5 p-1.5">
+          {[
+            { value: "ALL", label: "Tous les rôles" },
+            { value: "user_salon", label: "user_salon" },
+            { value: "user_tatoueur", label: "user_tatoueur" },
+          ].map((item) => {
+            const isActive = role === item.value;
+            return (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => setRole(item.value as "ALL" | "user_salon" | "user_tatoueur")}
+                className={`cursor-pointer rounded-2xl px-3 py-1 text-xs font-one transition-all duration-300 ${
+                  isActive
+                    ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white shadow-lg"
+                    : "bg-transparent text-white/65 hover:bg-white/8 hover:text-white"
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+
         <button
           type="submit"
           className="px-4 py-1 text-xs bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-2xl transition-all duration-300 font-one font-medium"
@@ -185,12 +215,126 @@ export default function SalonsList() {
         </div>
       )}
 
-      {/* Salons Grid */}
+      {/* Salons Table */}
       {!loading && !error && salons.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {salons.map((salon) => (
-            <UserCard key={salon.id} user={salon} type="salon" />
-          ))}
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035]">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-white/10">
+              <thead className="bg-white/[0.03]">
+                <tr className="text-left text-[10px] uppercase tracking-[0.18em] text-white/45 font-one">
+                  <th className="px-4 py-3">Salon</th>
+                  <th className="px-4 py-3">Contact</th>
+                  <th className="px-4 py-3">Localisation</th>
+                  <th className="px-4 py-3">Rôle</th>
+                  <th className="px-4 py-3">Plan</th>
+                  <th className="px-4 py-3">Statut</th>
+                  <th className="px-4 py-3">Créé le</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/8">
+                {salons.map((salon) => {
+                  const displayName =
+                    salon.salonName ||
+                    `${salon.firstName || ""} ${salon.lastName || ""}`.trim() ||
+                    "Sans nom";
+
+                  return (
+                    <tr key={salon.id} className="align-middle hover:bg-white/[0.025]">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/10">
+                            {salon.image ? (
+                              <Image
+                                src={salon.image}
+                                alt={displayName}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-sm font-bold text-white/50 font-one">
+                                {displayName.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <p className="truncate text-sm font-semibold text-white font-one">
+                                {displayName}
+                              </p>
+                              {salon.verifiedSalon && (
+                                <LuShieldCheck size={14} className="text-tertiary-400" title="Salon vérifié" />
+                              )}
+                            </div>
+                            <p className="truncate text-[11px] text-white/50 font-one">
+                              {salon.role === "user_tatoueur"
+                                ? "Compte tatoueur"
+                                : "Compte salon"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-4 text-xs text-white/75 font-one">
+                        <div className="space-y-0.5">
+                          <p className="truncate">{salon.email}</p>
+                          {salon.phone && <p className="truncate text-white/55">{salon.phone}</p>}
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-4 text-xs text-white/75 font-one">
+                        {salon.postalCode || salon.city ? (
+                          <div>
+                            <p className="truncate">
+                              {salon.postalCode && `${salon.postalCode} `}
+                              {salon.city || "-"}
+                            </p>
+                          </div>
+                        ) : (
+                          <span className="text-white/45">-</span>
+                        )}
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <span className="inline-flex rounded-full border border-white/15 bg-white/8 px-2 py-0.5 text-[10px] uppercase text-white/70 font-one">
+                          {salon.role || "-"}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase font-one ${salon.saasPlan?.toUpperCase() === "FREE" ? "border-white/15 bg-white/8 text-white/75" : salon.saasPlan?.toUpperCase() === "BUSINESS" ? "border-tertiary-400/35 bg-tertiary-500/15 text-tertiary-400" : "border-primary-400/35 bg-primary-500/15 text-primary-400"}`}>
+                          {salon.saasPlan || "FREE"}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium font-one ${salon.verifiedSalon ? "border-emerald-400/35 bg-emerald-500/15 text-emerald-200" : "border-white/15 bg-white/8 text-white/60"}`}>
+                          {salon.verifiedSalon ? "Vérifié" : "Non vérifié"}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-4 text-xs text-white/70 font-one">
+                        {new Date(salon.createdAt).toLocaleDateString("fr-FR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })}
+                      </td>
+
+                      <td className="px-4 py-4 text-right">
+                        <Link
+                          href={`/admin/users/${salon.id}`}
+                          className="inline-flex rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-3 py-1.5 text-[11px] font-medium text-tertiary-400 transition-colors hover:bg-tertiary-500/25 font-one"
+                        >
+                          Détails
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
