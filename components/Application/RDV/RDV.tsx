@@ -616,7 +616,7 @@ export default function RDV() {
                       </div>
 
                       {/* Liste des rendez-vous - layout adaptatif */}
-                      <div className="space-y-2 lg:max-h-[55vh] lg:overflow-y-auto lg:scrollbar-thin lg:scrollbar-thumb-white/20 lg:scrollbar-track-transparent">
+                      <div className="space-y-2 pt-1 lg:max-h-[55vh] lg:overflow-y-auto lg:scrollbar-thin lg:scrollbar-thumb-white/20 lg:scrollbar-track-transparent">
                         {paginatedEvents.map((event: CalendarEvent) => {
                           const start = new Date(event.start ?? "").getTime();
                           const end = new Date(event.end ?? "").getTime();
