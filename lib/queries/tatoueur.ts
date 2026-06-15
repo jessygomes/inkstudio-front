@@ -157,3 +157,51 @@ export const unlinkLinkedTatoueurAction = async (tatoueurUserId: string) => {
     };
   }
 };
+
+//! ----------------------------------------------------------------------------
+
+//! ACTIVER / DESACTIVER LA PRISE DE RDV D'UN TATOUEUR LIE
+
+//! ----------------------------------------------------------------------------
+export const updateLinkedTatoueurAppointmentBookingAction = async (
+  tatoueurUserId: string,
+  appointmentBookingEnabled: boolean
+) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/team-requests/linked/${tatoueurUserId}/appointment-booking`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ appointmentBookingEnabled }),
+      }
+    );
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data?.error) {
+      const message =
+        data?.message || `Erreur lors de l'opération (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return {
+      ok: true,
+      error: false,
+      status: response.status,
+      message: data?.message,
+      data,
+    };
+  } catch (error) {
+    console.error("Erreur lors de la mise a jour RDV du tatoueur lie:", error);
+    return {
+      ok: false,
+      error: true,
+      status: 500,
+      message: "Impossible de mettre a jour la prise de RDV pour ce tatoueur.",
+      data: null,
+    };
+  }
+};

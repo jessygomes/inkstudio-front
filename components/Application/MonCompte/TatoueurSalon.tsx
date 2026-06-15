@@ -8,6 +8,7 @@ import { extractUploadThingKey } from "@/lib/utils/uploadImg/extractUploadThingK
 import {
   deleteTatoueurAction,
   unlinkLinkedTatoueurAction,
+  updateLinkedTatoueurAppointmentBookingAction,
 } from "@/lib/queries/tatoueur";
 import { TatoueurProps } from "@/lib/type"; // Utiliser le type centralisé
 import DashboardButton from "@/components/Shared/DashboardButton";
@@ -24,6 +25,15 @@ type TeamTatoueur = TatoueurProps & {
   firstName?: string;
   lastName?: string;
   email?: string;
+  appointmentBookingEnabled?: boolean;
+};
+
+const isAppointmentBookingEnabled = (tatoueur: TeamTatoueur) => {
+  if (typeof tatoueur.appointmentBookingEnabled === "boolean") {
+    return tatoueur.appointmentBookingEnabled;
+  }
+
+  return Boolean(tatoueur.rdvBookingEnabled);
 };
 
 const isReadOnlyLinkedTatoueur = (tatoueur: TeamTatoueur) => {
@@ -48,6 +58,7 @@ export default function TatoueurSalon({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUnlinkingById, setIsUnlinkingById] = useState<Record<string, boolean>>({});
+  const [isUpdatingRdvById, setIsUpdatingRdvById] = useState<Record<string, boolean>>({});
   const [isMobile, setIsMobile] = useState(false);
   const [teamTatoueurs, setTeamTatoueurs] = useState<TeamTatoueur[]>(
     (tatoueurs as TeamTatoueur[]) || []
@@ -174,8 +185,56 @@ export default function TatoueurSalon({
   };
 
   const rdvEnabledCount = teamTatoueurs.filter(
-    (tatoueur) => tatoueur.rdvBookingEnabled
+    (tatoueur) => isAppointmentBookingEnabled(tatoueur)
   ).length;
+
+  const handleToggleLinkedTatoueurRdv = async (tatoueur: TeamTatoueur) => {
+    const linkedUserId = tatoueur.linkedUserId || tatoueur.tatoueurUserId;
+
+    if (!linkedUserId) {
+      toast.error("Impossible de modifier le RDV: identifiant lie introuvable.");
+      return;
+    }
+
+    const nextValue = !isAppointmentBookingEnabled(tatoueur);
+    setIsUpdatingRdvById((prev) => ({ ...prev, [tatoueur.id]: true }));
+
+    try {
+      const result = await updateLinkedTatoueurAppointmentBookingAction(
+        linkedUserId,
+        nextValue
+      );
+
+      if (!result.ok) {
+        toast.error(result.message || "Mise a jour RDV impossible.");
+        return;
+      }
+
+      setTeamTatoueurs((prev) =>
+        prev.map((item) =>
+          item.id === tatoueur.id
+            ? {
+                ...item,
+                appointmentBookingEnabled: nextValue,
+                rdvBookingEnabled: nextValue,
+              }
+            : item
+        )
+      );
+
+      toast.success(
+        result.message ||
+          (nextValue
+            ? "Prise de RDV activee pour ce tatoueur."
+            : "Prise de RDV desactivee pour ce tatoueur.")
+      );
+    } catch (error) {
+      console.error("Erreur lors du changement d'etat RDV:", error);
+      toast.error("Une erreur est survenue lors de la mise a jour RDV.");
+    } finally {
+      setIsUpdatingRdvById((prev) => ({ ...prev, [tatoueur.id]: false }));
+    }
+  };
 
   return (
     <div className="w-full flex flex-col">
@@ -250,6 +309,8 @@ export default function TatoueurSalon({
             const displayName = tatoueur.name || derivedName || tatoueur.email || "Tatoueur";
             const displayImage = tatoueur.img || tatoueur.image;
             const isUnlinking = Boolean(isUnlinkingById[tatoueur.id]);
+            const isUpdatingRdv = Boolean(isUpdatingRdvById[tatoueur.id]);
+            const rdvEnabled = isAppointmentBookingEnabled(tatoueur);
             const visibleSkills = tatoueur.skills?.slice(
               0,
               isMobile ? 2 : tatoueur.skills.length
@@ -286,7 +347,7 @@ export default function TatoueurSalon({
                       <h4 className="text-white font-one text-sm font-semibold truncate">
                         {displayName}
                       </h4>
-                      {tatoueur.rdvBookingEnabled ? (
+                      {rdvEnabled ? (
                         <span className="shrink-0 rounded-[8px] border border-green-500/30 bg-green-500/15 px-1.5 py-0.5 text-[9px] font-one text-green-300">
                           RDV actifs
                         </span>
@@ -373,8 +434,24 @@ export default function TatoueurSalon({
                   {isReadOnly ? (
                     <div className="flex w-full items-center gap-2">
                       <span className="flex-1 rounded-[14px] border border-sky-500/35 bg-sky-500/15 px-3 py-1.5 text-center text-[11px] text-sky-200 font-one">
-                        Profil lié au compte indé (lecture seule)
+                        Profil lie au compte inde (lecture seule)
                       </span>
+                      <button
+                        type="button"
+                        disabled={isUpdatingRdv}
+                        onClick={() => handleToggleLinkedTatoueurRdv(tatoueur)}
+                        className={`cursor-pointer rounded-[14px] border px-3 py-1.5 text-[11px] transition-colors font-one disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap ${
+                          rdvEnabled
+                            ? "border-emerald-500/35 bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30"
+                            : "border-white/20 bg-white/10 text-white/80 hover:bg-white/20"
+                        }`}
+                      >
+                        {isUpdatingRdv
+                          ? "Mise a jour..."
+                          : rdvEnabled
+                            ? "RDV ON"
+                            : "RDV OFF"}
+                      </button>
                       <button
                         type="button"
                         disabled={isUnlinking}
