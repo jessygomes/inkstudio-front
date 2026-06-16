@@ -101,9 +101,10 @@ export const getAuthenticatedUserSchema = z.object({
   city: z.string().nullable().optional(),
   postalCode: z.string().nullable().optional(),
   salonHours: z.string().nullable().optional(),
-  role: z.enum(["user", "admin"]),
+  role: z.enum(["user", "admin", "user_salon", "user_tatoueur"]),
   saasPlan: z.enum(["FREE", "PRO", "BUSINESS"]),
   verifiedSalon: z.boolean().optional(),
+  agendaMode: z.string().nullable().optional(),
 });
 
 // Schéma de validation pour le changement de mot de passe

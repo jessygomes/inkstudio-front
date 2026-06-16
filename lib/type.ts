@@ -150,6 +150,7 @@ export interface Subscription {
   startDate: string;
   endDate: string | null;
   trialEndDate: string | null;
+  agendaMode: string; 
   maxAppointments: number;
   maxClients: number;
   maxTattooeurs: number;

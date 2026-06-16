@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { appointmentSchema } from "@/lib/zod/validator.schema";
 import { TatoueurProps, TimeSlotProps } from "@/lib/type";
 import { addMinutes, format } from "date-fns";
@@ -44,10 +45,18 @@ type PiercingService = {
 const SKIN_REQUIRED_PRESTATIONS = new Set(["TATTOO", "RETOUCHE", "PROJET"]);
 
 export default function CreateRdvForm({ userId }: { userId: string }) {
+  const { data: session } = useSession();
   const router = useRouter();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [loading, setLoading] = useState(false);
+
+  const userRole = session?.user?.role;
+  const agendaMode = session?.user?.agendaMode;
+  const isUserTatoueur = userRole === "user_tatoueur";
+  const isSalonGlobal =
+    userRole === "user_salon" && String(agendaMode || "").toUpperCase() === "GLOBAL";
+  const shouldUseGlobalAgenda = isSalonGlobal; // user_tatoueur ne doit PAS utiliser la vue globale
 
   //! Date sélectionnée pour le rendez-vous
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -76,6 +85,20 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
   useEffect(() => {
     const fetchTatoueurs = async () => {
+      if (isUserTatoueur) {
+        setTatoueurs([
+          {
+            id: userId,
+            name: session?.user?.salonName || session?.user?.name || "Mon agenda",
+            description: null,
+            style: [],
+            skills: [],
+          },
+        ]);
+        setSelectedTatoueur(userId);
+        return;
+      }
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/for-appointment/${userId}`,
       );
@@ -83,7 +106,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       setTatoueurs(data);
     };
     fetchTatoueurs();
-  }, [userId]);
+  }, [userId, isUserTatoueur, session?.user?.salonName, session?.user?.name]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -127,13 +150,16 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   }, []);
 
   useEffect(() => {
-    if (!selectedDate || !selectedTatoueur) return;
+    if (!selectedDate || (!selectedTatoueur && !isUserTatoueur)) return;
+
+    const tatoueurScopeId = isUserTatoueur ? userId : selectedTatoueur;
+    if (!tatoueurScopeId) return;
 
     const fetchTimeSlots = async () => {
       try {
         // setIsLoadingSlots(true);
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${selectedTatoueur}&includeUnavailable=true`,
+          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${tatoueurScopeId}&includeUnavailable=true`,
         );
         const data = await res.json();
         setTimeSlots(data);
@@ -150,19 +176,27 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       const endOfDay = new Date(selectedDate);
       endOfDay.setHours(23, 59, 59, 999);
 
-      const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_BACK_URL
-        }/appointments/tatoueur-range?tatoueurId=${selectedTatoueur}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`,
-      );
+      const occupiedUrl = shouldUseGlobalAgenda
+        ? `${
+            process.env.NEXT_PUBLIC_BACK_URL
+          }/appointments/range?userId=${userId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
+        : `${
+            process.env.NEXT_PUBLIC_BACK_URL
+          }/appointments/tatoueur-range?tatoueurId=${tatoueurScopeId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`;
+
+      const res = await fetch(occupiedUrl);
       const data = await res.json();
-      setOccupiedSlots(data);
+      setOccupiedSlots(Array.isArray(data) ? data : data?.appointments || []);
     };
 
     const fetchBlockedSlots = async () => {
       try {
+        const blockedUrl = shouldUseGlobalAgenda
+          ? `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/salon/${userId}`
+          : `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${tatoueurScopeId}`;
+
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${selectedTatoueur}`,
+          blockedUrl,
         );
         const data = await res.json();
         if (!data.error) {
@@ -177,11 +211,11 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     fetchTimeSlots();
     fetchOccupied();
     fetchBlockedSlots();
-  }, [selectedDate, selectedTatoueur]);
+  }, [selectedDate, selectedTatoueur, isUserTatoueur, shouldUseGlobalAgenda, userId]);
 
   // Fonction pour vérifier si un créneau chevauche une période bloquée
   const isSlotBlocked = (slotStart: string, slotEnd?: string) => {
-    if (!selectedTatoueur) return false;
+    if (!selectedTatoueur && !isUserTatoueur) return false;
 
     const slotStartDate = new Date(slotStart);
     const slotEndDate = slotEnd
@@ -200,8 +234,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       const hasOverlap =
         slotStartUTC < blockedEndUTC && slotEndUTC > blockedStartUTC;
 
-      const concernsTatoueur =
-        blocked.tatoueurId === selectedTatoueur || blocked.tatoueurId === null;
+      const concernsTatoueur = shouldUseGlobalAgenda
+        ? blocked.tatoueurId == null
+        : blocked.tatoueurId === selectedTatoueur || blocked.tatoueurId === null;
 
       return hasOverlap && concernsTatoueur;
     });
@@ -228,12 +263,52 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   const slotsByTimestamp = useMemo(() => {
     const map = new Map<number, { start: string; end: string }>();
 
+    const selectedDateStart = new Date(selectedDate);
+    selectedDateStart.setHours(0, 0, 0, 0);
+    const selectedDateEnd = new Date(selectedDate);
+    selectedDateEnd.setHours(23, 59, 59, 999);
+
+    const pushSlot = (startMs: number, endMs: number) => {
+      const clampedStart = Math.max(startMs, selectedDateStart.getTime());
+      const clampedEnd = Math.min(endMs, selectedDateEnd.getTime() + 1);
+      if (clampedStart >= clampedEnd) return;
+
+      for (let ts = clampedStart; ts < clampedEnd; ts += SLOT_STEP_MS) {
+        if (!map.has(ts)) {
+          map.set(ts, {
+            start: new Date(ts).toISOString(),
+            end: new Date(ts + SLOT_STEP_MS).toISOString(),
+          });
+        }
+      }
+    };
+
     timeSlots.forEach((slot) => {
       map.set(new Date(slot.start).getTime(), slot);
     });
 
+    occupiedSlots.forEach((slot) => {
+      pushSlot(new Date(slot.start).getTime(), new Date(slot.end).getTime());
+    });
+
+    blockedSlots.forEach((blocked) => {
+      const startValue = blocked?.startDate;
+      const endValue = blocked?.endDate;
+      if (!startValue || !endValue) return;
+
+      pushSlot(new Date(startValue).getTime(), new Date(endValue).getTime());
+    });
+
     return map;
-  }, [timeSlots]);
+  }, [timeSlots, occupiedSlots, blockedSlots, selectedDate, SLOT_STEP_MS]);
+
+  const displayedTimeSlots = useMemo(
+    () =>
+      Array.from(slotsByTimestamp.values()).sort(
+        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
+      ),
+    [slotsByTimestamp],
+  );
 
   // ! Fonction pour gérer le clic sur un créneau horaire
   // Clic sur un slot déjà sélectionné: retire ce slot et tous les suivants.
@@ -487,6 +562,14 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   });
 
   const isSkinRequired = SKIN_REQUIRED_PRESTATIONS.has(selectedPrestation);
+
+  useEffect(() => {
+    if (!isUserTatoueur) return;
+    form.setValue("tatoueurId", userId, {
+      shouldDirty: false,
+      shouldValidate: true,
+    });
+  }, [isUserTatoueur, userId, form]);
 
   const onSubmit = async (data: z.infer<typeof appointmentSchema>) => {
     setLoading(true);
@@ -893,6 +976,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   </label>
                   <select
                     {...form.register("tatoueurId")}
+                    disabled={isUserTatoueur}
                     onChange={(e) => {
                       form.setValue("tatoueurId", e.target.value, {
                         shouldDirty: true,
@@ -902,9 +986,15 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     }}
                     className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
                   >
+                    {isUserTatoueur ? (
+                      <option value={userId} className="bg-noir-500">
+                        {session?.user?.salonName || session?.user?.name || "Mon agenda"}
+                      </option>
+                    ) : (
                     <option value="" className="bg-noir-500">
                       -- Choisissez un tatoueur --
                     </option>
+                    )}
                     {tatoueurs.map((tatoueur) => (
                       <option
                         key={tatoueur.id}
@@ -1021,7 +1111,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   {/* Affichage conditionnel des créneaux ou message de fermeture */}
                   {selectedDate && selectedTatoueur && (
                     <>
-                      {timeSlots.length > 0 ? (
+                      {displayedTimeSlots.length > 0 ? (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between gap-3">
                             <label className="text-xs text-white/70 font-one">
@@ -1042,7 +1132,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                             doivent être consécutifs.
                           </p>
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                            {timeSlots.map((slot) => {
+                            {displayedTimeSlots.map((slot) => {
                               const isOccupied = (start: string) => {
                                 return occupiedSlots.some((occupiedSlot) => {
                                   const slotStart = new Date(start);

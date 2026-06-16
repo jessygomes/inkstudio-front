@@ -17,6 +17,7 @@ declare module "next-auth" {
       verifiedSalon: boolean;
       profileImage?: string | null;
       salonHours?: string | null;
+      agendaMode?: string | null;
     } & DefaultSession["user"];
     accessToken: string;
     error?: "AccessTokenExpired";
@@ -32,6 +33,7 @@ declare module "next-auth" {
     verifiedSalon: boolean;
     profileImage?: string | null;
     salonHours?: string | null;
+    agendaMode?: string | null;
   }
 }
 
@@ -47,6 +49,7 @@ declare module "next-auth/jwt" {
     verifiedSalon: boolean;
     profileImage?: string | null;
     salonHours?: string | null;
+    agendaMode?: string | null;
     accessTokenExpiry?: number | null;
     error?: "AccessTokenExpired";
   }

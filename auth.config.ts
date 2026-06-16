@@ -23,6 +23,7 @@ type BackendLoginResponse = {
   address?: string;
   verifiedSalon?: boolean;
   salonHours?: unknown;
+  agendaMode?: string | null;
   error?: boolean | string;
   message?: string;
 };
@@ -150,6 +151,7 @@ export default {
             address: data.address || "",
             verifiedSalon: data.verifiedSalon || false,
             salonHours: normalizedSalonHours,
+            agendaMode: data.agendaMode || "GLOBAL",
           };
 
           // Retourner l'objet utilisateur avec toutes les données

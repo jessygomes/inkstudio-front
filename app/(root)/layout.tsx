@@ -16,6 +16,8 @@ export default async function DashboardLayout({
   // ✅ Récupération directe de la session NextAuth
   const session = await auth();
 
+  console.log("Session dans DashboardLayout:", session);
+
   // ✅ Si pas de session, redirection (normalement géré par le middleware)
   if (!session || !session.user) {
     redirect("/connexion");

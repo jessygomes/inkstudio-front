@@ -35,10 +35,15 @@ export const getAuthenticatedUser = async () => {
     address: session.user.address || null,
     city: null, // Non retourné par le backend pour l'instant
     postalCode: null, // Non retourné par le backend pour l'instant
-    role: session.user.role as "user" | "admin",
+    role: session.user.role as
+      | "user"
+      | "admin"
+      | "user_salon"
+      | "user_tatoueur",
     saasPlan: session.user.saasPlan as "FREE" | "PRO" | "BUSINESS",
     verifiedSalon: session.user.verifiedSalon,
     salonHours: session.user.salonHours,
+    agendaMode: session.user.agendaMode || null,
   };
 
   // Valider les données avec le schéma Zod

@@ -3,8 +3,9 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { updateAppointmentSchema } from "@/lib/zod/validator.schema";
 import { TatoueurProps, TimeSlotProps, UpdateRdvFormProps } from "@/lib/type";
 import { addMinutes, format, isValid } from "date-fns";
@@ -22,10 +23,13 @@ export default function UpdateRdv({
   userId: string;
   onUpdate?: () => void;
 }) {
+  const { data: session } = useSession();
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isUserTatoueur = session?.user?.role === "user_tatoueur";
 
   // TATOUEURS
   const [tatoueurs, setTatoueurs] = useState<TatoueurProps[]>([]);
@@ -62,6 +66,39 @@ export default function UpdateRdv({
   const watchPrestation = form.watch("prestation");
   const watchStart = form.watch("start");
 
+  const selectedDay = watchStart
+    ? format(new Date(watchStart), "yyyy-MM-dd")
+    : null;
+
+  const displayedTimeSlots = useMemo(() => {
+    const slotMap = new Map<string, { start: string; end: string }>();
+
+    timeSlots.forEach((slot) => slotMap.set(slot.start, slot));
+
+    const allSelected = [...selectedSlots, ...initialSlots];
+    allSelected.forEach((slotStart) => {
+      const slotDate = format(new Date(slotStart), "yyyy-MM-dd");
+      if (selectedDay && slotDate === selectedDay && !slotMap.has(slotStart)) {
+        const end = addMinutes(new Date(slotStart), 30).toISOString();
+        slotMap.set(slotStart, { start: slotStart, end });
+      }
+    });
+
+    return Array.from(slotMap.values()).sort(
+      (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+    );
+  }, [timeSlots, selectedSlots, initialSlots, selectedDay]);
+
+  const selectedDurationMinutes = selectedSlots.length * 30;
+  const selectedDurationLabel =
+    selectedDurationMinutes === 0
+      ? "0 min"
+      : selectedDurationMinutes < 60
+      ? `${selectedDurationMinutes} min`
+      : `${Math.floor(selectedDurationMinutes / 60)}h${String(
+          selectedDurationMinutes % 60
+        ).padStart(2, "0")}`;
+
   // Helpers temps
   const toTs = (s: string) => new Date(s).getTime();
   const areConsecutive = (ts: number[]) =>
@@ -84,9 +121,24 @@ export default function UpdateRdv({
   const disabledInputClass =
     "w-full p-2.5 bg-white/5 border border-white/10 rounded-xl text-white/80 text-xs";
 
-  // FETCH tatoueurs
+  //! FETCH tatoueurs
   useEffect(() => {
     const fetchTatoueurs = async () => {
+      if (isUserTatoueur) {
+        setTatoueurs([
+          {
+            id: userId,
+            name: session?.user?.name || "Mon agenda",
+            description: null,
+            style: [],
+            skills: [],
+          },
+        ]);
+        setSelectedTatoueur(userId);
+        form.setValue("tatoueurId", userId);
+        return;
+      }
+
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${userId}`
@@ -98,18 +150,22 @@ export default function UpdateRdv({
       }
     };
     fetchTatoueurs();
-  }, [userId]);
+  }, [userId, isUserTatoueur, session?.user?.name, form]);
 
-  // FETCH slots bloqués (par tatoueur)
+  //! FETCH slots bloqués (par tatoueur)
   useEffect(() => {
-    if (!selectedTatoueur) {
+    if (!selectedTatoueur && !isUserTatoueur) {
       setBlockedSlots([]);
       return;
     }
     const fetchBlockedSlots = async () => {
       try {
+        const blockedUrl = isUserTatoueur
+          ? `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/salon/${userId}`
+          : `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${selectedTatoueur}`;
+
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${selectedTatoueur}`
+          blockedUrl
         );
         const data = await res.json();
         if (!data.error) setBlockedSlots(data.blockedSlots || []);
@@ -119,14 +175,14 @@ export default function UpdateRdv({
       }
     };
     fetchBlockedSlots();
-  }, [selectedTatoueur]);
+  }, [selectedTatoueur, isUserTatoueur, userId]);
 
-  // FETCH timeSlots (dispos), occupiedSlots, proposedSlots (pour la journée)
+  //! FETCH timeSlots (dispos), occupiedSlots, proposedSlots (pour la journée)
   useEffect(() => {
     const selectedDate = watchStart
       ? format(new Date(watchStart), "yyyy-MM-dd")
       : null;
-    if (!selectedDate || !selectedTatoueur) {
+    if (!selectedDate || (!selectedTatoueur && !isUserTatoueur)) {
       setTimeSlots([]);
       setOccupiedSlots([]);
       setProposedSlots([]);
@@ -135,9 +191,11 @@ export default function UpdateRdv({
 
     const fetchAll = async () => {
       try {
+        const tatoueurScopeId = isUserTatoueur ? userId : selectedTatoueur;
+
         // 1) créneaux dispos
         const slotsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${selectedTatoueur}`
+          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${tatoueurScopeId}&includeUnavailable=true`
         );
         const slotsData = await slotsRes.json();
         setTimeSlots(slotsData);
@@ -149,18 +207,22 @@ export default function UpdateRdv({
         endOfDay.setHours(23, 59, 59, 999);
 
         // 2) RDV occupés
-        const occupiedRes = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_BACK_URL
-          }/appointments/tatoueur-range?tatoueurId=${selectedTatoueur}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
-        );
+        const occupiedUrl = isUserTatoueur
+          ? `${
+              process.env.NEXT_PUBLIC_BACK_URL
+            }/appointments/range?userId=${userId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
+          : `${
+              process.env.NEXT_PUBLIC_BACK_URL
+            }/appointments/tatoueur-range?tatoueurId=${selectedTatoueur}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`;
+
+        const occupiedRes = await fetch(occupiedUrl);
         const occupiedData = await occupiedRes.json();
-        setOccupiedSlots(occupiedData);
+        setOccupiedSlots(Array.isArray(occupiedData) ? occupiedData : occupiedData?.appointments || []);
 
         // 3) créneaux déjà proposés
         const proposeUrl = `${
           process.env.NEXT_PUBLIC_BACK_URL
-        }/blocked-slots/propose-creneau?tatoueurId=${selectedTatoueur}&start=${encodeURIComponent(
+        }/blocked-slots/propose-creneau?tatoueurId=${tatoueurScopeId}&start=${encodeURIComponent(
           startOfDay.toISOString()
         )}&end=${encodeURIComponent(endOfDay.toISOString())}`;
 
@@ -176,7 +238,7 @@ export default function UpdateRdv({
     };
 
     fetchAll();
-  }, [watchStart, selectedTatoueur]);
+  }, [watchStart, selectedTatoueur, isUserTatoueur, userId]);
 
   // Reset form quand RDV change (et initialise initialSlots + selectedSlots)
   useEffect(() => {
@@ -203,7 +265,9 @@ export default function UpdateRdv({
       },
     });
 
-    setSelectedTatoueur(rdv.tatoueurId);
+    const initialTatoueurId = isUserTatoueur ? userId : rdv.tatoueurId;
+    setSelectedTatoueur(initialTatoueurId);
+    form.setValue("tatoueurId", initialTatoueurId);
 
     // reconstruire les slots du RDV (initial)
     const slots: string[] = [];
@@ -214,7 +278,7 @@ export default function UpdateRdv({
     }
     setInitialSlots(slots);
     setSelectedSlots(slots); // au départ, la sélection = ce qui est stocké
-  }, [rdv, form]);
+  }, [rdv, form, isUserTatoueur, userId]);
 
   // Helpers — checks
   const isSlotBlocked = (slotStart: string, slotEnd?: string) => {
@@ -506,12 +570,18 @@ export default function UpdateRdv({
                       </label>
                       <select
                         {...form.register("tatoueurId")}
+                        disabled={isUserTatoueur}
                         onChange={(e) => {
                           setSelectedTatoueur(e.target.value);
                           form.setValue("tatoueurId", e.target.value);
                         }}
                         className={inputClass}
                       >
+                        {isUserTatoueur && tatoueurs.length === 0 && (
+                          <option value={userId} className="bg-primary-500">
+                            {session?.user?.name || "Mon agenda"}
+                          </option>
+                        )}
                         {tatoueurs.map((tatoueur) => (
                           <option
                             key={tatoueur.id}
@@ -613,7 +683,7 @@ export default function UpdateRdv({
                   </div>
 
                   <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                    {timeSlots.map((slot) => {
+                    {displayedTimeSlots.map((slot) => {
                       const slotTime = new Date(slot.start).getTime();
 
                       // déjà pris par d'autres RDV
@@ -777,9 +847,17 @@ export default function UpdateRdv({
 
                   {/* Indication de changement */}
                   {!sameSet(selectedSlots, initialSlots) && (
-                    <div className="mt-4 p-2 rounded-lg border border-tertiary-500/30 bg-tertiary-500/10 font-one text-[10px] text-white/50">
-                      Modifications détectées : l’horaire sera mis à jour à
-                      l’enregistrement.
+                    <div className="mt-4 flex justify-between p-2 rounded-2xl border border-tertiary-500/30 bg-tertiary-500/10 font-one text-[10px] text-white/50">
+                      <p>Modifications détectées : l’horaire sera mis à jour à
+                      l’enregistrement.</p> 
+                      <div className="flex  items-center gap-2">
+                        <p className="text-[10px] uppercase tracking-wide text-tertiary-300 font-one">
+                        Temps sélectionné
+                      </p>
+                      <p className="text-xs text-white font-one font-medium">
+                        {selectedDurationLabel}
+                      </p>
+                      </div>
                     </div>
                   )}
                 </div>
