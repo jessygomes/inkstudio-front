@@ -72,7 +72,6 @@ export default function NavbarApp() {
 
   const links = [
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/mon-compte", label: "Mon profil" },
     { href: "/mes-rendez-vous", label: "Rendez-vous" },
     { href: "/clients", label: "Clients" },
     { href: "/messagerie", label: "Messagerie" },
@@ -81,6 +80,7 @@ export default function NavbarApp() {
     { href: "/mes-flashs", label: "Flashs" },
     { href: "/mes-produits", label: "Produits" },
     { href: "/review", label: "Avis" },
+    { href: "/mon-compte", label: "Mon profil" },
     // { href: "/factures", label: "Factures" },
   ];
 

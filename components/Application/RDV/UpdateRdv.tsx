@@ -29,7 +29,12 @@ export default function UpdateRdv({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isUserTatoueur = session?.user?.role === "user_tatoueur";
+  const userRole = session?.user?.role;
+  const agendaMode = session?.user?.agendaMode;
+  const isUserTatoueur = userRole === "user_tatoueur";
+  const isSalonGlobal =
+    userRole === "user_salon" && String(agendaMode || "").toUpperCase() === "GLOBAL";
+  const shouldUseGlobalAgenda = isSalonGlobal;
 
   // TATOUEURS
   const [tatoueurs, setTatoueurs] = useState<TatoueurProps[]>([]);
@@ -160,9 +165,10 @@ export default function UpdateRdv({
     }
     const fetchBlockedSlots = async () => {
       try {
-        const blockedUrl = isUserTatoueur
+        const tatoueurScopeId = isUserTatoueur ? userId : selectedTatoueur;
+        const blockedUrl = shouldUseGlobalAgenda
           ? `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/salon/${userId}`
-          : `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${selectedTatoueur}`;
+          : `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${tatoueurScopeId}`;
 
         const res = await fetch(
           blockedUrl
@@ -175,7 +181,7 @@ export default function UpdateRdv({
       }
     };
     fetchBlockedSlots();
-  }, [selectedTatoueur, isUserTatoueur, userId]);
+  }, [selectedTatoueur, isUserTatoueur, shouldUseGlobalAgenda, userId]);
 
   //! FETCH timeSlots (dispos), occupiedSlots, proposedSlots (pour la journée)
   useEffect(() => {
@@ -207,13 +213,13 @@ export default function UpdateRdv({
         endOfDay.setHours(23, 59, 59, 999);
 
         // 2) RDV occupés
-        const occupiedUrl = isUserTatoueur
+        const occupiedUrl = shouldUseGlobalAgenda
           ? `${
               process.env.NEXT_PUBLIC_BACK_URL
             }/appointments/range?userId=${userId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
           : `${
               process.env.NEXT_PUBLIC_BACK_URL
-            }/appointments/tatoueur-range?tatoueurId=${selectedTatoueur}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`;
+            }/appointments/tatoueur-range?tatoueurId=${tatoueurScopeId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`;
 
         const occupiedRes = await fetch(occupiedUrl);
         const occupiedData = await occupiedRes.json();
@@ -238,7 +244,7 @@ export default function UpdateRdv({
     };
 
     fetchAll();
-  }, [watchStart, selectedTatoueur, isUserTatoueur, userId]);
+  }, [watchStart, selectedTatoueur, isUserTatoueur, shouldUseGlobalAgenda, userId]);
 
   // Reset form quand RDV change (et initialise initialSlots + selectedSlots)
   useEffect(() => {
@@ -282,7 +288,7 @@ export default function UpdateRdv({
 
   // Helpers — checks
   const isSlotBlocked = (slotStart: string, slotEnd?: string) => {
-    if (!selectedTatoueur) return false;
+    if (!selectedTatoueur && !isUserTatoueur) return false;
     const start = new Date(slotStart);
     const end = slotEnd ? new Date(slotEnd) : addMinutes(start, 30);
     const s = start.getTime();
@@ -292,8 +298,9 @@ export default function UpdateRdv({
       const bs = new Date(b.startDate).getTime();
       const be = new Date(b.endDate).getTime();
       const overlaps = s < be && e > bs;
-      const concernsTatoueur =
-        b.tatoueurId === selectedTatoueur || b.tatoueurId === null;
+      const concernsTatoueur = shouldUseGlobalAgenda
+        ? b.tatoueurId == null
+        : b.tatoueurId === selectedTatoueur || b.tatoueurId === null;
       return overlaps && concernsTatoueur;
     });
   };
