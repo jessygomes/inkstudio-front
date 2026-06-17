@@ -340,7 +340,7 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="dashboard-panel dashboard-panel-featured relative h-[540px] overflow-y-auto p-3.5 shadow-2xl lg:min-h-[520px] lg:overflow-hidden lg:p-4">
+    <div className="dashboard-panel dashboard-panel-featured relative h-[540px] overflow-y-auto scrollbar-hidden p-3.5 shadow-2xl lg:max-h-[520px] lg:p-4">
       <div
         className={`dashboard-panel-content flex h-full flex-col ${
           selectedAppointment ? "lg:pointer-events-none lg:opacity-0" : ""
@@ -425,7 +425,7 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
             </p>
           </div>
         ) : (
-          <div className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+          <div className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1 scrollbar-hidden">
             {appointments.map((appointment) => {
               const statusMeta = getStatusMeta(appointment.status);
               const isSelected = selectedAppointment?.id === appointment.id;

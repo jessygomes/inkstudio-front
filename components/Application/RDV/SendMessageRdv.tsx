@@ -190,7 +190,12 @@ export default function SendMessageRdv({
                             <div className="min-w-0">
                               <p className="text-[9px] uppercase tracking-wider text-white/35">Artiste</p>
                               <p className="mt-0.5 text-white/90 text-xs truncate">
-                                {appointment.tatoueur?.name || "Non assigné"}
+                                {appointment.performerUser?.salonName ||
+                                  (appointment.performerUser?.firstName ||
+                                  appointment.performerUser?.lastName
+                                    ? `${appointment.performerUser?.firstName ?? ""} ${appointment.performerUser?.lastName ?? ""}`.trim()
+                                    : appointment.tatoueur?.name) ||
+                                  "Non assigné"}
                               </p>
                             </div>
                           </div>

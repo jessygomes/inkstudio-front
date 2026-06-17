@@ -224,6 +224,11 @@ export default function IndependentTeamSection() {
                       {request.message && (
                         <p className="text-xs text-white/70 font-one">{request.message}</p>
                       )}
+                      <div className="mt-1 rounded-xl border border-amber-500/30 bg-amber-500/10 px-2.5 py-2">
+                        <p className="text-[11px] text-amber-200 font-one leading-relaxed">
+                          En acceptant cette demande, ce salon pourra voir votre agenda et vos rendez-vous, et pourra aussi créer des rendez-vous pour vous.
+                        </p>
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2">

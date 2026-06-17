@@ -340,9 +340,13 @@ export default function ShowRdvDetails({
               <div className="flex-1 min-w-0">
                 <p className="text-[9px] uppercase tracking-wider text-white/35 font-one">Artiste</p>
                 <p className="text-xs font-medium text-white/90 font-one truncate">
-                  {selectedEvent.tatoueur?.name || (
-                    <span className="text-white/35 italic">Non assigné</span>
-                  )}
+                  {selectedEvent.performerUser?.salonName ||
+                    (selectedEvent.performerUser?.firstName ||
+                    selectedEvent.performerUser?.lastName
+                      ? `${selectedEvent.performerUser?.firstName ?? ""} ${selectedEvent.performerUser?.lastName ?? ""}`.trim()
+                      : selectedEvent.tatoueur?.name) || (
+                      <span className="text-white/35 italic">Non assigné</span>
+                    )}
                 </p>
               </div>
             </div>

@@ -543,7 +543,12 @@ export default function ShowRdvDetailsMobile({
                         Tatoueur
                       </p>
                       <p className="mt-1 truncate text-xs font-medium text-white/86 font-one">
-                        {selectedEvent.tatoueur?.name || "Non assigné"}
+                        {selectedEvent.performerUser?.salonName ||
+                          (selectedEvent.performerUser?.firstName ||
+                          selectedEvent.performerUser?.lastName
+                            ? `${selectedEvent.performerUser?.firstName ?? ""} ${selectedEvent.performerUser?.lastName ?? ""}`.trim()
+                            : selectedEvent.tatoueur?.name) ||
+                          "Non assigné"}
                       </p>
                     </div>
                   </div>

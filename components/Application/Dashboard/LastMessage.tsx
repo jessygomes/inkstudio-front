@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -145,7 +144,7 @@ export default function LastMessage() {
   }
 
   return (
-    <div className="dashboard-panel dashboard-panel-featured h-[550px] overflow-y-auto custom-scrollbar p-4 lg:p-5">
+    <div className="dashboard-panel dashboard-panel-featured h-[550px] overflow-y-auto scrollbar-hidden p-4 lg:p-5">
       <div className="dashboard-panel-content">
         <div className="dashboard-card-header mb-5">
           <h3 className="dashboard-card-title">Messages non lus</h3>

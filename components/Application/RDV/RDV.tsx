@@ -49,7 +49,7 @@ export default function RDV() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<View>("month");
 
-  // Définir le mode par défaut selon la taille d'écran
+  //! Définir le mode par défaut selon la taille d'écran
   const [viewMode, setViewMode] = useState<"calendar" | "list">("list"); // Changé à "list" par défaut
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 5;
@@ -66,7 +66,7 @@ export default function RDV() {
   );
   const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
 
-  // Bloquer le scroll du body quand la modal mobile est ouverte
+  //! Bloquer le scroll du body quand la modal mobile est ouverte
   useScrollLock(isMobileDetailOpen);
 
   const openEventDetails = (event: CalendarEvent) => {
@@ -676,7 +676,12 @@ export default function RDV() {
                                   </span>
                                 </p>
                                 <p className="text-white/75 font-one text-sm truncate">
-                                  {event.tatoueur?.name || "Non assigné"}
+                                  {event.performerUser?.salonName ||
+                                    (event.performerUser?.firstName ||
+                                    event.performerUser?.lastName
+                                      ? `${event.performerUser?.firstName ?? ""} ${event.performerUser?.lastName ?? ""}`.trim()
+                                      : event.tatoueur?.name) ||
+                                    "Non assigné"}
                                 </p>
                                 <div className="text-center">
                                   <button
@@ -779,7 +784,12 @@ export default function RDV() {
                                     </span>
                                     <span>•</span>
                                     <span>
-                                      {event.tatoueur?.name || "Non assigné"}
+                                      {event.performerUser?.salonName ||
+                                        (event.performerUser?.firstName ||
+                                        event.performerUser?.lastName
+                                          ? `${event.performerUser?.firstName ?? ""} ${event.performerUser?.lastName ?? ""}`.trim()
+                                          : event.tatoueur?.name) ||
+                                        "Non assigné"}
                                     </span>
                                   </span>
                                 </div>

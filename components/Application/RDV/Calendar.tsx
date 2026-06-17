@@ -44,6 +44,12 @@ export type CalendarEvent = Event & {
     id: string;
     name: string;
   };
+  performerUser?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    salonName?: string;
+  };
   conversation?: {
     id: string;
   };

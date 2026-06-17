@@ -71,7 +71,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   const [occupiedSlots, setOccupiedSlots] = useState<TimeSlotProps[]>([]);
   const [blockedSlots, setBlockedSlots] = useState<any[]>([]);
   const SLOT_STEP_MS = 30 * 60 * 1000;
-  // const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   //! Selection de la prestation change les inputs à afficher
   const [selectedPrestation, setSelectedPrestation] = useState("");
@@ -157,7 +157,6 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
     const fetchTimeSlots = async () => {
       try {
-        // setIsLoadingSlots(true);
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${tatoueurScopeId}&includeUnavailable=true`,
         );
@@ -208,9 +207,20 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       }
     };
 
-    fetchTimeSlots();
-    fetchOccupied();
-    fetchBlockedSlots();
+    const fetchAllSlotsData = async () => {
+      setIsLoadingSlots(true);
+      try {
+        await Promise.allSettled([
+          fetchTimeSlots(),
+          fetchOccupied(),
+          fetchBlockedSlots(),
+        ]);
+      } finally {
+        setIsLoadingSlots(false);
+      }
+    };
+
+    fetchAllSlotsData();
   }, [selectedDate, selectedTatoueur, isUserTatoueur, shouldUseGlobalAgenda, userId]);
 
   // Fonction pour vérifier si un créneau chevauche une période bloquée
@@ -1096,293 +1106,239 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   🕒 Créneaux horaires
                 </h3>
                 <div className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="text-xs text-white/70 font-one">
-                      Date du rendez-vous
-                    </label>
-                    <input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                    />
+                  <div className="mb-1 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+                    <div>
+                      <label className="text-xs text-white/80 font-one mb-2 block uppercase tracking-wide">
+                        Date souhaitée
+                      </label>
+                      <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        min={new Date().toISOString().slice(0, 10)}
+                        className="w-full max-w-xs p-2.5 bg-white/2 border border-white/10 rounded-2xl font-one text-white text-sm focus:outline-none focus:border-tertiary-400 focus:ring-1 focus:ring-tertiary-400/30 transition-all"
+                      />
+                    </div>
+
+                    <div className="rounded-2xl border border-white/10 bg-white/3 px-4 py-3">
+                      <p className="text-[11px] uppercase tracking-wide text-white/60 font-one">
+                        Agenda affiché
+                      </p>
+                      <p className="text-white font-one text-sm mt-0.5">
+                        {tatoueurs.find((t) => t.id === selectedTatoueur)?.name || "Tatoueur"}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Affichage conditionnel des créneaux ou message de fermeture */}
                   {selectedDate && selectedTatoueur && (
-                    <>
-                      {displayedTimeSlots.length > 0 ? (
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between gap-3">
-                            <label className="text-xs text-white/70 font-one">
-                              Sélectionnez les créneaux (30 min chacun)
-                            </label>
-                            {selectedSlots.length > 0 && (
-                              <button
-                                type="button"
-                                onClick={() => setSelectedSlots([])}
-                                className="rdv-btn-secondary px-2 py-1 rounded-xl border border-white/20 text-white/80 text-xs font-one hover:bg-white/10 transition-colors tracking-widest cursor-pointer"
-                              >
-                                Désélectionner tout
-                              </button>
-                            )}
+                    <div className="space-y-4">
+                      <div className=" rounded-2xl py-3">
+                        <h4 className="text-white/80 font-one font-semibold text-xs mb-2 uppercase tracking-wide">
+                          Légende
+                        </h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-8 gap-2 text-xs">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border border-white/20 rounded" />
+                            <span className="text-white/70 font-one">Disponible</span>
                           </div>
-                          <p className="text-xs text-white/50 mb-3">
-                            Cliquez sur les créneaux pour les sélectionner. Ils
-                            doivent être consécutifs.
-                          </p>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                            {displayedTimeSlots.map((slot) => {
-                              const isOccupied = (start: string) => {
-                                return occupiedSlots.some((occupiedSlot) => {
-                                  const slotStart = new Date(start);
-                                  const slotEnd = new Date(
-                                    slotStart.getTime() + 30 * 60 * 1000,
-                                  );
-                                  const occupiedStart = new Date(
-                                    occupiedSlot.start,
-                                  );
-                                  const occupiedEnd = new Date(
-                                    occupiedSlot.end,
-                                  );
-
-                                  return (
-                                    slotStart < occupiedEnd &&
-                                    slotEnd > occupiedStart
-                                  );
-                                });
-                              };
-
-                              const isSelected = selectedSlots.includes(
-                                slot.start,
-                              );
-                              const startTime = format(
-                                new Date(slot.start),
-                                "HH:mm",
-                                { locale: fr },
-                              );
-                              const endTime = format(
-                                new Date(slot.end),
-                                "HH:mm",
-                                { locale: fr },
-                              );
-                              const isTaken = isOccupied(slot.start);
-                              const isBlocked = isSlotBlocked(
-                                slot.start,
-                                slot.end,
-                              );
-
-                              // Déterminer la couleur et l'état du bouton
-                              let buttonClass =
-                                "cursor-pointer px-2 py-2 sm:py-2 rounded-2xl text-xs text-white font-one transition-all duration-200 border text-center ";
-                              let buttonText = `${startTime}-${endTime}`;
-                              let isDisabled = false;
-
-                              if (isBlocked) {
-                                buttonClass +=
-                                  "bg-red-900/50 text-red-300 border-red-700/50 cursor-not-allowed";
-                                buttonText += " 🚫";
-                                isDisabled = true;
-                              } else if (isTaken) {
-                                buttonClass +=
-                                  "bg-gray-700/50 text-gray-400 border-gray-600/50 cursor-not-allowed";
-                                buttonText += " ❌";
-                                isDisabled = true;
-                              } else if (isSelected) {
-                                buttonClass +=
-                                  "bg-green-600/30 text-green-300 border-green-500/50 hover:bg-green-600/50";
-                              } else {
-                                buttonClass +=
-                                  "bg-tertiary-600/20 text-tertiary-300 border-tertiary-500/30 hover:bg-tertiary-600/40 hover:text-white";
-                              }
-
-                              // Ajout du tooltip pour les créneaux proposés
-                              let buttonTitle = "";
-                              if (isBlocked) {
-                                buttonTitle = "Créneau bloqué - indisponible";
-                              } else if (isTaken) {
-                                buttonTitle = "Créneau déjà réservé";
-                              } else if (isSelected) {
-                                buttonTitle =
-                                  "Créneau sélectionné - cliquer pour désélectionner";
-                              } else {
-                                buttonTitle =
-                                  "Créneau disponible - cliquer pour sélectionner";
-                              }
-
-                              return (
-                                <button
-                                  key={`${slot.start}-${slot.end}`}
-                                  type="button"
-                                  onClick={() =>
-                                    !isDisabled && handleSlotClick(slot.start)
-                                  }
-                                  disabled={isDisabled}
-                                  className={buttonClass}
-                                  title={buttonTitle}
-                                >
-                                  {buttonText}
-                                </button>
-                              );
-                            })}
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 bg-linear-to-br from-tertiary-500/30 to-tertiary-400/20 border border-tertiary-400/60 rounded" />
+                            <span className="text-white/70 font-one">Sélectionné</span>
                           </div>
-
-                          {/* Légende des créneaux - responsive */}
-                          <div className="mt-4 grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4 text-xs">
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 bg-tertiary-600/20 border border-tertiary-500/30 rounded"></div>
-                              <span className="text-white/70 font-one">
-                                Libre
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 bg-green-600/30 border border-green-500/50 rounded"></div>
-                              <span className="text-white/70 font-one">
-                                Sélectionné
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 bg-gray-700/50 border border-gray-600/50 rounded"></div>
-                              <span className="text-white/70 font-one">
-                                Occupé ❌
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 bg-red-900/50 border border-red-700/50 rounded"></div>
-                              <span className="text-white/70 font-one">
-                                Bloqué 🚫
-                              </span>
-                            </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 bg-linear-to-br from-gray-500/20 to-gray-600/10 border border-gray-500/40 rounded" />
+                            <span className="text-white/70 font-one">Occupé</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 bg-linear-to-br from-red-500/20 to-red-600/10 border border-red-500/40 rounded" />
+                            <span className="text-white/70 font-one">Bloqué</span>
                           </div>
                         </div>
-                      ) : (
-                        /* Message quand le salon est fermé */
-                        <div className="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="w-8 h-8 bg-orange-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <svg
-                                className="w-4 h-4 text-orange-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                              </svg>
+                      </div>
+
+                      {isLoadingSlots ? (
+                        <div className="flex flex-col items-center justify-center p-8 bg-white/3 rounded-2xl border border-white/10">
+                          <div className="animate-spin rounded-full h-8 w-8 border-2 border-tertiary-400 border-t-transparent mb-3" />
+                          <span className="text-white font-one text-sm">
+                            Chargement des créneaux...
+                          </span>
+                        </div>
+                      ) : displayedTimeSlots.length > 0 ? (
+                        <>
+                          <div className="space-y-3">
+                            <p className="text-xs text-white/50 font-one">
+                              Cliquez sur les créneaux pour les sélectionner (ils doivent être consécutifs).
+                            </p>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                              {displayedTimeSlots.map((slot) => {
+                                const isSelected = selectedSlots.includes(slot.start);
+                                const isTaken = isSlotOccupied(slot.start, slot.end);
+                                const isBlocked = isSlotBlocked(slot.start, slot.end);
+                                const isAvailable = timeSlots.some((availableSlot) => availableSlot.start === slot.start);
+                                const isDisabled = !isAvailable || isTaken || isBlocked;
+
+                                const startTime = format(new Date(slot.start), "HH:mm", {
+                                  locale: fr,
+                                });
+                                const endTime = format(new Date(slot.end), "HH:mm", {
+                                  locale: fr,
+                                });
+
+                                return (
+                                  <button
+                                    key={`${slot.start}-${slot.end}`}
+                                    type="button"
+                                    onClick={() => !isDisabled && handleSlotClick(slot.start)}
+                                    disabled={isDisabled}
+                                    className={`p-3 rounded-2xl text-xs font-one font-medium transition-all duration-200 border ${
+                                      isSelected
+                                        ? "bg-linear-to-br from-tertiary-500/30 to-tertiary-400/20 border-tertiary-400/60 text-white shadow-lg cursor-pointer"
+                                        : !isDisabled
+                                          ? "bg-linear-to-br border-white/20 text-white/80 hover:bg-white/12 cursor-pointer"
+                                          : "cursor-not-allowed"
+                                    } ${
+                                      isTaken
+                                        ? "bg-linear-to-br from-gray-500/20 to-gray-600/10 border-gray-500/40 text-gray-400"
+                                        : ""
+                                    } ${
+                                      isBlocked
+                                        ? "bg-linear-to-br from-red-500/20 to-red-600/10 border-red-500/40 text-red-400"
+                                        : ""
+                                    }`}
+                                  >
+                                    <div className="flex flex-col items-center gap-1">
+                                      <span>{startTime}</span>
+                                      <span className="text-[10px] opacity-70">{endTime}</span>
+                                    </div>
+                                  </button>
+                                );
+                              })}
                             </div>
-                            <div className="flex-1">
-                              {/* <h4 className="text-orange-300 font-semibold font-one text-sm mb-2">
-                                🚫 Salon fermé ce jour
-                              </h4> */}
-                              <p className="text-orange-300/80 text-xs sm:text-sm font-one mb-3">
-                                Le tatoueur{" "}
-                                <strong>
-                                  {
-                                    tatoueurs.find(
-                                      (t) => t.id === selectedTatoueur,
-                                    )?.name
-                                  }
-                                </strong>{" "}
-                                n&apos;est pas disponible le{" "}
-                                <strong>
-                                  {new Date(selectedDate).toLocaleDateString(
-                                    "fr-FR",
-                                    {
-                                      weekday: "long",
-                                      day: "numeric",
-                                      month: "long",
-                                      year: "numeric",
-                                    },
-                                  )}
-                                </strong>
-                                .
-                              </p>
-                              <div className="space-y-2">
-                                <p className="text-orange-300/70 text-xs font-one">
-                                  💡 Suggestions :
-                                </p>
-                                <ul className="text-orange-300/60 text-xs space-y-1 font-one ml-4">
-                                  <li>• Choisissez une autre date</li>
-                                  <li>• Sélectionnez un autre tatoueur</li>
-                                  <li>
-                                    • Vérifiez les horaires d&apos;ouverture du
-                                    salon
-                                  </li>
-                                </ul>
+
+                            <div className="flex flex-wrap gap-3 text-xs text-white/70 font-one">
+                              <div className="flex items-center gap-1.5">
+                                <span>Total :</span>
+                                <span>{displayedTimeSlots.length}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span>Sélectionnés :</span>
+                                <span className="text-tertiary-400">{selectedSlots.length}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span>Durée :</span>
+                                <span className="text-tertiary-400">{selectedSlots.length * 30} min</span>
+                              </div>
+                              {selectedSlots.length > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedSlots([])}
+                                  className="cursor-pointer ml-auto px-3 py-1 rounded-2xl border border-white/20 text-white/80 hover:bg-white/12 transition-colors"
+                                >
+                                  Tout désélectionner
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {selectedSlots.length > 0 && (
+                            <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-2xl p-4">
+                              <div className="flex items-start gap-3">
+                                <div className="shrink-0 w-8 h-8 rounded-2xl bg-tertiary-500/20 flex items-center justify-center">
+                                  <svg
+                                    className="w-4 h-4 text-tertiary-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    />
+                                  </svg>
+                                </div>
+                                <div className="flex-1 space-y-2">
+                                  <div>
+                                    <h4 className="text-white font-one text-sm">Créneaux sélectionnés</h4>
+                                    <p className="text-xs text-white/60 font-one">Vérifiez votre sélection</p>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-2 text-sm">
+                                    <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
+                                      <p className="text-xs text-white/60 mb-0.5">Date</p>
+                                      <p className="text-white font-one text-sm">
+                                        {new Date(selectedDate).toLocaleDateString("fr-FR", {
+                                          day: "2-digit",
+                                          month: "2-digit",
+                                          year: "numeric",
+                                        })}
+                                      </p>
+                                    </div>
+                                    <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
+                                      <p className="text-xs text-white/60 mb-0.5">Horaire</p>
+                                      <p className="text-white font-one text-sm">
+                                        {format(
+                                          new Date(
+                                            Math.min(
+                                              ...selectedSlots.map((s) => new Date(s).getTime()),
+                                            ),
+                                          ),
+                                          "HH:mm",
+                                        )}{" "}
+                                        -{" "}
+                                        {format(
+                                          addMinutes(
+                                            new Date(
+                                              Math.max(
+                                                ...selectedSlots.map((s) => new Date(s).getTime()),
+                                              ),
+                                            ),
+                                            30,
+                                          ),
+                                          "HH:mm",
+                                        )}
+                                      </p>
+                                    </div>
+                                    <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
+                                      <p className="text-xs text-white/60 mb-0.5">Durée</p>
+                                      <p className="text-white font-one text-sm">{selectedSlots.length * 30} min</p>
+                                    </div>
+                                    <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
+                                      <p className="text-xs text-white/60 mb-0.5">Créneaux</p>
+                                      <p className="text-white font-one text-sm">{selectedSlots.length} x 30min</p>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-4 text-center">
+                          <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg
+                              className="w-5 h-5 text-orange-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
                           </div>
+                          <h3 className="text-orange-300 font-one mb-1">
+                            Aucun créneau disponible
+                          </h3>
+                          <p className="text-orange-300/80 text-sm font-one">
+                            Essayez une autre date ou un autre tatoueur
+                          </p>
                         </div>
                       )}
-                    </>
-                  )}
-
-                  {/* Message d'information sur les créneaux sélectionnés */}
-                  {selectedSlots.length > 0 && (
-                    <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-2xl p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <svg
-                          className="w-4 h-4 text-white flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        <span className="text-white font-one text-sm">
-                          {selectedSlots.length} créneau
-                          {selectedSlots.length > 1 ? "x" : ""} sélectionné
-                          {selectedSlots.length > 1 ? "s" : ""}
-                        </span>
-                      </div>
-                      <div className="text-white text-xs font-one">
-                        <p className="mb-1">
-                          Durée totale :{" "}
-                          <strong>{selectedSlots.length * 30} minutes</strong>
-                        </p>
-                        {selectedSlots.length > 0 && (
-                          <p>
-                            De{" "}
-                            <strong>
-                              {format(
-                                new Date(
-                                  Math.min(
-                                    ...selectedSlots.map((s) =>
-                                      new Date(s).getTime(),
-                                    ),
-                                  ),
-                                ),
-                                "HH:mm",
-                              )}
-                            </strong>{" "}
-                            à{" "}
-                            <strong>
-                              {format(
-                                addMinutes(
-                                  new Date(
-                                    Math.max(
-                                      ...selectedSlots.map((s) =>
-                                        new Date(s).getTime(),
-                                      ),
-                                    ),
-                                  ),
-                                  30,
-                                ),
-                                "HH:mm",
-                              )}
-                            </strong>
-                          </p>
-                        )}
-                      </div>
                     </div>
                   )}
                 </div>
