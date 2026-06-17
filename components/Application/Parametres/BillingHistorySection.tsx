@@ -225,11 +225,11 @@ export default function BillingHistorySection({
             </span>
           </div>
         ) : invoicesError ? (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 space-y-3">
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 space-y-3">
             <p className="text-red-300 text-sm font-one">{invoicesError}</p>
             <button
               onClick={() => fetchInvoices(currentPage)}
-              className="cursor-pointer px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-200 rounded-lg border border-red-500/20 transition-colors font-medium font-one text-xs"
+              className="cursor-pointer px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-200 rounded-2xl border border-red-500/20 transition-colors font-medium font-one text-xs"
             >
               Réessayer
             </button>
@@ -239,7 +239,7 @@ export default function BillingHistorySection({
             {invoices.map((invoice) => (
               <div
                 key={invoice.id}
-                className="rounded-xl border border-white/10 bg-noir-500/30 p-4"
+                className="rounded-2xl border border-white/10 bg-noir-500/30 p-4"
               >
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div className="space-y-2">
@@ -326,7 +326,7 @@ export default function BillingHistorySection({
             </div>
           </div>
         ) : (
-          <div className="rounded-lg border border-white/10 bg-noir-500/20 p-4">
+          <div className="rounded-2xl border border-white/10 bg-noir-500/20 p-4">
             <p className="text-white/70 text-sm font-one">
               Aucune facture Stripe disponible pour le moment.
             </p>

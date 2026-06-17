@@ -97,7 +97,7 @@ export default function SecuritySection({
 
         {openSections.security && (
           <div className="space-y-4">
-            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="bg-white/5 rounded-2xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h3 className="text-white font-one">Mot de passe</h3>
               <DashboardButton
                 onClick={() => setShowPasswordModal(true)}

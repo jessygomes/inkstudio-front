@@ -39,7 +39,7 @@ export default function ParamPage() {
   };
 
   return (
-    <div className="wrapper-global px-3 sm:px-4 lg:px-6 pb-24 lg:pb-4">
+    <div className="wrapper-global px-3 sm:px-4 lg:px-6 pb-24 lg:pb-10">
       <section className="w-full space-y-3 pt-4">
         <PageHeader
           icon={<CiSettings size={20} className="text-tertiary-400" />}

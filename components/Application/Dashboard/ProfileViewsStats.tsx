@@ -148,7 +148,7 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
 
   if (loading) {
     return (
-      <div className="dashboard-panel p-4 lg:p-5">
+      <div className="dashboard-panel bg-noir-500 p-4 lg:p-5">
         <div className="dashboard-panel-content">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-white font-one text-sm font-semibold">
@@ -168,7 +168,7 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
 
   if (error) {
     return (
-      <div className="dashboard-panel p-4 lg:p-5">
+      <div className="dashboard-panel bg-noir-500 p-4 lg:p-5">
         <div className="dashboard-panel-content">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-white font-one text-sm font-semibold">
@@ -191,7 +191,7 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
   }
 
   return (
-    <div className="dashboard-panel p-4 lg:p-5">
+    <div className="rounded-3xl border border-white/10 bg-noir-500 p-4 lg:p-5">
       <div className="dashboard-panel-content space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-white font-one text-sm font-semibold">
@@ -226,21 +226,21 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
             </p>
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
             <p className="text-[11px] text-white/55 font-one">Visiteurs uniques</p>
             <p className="mt-1 text-2xl text-white font-semibold font-one">
               {formatNumber(stats?.uniqueVisitors ?? 0)}
             </p>
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
             <p className="text-[11px] text-white/55 font-one">Dernieres 24h</p>
             <p className="mt-1 text-2xl text-white font-semibold font-one">
               {formatNumber(realtime?.views24h ?? 0)}
             </p>
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
             <p className="text-[11px] text-white/55 font-one">Total global</p>
             <p className="mt-1 text-2xl text-white font-semibold font-one">
               {globalTotalViews === null ? "-" : formatNumber(globalTotalViews)}
@@ -250,7 +250,7 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
             </p>
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
             <p className="text-[11px] text-white/55 font-one">Tendance 30j</p>
             <p className={`mt-1 text-lg font-semibold font-one ${trend.className}`}>
               <span className="mr-1">{trend.icon}</span>
@@ -260,7 +260,7 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
             <p className="mb-2 text-xs text-white/70 font-one">Appareils</p>
             {topDevices.length === 0 ? (
               <p className="text-[11px] text-white/50 font-one">Aucune donnee exploitable</p>
@@ -293,7 +293,7 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
             )}
           </div>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+          <div className="rounded-2xl border border-white/10 bg-noir-500 p-3">
             <p className="mb-2 text-xs text-white/70 font-one">Top sources de trafic</p>
             {topReferrers.length === 0 ? (
               <p className="text-[11px] text-white/50 font-one">Aucune donnee exploitable</p>

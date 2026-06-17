@@ -227,17 +227,32 @@ export const getLinkedSalonsAction = async () => {
 export const respondToTeamRequestAction = async ({
   requestId,
   action,
+  allowSalonAgendaAccess,
+  allowSalonCreateAppointments,
 }: {
   requestId: string;
   action: "accept" | "refuse";
+  allowSalonAgendaAccess?: boolean;
+  allowSalonCreateAppointments?: boolean;
 }) => {
   try {
     const headers = await getAuthHeaders();
 
+    const payload: {
+      action: "accept" | "refuse";
+      allowSalonAgendaAccess?: boolean;
+      allowSalonCreateAppointments?: boolean;
+    } = { action };
+
+    if (action === "accept") {
+      payload.allowSalonAgendaAccess = Boolean(allowSalonAgendaAccess);
+      payload.allowSalonCreateAppointments = Boolean(allowSalonCreateAppointments);
+    }
+
     const response = await fetch(`${TEAM_REQUESTS_BASE}/${requestId}/respond`, {
       method: "PATCH",
       headers,
-      body: JSON.stringify({ action }),
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json().catch(() => ({}));

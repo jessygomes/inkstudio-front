@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import {
+  updateSalonAgendaAccessPermissionAction,
+  updateSalonAppointmentCreationPermissionAction,
+} from "@/lib/queries/parametre.action";
 
 interface AppointmentModeSettingProps {
   userId: string | null;
@@ -30,6 +34,9 @@ export default function AppointmentModeSetting({
     (session?.user?.role || "").toLowerCase() === "user_tatoueur";
 
   const [loading, setLoading] = useState(true);
+  const [isSavingAgendaAccess, setIsSavingAgendaAccess] = useState(false);
+  const [isSavingCreationPermission, setIsSavingCreationPermission] =
+    useState(false);
   const [permissions, setPermissions] =
     useState<LinkedSalonPermissions>(DEFAULT_PERMISSIONS);
 
@@ -80,7 +87,7 @@ export default function AppointmentModeSetting({
     }
   }, [storageKey, loading, permissions]);
 
-  const handleAgendaAccessChange = (value: boolean) => {
+  const handleAgendaAccessChange = async (value: boolean) => {
     if (!isTatoueurAccount) {
       toast.error("Cette option est réservée aux comptes tatoueurs.");
       return;
@@ -93,46 +100,84 @@ export default function AppointmentModeSetting({
       return;
     }
 
-    setPermissions((prev) => ({
-      ...prev,
-      canViewAgendaAndAppointments: value,
-    }));
+    setIsSavingAgendaAccess(true);
 
-    toast.success(
-      value
-        ? "Le salon relié peut désormais voir ton agenda et tes RDV."
-        : "Le salon relié ne peut plus voir ton agenda et tes RDV.",
-    );
+    try {
+      const response = await updateSalonAgendaAccessPermissionAction(value);
+
+      if (!response.ok) {
+        toast.error(response.message || "Mise à jour impossible.");
+        return;
+      }
+
+      setPermissions((prev) => ({
+        ...prev,
+        canViewAgendaAndAppointments: value,
+      }));
+
+      toast.success(
+        value
+          ? "Le salon relié peut désormais voir ton agenda et tes RDV."
+          : "Le salon relié ne peut plus voir ton agenda et tes RDV.",
+      );
+    } finally {
+      setIsSavingAgendaAccess(false);
+    }
   };
 
-  const handleCreateAppointmentChange = (value: boolean) => {
+  const handleCreateAppointmentChange = async (value: boolean) => {
     if (!isTatoueurAccount) {
       toast.error("Cette option est réservée aux comptes tatoueurs.");
       return;
     }
 
-    if (value && !permissions.canViewAgendaAndAppointments) {
-      setPermissions((prev) => ({
-        ...prev,
-        canViewAgendaAndAppointments: true,
-        canCreateAppointmentForMe: true,
-      }));
+    setIsSavingCreationPermission(true);
 
-      toast.info(
-        "Accès agenda/RDV activé automatiquement pour autoriser la création de RDV.",
-      );
-    } else {
+    try {
+      if (value && !permissions.canViewAgendaAndAppointments) {
+        const agendaAccessResponse = await updateSalonAgendaAccessPermissionAction(
+          true,
+        );
+
+        if (!agendaAccessResponse.ok) {
+          toast.error(
+            agendaAccessResponse.message ||
+              "Impossible d'activer l'accès agenda/RDV.",
+          );
+          return;
+        }
+
+        setPermissions((prev) => ({
+          ...prev,
+          canViewAgendaAndAppointments: true,
+        }));
+
+        toast.info(
+          "Accès agenda/RDV activé automatiquement pour autoriser la création de RDV.",
+        );
+      }
+
+      const createPermissionResponse =
+        await updateSalonAppointmentCreationPermissionAction(value);
+
+      if (!createPermissionResponse.ok) {
+        toast.error(createPermissionResponse.message || "Mise à jour impossible.");
+        return;
+      }
+
       setPermissions((prev) => ({
         ...prev,
         canCreateAppointmentForMe: value,
       }));
-    }
 
-    toast.success(
-      value
-        ? "Le salon relié peut désormais créer des RDV pour toi."
-        : "Le salon relié ne peut plus créer de RDV pour toi.",
-    );
+      toast.success(
+        value
+          ? "Le salon relié peut désormais créer des RDV pour toi."
+          : "Le salon relié ne peut plus créer de RDV pour toi.",
+      );
+    } finally {
+      setIsSavingCreationPermission(false);
+    }
   };
 
   const statusColor = permissions.canViewAgendaAndAppointments
@@ -186,8 +231,8 @@ export default function AppointmentModeSetting({
                   <input
                     type="checkbox"
                     checked={permissions.canViewAgendaAndAppointments}
-                    onChange={(e) => handleAgendaAccessChange(e.target.checked)}
-                    disabled={!isTatoueurAccount}
+                    onChange={(e) => void handleAgendaAccessChange(e.target.checked)}
+                    disabled={!isTatoueurAccount || isSavingAgendaAccess || isSavingCreationPermission}
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-disabled:opacity-50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
@@ -213,8 +258,8 @@ export default function AppointmentModeSetting({
                   <input
                     type="checkbox"
                     checked={permissions.canCreateAppointmentForMe}
-                    onChange={(e) => handleCreateAppointmentChange(e.target.checked)}
-                    disabled={!isTatoueurAccount}
+                    onChange={(e) => void handleCreateAppointmentChange(e.target.checked)}
+                    disabled={!isTatoueurAccount || isSavingCreationPermission || isSavingAgendaAccess}
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-disabled:opacity-50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
@@ -229,7 +274,7 @@ export default function AppointmentModeSetting({
               <span className="text-xs font-one text-white/75">{statusLabel}</span>
             </div>
             <p className="text-[11px] text-white/45 font-one">
-              Configuration locale temporaire en attendant les routes backend.
+              Les autorisations sont envoyées au backend. Le chargement initial reste local tant que la route de lecture n&apos;est pas disponible.
             </p>
           </div>
         </>
