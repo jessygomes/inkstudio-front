@@ -1,7 +1,8 @@
 "use client";
 
 import { CiUser } from "react-icons/ci";
-import { useUser } from "@/components/Auth/Context/UserContext";
+import { getUserParamAction } from "@/lib/queries/user"; 
+import { useEffect, useState } from "react";
 
 type SectionKeys =
   | "account"
@@ -11,6 +12,7 @@ type SectionKeys =
   | "preferences";
 
 interface AccountInfoSectionProps {
+  userId: string | null;
   openSections: {
     account: boolean;
     subscription: boolean;
@@ -22,16 +24,23 @@ interface AccountInfoSectionProps {
 }
 
 export default function AccountInfoSection({
+  userId,
   openSections,
   toggleSection,
 }: AccountInfoSectionProps) {
-  const user = useUser();
-  const completionCount = [
-    user?.salonName,
-    user?.email,
-    user?.phone,
-    user?.address,
-  ].filter(Boolean).length;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [user, setUser] = useState<any>(null);
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (userId) {
+        const userData = await getUserParamAction(userId);
+        console.log("Fetched user data:", userData); // Log the fetched user data for debugging
+        setUser(userData.data);
+      }
+    };
+    fetchUserData();
+  }, [userId]);
 
   return (
     <div className="dashboard-embedded-panel rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
@@ -54,9 +63,6 @@ export default function AccountInfoSection({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="hidden sm:inline-flex rounded-[10px] border border-white/20 bg-white/10 px-2 py-1 text-[10px] font-one text-white/75">
-            {completionCount}/4 remplis
-          </span>
           <span className="text-white/50 text-lg leading-none">
             {openSections.account ? "−" : "+"}
           </span>
@@ -72,6 +78,14 @@ export default function AccountInfoSection({
               </p>
               <p className="text-white font-one text-sm sm:text-base break-words">
                 {user?.salonName || "Nom non défini"}
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
+              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
+                Nom et prénom
+              </p>
+              <p className="text-white font-one text-sm sm:text-base break-words">
+                {user?.lastName || "Nom non défini"} {user?.firstName || "Prénom non défini"}
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
@@ -97,7 +111,16 @@ export default function AccountInfoSection({
                 Adresse
               </p>
               <p className="text-white font-one text-sm break-words">
-                {user?.address || "Non renseignée"}
+                {user?.address || "Non renseignée"}, {user?.city || ""} {user?.postalCode || ""}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
+              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
+                Plan
+              </p>
+              <p className="text-white font-one text-sm break-words">
+                {user?.saasPlan || "Non renseigné"}
               </p>
             </div>
           </div>

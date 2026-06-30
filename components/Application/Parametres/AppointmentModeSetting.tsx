@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import {
+  getSalonLinkedPermissionsAction,
   updateSalonAgendaAccessPermissionAction,
   updateSalonAppointmentCreationPermissionAction,
 } from "@/lib/queries/parametre.action";
@@ -40,52 +41,43 @@ export default function AppointmentModeSetting({
   const [permissions, setPermissions] =
     useState<LinkedSalonPermissions>(DEFAULT_PERMISSIONS);
 
-  const storageKey = useMemo(
-    () => (userId ? `inkera:tatoueur:salon-permissions:${userId}` : null),
-    [userId],
-  );
-
   useEffect(() => {
-    if (!storageKey) {
-      setLoading(false);
-      return;
-    }
+    const loadCurrentPermissions = async () => {
+      if (!userId || !isTatoueurAccount) {
+        setLoading(false);
+        return;
+      }
 
-    try {
-      const rawValue = window.localStorage.getItem(storageKey);
+      setLoading(true);
 
-      if (rawValue) {
-        const parsed = JSON.parse(rawValue) as {
-          canViewAgendaAndAppointments?: boolean;
-          canCreateAppointmentForMe?: boolean;
-        };
+      try {
+        const response = await getSalonLinkedPermissionsAction();
+
+        if (!response.ok || !response.data) {
+          toast.error(
+            response.message || "Impossible de récupérer les permissions.",
+          );
+          return;
+        }
 
         setPermissions({
-          canViewAgendaAndAppointments: Boolean(
-            parsed.canViewAgendaAndAppointments,
-          ),
-          canCreateAppointmentForMe: Boolean(parsed.canCreateAppointmentForMe),
+          canViewAgendaAndAppointments: response.data.agendaAccess,
+          canCreateAppointmentForMe: response.data.salonAppointmentCreation,
         });
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement des permissions salon:",
+          error,
+        );
+
+        toast.error("Impossible de récupérer les permissions.");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Erreur lors du chargement des permissions locales:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [storageKey]);
+    };
 
-  useEffect(() => {
-    if (!storageKey || loading) return;
-
-    try {
-      window.localStorage.setItem(
-        storageKey,
-        JSON.stringify(permissions),
-      );
-    } catch (error) {
-      console.error("Erreur lors de la sauvegarde des permissions locales:", error);
-    }
-  }, [storageKey, loading, permissions]);
+    void loadCurrentPermissions();
+  }, [userId, isTatoueurAccount]);
 
   const handleAgendaAccessChange = async (value: boolean) => {
     if (!isTatoueurAccount) {

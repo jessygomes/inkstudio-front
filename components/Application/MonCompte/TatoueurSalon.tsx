@@ -64,10 +64,12 @@ export default function TatoueurSalon({
     (tatoueurs as TeamTatoueur[]) || []
   );
 
+  // Met à jour la liste des tatoueurs lorsque la prop tatoueurs change
   useEffect(() => {
     setTeamTatoueurs((tatoueurs as TeamTatoueur[]) || []);
   }, [tatoueurs]);
 
+  // Détecte si l'écran est mobile pour ajuster l'affichage
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 639px)");
     const updateIsMobile = () => setIsMobile(mediaQuery.matches);
@@ -80,6 +82,7 @@ export default function TatoueurSalon({
     };
   }, []);
 
+  // Fonction pour supprimer un fichier d'UploadThing
   const deleteFromUploadThing = async (fileKey: string): Promise<boolean> => {
     try {
       const response = await fetch("/api/uploadthing/delete", {
@@ -109,6 +112,7 @@ export default function TatoueurSalon({
     }
   };
 
+  // Gestion de la suppression d'un tatoueur
   const handleDeleteTatoueur = async () => {
     if (!selectedTatoueur) return;
 
@@ -156,6 +160,7 @@ export default function TatoueurSalon({
     }
   };
 
+  // Gestion du retrait d'un tatoueur lié
   const handleUnlinkLinkedTatoueur = async (tatoueur: TeamTatoueur) => {
     const linkedUserId = tatoueur.linkedUserId || tatoueur.tatoueurUserId;
 
@@ -184,10 +189,12 @@ export default function TatoueurSalon({
     }
   };
 
+  // Compte le nombre de tatoueurs avec la prise de rendez-vous activée
   const rdvEnabledCount = teamTatoueurs.filter(
     (tatoueur) => isAppointmentBookingEnabled(tatoueur)
   ).length;
 
+  // Gestion de l'activation/désactivation de la prise de rendez-vous pour un tatoueur
   const handleToggleLinkedTatoueurRdv = async (tatoueur: TeamTatoueur) => {
     const linkedUserId = tatoueur.linkedUserId || tatoueur.tatoueurUserId;
 

@@ -37,6 +37,39 @@ export const getUserInfoAction = async (salonId: string) => {
 
 //! ----------------------------------------------------------------------------
 
+//! GET LES INFOS PARAM DU SALON
+
+//! ----------------------------------------------------------------------------
+export const getUserParamAction = async (salonId: string) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}/param`,
+      {
+        method: "GET",
+        headers,
+      },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || (data && data.error)) {
+      const message =
+        data?.message || `Erreur lors de l'opération (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return { ok: true, error: false, status: response.status, data };
+  } catch (error) {
+    console.error("Erreur lors de la récupération des infos du salon :", error);
+    throw error;
+  }
+};
+
+
+//! ----------------------------------------------------------------------------
+
 //! MODIFIER INFO DU SALON
 
 //! ----------------------------------------------------------------------------

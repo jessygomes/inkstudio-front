@@ -22,6 +22,8 @@ export default function ParamPage() {
   const { data: session } = useSession();
   const [billingRefreshKey, setBillingRefreshKey] = useState(0);
 
+  console.log("Session data in ParamPage:", session); // Log the session data for debugging
+
   // États pour les sections dépliantes
   const [openSections, setOpenSections] = useState({
     account: true,
@@ -49,17 +51,20 @@ export default function ParamPage() {
         <div className="space-y-6">
           {/* Section Informations du compte responsive */}
           <AccountInfoSection
+            userId={session?.user?.id || null}
             openSections={openSections}
             toggleSection={toggleSection}
           />
 
           <VerificationDocumentsSection />
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <AppointmentModeSetting
-              userId={session?.user?.id || null}
-              saasPlan={session?.user?.saasPlan || null}
-            />
+          <div  className={`grid grid-cols-1 gap-6 ${session?.user?.role === "user_tatoueur"? "xl:grid-cols-3" : "xl:grid-cols-2"}`}>
+            {session?.user?.role === "user_tatoueur" && (
+              <AppointmentModeSetting
+                userId={session?.user?.id || null}
+                saasPlan={session?.user?.saasPlan || null}
+              />
+            )}
 
             <AppointmentConfirmationSetting
               userId={session?.user?.id || null}
@@ -68,10 +73,9 @@ export default function ParamPage() {
             <InspirationSalonSetting userId={session?.user?.id || null} />
           </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <NotifChatPreference />
           <ColorProfile />
-      
           </div>
 
           <SubscriptionSection

@@ -13,12 +13,6 @@ export const createOrUpdateTatoueur = async (
   url: string
 ) => {
   try {
-    console.log(
-      "Creating/updating tatoueur with payload:",
-      payload,
-      method,
-      url
-    );
     const headers = await getAuthHeaders();
 
     const res = await fetch(url, {
