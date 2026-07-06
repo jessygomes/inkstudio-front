@@ -11,7 +11,11 @@ import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUpl
 import DashboardButton from "@/components/Shared/DashboardButton";
 import SkeletonForm from "@/components/Skeleton/SkeletonForm";
 import { useRouter } from "next/navigation";
-import { updateUserInfoAction, getUserInfoAction } from "@/lib/queries/user";
+import {
+  updateUserInfoAction,
+  getUserInfoAction,
+  updateProjectAppointmentBookingAction,
+} from "@/lib/queries/user";
 import { toast } from "sonner";
 import { IoClose } from "react-icons/io5";
 
@@ -25,6 +29,11 @@ export default function UpdateAccountPage() {
 
   const form = useForm<z.infer<typeof updateSalonSchema>>({
     resolver: zodResolver(updateSalonSchema),
+    defaultValues: {
+      prestations: [],
+      style: [],
+      projectAppointmentIsFree: false,
+    },
   });
 
   useEffect(() => {
@@ -53,6 +62,9 @@ export default function UpdateAccountPage() {
             profileImage: result.data.profileImage ?? undefined,
             prestations: result.data.prestations ?? [],
             style: result.data.style ?? [],
+            projectAppointmentDurationMinutes: result.data.projectAppointmentDurationMinutes ?? undefined,
+            projectAppointmentIsFree: result.data.projectAppointmentIsFree ?? undefined,
+            projectAppointmentPrice: result.data.projectAppointmentPrice ?? undefined,
           });
           setStyleBadges(result.data.style ?? []);
         } else {
@@ -71,20 +83,58 @@ export default function UpdateAccountPage() {
 
     setIsSubmitting(true);
     try {
+      const selectedPrestations = data.prestations ?? [];
+      const hasProjectService = selectedPrestations.includes("PROJET");
+      const projectDuration = data.projectAppointmentDurationMinutes;
+      const projectIsFree = data.projectAppointmentIsFree ?? false;
+      const projectPrice = data.projectAppointmentPrice;
+
+      if (hasProjectService) {
+        if (!projectDuration || projectDuration <= 0) {
+          toast.error("Veuillez renseigner la duree d'une prestation projet.");
+          return;
+        }
+
+        if (!projectIsFree && (!projectPrice || projectPrice <= 0)) {
+          toast.error("Veuillez renseigner un prix projet valide.");
+          return;
+        }
+      }
+
       const payload = {
         ...data,
         style: styleBadges,
       };
+      delete payload.projectAppointmentDurationMinutes;
+      delete payload.projectAppointmentIsFree;
+      delete payload.projectAppointmentPrice;
 
       const result = await updateUserInfoAction(payload);
 
-      if (result.ok) {
-        toast.success("Salon mis à jour avec succès !");
-        router.push("/mon-compte");
-      } else {
+      if (!result.ok) {
         console.error("Erreur lors de la mise à jour:", result.message);
         toast.error(result.message || "Erreur lors de la mise à jour du salon.");
+        return;
       }
+
+      if (hasProjectService) {
+        const appointmentResult = await updateProjectAppointmentBookingAction({
+          projectAppointmentDurationMinutes: projectDuration,
+          projectAppointmentIsFree: projectIsFree,
+          projectAppointmentPrice: projectIsFree ? undefined : projectPrice,
+        });
+
+        if (!appointmentResult.ok) {
+          toast.error(
+            appointmentResult.message ||
+              "Salon mis a jour, mais la configuration PROJET a echoue.",
+          );
+          return;
+        }
+      }
+
+      toast.success("Salon mis à jour avec succès !");
+      router.push("/mon-compte");
     } catch (error) {
       console.error("Erreur lors de la mise à jour:", error);
       toast.error("Erreur lors de la mise à jour du salon.");
@@ -131,9 +181,21 @@ export default function UpdateAccountPage() {
   const labelClass =
     "text-[10px] uppercase tracking-wider text-white/50 font-one";
   const inputClass =
-    "w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one";
+    "w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one bg-noir-700";
   const badgeClass =
     "inline-flex items-center gap-1 rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-2.5 py-1 text-xs text-tertiary-500 font-one";
+  const selectedPrestations = form.watch("prestations") ?? [];
+  const showProjectConfig = selectedPrestations.includes("PROJET");
+  const projectIsFree = form.watch("projectAppointmentIsFree") ?? false;
+  const projectDuration = form.watch("projectAppointmentDurationMinutes");
+
+  const projectDurationOptions = [30, 60, 90, 120, 150, 180, 210, 240];
+  const formatDurationLabel = (minutes: number) => {
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    const rem = minutes % 60;
+    return rem === 0 ? `${hours} h` : `${hours} h ${rem}`;
+  };
 
   const handleAddStyle = () => {
     const val = styleInput.trim();
@@ -361,7 +423,7 @@ export default function UpdateAccountPage() {
                   "PROJET",
                   "PIERCING",
                 ] as const;
-                const selected = form.watch("prestations") ?? [];
+                const selected = selectedPrestations;
 
                 return (
                   <div className="flex flex-wrap gap-1.5">
@@ -440,6 +502,90 @@ export default function UpdateAccountPage() {
             </div>
             </section>
 
+            {showProjectConfig ? (
+              <div className="dashboard-embedded-section p-2.5 sm:p-3">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="text-sm font-semibold tracking-wider text-white font-one">
+                    Configuration de la prestation Projet
+                  </h3>
+                  {projectDuration ? (
+                    <span className="rounded-full border border-white/15 bg-white/10 px-2 py-0.5 text-[10px] text-white/70 font-one">
+                      {formatDurationLabel(projectDuration)}
+                    </span>
+                  ) : null}
+                </div>
+
+                <p className="mb-2 text-[10px] text-white/60 font-one">
+                  Durée par tranches de 30 minutes.
+                </p>
+
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 ">
+                  <div className="space-y-1">
+                    <label className={labelClass}>Durée (minutes)</label>
+                    <select
+                      {...form.register("projectAppointmentDurationMinutes", {
+                        setValueAs: (val) =>
+                          val === "" ? undefined : Number(val),
+                      })}
+                      className={inputClass}
+                    >
+                      <option value="" className="bg-noir-500">Choisir</option>
+                      {projectDurationOptions.map((minutes) => (
+                        <option key={minutes} value={minutes} className="bg-noir-500">
+                          {formatDurationLabel(minutes)} ({minutes} min)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className={labelClass}>Tarification</label>
+                    <label className="inline-flex h-9 w-full items-center gap-2 rounded-xl border border-white/10 bg-white/6 px-3 text-xs text-white font-one">
+                      <input
+                        type="checkbox"
+                        checked={projectIsFree}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          form.setValue("projectAppointmentIsFree", checked, {
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          });
+
+                          if (checked) {
+                            form.setValue("projectAppointmentPrice", undefined, {
+                              shouldDirty: true,
+                              shouldTouch: true,
+                            });
+                          }
+                        }}
+                      />
+                      Prestation gratuite
+                    </label>
+                  </div>
+
+                  {!projectIsFree ? (
+                    <div className="space-y-1">
+                    <label className={labelClass}>Prix (EUR)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      placeholder="Ex: 50"
+                      {...form.register("projectAppointmentPrice", {
+                        valueAsNumber: true,
+                      })}
+                      className={inputClass}
+                    />
+                  </div>
+                  ) : (
+                    <div className="flex justify-center items-center rounded-xl border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-100 font-one">
+                      <p>Le client ne paie pas la prestation projet.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+
             <div className=" flex flex-col justify-end gap-2 py-3 sm:flex-row sm:items-center sm:rounded-b-2xl">
               <DashboardButton
                 variant="secondary"
@@ -463,8 +609,7 @@ export default function UpdateAccountPage() {
           </form>
 
           {(() => {
-            const selected = form.watch("prestations") ?? [];
-            const showPiercing = selected.includes("PIERCING");
+            const showPiercing = selectedPrestations.includes("PIERCING");
 
             if (!showPiercing) return null;
 

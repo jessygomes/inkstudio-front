@@ -140,6 +140,9 @@ export interface UpdateSalonUserProps {
   verifiedSalon?: boolean;
   prestations: string[]; // Liste des prestations
   style?: string[];
+  projectAppointmentDurationMinutes?: number | null;
+  projectAppointmentIsFree?: boolean | null;
+  projectAppointmentPrice?: number | null;
 }
 
 export interface Subscription {

@@ -166,6 +166,15 @@ export const updateSalonSchema = z.object({
   profileImage: z.string().optional(),
   prestations: z.array(prestationEnum).optional().default([]),
   style: z.array(z.string()).optional().default([]),
+  projectAppointmentDurationMinutes: z.preprocess(
+    (val) => (val === "" || val == null ? undefined : Number(val)),
+    z.number().int().positive().optional(),
+  ),
+  projectAppointmentIsFree: z.boolean().optional(),
+  projectAppointmentPrice: z.preprocess(
+    (val) => (val === "" || val == null ? undefined : Number(val)),
+    z.number().nonnegative().optional(),
+  ),
 });
 
 //! TATOUEUR

@@ -388,6 +388,51 @@ export const updateAppointmentParamAction = async (value: boolean) => {
   }
 };
 
+type UpdateProjectAppointmentBookingPayload = {
+  agendaMode?: "PAR_TATOUEUR" | "GLOBAL";
+  projectAppointmentDurationMinutes?: number;
+  projectAppointmentIsFree?: boolean;
+  projectAppointmentPrice?: number;
+};
+
+//! ----------------------------------------------------------------------------
+
+//! METTRE A JOUR LES PARAMETRES DE PRESTATION PROJET
+
+//! ----------------------------------------------------------------------------
+export const updateProjectAppointmentBookingAction = async (
+  payload: UpdateProjectAppointmentBookingPayload,
+) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/users/appointment-setting`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify(payload),
+      },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || (data && data.error)) {
+      const message =
+        data?.message || `Erreur lors de l'opération (${response.status})`;
+      return { ok: false, error: true, status: response.status, message, data };
+    }
+
+    return { ok: true, error: false, status: response.status, data };
+  } catch (error) {
+    console.error(
+      "Erreur lors de la mise a jour des parametres de prestation projet :",
+      error,
+    );
+    throw error;
+  }
+};
+
 //! ----------------------------------------------------------------------------
 
 //! RECUPERER LES COULEURS DU PROFIL
