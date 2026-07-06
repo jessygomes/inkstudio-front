@@ -87,6 +87,14 @@ export default function ShowFlash() {
     return "";
   };
 
+  const formatDuration = (minutes?: number) => {
+    if (!minutes || minutes <= 0) return "1 h";
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    const remainder = minutes % 60;
+    return remainder === 0 ? `${hours} h` : `${hours} h ${remainder}`;
+  };
+
   const fetchFlashs = useCallback(
     async (page: number = 1, reset: boolean = true) => {
       if (!session?.user?.id) {
@@ -331,9 +339,13 @@ export default function ShowFlash() {
                   {flash.price} €
                 </p>
 
+                <p className="text-[11px] text-white/75 font-one sm:text-xs">
+                  Durée : {formatDuration(flash.appointmentDurationMinutes)}
+                </p>
+
                 {flash.dimension && (
                   <p className="text-[11px] text-white/80 font-one sm:text-xs">
-                    Dimensions: {flash.dimension}
+                    Dimensions : {flash.dimension}
                   </p>
                 )}
 

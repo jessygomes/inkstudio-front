@@ -369,6 +369,14 @@ export const flashSchema = z.object({
     const trimmedValue = value.trim();
     return trimmedValue.length === 0 ? undefined : trimmedValue;
   }, z.string().max(50, "La dimension doit faire 50 caractères maximum.").optional()),
+  appointmentDurationMinutes: z
+    .number()
+    .int("La duree doit etre un entier.")
+    .positive("La duree doit etre superieure a 0.")
+    .refine((value) => value % 30 === 0, {
+      message: "La duree doit etre definie par tranches de 30 minutes.",
+    })
+    .default(60),
   description: z.string().optional(),
   imageUrl: z.string().url("L'URL de l'image doit être valide."),
   price: z.number().min(0, "Le prix doit etre superieur ou egal a 0."),

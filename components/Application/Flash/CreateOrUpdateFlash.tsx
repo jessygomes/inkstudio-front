@@ -95,6 +95,7 @@ export default function CreateOrUpdateFlash({
     defaultValues: {
       title: existingFlash?.title || "",
       dimension: existingFlash?.dimension || "",
+      appointmentDurationMinutes: existingFlash?.appointmentDurationMinutes || 60,
       description: existingFlash?.description || "",
       imageUrl: existingFlash?.imageUrl || "",
       price: existingFlash?.price || 0,
@@ -414,6 +415,33 @@ export default function CreateOrUpdateFlash({
                   {form.formState.errors.dimension && (
                     <p className="mt-1 text-xs text-red-300 font-one">
                       {form.formState.errors.dimension.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
+                    Durée du rendez-vous (30 min)
+                  </label>
+                  <select
+                    {...form.register("appointmentDurationMinutes", {
+                      setValueAs: (value) => Number(value),
+                    })}
+                    className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white focus:border-tertiary-400/40 focus:outline-none font-one"
+                  >
+                    {[30, 60, 90, 120, 150, 180, 210, 240].map((duration) => (
+                      <option key={duration} value={duration} className="bg-noir-500">
+                        {duration < 60
+                          ? `${duration} min`
+                          : duration % 60 === 0
+                            ? `${duration / 60} h`
+                            : `${Math.floor(duration / 60)} h ${duration % 60}`}
+                      </option>
+                    ))}
+                  </select>
+                  {form.formState.errors.appointmentDurationMinutes && (
+                    <p className="mt-1 text-xs text-red-300 font-one">
+                      {form.formState.errors.appointmentDurationMinutes.message}
                     </p>
                   )}
                 </div>

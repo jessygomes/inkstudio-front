@@ -265,6 +265,7 @@ export interface FlashProps {
   tatoueurId?: string | null;
   title: string;
   dimension?: string | null;
+  appointmentDurationMinutes?: number;
   description: string | null;
   imageUrl: string;
   style?: string[];

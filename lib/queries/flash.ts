@@ -17,6 +17,7 @@ export interface FlashItemDto {
   tatoueurId?: string | null;
   title: string;
   dimension: string | null;
+  appointmentDurationMinutes?: number;
   imageUrl: string;
   description: string | null;
   style?: string[];
