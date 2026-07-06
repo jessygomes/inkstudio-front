@@ -393,6 +393,8 @@ type UpdateProjectAppointmentBookingPayload = {
   projectAppointmentDurationMinutes?: number;
   projectAppointmentIsFree?: boolean;
   projectAppointmentPrice?: number;
+  followUpEmailDelayDays?: number;
+  retouchEmailDelayDays?: number;
 };
 
 //! ----------------------------------------------------------------------------

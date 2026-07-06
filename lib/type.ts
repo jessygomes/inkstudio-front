@@ -143,6 +143,8 @@ export interface UpdateSalonUserProps {
   projectAppointmentDurationMinutes?: number | null;
   projectAppointmentIsFree?: boolean | null;
   projectAppointmentPrice?: number | null;
+  followUpEmailDelayDays?: number | null;
+  retouchEmailDelayDays?: number | null;
 }
 
 export interface Subscription {

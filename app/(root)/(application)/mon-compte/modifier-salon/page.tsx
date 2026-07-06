@@ -33,6 +33,8 @@ export default function UpdateAccountPage() {
       prestations: [],
       style: [],
       projectAppointmentIsFree: false,
+      followUpEmailDelayDays: 3,
+      retouchEmailDelayDays: 30,
     },
   });
 
@@ -65,6 +67,8 @@ export default function UpdateAccountPage() {
             projectAppointmentDurationMinutes: result.data.projectAppointmentDurationMinutes ?? undefined,
             projectAppointmentIsFree: result.data.projectAppointmentIsFree ?? undefined,
             projectAppointmentPrice: result.data.projectAppointmentPrice ?? undefined,
+            followUpEmailDelayDays: result.data.followUpEmailDelayDays ?? undefined,
+            retouchEmailDelayDays: result.data.retouchEmailDelayDays ?? undefined,
           });
           setStyleBadges(result.data.style ?? []);
         } else {
@@ -88,6 +92,12 @@ export default function UpdateAccountPage() {
       const projectDuration = data.projectAppointmentDurationMinutes;
       const projectIsFree = data.projectAppointmentIsFree ?? false;
       const projectPrice = data.projectAppointmentPrice;
+      const requiresFollowUpSettings = selectedPrestations.some((prestation) =>
+        ["TATTOO", "RETOUCHE", "PIERCING"].includes(prestation),
+      );
+      const requiresRetouchDelay = selectedPrestations.includes("RETOUCHE");
+      const followUpDelay = data.followUpEmailDelayDays;
+      const retouchDelay = data.retouchEmailDelayDays;
 
       if (hasProjectService) {
         if (!projectDuration || projectDuration <= 0) {
@@ -101,6 +111,16 @@ export default function UpdateAccountPage() {
         }
       }
 
+      if (requiresFollowUpSettings && (!followUpDelay || followUpDelay <= 0)) {
+        toast.error("Veuillez renseigner le delai d'email de suivi.");
+        return;
+      }
+
+      if (requiresRetouchDelay && (!retouchDelay || retouchDelay <= 0)) {
+        toast.error("Veuillez renseigner le delai d'email de retouche.");
+        return;
+      }
+
       const payload = {
         ...data,
         style: styleBadges,
@@ -108,6 +128,8 @@ export default function UpdateAccountPage() {
       delete payload.projectAppointmentDurationMinutes;
       delete payload.projectAppointmentIsFree;
       delete payload.projectAppointmentPrice;
+      delete payload.followUpEmailDelayDays;
+      delete payload.retouchEmailDelayDays;
 
       const result = await updateUserInfoAction(payload);
 
@@ -117,11 +139,21 @@ export default function UpdateAccountPage() {
         return;
       }
 
-      if (hasProjectService) {
+      if (hasProjectService || requiresFollowUpSettings) {
         const appointmentResult = await updateProjectAppointmentBookingAction({
-          projectAppointmentDurationMinutes: projectDuration,
-          projectAppointmentIsFree: projectIsFree,
-          projectAppointmentPrice: projectIsFree ? undefined : projectPrice,
+          projectAppointmentDurationMinutes: hasProjectService
+            ? projectDuration
+            : undefined,
+          projectAppointmentIsFree: hasProjectService ? projectIsFree : undefined,
+          projectAppointmentPrice: hasProjectService
+            ? projectIsFree
+              ? undefined
+              : projectPrice
+            : undefined,
+          followUpEmailDelayDays: requiresFollowUpSettings
+            ? followUpDelay
+            : undefined,
+          retouchEmailDelayDays: requiresRetouchDelay ? retouchDelay : undefined,
         });
 
         if (!appointmentResult.ok) {
@@ -158,6 +190,11 @@ export default function UpdateAccountPage() {
         [field]: clearedValue,
         style: styleBadges,
       };
+      delete payload.projectAppointmentDurationMinutes;
+      delete payload.projectAppointmentIsFree;
+      delete payload.projectAppointmentPrice;
+      delete payload.followUpEmailDelayDays;
+      delete payload.retouchEmailDelayDays;
 
       const result = await updateUserInfoAction(payload);
       if (!result.ok) {
@@ -186,6 +223,10 @@ export default function UpdateAccountPage() {
     "inline-flex items-center gap-1 rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-2.5 py-1 text-xs text-tertiary-500 font-one";
   const selectedPrestations = form.watch("prestations") ?? [];
   const showProjectConfig = selectedPrestations.includes("PROJET");
+  const showFollowUpEmailConfig = selectedPrestations.some((prestation) =>
+    ["TATTOO", "RETOUCHE", "PIERCING"].includes(prestation),
+  );
+  const showRetouchEmailDelay = selectedPrestations.includes("RETOUCHE");
   const projectIsFree = form.watch("projectAppointmentIsFree") ?? false;
   const projectDuration = form.watch("projectAppointmentDurationMinutes");
 
@@ -582,6 +623,52 @@ export default function UpdateAccountPage() {
                       <p>Le client ne paie pas la prestation projet.</p>
                     </div>
                   )}
+                </div>
+              </div>
+            ) : null}
+
+            {showFollowUpEmailConfig ? (
+              <div className="dashboard-embedded-section p-2.5 sm:p-3">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="text-sm font-semibold tracking-wider text-white font-one">
+                    Emails de suivi
+                  </h3>
+                </div>
+
+                <p className="mb-2 text-[10px] text-white/60 font-one">
+                  Definissez apres combien de jours les emails sont envoyes apres la seance.
+                </p>
+
+                <div className={`grid grid-cols-1 gap-2 ${showRetouchEmailDelay ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}>
+                  <div className="space-y-1">
+                    <label className={labelClass}>Suivi general (jours)</label>
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      placeholder="Ex: 3"
+                      {...form.register("followUpEmailDelayDays", {
+                        valueAsNumber: true,
+                      })}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  {showRetouchEmailDelay ? (
+                    <div className="space-y-1">
+                      <label className={labelClass}>Suivi retouche (jours)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        step={1}
+                        placeholder="Ex: 30"
+                        {...form.register("retouchEmailDelayDays", {
+                          valueAsNumber: true,
+                        })}
+                        className={inputClass}
+                      />
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ) : null}

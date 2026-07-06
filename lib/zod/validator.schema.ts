@@ -175,6 +175,14 @@ export const updateSalonSchema = z.object({
     (val) => (val === "" || val == null ? undefined : Number(val)),
     z.number().nonnegative().optional(),
   ),
+  followUpEmailDelayDays: z.preprocess(
+    (val) => (val === "" || val == null ? undefined : Number(val)),
+    z.number().int().positive().optional(),
+  ),
+  retouchEmailDelayDays: z.preprocess(
+    (val) => (val === "" || val == null ? undefined : Number(val)),
+    z.number().int().positive().optional(),
+  ),
 });
 
 //! TATOUEUR
