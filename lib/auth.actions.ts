@@ -1,7 +1,32 @@
 "use server";
 
+import { signOut as authSignOut } from "@/auth";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+
+const SESSION_COOKIE_PREFIXES = [
+  "authjs.session-token",
+  "__Secure-authjs.session-token",
+  "authjs.callback-url",
+  "__Secure-authjs.callback-url",
+  "authjs.csrf-token",
+  "__Host-authjs.csrf-token",
+  "access_token",
+  "userId",
+] as const;
+
+async function clearSessionCookies() {
+  const cookieStore = await cookies();
+
+  for (const cookie of cookieStore.getAll()) {
+    if (
+      SESSION_COOKIE_PREFIXES.some(
+        (prefix) => cookie.name === prefix || cookie.name.startsWith(`${prefix}.`),
+      )
+    ) {
+      cookieStore.delete(cookie.name);
+    }
+  }
+}
 
 /**
  * Server Action pour gérer la déconnexion et le nettoyage des cookies
@@ -9,16 +34,14 @@ import { redirect } from "next/navigation";
  */
 export async function logoutAction() {
   try {
-    const cookieStore = await cookies();
+    await authSignOut({
+      redirect: false,
+      redirectTo: "/",
+    });
 
-    // Supprimer les cookies de session
-    cookieStore.delete("access_token");
-    cookieStore.delete("userId");
+    await clearSessionCookies();
 
-    // console.log("🧹 Cookies de session supprimés via server action");
-
-    // Rediriger vers la page de connexion
-    redirect("/connexion?reason=token_expired");
+    return { url: "/" };
   } catch (error) {
     console.error("❌ Erreur lors de la déconnexion:", error);
     throw error;
@@ -55,11 +78,7 @@ export async function verifyToken(token: string): Promise<boolean> {
  */
 export async function clearExpiredSession() {
   try {
-    const cookieStore = await cookies();
-
-    // Supprimer les cookies de session
-    cookieStore.delete("access_token");
-    cookieStore.delete("userId");
+    await clearSessionCookies();
 
     // console.log("🧹 Cookies expirés supprimés");
   } catch (error) {

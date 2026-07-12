@@ -8,21 +8,23 @@ import { useEffect, useMemo } from "react";
 import { FaCheck, FaCrown, FaRocket, FaUsers } from "react-icons/fa";
 
 type PaymentPlan = {
-  id: "STUDIO" | "PRO";
+  id: "PRO" | "BUSINESS";
   link: string;
 };
 
 interface TarifsProps {
   paymentPlans?: PaymentPlan[];
+  isTatoueurProOfferActive?: boolean;
 }
 
 type DisplayPlan = {
-  id: "FREE" | "STUDIO" | "PRO";
+  id: "FREE" | "PRO" | "BUSINESS";
   name: string;
   subtitle: string;
   price: string;
   period: string;
   description: string;
+  highlight?: string;
   icon: React.ReactNode;
   features: string[];
   popular: boolean;
@@ -31,16 +33,19 @@ type DisplayPlan = {
 };
 
 const isPaidPlanId = (value: string | null): value is PaymentPlan["id"] => {
-  return value === "STUDIO" || value === "PRO";
+  return value === "PRO" || value === "BUSINESS";
 };
 
 const isCheckoutPlanId = (
   value: DisplayPlan["id"],
 ): value is PaymentPlan["id"] => {
-  return value === "STUDIO" || value === "PRO";
+  return value === "PRO" || value === "BUSINESS";
 };
 
-export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
+export default function Tarifs({
+  paymentPlans = [],
+  isTatoueurProOfferActive = false,
+}: TarifsProps) {
   const searchParams = useSearchParams();
   const { status } = useSession();
 
@@ -85,15 +90,21 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
       color: "blue",
     },
     {
-      id: "STUDIO",
-      name: "Studio",
+      id: "PRO",
+      name: "Pro",
       subtitle: "Le plus populaire",
       price: "29,99",
       period: "mois",
       description:
         "Idéal pour les tatoueurs indépendants qui démarrent leur activité et veulent se professionnaliser.",
+      highlight: isTatoueurProOfferActive
+        ? "3 mois offerts dès l'inscription, sans carte bancaire."
+        : undefined,
       icon: <FaCrown size={24} className="text-tertiary-400" />,
       features: [
+        ...(isTatoueurProOfferActive
+          ? ["3 mois offerts dès l'inscription", "Sans carte bancaire"]
+          : []),
         "1 tatoueur",
         "Gestion clients illimitée",
         "Réservation en ligne",
@@ -101,12 +112,12 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
         "Support email",
       ],
       popular: true,
-      cta: "Souscrire au plan Studio",
+      cta: "Souscrire au plan Pro",
       color: "tertiary",
     },
     {
-      id: "PRO",
-      name: "Pro",
+      id: "BUSINESS",
+      name: "Business",
       subtitle: "Pour les grandes structures",
       price: "59,99",
       period: "mois",
@@ -116,13 +127,13 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
       features: [
         "Tatoueurs illimités",
         "Gestion du stock",
-        "Tout du plan Studio",
+        "Tout du plan Pro",
         "Statistiques détaillées",
         "Support prioritaire",
         "Formations incluses",
       ],
       popular: false,
-      cta: "Souscrire au plan Pro",
+      cta: "Souscrire au plan Business",
       color: "purple",
     },
   ];
@@ -224,6 +235,12 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
                   >
                     {plan.subtitle}
                   </p>
+
+                  {plan.highlight && (
+                    <p className="mb-4 rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10 px-4 py-3 text-sm font-semibold text-tertiary-400 uppercase">
+                      {plan.highlight}
+                    </p>
+                  )}
 
                   <div className="mb-4">
                     {plan.price === "Sur mesure" ? (
@@ -351,8 +368,9 @@ export default function Tarifs({ paymentPlans = [] }: TarifsProps) {
 
             <div className="text-center mt-8 p-6 bg-white/5 rounded-2xl">
               <p className="text-white tracking-widest font-one font-semibold">
-                30 jours d'essai gratuit sur tous les plans - Aucune carte
-                bancaire requise
+                {isTatoueurProOfferActive
+                  ? "Offre Pro : 3 mois offerts dès l'inscription, sans carte bancaire requise"
+                  : "Offre Pro disponible sans engagement, activation immediate selon la formule choisie"}
               </p>
             </div>
           </div>

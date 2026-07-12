@@ -3,7 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AiOutlineLogout } from "react-icons/ai";
-import { signOut } from "next-auth/react";
+import { logoutAction } from "@/lib/auth.actions";
+import { clearClientSession } from "@/lib/client-session";
 
 interface LogoutBtnProps {
   children?: React.ReactNode;
@@ -19,10 +20,10 @@ export const LogoutBtn = ({ children }: LogoutBtnProps) => {
     setIsLoggingOut(true);
 
     try {
-      const result = await signOut({
-        redirect: false,
-        redirectTo: "/",
-      });
+      const result = await logoutAction();
+
+      clearClientSession();
+      window.dispatchEvent(new Event("logout"));
 
       toast.success("Déconnexion réussie");
 

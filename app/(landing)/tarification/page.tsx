@@ -1,15 +1,20 @@
 import Header from "@/components/Shared/Header";
 import Tarifs from "@/components/TarifPage/Tarifs";
+import { isOfferActive } from "@/lib/offers";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowDown, FaEuroSign, FaCheckCircle } from "react-icons/fa";
 import type { Metadata } from "next";
 import Script from "next/script";
 
+const isTatoueurProOfferActive = isOfferActive(process.env.OFFRE_ACTIVE);
+
 export const metadata: Metadata = {
   title: "Tarifs INKERA Studio | Plans Abonnement Salon Tatouage",
   description:
-    "Découvrez nos tarifs transparents pour la gestion de votre salon de tatouage. Plan Gratuit, Pro à 29€/mois, Business à 69€/mois. Essai gratuit 30 jours sans engagement.",
+    isTatoueurProOfferActive
+      ? "Découvrez nos tarifs transparents pour la gestion de votre salon de tatouage. Plan Gratuit, Pro à 29€/mois avec 3 mois offerts dès l'inscription sans carte bancaire, Business à 69€/mois."
+      : "Découvrez nos tarifs transparents pour la gestion de votre salon de tatouage. Plan Gratuit, Pro à 29€/mois, Business à 69€/mois.",
   keywords: [
     "prix logiciel tatouage",
     "tarif gestion salon tattoo",
@@ -30,7 +35,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Tarifs INKERA Studio | Plans pour Salons de Tatouage",
     description:
-      "Plans transparents dès 0€/mois. Choisissez la formule adaptée à votre salon de tatouage. Essai gratuit 30 jours.",
+      isTatoueurProOfferActive
+        ? "Plans transparents dès 0€/mois. Offre Pro avec 3 mois offerts dès l'inscription, sans carte bancaire."
+        : "Plans transparents dès 0€/mois. Formules Free, Pro et Business pour salons de tatouage.",
     url: "https://inkera-studio.com/tarification",
     siteName: "INKERA Studio",
     images: [
@@ -48,7 +55,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Tarifs INKERA Studio",
     description:
-      "Plans transparents pour salons de tatouage. Gratuit, Pro 29€/mois, Business 69€/mois. Essai 30j gratuit.",
+      isTatoueurProOfferActive
+        ? "Plans transparents pour salons de tatouage. Gratuit, Pro 29€/mois avec 3 mois offerts, Business 69€/mois."
+        : "Plans transparents pour salons de tatouage. Gratuit, Pro 29€/mois, Business 69€/mois.",
     images: ["https://inkera-studio.com/images/twitter-pricing.jpg"],
   },
   robots: {
@@ -108,6 +117,9 @@ export default function TarificationPage() {
             "Réservation en ligne",
             "Profil public",
             "Support email",
+            ...(isTatoueurProOfferActive
+              ? ["3 mois offerts dès l'inscription", "Sans carte bancaire"]
+              : []),
           ],
         },
       },
@@ -136,7 +148,7 @@ export default function TarificationPage() {
 
   const plans = [
     {
-      id: "STUDIO",
+      id: "PRO",
       link:
         process.env.NODE_ENV === "development"
           ? "https://buy.stripe.com/test_3cI9AUfbhcKDgaOg4m2ZO00"
@@ -145,12 +157,12 @@ export default function TarificationPage() {
         process.env.NODE_ENV === "development"
           ? "price_1TBynYJMlGOwiqiVbpmg4EHu"
           : "",
-      name: "Offre Studio",
+      name: "Offre Pro",
       price: 29.99,
       duration: "/month",
     },
     {
-      id: "PRO",
+      id: "BUSINESS",
       link:
         process.env.NODE_ENV === "development"
           ? "https://buy.stripe.com/test_4gM7sM2ov5ib4s67xQ2ZO01"
@@ -159,12 +171,12 @@ export default function TarificationPage() {
         process.env.NODE_ENV === "development"
           ? "price_1TC2itJMlGOwiqiVEtpAD8js"
           : "",
-      name: "Offre Pro",
+      name: "Offre Business",
       price: 59.99,
       duration: "/month",
     },
   ] satisfies Array<{
-    id: "STUDIO" | "PRO";
+    id: "PRO" | "BUSINESS";
     link: string;
     priceId: string;
     name: string;
@@ -255,11 +267,13 @@ export default function TarificationPage() {
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <FaCheckCircle size={16} className="text-tertiary-400" />
                   <span className="text-sm font-bold text-white font-two">
-                    Essai gratuit
+                    Offre Pro
                   </span>
                 </div>
                 <div className="text-sm text-white/80 font-one">
-                  30 jours offerts
+                  {isTatoueurProOfferActive
+                    ? "3 mois offerts sans CB"
+                    : "Activation immediate"}
                 </div>
               </div>
             </div>
@@ -332,7 +346,10 @@ export default function TarificationPage() {
 
       {/* Composant Tarifs modernisé */}
       <div className="bg-gradient-to-b from-noir-500 to-noir-700">
-        <Tarifs paymentPlans={plans} />
+        <Tarifs
+          paymentPlans={plans}
+          isTatoueurProOfferActive={isTatoueurProOfferActive}
+        />
       </div>
 
       {/* Section finale CTA */}

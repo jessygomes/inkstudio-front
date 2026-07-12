@@ -1,5 +1,6 @@
 import { Register } from "@/components/Auth/Form/RegisterForm";
 import { currentUser } from "@/lib/auth.server";
+import { isOfferActive } from "@/lib/offers";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 // import { redirect } from "next/navigation";
@@ -30,6 +31,7 @@ type AuthPageProps = {
 };
 
 export default async function page({ searchParams }: AuthPageProps) {
+  const isTatoueurProOfferActive = isOfferActive(process.env.OFFRE_ACTIVE);
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const callbackParam = Array.isArray(resolvedSearchParams?.callbackUrl)
     ? resolvedSearchParams.callbackUrl[0]
@@ -52,7 +54,7 @@ export default async function page({ searchParams }: AuthPageProps) {
       >
         {/* Ajoutez ici d'autres éléments si nécessaire */}
         <Suspense>
-          <Register />
+          <Register isTatoueurProOfferActive={isTatoueurProOfferActive} />
         </Suspense>
       </div>
     </section>

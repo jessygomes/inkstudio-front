@@ -11,13 +11,14 @@ import { CardWrapper } from "../CardWrapper";
 // import { FormSuccess } from "@/components/Shared/FormSuccess";
 import Link from "next/link";
 import { step1Schema, step2Schema, step3Schema } from "@/lib/zod/validator.schema";
+import { isTatoueurProOfferEligible, type SignupPlan, type SignupRole } from "@/lib/offers";
 // import { createSession } from "@/lib/session";
 
+interface RegisterProps {
+  isTatoueurProOfferActive: boolean;
+}
 
-type SignupPlan = "FREE" | "PRO" | "BUSINESS";
-type SignupRole = "user_salon" | "user_tatoueur";
-
-export const Register = () => {
+export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -109,11 +110,24 @@ export const Register = () => {
 
   // Gestionnaires pour chaque étape
   const handleStep1Submit = (data: { role: SignupRole; salonName: string }) => {
+    const nextPlan =
+      data.role === "user_tatoueur" &&
+      isTatoueurProOfferActive
+        ? "PRO"
+        : formData.saasPlan;
+
     setFormData({
       ...formData,
       role: data.role,
       salonName: data.salonName,
+      saasPlan: nextPlan,
     });
+
+    step2Form.setValue("saasPlan", nextPlan, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+
     nextStep();
   };
 
@@ -137,6 +151,11 @@ export const Register = () => {
 
     try {
       const selectedPlan = formData.saasPlan;
+      const skipStripeCheckout = isTatoueurProOfferEligible(
+        formData.role,
+        selectedPlan,
+        isTatoueurProOfferActive,
+      );
 
       const finalData = {
         ...formData,
@@ -148,8 +167,8 @@ export const Register = () => {
         email: data.email,
         password: data.password,
         saasPlan: selectedPlan,
-        // Ajouter le plan sélectionné pour créer la checkout session Stripe
-        checkoutPlan: selectedPlan !== "FREE" ? selectedPlan : null,
+        checkoutPlan:
+          selectedPlan !== "FREE" && !skipStripeCheckout ? selectedPlan : null,
       };
 
       // Créer le compte utilisateur et obtenir la checkout URL si plan payant
@@ -177,7 +196,8 @@ export const Register = () => {
       }
 
       // L'utilisateur a choisi un plan payant (STUDIO ou PRO)
-      const isPaymentPlanSelected = selectedPlan !== "FREE";
+      const isPaymentPlanSelected =
+        selectedPlan !== "FREE" && !skipStripeCheckout;
 
       if (isPaymentPlanSelected) {
         // Le backend a créé la checkout session et retourne l'URL
@@ -222,7 +242,11 @@ export const Register = () => {
       }
 
       // Plan FREE: redirection après succès
-      setSuccess(infos.message || "Inscription réussie !");
+      setSuccess(
+        skipStripeCheckout
+          ? "Inscription réussie ! Votre offre Pro avec 3 mois offerts est activée, sans carte bancaire."
+          : infos.message || "Inscription réussie !",
+      );
       setIsPending(false);
       setTimeout(() => router.push(connexionHref), 3000);
     } catch (error) {
@@ -392,6 +416,20 @@ export const Register = () => {
                 onSubmit={step2Form.handleSubmit(handleStep2Submit)}
               >
                 <div className="flex flex-col gap-4 p-2">
+                  {/* {formData.role === "user_tatoueur" &&
+                    isTatoueurProOfferActive && (
+                      <div className="rounded-2xl border border-tertiary-500/30 bg-tertiary-500/10 p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-tertiary-400">
+                          Offre active pour les tatoueurs independants
+                        </p>
+                        <p className="mt-2 text-sm text-white/85 leading-relaxed">
+                          Le plan Pro est preselectionne avec 3 mois offerts et
+                          sans carte bancaire. Aucun passage par Stripe ne vous
+                          sera demande pendant cette offre.
+                        </p>
+                      </div>
+                    )} */}
+
                   <div className="text-center mb-4">
                     <p className="text-white/80 text-sm">
                       Sélectionnez le plan qui convient à vos besoins
@@ -412,7 +450,9 @@ export const Register = () => {
                         Free - 0€/mois
                       </option>
                       <option value="PRO" className="bg-white text-black">
-                        Pro - 29,99€/mois
+                        {isTatoueurProOfferActive && formData.role === "user_tatoueur"
+                          ? "Pro - 3 mois offerts puis 29,99€/mois"
+                          : "Pro - 29,99€/mois"}
                       </option>
                       <option value="BUSINESS" className="bg-white text-black">
                         Business - 59,99€/mois
@@ -438,9 +478,20 @@ export const Register = () => {
                       {step2Form.watch("saasPlan") === "PRO" && (
                         <div className="text-xs text-white/80">
                           <p className="font-semibold mb-2 text-tertiary-400">
-                            Plan Pro - 29,99€/mois :
+                            {isTatoueurProOfferActive &&
+                            formData.role === "user_tatoueur"
+                              ? "Plan Pro - 3 mois offerts puis 29,99€/mois :"
+                              : "Plan Pro - 29,99€/mois :"}
                           </p>
                           <div className="text-xs space-y-1">
+                            {isTatoueurProOfferActive &&
+                              formData.role === "user_tatoueur" && (
+                                <>
+                                  <p>• 3 mois offerts des l'inscription</p>
+                                  <p>• Sans carte bancaire</p>
+                                  <p>• Aucun paiement immediat</p>
+                                </>
+                              )}
                             <p>• 1 tatoueur</p>
                             <p>• Gestion clients illimitée</p>
                             <p>• Réservation en ligne</p>
@@ -486,12 +537,18 @@ export const Register = () => {
                           </svg>
                           <div>
                             <p className="text-tertiary-400 text-xs font-semibold mb-1">
-                              Paiement après création du compte
+                              {step2Form.watch("saasPlan") === "PRO" &&
+                              formData.role === "user_tatoueur" &&
+                              isTatoueurProOfferActive
+                                ? "Offre Pro active"
+                                : "Paiement après création du compte"}
                             </p>
                             <p className="text-tertiary-400/80 text-xs">
-                              Après validation de votre inscription, vous serez
-                              redirigé vers Stripe pour finaliser votre
-                              abonnement.
+                              {step2Form.watch("saasPlan") === "PRO" &&
+                              formData.role === "user_tatoueur" &&
+                              isTatoueurProOfferActive
+                                ? "Votre compte Pro sera créé avec 3 mois offerts, sans carte bancaire et sans redirection vers Stripe. Une fois les 3 mois écoulés, vous pourrez choisir de continuer avec le plan Pro ou de passer au plan Free."
+                                : "Après validation de votre inscription, vous serez redirigé vers Stripe pour finaliser votre abonnement."}
                             </p>
                           </div>
                         </div>
