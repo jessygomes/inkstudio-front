@@ -8,7 +8,7 @@ import { useEffect, useMemo } from "react";
 import { FaCheck, FaCrown, FaRocket, FaUsers } from "react-icons/fa";
 
 type PaymentPlan = {
-  id: "PRO" | "BUSINESS";
+  id: "PRO";
   link: string;
 };
 
@@ -33,13 +33,13 @@ type DisplayPlan = {
 };
 
 const isPaidPlanId = (value: string | null): value is PaymentPlan["id"] => {
-  return value === "PRO" || value === "BUSINESS";
+  return value === "PRO";
 };
 
 const isCheckoutPlanId = (
   value: DisplayPlan["id"],
 ): value is PaymentPlan["id"] => {
-  return value === "PRO" || value === "BUSINESS";
+  return value === "PRO";
 };
 
 export default function Tarifs({
@@ -81,8 +81,8 @@ export default function Tarifs({
       features: [
         "Profil public professionnel",
         "Portfolio d’images",
+        "Flashs",
         "Produits & services",
-        "Profil tatoueur principal",
         "Lien direct de contact",
       ],
       popular: false,
@@ -103,13 +103,15 @@ export default function Tarifs({
       icon: <FaCrown size={24} className="text-tertiary-400" />,
       features: [
         ...(isTatoueurProOfferActive
-          ? ["3 mois offerts dès l'inscription", "Sans carte bancaire"]
+          ? ["3 mois offerts dès l'inscription"]
           : []),
         "1 tatoueur",
-        "Gestion clients illimitée",
         "Réservation en ligne",
-        "Profil public",
-        "Support email",
+        "Gestion clients illimitée",
+        "Gestion du stock",
+        "Traçabilité produit par RDV",
+        "Profil public professionnel",
+        "Statistiques de performance",
       ],
       popular: true,
       cta: "Souscrire au plan Pro",
@@ -123,17 +125,18 @@ export default function Tarifs({
       period: "mois",
       description:
         "Solution complète pour les salons avec plusieurs artistes et une gestion avancée.",
+      highlight: "Bientôt disponible",
       icon: <FaRocket size={24} className="text-purple-400" />,
       features: [
         "Tatoueurs illimités",
-        "Gestion du stock",
+        "Gestion d'équipe",
         "Tout du plan Pro",
         "Statistiques détaillées",
         "Support prioritaire",
         "Formations incluses",
       ],
       popular: false,
-      cta: "Souscrire au plan Business",
+      cta: "Bientôt disponible",
       color: "purple",
     },
   ];

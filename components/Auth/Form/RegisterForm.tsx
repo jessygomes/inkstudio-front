@@ -36,7 +36,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
       const url = new URL(safeCallbackUrl, "https://inkera-studio.local");
       const checkoutPlan = url.searchParams.get("checkout");
 
-      if (checkoutPlan === "PRO" || checkoutPlan === "BUSINESS") {
+      if (checkoutPlan === "PRO") {
         return checkoutPlan;
       }
 
@@ -114,7 +114,9 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
       data.role === "user_tatoueur" &&
       isTatoueurProOfferActive
         ? "PRO"
-        : formData.saasPlan;
+        : data.role === "user_salon"
+          ? "FREE"
+          : formData.saasPlan;
 
     setFormData({
       ...formData,
@@ -132,7 +134,24 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
   };
 
   const handleStep2Submit = (data: { saasPlan: SignupPlan }) => {
-    setFormData({ ...formData, saasPlan: data.saasPlan });
+    let nextPlan: SignupPlan = data.saasPlan;
+
+    // Le plan Business est temporairement indisponible.
+    if (nextPlan === "BUSINESS") {
+      nextPlan = "FREE";
+    }
+
+    // Le plan Pro est réservé aux indépendants.
+    if (formData.role !== "user_tatoueur" && nextPlan === "PRO") {
+      nextPlan = "FREE";
+    }
+
+    // Quand l'offre est active, les indépendants restent sur PRO.
+    if (formData.role === "user_tatoueur" && isTatoueurProOfferActive) {
+      nextPlan = "PRO";
+    }
+
+    setFormData({ ...formData, saasPlan: nextPlan });
     nextStep();
   };
 
@@ -150,7 +169,20 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
     setIsPending(true);
 
     try {
-      const selectedPlan = formData.saasPlan;
+      let selectedPlan: SignupPlan = formData.saasPlan;
+
+      if (selectedPlan === "BUSINESS") {
+        selectedPlan = "FREE";
+      }
+
+      if (formData.role !== "user_tatoueur" && selectedPlan === "PRO") {
+        selectedPlan = "FREE";
+      }
+
+      if (formData.role === "user_tatoueur" && isTatoueurProOfferActive) {
+        selectedPlan = "PRO";
+      }
+
       const skipStripeCheckout = isTatoueurProOfferEligible(
         formData.role,
         selectedPlan,
@@ -338,19 +370,39 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                           <p className="text-xs font-semibold text-tertiary-400 uppercase tracking-wide">
                             Bon à savoir
                           </p>
-                          <p className="text-xs text-white/80 leading-relaxed">
-                            Un compte SALON permet d&apos;ajouter un tatoueur non
-                            inscrit ou de relier un tatoueur déjà présent sur
-                            la plateforme.
-                          </p>
-                          <p className="text-xs text-white/80 leading-relaxed">
-                            Un compte INDÉPENDANT peut aussi être relié à un
-                            salon dans lequel il travaille, ce qui renforce
-                            votre référencement et votre visibilité.
-                          </p>
-                          <p className="text-xs text-white/80 leading-relaxed">
-                            Créer un profil public est totalement gratuit, même pour les salons. Les plans payants offrent des fonctionnalités supplémentaires mais ne sont pas obligatoires pour être présent sur la plateforme.
-                          </p>
+                          {step1Form.watch("role") === "user_salon" ? (
+                            <>
+                              <p className="text-xs text-white/80 leading-relaxed">
+                                Un compte SALON permet de réunir les tatoueurs.es
+                                indépendants qui y travaillent en connectant
+                                leur profil au salon.
+                              </p>
+                              <p className="text-xs text-white/80 leading-relaxed">
+                                Prochainement, un salon en compte Business
+                                pourra voir les rendez-vous de ses tatoueurs
+                                créés ou liés, et gérer aussi son équipe.
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-xs text-white/80 leading-relaxed">
+                                Un compte INDEPENDANT vous permet de gérer
+                                votre profil personnel et d'être relié au salon
+                                dans lequel vous travaillez.
+                              </p>
+                              <p className="text-xs text-white/80 leading-relaxed">
+                                Ce lien renforce votre visibilité et celle du
+                                salon, tout en restant maître de votre profil.
+                              </p>
+                              <p className="text-xs text-white/80 leading-relaxed">
+                                Le plan Pro est actuellement réservé aux
+                                tatoueurs indépendants.
+                              </p>
+                              <p className="text-xs text-white/80 font-bold tracking-wider leading-relaxed">
+                                3 mois offerts sans carte bancaire.
+                              </p>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -449,15 +501,23 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                       <option value="FREE" className="bg-white text-black">
                         Free - 0€/mois
                       </option>
-                      <option value="PRO" className="bg-white text-black">
-                        {isTatoueurProOfferActive && formData.role === "user_tatoueur"
-                          ? "Pro - 3 mois offerts puis 29,99€/mois"
-                          : "Pro - 29,99€/mois"}
-                      </option>
-                      <option value="BUSINESS" className="bg-white text-black">
+                      {formData.role === "user_tatoueur" && (
+                        <option value="PRO" className="bg-white text-black">
+                          {isTatoueurProOfferActive
+                            ? "Pro - 3 mois offerts puis 29,99€/mois"
+                            : "Pro - 29,99€/mois"}
+                        </option>
+                      )}
+                      {/* <option value="BUSINESS" className="bg-white text-black">
                         Business - 59,99€/mois
-                      </option>
+                      </option> */}
                     </select>
+
+                    {formData.role !== "user_tatoueur" && (
+                      <p className="text-xs text-white/70">
+                        Le plan Pro est actuellement réservé aux tatoueurs indépendants.
+                      </p>
+                    )}
 
                     {/* Détails du plan */}
                     <div className="mt-2 p-3 bg-white/10 rounded-2xl border border-white/20">
@@ -518,8 +578,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                     </div>
 
                     {/* Note sur les plans payants */}
-                    {(step2Form.watch("saasPlan") === "PRO" ||
-                      step2Form.watch("saasPlan") === "BUSINESS") && (
+                    {step2Form.watch("saasPlan") === "PRO" && (
                       <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-2xl p-3 mt-2">
                         <div className="flex items-start gap-2">
                           <svg
