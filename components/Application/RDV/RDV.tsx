@@ -52,7 +52,7 @@ export default function RDV() {
   //! Définir le mode par défaut selon la taille d'écran
   const [viewMode, setViewMode] = useState<"calendar" | "list">("list"); // Changé à "list" par défaut
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 10;
 
   //! États pour les filtres
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -328,22 +328,6 @@ export default function RDV() {
         icon={<FaRegCalendarTimes size={15} className="text-tertiary-400" />}
         title="Mes rendez-vous"
       >
-        {!isFreeAccount && (
-          <div className="flex gap-2">
-            <div className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/6 px-4 py-2 text-xs font-medium text-white font-one">
-              <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[11px]">
-                {pendingAppointmentsCount > 99 ? "99+" : pendingAppointmentsCount}
-              </span>
-              RDV en attente
-            </div>
-            <DashboardButton href="/mes-rendez-vous/creer">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Créer un rendez-vous
-            </DashboardButton>
-          </div>
-        )}
       </PageHeader>
 
       {error ? (
@@ -402,13 +386,13 @@ export default function RDV() {
           />
         </div>
       ) : (
-        <div className="flex flex-col gap-3 w-full mt-3">
-          <div className="relative z-0 overflow-visible md:flex md:items-center md:gap-2">
-            <div className="relative z-0 flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 md:flex-1 md:flex-wrap md:overflow-visible md:pb-0">
-              <div className="flex shrink-0 bg-white/10 rounded-xl border border-white/20 overflow-hidden">
+        <div className=" flex w-full flex-col gap-4">
+          <div className="dashboard-rdv-toolbar relative z-0 flex flex-col gap-2 overflow-visible rounded-2xl border border-white/10 bg-white/[0.035] p-2 sm:p-2.5 md:flex-row md:items-center">
+            <div className="relative z-0 flex min-w-0 flex-col gap-2 md:flex-1 md:flex-row md:flex-wrap md:items-center">
+              <div className="flex w-full shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/15 p-1 md:w-auto">
                 <button
                   onClick={() => handleViewModeChange("calendar")}
-                  className={`cursor-pointer px-3 py-1 text-xs font-medium transition-all duration-200 flex gap-1 items-center font-one whitespace-nowrap ${
+                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
                     viewMode === "calendar"
                       ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
                       : "text-white/70 hover:text-white hover:bg-white/10"
@@ -419,7 +403,7 @@ export default function RDV() {
                 </button>
                 <button
                   onClick={() => handleViewModeChange("list")}
-                  className={`cursor-pointer flex gap-1.5 items-center font-one px-3 py-1 text-xs font-medium transition-all duration-200 whitespace-nowrap ${
+                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
                     viewMode === "list"
                       ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
                       : "text-white/70 hover:text-white hover:bg-white/10"
@@ -431,12 +415,12 @@ export default function RDV() {
               </div>
 
               <div
-                className={`${viewMode === "calendar" ? "hidden" : "flex"} scrollbar-hidden shrink-0 flex-nowrap items-center gap-2 font-one`}
+                className={`${viewMode === "calendar" ? "hidden" : "flex"} scrollbar-hidden min-w-0 flex-nowrap items-center gap-2 overflow-x-auto pb-0.5 font-one md:shrink-0`}
               >
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="relative z-0 min-w-[92px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                    className="relative z-0 min-w-[92px] shrink-0 cursor-pointer rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                 >
                   <option value="all" className="bg-noir-500">Statut</option>
                   <option value="PENDING" className="bg-noir-500">En attente</option>
@@ -449,7 +433,7 @@ export default function RDV() {
                 <select
                   value={prestationFilter}
                   onChange={(e) => setPrestationFilter(e.target.value)}
-                  className="relative z-0 min-w-[92px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                    className="relative z-0 min-w-[92px] shrink-0 cursor-pointer rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                 >
                   <option value="all" className="bg-noir-500">Type</option>
                   {uniquePrestations.map((prestation: any) => (
@@ -462,7 +446,7 @@ export default function RDV() {
                 <select
                   value={tatoueurFilter}
                   onChange={(e) => setTatoueurFilter(e.target.value)}
-                  className="relative z-0 min-w-[92px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                    className="relative z-0 min-w-[92px] shrink-0 cursor-pointer rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                 >
                   <option value="all" className="bg-noir-500">Tatoueur</option>
                   {uniqueTatoueurs.map((tatoueur: any) => (
@@ -476,7 +460,7 @@ export default function RDV() {
                   <select
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
-                    className="relative z-0 min-w-[86px] shrink-0 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                    className="relative z-0 min-w-[86px] shrink-0 cursor-pointer rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                   >
                     <option value="all" className="bg-noir-500">Tous</option>
                     <option value="upcoming" className="bg-noir-500">À venir</option>
@@ -495,7 +479,7 @@ export default function RDV() {
                       setPrestationFilter("all");
                       setTatoueurFilter("all");
                     }}
-                    className="cursor-pointer shrink-0 whitespace-nowrap rounded-xl border border-red-400/30 bg-red-400/20 px-2.5 py-1.5 text-xs text-red-300 transition-colors hover:bg-red-400/30"
+                    className="cursor-pointer shrink-0 whitespace-nowrap rounded-xl border border-red-400/25 bg-red-400/10 px-2.5 py-1.5 text-xs text-red-300 transition-colors hover:bg-red-400/20"
                   >
                     ✕ Effacer
                   </button>
@@ -553,17 +537,34 @@ export default function RDV() {
             </div>
 
             <div
-              className={`${viewMode === "calendar" ? "hidden sm:block" : "block"} mt-2 w-full md:mt-0 md:ml-auto md:w-[250px] lg:w-[300px]`}
+              className={`${viewMode === "calendar" ? "hidden sm:block" : "block"} w-full md:ml-auto md:w-[250px] lg:w-[300px]`}
             >
               <Search />
             </div>
+
+            {!isFreeAccount && (
+          <div className="flex w-full gap-2 md:w-auto">
+            <div className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-medium text-white font-one md:flex-none md:px-4">
+              <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[11px]">
+                {pendingAppointmentsCount > 99 ? "99+" : pendingAppointmentsCount}
+              </span>
+              RDV en attente
+            </div>
+            <DashboardButton href="/mes-rendez-vous/creer" className="!min-w-0 flex-1 whitespace-nowrap md:flex-none">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Créer un rendez-vous
+            </DashboardButton>
+          </div>
+        )}
           </div>
 
           {/* Layout responsive : flex-col sur mobile, flex-row sur desktop */}
-          <div className="relative z-0 flex flex-col xl:flex-row gap-4 w-full">
+          <div className="relative z-0 flex flex-col xl:flex-row gap-2 w-full">
             {/* Section principale - prend toute la largeur sur mobile */}
             <section
-              className={`${viewMode === "calendar" ? "hidden xl:block" : "block"} w-full xl:w-3/5 bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-3 sm:p-6 border border-white/20 shadow-2xl`}
+              className={`${viewMode === "calendar" ? "hidden xl:block" : "block"} dashboard-rdv-list w-full xl:w-3/5 rounded-[28px] p-3 sm:p-0 sm:px-4`}
             >
               {isLoading ? (
                 /* Skeleton loader - localisé dans la section */
@@ -574,7 +575,8 @@ export default function RDV() {
                   <div className="mb-4 sm:mb-3">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
                       {/* Titre adaptatif : "Tous les rendez-vous" sur mobile, titre dynamique sur desktop */}
-                      <h2 className="text-white font-one text-lg sm:text-xl tracking-wide">
+                      <div>
+                      <h2 className="text-white font-one text-base font-semibold tracking-tight sm:text-xl">
                         <span className="sm:hidden">Tous les rendez-vous</span>
                         <span className="hidden sm:block">
                           {viewMode === "calendar"
@@ -582,6 +584,7 @@ export default function RDV() {
                             : "Tous les rendez-vous"}
                         </span>
                       </h2>
+                      </div>
                     </div>
 
                     <div className="h-[1px] w-full bg-gradient-to-r from-tertiary-400/50 via-white/30 to-transparent" />
@@ -591,7 +594,7 @@ export default function RDV() {
                   {paginatedEvents.length > 0 ? (
                     <div className="space-y-4">
                       {/* Header de la table - masqué sur mobile */}
-                      <div className="hidden sm:grid grid-cols-7 gap-4 p-3 dashboard-embedded-section rounded-2xl">
+                      <div className="hidden sm:grid grid-cols-7 gap-4 rounded-xl border border-white/8 bg-black/15 px-3 py-2.5">
                         <p className="text-white/70 text-[10px] font-one font-semibold tracking-[0.12em] uppercase">
                           Date & Heure
                         </p>
@@ -616,7 +619,7 @@ export default function RDV() {
                       </div>
 
                       {/* Liste des rendez-vous - layout adaptatif */}
-                      <div className="space-y-2 pt-1 lg:max-h-[55vh] lg:overflow-y-auto lg:scrollbar-thin lg:scrollbar-thumb-white/20 lg:scrollbar-track-transparent">
+                      <div className="space-y-2 pt-1 lg:pr-2 lg:max-h-[55vh] lg:overflow-y-auto lg:scrollbar-thin lg:scrollbar-thumb-white/20 lg:scrollbar-track-transparent">
                         {paginatedEvents.map((event: CalendarEvent) => {
                           const start = new Date(event.start ?? "").getTime();
                           const end = new Date(event.end ?? "").getTime();
@@ -632,7 +635,8 @@ export default function RDV() {
                             <div key={event.id}>
                               {/* Vue desktop - grille */}
                               <div
-                                className={`hidden sm:grid grid-cols-7 items-center gap-4 p-3.5 transition-all duration-300 group dashboard-list-item ${
+                                onClick={() => openEventDetails(event)}
+                                className={`group hidden cursor-pointer sm:grid sm:grid-cols-7 items-center gap-4 border-white/8 bg-white/[0.025] p-3.5 transition-all duration-300 dashboard-list-item ${
                                   selectedEvent?.id === event.id
                                     ? "dashboard-list-item-active"
                                     : ""

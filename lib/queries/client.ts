@@ -2,6 +2,66 @@
 "use server";
 import { getAuthHeaders } from "../session";
 
+export type ClientSearchResult = {
+  error?: boolean;
+  message?: string;
+  clients?: any[];
+  userClients?: any[];
+};
+
+//! ----------------------------------------------------------------------------
+
+//! RECHERCHER UN CLIENT PAR NOM OU EMAIL
+
+//! ----------------------------------------------------------------------------
+export const searchClientsAction = async (
+  query: string,
+): Promise<ClientSearchResult> => {
+  const normalizedQuery = query.trim();
+
+  if (normalizedQuery.length < 2) {
+    return { clients: [], userClients: [] };
+  }
+
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/clients/search?query=${encodeURIComponent(normalizedQuery)}`,
+      {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      },
+    );
+    const data = (await response
+      .json()
+      .catch(() => ({}))) as ClientSearchResult;
+
+    if (!response.ok || data.error) {
+      return {
+        error: true,
+        message:
+          data.message || `Erreur lors de la recherche (${response.status})`,
+        clients: [],
+        userClients: [],
+      };
+    }
+
+    return {
+      clients: data.clients || [],
+      userClients: data.userClients || [],
+    };
+  } catch (error) {
+    console.error("Erreur lors de la recherche de clients :", error);
+    return {
+      error: true,
+      message: "Impossible de rechercher les clients.",
+      clients: [],
+      userClients: [],
+    };
+  }
+};
+
 //! ----------------------------------------------------------------------------
 
 //! CREER / UPDATE UN CLIENT
@@ -10,7 +70,7 @@ import { getAuthHeaders } from "../session";
 export const createOrUpdateClient = async (
   payload: any,
   method: string,
-  url: string
+  url: string,
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -51,12 +111,12 @@ export const getSalonClientsAction = async (page: number, search: string) => {
       `${
         process.env.NEXT_PUBLIC_BACK_URL
       }/clients/salon?page=${page}&limit=${ITEMS_PER_PAGE}&search=${encodeURIComponent(
-        search
+        search,
       )}`,
       {
         method: "GET",
         headers,
-      }
+      },
     );
 
     const data = await response.json().catch(() => ({}));
@@ -91,7 +151,7 @@ export const deleteClient = async (clientId: string) => {
       {
         method: "DELETE",
         headers,
-      }
+      },
     );
 
     if (!response.ok) {
@@ -119,7 +179,7 @@ export const deleteClient = async (clientId: string) => {
 export const updateClientConsent = async (
   clientId: string,
   consentFileUrl: string,
-  consentSignedAt: string
+  consentSignedAt: string,
 ) => {
   try {
     const headers = await getAuthHeaders();
@@ -134,7 +194,7 @@ export const updateClientConsent = async (
           consentSignedAt,
           consentFileUrl,
         }),
-      }
+      },
     );
 
     const data = await response.json().catch(() => ({}));
@@ -144,7 +204,8 @@ export const updateClientConsent = async (
         ok: false,
         error: true,
         status: response.status,
-        message: data?.message || "Erreur lors de la mise à jour du consentement",
+        message:
+          data?.message || "Erreur lors de la mise à jour du consentement",
       };
     }
 

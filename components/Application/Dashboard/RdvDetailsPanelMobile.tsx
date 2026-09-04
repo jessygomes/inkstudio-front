@@ -16,6 +16,7 @@ import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
 import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { RendezVous } from "./RdvDetailsPanelDesktop";
 import { createPortal } from "react-dom";
+import AppointmentDrawingCardAction from "@/components/Application/SuiviDessin/AppointmentDrawingCardAction";
 
 interface RdvDetailsPanelMobileProps {
   selectedAppointment: RendezVous;
@@ -706,6 +707,16 @@ export default function RdvDetailsPanelMobile({
               </div>
             )}
           </div>
+
+          {(selectedAppointment.prestation === "PROJET" ||
+            selectedAppointment.prestation === "TATTOO") && (
+            <div className="px-3 pb-3">
+              <AppointmentDrawingCardAction
+                appointmentId={selectedAppointment.id}
+                allowCreate={selectedAppointment.prestation === "PROJET"}
+              />
+            </div>
+          )}
 
           <div className="dashboard-embedded-footer px-3 py-2.5">
             <div className="flex items-center justify-between gap-2 rounded-[18px] border border-white/8 bg-black/12 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">

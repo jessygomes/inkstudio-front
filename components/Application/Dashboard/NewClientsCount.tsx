@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { newClientsCountAction } from "@/lib/queries/appointment";
 
 interface NewClientsData {
   error: boolean;
@@ -39,22 +40,7 @@ export default function NewClientsCount({ userId }: NewClientsCountProps) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/clients/new-clients-count/${userId}?month=${month}&year=${year}`
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Erreur lors de la récupération du nombre de nouveaux clients"
-        );
-      }
-
-      const result = await response.json();
-
-      if (result.error) {
-        throw new Error(result.message);
-      }
-
+      const result = await newClientsCountAction(userId, month, year);
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");

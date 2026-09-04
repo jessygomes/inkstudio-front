@@ -28,6 +28,7 @@ export default auth((req) => {
     "/factures",
     "/messagerie",
     "/review",
+    "/suiviDessin",
     "/admin",
   ];
 

@@ -6,6 +6,7 @@ import { AppointmentProps } from "@/lib/type";
 import Image from "next/image";
 import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import { openImageInNewTab } from "@/lib/utils/openImage";
+import AppointmentDrawingCardAction from "@/components/Application/SuiviDessin/AppointmentDrawingCardAction";
 
 interface ConversationRDVDetailsProps {
   conversation: ConversationDto;
@@ -255,6 +256,14 @@ export default function ConversationRDVDetails({
               </span>
             </div>
           </div>
+        )}
+
+        {(appointment.prestation === "PROJET" ||
+          appointment.prestation === "TATTOO") && (
+          <AppointmentDrawingCardAction
+            appointmentId={appointment.id}
+            allowCreate={appointment.prestation === "PROJET"}
+          />
         )}
 
         {appointment.tattooDetail && (

@@ -219,6 +219,7 @@ export const appointmentSchema = z
     start: z.string(),
     end: z.string(),
     tatoueurId: z.string(),
+    drawingCardId: z.string().optional(),
     status: z.enum(["PENDING", "CONFIRMED", "DECLINED", "CANCELED"]),
     // champ visio
     visio: z.boolean().default(false),
@@ -268,6 +269,7 @@ export const updateAppointmentSchema = z.object({
   start: z.string(),
   end: z.string(),
   tatoueurId: z.string(),
+  drawingCardId: z.string().optional(),
   // status: z.enum(["PENDING", "CONFIRMED", "DECLINED", "CANCELED"]),
   // champ visio
   visio: z.boolean().default(false),

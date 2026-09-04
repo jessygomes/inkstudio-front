@@ -19,6 +19,19 @@ import {
   MoodboardDto,
 } from "@/lib/queries/moodboard";
 import ConsumablesList from "./Consumables/ConsumablesList";
+import AppointmentDrawingCardAction from "@/components/Application/SuiviDessin/AppointmentDrawingCardAction";
+import {
+  Check,
+  CreditCard,
+  ExternalLink,
+  FileText,
+  Image as ImageIcon,
+  MapPin,
+  MoreHorizontal,
+  Palette,
+  Ruler,
+  Zap,
+} from "lucide-react";
 
 const STATUS_CONFIG = {
   PENDING: { label: "En attente", dot: "bg-amber-400 animate-pulse", pill: "bg-amber-500/12 text-amber-300 border-amber-400/25" },
@@ -118,6 +131,9 @@ export default function ShowRdvDetails({
       new Date(selectedEvent.end) < new Date()) ||
     selectedEvent.status === "COMPLETED" ||
     selectedEvent.status === "NO_SHOW";
+  const canConfirm =
+    selectedEvent.status !== "CONFIRMED" &&
+    selectedEvent.status !== "RESCHEDULING";
 
   const openMoodboard = async () => {
     setIsMoodboardOpen(true);
@@ -284,46 +300,48 @@ export default function ShowRdvDetails({
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        <div className="dashboard-embedded-section p-3">
-          <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">Rendez-vous</p>
+        <div className="dashboard-embedded-section overflow-hidden p-3">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <p className="text-[9px] font-medium uppercase tracking-[0.14em] text-tertiary-400/80 font-one">
+                Rendez-vous
+              </p>
+              <p className="mt-1 text-[11px] text-white/40 font-one">
+                Planning et prestation
+              </p>
+            </div>
+            <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[9px] text-white/45 font-one">
+              {selectedEvent.prestation}
+            </span>
+          </div>
           <div className="grid grid-cols-2 gap-2">
-            <div className="flex items-center gap-2.5 rounded-xl bg-white/4 border border-white/7 px-2.5 py-2">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-blue-500/12 border border-blue-400/15">
+            <div className="col-span-2 flex items-center gap-3 rounded-2xl border border-white/10 bg-linear-to-l from-noir-500 to-noir-700 px-3 py-2.5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-blue-400/20 bg-blue-500/15">
                 <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-[9px] uppercase tracking-wider text-white/35 font-one">Date</p>
-                <p className="text-xs font-medium text-white font-one capitalize">{startDate}</p>
+                <p className="text-[9px] font-medium uppercase tracking-wider text-blue-200/55 font-one">Date et heure</p>
+                <p className="mt-0.5 text-sm font-semibold text-white font-one capitalize">{startDate}</p>
+                <p className="text-[11px] text-white/55 font-one tabular-nums">{startTime} - {endTime}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2.5 rounded-xl bg-white/4 border border-white/7 px-2.5 py-2">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-blue-500/12 border border-blue-400/15">
-                <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[9px] uppercase tracking-wider text-white/35 font-one">Heure</p>
-                <p className="text-xs font-medium text-white font-one tabular-nums">{startTime} - {endTime}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2.5 rounded-xl bg-white/4 border border-white/7 px-2.5 py-2">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-purple-500/12 border border-purple-400/15">
+            <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-linear-to-l from-noir-500 to-noir-700 px-2.5 py-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-purple-400/15 bg-purple-500/10">
                 <svg className="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="min-w-0">
                 <p className="text-[9px] uppercase tracking-wider text-white/35 font-one">Durée</p>
-                <p className="text-xs font-medium text-white/90 font-one">{durationMin} min</p>
+                <p className="text-xs font-semibold text-white font-one">{durationMin} min</p>
               </div>
             </div>
-            <div className="flex items-center gap-2.5 rounded-xl bg-white/4 border border-white/7 px-2.5 py-2">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 border border-emerald-400/15">
+            <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-linear-to-l from-noir-500 to-noir-700 px-2.5 py-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-500/10">
                 <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="min-w-0">
@@ -331,8 +349,8 @@ export default function ShowRdvDetails({
                 <p className="text-xs font-medium text-white/90 font-one truncate">{selectedEvent.prestation}</p>
               </div>
             </div>
-            <div className="col-span-2 flex items-center gap-2.5 rounded-xl bg-white/4 border border-white/7 px-2.5 py-2">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-tertiary-500/12 border border-tertiary-400/15">
+            <div className="col-span-2 flex items-center gap-2.5 rounded-2xl border border-tertiary-400/15 bg-tertiary-500/[0.06] px-2.5 py-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/15 bg-tertiary-500/10">
                 <svg className="w-3.5 h-3.5 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
@@ -353,45 +371,47 @@ export default function ShowRdvDetails({
           </div>
         </div>
 
-        <div className="dashboard-embedded-section overflow-hidden">
-          <div className="grid grid-cols-3">
-            {/* ── Ligne 1 ── */}
+        <div className="dashboard-embedded-section overflow-hidden p-2.5">
+          <div className="mb-2 flex items-center justify-between">
+            <div>
+              <p className="text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">
+                Actions rapides
+              </p>
+            </div>
+            <div className="flex h-6 w-6 items-center justify-center">
+              <Zap size={12} className="text-tertiary-400" />
+            </div>
+          </div>
+          <div className="flex items-stretch gap-1.5 overflow-x-auto scrollbar-hidden [&_button]:!py-2 [&_button]:!text-[11px]">
             {isPastOrDone ? (
-              <>
-                <div className="col-span-2 border-r border-b border-white/10 flex">
-                  <ChangeStatusButtons
-                    rdvId={selectedEvent.id}
-                    currentStatus={selectedEvent.status}
-                    onStatusChange={handleStatusChange}
-                    size="sm"
-                    className="w-full"
-                  />
-                </div>
-                <div className="border-b border-white/10" />
-              </>
+              <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035] transition-colors hover:border-white/20 hover:bg-white/[0.07]">
+                <ChangeStatusButtons
+                  rdvId={selectedEvent.id}
+                  currentStatus={selectedEvent.status}
+                  onStatusChange={handleStatusChange}
+                  size="sm"
+                  className="w-full"
+                />
+              </div>
             ) : (
               <>
-                {/* Confirmer */}
-                <div className="border-r border-b border-white/10 flex">
-                  {selectedEvent.status !== "CONFIRMED" &&
-                    selectedEvent.status !== "RESCHEDULING" && (
-                      <ConfirmRdv
-                        rdvId={selectedEvent.id}
-                        appointment={selectedEvent}
-                        onConfirm={() => handleRdvUpdated(selectedEvent.id)}
-                      />
-                    )}
-                </div>
-                {/* Modifier */}
-                <div className="border-r border-b border-white/10 flex">
+                {canConfirm && (
+                  <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.07] transition-colors hover:border-emerald-400/35 hover:bg-emerald-500/[0.12]">
+                    <ConfirmRdv
+                      rdvId={selectedEvent.id}
+                      appointment={selectedEvent}
+                      onConfirm={() => handleRdvUpdated(selectedEvent.id)}
+                    />
+                  </div>
+                )}
+                <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035] transition-colors hover:border-white/20 hover:bg-white/[0.07]">
                   <UpdateRdv
                     rdv={selectedEvent as unknown as UpdateRdvFormProps}
                     userId={userId || ""}
                     onUpdate={() => handleRdvUpdated(selectedEvent.id)}
                   />
                 </div>
-                {/* Reprogrammer */}
-                <div className="border-b border-white/10 flex">
+                <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-cyan-400/15 bg-cyan-500/[0.05] transition-colors hover:border-cyan-400/30 hover:bg-cyan-500/[0.1]">
                   <ChangeRdv
                     rdvId={selectedEvent.id}
                     appointment={selectedEvent}
@@ -400,35 +420,30 @@ export default function ShowRdvDetails({
                 </div>
               </>
             )}
-
-            {/* ── Ligne 2 ── */}
-            {/* Conversation */}
-            <div className="border-r border-white/10 flex">
-              {selectedEvent.conversation?.id && (
-                <ConversationRdv conversationId={selectedEvent.conversation.id} />
-              )}
-            </div>
-            {/* Mail */}
-            <div className="border-r border-white/10 flex">
-              {selectedEvent.status !== "CANCELED" && (
-                <SendMessageRdv
-                  rdvId={selectedEvent.id}
-                  appointment={selectedEvent}
-                  onMessageSent={() => handleRdvUpdated(selectedEvent.id)}
-                  buttonLabel="Mail"
-                />
-              )}
-            </div>
-            {/* Annuler */}
-            <div className="flex">
-              {!isPastOrDone && selectedEvent.status !== "CANCELED" && (
-                <CancelRdv
-                  rdvId={selectedEvent.id}
-                  appointment={selectedEvent}
-                  onCancel={() => handleRdvUpdated(selectedEvent.id)}
-                />
-              )}
-            </div>
+                {selectedEvent.conversation?.id && (
+              <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035] transition-colors hover:border-white/20 hover:bg-white/[0.07]">
+                  <ConversationRdv conversationId={selectedEvent.conversation.id} />
+                </div>
+                )}
+                {selectedEvent.status !== "CANCELED" && (
+                <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035] transition-colors hover:border-white/20 hover:bg-white/[0.07]">
+                  <SendMessageRdv
+                    rdvId={selectedEvent.id}
+                    appointment={selectedEvent}
+                    onMessageSent={() => handleRdvUpdated(selectedEvent.id)}
+                    buttonLabel="Mail"
+                  />
+                </div>
+                )}
+                {!isPastOrDone && selectedEvent.status !== "CANCELED" && (
+                <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-red-400/10 bg-red-500/[0.035] transition-colors hover:border-red-400/25 hover:bg-red-500/[0.08]">
+                  <CancelRdv
+                    rdvId={selectedEvent.id}
+                    appointment={selectedEvent}
+                    onCancel={() => handleRdvUpdated(selectedEvent.id)}
+                  />
+                </div>
+                )}
           </div>
         </div>
 
@@ -465,17 +480,29 @@ export default function ShowRdvDetails({
           selectedEvent.prestation === "TATTOO" ||
           selectedEvent.prestation === "PIERCING") && (
           <div className="dashboard-embedded-section p-3">
-            <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">Paiement</p>
-            <div className="flex gap-2">
-              <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl border py-1 px-3 transition-all ${selectedEvent.isPayed === false ? "bg-red-500/15 border-red-400/30 text-red-300" : "bg-white/4 border-white/8 text-white/40 hover:bg-white/7"}`}>
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <p className="text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">Paiement</p>
+                <p className="mt-1 text-[11px] text-white/40 font-one">Indiquez si la prestation a été réglée.</p>
+              </div>
+              <CreditCard size={15} className="text-emerald-300/80" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <label className={`group flex cursor-pointer items-center justify-between gap-2 rounded-2xl border px-3 py-2.5 transition-all ${selectedEvent.isPayed === false ? "border-red-400/35 bg-red-500/15 text-red-200 shadow-lg shadow-red-950/20" : "border-white/8 bg-white/[0.035] text-white/45 hover:border-red-400/20 hover:bg-red-500/[0.07]"}`}>
                 <input type="radio" name={`payment-${selectedEvent.id}`} checked={selectedEvent.isPayed === false} onChange={() => handlePaymentStatusChange(selectedEvent.id, false)} className="sr-only" />
-                <span className={`w-2 h-2 rounded-full ${selectedEvent.isPayed === false ? "bg-red-400" : "bg-white/20"}`} />
-                <span className="text-xs font-medium font-one">Non payé</span>
+                <span className="flex items-center gap-2">
+                  <span className={`flex h-6 w-6 items-center justify-center rounded-lg ${selectedEvent.isPayed === false ? "bg-red-400/20" : "bg-white/5"}`}><MoreHorizontal size={13} /></span>
+                  <span className="text-xs font-medium font-one">Non payé</span>
+                </span>
+                {selectedEvent.isPayed === false && <Check size={14} />}
               </label>
-              <label className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl border py-1 px-3 transition-all ${selectedEvent.isPayed === true ? "bg-emerald-500/15 border-emerald-400/30 text-emerald-300" : "bg-white/4 border-white/8 text-white/40 hover:bg-white/7"}`}>
+              <label className={`group flex cursor-pointer items-center justify-between gap-2 rounded-2xl border px-3 py-2.5 transition-all ${selectedEvent.isPayed === true ? "border-emerald-400/35 bg-emerald-500/15 text-emerald-200 shadow-lg shadow-emerald-950/20" : "border-white/8 bg-white/[0.035] text-white/45 hover:border-emerald-400/20 hover:bg-emerald-500/[0.07]"}`}>
                 <input type="radio" name={`payment-${selectedEvent.id}`} checked={selectedEvent.isPayed === true} onChange={() => handlePaymentStatusChange(selectedEvent.id, true)} className="sr-only" />
-                <span className={`w-2 h-2 rounded-full ${selectedEvent.isPayed === true ? "bg-emerald-400" : "bg-white/20"}`} />
-                <span className="text-xs font-medium font-one">Payé</span>
+                <span className="flex items-center gap-2">
+                  <span className={`flex h-6 w-6 items-center justify-center rounded-lg ${selectedEvent.isPayed === true ? "bg-emerald-400/20" : "bg-white/5"}`}><Check size={13} /></span>
+                  <span className="text-xs font-medium font-one">Payé</span>
+                </span>
+                {selectedEvent.isPayed === true && <Check size={14} />}
               </label>
             </div>
           </div>
@@ -483,16 +510,29 @@ export default function ShowRdvDetails({
 
         {/* Détails */}
         {tattooDetail && (
-          <div className="dashboard-embedded-section p-3">
-            <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">
-              Détails · {selectedEvent.prestation}
-            </p>
+          <div className="dashboard-embedded-section overflow-hidden p-3">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">
+                  Détails de la prestation
+                </p>
+                <p className="mt-1 text-xs font-semibold text-white font-one">
+                  {selectedEvent.prestation}
+                </p>
+              </div>
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]">
+                <FileText size={14} className="text-white/55" />
+              </div>
+            </div>
 
             <div className="space-y-2.5">
               {tattooDetail.description && (
-                <div>
-                  <p className="mb-1 text-[9px] uppercase tracking-wider text-white/30 font-one">Description</p>
-                  <p className="text-xs text-white/80 font-one leading-relaxed">{tattooDetail.description}</p>
+                <div className="rounded-2xl border border-white/8 bg-black/10 p-3">
+                  <div className="mb-2 flex items-center gap-2">
+                    <FileText size={13} className="text-white/40" />
+                    <p className="text-[9px] font-medium uppercase tracking-wider text-white/35 font-one">Description</p>
+                  </div>
+                  <p className="text-xs leading-relaxed text-white/80 font-one">{tattooDetail.description}</p>
                 </div>
               )}
 
@@ -501,30 +541,32 @@ export default function ShowRdvDetails({
                 selectedEvent.skin ||
                 tattooDetail.piercingZone ||
                 piercingZoneName) && (
-                <div className="flex flex-wrap gap-1.5">
+                <div className="grid grid-cols-2 gap-2">
                   {tattooDetail.zone && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-one text-white/75">
-                      <span className="text-white/40 text-[9px]">Zone</span> {tattooDetail.zone}
-                    </span>
+                    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-white/8 bg-white/[0.035] px-2.5 py-2">
+                      <MapPin size={13} className="shrink-0 text-tertiary-300/80" />
+                      <span className="min-w-0 truncate text-[11px] text-white/75 font-one"><span className="mr-1 text-[9px] text-white/35">Zone</span>{tattooDetail.zone}</span>
+                    </div>
                   )}
                   {tattooDetail.size && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-one text-white/75">
-                      <span className="text-white/40 text-[9px]">Taille</span> {tattooDetail.size}
-                    </span>
+                    <div className="flex min-w-0 items-center gap-2 rounded-xl border border-white/8 bg-white/[0.035] px-2.5 py-2">
+                      <Ruler size={13} className="shrink-0 text-tertiary-300/80" />
+                      <span className="min-w-0 truncate text-[11px] text-white/75 font-one"><span className="mr-1 text-[9px] text-white/35">Taille</span>{tattooDetail.size}</span>
+                    </div>
                   )}
                   {selectedEvent.skin && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-one text-white/75">
+                    <span className="inline-flex min-w-0 items-center gap-1.5 rounded-xl border border-white/8 bg-white/[0.035] px-2.5 py-2 text-[11px] font-one text-white/75">
                       <span className="inline-block h-2.5 w-2.5 rounded-full border border-white/15 shrink-0" style={{ backgroundColor: getSkinTonePreviewHex(selectedEvent.skin) ?? undefined }} />
                       {formatSkinTone(selectedEvent.skin)}
                     </span>
                   )}
                   {tattooDetail.piercingZone && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-one text-white/75">
+                    <span className="inline-flex min-w-0 items-center gap-1 rounded-xl border border-white/8 bg-white/[0.035] px-2.5 py-2 text-[11px] font-one text-white/75">
                       <span className="text-white/40 text-[9px]">Piercing</span> {tattooDetail.piercingZone}
                     </span>
                   )}
                   {piercingZoneName && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-one text-white/75">
+                    <span className="inline-flex min-w-0 items-center gap-1 rounded-xl border border-white/8 bg-white/[0.035] px-2.5 py-2 text-[11px] font-one text-white/75">
                       <span className="text-white/40 text-[9px]">Zone spéc.</span> {piercingZoneName}
                     </span>
                   )}
@@ -532,11 +574,14 @@ export default function ShowRdvDetails({
               )}
 
               {hasPrice && (
-                <div className="flex items-center justify-between rounded-xl bg-white/4 border border-white/8 px-3 py-2">
-                  <span className="text-[9px] uppercase tracking-wider text-white/35 font-one">
+                <div className="flex items-center justify-between rounded-2xl border border-emerald-400/20 bg-gradient-to-r from-emerald-500/10 to-transparent px-3 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <CreditCard size={14} className="text-emerald-300" />
+                    <span className="text-[9px] uppercase tracking-wider text-white/45 font-one">
                     {tattooDetail.price ? "Prix final" : "Estimation"}
-                  </span>
-                  <span className="text-sm font-bold text-white font-one">
+                    </span>
+                  </div>
+                  <span className="text-base font-bold text-white font-one">
                     {displayPrice}
                     <span className="ml-0.5 text-xs font-medium text-white/55">€</span>
                   </span>
@@ -545,12 +590,15 @@ export default function ShowRdvDetails({
 
               {(tattooDetail.reference || tattooDetail.sketch) && (
                 <div>
-                  <p className="mb-2 text-[9px] uppercase tracking-wider text-white/30 font-one">Images</p>
+                  <div className="mb-2 flex items-center gap-2">
+                    <ImageIcon size={13} className="text-white/40" />
+                    <p className="text-[9px] font-medium uppercase tracking-wider text-white/35 font-one">Références visuelles</p>
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     {tattooDetail.reference && (
                       <button
                         onClick={() => openImageInNewTab(tattooDetail.reference as string)}
-                        className="group relative h-28 w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 cursor-pointer"
+                        className="group relative h-28 w-full cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-white/5"
                       >
                         <Image src={tattooDetail.reference} alt="Référence" fill className="object-cover group-hover:scale-105 transition-transform duration-200" />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-end justify-center pb-2">
@@ -561,7 +609,7 @@ export default function ShowRdvDetails({
                     {tattooDetail.sketch && (
                       <button
                         onClick={() => openImageInNewTab(tattooDetail.sketch as string)}
-                        className="group relative h-28 w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 cursor-pointer"
+                        className="group relative h-28 w-full cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-white/5"
                       >
                         <Image src={tattooDetail.sketch} alt="Croquis" fill className="object-cover group-hover:scale-105 transition-transform duration-200" />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-end justify-center pb-2">
@@ -575,26 +623,23 @@ export default function ShowRdvDetails({
               <button
               type="button"
               onClick={openMoodboard}
-              className="cursor-pointer border-l border-white/15 px-3 py-1.5 text-indigo-300 hover:text-indigo-200 text-xs font-one font-medium transition-colors duration-200 flex items-center gap-1.5 whitespace-nowrap hover:bg-white/6"
+              className="mt-1 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-indigo-400/20 bg-indigo-500/10 px-3 py-2 text-xs font-medium text-indigo-200 transition-colors duration-200 hover:bg-indigo-500/20 font-one"
               title="Voir le moodboard du client"
             >
-              <svg
-                className="w-3.5 h-3.5 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+                <Palette size={14} className="shrink-0" />
               <span>Voir le moodboard</span>
+              <ExternalLink size={13} className="opacity-60" />
             </button>
             </div>
           </div>
+        )}
+
+        {(selectedEvent.prestation === "PROJET" ||
+          selectedEvent.prestation === "TATTOO") && (
+          <AppointmentDrawingCardAction
+            appointmentId={selectedEvent.id}
+            allowCreate={selectedEvent.prestation === "PROJET"}
+          />
         )}
 
         {/* Consommables */}

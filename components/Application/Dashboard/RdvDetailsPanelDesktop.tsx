@@ -12,6 +12,7 @@ import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTon
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import Link from "next/link";
 import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
+import AppointmentDrawingCardAction from "@/components/Application/SuiviDessin/AppointmentDrawingCardAction";
 
 const STATUS_CONFIG = {
   PENDING:       { label: "En attente",        dot: "bg-amber-400 animate-pulse",   pill: "bg-amber-500/12 text-amber-300 border-amber-400/25" },
@@ -466,6 +467,16 @@ export default function RdvDetailsPanelDesktop({
       </div>
 
       {/* ── FOOTER ───────────────────────────────────────── */}
+      {(selectedAppointment.prestation === "PROJET" ||
+        selectedAppointment.prestation === "TATTOO") && (
+        <div className="px-3 pb-3">
+          <AppointmentDrawingCardAction
+            appointmentId={selectedAppointment.id}
+            allowCreate={selectedAppointment.prestation === "PROJET"}
+          />
+        </div>
+      )}
+
       <div className="dashboard-embedded-footer flex items-center justify-between rounded-b-[28px] px-4 py-2.5">
         <p className="text-[10px] text-white/30 font-one leading-none">
           Màj {new Date(selectedAppointment.updatedAt).toLocaleDateString("fr-FR")}

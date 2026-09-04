@@ -41,6 +41,7 @@ export interface AppointmentProps {
   size: number;
   estimatedPrice: number;
   tatoueurId: string;
+  drawingCardId?: string;
   userId: string;
   clientId: string;
   tatoueur: {
@@ -79,6 +80,14 @@ export type UpdateRdvFormProps = {
   size: number;
   estimatedPrice: number;
   tatoueurId: string;
+  drawingCardId?: string;
+  clientId?: string;
+  client?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+  };
   userId: string;
   tattooDetail?: {
     description?: string;

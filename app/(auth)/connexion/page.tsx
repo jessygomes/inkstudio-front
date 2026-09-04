@@ -22,13 +22,9 @@ export const metadata: Metadata = {
 };
 
 type AuthPageProps = {
-  searchParams?:
-    | {
-        callbackUrl?: string | string[];
-      }
-    | Promise<{
-        callbackUrl?: string | string[];
-      }>;
+  searchParams?: Promise<{
+    callbackUrl?: string | string[];
+  }>;
 };
 
 export default async function page({ searchParams }: AuthPageProps) {

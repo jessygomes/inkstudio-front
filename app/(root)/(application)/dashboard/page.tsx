@@ -9,13 +9,19 @@ import TotalPayed from "@/components/Application/Dashboard/TotalPayed";
 import WaitingRdvModern from "@/components/Application/Dashboard/WaitingRdvModern";
 import WeeklyFillRate from "@/components/Application/Dashboard/WeeklyFillRate";
 import RecentReviews from "@/components/Application/Dashboard/RecentReviews";
-import { LuLayoutDashboard } from "react-icons/lu";
 import LastMessage from "@/components/Application/Dashboard/LastMessage";
 import ProfileViewsStats from "@/components/Application/Dashboard/ProfileViewsStats";
+import DrawingFollowUpSummary from "@/components/Application/Dashboard/DrawingFollowUpSummary";
 import { auth } from "@/auth";
-import PageHeader from "@/components/Shared/PageHeader";
-import DashboardButton from "@/components/Shared/DashboardButton";
 import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
+import DashboardButton from "@/components/Shared/DashboardButton";
+import {
+  ArrowUpRight,
+  CalendarPlus,
+  LayoutDashboard,
+  Sparkles,
+  UserPlus,
+} from "lucide-react";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -24,40 +30,57 @@ export default async function DashboardPage() {
   const isFreeAccount = session?.user?.saasPlan === "FREE";
 
   return (
-    <div className="relative overflow-hidden min-h-screen bg-noir-700 px-3 pb-24 lg:px-10 lg:pb-14">
-      <div className="relative mt-4 flex w-full flex-col gap-4">
-        <PageHeader
-          icon={<LuLayoutDashboard className="h-5 w-5 text-tertiary-400 lg:h-4 lg:w-4" />}
-          title="Dashboard"
-        >
-            {!isFreeAccount && (
-              <div className="flex gap-2">
-                <DashboardButton href="/mes-rendez-vous/creer">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Nouveau RDV
-                </DashboardButton>
-
-                <DashboardButton href="/clients/creer" variant="secondary">
-                  <svg className="h-4 w-4 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5V10H2v10h5m10 0v-2a4 4 0 00-4-4H11a4 4 0 00-4 4v2m10 0H7m5-10a3 3 0 110-6 3 3 0 010 6z" />
-                  </svg>
-                  Nouveau client
-                </DashboardButton>
+    <div className="bg-noir-700 relative min-h-screen overflow-hidden px-3 pb-24 lg:px-8 lg:pb-14 xl:px-12">
+      <div className="relative mx-auto flex w-full max-w-[1600px] flex-col gap-5 pt-5 lg:gap-6 lg:pt-8">
+        {!isFreeAccount && (
+          <header className="dashboard-welcome flex flex-col gap-5 rounded-[28px] border border-white/10 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between lg:p-7">
+            <div>
+              <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-tertiary-400/80 font-one">
+                <LayoutDashboard size={14} />
+                Vue d&apos;ensemble
               </div>
-            )}
-        </PageHeader>
+              {/* <h1 className="max-w-2xl text-3xl font-semibold tracking-[-0.03em] text-white font-one sm:text-4xl">
+                Bonjour{session?.user?.name ? ` ${session.user.name}` : ""}.
+              </h1> */}
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/55 font-one">
+                Retrouvez l&apos;activité de votre studio et les prochaines actions importantes au même endroit.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <DashboardButton
+                href="/mes-rendez-vous/creer"
+              >
+                <CalendarPlus size={16} />
+                Nouveau RDV
+                <ArrowUpRight size={14} className="ml-1 opacity-60" />
+              </DashboardButton>
+              <DashboardButton
+                href="/clients/creer"
+                variant="secondary"
+              >
+                <UserPlus size={16} />
+                Nouveau client
+              </DashboardButton>
+            </div>
+          </header>
+        )}
 
         {!isFreeAccount && (
           <>
-            <div className="grid min-h-screen grid-cols-12 gap-5">
-              <div className="col-span-12 xl:col-span-5">
+            <div className="dashboard-section-label">
+              <div>
+                <span className="text-tertiary-400">Opérations</span>
+                <h2>Votre journée en un coup d&apos;œil</h2>
+              </div>
+              <div className="dashboard-live-indicator"><span /> Données en direct</div>
+            </div>
+            <div className="grid grid-cols-12 items-stretch gap-4 lg:gap-5">
+              <div className="col-span-12 xl:col-span-6">
                 {/* <RendezVousToday userId={session?.user?.id ?? ""} /> */}
                 <RendezVousTodayModern userId={session?.user?.id ?? ""} />
               </div>
 
-              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+              <div className="col-span-12 md:col-span-6 xl:col-span-3">
                 {/* <WaitingRdv userId={session?.user?.id ?? ""} /> */}
                 <WaitingRdvModern userId={session?.user?.id ?? ""} />
               </div>
@@ -66,7 +89,22 @@ export default async function DashboardPage() {
                 <LastMessage />
               </div>
 
+              <div className="col-span-12 xl:col-span-7">
+                <NotAnswerClient userId={session?.user?.id ?? ""} />
+              </div>
+
+              <div className="col-span-12 xl:col-span-5">
+                <DrawingFollowUpSummary />
+              </div>
+
               <div className="col-span-12">
+                <div className="dashboard-section-label mt-2 mb-5">
+                  <div>
+                    <span>Performance</span>
+                    <h2>Les chiffres qui comptent</h2>
+                  </div>
+                  <Sparkles size={17} className="text-tertiary-300/70" />
+                </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <WeeklyFillRate userId={session?.user?.id ?? ""} />
                   <CancelFillRate userId={session?.user?.id ?? ""} />
@@ -79,11 +117,7 @@ export default async function DashboardPage() {
                 <ProfileViewsStats userId={session?.user?.id ?? ""} />
               </div>
 
-              <div className="col-span-12 xl:col-span-7">
-                <NotAnswerClient userId={session?.user?.id ?? ""} />
-              </div>
-
-              <div className="col-span-12 xl:col-span-5">
+              <div className="col-span-12">
                 <RecentReviews />
               </div>
             </div>

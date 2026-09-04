@@ -8,6 +8,17 @@ import {
   SalonAnalyticsRealtimeDto,
   SalonAnalyticsStatsDto,
 } from "@/lib/queries/salon-analytics.actions";
+import {
+  Activity,
+  ArrowDownRight,
+  ArrowUpRight,
+  Clock3,
+  Eye,
+  Globe2,
+  MonitorSmartphone,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type DaysFilter = 7 | 30 | 90;
@@ -66,6 +77,44 @@ const getTrendMeta = (comparative: SalonAnalyticsComparativeDto | null) => {
     icon: "→",
   };
 };
+
+function MetricCard({
+  label,
+  value,
+  detail,
+  icon: Icon,
+  featured = false,
+}: {
+  label: string;
+  value: string;
+  detail?: string;
+  icon: LucideIcon;
+  featured?: boolean;
+}) {
+  return (
+    <div
+      className={`relative overflow-hidden rounded-2xl border p-3.5 ${
+        featured
+          ? "border-tertiary-400/30 bg-gradient-to-br from-tertiary-500/30 via-tertiary-500/15 to-transparent"
+          : "border-white/8 bg-white/[0.035]"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/45 font-one">
+          {label}
+        </p>
+        <Icon
+          size={15}
+          className={featured ? "text-tertiary-400" : "text-white/35"}
+        />
+      </div>
+      <p className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-white font-one">
+        {value}
+      </p>
+      {detail && <p className="mt-1 text-[10px] text-white/40 font-one">{detail}</p>}
+    </div>
+  );
+}
 
 export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
   const [days, setDays] = useState<DaysFilter>(30);
@@ -150,16 +199,17 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
     return (
       <div className="dashboard-panel bg-noir-500 p-4 lg:p-5">
         <div className="dashboard-panel-content">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-white font-one text-sm font-semibold">
-              Visites du profil public
-            </h3>
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <span className="dashboard-card-kicker">Audience</span>
+              <h3 className="dashboard-card-title mt-3">Visites du profil public</h3>
+            </div>
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-tertiary-500/50 border-t-tertiary-400" />
           </div>
-          <div className="space-y-2.5 animate-pulse">
-            <div className="h-16 rounded-xl bg-white/5" />
-            <div className="h-16 rounded-xl bg-white/5" />
-            <div className="h-16 rounded-xl bg-white/5" />
+          <div className="grid animate-pulse grid-cols-2 gap-2.5 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((item) => (
+              <div key={item} className="h-24 rounded-2xl bg-white/5" />
+            ))}
           </div>
         </div>
       </div>
@@ -170,10 +220,11 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
     return (
       <div className="dashboard-panel bg-noir-500 p-4 lg:p-5">
         <div className="dashboard-panel-content">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-white font-one text-sm font-semibold">
-              Visites du profil public
-            </h3>
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <span className="dashboard-card-kicker">Audience</span>
+                <h3 className="dashboard-card-title mt-3">Visites du profil public</h3>
+              </div>
           </div>
 
           <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-4">
@@ -191,22 +242,27 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
   }
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-noir-500 p-4 lg:p-5">
-      <div className="dashboard-panel-content space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-white font-one text-sm font-semibold">
-            Visites du profil public
-          </h3>
+    <div className="dashboard-panel bg-noir-500 p-4 lg:p-5">
+      <div className="dashboard-panel-content space-y-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span className="dashboard-card-kicker">Audience</span>
+            <h3 className="dashboard-card-title mt-3">Visites du profil public</h3>
+            <p className="dashboard-card-subtitle">
+              Comprenez comment les clients découvrent votre studio.
+            </p>
+          </div>
 
-          <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
+          <div className="flex w-fit items-center gap-1 rounded-3xl border border-white/10 bg-black/15 p-1">
             {DAY_FILTERS.map((filter) => (
               <button
                 key={filter}
                 onClick={() => setDays(filter)}
-                className={`rounded-lg px-2.5 py-1 text-[11px] font-one transition-colors ${
+                aria-pressed={days === filter}
+                className={`rounded-2xl px-3 py-1.5 text-[11px] font-medium font-one transition-all cursor-pointer ${
                   days === filter
-                    ? "bg-tertiary-500/30 text-white"
-                    : "text-white/65 hover:text-white"
+                    ? "bg-linear-to-b from-tertiary-400 to-tertiary-500 text-[#211817] shadow-lg shadow-tertiary-500/15"
+                    : "text-white/50 hover:bg-white/8 hover:text-white"
                 }`}
               >
                 {filter}j
@@ -216,54 +272,58 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-5">
-          <div className="rounded-xl border border-tertiary-500/20 bg-gradient-to-br from-tertiary-500/10 to-transparent p-3">
-            <p className="text-[11px] text-white/55 font-one">Total vues</p>
-            <p className="mt-1 text-2xl text-white font-semibold font-one">
-              {formatNumber(stats?.totalViews ?? 0)}
-            </p>
-            <p className="mt-1 text-[10px] text-white/45 font-one">
-              sur {days} jours
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-            <p className="text-[11px] text-white/55 font-one">Visiteurs uniques</p>
-            <p className="mt-1 text-2xl text-white font-semibold font-one">
-              {formatNumber(stats?.uniqueVisitors ?? 0)}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-            <p className="text-[11px] text-white/55 font-one">Dernieres 24h</p>
-            <p className="mt-1 text-2xl text-white font-semibold font-one">
-              {formatNumber(realtime?.views24h ?? 0)}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-            <p className="text-[11px] text-white/55 font-one">Total global</p>
-            <p className="mt-1 text-2xl text-white font-semibold font-one">
-              {globalTotalViews === null ? "-" : formatNumber(globalTotalViews)}
-            </p>
-            <p className="mt-1 text-[10px] text-white/45 font-one">
-              depuis le debut
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-            <p className="text-[11px] text-white/55 font-one">Tendance 30j</p>
-            <p className={`mt-1 text-lg font-semibold font-one ${trend.className}`}>
-              <span className="mr-1">{trend.icon}</span>
+          <MetricCard
+            label="Total vues"
+            value={formatNumber(stats?.totalViews ?? 0)}
+            detail={`sur ${days} jours`}
+            icon={Eye}
+            featured
+          />
+          <MetricCard
+            label="Visiteurs uniques"
+            value={formatNumber(stats?.uniqueVisitors ?? 0)}
+            icon={Users}
+          />
+          <MetricCard
+            label="Dernières 24h"
+            value={formatNumber(realtime?.views24h ?? 0)}
+            detail="activité récente"
+            icon={Clock3}
+          />
+          <MetricCard
+            label="Total global"
+            value={globalTotalViews === null ? "-" : formatNumber(globalTotalViews)}
+            detail="depuis le début"
+            icon={Globe2}
+          />
+          <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035] p-3.5">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/45 font-one">
+                Tendance 30j
+              </p>
+              {trend.icon === "↑" ? (
+                <ArrowUpRight size={15} className={trend.className} />
+              ) : trend.icon === "↓" ? (
+                <ArrowDownRight size={15} className={trend.className} />
+              ) : (
+                <Activity size={15} className={trend.className} />
+              )}
+            </div>
+            <p className={`mt-3 text-xl font-semibold font-one ${trend.className}`}>
               {trend.label}
             </p>
+            <p className="mt-1 text-[10px] text-white/40 font-one">vs. période précédente</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-            <p className="mb-2 text-xs text-white/70 font-one">Appareils</p>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.025] p-4">
+            <div className="mb-4 flex items-center gap-2">
+              <MonitorSmartphone size={15} className="text-tertiary-400" />
+              <p className="text-xs font-semibold text-white font-one">Appareils</p>
+            </div>
             {topDevices.length === 0 ? (
-              <p className="text-[11px] text-white/50 font-one">Aucune donnee exploitable</p>
+              <p className="text-[11px] text-white/50 font-one">Aucune donnée exploitable</p>
             ) : (
               <div className="space-y-2">
                 {topDevices.map(([label, count]) => {
@@ -293,10 +353,13 @@ export default function ProfileViewsStats({ userId }: ProfileViewsStatsProps) {
             )}
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-noir-500 p-3">
-            <p className="mb-2 text-xs text-white/70 font-one">Top sources de trafic</p>
+          <div className="rounded-2xl border border-white/8 bg-white/[0.025] p-4">
+            <div className="mb-4 flex items-center gap-2">
+              <Globe2 size={15} className="text-tertiary-400" />
+              <p className="text-xs font-semibold text-white font-one">Top sources de trafic</p>
+            </div>
             {topReferrers.length === 0 ? (
-              <p className="text-[11px] text-white/50 font-one">Aucune donnee exploitable</p>
+              <p className="text-[11px] text-white/50 font-one">Aucune donnée exploitable</p>
             ) : (
               <div className="space-y-1.5">
                 {topReferrers.map(([label, count]) => (

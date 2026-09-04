@@ -87,6 +87,11 @@ export default function NavbarMobile() {
       icon: <MdEvent size={20} />,
     },
     {
+      href: "/suiviDessin",
+      label: "Suivi dessin",
+      icon: <MdPhotoLibrary size={20} />,
+    },
+    {
       href: "/clients",
       label: "Clients",
       icon: <MdPeople size={20} />,
@@ -138,6 +143,7 @@ export default function NavbarMobile() {
         (link) =>
           ![
             "/mes-rendez-vous",
+            "/suiviDessin",
             "/clients",
             "/messagerie",
             "/stocks",

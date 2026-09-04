@@ -15,7 +15,7 @@ interface PageHeaderProps {
  */
 export default function PageHeader({ icon, title, children }: PageHeaderProps) {
   return (
-    <div className="px-4 py-4 lg:px-0 lg:py-0">
+    <div className="px-4 py-4 lg:px-0 lg:py-0 lg:hidden">
       <div className="relative z-10 flex flex-col gap-4 md:flex-row xl:items-center md:justify-between">
         <div className="max-w-3xl">
           <div className="flex items-center gap-3 bg-noir-500 p-2 rounded-2xl">

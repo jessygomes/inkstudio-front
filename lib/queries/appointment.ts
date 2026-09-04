@@ -420,6 +420,44 @@ export const totalPaidAppointmentsAction = async (
 
 //! ----------------------------------------------------------------------------
 
+//! NOMBRE DE NOUVEAUX CLIENTS PAR MOIS
+
+//! ----------------------------------------------------------------------------
+export const newClientsCountAction = async (
+  userId: string,
+  month: number,
+  year: number,
+) => {
+  try {
+    const headers = await getAuthHeaders();
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACK_URL}/clients/new-clients-count/${userId}?month=${month}&year=${year}`,
+      {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      },
+    );
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || data?.error) {
+      throw new Error(
+        data?.message ||
+          "Erreur lors de la récupération du nombre de nouveaux clients",
+      );
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching new clients count:", error);
+    throw error;
+  }
+};
+
+//! ----------------------------------------------------------------------------
+
 //! RDV EN ATTENTE DE CONFIRMATION
 
 //! ----------------------------------------------------------------------------

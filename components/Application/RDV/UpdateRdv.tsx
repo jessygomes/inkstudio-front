@@ -13,6 +13,7 @@ import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import { updateAppointment } from "@/lib/queries/appointment";
+import DrawingCardSelect from "@/components/Application/SuiviDessin/DrawingCardSelect";
 
 export default function UpdateRdv({
   rdv,
@@ -986,6 +987,12 @@ export default function UpdateRdv({
                       Détails du tatouage
                     </h3>
                     <div className="space-y-4">
+                      <DrawingCardSelect
+                        value={form.watch("drawingCardId")}
+                        clientId={rdv.clientId}
+                        clientEmail={rdv.client?.email}
+                        onChange={(value) => form.setValue("drawingCardId", value)}
+                      />
                       <div className="space-y-1">
                         <label className={labelClass}>
                           Description

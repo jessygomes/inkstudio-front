@@ -176,11 +176,6 @@ export default function ClientList() {
   };
 
   //! Handlers pour les actions
-  const handleCreate = () => {
-    setSelectedClient(null);
-    setIsModalOpen(true);
-  };
-
   const handleEdit = (client: ClientProps) => {
     setSelectedClient(client);
     setIsModalOpen(true);
@@ -241,8 +236,8 @@ export default function ClientList() {
       <div className="w-full">
         {/* Barre de recherche responsive */}
         {!isFreeAccount && (
-          <div className=" mb-4">
-            <div className="flex items-center gap-2">
+          <div className="client-list-toolbar mb-4 rounded-2xl border border-white/10 p-2.5 sm:p-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="relative flex-1">
                 <svg
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
@@ -262,14 +257,37 @@ export default function ClientList() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Rechercher un client (nom, email, téléphone)"
-                  className="w-full rounded-xl border border-white/16 bg-white/8 py-1 pl-9 pr-3 text-sm text-white placeholder:text-white/35 font-one focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 transition-colors"
+                  className="h-10 w-full rounded-2xl border border-white/10 bg-black/15 py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/35 font-one focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 transition-colors"
                 />
               </div>
 
               {!loading && !error && (
-                <div className="inline-flex shrink-0 items-center rounded-full border border-tertiary-400/25 bg-tertiary-500/10 px-3 py-1.5 text-xs text-white/80 font-one">
-                  Page {currentPage} sur {pagination.totalPages}
+                <div className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/65 font-one">
+                  Page {currentPage} / {pagination.totalPages}
                 </div>
+              )}
+
+              {!isFreeAccount && (
+                <>
+                  <DashboardButton href="/clients/creer">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Nouveau client
+                  </DashboardButton>
+
+                  <DashboardButton href="/clients/suivi" variant="secondary">
+                    <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Suivi cicatrisation
+                    {unansweredFollowUpsCount > 0 && (
+                      <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                        {unansweredFollowUpsCount > 99 ? "99+" : unansweredFollowUpsCount}
+                      </span>
+                    )}
+                  </DashboardButton>
+                </>
               )}
             </div>
           </div>
@@ -306,9 +324,9 @@ export default function ClientList() {
             primaryLabel="Passer à PRO"
           />
         ) : (
-          <div>
+          <div className="client-list-surface rounded-[28px] border border-white/10 p-2.5 sm:p-4">
             {/* Header de tableau - masqué sur mobile */}
-            <div className="dashboard-embedded-section hidden lg:grid grid-cols-6 gap-4 px-6 py-2 mb-4 rounded-xl text-white font-one text-xs font-semibold tracking-wider uppercase">
+            <div className="client-list-table-head hidden lg:grid grid-cols-6 gap-4 px-5 py-2.5 mb-2 rounded-xl text-white/45 font-one text-[10px] font-semibold tracking-[0.14em] uppercase">
               <p className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
                 Client
@@ -330,12 +348,12 @@ export default function ClientList() {
             </div>
 
             {loading ? (
-              <div className="space-y-3 mb-6">
+              <div className="space-y-2.5 mb-5">
                 {/* Vue desktop - skeletons */}
                 {[...Array(5)].map((_, i) => (
                   <div
                     key={i}
-                    className="dashboard-list-item hidden lg:grid grid-cols-6 gap-4 px-6 py-4 items-center"
+                    className="client-row-skeleton hidden lg:grid grid-cols-6 gap-4 rounded-2xl px-5 py-4 items-center"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse"></div>
@@ -359,7 +377,7 @@ export default function ClientList() {
                 {[...Array(5)].map((_, i) => (
                   <div
                     key={`mobile-${i}`}
-                    className="dashboard-list-item lg:hidden overflow-hidden rounded-2xl"
+                    className="client-row-skeleton lg:hidden overflow-hidden rounded-2xl"
                   >
                     {/* En-tête avec avatar et nom */}
                     <div className="bg-gradient-to-r from-white/10 to-white/5 p-4 border-b border-white/10">
@@ -457,7 +475,7 @@ export default function ClientList() {
                   {clients.map((client) => (
                     <div key={client.id}>
                       {/* Vue desktop - grille */}
-                      <div className="dashboard-list-item hidden lg:grid grid-cols-6 gap-4 px-6 py-2 items-center group">
+                      <div className="client-row hidden lg:grid grid-cols-6 gap-4 px-5 py-3 items-center group">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/60 transition-all">
                             <span className="text-white font-bold text-sm font-one">
@@ -545,7 +563,7 @@ export default function ClientList() {
                       </div>
 
                       {/* Vue mobile - format carte moderne */}
-                      <div className="dashboard-list-item lg:hidden overflow-hidden rounded-2xl">
+                      <div className="client-card lg:hidden overflow-hidden rounded-2xl">
                         {/* En-tête avec avatar et nom */}
                         <div className="bg-gradient-to-r from-white/10 to-white/5 p-4 border-b border-white/10">
                           <div className="flex items-center gap-3">

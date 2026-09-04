@@ -73,6 +73,7 @@ export default function NavbarApp() {
   const links = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/mes-rendez-vous", label: "Rendez-vous" },
+    { href: "/suiviDessin", label: "Suivi dessin" },
     { href: "/clients", label: "Clients" },
     { href: "/messagerie", label: "Messagerie" },
     { href: "/stocks", label: "Stocks" },
@@ -89,6 +90,7 @@ export default function NavbarApp() {
         (link) =>
           ![
             "/mes-rendez-vous",
+            "/suiviDessin",
             "/clients",
             "/messagerie",
             "/stocks",

@@ -15,9 +15,13 @@ import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
-import SkinToneSelect, { SkinToneOption } from "@/components/Application/RDV/SkinToneSelect";
+import SkinToneSelect, {
+  SkinToneOption,
+} from "@/components/Application/RDV/SkinToneSelect";
 import { createAppointment } from "@/lib/queries/appointment";
 import { getPiercingPrice } from "@/lib/queries/piercing";
+import DrawingCardSelect from "@/components/Application/SuiviDessin/DrawingCardSelect";
+import { searchClientsAction } from "@/lib/queries/client";
 
 type PiercingZone = {
   id: string;
@@ -44,6 +48,57 @@ type PiercingService = {
 
 const SKIN_REQUIRED_PRESTATIONS = new Set(["TATTOO", "RETOUCHE", "PROJET"]);
 
+const PRESTATION_OPTIONS = [
+  {
+    value: "TATTOO",
+    label: "Tatouage",
+    description: "Séance de réalisation d'un tatouage",
+  },
+  {
+    value: "PROJET",
+    label: "Projet",
+    description: "Échange et préparation d'un futur tatouage",
+  },
+  {
+    value: "RETOUCHE",
+    label: "Retouche",
+    description: "Correction ou finition d'un tatouage existant",
+  },
+  {
+    value: "PIERCING",
+    label: "Piercing",
+    description: "Pose d'un piercing et choix de la zone",
+  },
+] as const;
+
+function RdvSectionHeader({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+}) {
+  return (
+    <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-tertiary-400 font-one">
+          {eyebrow}
+        </p>
+        <h3 className="mt-1 text-base font-semibold text-white font-one">
+          {title}
+        </h3>
+      </div>
+      {description && (
+        <p className="max-w-md text-[11px] leading-relaxed text-white/40 font-one sm:text-right">
+          {description}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function CreateRdvForm({ userId }: { userId: string }) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -55,7 +110,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   const agendaMode = session?.user?.agendaMode;
   const isUserTatoueur = userRole === "user_tatoueur";
   const isSalonGlobal =
-    userRole === "user_salon" && String(agendaMode || "").toUpperCase() === "GLOBAL";
+    userRole === "user_salon" &&
+    String(agendaMode || "").toUpperCase() === "GLOBAL";
   const shouldUseGlobalAgenda = isSalonGlobal; // user_tatoueur ne doit PAS utiliser la vue globale
 
   //! Date sélectionnée pour le rendez-vous
@@ -89,7 +145,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         setTatoueurs([
           {
             id: userId,
-            name: session?.user?.salonName || session?.user?.name || "Mon agenda",
+            name:
+              session?.user?.salonName || session?.user?.name || "Mon agenda",
             description: null,
             style: [],
             skills: [],
@@ -128,7 +185,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         const data = await response.json();
 
         if (!Array.isArray(data)) {
-          throw new Error("Format de réponse invalide pour les teintes de peau");
+          throw new Error(
+            "Format de réponse invalide pour les teintes de peau",
+          );
         }
 
         setSkinToneOptions(data);
@@ -194,9 +253,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
           ? `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/salon/${userId}`
           : `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${tatoueurScopeId}`;
 
-        const res = await fetch(
-          blockedUrl,
-        );
+        const res = await fetch(blockedUrl);
         const data = await res.json();
         if (!data.error) {
           setBlockedSlots(data.blockedSlots || []);
@@ -221,7 +278,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     };
 
     fetchAllSlotsData();
-  }, [selectedDate, selectedTatoueur, isUserTatoueur, shouldUseGlobalAgenda, userId]);
+  }, [
+    selectedDate,
+    selectedTatoueur,
+    isUserTatoueur,
+    shouldUseGlobalAgenda,
+    userId,
+  ]);
 
   // Fonction pour vérifier si un créneau chevauche une période bloquée
   const isSlotBlocked = (slotStart: string, slotEnd?: string) => {
@@ -246,7 +309,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
       const concernsTatoueur = shouldUseGlobalAgenda
         ? blocked.tatoueurId == null
-        : blocked.tatoueurId === selectedTatoueur || blocked.tatoueurId === null;
+        : blocked.tatoueurId === selectedTatoueur ||
+          blocked.tatoueurId === null;
 
       return hasOverlap && concernsTatoueur;
     });
@@ -399,45 +463,32 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   const [userClientResults, setUserClientResults] = useState<any[]>([]);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleClientSearch = useCallback(
-    async (query: string) => {
-      if (!query.trim()) {
+  const handleClientSearch = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setClientResults([]);
+      setUserClientResults([]);
+      return;
+    }
+
+    try {
+      const results = await searchClientsAction(query);
+
+      console.log("Résultats de la recherche client :", results);
+
+      // Gérer la structure de réponse du backend
+      if (results.error) {
         setClientResults([]);
         setUserClientResults([]);
-        return;
+      } else {
+        setClientResults(results.clients || []);
+        setUserClientResults(results.userClients || []);
       }
-
-      try {
-        const res = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_BACK_URL
-          }/clients/search?query=${encodeURIComponent(query)}&userId=${userId}`,
-        );
-        if (!res.ok) {
-          setClientResults([]);
-          setUserClientResults([]);
-          throw new Error("Erreur lors de la recherche de clients");
-        }
-        const results = await res.json();
-
-        console.log("Résultats de la recherche client :", results);
-
-        // Gérer la structure de réponse du backend
-        if (results.error) {
-          setClientResults([]);
-          setUserClientResults([]);
-        } else {
-          setClientResults(results.clients || []);
-          setUserClientResults(results.userClients || []);
-        }
-      } catch (error) {
-        console.error("Erreur recherche client :", error);
-        setClientResults([]);
-        setUserClientResults([]);
-      }
-    },
-    [userId],
-  );
+    } catch (error) {
+      console.error("Erreur recherche client :", error);
+      setClientResults([]);
+      setUserClientResults([]);
+    }
+  }, []);
 
   useEffect(() => {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
@@ -551,6 +602,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       start: new Date().toISOString(),
       end: new Date().toISOString(),
       tatoueurId: "",
+      drawingCardId: undefined,
       status: "PENDING",
       visio: false,
       zone: "",
@@ -717,37 +769,146 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
   //! Affichage du formulaire de création de rendez-vous
   return (
-    <div className="min-h-screen bg-noir-700 pb-8">
+    <div className="mx-auto w-full max-w-[1600px] pb-8">
       <div className="w-full">
-        {/* Form Content */}
-        <div className="dashboard-embedded-panel rounded-3xl p-4 sm:p-8">
+        <div className="dashboard-embedded-panel !h-auto overflow-hidden !rounded-[28px] !p-0">
+          {/* En-tête du parcours : il situe immédiatement les trois blocs principaux. */}
+          <div className="dashboard-embedded-header relative z-10 flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-tertiary-400 font-one">
+                Nouveau rendez-vous
+              </p>
+              <h2 className="text-lg font-semibold text-white font-one sm:text-xl">
+                Renseignez les informations du rendez-vous
+              </h2>
+              <p className="mt-1 max-w-2xl text-xs leading-relaxed text-white/45 font-one">
+                Choisissez d'abord la prestation. Les champs adaptés seront
+                ensuite affichés jusqu'au choix du créneau.
+              </p>
+            </div>
+
+            <div className="hidden items-center gap-2 xl:flex">
+              {["Prestation", "Client", "Rendez-vous", "Créneau"].map(
+                (step, index) => (
+                  <div key={step} className="flex items-center gap-2">
+                    {index > 0 && <span className="h-px w-5 bg-white/10" />}
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-tertiary-400/25 bg-tertiary-500/10 text-[10px] font-semibold text-tertiary-400 font-one">
+                      {index + 1}
+                    </span>
+                    <span className="text-[11px] text-white/55 font-one">
+                      {step}
+                    </span>
+                  </div>
+                ),
+              )}
+            </div>
+          </div>
+
           <form
             onSubmit={form.handleSubmit(onSubmit, (errors) => {
               console.log("❌ Erreurs de validation", errors);
             })}
-            className="tablet-inputs space-y-4 sm:space-y-6"
+            className="create-rdv-form tablet-inputs relative z-10 grid grid-cols-12 gap-4 p-3 sm:p-5 lg:p-6"
           >
-            {/* Section: Recherche client */}
-            <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
-              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
-                🔍 Recherche client
-              </h3>
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <label className="text-sm text-white/70 font-one">
-                    Rechercher un client existant
+            {/* Étape 1 : la prestation pilote les champs affichés ensuite. */}
+            <section className="create-rdv-prestation order-1 col-span-12 overflow-hidden rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-4 sm:p-5">
+              <RdvSectionHeader
+                eyebrow="Étape 1 · Prestation"
+                title="Quel rendez-vous souhaitez-vous créer ?"
+                description="Un choix est nécessaire pour continuer."
+              />
+
+              <input type="hidden" {...form.register("prestation")} />
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                {PRESTATION_OPTIONS.map((option, index) => {
+                  const isSelected = selectedPrestation === option.value;
+
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      aria-pressed={isSelected}
+                      onClick={() => {
+                        form.setValue("prestation", option.value, {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        });
+                        setSelectedPrestation(option.value);
+
+                        if (!SKIN_REQUIRED_PRESTATIONS.has(option.value)) {
+                          form.clearErrors("skin");
+                        }
+
+                        if (option.value !== "PROJET") {
+                          form.setValue("visio", false);
+                        }
+                      }}
+                      className={`group flex cursor-pointer items-start gap-3 rounded-2xl border p-3.5 text-left transition-all duration-200 ${
+                        isSelected
+                          ? "border-tertiary-400/60 bg-tertiary-500/15 shadow-[0_12px_32px_rgba(255,157,0,0.09)]"
+                          : "border-white/8 bg-white/[0.035] hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.06]"
+                      }`}
+                    >
+                      <span
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-xs font-semibold font-one ${
+                          isSelected
+                            ? "border-tertiary-400/45 bg-tertiary-500/20 text-tertiary-400"
+                            : "border-white/10 bg-black/20 text-white/45 group-hover:text-white/70"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-medium text-white font-one">
+                          {option.label}
+                        </span>
+                        <span className="mt-1 block text-[11px] leading-relaxed text-white/45 font-one">
+                          {option.description}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {form.formState.errors.prestation && (
+                <p className="mt-3 text-xs text-red-300 font-one">
+                  {form.formState.errors.prestation.message}
+                </p>
+              )}
+            </section>
+
+            {/* Étape 2 : recherche et coordonnées sont réunies dans un seul bloc. */}
+            <div
+              className={`dashboard-embedded-section order-2 col-span-12 rounded-2xl p-3 sm:p-4 ${
+                selectedPrestation ? "" : "hidden"
+              }`}
+            >
+              <RdvSectionHeader
+                eyebrow="Étape 2 · Client"
+                title="Qui recevra cette prestation ?"
+                description="Les champs marqués d’un * sont obligatoires."
+              />
+
+              <div className="rounded-2xl border border-white/8 bg-black/15 p-3 sm:p-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-white/65 font-one">
+                    Retrouver un client existant
                   </label>
                   <input
                     type="text"
                     value={searchClientQuery}
                     onChange={(e) => setSearchClientQuery(e.target.value)}
                     className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                    placeholder="Rechercher par nom ou email..."
+                    placeholder="Saisissez au moins 2 caractères : nom, prénom ou email"
                   />
+                  <p className="text-[10px] text-white/35 font-one">
+                    Sélectionner un résultat remplira automatiquement les
+                    coordonnées ci-dessous.
+                  </p>
                 </div>
 
                 {(clientResults.length > 0 || userClientResults.length > 0) && (
-                  <div className="bg-white/10 border border-white/20 rounded-lg max-h-48 sm:max-h-40 overflow-auto">
+                  <div className="mt-2 max-h-56 overflow-auto rounded-xl border border-white/12 bg-[#111] shadow-2xl">
                     {/* Clients existants du salon */}
                     {clientResults.map((client) => (
                       <div
@@ -778,7 +939,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                 {client.firstName} {client.lastName}
                               </span>
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400 border border-green-500/30 whitespace-nowrap">
-                                📋 Client salon
+                                Client salon
                               </span>
                             </div>
                             <div className="flex flex-col sm:flex-row sm:gap-2 text-xs">
@@ -787,7 +948,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               </span>
                               {client.phone && (
                                 <span className="text-white/50">
-                                  📞 {client.phone}
+                                  {client.phone}
                                 </span>
                               )}
                             </div>
@@ -841,11 +1002,11 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                   {userClient.firstName} {userClient.lastName}
                                 </span>
                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 whitespace-nowrap">
-                                  👤 Compte plateforme
+                                  Compte plateforme
                                 </span>
                                 {existsInSalon && (
                                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-500/20 text-orange-400 border border-orange-500/30 whitespace-nowrap">
-                                    ⚠️ Déjà client
+                                    Déjà client
                                   </span>
                                 )}
                               </div>
@@ -855,7 +1016,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                 </span>
                                 {userClient.phone && (
                                   <span className="text-white/50">
-                                    📞 {userClient.phone}
+                                    {userClient.phone}
                                   </span>
                                 )}
                               </div>
@@ -867,14 +1028,16 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Section: Informations client */}
-            <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
-              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
-                👤 Informations client
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              <div className="my-4 flex items-center gap-3">
+                <span className="h-px flex-1 bg-white/8" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35 font-one">
+                  Coordonnées du client
+                </span>
+                <span className="h-px flex-1 bg-white/8" />
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
                     Nom *
@@ -959,11 +1122,17 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             </div>
 
             {/* Section: Informations générales */}
-            <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
-              <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
-                📋 Détails du rendez-vous
-              </h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4">
+            <div
+              className={`dashboard-embedded-section order-4 col-span-12 rounded-2xl p-3 sm:p-4 ${
+                selectedPrestation ? "" : "hidden"
+              }`}
+            >
+              <RdvSectionHeader
+                eyebrow="Étape 3 · Rendez-vous"
+                title="Organiser le rendez-vous"
+                description="Donnez-lui un titre clair et attribuez-le au bon artiste."
+              />
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div className="space-y-1">
                   <label className="text-xs text-white/70 font-one">
                     Titre
@@ -998,12 +1167,14 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   >
                     {isUserTatoueur ? (
                       <option value={userId} className="bg-noir-500">
-                        {session?.user?.salonName || session?.user?.name || "Mon agenda"}
+                        {session?.user?.salonName ||
+                          session?.user?.name ||
+                          "Mon agenda"}
                       </option>
                     ) : (
-                    <option value="" className="bg-noir-500">
-                      -- Choisissez un tatoueur --
-                    </option>
+                      <option value="" className="bg-noir-500">
+                        -- Choisissez un tatoueur --
+                      </option>
                     )}
                     {tatoueurs.map((tatoueur) => (
                       <option
@@ -1018,93 +1189,67 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs text-white/70 font-one">
-                  Type de prestation
-                </label>
-                <select
-                  {...form.register("prestation")}
-                  onChange={(e) => {
-                    form.setValue("prestation", e.target.value as z.infer<typeof appointmentSchema>["prestation"], {
+              {/* La visioconférence concerne uniquement les rendez-vous Projet. */}
+              {selectedPrestation === "PROJET" && (
+                <div className="mt-4 rounded-2xl border border-white/8 bg-black/15 p-3.5">
+                  <label className="flex cursor-pointer items-center justify-between gap-4">
+                    <span>
+                      <span className="block text-xs font-medium text-white/75 font-one">
+                        Rendez-vous en visioconférence
+                      </span>
+                      <span className="mt-1 block text-[10px] text-white/35 font-one">
+                        Activez cette option si l’échange se déroule en ligne.
+                      </span>
+                    </span>
+                    <input
+                      type="checkbox"
+                      {...form.register("visio")}
+                      className="h-5 w-5 shrink-0 cursor-pointer rounded border border-white/20 bg-white/10 accent-tertiary-400"
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+
+            {isSkinRequired && (
+              <div className="dashboard-embedded-section order-6 col-span-12 w-full rounded-2xl p-3 sm:p-4">
+                <RdvSectionHeader
+                  eyebrow="Informations complémentaires"
+                  title="Carnation du client"
+                  description="Cette information aide l’artiste à préparer la séance."
+                />
+                <SkinToneSelect
+                  options={skinToneOptions}
+                  value={form.watch("skin")}
+                  loading={isLoadingSkinTones}
+                  required={isSkinRequired}
+                  error={
+                    form.formState.errors.skin?.message ||
+                    skinTonesError ||
+                    undefined
+                  }
+                  onChange={(value) => {
+                    form.setValue("skin", value, {
                       shouldDirty: true,
                       shouldValidate: true,
                     });
-                    setSelectedPrestation(e.target.value);
-
-                    if (!SKIN_REQUIRED_PRESTATIONS.has(e.target.value)) {
-                      form.clearErrors("skin");
-                    }
                   }}
-                  className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                >
-                  <option value="" className="bg-noir-500">
-                    -- Choisissez le type du rendez-vous --
-                  </option>
-                  <option value="TATTOO" className="bg-noir-500">
-                    Tatouage
-                  </option>
-                  <option value="PROJET" className="bg-noir-500">
-                    Projet
-                  </option>
-                  <option value="RETOUCHE" className="bg-noir-500">
-                    Retouche
-                  </option>
-                  <option value="PIERCING" className="bg-noir-500">
-                    Piercing
-                  </option>
-                </select>
+                />
+                <p className="mt-2 text-xs text-white/45 font-one">
+                  Obligatoire pour les rendez-vous de tatouage, retouche et
+                  projet.
+                </p>
               </div>
-
-               {/* Champ Visio */}
-              <div className="space-y-1 mt-6 bg-white/10 p-3 rounded-lg border border-white/20">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    {...form.register("visio")}
-                    className="w-4 h-4 bg-white/10 border border-white/20 rounded focus:outline-none focus:border-tertiary-400 transition-colors accent-tertiary-400"
-                  />
-                  <span className="text-xs text-white/70 font-one">
-                    Rendez-vous en visioconférence
-                  </span>
-                </label>
-              </div>
-              <p className="text-xs text-white/50 mt-2 font-one">
-                Cochez cette case si le rendez-vous se déroulera en ligne via
-                visioconférence
-              </p>
-            </div>
-
-              {isSkinRequired && (
-                <div className="dashboard-embedded-section mx-auto mt-4 w-fit rounded-2xl p-3 sm:p-4">
-                  <SkinToneSelect
-                    options={skinToneOptions}
-                    value={form.watch("skin")}
-                    loading={isLoadingSkinTones}
-                    required={isSkinRequired}
-                    error={
-                      form.formState.errors.skin?.message ||
-                      skinTonesError ||
-                      undefined
-                    }
-                    onChange={(value) => {
-                      form.setValue("skin", value, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      });
-                    }}
-                  />
-                  <p className="mt-2 text-xs text-white/45 font-one">
-                    Obligatoire pour les rendez-vous de tatouage, retouche et projet.
-                  </p>
-                </div>
-              )}
+            )}
 
             {/* Section: Créneaux horaires */}
-            {selectedTatoueur && (
-              <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
-                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white font-one sm:text-xs">
-                  🕒 Créneaux horaires
-                </h3>
+            {selectedPrestation && selectedTatoueur && (
+              <div className="dashboard-embedded-section order-7 col-span-12 rounded-2xl p-3 sm:p-4">
+                <RdvSectionHeader
+                  eyebrow="Étape 4 · Planification"
+                  title="Choisir la date et le créneau"
+                  description="Les disponibilités correspondent à l’agenda de l’artiste sélectionné."
+                />
                 <div className="space-y-4">
                   <div className="mb-1 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
                     <div>
@@ -1125,7 +1270,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         Agenda affiché
                       </p>
                       <p className="text-white font-one text-sm mt-0.5">
-                        {tatoueurs.find((t) => t.id === selectedTatoueur)?.name || "Tatoueur"}
+                        {tatoueurs.find((t) => t.id === selectedTatoueur)
+                          ?.name || "Tatoueur"}
                       </p>
                     </div>
                   </div>
@@ -1139,19 +1285,27 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         <div className="grid grid-cols-2 sm:grid-cols-8 gap-2 text-xs">
                           <div className="flex items-center gap-2">
                             <div className="w-4 h-4 border border-white/20 rounded" />
-                            <span className="text-white/70 font-one">Disponible</span>
+                            <span className="text-white/70 font-one">
+                              Disponible
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-4 h-4 bg-linear-to-br from-tertiary-500/30 to-tertiary-400/20 border border-tertiary-400/60 rounded" />
-                            <span className="text-white/70 font-one">Sélectionné</span>
+                            <span className="text-white/70 font-one">
+                              Sélectionné
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-4 h-4 bg-linear-to-br from-gray-500/20 to-gray-600/10 border border-gray-500/40 rounded" />
-                            <span className="text-white/70 font-one">Occupé</span>
+                            <span className="text-white/70 font-one">
+                              Occupé
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-4 h-4 bg-linear-to-br from-red-500/20 to-red-600/10 border border-red-500/40 rounded" />
-                            <span className="text-white/70 font-one">Bloqué</span>
+                            <span className="text-white/70 font-one">
+                              Bloqué
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1167,29 +1321,52 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         <>
                           <div className="space-y-3">
                             <p className="text-xs text-white/50 font-one">
-                              Cliquez sur les créneaux pour les sélectionner (ils doivent être consécutifs).
+                              Cliquez sur les créneaux pour les sélectionner
+                              (ils doivent être consécutifs).
                             </p>
 
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
                               {displayedTimeSlots.map((slot) => {
-                                const isSelected = selectedSlots.includes(slot.start);
-                                const isTaken = isSlotOccupied(slot.start, slot.end);
-                                const isBlocked = isSlotBlocked(slot.start, slot.end);
-                                const isAvailable = timeSlots.some((availableSlot) => availableSlot.start === slot.start);
-                                const isDisabled = !isAvailable || isTaken || isBlocked;
+                                const isSelected = selectedSlots.includes(
+                                  slot.start,
+                                );
+                                const isTaken = isSlotOccupied(
+                                  slot.start,
+                                  slot.end,
+                                );
+                                const isBlocked = isSlotBlocked(
+                                  slot.start,
+                                  slot.end,
+                                );
+                                const isAvailable = timeSlots.some(
+                                  (availableSlot) =>
+                                    availableSlot.start === slot.start,
+                                );
+                                const isDisabled =
+                                  !isAvailable || isTaken || isBlocked;
 
-                                const startTime = format(new Date(slot.start), "HH:mm", {
-                                  locale: fr,
-                                });
-                                const endTime = format(new Date(slot.end), "HH:mm", {
-                                  locale: fr,
-                                });
+                                const startTime = format(
+                                  new Date(slot.start),
+                                  "HH:mm",
+                                  {
+                                    locale: fr,
+                                  },
+                                );
+                                const endTime = format(
+                                  new Date(slot.end),
+                                  "HH:mm",
+                                  {
+                                    locale: fr,
+                                  },
+                                );
 
                                 return (
                                   <button
                                     key={`${slot.start}-${slot.end}`}
                                     type="button"
-                                    onClick={() => !isDisabled && handleSlotClick(slot.start)}
+                                    onClick={() =>
+                                      !isDisabled && handleSlotClick(slot.start)
+                                    }
                                     disabled={isDisabled}
                                     className={`p-3 rounded-2xl text-xs font-one font-medium transition-all duration-200 border ${
                                       isSelected
@@ -1209,7 +1386,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                   >
                                     <div className="flex flex-col items-center gap-1">
                                       <span>{startTime}</span>
-                                      <span className="text-[10px] opacity-70">{endTime}</span>
+                                      <span className="text-[10px] opacity-70">
+                                        {endTime}
+                                      </span>
                                     </div>
                                   </button>
                                 );
@@ -1223,11 +1402,15 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <span>Sélectionnés :</span>
-                                <span className="text-tertiary-400">{selectedSlots.length}</span>
+                                <span className="text-tertiary-400">
+                                  {selectedSlots.length}
+                                </span>
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <span>Durée :</span>
-                                <span className="text-tertiary-400">{selectedSlots.length * 30} min</span>
+                                <span className="text-tertiary-400">
+                                  {selectedSlots.length * 30} min
+                                </span>
                               </div>
                               {selectedSlots.length > 0 && (
                                 <button
@@ -1261,14 +1444,22 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                 </div>
                                 <div className="flex-1 space-y-2">
                                   <div>
-                                    <h4 className="text-white font-one text-sm">Créneaux sélectionnés</h4>
-                                    <p className="text-xs text-white/60 font-one">Vérifiez votre sélection</p>
+                                    <h4 className="text-white font-one text-sm">
+                                      Créneaux sélectionnés
+                                    </h4>
+                                    <p className="text-xs text-white/60 font-one">
+                                      Vérifiez votre sélection
+                                    </p>
                                   </div>
                                   <div className="grid grid-cols-2 gap-2 text-sm">
                                     <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
-                                      <p className="text-xs text-white/60 mb-0.5">Date</p>
+                                      <p className="text-xs text-white/60 mb-0.5">
+                                        Date
+                                      </p>
                                       <p className="text-white font-one text-sm">
-                                        {new Date(selectedDate).toLocaleDateString("fr-FR", {
+                                        {new Date(
+                                          selectedDate,
+                                        ).toLocaleDateString("fr-FR", {
                                           day: "2-digit",
                                           month: "2-digit",
                                           year: "numeric",
@@ -1276,12 +1467,16 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                       </p>
                                     </div>
                                     <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
-                                      <p className="text-xs text-white/60 mb-0.5">Horaire</p>
+                                      <p className="text-xs text-white/60 mb-0.5">
+                                        Horaire
+                                      </p>
                                       <p className="text-white font-one text-sm">
                                         {format(
                                           new Date(
                                             Math.min(
-                                              ...selectedSlots.map((s) => new Date(s).getTime()),
+                                              ...selectedSlots.map((s) =>
+                                                new Date(s).getTime(),
+                                              ),
                                             ),
                                           ),
                                           "HH:mm",
@@ -1291,7 +1486,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                           addMinutes(
                                             new Date(
                                               Math.max(
-                                                ...selectedSlots.map((s) => new Date(s).getTime()),
+                                                ...selectedSlots.map((s) =>
+                                                  new Date(s).getTime(),
+                                                ),
                                               ),
                                             ),
                                             30,
@@ -1301,12 +1498,20 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                       </p>
                                     </div>
                                     <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
-                                      <p className="text-xs text-white/60 mb-0.5">Durée</p>
-                                      <p className="text-white font-one text-sm">{selectedSlots.length * 30} min</p>
+                                      <p className="text-xs text-white/60 mb-0.5">
+                                        Durée
+                                      </p>
+                                      <p className="text-white font-one text-sm">
+                                        {selectedSlots.length * 30} min
+                                      </p>
                                     </div>
                                     <div className="bg-white/5 rounded-2xl p-2 border border-white/10">
-                                      <p className="text-xs text-white/60 mb-0.5">Créneaux</p>
-                                      <p className="text-white font-one text-sm">{selectedSlots.length} x 30min</p>
+                                      <p className="text-xs text-white/60 mb-0.5">
+                                        Créneaux
+                                      </p>
+                                      <p className="text-white font-one text-sm">
+                                        {selectedSlots.length} x 30min
+                                      </p>
                                     </div>
                                   </div>
                                 </div>
@@ -1347,10 +1552,12 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
             {/* Sections conditionnelles selon le type de prestation - responsive */}
             {selectedPrestation === "PROJET" && (
-              <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
-                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white font-one sm:text-xs">
-                  🎨 Détails du projet
-                </h3>
+              <div className="dashboard-embedded-section order-5 col-span-12 rounded-2xl p-3 sm:p-4">
+                <RdvSectionHeader
+                  eyebrow="Détails de la prestation"
+                  title="Préparer le projet"
+                  description="Décrivez l’idée et ajoutez les références utiles à l’artiste."
+                />
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-xs text-white/70 font-one">
@@ -1453,11 +1660,18 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {selectedPrestation === "TATTOO" && (
-              <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
-                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
-                  🖋️ Détails du tatouage
-                </h3>
+              <div className="dashboard-embedded-section order-5 col-span-12 rounded-2xl p-3 sm:p-4">
+                <RdvSectionHeader
+                  eyebrow="Détails de la prestation"
+                  title="Préparer le tatouage"
+                  description="Associez éventuellement un dessin approuvé puis précisez la séance."
+                />
                 <div className="space-y-4">
+                  <DrawingCardSelect
+                    value={form.watch("drawingCardId")}
+                    clientEmail={form.watch("clientEmail")}
+                    onChange={(value) => form.setValue("drawingCardId", value)}
+                  />
                   <div className="space-y-1">
                     <label className="text-xs text-white/70 font-one">
                       Description
@@ -1519,10 +1733,12 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {selectedPrestation === "PIERCING" && (
-              <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
-                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
-                  💎 Détails du piercing
-                </h3>
+              <div className="dashboard-embedded-section order-5 col-span-12 rounded-2xl p-3 sm:p-4">
+                <RdvSectionHeader
+                  eyebrow="Détails de la prestation"
+                  title="Configurer le piercing"
+                  description="Choisissez la zone et le service correspondant."
+                />
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <label className="text-xs text-white/70 font-one">
@@ -1655,10 +1871,12 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {selectedPrestation === "RETOUCHE" && (
-              <div className="dashboard-embedded-section rounded-2xl p-3 sm:p-4">
-                <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary-400 font-one sm:text-xs">
-                  🔧 Détails de la retouche
-                </h3>
+              <div className="dashboard-embedded-section order-5 col-span-12 rounded-2xl p-3 sm:p-4">
+                <RdvSectionHeader
+                  eyebrow="Détails de la prestation"
+                  title="Préparer la retouche"
+                  description="Précisez le travail attendu, la zone concernée et le tarif."
+                />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <label className="text-xs text-white/70 font-one">
@@ -1698,7 +1916,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             {/* Messages d'erreur and de succès - responsive */}
             {error && error === "SAAS_LIMIT_APPOINTMENTS" ? (
               /* Message spécial pour la limite de rendez-vous */
-              <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-4">
+              <div className="order-8 col-span-12 rounded-2xl border border-orange-500/50 bg-gradient-to-r from-orange-500/20 to-red-500/20 p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-orange-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <svg
@@ -1767,30 +1985,29 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     </div>
 
                     <div className="flex gap-2">
-                      <button
+                      <DashboardButton
                         type="button"
-                        onClick={() => {
-                          window.location.href = "/parametres";
-                        }}
-                        className="rdv-btn-primary cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
+                        onClick={() => router.push("/parametres")}
+                        className="min-w-0"
                       >
-                        📊 Changer de plan
-                      </button>
+                        Changer de plan
+                      </DashboardButton>
 
-                      <button
+                      <DashboardButton
                         type="button"
                         onClick={() => setError("")}
-                        className="rdv-btn-secondary cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
+                        variant="secondary"
+                        className="min-w-0"
                       >
                         Fermer
-                      </button>
+                      </DashboardButton>
                     </div>
                   </div>
                 </div>
               </div>
             ) : error && error === "SAAS_LIMIT_CLIENTS" ? (
               /* Message spécial pour la limite de clients (lors de création automatique) */
-              <div className="bg-gradient-to-r from-red-500/20 to-purple-500/20 border border-red-500/50 rounded-2xl p-4">
+              <div className="order-8 col-span-12 rounded-2xl border border-red-500/50 bg-gradient-to-r from-red-500/20 to-purple-500/20 p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-red-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <svg
@@ -1859,42 +2076,41 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                     </div>
 
                     <div className="flex gap-2">
-                      <button
+                      <DashboardButton
                         type="button"
-                        onClick={() => {
-                          window.location.href = "/parametres";
-                        }}
-                        className="rdv-btn-primary cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
+                        onClick={() => router.push("/parametres")}
+                        className="min-w-0"
                       >
-                        📊 Changer de plan
-                      </button>
+                        Changer de plan
+                      </DashboardButton>
 
-                      <button
+                      <DashboardButton
                         type="button"
                         onClick={() => setError("")}
-                        className="rdv-btn-secondary cursor-pointer px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 text-xs font-one font-medium transition-colors"
+                        variant="secondary"
+                        className="min-w-0"
                       >
                         Fermer
-                      </button>
+                      </DashboardButton>
                     </div>
                   </div>
                 </div>
               </div>
             ) : error ? (
               /* Message d'erreur standard */
-              <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
+              <div className="order-8 col-span-12 rounded-xl border border-red-500/50 bg-red-500/20 p-3">
                 <p className="text-red-300 text-xs">{error}</p>
               </div>
             ) : null}
 
             {success && (
-              <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-xl">
+              <div className="order-8 col-span-12 rounded-xl border border-green-500/50 bg-green-500/20 p-3">
                 <p className="text-green-300 text-xs">{success}</p>
               </div>
             )}
 
             {/* Footer avec boutons d'action - responsive */}
-            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-white/10">
+            <div className="dashboard-embedded-footer sticky bottom-0 z-20 order-9 col-span-12 -mx-3 -mb-3 flex flex-col-reverse justify-end gap-2 px-3 py-3 backdrop-blur-xl sm:-mx-5 sm:-mb-5 sm:flex-row sm:px-5 lg:-mx-6 lg:-mb-6 lg:px-6">
               <DashboardButton
                 href="/mes-rendez-vous"
                 variant="secondary"
@@ -1904,10 +2120,14 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
               </DashboardButton>
               <DashboardButton
                 type="submit"
-                disabled={loading}
+                disabled={loading || !selectedPrestation}
                 className="w-full sm:w-auto"
               >
-                {loading ? "Création..." : "Créer le rendez-vous"}
+                {loading
+                  ? "Création..."
+                  : selectedPrestation
+                    ? "Créer le rendez-vous"
+                    : "Choisir une prestation"}
               </DashboardButton>
             </div>
           </form>
