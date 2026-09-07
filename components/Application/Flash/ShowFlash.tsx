@@ -10,6 +10,7 @@ import { FlashProps } from "@/lib/type";
 import CreateOrUpdateFlash from "./CreateOrUpdateFlash";
 import DeleteFlash from "./DeleteFlash";
 import PageHeader from "@/components/Shared/PageHeader";
+import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import { getAvailableFlashsByUserAction } from "@/lib/queries/flash";
 import {
@@ -220,11 +221,8 @@ export default function ShowFlash() {
 
   return (
     <section className="w-full space-y-3">
-      <PageHeader
-        icon={<FaBolt size={15} className="text-tertiary-400" />}
-        title="Flashs"
-      >
-        <div className="hidden md:flex items-center gap-2">
+      <PageHeader icon={<FaBolt size={15} className="text-tertiary-400" />} title="Flashs" />
+      <ApplicationToolbar filters={<div className="flex items-center gap-2">
           <label htmlFor="availability-filter" className="text-xs text-white/60 font-one">
             Disponibilité
           </label>
@@ -242,17 +240,14 @@ export default function ShowFlash() {
             <option value="available" className="bg-noir-500">Disponibles</option>
             <option value="unavailable" className="bg-noir-500">Indisponibles</option>
           </select>
-        </div>
-
-        <DashboardButton onClick={handleCreate}>
+        </div>} actions={<DashboardButton onClick={handleCreate}>
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Nouveau flash
-        </DashboardButton>
-      </PageHeader>
+        </DashboardButton>} />
 
-      <div className="md:hidden flex items-center gap-2 px-1">
+      <div className="hidden">
         <label htmlFor="availability-filter-mobile" className="text-xs text-white/60 font-one">
           Disponibilité
         </label>

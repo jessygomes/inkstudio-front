@@ -10,6 +10,7 @@ import Image from "next/image";
 import CreateOrUpdateProduct from "./CreateOrUpdateProduct";
 import DeleteProduct from "./DeleteProduct";
 import PageHeader from "@/components/Shared/PageHeader";
+import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import { getProductsAction } from "@/lib/queries/productSalon";
 
@@ -126,17 +127,13 @@ export default function ProductList() {
 
   return (
     <section className="w-full space-y-3">
-      <PageHeader
-        icon={<MdOutlineSell size={15} className="text-tertiary-400" />}
-        title="Produits"
-      >
-        <DashboardButton onClick={handleCreate}>
+      <PageHeader icon={<MdOutlineSell size={15} className="text-tertiary-400" />} title="Produits" />
+      <ApplicationToolbar actions={<DashboardButton onClick={handleCreate}>
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Nouveau produit
-        </DashboardButton>
-      </PageHeader>
+        </DashboardButton>} />
 
       {loading ? (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">

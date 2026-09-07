@@ -1,6 +1,8 @@
 "use client";
 
 import { Search, X } from "lucide-react";
+import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
+import DashboardButton from "@/components/Shared/DashboardButton";
 import {
   DRAWING_CARD_STATUSES,
   type DrawingCardStatus,
@@ -44,7 +46,8 @@ export default function DrawingBoardFilters({
     "h-8 shrink-0 cursor-pointer rounded-xl border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white outline-none transition-colors focus:border-tertiary-400";
 
   return (
-    <div className="dashboard-embedded-section flex flex-nowrap items-center gap-2 overflow-x-auto rounded-2xl border border-white/10 px-2.5 py-2 scrollbar-hidden">
+    <ApplicationToolbar>
+      <div className="flex w-full flex-nowrap items-center gap-2 overflow-x-auto scrollbar-hidden">
       <label className="relative min-w-[190px] flex-1">
         <Search
           className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/35"
@@ -118,16 +121,17 @@ export default function DrawingBoardFilters({
       </div>
 
       {hasActiveFilters && (
-        <button
+        <DashboardButton
           type="button"
-          title="Effacer les filtres"
           onClick={onClear}
-          className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-red-400/25 bg-red-400/10 px-2.5 text-[11px] text-red-300 transition-colors hover:bg-red-400/20"
+          variant="secondary"
+          className="!h-10 !min-w-0 shrink-0 !border-red-400/25 !text-red-300"
         >
           <X size={12} />
           Effacer
-        </button>
+        </DashboardButton>
       )}
-    </div>
+      </div>
+    </ApplicationToolbar>
   );
 }

@@ -74,13 +74,13 @@ export default function ConversationCard({
   return (
     <div
       onClick={handleSelect}
-      className={`group relative cursor-pointer rounded-2xl border transition-all duration-200 overflow-hidden
+      className={`group relative cursor-pointer overflow-hidden rounded-2xl border transition-all duration-200
         ${isLoading ? "pointer-events-none opacity-50" : ""}
         ${isSelected
           ? "border-tertiary-400/40 bg-tertiary-400/10 shadow-lg shadow-tertiary-500/10"
           : hasUnread
           ? "border-tertiary-400/50 bg-tertiary-400/5 hover:border-tertiary-400/70 hover:bg-tertiary-400/8"
-          : "border-white/8 bg-white/4 hover:border-white/15 hover:bg-white/6"
+          : "border-white/[0.07] bg-black/10 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.035]"
         }`}
     >
       {/* Unread accent line */}
@@ -88,15 +88,15 @@ export default function ConversationCard({
         <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-tertiary-400 to-tertiary-500 rounded-l-2xl" />
       )}
 
-      <div className="flex items-start gap-3 px-3 py-2.5">
+      <div className="flex items-start gap-3.5 px-3.5 py-3.5 sm:px-4">
         {/* Avatar */}
         <div className="relative flex-shrink-0 mt-0.5">
           <Image
             src={otherUser?.image || "/images/default-avatar.png"}
-            width={36}
-            height={36}
+            width={44}
+            height={44}
             alt={displayName}
-            className="h-9 w-9 rounded-full object-cover ring-1 ring-white/10 group-hover:ring-tertiary-400/30 transition-all duration-200"
+            className="h-11 w-11 rounded-2xl object-cover ring-1 ring-white/10 transition-all duration-200 group-hover:ring-tertiary-400/30"
           />
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/60">
@@ -112,13 +112,13 @@ export default function ConversationCard({
         <div className="min-w-0 flex-1 font-one">
 
           {/* Ligne 1 : nom + (sujet desktop) + time + unread */}
-          <div className="flex items-baseline justify-between gap-1">
-            <div className="flex min-w-0 items-baseline gap-1.5">
-              <h3 className={`truncate text-xs font-semibold ${hasUnread ? "text-white" : "text-white/75"}`}>
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+              <h3 className={`truncate text-sm font-semibold ${hasUnread ? "text-white" : "text-white/75"}`}>
                 {displayName}
               </h3>
               {conversation.subject && (
-                <span className="hidden sm:block flex-shrink-0 whitespace-nowrap text-[11px] text-tertiary-500/90">
+                <span className="hidden shrink-0 whitespace-nowrap rounded-full border border-tertiary-400/15 bg-tertiary-400/[0.06] px-2 py-0.5 text-[10px] text-tertiary-400/90 sm:block">
                   {conversation.subject}
                 </span>
               )}
@@ -134,12 +134,12 @@ export default function ConversationCard({
           </div>
 
           {/* Ligne 2 : aperçu */}
-          <p className={`truncate text-[12px] leading-snug mt-0.5 ${hasUnread ? "text-white/60" : "text-white/35"}`}>
+          <p className={`mt-1 line-clamp-2 text-xs leading-relaxed ${hasUnread ? "text-white/65" : "text-white/40"}`}>
             {lastMessagePreview}
           </p>
 
           {/* Ligne 3 : sujet (mobile) + actions */}
-          <div className="flex items-center justify-between gap-2 mt-1.5">
+          <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-white/[0.06] pt-2.5">
             <div className="flex items-center gap-2 min-w-0">
               {/* Sujet visible uniquement mobile */}
               {conversation.subject && (
@@ -150,13 +150,13 @@ export default function ConversationCard({
               {/* Status dot */}
               <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${
                 localStatus === "ACTIVE" ? "bg-emerald-400" : localStatus === "ARCHIVED" ? "bg-amber-400" : "bg-red-400"
-              }`} />
+              }`} /><span className="text-[10px] text-white/35 font-one">{localStatus === "ACTIVE" ? "Conversation active" : "Archivée"}</span>
             </div>
             <div className="flex flex-shrink-0 items-center gap-1" onClick={(e) => e.stopPropagation()}>
               <Link
                 href={`/messagerie/${conversation.id}`}
                 onClick={(e) => e.stopPropagation()}
-                className="rounded-2xl border border-tertiary-400/25 bg-tertiary-400/10 px-2 py-0.5 text-[10px] font-medium text-tertiary-500 transition-all duration-200 hover:bg-tertiary-400/20 whitespace-nowrap"
+                className="whitespace-nowrap rounded-xl border border-tertiary-400/25 bg-tertiary-400/10 px-2.5 py-1 text-[10px] font-medium text-tertiary-400 transition-all duration-200 hover:bg-tertiary-400/20"
               >
                 Ouvrir
               </Link>

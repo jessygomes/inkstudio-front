@@ -1,345 +1,142 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
+
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
+import { AlertCircle, Archive, Inbox, MailOpen, MessageCircle, RefreshCw, Search } from "lucide-react";
 import {
   getConversationsAction,
-  ConversationDto,
-  PaginatedConversationsDto,
-  ConversationStatus,
+  type ConversationDto,
+  type ConversationStatus,
+  type PaginatedConversationsDto,
 } from "@/lib/queries/conversation.action";
-import ConversationCard from "./ConversationCard";
-import React, { useEffect, useState, useCallback } from "react";
-import { MdOutlineMessage } from "react-icons/md";
-import { CiSearch } from "react-icons/ci";
 import { useMessagingContext } from "@/components/Providers/MessagingProvider";
-import MessageListSkeleton from "@/components/Skeleton/MessageListSkeleton";
-import PageHeader from "@/components/Shared/PageHeader";
+import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
+import DashboardButton from "@/components/Shared/DashboardButton";
 import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
+import PageHeader from "@/components/Shared/PageHeader";
+import MessageListSkeleton from "@/components/Skeleton/MessageListSkeleton";
+import ConversationCard from "./ConversationCard";
 
 export default function MessageList() {
   const { data: session } = useSession();
-
-  // Vérifier si c'est un compte Free
   const isFreeAccount = session?.user?.saasPlan === "FREE";
-
-  // Utiliser le contexte global au lieu du state local
-  const { conversations, setConversations, unreadCount } =
-    useMessagingContext();
-
+  const { conversations, setConversations, unreadCount } = useMessagingContext();
   const [loading, setLoading] = useState(true);
-  const [selectedConversation, setSelectedConversation] =
-    useState<ConversationDto | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<ConversationDto | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] =
-    useState<ConversationStatus>("ACTIVE");
+  const [statusFilter, setStatusFilter] = useState<ConversationStatus>("ACTIVE");
   const [search, setSearch] = useState("");
-
-  //! Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  //! Fetch conversations
-  const fetchConversations = useCallback(
-    async (page: number = 1, status?: ConversationStatus) => {
-      try {
-        setLoading(true);
-        setError(null);
-        const result: PaginatedConversationsDto = await getConversationsAction(
-          page,
-          20,
-          status,
-        );
+  const fetchConversations = useCallback(async (page = 1, status?: ConversationStatus) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result: PaginatedConversationsDto = await getConversationsAction(page, 20, status);
+      setConversations(result.data);
+      setCurrentPage(result.page);
+      setTotalPages(result.totalPages);
+      setTotal(result.total);
+    } catch (fetchError) {
+      setError(fetchError instanceof Error ? fetchError.message : "Erreur inconnue");
+      setConversations([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [setConversations]);
 
-        // Simplement remplacer par les données du serveur (source de vérité)
-        // Le refetch après avoir quitté une conversation doit refléter l'état actuel du serveur
-        setConversations(result.data);
-
-        setCurrentPage(result.page);
-        setTotalPages(result.totalPages);
-        setTotal(result.total);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Erreur inconnue";
-        setError(errorMessage);
-        setConversations([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [setConversations],
-  );
-
-  //! Load conversations on mount
+  useEffect(() => { fetchConversations(1, statusFilter); }, [fetchConversations, statusFilter]);
   useEffect(() => {
-    fetchConversations(1, statusFilter);
-  }, [fetchConversations, statusFilter]);
-
-  // Écouter l'événement conversationLeft pour refetch
-  useEffect(() => {
-    const handleConversationLeft = () => {
-      fetchConversations(currentPage, statusFilter);
-    };
-
+    const handleConversationLeft = () => fetchConversations(currentPage, statusFilter);
     window.addEventListener("conversationLeft", handleConversationLeft);
+    return () => window.removeEventListener("conversationLeft", handleConversationLeft);
+  }, [currentPage, fetchConversations, statusFilter]);
 
-    return () => {
-      window.removeEventListener("conversationLeft", handleConversationLeft);
-    };
-  }, [currentPage, statusFilter, fetchConversations]);
+  const filteredConversations = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return conversations;
+    return conversations.filter((conversation) => {
+      const otherUser = conversation.salonId === session?.user?.id ? conversation.client : conversation.salon;
+      const name = (otherUser?.salonName || `${otherUser?.firstName || ""} ${otherUser?.lastName || ""}`.trim()).toLowerCase();
+      return name.includes(query) || (conversation.subject || "").toLowerCase().includes(query);
+    });
+  }, [conversations, search, session?.user?.id]);
+
+  const pageNumbers = useMemo(() => {
+    const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+    return Array.from({ length: Math.min(5, totalPages) }, (_, index) => start + index);
+  }, [currentPage, totalPages]);
 
   return (
-    <section className="space-y-4">
-      <PageHeader
-        icon={<MdOutlineMessage size={15} className="text-tertiary-400" />}
-        title="Messagerie"
-      >
-        {unreadCount > 0 && (
-          <span className="dashboard-count-pill border border-tertiary-400/40 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white text-xs font-one px-3 py-1 rounded-full">
-            {unreadCount} message{unreadCount > 1 ? "s" : ""} non lu
-          </span>
-        )}
-        {/* Recherche */}
-        <div className="relative hidden md:flex items-center">
-          <CiSearch size={15} className="absolute left-3 text-white/40 pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Rechercher un client..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 pr-3 py-1 rounded-2xl border border-white/15 bg-white/8 text-xs font-one text-white placeholder:text-white/30 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 w-48"
+    <section className="w-full space-y-4 pb-20 lg:pb-8">
+      <PageHeader icon={<MessageCircle size={17} className="text-tertiary-400" />} title="Messagerie" />
+
+      {!isFreeAccount && (
+        <>
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
+            <SummaryCard icon={<Inbox size={17} />} label="Conversations" value={total} />
+            <SummaryCard icon={<MailOpen size={17} />} label="Non lus" value={unreadCount} accent={unreadCount > 0} />
+            <SummaryCard icon={statusFilter === "ACTIVE" ? <MessageCircle size={17} /> : <Archive size={17} />} label="Vue actuelle" value={statusFilter === "ACTIVE" ? "Actives" : "Archivées"} className="col-span-2 lg:col-span-1" />
+          </div>
+
+          <ApplicationToolbar
+            search={
+              <label className="relative block w-full">
+                <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/35" />
+                <span className="sr-only">Rechercher une conversation</span>
+                <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher un client ou un sujet…" className="h-10 w-full py-2 pl-9 pr-3 text-sm text-white outline-none placeholder:text-white/30 font-one" />
+              </label>
+            }
+            filters={
+              <div className="flex rounded-xl border border-white/10 bg-black/15 p-1">
+                {(["ACTIVE", "ARCHIVED"] as const).map((status) => (
+                  <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => { setStatusFilter(status); setCurrentPage(1); }} className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-xs font-medium transition font-one ${statusFilter === status ? "bg-tertiary-400/15 text-tertiary-400" : "text-white/45 hover:bg-white/[0.05] hover:text-white/75"}`}>
+                    {status === "ACTIVE" ? <MessageCircle size={13} /> : <Archive size={13} />}{status === "ACTIVE" ? "Actives" : "Archivées"}
+                  </button>
+                ))}
+              </div>
+            }
+            // summary={!loading ? `${filteredConversations.length} affichée${filteredConversations.length > 1 ? "s" : ""}` : undefined}
           />
-        </div>
-
-        <div className="hidden md:flex items-center gap-3">
-          <label className="text-white/70 text-xs font-one" htmlFor="status-filter">
-            Statut
-          </label>
-          <select
-            id="status-filter"
-            value={statusFilter}
-            onChange={(e) => {
-              const next = e.target.value as ConversationStatus;
-              setStatusFilter(next);
-              setCurrentPage(1);
-              fetchConversations(1, next);
-            }}
-            className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20"
-          >
-            <option value="ACTIVE" className="bg-noir-500">Active</option>
-            <option value="ARCHIVED" className="bg-noir-500">Archivé</option>
-          </select>
-        </div>
-      </PageHeader>
-
-      {/* Recherche mobile */}
-      <div className="md:hidden relative flex items-center">
-        <CiSearch size={15} className="absolute left-3 text-white/40 pointer-events-none" />
-        <input
-          type="text"
-          placeholder="Rechercher un client..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-8 pr-3 py-1 rounded-2xl border border-white/15 bg-white/8 text-xs font-one text-white placeholder:text-white/30 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 w-full"
-        />
-      </div>
-
-      <div className="md:hidden flex items-center gap-3">
-        <label
-          className="text-white/70 text-xs font-one"
-          htmlFor="status-filter-mobile"
-        >
-          Statut
-        </label>
-        <select
-          id="status-filter-mobile"
-          value={statusFilter}
-          onChange={(e) => {
-            const next = e.target.value as ConversationStatus;
-            setStatusFilter(next);
-            setCurrentPage(1);
-            fetchConversations(1, next);
-          }}
-          className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20"
-        >
-          <option value="ACTIVE" className="bg-noir-500">Active</option>
-          <option value="ARCHIVED" className="bg-noir-500">Archivé</option>
-        </select>
-      </div>
-
-      {/* Message pour les comptes Free */}
-      {isFreeAccount && (
-        <LockedFeatureCard
-          className="dashboard-embedded-section"
-          icon={
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-              />
-            </svg>
-          }
-          title="Messagerie améliorée disponible avec un abonnement"
-          description="Débloquez des fonctionnalités avancées de messagerie : notifications en temps réel, messagerie interne illimitée, pièces jointes et bien plus."
-          features={[
-            "Messagerie interne illimitée",
-            "Pièces jointes",
-            "Réponses automatiques",
-          ]}
-          primaryLabel="Passer à PRO"
-        />
+        </>
       )}
 
-      {/* Conversations list - Seulement pour les comptes non-Free */}
-      {!isFreeAccount && (
-        <div className="space-y-4">
-          {loading && (
-            <MessageListSkeleton />
-          )}
+      {isFreeAccount ? (
+        <LockedFeatureCard className="dashboard-embedded-section" icon={<MessageCircle size={24} />} title="Messagerie améliorée disponible avec un abonnement" description="Débloquez les notifications en temps réel, la messagerie interne illimitée et les pièces jointes." features={["Messagerie interne illimitée", "Pièces jointes", "Réponses automatiques"]} primaryLabel="Passer à PRO" />
+      ) : (
+        <div className="overflow-hidden rounded-[24px] border border-white/[0.08] bg-gradient-to-br from-white/[0.045] to-white/[0.015] shadow-xl shadow-black/15">
+          <header className="flex items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-3.5 sm:px-5">
+            <div><h2 className="text-sm font-semibold text-white font-one">{statusFilter === "ACTIVE" ? "Boîte de réception" : "Conversations archivées"}</h2><p className="mt-0.5 text-[11px] text-white/40 font-two">{statusFilter === "ACTIVE" ? "Vos échanges clients les plus récents" : "Les échanges que vous avez classés"}</p></div>
+            {!loading && totalPages > 1 && <span className="rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] text-white/45 font-one">Page {currentPage}/{totalPages}</span>}
+          </header>
 
-          {error && (
-            <div className="dashboard-empty-state rounded-xl p-6">
-              <div className="text-center py-8">
-                <div className="w-12 h-12 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-6 h-6 text-red-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-white font-one font-semibold mb-2">
-                  Erreur de chargement
-                </h3>
-                <p className="text-red-400 mb-4 text-sm">{error}</p>
-                <button
-                  onClick={() => fetchConversations(1, statusFilter)}
-                  className="rdv-btn-primary cursor-pointer px-4 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white rounded-lg hover:from-tertiary-500 hover:to-tertiary-600 transition-colors text-sm font-medium"
-                >
-                  Réessayer
-                </button>
-              </div>
-            </div>
-          )}
+          <div className="p-2 sm:p-3">
+            {loading && <MessageListSkeleton />}
+            {error && <EmptyState icon={<AlertCircle size={24} />} title="Impossible de charger les conversations" description={error} tone="error"><DashboardButton onClick={() => fetchConversations(1, statusFilter)} className="mt-4 !min-w-0"><RefreshCw size={14} />Réessayer</DashboardButton></EmptyState>}
+            {!loading && !error && conversations.length === 0 && <EmptyState icon={statusFilter === "ACTIVE" ? <Inbox size={25} /> : <Archive size={25} />} title={statusFilter === "ACTIVE" ? "Votre boîte de réception est vide" : "Aucune conversation archivée"} description={statusFilter === "ACTIVE" ? "Les nouveaux échanges avec vos clients apparaîtront ici." : "Les conversations archivées apparaîtront ici."} />}
+            {!loading && !error && conversations.length > 0 && filteredConversations.length === 0 && <EmptyState icon={<Search size={24} />} title="Aucun résultat" description={`Aucune conversation ne correspond à « ${search} ».`} />}
+            {!loading && !error && filteredConversations.length > 0 && <div className="space-y-2">{filteredConversations.map((conversation) => <ConversationCard key={conversation.id} conversation={conversation} isSelected={selectedConversation?.id === conversation.id} onSelect={setSelectedConversation} currentUserId={session?.user?.id ?? undefined} />)}</div>}
+          </div>
 
-          {!loading && !error && conversations.length === 0 && (
-            <div className="dashboard-empty-state rounded-xl p-6">
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-tertiary-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MdOutlineMessage className="w-8 h-8 text-tertiary-400" />
-                </div>
-                <h3 className="text-white font-one font-semibold mb-2 text-lg">
-                  Aucune conversation
-                </h3>
-                <p className="text-white/70 text-sm">
-                  Vous n'avez pas de conversations pour le moment.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {!loading && !error && conversations.length > 0 && (
-            <div className="space-y-2.5">
-              {(() => {
-                const filtered = conversations.filter((conversation) => {
-                  if (!search.trim()) return true;
-                  const q = search.trim().toLowerCase();
-                  const otherUser =
-                    conversation.salonId === session?.user?.id
-                      ? conversation.client
-                      : conversation.salon;
-                  const name = (
-                    otherUser?.salonName ||
-                    `${otherUser?.firstName || ""} ${otherUser?.lastName || ""}`.trim()
-                  ).toLowerCase();
-                  return name.includes(q) || (conversation.subject || "").toLowerCase().includes(q);
-                });
-
-                if (filtered.length === 0) {
-                  return (
-                    <div className="text-center py-8 text-white/40 text-sm font-one">
-                      Aucun résultat pour &quot;{search}&quot;
-                    </div>
-                  );
-                }
-
-                return filtered.map((conversation) => (
-                  <ConversationCard
-                    key={conversation.id}
-                    conversation={conversation}
-                    isSelected={selectedConversation?.id === conversation.id}
-                    onSelect={setSelectedConversation}
-                    currentUserId={session?.user?.id ?? undefined}
-                  />
-                ));
-              })()}
-            </div>
-          )}
-
-          {/* Pagination */}
-          {!loading && !error && conversations.length > 0 && totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-8">
-              <button
-                onClick={() => fetchConversations(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="dashboard-nav-button px-4 py-2 rounded-lg text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Précédent
-              </button>
-
-              <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (pageNum) => (
-                    <button
-                      key={pageNum}
-                      onClick={() => fetchConversations(pageNum, statusFilter)}
-                      className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
-                        currentPage === pageNum
-                          ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
-                          : "bg-white/10 border border-white/10 text-white hover:bg-white/20"
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  ),
-                )}
-              </div>
-
-              <button
-                onClick={() =>
-                  fetchConversations(Math.min(totalPages, currentPage + 1))
-                }
-                disabled={currentPage === totalPages}
-                className="dashboard-nav-button px-4 py-2 rounded-lg text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Suivant
-              </button>
-            </div>
-          )}
-
-          {/* Total conversations count */}
-          {!loading && !error && conversations.length > 0 && (
-            <div className="text-center text-xs text-white/60 mt-6">
-              {total} conversation{total > 1 ? "s" : ""} •{" "}
-              {currentPage > 1 && `Page ${currentPage}/{totalPages}`}
-            </div>
+          {!loading && !error && totalPages > 1 && (
+            <footer className="flex items-center justify-between gap-2 border-t border-white/[0.08] px-3 py-3 sm:px-4">
+              <DashboardButton variant="secondary" onClick={() => fetchConversations(Math.max(1, currentPage - 1), statusFilter)} disabled={currentPage === 1} className="!min-w-0">Précédent</DashboardButton>
+              <div className="hidden items-center gap-1 sm:flex">{pageNumbers.map((page) => <button key={page} type="button" onClick={() => fetchConversations(page, statusFilter)} aria-current={currentPage === page ? "page" : undefined} className={`h-8 min-w-8 cursor-pointer rounded-lg px-2 text-xs transition font-one ${currentPage === page ? "bg-tertiary-400 text-white" : "bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white"}`}>{page}</button>)}</div>
+              <DashboardButton variant="secondary" onClick={() => fetchConversations(Math.min(totalPages, currentPage + 1), statusFilter)} disabled={currentPage === totalPages} className="!min-w-0">Suivant</DashboardButton>
+            </footer>
           )}
         </div>
       )}
     </section>
   );
+}
+
+function SummaryCard({ icon, label, value, accent = false, className = "" }: { icon: ReactNode; label: string; value: string | number; accent?: boolean; className?: string }) {
+  return <div className={`flex items-center gap-3 rounded-2xl border p-3 ${accent ? "border-tertiary-400/25 bg-tertiary-400/[0.08]" : "border-white/[0.08] bg-white/[0.025]"} ${className}`}><span className={`flex h-9 w-9 items-center justify-center rounded-xl border ${accent ? "border-tertiary-400/25 bg-tertiary-400/10 text-tertiary-400" : "border-white/10 bg-white/[0.04] text-white/45"}`}>{icon}</span><div><p className="text-[10px] uppercase tracking-[0.1em] text-white/35 font-one">{label}</p><p className={`mt-0.5 text-sm font-semibold font-one ${accent ? "text-tertiary-400" : "text-white"}`}>{value}</p></div></div>;
+}
+
+function EmptyState({ icon, title, description, tone = "default", children }: { icon: ReactNode; title: string; description: string; tone?: "default" | "error"; children?: ReactNode }) {
+  return <div className="flex min-h-72 flex-col items-center justify-center px-4 py-10 text-center"><span className={`mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border ${tone === "error" ? "border-red-400/20 bg-red-400/10 text-red-300" : "border-tertiary-400/20 bg-tertiary-400/[0.08] text-tertiary-400"}`}>{icon}</span><h3 className="text-base font-semibold text-white font-one">{title}</h3><p className={`mt-1.5 max-w-md text-xs leading-relaxed font-two ${tone === "error" ? "text-red-200/70" : "text-white/40"}`}>{description}</p>{children}</div>;
 }

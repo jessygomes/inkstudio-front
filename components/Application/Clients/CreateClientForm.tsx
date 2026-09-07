@@ -1,63 +1,43 @@
-
 "use client";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+
+import { useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { clientSchema } from "@/lib/zod/validator.schema";
 import { toast } from "sonner";
-import { RiHealthBookLine } from "react-icons/ri";
-import { CiUser } from "react-icons/ci";
-import { createOrUpdateClient } from "@/lib/queries/client";
-import { useRouter } from "next/navigation";
+import { FileCheck2, HeartPulse, Mail, MapPin, Phone, Save, Tag, UserRound, UsersRound } from "lucide-react";
 import DashboardButton from "@/components/Shared/DashboardButton";
+import { createOrUpdateClient } from "@/lib/queries/client";
+import { clientSchema } from "@/lib/zod/validator.schema";
+
+type ClientFormData = z.infer<typeof clientSchema>;
+
+const inputClass = "w-full rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:bg-white/[0.045] focus:ring-2 focus:ring-tertiary-400/10 font-two";
 
 export default function CreateClientForm({ userId }: { userId: string }) {
-  const [error, setError] = useState<string | undefined>("");
+  const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  const inputClass =
-    "w-full rounded-2xl border border-white/15 bg-white/8 px-3 py-2 font-one text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-tertiary-400 focus:ring-1 focus:ring-tertiary-400/30 transition-colors";
-  const textareaClass = `${inputClass} resize-none`;
-  const labelClass = "text-[11px] uppercase tracking-wide text-white/65 font-one";
-  const errorClass = "text-red-300 text-xs mt-1";
-
-  const form = useForm<z.infer<typeof clientSchema>>({
+  const form = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      phone: "",
-      email: "",
-      birthDate: "",
-      address: "",
-      consentSigned: false,
-      consentSignedAt: "",
-      consentFileUrl: "",
-      isMinor: false,
-      guardianName: "",
-      guardianPhone: "",
-      tags: "",
-      marketingConsent: false,
-      allergies: "",
-      healthIssues: "",
-      medications: "",
-      pregnancy: false,
-      previousReactions: "",
-      tattooHistory: "",
+      firstName: "", lastName: "", phone: "", email: "", birthDate: "", address: "",
+      consentSigned: false, consentSignedAt: "", consentFileUrl: "", isMinor: false,
+      guardianName: "", guardianPhone: "", tags: "", marketingConsent: false,
+      allergies: "", healthIssues: "", medications: "", pregnancy: false,
+      previousReactions: "", tattooHistory: "",
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof clientSchema>) => {
+  const onSubmit = async (data: ClientFormData) => {
     setLoading(true);
-    setError("");
-    // Transformation des champs spécifiques
+    setError(undefined);
     const processedData = {
       ...data,
       birthDate: data.birthDate ? new Date(data.birthDate).toISOString() : undefined,
       consentSignedAt: data.consentSignedAt ? new Date(data.consentSignedAt).toISOString() : undefined,
-      tags: typeof data.tags === "string" ? data.tags.split(",").map((t) => t.trim()).filter(Boolean) : data.tags,
+      tags: typeof data.tags === "string" ? data.tags.split(",").map((tag) => tag.trim()).filter(Boolean) : data.tags,
       userId,
     };
     try {
@@ -75,154 +55,98 @@ export default function CreateClientForm({ userId }: { userId: string }) {
     }
   };
 
+  const errors = form.formState.errors;
   const isMinor = form.watch("isMinor");
   const consentSigned = form.watch("consentSigned");
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="tablet-inputs space-y-4 mx-auto p-4 rounded-2xl ">
-      <div className="dashboard-embedded-section rounded-2xl border border-white/10 p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <CiUser size={18} className="text-white" />
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-white font-one">
-            Identité et contact
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+    <div className="mx-auto w-full max-w-[1600px] pb-8">
+      <div className=" !h-auto overflow-hidden !rounded-[28px] !p-0">
+        <header className=" relative z-10 flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <label className={labelClass}>Prénom</label>
-            <input {...form.register("firstName")} className={inputClass} />
-            {form.formState.errors.firstName && <p className={errorClass}>{form.formState.errors.firstName.message}</p>}
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-tertiary-400 font-one">Nouveau client</p>
+            <h2 className="text-lg font-semibold text-white font-one sm:text-xl">Créer une nouvelle fiche client</h2>
+            <p className="mt-1 max-w-2xl text-xs leading-relaxed text-white/45 font-one">Commencez par l’identité, puis complétez les informations administratives et de santé utiles.</p>
           </div>
-          <div>
-            <label className={labelClass}>Nom</label>
-            <input {...form.register("lastName")} className={inputClass} />
-            {form.formState.errors.lastName && <p className={errorClass}>{form.formState.errors.lastName.message}</p>}
-          </div>
-          <div>
-            <label className={labelClass}>Email</label>
-            <input {...form.register("email")} type="email" className={inputClass} />
-            {form.formState.errors.email && <p className={errorClass}>{form.formState.errors.email.message}</p>}
-          </div>
-          <div>
-            <label className={labelClass}>Téléphone</label>
-            <input {...form.register("phone")} type="tel" className={inputClass} placeholder="Optionnel" />
-            {form.formState.errors.phone && <p className={errorClass}>{form.formState.errors.phone.message}</p>}
-          </div>
-          <div>
-            <label className={labelClass}>Date de naissance</label>
-            <input {...form.register("birthDate")} type="date" className={inputClass} />
-            {form.formState.errors.birthDate && <p className={errorClass}>{form.formState.errors.birthDate.message}</p>}
-          </div>
-          <div>
-            <label className={labelClass}>Adresse</label>
-            <input {...form.register("address")} className={inputClass} placeholder="Optionnel" />
-            {form.formState.errors.address && <p className={errorClass}>{form.formState.errors.address.message}</p>}
-          </div>
-        </div>
-      </div>
-
-      <div className="dashboard-embedded-section rounded-2xl border border-white/10 p-4">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white font-one">
-          Consentement et statut
-        </h3>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <label className="col-span-1 md:col-span-2 inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/5 px-3 py-2 text-xs text-white/85">
-            <input {...form.register("consentSigned")} type="checkbox" className="h-4 w-4 rounded border-white/20 bg-white/10 text-tertiary-400" />
-            Consentement signé
-          </label>
-
-          {consentSigned && (
-            <>
-              <div>
-                <label className={labelClass}>Date de signature</label>
-                <input {...form.register("consentSignedAt")} type="date" className={inputClass} />
+          <div className="hidden items-center gap-2 xl:flex">
+            {["Identité", "Dossier", "Santé"].map((step, index) => (
+              <div key={step} className="flex items-center gap-2">
+                {index > 0 && <span className="h-px w-5 bg-white/10" />}
+                <span className="flex h-6 w-6 items-center justify-center rounded-full border border-tertiary-400/25 bg-tertiary-500/10 text-[10px] font-semibold text-tertiary-400 font-one">{index + 1}</span>
+                <span className="text-[11px] text-white/55 font-one">{step}</span>
               </div>
-              <div>
-                <label className={labelClass}>URL du PDF signé</label>
-                <input {...form.register("consentFileUrl")} type="url" className={inputClass} placeholder="Optionnel" />
-                {form.formState.errors.consentFileUrl && <p className={errorClass}>{form.formState.errors.consentFileUrl.message}</p>}
+            ))}
+          </div>
+        </header>
+
+        <form onSubmit={form.handleSubmit(onSubmit)} className="create-rdv-form tablet-inputs relative z-10 grid grid-cols-12 gap-4 p-3 sm:p-5 lg:p-6">
+          <section className="order-1 col-span-12 overflow-hidden rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-4 sm:p-5">
+            <SectionHeader eyebrow="Étape 1 · Identité" title="Qui est ce nouveau client ?" description="Les champs marqués d’un * sont obligatoires." icon={<UserRound size={18} />} />
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <Field label="Prénom" required registration={form.register("firstName")} error={errors.firstName?.message} />
+              <Field label="Nom" required registration={form.register("lastName")} error={errors.lastName?.message} />
+              <Field label="E-mail" type="email" icon={<Mail size={13} />} registration={form.register("email")} error={errors.email?.message} />
+              <Field label="Téléphone" type="tel" icon={<Phone size={13} />} registration={form.register("phone")} error={errors.phone?.message} placeholder="Optionnel" />
+              <Field label="Date de naissance" type="date" registration={form.register("birthDate")} error={errors.birthDate?.message} />
+              <Field label="Adresse" icon={<MapPin size={13} />} registration={form.register("address")} error={errors.address?.message} placeholder="Adresse complète" />
+            </div>
+          </section>
+
+          <section className="dashboard-embedded-section order-2 col-span-12 rounded-2xl p-4 sm:p-5">
+            <SectionHeader eyebrow="Étape 2 · Dossier" title="Informations administratives" description="Consentements, statut du client et repères internes." icon={<FileCheck2 size={18} />} />
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="space-y-3 rounded-2xl border border-white/[0.08] bg-black/15 p-3 sm:p-4">
+                <p className="text-xs font-semibold text-white/70 font-one">Consentements</p>
+                <ToggleCard id="consentSigned" label="Consentement signé" description="Le document légal a déjà été signé" registration={form.register("consentSigned")} />
+                {consentSigned && <div className="grid gap-3 sm:grid-cols-2"><Field label="Date de signature" type="date" registration={form.register("consentSignedAt")} /><Field label="URL du PDF signé" type="url" registration={form.register("consentFileUrl")} error={errors.consentFileUrl?.message} placeholder="https://…" /></div>}
+                <ToggleCard id="marketingConsent" label="Communication marketing" description="Le client accepte de recevoir les communications" registration={form.register("marketingConsent")} />
               </div>
-            </>
-          )}
 
-          <label className="col-span-1 md:col-span-2 inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/5 px-3 py-2 text-xs font-one text-white/85">
-            <input {...form.register("isMinor")} type="checkbox" className="h-4 w-4 rounded border-white/20 bg-white/10 text-tertiary-400" />
-            Client mineur
-          </label>
-
-          {isMinor && (
-            <>
-              <div>
-                <label className={labelClass}>Nom du tuteur</label>
-                <input {...form.register("guardianName")} className={inputClass} />
-                {form.formState.errors.guardianName && <p className={errorClass}>{form.formState.errors.guardianName.message}</p>}
+              <div className="space-y-3 rounded-2xl border border-white/[0.08] bg-black/15 p-3 sm:p-4">
+                <p className="text-xs font-semibold text-white/70 font-one">Statut et classification</p>
+                <ToggleCard id="isMinor" label="Client mineur" description="Active les informations du représentant légal" registration={form.register("isMinor")} icon={<UsersRound size={15} />} />
+                {isMinor && <div className="grid gap-3 sm:grid-cols-2"><Field label="Nom du représentant" registration={form.register("guardianName")} error={errors.guardianName?.message} /><Field label="Téléphone du représentant" type="tel" registration={form.register("guardianPhone")} error={errors.guardianPhone?.message} /></div>}
+                <Field label="Tags" icon={<Tag size={13} />} registration={form.register("tags")} placeholder="VIP, fidèle, suivi…" hint="Séparez les tags par une virgule." />
               </div>
-              <div>
-                <label className={labelClass}>Téléphone du tuteur</label>
-                <input {...form.register("guardianPhone")} className={inputClass} />
-                {form.formState.errors.guardianPhone && <p className={errorClass}>{form.formState.errors.guardianPhone.message}</p>}
-              </div>
-            </>
-          )}
+            </div>
+          </section>
 
-          <div className="md:col-span-2">
-            <label className={labelClass}>Tags (séparés par virgule)</label>
-            <input {...form.register("tags")} className={inputClass} placeholder="ex: VIP, fidèle, suivi" />
-          </div>
+          <section className="dashboard-embedded-section order-3 col-span-12 rounded-2xl p-4 sm:p-5">
+            <SectionHeader eyebrow="Étape 3 · Santé" title="Informations médicales" description="Ces données sont facultatives, sensibles et utiles à la prise en charge." icon={<HeartPulse size={18} />} />
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <TextArea label="Allergies" registration={form.register("allergies")} placeholder="Allergies connues" />
+              <TextArea label="Problèmes de santé" registration={form.register("healthIssues")} placeholder="Problèmes actuels" />
+              <TextArea label="Médicaments" registration={form.register("medications")} placeholder="Traitements en cours" />
+              <TextArea label="Historique des tatouages" registration={form.register("tattooHistory")} placeholder="Tatouages précédents…" />
+              <TextArea label="Réactions antérieures" registration={form.register("previousReactions")} placeholder="Réactions, infections…" />
+              <div className="flex items-center"><ToggleCard id="pregnancy" label="Grossesse / allaitement" description="Situation actuelle déclarée" registration={form.register("pregnancy")} /></div>
+            </div>
+          </section>
 
-          <label className="md:col-span-2 inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/5 px-3 py-2 text-xs font-one text-white/85">
-            <input {...form.register("marketingConsent")} type="checkbox" className="h-4 w-4 rounded border-white/20 bg-white/10 text-tertiary-400" />
-            Consentement marketing
-          </label>
-        </div>
+          {error && <div className="order-8 col-span-12 rounded-xl border border-red-500/35 bg-red-500/10 p-3"><p className="text-xs text-red-300 font-two">{error}</p></div>}
+
+          <footer className="sticky bottom-0 z-20 order-9 col-span-12 -mx-3 -mb-3 flex flex-col-reverse justify-end gap-2 px-3 py-3 backdrop-blur-xl sm:-mx-5 sm:-mb-5 sm:flex-row sm:px-5 lg:-mx-6 lg:-mb-6 lg:px-6">
+            <DashboardButton href="/application/clients" variant="secondary" className="w-full sm:w-auto">Annuler</DashboardButton>
+            <DashboardButton type="submit" disabled={loading} className="w-full sm:w-auto"><Save size={14} />{loading ? "Création…" : "Créer le client"}</DashboardButton>
+          </footer>
+        </form>
       </div>
-
-      <div className="dashboard-embedded-section rounded-2xl border border-white/10 p-4">
-        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-white font-one">
-          <RiHealthBookLine size={18} className="text-tertiary-400" /> Historique médical
-        </h3>
-
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <div>
-            <label className={labelClass}>Allergies</label>
-            <textarea {...form.register("allergies")} className={textareaClass} rows={3} placeholder="Optionnel" />
-          </div>
-          <div>
-            <label className={labelClass}>Problèmes de santé</label>
-            <textarea {...form.register("healthIssues")} className={textareaClass} rows={3} placeholder="Optionnel" />
-          </div>
-          <div>
-            <label className={labelClass}>Médicaments</label>
-            <textarea {...form.register("medications")} className={textareaClass} rows={3} placeholder="Optionnel" />
-          </div>
-          <div>
-            <label className={labelClass}>Historique tatouages</label>
-            <textarea {...form.register("tattooHistory")} className={textareaClass} rows={3} placeholder="Optionnel" />
-          </div>
-          <div className="md:col-span-2">
-            <label className={labelClass}>Réactions antérieures</label>
-            <textarea {...form.register("previousReactions")} className={textareaClass} rows={2} placeholder="Optionnel" />
-          </div>
-          <label className="md:col-span-2 inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/5 px-3 py-2 text-xs text-white/85">
-            <input {...form.register("pregnancy")} type="checkbox" className="h-4 w-4 rounded border-white/20 bg-white/10 text-tertiary-400" />
-            Enceinte ou allaite actuellement
-          </label>
-        </div>
-      </div>
-
-      {error && (
-        <div className="dashboard-embedded-section rounded-xl border border-red-500/50 bg-red-500/20 p-3">
-          <p className="text-xs text-red-300">{error}</p>
-        </div>
-      )}
-
-      <div className="flex justify-end">
-        <DashboardButton type="submit" disabled={loading}>
-          {loading ? "Création..." : "Créer le client"}
-        </DashboardButton>
-      </div>
-    </form>
+    </div>
   );
+}
+
+function SectionHeader({ eyebrow, title, description, icon }: { eyebrow: string; title: string; description: string; icon: ReactNode }) {
+  return <div className="mb-4 flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 text-tertiary-400">{icon}</span><div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-tertiary-400/80 font-one">{eyebrow}</p><h3 className="mt-1 text-sm font-semibold text-white font-one sm:text-base">{title}</h3><p className="mt-1 text-[11px] leading-relaxed text-white/40 font-two">{description}</p></div></div>;
+}
+
+function Field({ label, type = "text", registration, error, placeholder, hint, icon, required = false }: { label: string; type?: string; registration: UseFormRegisterReturn; error?: string; placeholder?: string; hint?: string; icon?: ReactNode; required?: boolean }) {
+  return <label className="block min-w-0"><span className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium text-white/60 font-one">{icon}{label}{required && <span className="text-tertiary-400">*</span>}</span><input {...registration} type={type} placeholder={placeholder} className={inputClass} />{error ? <span className="mt-1 block text-[10px] text-red-300 font-two">{error}</span> : hint ? <span className="mt-1 block text-[10px] text-white/30 font-two">{hint}</span> : null}</label>;
+}
+
+function TextArea({ label, registration, placeholder }: { label: string; registration: UseFormRegisterReturn; placeholder?: string }) {
+  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-white/60 font-one">{label}</span><textarea {...registration} rows={3} placeholder={placeholder} className={`${inputClass} resize-none`} /></label>;
+}
+
+function ToggleCard({ id, label, description, registration, icon }: { id: string; label: string; description: string; registration: UseFormRegisterReturn; icon?: ReactNode }) {
+  return <label htmlFor={id} className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3 transition hover:border-white/15 hover:bg-white/[0.045]"><span className="flex items-center gap-2.5">{icon && <span className="text-tertiary-400">{icon}</span>}<span><span className="block text-xs font-medium text-white/80 font-one">{label}</span><span className="mt-0.5 block text-[10px] text-white/35 font-two">{description}</span></span></span><input {...registration} id={id} type="checkbox" className="h-4 w-4 shrink-0 accent-tertiary-400" /></label>;
 }

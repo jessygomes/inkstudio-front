@@ -9,6 +9,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import DeletePhoto from "./DeletePhoto";
 import { FaIdCardClip } from "react-icons/fa6";
 import PageHeader from "@/components/Shared/PageHeader";
+import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import {
   getPortfolioPhotosAction,
@@ -237,11 +238,8 @@ export default function ShowPortfolio() {
 
   return (
     <section className="w-full space-y-3">
-      <PageHeader
-        icon={<FaIdCardClip size={15} className="text-tertiary-400" />}
-        title="Portfolio"
-      >
-        <div className="hidden md:flex items-center gap-2">
+      <PageHeader icon={<FaIdCardClip size={15} className="text-tertiary-400" />} title="Portfolio" />
+      <ApplicationToolbar filters={<div className="flex items-center gap-2">
           <label htmlFor="tatoueur-filter" className="text-xs text-white/60 font-one">
             Tatoueur
           </label>
@@ -262,38 +260,12 @@ export default function ShowPortfolio() {
               </option>
             ))}
           </select>
-        </div>
-
-        <DashboardButton onClick={handleCreate}>
+        </div>} actions={<DashboardButton onClick={handleCreate}>
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Nouvelle photo
-        </DashboardButton>
-      </PageHeader>
-
-      <div className="md:hidden flex items-center gap-2 px-1">
-        <label htmlFor="tatoueur-filter-mobile" className="text-xs text-white/60 font-one">
-          Tatoueur
-        </label>
-        <select
-          id="tatoueur-filter-mobile"
-          value={tatoueurFilter}
-          onChange={(event) => {
-            setTatoueurFilter(event.target.value);
-            setCurrentPage(1);
-            setHasNextPage(false);
-          }}
-          className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
-        >
-          <option value="all" className="bg-noir-500">Tous</option>
-          {tatoueurs.map((tatoueur) => (
-            <option key={tatoueur.id} value={tatoueur.id} className="bg-noir-500">
-              {getTatoueurDisplayName(tatoueur)}
-            </option>
-          ))}
-        </select>
-      </div>
+        </DashboardButton>} />
 
       <div className="w-full h-full">
         {loading ? (

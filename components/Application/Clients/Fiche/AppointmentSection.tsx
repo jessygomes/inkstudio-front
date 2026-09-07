@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import { CiCalendarDate } from "react-icons/ci";
+import { CalendarDays, ChevronDown, Clock3, UserRound } from "lucide-react";
 import { AppointmentProps } from "@/lib/type";
 import { fetchAppointmentById } from "@/lib/queries/appointment";
 
@@ -113,18 +113,17 @@ export default function AppointmentSection({
   };
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-4 shadow-lg">
-      
+    <section aria-label="Historique des rendez-vous">
 
       {appointments.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-tertiary-400/20">
-            <CiCalendarDate className="w-8 h-8 text-tertiary-400" />
+            <CalendarDays className="h-6 w-6 text-tertiary-400" />
           </div>
           <p className="text-white/60 text-sm font-one">Aucun rendez-vous</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {appointments.map((rdv) => {
             const summaryRdv = rdv;
             const fetchedRdv = rdvDetailsById[rdv.id];
@@ -162,7 +161,7 @@ export default function AppointmentSection({
             return (
               <div
                 key={rdv.id}
-                className="group overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-r from-white/10 via-white/5 to-transparent p-3 transition-all duration-200 hover:border-tertiary-400/35"
+                className="group overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r from-white/[0.045] to-white/[0.018] px-4 py-4 shadow-sm shadow-black/10 transition-all duration-200 hover:border-tertiary-400/25 hover:bg-white/[0.04] sm:px-5"
               >
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div className="min-w-0 flex-1">
@@ -191,40 +190,41 @@ export default function AppointmentSection({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:w-auto lg:min-w-[360px]">
-                    <div className="rounded-2xl border border-white/10 bg-black/20 px-2.5 py-2">
-                      <p className="text-[10px] uppercase tracking-wide text-white/45 font-one">Date</p>
-                      <p className="text-xs text-white/90 font-two">
+                  <dl className="flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-white/[0.07] py-3 lg:min-w-[390px] lg:border-y-0 lg:border-l lg:py-1 lg:pl-5">
+                    <div className="min-w-[105px]">
+                      <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-white/35 font-one"><CalendarDays size={12} />Date</dt>
+                      <dd className="mt-1 text-xs text-white/85 font-two">
                         {new Date(summaryRdv.start).toLocaleDateString("fr-FR", {
                           day: "2-digit",
                           month: "short",
                           year: "numeric",
                         })}
-                      </p>
+                      </dd>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-black/20 px-2.5 py-2">
-                      <p className="text-[10px] uppercase tracking-wide text-white/45 font-one">Horaire</p>
-                      <p className="text-xs text-white/90 font-two">
+                    <div className="min-w-[80px]">
+                      <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-white/35 font-one"><Clock3 size={12} />Horaire</dt>
+                      <dd className="mt-1 text-xs text-white/85 font-two">
                         {new Date(summaryRdv.start).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
-                      </p>
+                      </dd>
                     </div>
-                    <div className="col-span-2 rounded-2xl border border-white/10 bg-black/20 px-2.5 py-2 sm:col-span-1">
-                      <p className="text-[10px] uppercase tracking-wide text-white/45 font-one">Tatoueur</p>
-                      <p className="truncate text-xs text-white/90 font-two">
+                    <div className="min-w-[100px] flex-1">
+                      <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-white/35 font-one"><UserRound size={12} />Tatoueur</dt>
+                      <dd className="mt-1 truncate text-xs text-white/85 font-two">
                         {summaryRdv.tatoueur?.name || "Non renseigné"}
-                      </p>
+                      </dd>
                     </div>
-                  </div>
+                  </dl>
 
                 <div className="">
-                  <button
+                  <button type="button"
                     onClick={() => toggleRdvDetails(rdv.id)}
-                    className="cursor-pointer rounded-full border border-tertiary-400/30 bg-tertiary-500/15 px-3 py-1.5 text-[11px] font-one text-white/55 transition-colors hover:text-white"
+                    aria-expanded={isExpanded}
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-tertiary-400/20 bg-tertiary-400/[0.08] px-3 py-2 text-[11px] text-tertiary-400 transition-colors hover:border-tertiary-400/35 hover:bg-tertiary-400/[0.12] font-one"
                   >
-                    {isExpanded ? "Masquer les détails" : "Voir les détails du RDV"}
+                    {isExpanded ? "Masquer les détails" : "Voir les détails"}<ChevronDown size={13} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                   </button>
                 </div>
                 </div>
@@ -336,6 +336,6 @@ export default function AppointmentSection({
           })}
         </div>
       )}
-    </div>
+    </section>
   );
 }

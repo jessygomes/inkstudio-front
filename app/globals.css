@@ -597,6 +597,10 @@
   );
 }
 
+.dashboard-stat-card-no-glow::before {
+  display: none;
+}
+
 .dashboard-shell {
   background:
     radial-gradient(circle at 12% 0%, rgba(199, 159, 139, 0.08), transparent 25%),
@@ -628,9 +632,9 @@
 .dashboard-welcome {
   position: relative;
   overflow: hidden;
-  background:
+  /* background:
     linear-gradient(115deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)),
-    rgba(24, 24, 24, 0.82);
+    rgba(24, 24, 24, 0.82); */
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(18px);
 }
@@ -895,9 +899,23 @@
 .client-info-card {
   min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.035);
-  padding: 0.8rem;
+  border-radius: 1.25rem;
+  /* background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+    rgba(15, 15, 15, 0.22); */
+  padding: 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.client-info-card:hover {
+  border-color: rgba(255, 255, 255, 0.13);
+}
+
+@media (min-width: 640px) {
+  .client-info-card {
+    padding: 1.15rem;
+  }
 }
 
 .dashboard-stat-inner {

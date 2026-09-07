@@ -771,9 +771,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   return (
     <div className="mx-auto w-full max-w-[1600px] pb-8">
       <div className="w-full">
-        <div className="dashboard-embedded-panel !h-auto overflow-hidden !rounded-[28px] !p-0">
+        <div className="!h-auto overflow-hidden !rounded-[28px] !p-0">
           {/* En-tête du parcours : il situe immédiatement les trois blocs principaux. */}
-          <div className="dashboard-embedded-header relative z-10 flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative z-10 flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-tertiary-400 font-one">
                 Nouveau rendez-vous
@@ -2110,7 +2110,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {/* Footer avec boutons d'action - responsive */}
-            <div className="dashboard-embedded-footer sticky bottom-0 z-20 order-9 col-span-12 -mx-3 -mb-3 flex flex-col-reverse justify-end gap-2 px-3 py-3 backdrop-blur-xl sm:-mx-5 sm:-mb-5 sm:flex-row sm:px-5 lg:-mx-6 lg:-mb-6 lg:px-6">
+            <div className="sticky bottom-0 z-20 order-9 col-span-12 -mx-3 -mb-3 flex flex-col-reverse justify-end gap-2 px-3 py-3 backdrop-blur-xl sm:-mx-5 sm:-mb-5 sm:flex-row sm:px-5 lg:-mx-6 lg:-mb-6 lg:px-6">
               <DashboardButton
                 href="/mes-rendez-vous"
                 variant="secondary"

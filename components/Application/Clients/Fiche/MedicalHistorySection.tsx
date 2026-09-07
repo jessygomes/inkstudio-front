@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { RiHealthBookLine } from "react-icons/ri";
+import { AlertTriangle, HeartPulse, Pill, ShieldCheck, Sparkles, Stethoscope } from "lucide-react";
 import { ClientProps } from "@/lib/type";
 
 interface MedicalHistorySectionProps {
@@ -11,74 +11,53 @@ export default function MedicalHistorySection({
   medicalHistory,
 }: MedicalHistorySectionProps) {
   const cardClass =
-    "rounded-2xl border border-white/10 bg-white/5 p-3 shadow-sm shadow-black/10";
+    "rounded-2xl border border-white/[0.08] bg-black/10 p-4 transition-colors hover:border-white/15 hover:bg-white/[0.025]";
   const labelClass = "mb-1 text-[11px] uppercase tracking-wide text-white/55 font-one";
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/6 to-white/[0.02] p-4 shadow-lg shadow-black/10">
-      <div className="mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-tertiary-400/30 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10">
-            <RiHealthBookLine className="h-5 w-5 text-tertiary-500" />
-          </div>
-          <div>
-            <h3 className="text-base font-semibold uppercase tracking-wide text-white font-one">
-              Historique médical
-            </h3>
-            <p className="text-xs text-white/55 font-two">
-              Informations sensibles et antécédents déclarés
-            </p>
-          </div>
-        </div>
-
-        <div
+    <section aria-label="Informations de santé">
+      {medicalHistory && <div className="mb-3 flex justify-end"><div
           className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold font-one ${
             medicalHistory?.pregnancy
               ? "border-yellow-400/40 bg-yellow-500/10 text-yellow-200"
               : "border-emerald-400/40 bg-emerald-500/10 text-emerald-200"
           }`}
         >
-          {medicalHistory
-            ? medicalHistory.pregnancy
-              ? "Attention"
-              : "RAS"
-            : "Vide"}
-        </div>
-      </div>
-
+          {medicalHistory.pregnancy ? "Vigilance requise" : "Aucun risque signalé"}
+        </div></div>}
       {medicalHistory ? (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-3">
             <div className={cardClass}>
-              <p className={labelClass}>Allergies</p>
+              <p className={`${labelClass} flex items-center gap-2`}><AlertTriangle size={13} className="text-amber-300" />Allergies</p>
               <p className="text-sm text-white font-two break-words">
                 {medicalHistory.allergies || "Aucune allergie connue"}
               </p>
             </div>
 
             <div className={cardClass}>
-              <p className={labelClass}>Problèmes de santé</p>
+              <p className={`${labelClass} flex items-center gap-2`}><Stethoscope size={13} className="text-tertiary-400" />Problèmes de santé</p>
               <p className="text-sm text-white font-two break-words">
                 {medicalHistory.healthIssues || "Aucun problème signalé"}
               </p>
             </div>
 
             <div className={cardClass}>
-              <p className={labelClass}>Médicaments</p>
+              <p className={`${labelClass} flex items-center gap-2`}><Pill size={13} className="text-blue-300" />Médicaments</p>
               <p className="text-sm text-white font-two break-words">
                 {medicalHistory.medications || "Aucun médicament"}
               </p>
             </div>
 
             <div className={cardClass}>
-              <p className={labelClass}>Historique tatouages</p>
+              <p className={`${labelClass} flex items-center gap-2`}><Sparkles size={13} className="text-tertiary-400" />Historique tatouages</p>
               <p className="text-sm text-white font-two break-words">
                 {medicalHistory.tattooHistory || "Aucun historique de tatouage"}
               </p>
             </div>
 
             <div className={cardClass}>
-              <p className={labelClass}>Réactions antérieures</p>
+              <p className={`${labelClass} flex items-center gap-2`}><ShieldCheck size={13} className="text-emerald-300" />Réactions antérieures</p>
               <p className="text-sm text-white font-two break-words">
                 {medicalHistory.previousReactions || "Aucune réaction signalée"}
               </p>
@@ -109,7 +88,7 @@ export default function MedicalHistorySection({
       ) : (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 py-10 text-center">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-tertiary-400/20 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10">
-            <RiHealthBookLine className="h-6 w-6 text-tertiary-300" />
+            <HeartPulse className="h-6 w-6 text-tertiary-300" />
           </div>
           <p className="text-sm text-white/65 font-one">
             Aucune information médicale disponible
@@ -119,6 +98,6 @@ export default function MedicalHistorySection({
           </p>
         </div>
       )}
-    </div>
+    </section>
   );
 }

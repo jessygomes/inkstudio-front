@@ -16,6 +16,7 @@ import { FiFileText } from "react-icons/fi";
 import { getSalonClientsAction } from "@/lib/queries/client";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
+import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
 
 export default function ClientList() {
@@ -205,40 +206,16 @@ export default function ClientList() {
 
   return (
     <section className="w-full space-y-4">
-      <PageHeader
-        icon={<RiFileUserLine  className="h-5 w-5 text-tertiary-400 lg:h-4 lg:w-4" />}
-        title="Clients"
-      >
-        {!isFreeAccount && (
-          <>
-            <DashboardButton href="/clients/creer">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Nouveau client
-            </DashboardButton>
-
-            <DashboardButton href="/clients/suivi" variant="secondary">
-              <svg className="h-4 w-4 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              Suivi cicatrisation
-              {unansweredFollowUpsCount > 0 && (
-                <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
-                  {unansweredFollowUpsCount > 99 ? "99+" : unansweredFollowUpsCount}
-                </span>
-              )}
-            </DashboardButton>
-          </>
-        )}
-      </PageHeader>
+      <PageHeader icon={<RiFileUserLine className="h-5 w-5 text-tertiary-400 lg:h-4 lg:w-4" />} title="Clients" />
 
       <div className="w-full">
         {/* Barre de recherche responsive */}
         {!isFreeAccount && (
-          <div className="client-list-toolbar mb-4 rounded-2xl border border-white/10 p-2.5 sm:p-3">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
+          <ApplicationToolbar
+            className="mb-4"
+            search={
+              <div className="flex w-full items-center gap-2">
+              <div className="relative min-w-0 flex-1">
                 <svg
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
                   fill="none"
@@ -260,23 +237,23 @@ export default function ClientList() {
                   className="h-10 w-full rounded-2xl border border-white/10 bg-black/15 py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/35 font-one focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 transition-colors"
                 />
               </div>
-
               {!loading && !error && (
-                <div className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/65 font-one">
+                <div className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-2.5 text-[10px] text-white/65 font-one sm:px-3 sm:text-xs">
                   Page {currentPage} / {pagination.totalPages}
                 </div>
               )}
-
-              {!isFreeAccount && (
+              </div>
+            }
+            actions={
                 <>
-                  <DashboardButton href="/clients/creer">
+                  <DashboardButton href="/clients/creer" className="!min-w-0">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                     Nouveau client
                   </DashboardButton>
 
-                  <DashboardButton href="/clients/suivi" variant="secondary">
+                  <DashboardButton href="/clients/suivi" variant="secondary" className="!min-w-0">
                     <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
@@ -288,9 +265,8 @@ export default function ClientList() {
                     )}
                   </DashboardButton>
                 </>
-              )}
-            </div>
-          </div>
+            }
+          />
         )}
 
         {isFreeAccount ? (
@@ -754,9 +730,9 @@ export default function ClientList() {
         )}
 
         {/* Modal INFOS CLIENT - Utilisation du composant séparé - Seulement pour les comptes payants */}
-        {!isFreeAccount && (
+        {!isFreeAccount && clientForInfos && (
           <InfoClient
-            client={clientForInfos!}
+            client={clientForInfos}
             isOpen={isFullInfoModalOpen}
             onClose={() => setIsFullInfoModalOpen(false)}
             salonName={session?.user?.salonName ?? "Mon Salon"}

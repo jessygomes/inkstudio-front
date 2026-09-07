@@ -113,7 +113,7 @@ export default function WeeklyFillRate({}: WeeklyFillRateProps) {
 
   if (loading) {
     return (
-      <div className="dashboard-stat-card p-3.5 lg:p-4">
+      <div className="dashboard-stat-card dashboard-stat-card-no-glow p-3.5 lg:p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-bold text-white font-one">
             Taux de remplissage
@@ -131,7 +131,7 @@ export default function WeeklyFillRate({}: WeeklyFillRateProps) {
 
   if (error) {
     return (
-      <div className="dashboard-stat-card p-3.5 lg:p-4">
+      <div className="dashboard-stat-card dashboard-stat-card-no-glow p-3.5 lg:p-4">
         <h3 className="text-xs font-bold text-white font-one mb-3">
           Taux de remplissage
         </h3>
@@ -168,7 +168,7 @@ export default function WeeklyFillRate({}: WeeklyFillRateProps) {
   const fillRate = data?.fillRate || 0;
 
   return (
-    <div className="dashboard-stat-card p-3.5 lg:p-4">
+    <div className="dashboard-stat-card dashboard-stat-card-no-glow p-3.5 lg:p-4">
       <div className="dashboard-stat-inner">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-bold text-white font-one">

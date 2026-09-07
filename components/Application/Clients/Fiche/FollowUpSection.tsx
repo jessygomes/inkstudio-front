@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { MdOutlineRateReview } from "react-icons/md";
+import { ChevronDown, ImageIcon, MessageSquareHeart, Star } from "lucide-react";
 import Image from "next/image";
 import { AppointmentProps, ClientProps } from "@/lib/type";
 import { fetchAppointmentById } from "@/lib/queries/appointment";
@@ -80,10 +80,6 @@ export default function FollowUpSection({
     }
   };
 
-  const getRatingStars = (rating: number) => {
-    return "⭐".repeat(rating) + "☆".repeat(5 - rating);
-  };
-
   const getRatingLabel = (rating: number) => {
     switch (rating) {
       case 1:
@@ -102,10 +98,9 @@ export default function FollowUpSection({
   };
 
   return (
-    <div className="bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl p-4 border border-white/10 shadow-lg">
-
+    <section aria-label="Suivis de cicatrisation">
       {followUpSubmissions && followUpSubmissions.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {followUpSubmissions.map((followUp: FollowUpItem, index: number) => {
             const appointmentId = followUp.appointmentId;
             const isAppointmentLoading = appointmentId ? loadingAppointmentIds.has(appointmentId) : false;
@@ -133,7 +128,7 @@ export default function FollowUpSection({
             return (
               <div
                 key={followUp.id}
-                className="overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-r from-white/10 via-white/5 to-transparent p-3 transition-all duration-200 hover:border-tertiary-400/35"
+                className="overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r from-white/[0.045] to-white/[0.018] px-4 py-4 shadow-sm shadow-black/10 transition-all duration-200 hover:border-tertiary-400/25 hover:bg-white/[0.04] sm:px-5"
               >
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
@@ -166,7 +161,7 @@ export default function FollowUpSection({
                         </h4>
                         <span
                           className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
-                            followUp.isAnswered ? "bg-green-500/20 text-green-400" : "bg-orange-500/20 text-orange-400"
+                            followUp.isAnswered ? "border-emerald-400/25 bg-emerald-400/10 text-emerald-300" : "border-amber-400/25 bg-amber-400/10 text-amber-300"
                           }`}
                         >
                           {followUp.isAnswered ? "Répondu" : "En attente"}
@@ -197,8 +192,8 @@ export default function FollowUpSection({
                             year: "numeric",
                           })}
                         </span>
-                        <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[11px] text-white/75">
-                          {getRatingStars(followUp.rating)}
+                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[11px] text-amber-200">
+                          <Star size={11} fill="currentColor" /> {followUp.rating}/5
                         </span>
                         <span className="text-[11px] text-white/55">{getRatingLabel(followUp.rating)}</span>
                       </div>
@@ -207,18 +202,20 @@ export default function FollowUpSection({
 
                   <div className="flex flex-wrap items-center gap-2 lg:justify-end">
                     {followUp.photoUrl && (
-                      <button
+                      <button type="button"
                         onClick={() => window.open(followUp.photoUrl, "_blank")}
-                        className="cursor-pointer rounded-full border border-white/15 bg-white/8 px-3 py-1.5 text-[11px] font-one text-white/80 transition-colors hover:border-tertiary-400/30 hover:text-white"
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[11px] text-white/65 transition-colors hover:border-white/20 hover:text-white font-one"
                       >
-                        Voir la photo
+                        <ImageIcon size={13} /> Voir la photo
                       </button>
                     )}
-                    <button
+                    <button type="button"
                       onClick={() => toggleRelatedAppointment(followUp.id, appointmentId!)}
-                      className="cursor-pointer rounded-full border border-tertiary-400/30 bg-tertiary-500/15 px-3 py-1.5 text-[11px] font-one text-tertiary-400 transition-colors hover:text-tertiary-500"
+                      disabled={!appointmentId}
+                      aria-expanded={isExpanded}
+                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-tertiary-400/20 bg-tertiary-400/[0.08] px-3 py-2 text-[11px] text-tertiary-400 transition-colors hover:border-tertiary-400/35 hover:bg-tertiary-400/[0.12] disabled:cursor-not-allowed disabled:opacity-40 font-one"
                     >
-                      {isExpanded ? "Masquer le rdv associé" : "Voir le rdv associé"}
+                      {isExpanded ? "Masquer le rendez-vous" : "Voir le rendez-vous"}<ChevronDown size={13} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                     </button>
                   </div>
                 </div>
@@ -318,11 +315,11 @@ export default function FollowUpSection({
       ) : (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-tertiary-400/20">
-            <MdOutlineRateReview className="w-6 h-6 text-tertiary-400" />
+            <MessageSquareHeart className="h-6 w-6 text-tertiary-400" />
           </div>
           <p className="text-white/60 text-sm font-one">Aucun suivi de cicatrisation</p>
         </div>
       )}
-    </div>
+    </section>
   );
 }

@@ -33,6 +33,7 @@ import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { useSession } from "next-auth/react";
 import RdvListSkeleton from "@/components/Skeleton/RdvListSkeleton";
 import PageHeader from "@/components/Shared/PageHeader";
+import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
 
@@ -387,12 +388,12 @@ export default function RDV() {
         </div>
       ) : (
         <div className=" flex w-full flex-col gap-4">
-          <div className="dashboard-rdv-toolbar relative z-0 flex flex-col gap-2 overflow-visible rounded-2xl border border-white/10 bg-white/[0.035] p-2 sm:p-2.5 md:flex-row md:items-center">
+          <ApplicationToolbar>
             <div className="relative z-0 flex min-w-0 flex-col gap-2 md:flex-1 md:flex-row md:flex-wrap md:items-center">
-              <div className="flex w-full shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/15 p-1 md:w-auto">
+              <div className="flex w-full shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-black/15 p-1 md:w-auto">
                 <button
                   onClick={() => handleViewModeChange("calendar")}
-                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
+                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-2xl px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
                     viewMode === "calendar"
                       ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
                       : "text-white/70 hover:text-white hover:bg-white/10"
@@ -403,7 +404,7 @@ export default function RDV() {
                 </button>
                 <button
                   onClick={() => handleViewModeChange("list")}
-                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
+                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
                     viewMode === "list"
                       ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
                       : "text-white/70 hover:text-white hover:bg-white/10"
@@ -420,7 +421,7 @@ export default function RDV() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                    className="relative z-0 min-w-[92px] shrink-0 cursor-pointer rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                    className="relative z-0 min-w-[92px] shrink-0 cursor-pointer rounded-2xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                 >
                   <option value="all" className="bg-noir-500">Statut</option>
                   <option value="PENDING" className="bg-noir-500">En attente</option>
@@ -433,7 +434,7 @@ export default function RDV() {
                 <select
                   value={prestationFilter}
                   onChange={(e) => setPrestationFilter(e.target.value)}
-                    className="relative z-0 min-w-[92px] shrink-0 cursor-pointer rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                    className="relative z-0 min-w-[92px] shrink-0 cursor-pointer rounded-2xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                 >
                   <option value="all" className="bg-noir-500">Type</option>
                   {uniquePrestations.map((prestation: any) => (
@@ -446,7 +447,7 @@ export default function RDV() {
                 <select
                   value={tatoueurFilter}
                   onChange={(e) => setTatoueurFilter(e.target.value)}
-                    className="relative z-0 min-w-[92px] shrink-0 cursor-pointer rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                    className="relative z-0 min-w-[92px] shrink-0 cursor-pointer rounded-2xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                 >
                   <option value="all" className="bg-noir-500">Tatoueur</option>
                   {uniqueTatoueurs.map((tatoueur: any) => (
@@ -460,7 +461,7 @@ export default function RDV() {
                   <select
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
-                    className="relative z-0 min-w-[86px] shrink-0 cursor-pointer rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
+                    className="relative z-0 min-w-[86px] shrink-0 cursor-pointer rounded-2xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white transition-colors focus:border-tertiary-400 focus:outline-none"
                   >
                     <option value="all" className="bg-noir-500">Tous</option>
                     <option value="upcoming" className="bg-noir-500">À venir</option>
@@ -479,7 +480,7 @@ export default function RDV() {
                       setPrestationFilter("all");
                       setTatoueurFilter("all");
                     }}
-                    className="cursor-pointer shrink-0 whitespace-nowrap rounded-xl border border-red-400/25 bg-red-400/10 px-2.5 py-1.5 text-xs text-red-300 transition-colors hover:bg-red-400/20"
+                    className="cursor-pointer shrink-0 whitespace-nowrap rounded-2xl border border-red-400/25 bg-red-400/10 px-2.5 py-1.5 text-xs text-red-300 transition-colors hover:bg-red-400/20"
                   >
                     ✕ Effacer
                   </button>
@@ -544,7 +545,7 @@ export default function RDV() {
 
             {!isFreeAccount && (
           <div className="flex w-full gap-2 md:w-auto">
-            <div className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-medium text-white font-one md:flex-none md:px-4">
+            <div className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-medium text-white font-one md:flex-none md:px-4">
               <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[11px]">
                 {pendingAppointmentsCount > 99 ? "99+" : pendingAppointmentsCount}
               </span>
@@ -558,7 +559,7 @@ export default function RDV() {
             </DashboardButton>
           </div>
         )}
-          </div>
+          </ApplicationToolbar>
 
           {/* Layout responsive : flex-col sur mobile, flex-row sur desktop */}
           <div className="relative z-0 flex flex-col xl:flex-row gap-2 w-full">

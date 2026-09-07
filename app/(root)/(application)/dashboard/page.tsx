@@ -35,7 +35,7 @@ export default async function DashboardPage() {
         {!isFreeAccount && (
           <header className="dashboard-welcome flex flex-col gap-5 rounded-[28px] border border-white/10 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between lg:p-7">
             <div>
-              <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-tertiary-400/80 font-one">
+              <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-tertiary-400 font-one">
                 <LayoutDashboard size={14} />
                 Vue d&apos;ensemble
               </div>

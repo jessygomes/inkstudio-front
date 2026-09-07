@@ -113,7 +113,7 @@ export default function TotalPayed({ userId }: TotalPayedProps) {
 
   if (loading) {
     return (
-      <div className="dashboard-stat-card p-3.5 lg:p-4">
+      <div className="dashboard-stat-card dashboard-stat-card-no-glow p-3.5 lg:p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-bold text-white font-one">
             Chiffre d'affaires
@@ -130,7 +130,7 @@ export default function TotalPayed({ userId }: TotalPayedProps) {
 
   if (error) {
     return (
-      <div className="dashboard-stat-card p-3.5 lg:p-4">
+      <div className="dashboard-stat-card dashboard-stat-card-no-glow p-3.5 lg:p-4">
         <h3 className="text-xs font-bold text-white font-one mb-3">
           Chiffre d'affaires
         </h3>
@@ -167,7 +167,7 @@ export default function TotalPayed({ userId }: TotalPayedProps) {
   const totalPaid = data?.totalPaid || 0;
 
   return (
-    <div className="dashboard-stat-card p-3.5 lg:p-4 flex flex-col justify-between">
+    <div className="dashboard-stat-card dashboard-stat-card-no-glow p-3.5 lg:p-4 flex flex-col justify-between">
       <div className="dashboard-stat-inner">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-xs font-bold text-white font-one">

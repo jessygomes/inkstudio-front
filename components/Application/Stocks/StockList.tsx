@@ -13,6 +13,7 @@ import CreateOrUpdateItem from "./CreateOrUpdateItem";
 import DeleteItemStock from "./DeleteItemStock";
 import StockTable from "./StockTable";
 import PageHeader from "@/components/Shared/PageHeader";
+import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import { toast } from "sonner";
 import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
@@ -256,19 +257,7 @@ export default function StockList() {
 
   return (
     <section className="w-full space-y-3">
-      <PageHeader
-        icon={<FaDatabase size={15} className="text-tertiary-400" />}
-        title="Stocks"
-      >
-        {!isFreeAccount && (
-          <DashboardButton onClick={handleCreate}>
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Nouvel article
-          </DashboardButton>
-        )}
-      </PageHeader>
+      <PageHeader icon={<FaDatabase size={15} className="text-tertiary-400" />} title="Stocks" />
 
       {!isFreeAccount && !loading && !error && (
         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
@@ -343,8 +332,8 @@ export default function StockList() {
         />
       ) : (
         <div className=" space-y-3">
-          <div className="">
-            <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+          <ApplicationToolbar>
+            <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:items-center">
               <div className="relative w-full lg:max-w-xl">
                 <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -370,8 +359,12 @@ export default function StockList() {
                   </option>
                 ))}
               </select>
+              <DashboardButton onClick={handleCreate} className="!min-w-0 sm:ml-auto">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                Nouvel article
+              </DashboardButton>
             </div>
-          </div>
+          </ApplicationToolbar>
 
           {!loading && !error && (
             <div className="flex flex-col gap-2 text-xs text-white/65 font-one sm:flex-row sm:items-center sm:justify-between">

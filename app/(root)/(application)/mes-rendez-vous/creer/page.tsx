@@ -8,7 +8,7 @@ export default async function CreerRDVpage() {
   const user = await currentUser();
   if (!user) {
     return (
-      <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 ">
+      <div className="flex min-h-[100dvh] w-full flex-col items-center justify-center gap-4 bg-noir-700">
         <h1 className="text-white">
           Vous devez être connecté pour créer un rendez-vous.
         </h1>
@@ -25,8 +25,8 @@ export default async function CreerRDVpage() {
   const userId = user?.id ?? "";
 
   return (
-    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4">
-      <div className="flex flex-col relative w-full bg-noir-700 mt-4 pb-4 px-3 sm:px-6 lg:px-10">
+    <main className="flex min-h-[100dvh] w-full flex-col items-center justify-start bg-noir-700">
+      <div className="relative mt-4 flex min-h-[calc(100dvh-1rem)] w-full flex-col bg-noir-700 px-3 pb-4 sm:px-6 lg:px-10">
         <PageHeader
           icon={<FaRegCalendarTimes size={15} className="text-tertiary-400 animate-pulse" />}
           title="Créer un rendez-vous"
@@ -36,6 +36,6 @@ export default async function CreerRDVpage() {
           <CreateRdvForm userId={userId ?? ""} />
         </div>
       </div>
-    </div>
+    </main>
   );
 }
