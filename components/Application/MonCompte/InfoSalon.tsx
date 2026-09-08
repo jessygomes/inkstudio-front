@@ -1,398 +1,436 @@
 "use client";
+
 import { UpdateSalonUserProps } from "@/lib/type";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-
+import DashboardButton from "@/components/Shared/DashboardButton";
+import { useEffect, useRef, useState } from "react";
+import {
+  ArrowUpRight,
+  Check,
+  Copy,
+  MapPin,
+  Pencil,
+  Plus,
+  QrCode,
+  ShieldCheck,
+} from "lucide-react";
 import { CiInstagram, CiFacebook } from "react-icons/ci";
 import { PiTiktokLogoThin } from "react-icons/pi";
 import { TfiWorld } from "react-icons/tfi";
-import { IoCopy } from "react-icons/io5";
 import { QRCodeSVG } from "qrcode.react";
 import { makeCitySlug, makeSlug } from "@/lib/utils/makeLink";
-import DashboardButton from "@/components/Shared/DashboardButton";
 
-interface InfoSalonProps {
-  salon: UpdateSalonUserProps;
-}
+const editHref = "/mon-compte/modifier-salon";
+const actionClass =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-tertiary-400";
 
-export default function InfoSalon({ salon }: InfoSalonProps) {
-  const [copied, setCopied] = useState(false);
-  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const emptyFieldLabel = "Non renseigné";
-  const hasProfileImage = Boolean(salon.profileImage);
-  const hasPrestations = Boolean(salon.prestations && salon.prestations.length > 0);
-  const hasAddress = Boolean(
-    salon.address?.trim() && salon.city?.trim() && salon.postalCode?.trim(),
+export default function InfoSalon({ salon }: { salon: UpdateSalonUserProps }) {
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">(
+    "idle",
   );
-  const shouldShowDirectoryIncompleteNotice =
-    !hasProfileImage && !hasPrestations && !hasAddress;
-  const salonWithMaybeSlug = salon as UpdateSalonUserProps & { slug?: string };
-  const salonSlug = salonWithMaybeSlug.slug ?? makeSlug(salon.salonName);
-  const publicProfilePath =
-    salon?.city && salon?.postalCode
-      ? `/salon/${salonSlug}/${makeCitySlug(salon.city)}-${salon.postalCode}`
-      : `/salon/${salonSlug}`;
-  const frontendPublicUrl = process.env.NEXT_PUBLIC_FRONTENDPUBLIC_URL?.replace(
-    /\/$/,
-    ""
-  );
-  const locationLine = [salon.address, salon.postalCode, salon.city]
+  const [origin, setOrigin] = useState("");
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const slug =
+    (salon as UpdateSalonUserProps & { slug?: string }).slug ??
+    makeSlug(salon.salonName);
+  const path =
+    salon.city && salon.postalCode
+      ? `/salon/${slug}/${makeCitySlug(salon.city)}-${salon.postalCode}`
+      : `/salon/${slug}`;
+  const publicBase =
+    process.env.NEXT_PUBLIC_FRONTENDPUBLIC_URL?.replace(/\/$/, "") || origin;
+  const publicHref = publicBase + path;
+  const address = [
+    salon.address,
+    [salon.postalCode, salon.city].filter(Boolean).join(" "),
+  ]
     .map((value) => value?.trim())
     .filter(Boolean)
     .join(", ");
-  const socialLinks = [
+  const essentials = [
+    { label: "Photo de profil", complete: Boolean(salon.profileImage) },
+    { label: "Prestations", complete: Boolean(salon.prestations?.length) },
+    {
+      label: "Adresse complète",
+      complete: Boolean(
+        salon.address?.trim() && salon.city?.trim() && salon.postalCode?.trim(),
+      ),
+    },
+  ];
+  const completed = essentials.filter((item) => item.complete).length;
+  const socials = [
     {
       href: salon.instagram,
       label: "Instagram",
-      icon: <CiInstagram size={14} />,
-      className:
-        "border-pink-500/25 bg-pink-500/15 text-pink-300 hover:bg-pink-500/25",
+      icon: <CiInstagram size={22} />,
     },
-    {
-      href: salon.facebook,
-      label: "Facebook",
-      icon: <CiFacebook size={14} />,
-      className:
-        "border-blue-500/25 bg-blue-500/15 text-blue-300 hover:bg-blue-500/25",
-    },
+    { href: salon.facebook, label: "Facebook", icon: <CiFacebook size={22} /> },
     {
       href: salon.tiktok,
       label: "TikTok",
-      icon: <PiTiktokLogoThin size={14} />,
-      className:
-        "border-white/15 bg-white/8 text-white/70 hover:bg-white/12",
+      icon: <PiTiktokLogoThin size={21} />,
     },
-    {
-      href: salon.website,
-      label: "Site web",
-      icon: <TfiWorld size={13} />,
-      className:
-        "border-green-500/25 bg-green-500/15 text-green-300 hover:bg-green-500/25",
-    },
-  ] as Array<{
-    href?: string;
-    label: string;
-    icon: React.ReactNode;
-    className: string;
-  }>;
-
-  const publicProfileHref = frontendPublicUrl
-    ? `${frontendPublicUrl}${publicProfilePath}`
-    : publicProfilePath;
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(publicProfileHref);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Erreur lors de la copie:", err);
-    }
-  };
+    { href: salon.website, label: "Site web", icon: <TfiWorld size={18} /> },
+  ];
 
   useEffect(() => {
-    setIsClient(true);
+    setOrigin(window.location.origin);
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
   }, []);
 
-  useEffect(() => {
-    if (!isQrModalOpen) return;
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isQrModalOpen]);
+  const copyLink = async () => {
+    if (timer.current) clearTimeout(timer.current);
+    try {
+      await navigator.clipboard.writeText(
+        new URL(publicHref, window.location.origin).href,
+      );
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("error");
+    }
+    timer.current = setTimeout(() => setCopyStatus("idle"), 4000);
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] shadow-[0_20px_80px_rgba(0,0,0,0.22)]">
-        <div className="relative h-48 sm:h-56 lg:h-64">
-          {salon.image ? (
+    <div className="grid w-full items-stretch gap-5 font-one xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1fr)_400px]">
+      <section
+        aria-labelledby="salon-identity"
+        className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]"
+      >
+        <div className="relative h-40 xl:flex-1 xl:min-h-52 bg-[radial-gradient(ellipse_at_top_right,rgba(255,157,0,0.2),transparent_65%)] sm:h-52">
+          {salon.image && (
             <Image
               fill
               src={salon.image}
-              alt="Banniere du salon"
+              alt="Couverture du salon"
+              sizes="(min-width: 1280px) 70vw, 100vw"
               className="object-cover"
             />
-          ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center  px-4 text-center">
-              <p className="mt-2 text-[10px] leading-relaxed text-white/45 font-two">
-                Aucune image de couverture
-              </p>
-            </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-noir-700 via-black/35 to-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-noir-700/80 to-transparent" />
+          <DashboardButton
+            href={editHref}
+            variant="secondary"
+            className="absolute right-4 top-4"
+          >
+            <Pencil size={14} aria-hidden="true" />
+            {salon.image ? "Modifier la couverture" : "Ajouter une couverture"}
+          </DashboardButton>
         </div>
-
-        <div className="relative px-4 pb-4 pt-0 sm:px-5 sm:pb-5 lg:px-6">
-          <div className="-mt-12 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end">
-              <div className="relative mx-auto h-[104px] w-[104px] overflow-hidden rounded-[26px] border border-white/20 bg-black/35 shadow-2xl sm:mx-0 sm:h-[118px] sm:w-[118px]">
+        <div className="relative shrink-0 px-5 pb-6 sm:px-7">
+          <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-end 2xl:justify-between">
+            <div className="min-w-0 sm:flex sm:items-end sm:gap-5">
+              <div className="relative -mt-10 flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-3xl border-4 border-noir-700 bg-noir-500 text-3xl text-tertiary-400 sm:size-28">
                 {salon.profileImage ? (
                   <Image
                     fill
                     src={salon.profileImage}
-                    alt="Photo de profil du salon"
+                    alt={`Photo de profil de ${salon.salonName}`}
+                    sizes="112px"
                     className="object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full flex-col items-center justify-center bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.14),transparent_55%),linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] px-3 text-center">
-                    <p className="mt-2 text-[10px] leading-relaxed text-white/45 font-two">
-                      Aucune image de profil
-                    </p>
-                  </div>
+                  <span aria-label="Photo de profil non renseignée">
+                    {salon.salonName?.trim().charAt(0).toUpperCase() || "S"}
+                  </span>
                 )}
               </div>
-
-              <div className="min-w-0 space-y-2 text-center sm:text-left">
-                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                  <h2 className="truncate text-lg font-bold text-white font-one sm:text-xl">
-                    {salon.salonName}
+              <div className="min-w-0 pt-4 sm:pt-5">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h2
+                    id="salon-identity"
+                    className="min-w-0 break-words text-2xl font-semibold tracking-tight text-white sm:text-3xl"
+                  >
+                    {salon.salonName || "Votre salon"}
                   </h2>
-                  {salon.verifiedSalon === true && (
-                    <span className="inline-flex items-center rounded-full border border-emerald-400/35 bg-emerald-500/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-emerald-200 font-one">
+                  {salon.verifiedSalon && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs text-emerald-300">
+                      <ShieldCheck size={14} aria-hidden="true" />
                       Vérifié
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-white/72 font-two">
-                  {locationLine || emptyFieldLabel}
+                <p className="mt-2 flex items-start gap-2 text-sm leading-6 text-white/60">
+                  <MapPin
+                    size={16}
+                    className="mt-1 shrink-0"
+                    aria-hidden="true"
+                  />
+                  {address || "Ajoutez l’adresse de votre salon"}
                 </p>
               </div>
             </div>
-
-            <DashboardButton
-              href="/mon-compte/modifier-salon"
-              className="min-w-0 self-center px-3 py-1.5 text-xs lg:self-auto"
-            >
-              Modifier
+            <DashboardButton href={editHref} variant="secondary">
+              <Pencil size={15} aria-hidden="true" />
+              Modifier le profil
             </DashboardButton>
           </div>
         </div>
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)] xl:items-stretch">
-
-        
-        <div className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            {shouldShowDirectoryIncompleteNotice && (
-              <div className="mb-0 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 md:col-span-2">
-                <p className="text-sm leading-relaxed text-amber-100/92 font-two">
-                  Votre profil public sera affiché dans l&apos;annuaire quand vous aurez
-                  ajouté votre <strong>photo de profil</strong>, au moins une <strong>prestation</strong>,
-                  votre <strong>adresse complète</strong>.
-                </p>
-              </div>
-            )}
-
-            <div className="rounded-[24px] border border-white/8 bg-white/[0.035] p-4 md:col-span-2">
-              <p className="mb-2 text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
-                Description
-              </p>
-              <p className="text-xs leading-relaxed text-white/82 font-two">
-                {salon.description?.trim() || emptyFieldLabel}
-              </p>
-            </div>
-
-            <div className="rounded-[24px] border border-white/8 bg-white/[0.035] p-4">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
-                  Prestations
-                </p>
-                <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-[10px] text-white/60 font-one">
-                  {salon.prestations?.length ?? 0}
-                </span>
-              </div>
-              {hasPrestations ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {salon.prestations?.map((prestation) => (
-                    <span
-                      key={prestation}
-                      className="rounded-2xl border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs text-white/82 font-one"
-                    >
-                      {prestation}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-white/55 font-two">Aucune prestation renseignée</p>
-              )}
-            </div>
-
-            <div className="rounded-[24px] border border-white/8 bg-white/[0.035] p-4">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
-                  Styles
-                </p>
-                <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-[10px] text-white/60 font-one">
-                  {salon.style?.length ?? 0}
-                </span>
-              </div>
-              {salon.style && salon.style.length > 0 ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {salon.style.map((style) => (
-                    <span
-                      key={style}
-                      className="rounded-2xl border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs text-white/82 font-one"
-                    >
-                      {style}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-white/55 font-two">Aucun style renseigné</p>
-              )}
-            </div>
-
-            <div className="rounded-[24px] border border-white/8 bg-white/[0.035] p-4 md:col-span-2">
-              <p className="mb-2 text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
-                Réseaux et liens
-              </p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {socialLinks.map((socialLink) =>
-                  socialLink.href ? (
-                    <Link
-                      key={socialLink.label}
-                      href={socialLink.href}
-                      target="_blank"
-                      className={`inline-flex items-center justify-between gap-2 rounded-2xl border px-3 py-2 text-xs font-one transition-colors ${socialLink.className}`}
-                    >
-                      <span className="inline-flex items-center gap-1.5">
-                        {socialLink.icon}
-                        <span>{socialLink.label}</span>
-                      </span>
-                      <span className="text-[10px] uppercase tracking-[0.14em] text-current/80">Ouvrir</span>
-                    </Link>
-                  ) : (
-                    <div
-                      key={socialLink.label}
-                      className="inline-flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-white/55 font-one"
-                    >
-                      <span className="inline-flex items-center gap-1.5 text-white/72">
-                        {socialLink.icon}
-                        <span>{socialLink.label}</span>
-                      </span>
-                      <span className="text-[10px] uppercase tracking-[0.14em] text-white/40">{emptyFieldLabel}</span>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-          </div>
+      </section>
+      <section
+        aria-labelledby="public-profile-title"
+        className="min-w-0 rounded-3xl border border-tertiary-400/20 bg-gradient-to-b from-tertiary-400/[0.07] to-white/[0.02] p-5 sm:p-6"
+      >
+        <div className="mb-4 flex size-10 items-center justify-center rounded-xl bg-tertiary-400/10 text-tertiary-400">
+          <QrCode size={20} aria-hidden="true" />
         </div>
-
-        <div className="flex h-full flex-col rounded-[24px] border border-white/8 bg-white/[0.04] p-4 sm:p-5">
-          <p className="mb-2 text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
-            Profil public
+        <h3
+          id="public-profile-title"
+          className="text-lg font-semibold text-white"
+        >
+          Votre profil public
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-white/60">
+          Un lien à partager pour faire découvrir votre salon.
+        </p>
+        <DashboardButton
+          href={publicHref}
+          variant="secondary"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-5 min-h-10 w-full min-w-0"
+        >
+          Voir mon profil public
+          <ArrowUpRight size={17} aria-hidden="true" />
+          <span className="sr-only"> (nouvel onglet)</span>
+        </DashboardButton>
+        <div className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3">
+          <p className="mb-1 text-xs text-white/50">Lien du profil</p>
+          <p className="break-all text-xs leading-5 text-white/70">
+            {publicHref}
           </p>
-
-         
-
-          <div className="mt-0 flex flex-1 flex-col space-y-4">
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-              <p className="mb-1 text-[10px] uppercase tracking-[0.22em] text-white/40 font-one">
-                URL publique
-              </p>
-              <p className="break-all text-xs text-white/78 font-two">
-                {publicProfileHref}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="relative">
-                <button
-                  onClick={handleCopyLink}
-                  className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-2.5 py-1.5 text-xs text-white/80 font-one transition-colors hover:bg-white/15 hover:text-white"
-                  title="Copier le lien"
-                >
-                  <span className="inline-flex items-center gap-1.5">
-                    <IoCopy size={13} />
-                    Copier le lien
-                  </span>
-                </button>
-                {copied && (
-                  <div className="absolute -top-9 left-0 z-10 whitespace-nowrap rounded-2xl bg-tertiary-500 px-2 py-1 text-xs text-white font-one">
-                    Lien copié !
-                  </div>
-                )}
-              </div>
-
-              <Link
-                href={publicProfileHref}
-                target="_blank"
-                className="inline-flex items-center rounded-2xl border border-tertiary-400/30 bg-tertiary-500/15 px-2.5 py-1.5 text-xs text-white font-one transition-colors hover:bg-tertiary-500/25"
-              >
-                Voir mon profil public
-              </Link>
-
-              <button
-                onClick={() => setIsQrModalOpen(true)}
-                className="inline-flex items-center rounded-2xl border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs text-white font-one transition-colors hover:bg-white/15 sm:hidden"
-                title="Afficher le QR code"
-              >
-                QR code
-              </button>
-            </div>
-
-            <div className="mt-auto hidden rounded-[22px] border border-white/10 bg-black/20 p-3 sm:block">
-              <div className="mx-auto w-fit rounded-xl bg-white p-2.5 shadow-sm">
-                <QRCodeSVG
-                  value={publicProfileHref}
-                  size={112}
-                  includeMargin
-                  level="M"
-                  bgColor="#ffffff"
-                  fgColor="#111111"
-                />
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-
-      {isClient &&
-        isQrModalOpen &&
-        createPortal(
-          <div className="fixed inset-0 z-[9999] flex h-[100svh] items-center justify-center bg-black/70 p-4 sm:hidden">
-            <div
-              className="absolute inset-0"
-              onClick={() => setIsQrModalOpen(false)}
+        <button
+          type="button"
+          onClick={copyLink}
+          className={`${actionClass} mt-2 w-full cursor-pointer border border-white/10 text-white/80 hover:bg-white/5`}
+        >
+          {copyStatus === "copied" ? (
+            <Check size={16} aria-hidden="true" />
+          ) : (
+            <Copy size={16} aria-hidden="true" />
+          )}
+          {copyStatus === "copied" ? "Lien copié" : "Copier le lien"}
+        </button>
+        <p
+          role="status"
+          className={
+            copyStatus === "error"
+              ? "mt-2 text-xs leading-5 text-amber-300"
+              : "sr-only"
+          }
+        >
+          {copyStatus === "error"
+            ? "La copie a échoué. Vous pouvez sélectionner le lien ci-dessus."
+            : copyStatus === "copied"
+              ? "Le lien a été copié dans le presse-papiers."
+              : ""}
+        </p>
+        <details className="group mt-4 border-t border-white/10 pt-4">
+          <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-2 text-sm text-white/70 focus-visible:outline-2 focus-visible:outline-tertiary-400 [&::-webkit-details-marker]:hidden">
+            <span className="flex items-center gap-2">
+              <QrCode size={16} aria-hidden="true" />
+              Partager par QR code
+            </span>
+            <Plus
+              size={16}
+              className="transition-transform group-open:rotate-45"
               aria-hidden="true"
             />
-
-            <div className="relative w-full max-w-xs rounded-2xl border border-white/15 bg-[#151515] p-4 shadow-2xl">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-sm text-white font-one">Profil public</p>
-                <button
-                  onClick={() => setIsQrModalOpen(false)}
-                  className="rounded-md border border-white/20 bg-white/10 px-2 py-1 text-[11px] text-white/90 font-one"
-                >
-                  Fermer
-                </button>
-              </div>
-
-              <div className="mx-auto w-fit rounded-xl bg-white p-3">
+          </summary>
+          <div className="pt-4 text-center">
+            {publicBase && (
+              <div className="mx-auto w-fit rounded-2xl bg-white p-3">
                 <QRCodeSVG
-                  value={publicProfileHref}
-                  size={220}
+                  value={publicHref}
+                  size={176}
                   includeMargin
                   level="M"
-                  bgColor="#ffffff"
-                  fgColor="#111111"
+                  title="QR code du profil public du salon"
                 />
               </div>
+            )}
+            <p className="mt-3 text-xs leading-5 text-white/50">
+              À scanner pour accéder directement à votre profil.
+            </p>
+          </div>
+        </details>
+      </section>
+      {completed < essentials.length && (
+        <section
+          aria-labelledby="profile-completion"
+          className="xl:col-span-2 rounded-2xl border border-tertiary-400/20 bg-tertiary-400/[0.04] p-5 sm:p-6"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <h3
+              id="profile-completion"
+              className="text-base font-semibold text-white"
+            >
+              Complétez votre vitrine
+            </h3>
+            <span className="shrink-0 text-xs text-white/60">
+              {completed} / {essentials.length}
+            </span>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-white/60">
+            Les informations essentielles pour présenter votre salon aux
+            clients.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {essentials.map((item) =>
+              item.complete ? (
+                <span
+                  key={item.label}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white/5 px-3 text-sm text-white/60"
+                >
+                  <Check
+                    size={14}
+                    className="text-emerald-300"
+                    aria-hidden="true"
+                  />
+                  {item.label}
+                  <span className="sr-only"> : renseigné</span>
+                </span>
+              ) : (
+                <Link
+                  key={item.label}
+                  href={editHref}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-tertiary-400/20 px-3 text-sm text-tertiary-400 hover:bg-tertiary-400/10"
+                >
+                  <Plus size={14} aria-hidden="true" />
+                  {item.label}
+                  <span className="sr-only"> : à compléter</span>
+                </Link>
+              ),
+            )}
+          </div>
+        </section>
+      )}
+      <section
+        aria-labelledby="salon-presentation"
+        className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]"
+      >
+        <div className="flex-1 p-5 sm:p-7">
+          <p className="mb-2 text-xs uppercase tracking-[0.16em] text-tertiary-400">
+            Votre univers
+          </p>
+          <h3
+            id="salon-presentation"
+            className="text-xl font-semibold text-white"
+          >
+            À propos du salon
+          </h3>
+          {salon.description?.trim() ? (
+            <p className="mt-4  whitespace-pre-line break-words text-sm leading-7 text-white/75 sm:text-sm">
+              {salon.description}
+            </p>
+          ) : (
+            <div className="mt-4 rounded-2xl border border-dashed border-white/15 p-5">
+              <p className="text-sm leading-6 text-white/60">
+                Présentez votre histoire, votre approche et ce qui rend votre
+                salon unique.
+              </p>
+              <Link
+                href={editHref}
+                className="mt-3 inline-flex min-h-10 items-center gap-2 text-sm text-tertiary-400 hover:underline"
+              >
+                <Plus size={15} aria-hidden="true" />
+                Ajouter une présentation
+              </Link>
             </div>
-          </div>,
-          document.body
-        )}
-
-
+          )}
+        </div>
+        <div className="grid border-t border-white/10 md:grid-cols-2">
+          {[
+            {
+              title: "Prestations",
+              values: salon.prestations,
+              empty: "Ajoutez les prestations proposées au salon.",
+            },
+            {
+              title: "Styles de tatouage",
+              values: salon.style,
+              empty:
+                "Précisez vos styles pour aider les clients à vous choisir.",
+            },
+          ].map(({ title, values, empty }, index) => (
+            <div
+              key={title}
+              className={`min-w-0 p-5 sm:p-7 ${index === 1 ? "border-t border-white/10 md:border-l md:border-t-0" : ""}`}
+            >
+              <h4 className="mb-4 flex items-center gap-2 text-base font-semibold text-white">
+                {title}
+                <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs font-normal text-white/50">
+                  {values?.length || 0}
+                </span>
+              </h4>
+              {values?.length ? (
+                <div className="flex flex-wrap gap-2">
+                  {values.map((value) => (
+                    <span
+                      key={value}
+                      className="max-w-full break-words rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/75"
+                    >
+                      {value}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <Link
+                  href={editHref}
+                  className="block text-sm leading-6 text-white/60 hover:text-tertiary-400"
+                >
+                  {empty}
+                  <span className="mt-2 block text-tertiary-400">
+                    Compléter →
+                  </span>
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+      <section
+        aria-labelledby="salon-socials"
+        className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6"
+      >
+        <h3 id="salon-socials" className="text-lg font-semibold text-white">
+          Retrouvez-nous en ligne
+        </h3>
+        <div className="mt-4 divide-y divide-white/8">
+          {socials.map(({ href, label, icon }) => (
+            <Link
+              key={label}
+              href={href || editHref}
+              target={href ? "_blank" : undefined}
+              rel={href ? "noopener noreferrer" : undefined}
+              className="flex min-h-14 items-center gap-3 py-3 text-sm text-white/70 transition-colors hover:text-tertiary-400"
+            >
+              <span
+                className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/5"
+                aria-hidden="true"
+              >
+                {icon}
+              </span>
+              <span className="flex-1">{label}</span>
+              {href ? (
+                <>
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                  <span className="sr-only">Ouvrir dans un nouvel onglet</span>
+                </>
+              ) : (
+                <span className="flex items-center gap-1 text-xs text-white/50">
+                  <Plus size={13} aria-hidden="true" />
+                  Ajouter
+                </span>
+              )}
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

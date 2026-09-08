@@ -12,6 +12,8 @@ type BaseProps = {
   variant?: keyof typeof variants;
   children: ReactNode;
   className?: string;
+  target?: React.HTMLAttributeAnchorTarget;
+  rel?: string;
 };
 
 type ButtonProps = BaseProps & {
@@ -35,6 +37,8 @@ export default function DashboardButton({
   children,
   className,
   href,
+  target,
+  rel,
   onClick,
   disabled,
   type = "button",
@@ -43,7 +47,7 @@ export default function DashboardButton({
 
   if (href) {
     return (
-      <Link href={href} className={classes}>
+      <Link href={href} className={classes} target={target} rel={rel}>
         {children}
       </Link>
     );

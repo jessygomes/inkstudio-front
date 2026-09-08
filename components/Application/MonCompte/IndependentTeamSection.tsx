@@ -154,15 +154,15 @@ export default function IndependentTeamSection() {
 
   return (
     <>
-      <div className="dashboard-embedded-panel p-3 sm:p-8">
-        <h3 className="mb-3 text-sm uppercase tracking-widest text-white font-one">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6">
+        <h3 className="mb-3 text-lg font-semibold text-white font-one">
           Salons reliés
         </h3>
 
         {isLoading ? (
-          <p className="text-xs text-white/60 font-one">Chargement...</p>
+          <p className="text-sm text-white/60 font-one">Chargement...</p>
         ) : currentLinkedSalons.length === 0 ? (
-          <p className="text-xs text-white/60 font-one">Aucun salon relié pour le moment.</p>
+          <p className="text-sm text-white/60 font-one">Aucun salon relié pour le moment.</p>
         ) : (
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             {currentLinkedSalons.map((salon) => (
@@ -222,9 +222,9 @@ export default function IndependentTeamSection() {
         )}
       </div>
 
-      <div className="dashboard-embedded-panel p-3 sm:p-8">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h3 className="text-sm uppercase tracking-widest text-white font-one">
+          <h3 className="text-lg font-semibold text-white font-one">
             Demandes d'équipe reçues
           </h3>
           <span className="rounded-full border border-tertiary-400/35 bg-tertiary-500/15 px-2 py-0.5 text-[10px] text-tertiary-500 font-one">
@@ -233,9 +233,9 @@ export default function IndependentTeamSection() {
         </div>
 
         {isLoading ? (
-          <p className="text-xs text-white/60 font-one">Chargement...</p>
+          <p className="text-sm text-white/60 font-one">Chargement...</p>
         ) : requests.length === 0 ? (
-          <p className="text-xs text-white/60 font-one">Aucune demande en attente.</p>
+          <p className="text-sm text-white/60 font-one">Aucune demande en attente.</p>
         ) : (
           <div className="space-y-2.5">
             {requests.map((request) => {

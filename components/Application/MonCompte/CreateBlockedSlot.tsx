@@ -3,8 +3,12 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import DashboardButton from "@/components/Shared/DashboardButton";
+import { CalendarOff, Clock3, LockKeyhole, X, LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
 import { createBlockedTimeSlotAction } from "@/lib/queries/blocked-time-slots";
+
+const localDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 const createBlockedSlotSchema = z.object({
   startDate: z.string().min(1, "Date de début requise"),
@@ -39,9 +43,9 @@ export default function CreateBlockedSlot({
   const form = useForm<z.infer<typeof createBlockedSlotSchema>>({
     resolver: zodResolver(createBlockedSlotSchema),
     defaultValues: {
-      startDate: new Date().toISOString().split("T")[0],
+      startDate: localDate(new Date()),
       startTime: "09:00",
-      endDate: new Date().toISOString().split("T")[0],
+      endDate: localDate(new Date()),
       endTime: "18:00",
       tatoueurId: "",
       reason: "",
@@ -139,6 +143,7 @@ export default function CreateBlockedSlot({
   };
 
   const onSubmit = async (data: z.infer<typeof createBlockedSlotSchema>) => {
+    if (loading) return;
     setLoading(true);
     setError(null);
 
@@ -235,9 +240,9 @@ export default function CreateBlockedSlot({
           );
         } else {
           // Si on dépasse 23h59, passer au jour suivant
-          const nextDay = new Date(startDate);
+          const nextDay = new Date(`${startDate}T12:00:00`);
           nextDay.setDate(nextDay.getDate() + 1);
-          form.setValue("endDate", nextDay.toISOString().split("T")[0]);
+          form.setValue("endDate", localDate(nextDay));
           form.setValue("endTime", "09:00"); // Commencer le lendemain à 9h
         }
       } else if (currentEndDate === startDate) {
@@ -261,9 +266,9 @@ export default function CreateBlockedSlot({
             );
           } else {
             // Passer au jour suivant si on dépasse minuit
-            const nextDay = new Date(startDate);
+            const nextDay = new Date(`${startDate}T12:00:00`);
             nextDay.setDate(nextDay.getDate() + 1);
-            form.setValue("endDate", nextDay.toISOString().split("T")[0]);
+            form.setValue("endDate", localDate(nextDay));
             form.setValue("endTime", "09:00");
           }
         }
@@ -330,260 +335,113 @@ export default function CreateBlockedSlot({
           );
         } else {
           // Passer au jour suivant
-          const nextDay = new Date(startDate);
+          const nextDay = new Date(`${startDate}T12:00:00`);
           nextDay.setDate(nextDay.getDate() + 1);
-          form.setValue("endDate", nextDay.toISOString().split("T")[0]);
+          form.setValue("endDate", localDate(nextDay));
           form.setValue("endTime", "09:00");
         }
       }
     }
   };
 
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/3 overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-white/10 bg-white/5">
-        <div>
-          <p className="text-white font-one font-semibold text-md">Bloquer un créneau</p>
-          <p className="text-white/50 font-one text-[11px] mt-0.5">Indisponibilité ou congé</p>
-        </div>
-        <button
-          onClick={onClose}
-          className="cursor-pointer p-1.5 hover:bg-white/10 rounded-[10px] transition-colors"
-        >
-          <span className="text-white/60 hover:text-white text-lg leading-none">×</span>
-        </button>
-      </div>
+  const values = form.watch();
+  const start = new Date(`${values.startDate}T${values.startTime}:00`);
+  const end = new Date(`${values.endDate}T${values.endTime}:00`);
+  const minutes = (end.getTime() - start.getTime()) / 60000;
+  const validDuration = Number.isFinite(minutes) && minutes >= 15 && minutes <= 30 * 24 * 60;
+  const duration = validDuration
+    ? [Math.floor(minutes / 1440) ? `${Math.floor(minutes / 1440)} j` : "", Math.floor(minutes % 1440 / 60) ? `${Math.floor(minutes % 1440 / 60)} h` : "", minutes % 60 ? `${minutes % 60} min` : ""].filter(Boolean).join(" ")
+    : "Choisissez une période de 15 minutes à 30 jours.";
+  const scope = tatoueurs.find(t => t.id === values.tatoueurId)?.name || "Salon complet";
+  const inputClass = "w-full min-w-0 min-h-11 rounded-xl border border-white/15 bg-noir-500 px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 disabled:opacity-50 [color-scheme:dark]";
 
-      {/* Contenu */}
-      <div className="p-3 sm:p-4">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Portée */}
-          <div className="space-y-1.5">
-            <label className="text-white/50 font-one text-[10px] uppercase tracking-wider">Portée du blocage</label>
-            <select
-              {...form.register("tatoueurId")}
-              className="w-full px-3 py-2 bg-white/6 border border-white/10 rounded-[12px] text-white text-xs font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
-            >
-              <option value="" className="bg-noir-500">Salon complet</option>
-              {tatoueurs.map((t) => (
-                <option key={t.id} value={t.id} className="bg-noir-500">{t.name}</option>
-              ))}
-            </select>
+  return (
+    <section aria-labelledby="create-blocked-title" className="overflow-hidden rounded-3xl border border-tertiary-400/20 bg-white/[0.025] font-one">
+      <header className="flex items-start gap-3 border-b border-white/10 p-5 sm:p-6">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tertiary-400/10 text-tertiary-400"><CalendarOff size={21} aria-hidden="true" /></span>
+        <div className="flex-1">
+          <h3 id="create-blocked-title" className="text-lg font-semibold text-white">Nouvelle indisponibilité</h3>
+          <p className="mt-1 text-sm leading-6 text-white/60">Réservez une période pour une absence, une pause ou des congés.</p>
+        </div>
+        <button type="button" onClick={onClose} disabled={loading} aria-label="Fermer le formulaire" className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/50 hover:bg-white/5 hover:text-white disabled:opacity-50"><X size={18} /></button>
+      </header>
+
+      <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+        <fieldset disabled={loading} className="min-w-0 space-y-6 p-5 disabled:opacity-70 sm:p-6">
+          <legend className="sr-only">Détails du créneau à bloquer</legend>
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div>
+              <label htmlFor="blocked-scope" className="mb-2 block text-sm font-semibold text-white">Qui est concerné ?</label>
+              <select id="blocked-scope" {...form.register("tatoueurId")} className={inputClass} aria-describedby="blocked-scope-help">
+                <option value="">Salon complet</option>
+                {tatoueurs.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+              <p id="blocked-scope-help" className="mt-2 text-xs leading-5 text-white/50">Choisissez le salon entier ou un artiste en particulier.</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+              <p className="flex items-center gap-2 text-sm text-white/80"><LockKeyhole size={16} className="shrink-0 text-tertiary-400" aria-hidden="true" />{scope}</p>
+              <p className="mt-2 text-sm leading-6 text-white/55">La prise de rendez-vous sera indisponible pour cette sélection pendant la période indiquée.</p>
+            </div>
           </div>
 
-          {/* Période */}
-          <div className="space-y-1.5">
-            <label className="text-white/50 font-one text-[10px] uppercase tracking-wider">Période de blocage</label>
-            <div className="grid grid-cols-2 gap-3">
-              {/* Début */}
-              <div className="space-y-1.5">
-                <p className="text-white/40 font-one text-[10px]">Début</p>
-                <input
-                  type="date"
-                  {...form.register("startDate")}
-                  min={new Date().toISOString().split("T")[0]}
-                  onChange={(e) => {
-                    form.setValue("startDate", e.target.value);
-                    handleStartDateChange(e.target.value, form.watch("startTime"));
-                  }}
-                  className="w-full px-2.5 py-1.5 bg-white/6 border border-white/10 rounded-[12px] text-white text-[11px] font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
-                />
-                <input
-                  type="time"
-                  {...form.register("startTime")}
-                  onChange={(e) => {
-                    form.setValue("startTime", e.target.value);
-                    handleStartDateChange(form.watch("startDate"), e.target.value);
-                  }}
-                  className="w-full px-2.5 py-1.5 bg-white/6 border border-white/10 rounded-[12px] text-white text-[11px] font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
-                />
-                {form.formState.errors.startDate && (
-                  <p className="text-red-300 text-[10px]">{form.formState.errors.startDate.message}</p>
-                )}
-                {form.formState.errors.startTime && (
-                  <p className="text-red-300 text-[10px]">{form.formState.errors.startTime.message}</p>
-                )}
-              </div>
-              {/* Fin */}
-              <div className="space-y-1.5">
-                <p className="text-white/40 font-one text-[10px]">Fin</p>
-                <input
-                  type="date"
-                  {...form.register("endDate")}
-                  min={form.watch("startDate") || new Date().toISOString().split("T")[0]}
-                  onChange={(e) => {
-                    form.setValue("endDate", e.target.value);
-                    handleEndDateChange(e.target.value);
-                  }}
-                  className="w-full px-2.5 py-1.5 bg-white/6 border border-white/10 rounded-[12px] text-white text-[11px] font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
-                />
-                <input
-                  type="time"
-                  {...form.register("endTime")}
-                  onChange={(e) => {
-                    form.setValue("endTime", e.target.value);
-                    handleEndTimeChange(e.target.value);
-                  }}
-                  className="w-full px-2.5 py-1.5 bg-white/6 border border-white/10 rounded-[12px] text-white text-[11px] font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
-                />
-                {form.formState.errors.endDate && (
-                  <p className="text-red-300 text-[10px]">{form.formState.errors.endDate.message}</p>
-                )}
-                {form.formState.errors.endTime && (
-                  <p className="text-red-300 text-[10px]">{form.formState.errors.endTime.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Indicateur de durée */}
-            {form.watch("startDate") &&
-              form.watch("startTime") &&
-              form.watch("endDate") &&
-              form.watch("endTime") && (
-                <div className="px-3 py-2 bg-white/4 border border-white/8 rounded-[12px]">
-                  <div className="text-xs text-white/60 font-one">
-                    <span className="font-medium text-white/50">Durée : </span>
-                      {(() => {
-                        try {
-                          const start = new Date(
-                            `${form.watch("startDate")}T${form.watch(
-                              "startTime"
-                            )}:00`
-                          );
-                          const end = new Date(
-                            `${form.watch("endDate")}T${form.watch(
-                              "endTime"
-                            )}:00`
-                          );
-
-                          if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-                            return "⚠️ Dates invalides";
-                          }
-
-                          const diffMs = end.getTime() - start.getTime();
-                          if (diffMs <= 0) {
-                            return "⚠️ La fin doit être après le début";
-                          }
-
-                          const diffMinutes = Math.floor(diffMs / (1000 * 60));
-                          const diffHours = Math.floor(diffMinutes / 60);
-                          const diffDays = Math.floor(diffHours / 24);
-
-                          let durationText = "";
-                          if (diffDays > 0) {
-                            durationText = `${diffDays} jour${
-                              diffDays > 1 ? "s" : ""
-                            } ${diffHours % 24}h ${diffMinutes % 60}min`;
-                          } else if (diffHours > 0) {
-                            durationText = `${diffHours}h ${
-                              diffMinutes % 60
-                            }min`;
-                          } else {
-                            durationText = `${diffMinutes}min`;
-                          }
-
-                          if (diffMinutes < 15) {
-                            return `⚠️ ${durationText} (minimum 15 min)`;
-                          } else if (diffDays > 30) {
-                            return `⚠️ ${durationText} (maximum 30 jours)`;
-                          } else {
-                            return `✅ ${durationText}`;
-                          }
-                        } catch {
-                          return "⚠️ Erreur de calcul";
-                        }
-                      })()}
+          <div>
+            <h4 className="mb-3 text-sm font-semibold text-white">Quelle période bloquer ?</h4>
+            <div className="grid gap-4 md:grid-cols-2">
+              {([
+                { title: "Début", date: "startDate", time: "startTime" },
+                { title: "Fin", date: "endDate", time: "endTime" },
+              ] as const).map(({ title, date, time }) => (
+                <fieldset key={date} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                  <legend className="px-2 text-sm text-tertiary-400">{title}</legend>
+                  <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+                    <div className="min-w-0">
+                      <label htmlFor={`blocked-${date}`} className="mb-2 block text-xs text-white/65">Date de {title.toLowerCase()}</label>
+                      <input id={`blocked-${date}`} type="date" {...form.register(date)} min={date === "startDate" ? localDate(new Date()) : values.startDate || localDate(new Date())} aria-invalid={Boolean(form.formState.errors[date])} aria-describedby={form.formState.errors[date] ? `error-${date}` : undefined} onChange={e => {
+                        form.setValue(date, e.target.value, { shouldDirty: true, shouldValidate: true });
+                        if (date === "startDate") handleStartDateChange(e.target.value, values.startTime);
+                        else handleEndDateChange(e.target.value);
+                        setError(null);
+                      }} className={inputClass} />
+                      {form.formState.errors[date] && <p id={`error-${date}`} className="mt-2 text-xs text-red-300">{form.formState.errors[date]?.message}</p>}
+                    </div>
+                    <div className="min-w-0">
+                      <label htmlFor={`blocked-${time}`} className="mb-2 block text-xs text-white/65">Heure de {title.toLowerCase()}</label>
+                      <input id={`blocked-${time}`} type="time" {...form.register(time)} aria-invalid={Boolean(form.formState.errors[time])} aria-describedby={form.formState.errors[time] ? `error-${time}` : undefined} onChange={e => {
+                        form.setValue(time, e.target.value, { shouldDirty: true, shouldValidate: true });
+                        if (time === "startTime") handleStartDateChange(values.startDate, e.target.value);
+                        else handleEndTimeChange(e.target.value);
+                        setError(null);
+                      }} className={inputClass} />
+                      {form.formState.errors[time] && <p id={`error-${time}`} className="mt-2 text-xs text-red-300">{form.formState.errors[time]?.message}</p>}
                     </div>
                   </div>
-                )}
-          </div>
-
-          {/* Motif */}
-          <div className="space-y-1.5">
-            <label className="text-white/50 font-one text-[10px] uppercase tracking-wider">Motif (optionnel)</label>
-            <input
-              type="text"
-              {...form.register("reason")}
-              placeholder="Ex: Congés, formation, pause..."
-              className="w-full px-3 py-2 bg-white/6 border border-white/10 rounded-[12px] text-white placeholder-white/25 text-xs font-one focus:outline-none focus:border-tertiary-400/60 transition-colors"
-            />
-          </div>
-
-          {/* Raccourcis */}
-          <div className="space-y-1.5">
-            <label className="text-white/50 font-one text-[10px] uppercase tracking-wider">Raccourcis</label>
-            <div className="grid grid-cols-2 gap-1.5">
-              <button
-                type="button"
-                onClick={() => {
-                  const today = new Date();
-                  form.setValue("startDate", today.toISOString().split("T")[0]);
-                  form.setValue("endDate", today.toISOString().split("T")[0]);
-                  form.setValue("startTime", "12:00");
-                  form.setValue("endTime", "14:00");
-                  form.setValue("reason", "Pause déjeuner");
-                }}
-                className="cursor-pointer px-3 py-2 bg-white/4 hover:bg-white/8 border border-white/8 rounded-[12px] text-white/70 hover:text-white/90 text-[11px] font-one transition-colors text-left"
-              >
-                Maladie
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const today = new Date();
-                  const nextWeek = new Date(today);
-                  nextWeek.setDate(today.getDate() + 7);
-                  form.setValue("startDate", today.toISOString().split("T")[0]);
-                  form.setValue("endDate", nextWeek.toISOString().split("T")[0]);
-                  form.setValue("startTime", "09:00");
-                  form.setValue("endTime", "18:00");
-                  form.setValue("reason", "Congés");
-                }}
-                className="cursor-pointer px-3 py-2 bg-white/4 hover:bg-white/8 border border-white/8 rounded-[12px] text-white/70 hover:text-white/90 text-[11px] font-one transition-colors text-left"
-              >
-                Congés 1 semaine
-              </button>
+                </fieldset>
+              ))}
+            </div>
+            <div role="status" className={`mt-3 flex flex-wrap items-center gap-2 rounded-xl px-4 py-3 text-sm ${validDuration ? "bg-tertiary-400/5 text-tertiary-400" : "bg-white/5 text-white/60"}`}>
+              <Clock3 size={16} aria-hidden="true" /><span>{validDuration ? `Durée du blocage : ${duration}` : duration}</span>
+              {validDuration && <span className="ml-auto text-xs text-white/50">Minimum 15 min · Maximum 30 jours</span>}
             </div>
           </div>
 
-          {/* Erreur */}
-          {error && (
-            <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-[12px]">
-              <svg className="w-4 h-4 text-red-300 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-red-300 text-xs font-one">{error}</p>
+          <div>
+            <label htmlFor="blocked-reason" className="mb-2 block text-sm font-semibold text-white">Motif <span className="ml-1 font-normal text-white/45">(facultatif)</span></label>
+            <textarea id="blocked-reason" {...form.register("reason")} rows={2} placeholder="Ajoutez une précision utile à votre équipe…" className={`${inputClass} resize-y placeholder:text-white/35`} />
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="mr-1 text-xs text-white/50">Suggestions :</span>
+              {["Congés", "Formation", "Maladie", "Pause déjeuner"].map(reason => <button key={reason} type="button" aria-pressed={values.reason === reason} onClick={() => form.setValue("reason", reason, { shouldDirty: true })} className={`cursor-pointer rounded-lg border px-3 py-1.5 text-xs transition-colors ${values.reason === reason ? "border-tertiary-400/30 bg-tertiary-400/10 text-tertiary-400" : "border-white/10 text-white/60 hover:bg-white/5 hover:text-white"}`}>{reason}</button>)}
             </div>
-          )}
-          {/* Footer */}
-          <div className=" flex justify-end gap-2 pt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="cursor-pointer rounded-[14px] border border-white/20 bg-white/10 px-4 py-2 text-xs text-white transition-colors hover:bg-white/20 font-medium font-one disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              onClick={form.handleSubmit(onSubmit)}
-              className="cursor-pointer rounded-[14px] px-5 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs flex items-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white" />
-                  <span>Blocage...</span>
-                </>
-              ) : (
-                <span>Bloquer le créneau</span>
-              )}
-            </button>
           </div>
-        </form>
-      </div>
-    </div>
+        </fieldset>
+        {error && <div role="alert" className="mx-5 mb-5 rounded-xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-200 sm:mx-6">{error}</div>}
+        <footer className="flex flex-col-reverse gap-3 border-t border-white/10 bg-white/[0.02] p-5 sm:flex-row sm:justify-end sm:p-6">
+          <DashboardButton className="!min-h-0" variant="secondary" onClick={onClose} disabled={loading}>Annuler</DashboardButton>
+          <DashboardButton className="!min-h-0" type="submit" disabled={loading}>
+            {loading ? <LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> : <LockKeyhole size={16} aria-hidden="true" />}
+            {loading ? "Blocage en cours…" : "Bloquer le créneau"}
+          </DashboardButton>
+        </footer>
+      </form>
+    </section>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { CalendarOff, ChevronDown, Clock3, Pencil } from "lucide-react";
 import BlockedSlots from "./BlockedSlots";
 import DashboardButton from "@/components/Shared/DashboardButton";
 
@@ -60,84 +61,64 @@ export default function Horaire({ hours, salonId }: HoraireProps) {
     }
   }, [salonId]);
 
-  const salonHoursState: SalonHours | null = hours
-    ? JSON.parse(hours)
-    : {
-        monday: { start: "", end: "" },
-        tuesday: { start: "", end: "" },
-        wednesday: { start: "", end: "" },
-        thursday: { start: "", end: "" },
-        friday: { start: "", end: "" },
-        saturday: { start: "", end: "" },
-        sunday: null,
-      };
+  let salonHoursState: SalonHours | null = null;
+  try {
+    salonHoursState = hours ? JSON.parse(hours) : null;
+  } catch {
+    // Keep configuration available when the saved schedule is invalid.
+  }
+  const hasHours = !!salonHoursState && Object.keys(salonHoursState).length > 0;
 
-  const hasHours = salonHoursState && Object.keys(salonHoursState).length > 0;
+  const openDays = daysOfWeek.filter(({ key }) => {
+    const day = salonHoursState?.[key as keyof SalonHours];
+    return day?.start && day?.end;
+  }).length;
 
   return (
-    <div className="space-y-4">
-      {/* Horaires */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between pb-1">
-          <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">Planning hebdomadaire</p>
-          <DashboardButton
-            href="/mon-compte/horaires"
-            className="min-w-0 px-3 py-1.5 text-xs"
-          >
-            {hasHours ? "Modifier" : "Configurer"}
-          </DashboardButton>
+    <div className="space-y-5 font-one">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-tertiary-400/10 text-tertiary-400"><Clock3 size={20} aria-hidden="true" /></span>
+          <div>
+            <h3 className="text-base font-semibold text-white">Votre semaine type</h3>
+            <p className="mt-1 text-sm text-white/60">{hasHours ? `${openDays} jour${openDays > 1 ? "s" : ""} d’ouverture par semaine` : "Définissez vos horaires pour informer vos clients."}</p>
+          </div>
         </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
-          {daysOfWeek.map((day) => {
-            const dayHours = salonHoursState?.[day.key as keyof SalonHours];
-            const isOpen = !!dayHours && dayHours.start && dayHours.end;
-            return (
-              <div
-                key={day.key}
-                className={`rounded-xl px-3 py-2 border flex flex-col gap-0.5 ${
-                  isOpen
-                    ? "bg-green-500/8 border-green-500/20"
-                    : "bg-white/4 border-white/8"
-                }`}
-              >
-                <span className="text-white/60 font-one text-[10px] uppercase tracking-wider">
-                  {day.label.slice(0, 3)}
-                </span>
-                {isOpen ? (
-                  <span className="text-white font-one text-xs">
-                    {dayHours!.start} – {dayHours!.end}
-                  </span>
-                ) : (
-                  <span className="text-white/30 font-one text-xs">Fermé</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <DashboardButton href="/mon-compte/horaires" variant="secondary">
+          <Pencil size={15} aria-hidden="true" />{hasHours ? "Modifier les horaires" : "Configurer les horaires"}
+        </DashboardButton>
       </div>
 
-      <div className="h-px w-full bg-white/8" />
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7">
+        {daysOfWeek.map(day => {
+          const dayHours = salonHoursState?.[day.key as keyof SalonHours];
+          const isOpen = Boolean(dayHours?.start && dayHours?.end);
+          return (
+            <div key={day.key} className={`flex items-center justify-between gap-3 rounded-2xl border p-4 sm:flex-col sm:items-stretch ${isOpen ? "border-white/12 bg-white/[0.04]" : "border-white/8 bg-black/10"}`}>
+              <div>
+                <p className="text-sm font-semibold text-white">{day.label}</p>
+                <p className={`mt-2 flex items-center gap-1.5 text-xs ${isOpen ? "text-emerald-300" : "text-white/50"}`}>
+                  <span aria-hidden="true" className={`size-1.5 rounded-full ${isOpen ? "bg-emerald-400" : "bg-white/25"}`} />
+                  {isOpen ? "Ouvert" : hasHours ? "Fermé" : "À renseigner"}
+                </p>
+              </div>
+              <div className="text-right sm:mt-2 sm:border-t sm:border-white/8 sm:pt-4 sm:text-left">
+                {isOpen ? <p className="whitespace-nowrap text-base tabular-nums text-white">{dayHours!.start}<span className="mx-1 text-white/35">–</span>{dayHours!.end}</p> : <p className="text-sm text-white/40">{hasHours ? "Pas d’ouverture" : "Non configuré"}</p>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
-      {/* Créneaux bloqués */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-white/80 font-one text-[12px] uppercase tracking-wider">Créneaux bloqués</p>
-            <p className="text-white/40 font-two text-[11px] mt-0.5">Indisponibilités et congés</p>
-          </div>
-          <button
-            onClick={() => setIsBlockedSlotsVisible(!isBlockedSlotsVisible)}
-            className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-white/8 hover:bg-white/12 text-white/70 hover:text-white border border-white/12 rounded-[14px] transition-colors font-one text-xs"
-          >
-            {isBlockedSlotsVisible ? "Masquer" : "Afficher"}
-            <span className={`transition-transform duration-200 ${isBlockedSlotsVisible ? "rotate-180" : ""}`}>▾</span>
-          </button>
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
+        <button type="button" aria-expanded={isBlockedSlotsVisible} aria-controls="account-blocked-slots" onClick={() => setIsBlockedSlotsVisible(!isBlockedSlotsVisible)} className="flex w-full cursor-pointer items-center gap-3 p-4 text-left transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-tertiary-400 sm:p-5">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white/65"><CalendarOff size={20} aria-hidden="true" /></span>
+          <span className="flex-1"><span className="block text-base font-semibold text-white">Absences & créneaux bloqués</span><span className="mt-1 block text-sm text-white/55">Gérez les congés et les indisponibilités du salon ou des artistes.</span></span>
+          <ChevronDown size={19} aria-hidden="true" className={`shrink-0 text-white/60 transition-transform ${isBlockedSlotsVisible ? "rotate-180" : ""}`} />
+        </button>
+        <div id="account-blocked-slots" hidden={!isBlockedSlotsVisible}>
+          {isBlockedSlotsVisible && <div className="border-t border-white/10 p-4 sm:p-5"><BlockedSlots userId={salonId} tatoueurs={tatoueurs} /></div>}
         </div>
-
-        {isBlockedSlotsVisible && (
-          <BlockedSlots userId={salonId} tatoueurs={tatoueurs} />
-        )}
       </div>
     </div>
   );

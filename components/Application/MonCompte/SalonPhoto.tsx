@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import DashboardButton from "@/components/Shared/DashboardButton";
+import { ImagePlus, Images, Plus, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
 import SalonGalleryUploader from "./SalonGalleryUploader";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
@@ -17,6 +20,9 @@ export default function SalonPhoto() {
   const user = useUser();
   const salonId = user?.id;
 
+  const [showUploader, setShowUploader] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [images, setImages] = useState<SalonImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
@@ -53,6 +59,7 @@ export default function SalonPhoto() {
   //! Récupérer les images du salon
   const fetchImages = useCallback(async () => {
     if (!salonId) return;
+    setLoadError(false);
 
     try {
       const response = await fetchSalonPhotosAction(salonId);
@@ -74,11 +81,11 @@ export default function SalonPhoto() {
           setImages([]);
         }
       } else {
-        setImages([]);
+        setLoadError(true);
       }
     } catch (error) {
       console.error("Erreur lors de la récupération des images:", error);
-      setImages([]);
+      setLoadError(true);
     } finally {
       setIsLoading(false);
     }
@@ -105,8 +112,10 @@ export default function SalonPhoto() {
 
       // Rafraîchir la liste des images
       await fetchImages();
+      toast.success("Photos ajoutées à la galerie.");
     } catch (error) {
       console.error("Erreur lors de l'ajout des images:", error);
+      toast.error("Impossible d’enregistrer les photos.");
     }
   };
 
@@ -140,6 +149,8 @@ export default function SalonPhoto() {
 
   //! Supprimer une image
   const handleImageDelete = async (imageId: string) => {
+    if (isDeleting) return;
+    setIsDeleting(true);
     try {
       const imageToDelete = images.find((img) => img.id === imageId);
       if (imageToDelete) {
@@ -155,23 +166,26 @@ export default function SalonPhoto() {
 
       // Mettre à jour le state local
       setImages(updatedImages);
+      setIsDeleteModalOpen(false);
+      setSelectedImageId(null);
+      toast.success("Photo supprimée.");
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
+      toast.error("Impossible de supprimer cette photo. Réessayez.");
+    } finally {
+      setIsDeleting(false);
     }
-
-    setIsDeleteModalOpen(false);
-    setSelectedImageId(null);
   };
 
   if (isLoading) {
     return (
-      <div className="w-full flex flex-col gap-3">
+      <div className="w-full flex flex-col gap-5 font-one">
         {/* Header skeleton */}
         <div className="rounded-2xl bg-noir-700/6 p-3">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
-                Galerie photos
+                Votre sélection
               </p>
               <div className="h-5 w-32 rounded-lg bg-white/8 animate-pulse" />
             </div>
@@ -179,7 +193,7 @@ export default function SalonPhoto() {
           </div>
         </div>
         {/* Grid skeleton */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
@@ -193,100 +207,68 @@ export default function SalonPhoto() {
 
   return (
     <div className="w-full flex flex-col gap-3">
-      {/* Header */}
-      <div className="rounded-2xl bg-noir-700/6 p-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
-              Galerie photos
-            </p>
-            <div className="flex items-end gap-2">
-              <h3 className="text-white font-one text-base font-semibold leading-tight">
-                {images.length} / 6 photos
-              </h3>
-              <p className="text-white/55 font-two text-xs">
-                {6 - images.length} emplacement{6 - images.length > 1 ? "s" : ""} disponible{6 - images.length > 1 ? "s" : ""}
-              </p>
-            </div>
-          </div>
-
-          {/* Barre de progression compacte */}
-          <div className="hidden sm:flex items-center gap-2">
-            <div className="flex gap-1">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 w-6 rounded-full transition-colors ${
-                    i < images.length
-                      ? "bg-tertiary-400"
-                      : "bg-white/15"
-                  }`}
-                />
-              ))}
-            </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="flex size-11 items-center justify-center rounded-2xl bg-tertiary-400/10 text-tertiary-400"><Images size={21} aria-hidden="true" /></span>
+          <div>
+            <h3 className="text-base font-semibold text-white">Votre sélection <span className="ml-2 text-sm font-normal text-white/50">{images.length} / 6</span></h3>
+            <p className="mt-1 text-sm text-white/55">{images.length === 6 ? "Votre galerie est complète." : `${6 - images.length} emplacement${images.length < 5 ? "s" : ""} disponible${images.length < 5 ? "s" : ""}`}</p>
           </div>
         </div>
+        {!loadError && images.length < 6 && images.length > 0 && (
+          <DashboardButton className="!min-h-0" onClick={() => setShowUploader(value => !value)} variant={showUploader ? "secondary" : "primary"}>
+            {showUploader ? <X size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}{showUploader ? "Fermer l’ajout" : "Ajouter des photos"}
+          </DashboardButton>
+        )}
       </div>
 
-      {/* Zone d'ajout */}
-      {images.length < 6 && (
-        <div className="rounded-2xl border border-dashed border-white/15 bg-white/3 p-3 sm:p-4">
-          <p className="text-white/50 font-one text-[10px] uppercase tracking-wider mb-2.5">
-            Ajouter des photos
-          </p>
-          <SalonGalleryUploader
-            onImagesUploaded={handleMultipleImagesUploaded}
-            maxImages={6}
-            currentImageCount={images.length}
-          />
+      {loadError && <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4"><p className="text-sm text-amber-200">Impossible de charger la galerie.</p><DashboardButton className="!min-h-0" variant="secondary" onClick={fetchImages}>Réessayer</DashboardButton></div>}
+
+      {!loadError && images.length < 6 && (showUploader || images.length === 0) && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
+          <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-white"><ImagePlus size={17} className="text-tertiary-400" aria-hidden="true" />{images.length ? "Enrichissez votre galerie" : "Ajoutez vos premières photos"}</h4>
+          <p className="mb-4 text-sm leading-6 text-white/55">Montrez l’ambiance, les espaces et les détails qui rendent votre salon unique.</p>
+          <SalonGalleryUploader onImagesUploaded={handleMultipleImagesUploaded} maxImages={6} currentImageCount={images.length} />
         </div>
       )}
 
       {/* Galerie */}
       {images.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {images.map((image, index) => (
             <div
               key={image.id}
-              className="relative rounded-xl overflow-hidden border border-white/10 bg-white/5 group"
+              className="relative rounded-2xl overflow-hidden border border-white/10 bg-white/[0.025] group"
             >
-              <div className="aspect-square relative">
+              <div className="aspect-[4/3] relative">
                 <Image
                   src={image.url}
                   alt={`Photo du salon ${index + 1}`}
                   fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw" className="object-cover transition-transform duration-300 motion-safe:group-hover:scale-105"
                 />
                 {/* Overlay suppression */}
-                <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2">
+                <div className="absolute bottom-3 right-3">
                   <button
                     onClick={() => {
                       setSelectedImageId(image.id);
                       setIsDeleteModalOpen(true);
                     }}
-                    className="cursor-pointer rounded-[14px] border border-red-500/50 bg-red-500/80 hover:bg-red-500 text-white px-3 py-1.5 text-[11px] font-one transition-colors"
+                    aria-label={`Supprimer la photo ${index + 1}`}
+                    className="inline-flex items-center gap-1.5 cursor-pointer rounded-lg border border-white/15 bg-black/55 backdrop-blur-sm text-white/80 hover:bg-red-500/80 px-3 py-1.5 text-xs transition-colors"
                   >
-                    Supprimer
+                    <Trash2 size={13} aria-hidden="true" />Supprimer
                   </button>
                 </div>
               </div>
               {/* Badge numéro */}
-              <div className="absolute top-1.5 left-1.5 rounded-[8px] bg-black/50 px-1.5 py-0.5 text-[10px] text-white/70 font-one">
+              <div className="absolute top-3 left-3 rounded-lg bg-black/50 px-2 py-1 text-xs text-white/80 font-one">
                 {index + 1}
               </div>
             </div>
           ))}
         </div>
-      ) : (
-        <div className="rounded-2xl border border-white/10 bg-white/4 p-6 text-center">
-          <p className="text-white font-one text-base font-semibold">
-            Aucune photo ajoutée
-          </p>
-          <p className="text-white/60 font-two text-sm mt-1.5">
-            Ajoutez jusqu&apos;à 6 photos pour mettre en valeur votre salon.
-          </p>
-        </div>
-      )}
+      ) : null}
 
       {/* Modale de suppression */}
       {isDeleteModalOpen && selectedImageId && (
@@ -317,20 +299,22 @@ export default function SalonPhoto() {
             </div>
 
             <div className="dashboard-embedded-footer p-4 border-t border-white/10 flex justify-end gap-2">
-              <button
+              <DashboardButton className="!min-h-0"
+                variant="secondary"
+                disabled={isDeleting}
                 onClick={() => {
                   setIsDeleteModalOpen(false);
                   setSelectedImageId(null);
                 }}
-                className="cursor-pointer rounded-[14px] border border-white/20 bg-white/10 px-4 py-2 text-xs text-white transition-colors hover:bg-white/20 font-one"
               >
                 Annuler
-              </button>
+              </DashboardButton>
               <button
+                disabled={isDeleting}
                 onClick={() => handleImageDelete(selectedImageId)}
                 className="cursor-pointer rounded-[14px] bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 px-4 py-2 text-xs text-white transition-all duration-300 font-one"
               >
-                Supprimer
+                {isDeleting ? "Suppression…" : "Supprimer"}
               </button>
             </div>
           </div>

@@ -191,7 +191,7 @@ export default function SalonGalleryUploader({
               disabled={isUploading}
               className="cursor-pointer flex-1 py-1.5 px-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 disabled:from-tertiary-400/50 disabled:to-tertiary-500/50 text-white rounded-md transition-all duration-300 font-one text-xs disabled:cursor-not-allowed"
             >
-              {isUploading ? "Upload..." : "Confirmer"}
+              {isUploading ? "Envoi en cours…" : "Confirmer"}
             </button>
           </div>
         </div>
@@ -201,7 +201,7 @@ export default function SalonGalleryUploader({
       {previewImages.length === 0 && (
         <>
           <div
-            className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-colors min-h-[100px] flex items-center justify-center ${
+            className={`relative border border-dashed rounded-2xl p-6 text-center transition-colors min-h-[180px] flex items-center justify-center ${
               isDragOver
                 ? "border-tertiary-400 bg-tertiary-400/10"
                 : "border-white/30 bg-white/5"
@@ -211,6 +211,7 @@ export default function SalonGalleryUploader({
             onDrop={handleDrop}
           >
             <input
+              aria-label="Ajouter des photos du salon"
               type="file"
               accept="image/*"
               multiple
@@ -227,7 +228,7 @@ export default function SalonGalleryUploader({
                 {isUploading ? (
                   <div className="space-y-1">
                     <div className="text-xs font-medium">
-                      Upload... {progress}%
+                      Envoi en cours… {progress}%
                     </div>
                     <div className="w-32 bg-white/20 rounded-full h-1 mx-auto">
                       <div
@@ -308,7 +309,7 @@ export default function SalonGalleryUploader({
         <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
           <div className="space-y-1">
             <div className="text-xs font-medium text-white">
-              Upload... {progress}%
+              Envoi en cours… {progress}%
             </div>
             <div className="w-full bg-white/20 rounded-full h-1">
               <div
