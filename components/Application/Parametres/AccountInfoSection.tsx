@@ -1,7 +1,10 @@
 "use client";
 
+import DashboardButton from "@/components/Shared/DashboardButton";
+import styles from "./SettingsCard.module.css";
+
 import { CiUser } from "react-icons/ci";
-import { getUserParamAction } from "@/lib/queries/user"; 
+import { getUserParamAction } from "@/lib/queries/user";
 import { useEffect, useState } from "react";
 
 type SectionKeys =
@@ -30,33 +33,42 @@ export default function AccountInfoSection({
 }: AccountInfoSectionProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
-  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
   useEffect(() => {
+    let cancelled = false;
     const fetchUserData = async () => {
-      if (userId) {
-        const userData = await getUserParamAction(userId);
-        console.log("Fetched user data:", userData); // Log the fetched user data for debugging
-        setUser(userData.data);
-      }
+      if (!userId) { setLoading(false); return; }
+      setLoading(true);
+      setError(false);
+      try {
+        const result = await getUserParamAction(userId);
+        if (!cancelled) { setUser(result.data); setError(!result.data); }
+      } catch { if (!cancelled) setError(true); }
+      finally { if (!cancelled) setLoading(false); }
     };
-    fetchUserData();
+    void fetchUserData();
+    return () => { cancelled = true; };
   }, [userId]);
 
   return (
-    <div className="dashboard-embedded-panel rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
-      <button
-        onClick={() => toggleSection("account")}
-        className="w-full flex items-center justify-between"
+    <div className={styles.card}>
+      <DashboardButton variant="secondary"
+        aria-expanded={openSections.account}
+          aria-controls="settings-account-content"
+          onClick={() => toggleSection("account")}
+        className="w-full min-w-0! justify-between! border-0! bg-transparent! p-0! text-left hover:translate-y-0!"
       >
         <div className="flex items-center gap-2.5 min-w-0 text-left">
-          <div className="w-9 h-9 rounded-xl border border-tertiary-400/25 bg-tertiary-400/15 flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl border border-tertiary-400/25 bg-tertiary-400/15 flex items-center justify-center shrink-0">
             <CiUser className="w-5 h-5 text-tertiary-500" />
           </div>
           <div className="min-w-0">
-            <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
+            <p className="text-white/50 font-one text-[11px] uppercase tracking-wider">
               Profil
             </p>
-            <h2 className="text-white font-one text-sm sm:text-base font-semibold truncate">
+            <h2 className="text-white font-one text-base font-semibold">
               Informations du compte
             </h2>
           </div>
@@ -67,29 +79,29 @@ export default function AccountInfoSection({
             {openSections.account ? "−" : "+"}
           </span>
         </div>
-      </button>
+      </DashboardButton>
 
       {openSections.account && (
-        <div className="pt-3 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
-              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
+        <div id="settings-account-content" className="pt-5 space-y-5">
+          {loading ? <div role="status" className="animate-pulse rounded-2xl bg-white/5 p-6 text-sm text-white/60">Chargement de votre profil…</div> : error ? <p role="alert" className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-300">Impossible de charger votre profil. Rechargez la page pour réessayer.</p> : <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-white/8 bg-black/10 px-4 py-3">
+              <p className="text-white/55 font-one text-[11px] uppercase tracking-wider mb-1">
                 Nom du salon
               </p>
               <p className="text-white font-one text-sm sm:text-base break-words">
                 {user?.salonName || "Nom non défini"}
               </p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
-              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
+            <div className="rounded-2xl border border-white/8 bg-black/10 px-4 py-3">
+              <p className="text-white/55 font-one text-[11px] uppercase tracking-wider mb-1">
                 Nom et prénom
               </p>
               <p className="text-white font-one text-sm sm:text-base break-words">
                 {user?.lastName || "Nom non défini"} {user?.firstName || "Prénom non défini"}
               </p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
-              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
+            <div className="rounded-2xl border border-white/8 bg-black/10 px-4 py-3">
+              <p className="text-white/55 font-one text-[11px] uppercase tracking-wider mb-1">
                 Email
               </p>
               <p className="text-white font-one text-sm sm:text-base break-words">
@@ -97,8 +109,8 @@ export default function AccountInfoSection({
               </p>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
-              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
+            <div className="rounded-2xl border border-white/8 bg-black/10 px-4 py-3">
+              <p className="text-white/55 font-one text-[11px] uppercase tracking-wider mb-1">
                 Téléphone
               </p>
               <p className="text-white font-one text-sm break-words">
@@ -106,8 +118,8 @@ export default function AccountInfoSection({
               </p>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
-              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
+            <div className="rounded-2xl border border-white/8 bg-black/10 px-4 py-3">
+              <p className="text-white/55 font-one text-[11px] uppercase tracking-wider mb-1">
                 Adresse
               </p>
               <p className="text-white font-one text-sm break-words">
@@ -115,15 +127,15 @@ export default function AccountInfoSection({
               </p>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/3 px-3 py-2.5">
-              <p className="text-white/45 font-one text-[10px] uppercase tracking-wider mb-1">
+            <div className="rounded-2xl border border-white/8 bg-black/10 px-4 py-3">
+              <p className="text-white/55 font-one text-[11px] uppercase tracking-wider mb-1">
                 Plan
               </p>
               <p className="text-white font-one text-sm break-words">
                 {user?.saasPlan || "Non renseigné"}
               </p>
             </div>
-          </div>
+          </div>}
 
           <div className="rounded-[10px] border border-white/8 bg-white/2 px-3 py-2">
             <p className="text-[11px] font-two text-white/55">

@@ -12,24 +12,24 @@ import BillingHistorySection from "@/components/Application/Parametres/BillingHi
 import SubscriptionSection from "@/components/Application/Parametres/SubscriptionSection";
 import SecuritySection from "@/components/Application/Parametres/SecuritySection";
 import VerificationDocumentsSection from "@/components/Application/Parametres/VerificationDocumentsSection";
-// import { MdOutlinePalette } from "react-icons/md";
 import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
 import NotifChatPreference from "@/components/Application/Parametres/NotifChatPreference";
 import InspirationSalonSetting from "@/components/Application/Parametres/InspirationSalonSetting";
 import PageHeader from "@/components/Shared/PageHeader";
 
+import { SettingsGroup, SettingsNavigation } from "@/components/Application/Parametres/SettingsLayout";
+
 export default function ParamPage() {
   const { data: session } = useSession();
   const [billingRefreshKey, setBillingRefreshKey] = useState(0);
 
-  console.log("Session data in ParamPage:", session); // Log the session data for debugging
 
   // États pour les sections dépliantes
   const [openSections, setOpenSections] = useState({
     account: true,
     subscription: true,
     notifications: false,
-    security: false,
+    security: true,
     preferences: false,
   });
 
@@ -41,111 +41,43 @@ export default function ParamPage() {
   };
 
   return (
-    <div className="wrapper-global px-3 sm:px-4 lg:px-6 pb-24 lg:pb-10">
-      <section className="w-full space-y-3 pt-4">
-        <PageHeader
-          icon={<CiSettings size={20} className="text-tertiary-400" />}
-          title="Paramètres du compte"
-        />
-
-        <div className="space-y-6">
-          {/* Section Informations du compte responsive */}
-          <AccountInfoSection
-            userId={session?.user?.id || null}
-            openSections={openSections}
-            toggleSection={toggleSection}
-          />
-
-          <VerificationDocumentsSection />
-
-          <div  className={`grid grid-cols-1 gap-6 ${session?.user?.role === "user_tatoueur"? "xl:grid-cols-3" : "xl:grid-cols-2"}`}>
-            {session?.user?.role === "user_tatoueur" && (
-              <AppointmentModeSetting
-                userId={session?.user?.id || null}
-                saasPlan={session?.user?.saasPlan || null}
-              />
-            )}
-
-            <AppointmentConfirmationSetting
-              userId={session?.user?.id || null}
-            />
-
-            <InspirationSalonSetting userId={session?.user?.id || null} />
-          </div>
-
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <NotifChatPreference />
-          <ColorProfile />
-          </div>
-
-          <SubscriptionSection
-            openSections={openSections}
-            toggleSection={toggleSection}
-            userId={session?.user?.id || null}
-            onBillingRefresh={() =>
-              setBillingRefreshKey((currentKey) => currentKey + 1)
-            }
-          />
-
-          <BillingHistorySection
-            userId={session?.user?.id || null}
-            refreshKey={billingRefreshKey}
-          />
-
-          <SecuritySection
-            openSections={openSections}
-            toggleSection={toggleSection}
-          />
-
-          {/* Section Préférences responsive */}
-          {/* <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
-            <button
-              onClick={() => toggleSection("preferences")}
-              className="w-full flex items-center justify-between mb-3 sm:mb-4"
-            >
-              <h2 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl text-white font-one">
-                <MdOutlinePalette
-                  size={20}
-                  className="sm:w-6 sm:h-6 text-tertiary-400"
-                />
-                Préférences
-              </h2>
-              <div className="text-white/50">
-                {openSections.preferences ? "−" : "+"}
-              </div>
-            </button>
-
-            {openSections.preferences && (
-              <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-                  <h3 className="text-white font-one mb-2 text-sm sm:text-base">
-                    <span className="hidden sm:inline">Fuseau horaire</span>
-                    <span className="sm:hidden">Fuseau</span>
-                  </h3>
-                  <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors">
-                    <option value="Europe/Paris">Europe/Paris (UTC+1)</option>
-                    <option value="Europe/London">Europe/London (UTC+0)</option>
-                    <option value="America/New_York">
-                      America/New_York (UTC-5)
-                    </option>
-                  </select>
-                </div>
-
-                <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10">
-                  <h3 className="text-white font-one mb-2 text-sm sm:text-base">
-                    Langue
-                  </h3>
-                  <select className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors">
-                    <option value="fr">Français</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                  </select>
-                </div>
-              </div>
-            )}
-          </div> */}
+    <div className="min-h-screen bg-noir-700 gap-4 px-3 pb-24 sm:px-4 lg:px-10 lg:pb-10">
+      <div className="space-y-6 pt-4">
+        <div>
+          <PageHeader icon={<CiSettings size={20} className="text-tertiary-400" />} title="Paramètres" />
+          <p className="mt-2 text-sm text-white/55">Personnalisez votre espace et gérez votre compte au même endroit.</p>
         </div>
-      </section>
+        <div className="grid items-start gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8">
+          <SettingsNavigation />
+          <div className="min-w-0 space-y-10">
+            <SettingsGroup id="compte" title="Compte et documents" description="Vos informations professionnelles et les documents de vérification de votre compte.">
+              <AccountInfoSection userId={session?.user?.id || null} openSections={openSections} toggleSection={toggleSection} />
+              <VerificationDocumentsSection />
+            </SettingsGroup>
+            <SettingsGroup id="rendez-vous" title="Rendez-vous" description="Choisissez comment les rendez-vous sont confirmés et qui peut accéder à votre agenda.">
+              <AppointmentConfirmationSetting userId={session?.user?.id || null} />
+              {session?.user?.role === "user_tatoueur" && (
+                <AppointmentModeSetting userId={session.user.id || null} saasPlan={session.user.saasPlan || null} />
+              )}
+            </SettingsGroup>
+            <SettingsGroup id="preferences" title="Préférences" description="Adaptez les notifications, les couleurs et la visibilité de votre portfolio.">
+              <div className="grid items-start gap-4 2xl:grid-cols-2">
+                <NotifChatPreference />
+                <ColorProfile />
+              </div>
+              <InspirationSalonSetting userId={session?.user?.id || null} />
+            </SettingsGroup>
+            <SettingsGroup id="facturation" title="Abonnement et factures" description="Retrouvez votre offre, vos paiements et vos justificatifs de facturation.">
+              <SubscriptionSection openSections={openSections} toggleSection={toggleSection} userId={session?.user?.id || null}
+                onBillingRefresh={() => setBillingRefreshKey((currentKey) => currentKey + 1)} />
+              <BillingHistorySection userId={session?.user?.id || null} refreshKey={billingRefreshKey} />
+            </SettingsGroup>
+            <SettingsGroup id="securite" title="Sécurité" description="Gérez le mot de passe utilisé pour vous connecter à votre compte.">
+              <SecuritySection openSections={openSections} toggleSection={toggleSection} />
+            </SettingsGroup>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

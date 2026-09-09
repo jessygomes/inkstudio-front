@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 import React, {
   useEffect,
@@ -15,15 +14,15 @@ import {
   getConversationByIdAction,
 } from "@/lib/queries/conversation.action";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+import ConversationHeader from "./ConversationHeader";
 import ConversationRDVDetails from "./ConversationRDVDetails";
 import MessageBubbles from "./MessageBubbles";
 import MessageInput from "./MessageInput";
 import ConversationRDVModal from "./ConversationRDVModal";
 import ConversationSkeleton from "@/components/Skeleton/ConversationSkeleton";
 import { useMessaging } from "@/lib/hook/useMessaging";
-import ArchiveBtn from "./ArchiveBtn";
-import DeleteConversationBtn from "./DeleteConversationBtn";
+
+
 
 export default function Conversation() {
   const params = useParams();
@@ -267,244 +266,24 @@ export default function Conversation() {
 
   return (
     <>
-      {/* Version Mobile */}
-      <div
-        className="lg:hidden dashboard-embedded-panel w-full flex flex-col p-3"
-        style={{ height: "calc(100dvh - 7rem)" }}
-      >
-        {/* Header */}
-        <div className="dashboard-embedded-header flex-shrink-0 flex flex-col gap-2 p-3 rounded-xl border border-white/10">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="relative flex-shrink-0">
-              <Image
-                src={otherUser?.image || "/images/default-avatar.png"}
-                width={40}
-                height={40}
-                alt={
-                  otherUser?.salonName ||
-                  `${otherUser?.firstName} ${otherUser?.lastName}`
-                }
-                className="w-10 h-10 rounded-full object-cover border border-tertiary-400/30"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-sm font-bold text-white font-one truncate">
-                {otherUser?.salonName ||
-                  `${otherUser?.firstName} ${otherUser?.lastName}`}
-              </h1>
-              <p className="text-white/60 text-xs font-one truncate">
-                {conversation.subject}
-              </p>
-            </div>
+      <div className="grid h-[calc(100dvh-7rem)] min-h-0 w-full gap-4 lg:h-[calc(100dvh-100px)] lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <section aria-label="Conversation" className="dashboard-embedded-panel flex min-h-0 min-w-0 flex-col overflow-hidden rounded-3xl">
+          <ConversationHeader conversation={conversation} otherUser={otherUser} isConnected={isConnected}
+            onShowDetails={() => setShowRDVDetails(true)}
+            onStatusChange={(status) => setConversation((current) => current ? { ...current, status } : current)} />
+          <div ref={messagesContainerRef} role="log" aria-label="Messages"
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-6">
+            <MessageBubbles messages={displayedMessages} currentUserId={session?.user?.id ?? undefined} onDeleteMessage={handleDeleteMessage} />
+            {typingUsers.size > 0 && <p role="status" className="mt-4 text-xs text-white/60">Quelqu’un est en train d’écrire…</p>}
           </div>
-
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span
-              className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                conversation.status === "ACTIVE"
-                  ? "bg-green-900/40 text-green-300"
-                  : conversation.status === "ARCHIVED"
-                  ? "bg-yellow-900/40 text-yellow-300"
-                  : "bg-red-900/40 text-red-300"
-              }`}
-            >
-              {conversation.status}
-            </span>
-
-            <span
-              className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium ${
-                isConnected
-                  ? "bg-green-900/40 text-green-300"
-                  : "bg-red-900/40 text-red-300"
-              }`}
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  isConnected ? "bg-green-300" : "bg-red-400"
-                } animate-pulse`}
-              />
-              {isConnected ? "Connecté" : "Déconnecté"}
-            </span>
-
-            <ArchiveBtn
-              conversationId={conversation.id}
-              status={conversation.status}
-            />
-
-            <DeleteConversationBtn conversationId={conversation.id} />
-
-            {/* Bouton pour voir les détails RDV (mobile uniquement) */}
-            {conversation.appointmentId && (
-              <button
-                onClick={() => setShowRDVDetails(true)}
-                className="lg:hidden cursor-pointer p-2 bg-tertiary-500/20 hover:bg-tertiary-500/30 text-tertiary-400 rounded-lg transition-colors border border-tertiary-400/30"
-                title="Voir les détails du rendez-vous"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Messages List - Scrollable avec padding bas pour l'input fixe */}
-        <div
-          ref={messagesContainerRef}
-          className="dashboard-embedded-section flex-1 overflow-y-auto min-h-0 p-3 space-y-2 scrollbar-thin scrollbar-thumb-tertiary-500/30 scrollbar-track-transparent"
-        >
-          <MessageBubbles
-            messages={displayedMessages}
-            currentUserId={session?.user?.id ?? undefined}
-            onDeleteMessage={handleDeleteMessage}
-          />
-
-          {typingUsers.size > 0 && (
-            <div className="flex items-center gap-2 text-white/60 text-[11px] px-1">
-              <span>Quelqu'un est en train d'écrire...</span>
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce" />
-                <span className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce [animation-delay:0.15s]" />
-                <span className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce [animation-delay:0.3s]" />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Input Area Mobile */}
-        <MessageInput
-          onSendMessage={handleSendMessage}
-          onInputChange={handleInputChange}
-          disabled={!isConnected}
-          className="mt-3 flex-shrink-0 border-t border-white/10 bg-noir-800/95 backdrop-blur-md p-3 rounded-xl"
-        />
-      </div>
-
-      {/* Version Desktop */}
-      <div className="hidden lg:flex w-full flex-row gap-3 h-[calc(100vh-100px)]">
-        {/* Messages Section - Gauche */}
-        <div className="dashboard-embedded-panel w-3/5 flex flex-col gap-3 h-full p-3">
-          {/* Header */}
-          <div className="dashboard-embedded-header flex items-center justify-between p-3 rounded-xl border border-white/10">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="relative flex-shrink-0">
-                <Image
-                  src={otherUser?.image || "/images/default-avatar.png"}
-                  width={40}
-                  height={40}
-                  alt={
-                    otherUser?.salonName ||
-                    `${otherUser?.firstName} ${otherUser?.lastName}`
-                  }
-                  className="w-10 h-10 rounded-full object-cover border border-tertiary-400/30"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-sm font-bold text-white font-one truncate">
-                  {otherUser?.salonName ||
-                    `${otherUser?.firstName} ${otherUser?.lastName}`}
-                </h1>
-                <p className="text-white/60 text-xs font-one truncate">
-                  {conversation.subject}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <span
-                className={`inline-block px-2 py-1 rounded-2xl text-xs font-medium ${
-                  conversation.status === "ACTIVE"
-                    ? "bg-green-900/40 text-green-300"
-                    : conversation.status === "ARCHIVED"
-                    ? "bg-yellow-900/40 text-yellow-300"
-                    : "bg-red-900/40 text-red-300"
-                }`}
-              >
-                {conversation.status}
-              </span>
-
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded-2xl text-[11px] font-medium ${
-                  isConnected
-                    ? "bg-green-900/40 text-green-300"
-                    : "bg-red-900/40 text-red-300"
-                }`}
-              >
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    isConnected ? "bg-green-300" : "bg-red-400"
-                  } animate-pulse`}
-                />
-                {isConnected ? "Connecté" : "Déconnecté"}
-              </span>
-
-              <ArchiveBtn
-                conversationId={conversation.id}
-                status={conversation.status}
-              />
-
-              <DeleteConversationBtn conversationId={conversation.id} />
-            </div>
-          </div>
-
-          {/* Messages Container */}
-          <div className="dashboard-embedded-section border border-white/10 rounded-xl overflow-hidden flex flex-col flex-1 min-h-0">
-            {/* Messages List */}
-            <div
-              ref={messagesContainerRef}
-              className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-tertiary-500/30 scrollbar-track-transparent"
-            >
-              <MessageBubbles
-                messages={displayedMessages}
-                currentUserId={session?.user?.id ?? undefined}
-                onDeleteMessage={handleDeleteMessage}
-              />
-
-              {typingUsers.size > 0 && (
-                <div className="flex items-center gap-2 text-white/60 text-[11px] px-1">
-                  <span>Quelqu'un est en train d'écrire...</span>
-                  <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce" />
-                    <span className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce [animation-delay:0.15s]" />
-                    <span className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce [animation-delay:0.3s]" />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Input Area Desktop */}
-            <MessageInput
-              onSendMessage={handleSendMessage}
-              onInputChange={handleInputChange}
-              disabled={!isConnected}
-              className="flex-shrink-0 border-t border-white/10 bg-noir-800/95 backdrop-blur-sm p-2"
-            />
-          </div>
-        </div>
-
-        {/* RDV Details Section - Droite */}
-        <div className="w-3/5">
+          <MessageInput onSendMessage={handleSendMessage} onInputChange={handleInputChange} disabled={!isConnected}
+            className="shrink-0 border-t border-white/10 p-3 sm:p-4" />
+        </section>
+        <aside aria-label="Détails du rendez-vous" className="hidden min-h-0 min-w-0 lg:block">
           <ConversationRDVDetails conversation={conversation} />
-        </div>
+        </aside>
       </div>
-
-      {/* Modal RDV Details (Mobile uniquement) */}
-      {showRDVDetails && (
-        <ConversationRDVModal
-          conversation={conversation}
-          onClose={() => setShowRDVDetails(false)}
-        />
-      )}
+      {showRDVDetails && <ConversationRDVModal conversation={conversation} onClose={() => setShowRDVDetails(false)} />}
     </>
   );
 }

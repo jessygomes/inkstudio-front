@@ -1,6 +1,11 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
+import { Sparkles } from "lucide-react";
+import styles from "./SettingsCard.module.css";
+
+import SettingsSwitch from "./SettingsSwitch";
+
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -85,7 +90,7 @@ export default function InspirationSalonSetting({
   };
 
   return (
-    <div className="w-full bg-white/5 rounded-3xl p-3 sm:p-4 border border-white/10">
+    <div className={styles.card}>
       {loading ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-tertiary-400"></div>
@@ -95,15 +100,16 @@ export default function InspirationSalonSetting({
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-white font-one mb-1 text-sm sm:text-base">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10"><Sparkles className="h-5 w-5 text-tertiary-400" aria-hidden="true" /></div>
+              <h3 className="text-white font-one mb-1 text-base font-semibold">
                 <span className="hidden sm:inline">
                   Afficher mon salon dans les inspirations
                 </span>
                 <span className="sm:hidden">Salon en inspiration</span>
               </h3>
-              <p className="text-white/60 text-xs sm:text-sm font-one">
+              <p className="text-white/60 text-sm leading-relaxed font-one">
                 <span className="hidden sm:inline">
                   Si activé, les images de votre portfolio peuvent être affichées
                   sur la page inspiration de InkeraPeople.
@@ -113,20 +119,10 @@ export default function InspirationSalonSetting({
                 </span>
               </p>
             </div>
-            <label
-              className={`relative inline-flex items-center ${
-                updating ? "cursor-not-allowed" : "cursor-pointer"
-              }`}
-            >
-              <input
-                type="checkbox"
+            <SettingsSwitch label="Afficher mon salon dans les inspirations" busy={updating}
                 checked={isInspirationSalon}
                 onChange={handleInspirationToggle}
-                disabled={updating}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-disabled:opacity-50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
-            </label>
+               />
           </div>
 
           <div className="mt-3 pt-3 border-t border-white/10">
@@ -149,7 +145,7 @@ export default function InspirationSalonSetting({
                   <span className="text-white/60">
                     <span className="hidden sm:inline">
                       Votre salon n'apparaît pas dans les inspirations
-                      Inkera People. <br/> <br/> 
+                      Inkera People. <br/> <br/>
                     </span>
                     <span className="hidden sm:inline">
                       Activez cette option pour que vos images soient visibles par tous. Les salons affichés dans les inspirations bénéficient d'une meilleure visibilité et peuvent attirer plus de clients.

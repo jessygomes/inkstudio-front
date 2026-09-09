@@ -1,7 +1,10 @@
 "use client";
 
+import DashboardButton from "@/components/Shared/DashboardButton";
+import styles from "./SettingsCard.module.css";
+
 import { useCallback, useEffect, useState } from "react";
-import { CiCreditCard1 } from "react-icons/ci";
+import { CreditCard, Download, ExternalLink, ReceiptText } from "lucide-react";
 import { toast } from "sonner";
 import {
   getInvoicesAction,
@@ -189,16 +192,13 @@ export default function BillingHistorySection({
   };
 
   return (
-    <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
+    <div className={styles.card}>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <CiCreditCard1
-              size={20}
-              className="sm:w-6 sm:h-6 text-tertiary-400"
-            />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10"><ReceiptText className="h-5 w-5 text-tertiary-400" /></div>
             <div>
-              <h2 className="text-lg sm:text-xl text-white font-one">
+              <h2 className="text-base font-semibold text-white font-one">
                 Historique de facturation
               </h2>
               <p className="text-white/60 font-one text-xs sm:text-sm mt-1">
@@ -208,13 +208,14 @@ export default function BillingHistorySection({
             </div>
           </div>
 
-          <button
+          <DashboardButton variant="secondary"
             onClick={handleOpenPortal}
             disabled={isOpeningPortal || !userId}
-            className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-3xl border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="min-w-0! cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-3xl border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isOpeningPortal ? "Ouverture..." : "Ouvrir le portail Stripe"}
-          </button>
+            <CreditCard className="h-4 w-4" />
+            {isOpeningPortal ? "Ouverture..." : "Gérer mes paiements"}
+          </DashboardButton>
         </div>
 
         {isInvoicesLoading ? (
@@ -227,65 +228,40 @@ export default function BillingHistorySection({
         ) : invoicesError ? (
           <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 space-y-3">
             <p className="text-red-300 text-sm font-one">{invoicesError}</p>
-            <button
+            <DashboardButton variant="secondary"
               onClick={() => fetchInvoices(currentPage)}
-              className="cursor-pointer px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-200 rounded-2xl border border-red-500/20 transition-colors font-medium font-one text-xs"
+              className="min-w-0! cursor-pointer px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-200 rounded-2xl border border-red-500/20 transition-colors font-medium font-one text-xs"
             >
               Réessayer
-            </button>
+            </DashboardButton>
           </div>
         ) : invoices.length > 0 ? (
           <div className="space-y-3">
-            {invoices.map((invoice) => (
-              <div
-                key={invoice.id}
-                className="rounded-2xl border border-white/10 bg-noir-500/30 p-4"
-              >
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-white font-one font-semibold text-sm">
-                        {formatInvoiceAmount(invoice)}
-                      </span>
-                      <span
-                        className={`px-2 py-1 rounded-full text-[11px] font-one ${getInvoiceStatusClassName(invoice.status)}`}
-                      >
-                        {getInvoiceStatusLabel(invoice.status)}
-                      </span>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-4">
+              <h3 className="text-sm font-semibold text-white">Vos factures</h3>
+              <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/60">{pagination.total} facture{pagination.total > 1 ? "s" : ""}</span>
+            </div>
+            <ul className="divide-y divide-white/10">
+              {invoices.map((invoice) => (
+                <li key={invoice.id} className="grid items-center gap-4 py-5 xl:grid-cols-[minmax(0,1fr)_auto]">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="mt-1 hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 sm:flex"><ReceiptText className="h-4 w-4 text-white/50" /></div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <p className="text-lg font-semibold tabular-nums text-white">{formatInvoiceAmount(invoice)}</p>
+                        <span className={`rounded-full px-2.5 py-1 text-[11px] ${getInvoiceStatusClassName(invoice.status)}`}>{getInvoiceStatusLabel(invoice.status)}</span>
+                      </div>
+                      <p className="mt-1 text-sm text-white/65">{formatInvoicePeriod(invoice)}</p>
+                      <p className="mt-1 break-all text-xs text-white/45">Réf. {invoice.number ?? invoice.id}</p>
                     </div>
-                    <p className="text-white/70 text-xs font-one">
-                      {formatInvoicePeriod(invoice)}
-                    </p>
-                    <p className="text-white/50 text-xs font-one">
-                      Référence: {invoice.number ?? invoice.id}
-                    </p>
                   </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {invoice.pdfUrl && (
-                      <a
-                        href={invoice.pdfUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-one text-xs"
-                      >
-                        Télécharger le PDF
-                      </a>
-                    )}
-                    {invoice.hostedUrl && (
-                      <a
-                        href={invoice.hostedUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3 py-2 bg-tertiary-500/15 hover:bg-tertiary-500/25 text-tertiary-400 rounded-lg border border-tertiary-500/25 transition-colors font-one text-xs"
-                      >
-                        Voir sur Stripe
-                      </a>
-                    )}
+                  <div className="flex flex-wrap gap-2 sm:pl-13 xl:pl-0">
+                    {invoice.pdfUrl && <DashboardButton variant="secondary" href={invoice.pdfUrl} target="_blank" rel="noopener noreferrer" className="min-w-0! min-h-10" aria-label={`Ouvrir le PDF de la facture ${invoice.number ?? invoice.id}`}><Download className="h-4 w-4" /> PDF</DashboardButton>}
+                    {invoice.hostedUrl && <DashboardButton variant="secondary" href={invoice.hostedUrl} target="_blank" rel="noopener noreferrer" className="min-w-0! min-h-10"><ExternalLink className="h-4 w-4" /> Voir la facture</DashboardButton>}
                   </div>
-                </div>
-              </div>
-            ))}
+                </li>
+              ))}
+            </ul>
 
             <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-white/50 text-xs font-one">
@@ -300,35 +276,35 @@ export default function BillingHistorySection({
               </p>
 
               <div className="flex items-center gap-2 self-end sm:self-auto">
-                <button
+                <DashboardButton variant="secondary"
                   onClick={() =>
                     setCurrentPage((page) => Math.max(1, page - 1))
                   }
                   disabled={!pagination.hasPreviousPage || isInvoicesLoading}
-                  className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="min-w-0! cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Précédent
-                </button>
+                </DashboardButton>
                 <span className="text-white/70 text-xs font-one min-w-[88px] text-center">
                   Page {pagination.page}
                   {pagination.totalPages > 0
                     ? ` / ${pagination.totalPages}`
                     : ""}
                 </span>
-                <button
+                <DashboardButton variant="secondary"
                   onClick={() => setCurrentPage((page) => page + 1)}
                   disabled={!pagination.hasNextPage || isInvoicesLoading}
-                  className="cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="min-w-0! cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Suivant
-                </button>
+                </DashboardButton>
               </div>
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl border border-white/10 bg-noir-500/20 p-4">
+          <div className="rounded-2xl border border-dashed border-white/15 bg-black/10 px-5 py-10 text-center">
             <p className="text-white/70 text-sm font-one">
-              Aucune facture Stripe disponible pour le moment.
+              Vous n’avez pas encore de facture.
             </p>
             <p className="text-white/50 text-xs font-one mt-1">
               Dès qu&apos;une facturation est émise, elle apparaîtra ici avec

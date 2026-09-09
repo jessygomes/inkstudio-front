@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { ConversationDto } from "@/lib/queries/conversation.action";
 import ConversationRDVDetails from "./ConversationRDVDetails";
 
@@ -11,9 +11,24 @@ export default function ConversationRDVModal({
   conversation,
   onClose,
 }: ConversationRDVModalProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    dialog?.showModal();
+    return () => {
+      dialog?.close();
+      previousFocus?.focus();
+    };
+  }, []);
+
   return (
-    <div
-      className="lg:hidden fixed inset-0 z-50 bg-noir-700 overflow-hidden"
+    <dialog
+      ref={dialogRef}
+      onCancel={onClose}
+      aria-label="Détails du rendez-vous"
+      className="fixed inset-0 m-0 max-h-none max-w-none bg-noir-700 p-0 text-white overflow-hidden backdrop:bg-black/60"
       style={{
         height: "100dvh",
         width: "100vw",
@@ -37,6 +52,6 @@ export default function ConversationRDVModal({
           </div>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

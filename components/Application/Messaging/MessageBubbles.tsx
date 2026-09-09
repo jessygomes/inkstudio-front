@@ -20,7 +20,7 @@ export default function MessageBubbles({
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <MdOutlineMessage className="w-10 h-10 text-white/20 mx-auto mb-2" />
-          <p className="text-white/40 font-one text-xs">Aucun message</p>
+          <p className="text-white/60 font-one text-sm">Commencez la conversation</p>
         </div>
       </div>
     );
@@ -28,15 +28,18 @@ export default function MessageBubbles({
 
   return (
     <>
-      {messages.map((message) => {
+      {messages.map((message, index) => {
         const isOwnMessage = message.sender.id === currentUserId;
 
         const sender = message.sender;
 
         return (
+          <React.Fragment key={message.id}>
+            {(index === 0 || new Date(messages[index - 1].createdAt).toDateString() !== new Date(message.createdAt).toDateString()) && (
+              <div className="my-6 flex items-center gap-3"><span className="h-px flex-1 bg-white/10" /><time className="text-[11px] text-white/50" dateTime={message.createdAt}>{new Date(message.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</time><span className="h-px flex-1 bg-white/10" /></div>
+            )}
           <div
-            key={message.id}
-            className={`flex gap-2 group ${
+            className={`flex gap-2 group mb-5 ${
               isOwnMessage ? "justify-end" : "justify-start"
             }`}
           >
@@ -53,17 +56,17 @@ export default function MessageBubbles({
             <div
               className={`flex flex-col ${
                 isOwnMessage ? "items-end" : "items-start"
-              } max-w-xs`}
+              } min-w-0 max-w-[85%] sm:max-w-[78%]`}
             >
-              <div className="flex items-start gap-1">
+              <div className="flex min-w-0 items-start gap-1">
                 <div
-                  className={`px-3 py-2 rounded-2xl text-xs ${
+                  className={`min-w-0 px-4 py-3 rounded-2xl text-sm ${
                     isOwnMessage
-                      ? "bg-linear-to-l from-secondary-500/80 to-secondary-600/80 text-white/90 rounded-br-none"
-                      : "bg-linear-to-l from-tertiary-400/80 to-tertiary-500/80 text-white rounded-bl-none"
+                      ? "bg-tertiary-500/25 border border-tertiary-400/25 text-white rounded-br-md"
+                      : "bg-white/5 border border-white/10 text-white/90 rounded-bl-md"
                   }`}
                 >
-                  <p className="break-words font-one leading-tight">
+                  <p className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] font-one leading-relaxed">
                     {message.content}
                   </p>
 
@@ -129,7 +132,7 @@ export default function MessageBubbles({
                 />
               </div>
 
-              <span className="text-[10px] text-white/40 mt-0.5 px-1">
+              <span className="text-[11px] text-white/50 mt-1.5 px-1">
                 {new Date(message.createdAt).toLocaleTimeString("fr-FR", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -153,6 +156,7 @@ export default function MessageBubbles({
               />
             )}
           </div>
+          </React.Fragment>
         );
       })}
     </>

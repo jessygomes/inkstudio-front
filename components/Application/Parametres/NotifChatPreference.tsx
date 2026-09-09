@@ -1,5 +1,9 @@
 "use client";
 
+import styles from "./SettingsCard.module.css";
+
+import SettingsSwitch from "./SettingsSwitch";
+
 import {
   getNotificationPreferenceChat,
   updateNotificationPreferenceChat,
@@ -22,17 +26,17 @@ interface NotificationPreference {
 }
 
 const frequencyLabel: Record<EmailFrequency, string> = {
-  IMMEDIATE: "Immediat",
+  IMMEDIATE: "Immédiat",
   HOURLY: "Toutes les heures",
   DAILY: "Une fois par jour",
   NEVER: "Jamais",
 };
 
 const frequencyDescription: Record<EmailFrequency, string> = {
-  IMMEDIATE: "Vous recevez une notification des qu'un nouveau message arrive.",
-  HOURLY: "Vous recevez un resume des messages toutes les heures.",
-  DAILY: "Vous recevez un resume quotidien des messages.",
-  NEVER: "Aucun email n'est envoye.",
+  IMMEDIATE: "Vous recevez une notification dès qu'un nouveau message arrive.",
+  HOURLY: "Vous recevez un résumé des messages toutes les heures.",
+  DAILY: "Vous recevez un résumé quotidien des messages.",
+  NEVER: "Aucun email n'est envoyé.",
 };
 
 export default function NotifChatPreference() {
@@ -98,10 +102,6 @@ export default function NotifChatPreference() {
       console.error("Erreur:", error);
       toast.error("Erreur lors de la mise a jour des preferences");
 
-      if (pref) {
-        setEmailNotificationsEnabled(pref.emailNotificationsEnabled);
-        setEmailFrequency(pref.emailFrequency);
-      }
     } finally {
       setSaving(false);
     }
@@ -109,7 +109,7 @@ export default function NotifChatPreference() {
 
   if (loading) {
     return (
-      <div className="dashboard-embedded-panel rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
+      <div className={styles.card}>
         <div className="animate-pulse space-y-2.5">
           <div className="h-4 w-44 rounded bg-white/10" />
           <div className="h-16 rounded-xl bg-white/8" />
@@ -120,17 +120,17 @@ export default function NotifChatPreference() {
   }
 
   return (
-    <div className="dashboard-embedded-panel rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
+    <div className={styles.card}>
       <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-xl border border-tertiary-400/25 bg-tertiary-400/15 flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl border border-tertiary-400/25 bg-tertiary-400/15 flex items-center justify-center shrink-0">
             <CiBellOn className="w-5 h-5 text-tertiary-500" />
           </div>
           <div className="min-w-0">
-            <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
+            <p className="text-white/50 font-one text-[11px] uppercase tracking-wider">
               Messagerie
             </p>
-            <h3 className="text-white font-one text-sm sm:text-base font-semibold truncate">
+            <h3 className="text-white font-one text-base font-semibold">
               Notifications email du chat
             </h3>
           </div>
@@ -159,16 +159,10 @@ export default function NotifChatPreference() {
               </p>
             </div>
 
-            <label className="relative inline-flex items-center cursor-pointer shrink-0">
-              <input
-                type="checkbox"
+            <SettingsSwitch label="Recevoir les notifications par email" busy={saving} disabled={!pref}
                 checked={emailNotificationsEnabled}
                 onChange={(e) => setEmailNotificationsEnabled(e.target.checked)}
-                className="sr-only peer"
-                disabled={saving}
-              />
-              <div className="w-11 h-6 bg-white/20 rounded-full peer peer-checked:bg-tertiary-400 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-full" />
-            </label>
+               />
           </div>
         </div>
 
@@ -178,17 +172,16 @@ export default function NotifChatPreference() {
               Fréquence des notifications
             </p>
 
-            <select
-              value={emailFrequency}
-              onChange={(e) => setEmailFrequency(e.target.value as EmailFrequency)}
-              disabled={saving}
-              className="w-full h-9 px-2.5 font-one bg-noir-500 border border-white/20 rounded-2xl text-white text-xs focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-50 cursor-pointer"
-            >
-              <option value="IMMEDIATE">Immediat</option>
-              <option value="HOURLY">Toutes les heures</option>
-              <option value="DAILY">Une fois par jour</option>
-              <option value="NEVER">Jamais</option>
-            </select>
+            <fieldset className="grid gap-2 sm:grid-cols-2">
+              <legend className="sr-only">Fréquence des notifications</legend>
+              {(Object.keys(frequencyLabel) as EmailFrequency[]).map((frequency) => (
+                <label key={frequency} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors ${emailFrequency === frequency ? "border-tertiary-400/40 bg-tertiary-400/10" : "border-white/10 bg-black/10 hover:bg-white/5"}`}>
+                  <input type="radio" name="email-frequency" value={frequency} checked={emailFrequency === frequency}
+                    onChange={() => setEmailFrequency(frequency)} disabled={saving || !pref} className="mt-1 accent-tertiary-500" />
+                  <span><span className="block text-sm text-white">{frequencyLabel[frequency]}</span><span className="mt-1 block text-xs leading-relaxed text-white/55">{frequencyDescription[frequency]}</span></span>
+                </label>
+              ))}
+            </fieldset>
 
             <p className="text-white/50 text-[11px] font-two">
               {frequencyDescription[emailFrequency]}
@@ -198,16 +191,17 @@ export default function NotifChatPreference() {
 
         <div className="rounded-2xl border border-white/8 bg-white/2 px-3 py-2">
           <p className="text-[11px] font-one text-white/70">
-            Statut actuel: {emailNotificationsEnabled ? "Active" : "Inactive"}
+            Votre choix : {emailNotificationsEnabled ? "Active" : "Inactive"}
             {emailNotificationsEnabled && (
               <span className="text-white/55"> · {frequencyLabel[emailFrequency]}</span>
             )}
           </p>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-1">
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/10 pt-4">
+          {hasChanges && <p role="status" className="mr-auto text-xs text-amber-300">Modifications non enregistrées</p>}
           {!hasChanges && (
-            <span className="text-[11px] text-white/45 font-two mr-auto">
+            <span className="text-[11px] text-white/55 font-two mr-auto">
               Aucun changement en attente
             </span>
           )}

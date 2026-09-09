@@ -47,9 +47,9 @@ export default function ConversationSkeleton() {
       </div>
 
       {/* Version Desktop */}
-      <div className="hidden lg:flex w-full flex-row gap-3 h-[calc(100vh-100px)]">
+      <div className="hidden lg:grid w-full grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-4 h-[calc(100dvh-100px)]">
         {/* Messages Section - Gauche */}
-        <div className="dashboard-embedded-panel w-3/5 flex flex-col gap-3 h-full p-3">
+        <div className="dashboard-embedded-panel min-w-0 flex flex-col gap-3 h-full p-3">
           {/* Header Skeleton */}
           <div className="dashboard-embedded-header flex items-center justify-between p-3 rounded-xl border border-white/10">
             <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -93,7 +93,7 @@ export default function ConversationSkeleton() {
         </div>
 
         {/* RDV Details Section - Droite */}
-        <div className="w-3/5">
+        <div className="min-w-0">
           <div className="dashboard-embedded-section rounded-xl border border-white/10 p-4 space-y-4">
             <div className="h-6 w-40 rounded bg-white/10 animate-pulse" />
 

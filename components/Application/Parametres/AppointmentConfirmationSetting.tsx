@@ -1,5 +1,7 @@
 "use client";
 
+import SettingsSwitch from "./SettingsSwitch";
+
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -16,6 +18,7 @@ export default function AppointmentConfirmationSetting({
 }: AppointmentConfirmationSettingProps) {
   const [confirmationEnabled, setConfirmationEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   //! Récupérer les paramètre de RDV
   const fetchConfirmationSetting = useCallback(async () => {
@@ -65,6 +68,8 @@ export default function AppointmentConfirmationSetting({
 
   //! Fonction pour changer le paramètre de confirmation des RDV
   const handleConfirmationSettingChange = async (value: boolean) => {
+    if (saving || !userId) return;
+    setSaving(true);
     try {
       const response = await updateAppointmentConfirmationAction(value);
 
@@ -83,11 +88,13 @@ export default function AppointmentConfirmationSetting({
     } catch (error) {
       console.error("Erreur lors de la mise à jour du paramètre :", error);
       toast.error("Erreur lors de la mise à jour du paramètre");
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <div className="w-full bg-white/5 rounded-3xl p-3 sm:p-4 border border-white/10">
+    <div className="dashboard-embedded-panel w-full min-w-0 rounded-2xl border border-white/10 p-4 sm:p-5">
       {loading ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-tertiary-400"></div>
@@ -97,15 +104,15 @@ export default function AppointmentConfirmationSetting({
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-white font-one mb-1 text-sm sm:text-base">
+              <h3 className="text-white font-one mb-1 text-base font-semibold">
                 <span className="hidden sm:inline">
                   Confirmation manuelle des rendez-vous
                 </span>
                 <span className="sm:hidden">Confirmation RDV</span>
               </h3>
-              <p className="text-white/60 text-xs sm:text-sm font-one">
+              <p className="text-white/60 text-sm leading-relaxed font-one">
                 <span className="hidden sm:inline">
                   Si activé, vous devrez confirmer manuellement chaque
                   rendez-vous pris par un client
@@ -113,17 +120,12 @@ export default function AppointmentConfirmationSetting({
                 <span className="sm:hidden">Confirmation manuelle des RDV</span>
               </p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
+            <SettingsSwitch label="Confirmation manuelle des rendez-vous" busy={saving}
                 checked={confirmationEnabled}
                 onChange={(e) =>
                   handleConfirmationSettingChange(e.target.checked)
                 }
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
-            </label>
+               />
           </div>
 
           {/* Indicateur de statut */}

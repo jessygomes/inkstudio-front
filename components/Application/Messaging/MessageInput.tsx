@@ -19,8 +19,8 @@ export default function MessageInput({
   onSendMessage,
   className = "",
   onInputChange,
-}: // disabled = false,
-MessageInputProps) {
+  disabled = false,
+}: MessageInputProps) {
   const [messageInput, setMessageInput] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -42,6 +42,7 @@ MessageInputProps) {
   });
 
   const handleFileSelect = (file: File) => {
+    if (disabled || sendingMessage || isUploading) return;
     // Vérifier que c'est une image
     if (!file.type.startsWith("image/")) {
       setCompressionError("Veuillez sélectionner une image valide");
@@ -147,7 +148,7 @@ MessageInputProps) {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!messageInput.trim() && !selectedFile) return;
+    if (disabled || sendingMessage || isUploading || (!messageInput.trim() && !selectedFile)) return;
 
     setSendingMessage(true);
     try {
@@ -158,6 +159,7 @@ MessageInputProps) {
         setUploadProgress(0);
         const uploadRes = await startUpload([selectedFile]);
 
+        if (!uploadRes?.[0]) throw new Error("Image non envoyée");
         if (uploadRes && uploadRes[0]) {
           attachments = [
             {
@@ -180,6 +182,7 @@ MessageInputProps) {
       removeImage();
     } catch (error) {
       console.error("Erreur lors de l'envoi du message:", error);
+      setCompressionError("Le message n’a pas pu être envoyé. Veuillez réessayer.");
     } finally {
       setSendingMessage(false);
       setUploadProgress(0);
@@ -196,7 +199,8 @@ MessageInputProps) {
             <button
               type="button"
               onClick={removeImage}
-              disabled={sendingMessage || isUploading}
+              aria-label="Retirer l’image"
+              disabled={disabled || sendingMessage || isUploading}
               className="cursor-pointer absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
             >
               <MdClose />
@@ -221,13 +225,14 @@ MessageInputProps) {
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <p className="text-red-200 text-xs font-one truncate">
+              <p className="text-red-200 text-xs font-one">
                 {compressionError}
               </p>
             </div>
             <button
               type="button"
               onClick={() => setCompressionError(null)}
+              aria-label="Fermer l’erreur"
               className="text-red-400 hover:text-red-300 flex-shrink-0"
             >
               <MdClose className="w-4 h-4" />
@@ -247,7 +252,7 @@ MessageInputProps) {
 
         {/* Zone input */}
         <div
-          className="dashboard-embedded-section flex gap-2 rounded-xl p-2"
+          className="dashboard-embedded-section flex items-end gap-2 rounded-2xl border border-white/10 p-2 focus-within:border-tertiary-400/50"
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
@@ -255,9 +260,10 @@ MessageInputProps) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={sendingMessage || isUploading}
-            className="rdv-btn-secondary cursor-pointer bg-noir-700 border border-white/20 hover:border-tertiary-400 text-tertiary-500 hover:text-tertiary-300 px-2 py-1.5 rounded-lg transition-colors flex items-center justify-center text-xs flex-shrink-0"
+            disabled={disabled || sendingMessage || isUploading}
+            className="rdv-btn-secondary cursor-pointer bg-noir-700 border border-white/20 hover:border-tertiary-400 text-tertiary-500 hover:text-tertiary-300 h-10 w-10 rounded-xl transition-colors flex items-center justify-center text-xs flex-shrink-0"
             title="Ajouter une image"
+            aria-label="Ajouter une image"
           >
             <MdImage className="w-4 h-4" />
           </button>
@@ -268,34 +274,43 @@ MessageInputProps) {
             type="file"
             accept="image/*"
             onChange={handleInputChange}
-            disabled={sendingMessage || isUploading}
+            disabled={disabled || sendingMessage || isUploading}
             className="hidden"
           />
 
           {/* Input texte */}
-          <input
-            type="text"
+          <textarea
+            rows={2}
+            aria-label="Votre message"
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+                event.preventDefault();
+                event.currentTarget.form?.requestSubmit();
+              }
+            }}
             value={messageInput}
             onChange={(e) => {
               setMessageInput(e.target.value);
               onInputChange?.(e.target.value);
             }}
             placeholder={
-              preview ? "Votre message avec l'image..." : "Message..."
+              disabled ? "En attente de connexion…" : preview ? "Accompagnez votre image…" : "Écrivez votre message…"
             }
-            className="flex-1 bg-noir-700 border border-white/20 rounded-lg px-3 py-1.5 text-white placeholder-white/50 focus:outline-none focus:border-tertiary-400 transition-colors text-xs"
-            disabled={sendingMessage || isUploading}
+            className="min-w-0 flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-relaxed text-white placeholder-white/45 focus:outline-none disabled:opacity-50"
+            disabled={disabled || sendingMessage || isUploading}
           />
 
           {/* Bouton envoi */}
           <button
             type="submit"
+            aria-label="Envoyer le message"
             disabled={
+              disabled ||
               sendingMessage ||
               isUploading ||
               (!messageInput.trim() && !selectedFile)
             }
-            className="rdv-btn-primary cursor-pointer bg-tertiary-500 hover:bg-tertiary-600 disabled:bg-tertiary-500/50 text-white px-3 py-1.5 rounded-lg font-semibold transition-colors flex items-center gap-1 text-xs flex-shrink-0"
+            className="rdv-btn-primary cursor-pointer bg-tertiary-500 hover:bg-tertiary-600 disabled:bg-tertiary-500/50 text-white h-10 w-10 justify-center rounded-xl font-semibold transition-colors flex items-center gap-1 text-xs flex-shrink-0"
           >
             {sendingMessage || isUploading ? (
               <div className="w-3 h-3 border-2 border-white/50 rounded-full animate-spin border-t-white"></div>
@@ -304,6 +319,7 @@ MessageInputProps) {
             )}
           </button>
         </div>
+        <p className="hidden px-1 text-[11px] text-white/50 sm:block">Entrée pour envoyer · Maj + Entrée pour revenir à la ligne</p>
       </form>
     </div>
   );

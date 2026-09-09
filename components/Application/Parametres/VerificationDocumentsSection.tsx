@@ -1,5 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+
+import DashboardButton from "@/components/Shared/DashboardButton";
+import styles from "./SettingsCard.module.css";
 import { useEffect, useState, useCallback } from "react";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import {
@@ -97,12 +100,16 @@ export default function VerificationDocumentsSection() {
     if (!user?.id) return;
     try {
       setLoading(true);
+      setError(null);
       const result = await getSalonVerificationDocuments();
       if (result.ok && result.data) {
         setDocuments(result.data);
+      } else {
+        setError("Impossible de charger les documents. Rechargez la page pour réessayer.");
       }
     } catch (err) {
       console.error("Erreur lors du chargement des documents:", err);
+      setError("Impossible de charger les documents. Rechargez la page pour réessayer.");
     } finally {
       setLoading(false);
     }
@@ -185,12 +192,12 @@ export default function VerificationDocumentsSection() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
+    <div className={styles.card}>
       <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-tertiary-400/30 flex items-center justify-center">
           <MdOutlineVerified className="w-5 h-5 sm:w-6 sm:h-6 text-tertiary-400" />
         </div>
-        <h2 className="text-lg sm:text-xl text-white font-one font-semibold">
+        <h2 className="text-base font-semibold text-white font-one font-semibold">
           Vérification du salon
         </h2>
       </div>
@@ -213,7 +220,7 @@ export default function VerificationDocumentsSection() {
               clipRule="evenodd"
             />
           </svg>
-          <p className="text-red-300 text-xs sm:text-sm font-one">{error}</p>
+          <p role="alert" className="text-red-300 text-xs sm:text-sm font-one">{error}</p>
         </div>
       )}
 
@@ -222,7 +229,7 @@ export default function VerificationDocumentsSection() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tertiary-400"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           {DOCUMENT_TYPES.map((docType) => {
             const doc = getDocumentStatus(docType.id);
 
@@ -236,7 +243,7 @@ export default function VerificationDocumentsSection() {
                   <div className="w-10 h-10 rounded-2xl bg-tertiary-400/20 flex items-center justify-center text-tertiary-400 flex-shrink-0">
                     {docType.icon}
                   </div>
-                  {doc && (
+                  {doc ? (
                     <span
                       className={`px-2 py-1 rounded-2xl text-xs font-semibold border ${getStatusColor(
                         doc.status,
@@ -244,7 +251,7 @@ export default function VerificationDocumentsSection() {
                     >
                       {getStatusLabel(doc.status)}
                     </span>
-                  )}
+                  ) : <span className="rounded-full border border-white/10 px-2 py-1 text-xs text-white/55">À fournir</span>}
                 </div>
 
                 {/* Titre et description */}
@@ -257,93 +264,22 @@ export default function VerificationDocumentsSection() {
                   </p>
                 </div>
 
-                {/* Document actuel ou upload */}
-                {doc && doc.status !== "REJECTED" ? (
-                  <div className="bg-white/5 rounded-2xl p-3 border border-white/10">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white/80 text-xs font-one truncate mb-1">
-                          Document déposé
-                        </p>
-                        <p className="text-white/50 text-xs font-one">
-                          {new Date(doc.uploadedAt).toLocaleDateString("fr-FR")}
-                        </p>
-                        {doc.rejectionReason && (
-                          <p className="text-red-300 text-xs font-one mt-2">
-                            {doc.rejectionReason}
-                          </p>
-                        )}
-                      </div>
-                      {doc.status === "APPROVED" && (
-                        <div className="w-5 h-5 rounded-full bg-green-500/30 flex items-center justify-center flex-shrink-0">
-                          <svg
-                            className="w-3 h-3 text-green-400"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <label className="cursor-pointer">
-                    <div className="bg-white/5 border-2 border-dashed border-white/20 hover:border-tertiary-400/50 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all duration-200">
-                      <FiUploadCloud className="w-5 h-5 text-white/70 group-hover:text-tertiary-400" />
-                      <div className="text-center">
-                        <p className="text-white text-xs font-semibold font-one">
-                          {uploading[docType.id]
-                            ? "Upload en cours..."
-                            : "Cliquez pour uploader"}
-                        </p>
-                        <p className="text-white/50 text-[10px] font-one">
-                          PDF, JPG ou PNG
-                        </p>
-                      </div>
-                    </div>
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) =>
-                        handleFileUpload(docType.id, e.target.files)
-                      }
+                <div className="mt-auto space-y-3 border-t border-white/10 pt-4">
+                  {doc && <p className="text-xs text-white/55">Déposé le {new Date(doc.uploadedAt).toLocaleDateString("fr-FR")}</p>}
+                  {doc?.rejectionReason && <p className="rounded-xl bg-red-500/10 p-3 text-sm text-red-300">{doc.rejectionReason}</p>}
+                  {(!doc || doc.status === "REJECTED") && <>
+                    <input id={`document-${docType.id}`} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
                       disabled={uploading[docType.id]}
-                      className="hidden"
-                    />
-                  </label>
-                )}
-
-                {doc && doc.status === "REJECTED" && (
-                  <label className="cursor-pointer">
-                    <div className="bg-red-500/10 border-2 border-dashed border-red-500/30 hover:border-red-500/50 rounded-2xl p-4 flex flex-col items-center justify-center gap-2 transition-all duration-200">
-                      <FiUploadCloud className="w-5 h-5 text-red-400" />
-                      <div className="text-center">
-                        <p className="text-white text-xs font-semibold font-one">
-                          {uploading[docType.id]
-                            ? "Upload en cours..."
-                            : "Renvoyer le document"}
-                        </p>
-                        <p className="text-white/50 text-[10px] font-one">
-                          PDF, JPG ou PNG
-                        </p>
-                      </div>
-                    </div>
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) =>
-                        handleFileUpload(docType.id, e.target.files)
-                      }
-                      disabled={uploading[docType.id]}
-                      className="hidden"
-                    />
-                  </label>
-                )}
+                      onChange={(event) => { void handleFileUpload(docType.id, event.target.files); event.target.value = ""; }} />
+                    <DashboardButton variant="secondary" className="min-h-11 w-full min-w-0!" disabled={uploading[docType.id]}
+                      onClick={() => document.getElementById(`document-${docType.id}`)?.click()}>
+                      <FiUploadCloud className="h-4 w-4" />
+                      {uploading[docType.id] ? "Envoi en cours…" : doc ? "Renvoyer le document" : "Ajouter un document"}
+                    </DashboardButton>
+                    <p className="text-center text-xs text-white/50">PDF, JPG ou PNG</p>
+                  </>}
+                  {doc?.status === "PENDING" && <p className="text-xs text-amber-300">Votre document est en cours de vérification.</p>}
+                </div>
               </div>
             );
           })}
@@ -367,7 +303,7 @@ export default function VerificationDocumentsSection() {
         </div>
         <div>
           <p className="text-tertiary-400 text-xs sm:text-sm font-one mb-1">
-            Seule le document "Hygiène & Salubrité" est obligatoire pour
+            Seul le document "Hygiène & Salubrité" est obligatoire pour
             vérifier votre salon.
           </p>
           <p className="text-white/70 text-xs font-one leading-relaxed">

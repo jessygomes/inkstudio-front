@@ -1,0 +1,26 @@
+@media (min-width: 64rem) {
+  nav.navigation {
+    position: sticky;
+    top: 6rem;
+    height: fit-content;
+    min-width: 0;
+    align-self: start;
+  }
+
+  .navigation ul {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    min-width: 0;
+  }
+
+  .navigation li {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .navigation a {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

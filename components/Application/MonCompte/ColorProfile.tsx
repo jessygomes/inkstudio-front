@@ -1,5 +1,7 @@
 "use client";
 
+import styles from "../Parametres/SettingsCard.module.css";
+
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { useColors } from "@/components/ColorContext/ColorProvider";
@@ -180,7 +182,7 @@ export default function ColorProfile() {
 
   if (loadingFetch) {
     return (
-      <div className="dashboard-embedded-panel rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
+      <div className={styles.card}>
         <div className="animate-pulse space-y-2.5">
           <div className="h-4 w-32 rounded bg-white/10" />
           <div className="h-16 rounded-xl bg-white/8" />
@@ -191,10 +193,10 @@ export default function ColorProfile() {
   }
 
   return (
-    <div className="dashboard-embedded-panel rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
+    <div className={styles.card}>
       <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-xl border border-tertiary-400/25 bg-tertiary-400/15 flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-2xl border border-tertiary-400/25 bg-tertiary-400/15 flex items-center justify-center shrink-0">
             <svg
               className="w-4 h-4 text-tertiary-500"
               fill="none"
@@ -210,10 +212,10 @@ export default function ColorProfile() {
             </svg>
           </div>
           <div className="min-w-0">
-            <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
+            <p className="text-white/50 font-one text-[11px] uppercase tracking-wider">
               Thème
             </p>
-            <h3 className="text-white font-one text-sm sm:text-base font-semibold truncate">
+            <h3 className="text-white font-one text-base font-semibold">
               Couleurs de l&apos;interface
             </h3>
           </div>
@@ -230,7 +232,7 @@ export default function ColorProfile() {
         </span>
       </div>
 
-      <form onSubmit={handleSubmit} className="pt-3 space-y-3">
+      <form onSubmit={handleSubmit} className="pt-5 space-y-5">
         <div className="rounded-xl border border-white/10 bg-white/3 p-3 space-y-2">
           <div className="flex items-center justify-between gap-2">
             <p className="text-white font-one text-xs sm:text-sm font-medium">
@@ -241,25 +243,16 @@ export default function ColorProfile() {
             </span>
           </div>
 
-          <div className="grid grid-cols-6 gap-1.5">
+          <div className="grid grid-cols-4 gap-3 sm:grid-cols-6">
             {colorPalette.map((item) => (
-              <button
-                key={item.color}
-                type="button"
-                onClick={() => setColorProfile(item.color)}
-                title={item.name}
-                disabled={loading}
-                className={`h-8 w-full rounded-2xl border-2 transition-all duration-200 ${
-                  colorProfile === item.color
-                    ? "border-white ring-2 ring-white/30"
-                    : "border-white/20 hover:border-white/45"
-                }`}
-                style={{ backgroundColor: item.color }}
-              >
-                {colorProfile === item.color && (
-                  <span className="text-white text-xs font-one">✓</span>
-                )}
-              </button>
+              <label key={item.color} className="relative cursor-pointer">
+                <input type="radio" name="profile-color" value={item.color} checked={colorProfile === item.color}
+                  onChange={() => setColorProfile(item.color)} disabled={loading} aria-label={item.name} className="peer sr-only" />
+                <span className="flex h-12 w-full items-center justify-center rounded-xl border-2 border-white/15 transition-transform peer-checked:border-white peer-checked:ring-2 peer-checked:ring-white/30 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-white peer-disabled:opacity-50" style={{ backgroundColor: item.color }}>
+                  {colorProfile === item.color && <span aria-hidden="true" className="rounded-full bg-black/50 px-1.5 text-white">✓</span>}
+                </span>
+                <span className="mt-1 block truncate text-center text-[10px] text-white/60">{item.name}</span>
+              </label>
             ))}
           </div>
 
@@ -278,13 +271,13 @@ export default function ColorProfile() {
                   className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
                   style={{ backgroundColor: DEFAULT_TERTIARY_400 }}
                 >
-                  Tertiary 400
+                  Accent
                 </div>
                 <div
                   className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
                   style={{ backgroundColor: DEFAULT_TERTIARY_500 }}
                 >
-                  Tertiary 500
+                  Principal
                 </div>
               </>
             ) : isLightColor(colorProfile) ? (
@@ -321,9 +314,11 @@ export default function ColorProfile() {
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-1">
+        <p className="text-xs text-white/55">L’aperçu est appliqué immédiatement. Enregistrez pour conserver votre choix.</p>
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/10 pt-4">
+          {hasChanges && <p role="status" className="mr-auto text-xs text-amber-300">Modifications non enregistrées</p>}
           {!hasChanges && (
-            <span className="text-[11px] text-white/45 font-two mr-auto">
+            <span className="text-[11px] text-white/55 font-two mr-auto">
               Thème déjà à jour
             </span>
           )}

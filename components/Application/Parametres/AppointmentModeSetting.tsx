@@ -1,5 +1,10 @@
 "use client";
 
+import { CalendarDays } from "lucide-react";
+import styles from "./SettingsCard.module.css";
+
+import SettingsSwitch from "./SettingsSwitch";
+
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -112,6 +117,8 @@ export default function AppointmentModeSetting({
           ? "Le salon relié peut désormais voir ton agenda et tes RDV."
           : "Le salon relié ne peut plus voir ton agenda et tes RDV.",
       );
+    } catch {
+      toast.error("Impossible de modifier l’accès. Veuillez réessayer.");
     } finally {
       setIsSavingAgendaAccess(false);
     }
@@ -167,6 +174,8 @@ export default function AppointmentModeSetting({
           ? "Le salon relié peut désormais créer des RDV pour toi."
           : "Le salon relié ne peut plus créer de RDV pour toi.",
       );
+    } catch {
+      toast.error("Impossible de modifier l’autorisation. Veuillez réessayer.");
     } finally {
       setIsSavingCreationPermission(false);
     }
@@ -180,7 +189,7 @@ export default function AppointmentModeSetting({
     : "Partage inactif";
 
   return (
-    <div className="w-full bg-white/5 rounded-3xl p-3 sm:p-4 border border-white/10">
+    <div className={styles.card}>
       {loading ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-tertiary-400"></div>
@@ -191,10 +200,11 @@ export default function AppointmentModeSetting({
       ) : (
         <>
           <div>
-            <h3 className="text-white font-one mb-1 text-sm sm:text-base">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10"><CalendarDays className="h-5 w-5 text-tertiary-400" aria-hidden="true" /></div>
+            <h3 className="text-white font-one mb-1 text-base font-semibold">
               Permissions du salon relié
             </h3>
-            <p className="text-white/60 text-xs sm:text-sm font-one">
+            <p className="text-white/60 text-sm leading-relaxed font-one">
               Définis ce qu&apos;un salon relié peut faire sur ton agenda.
             </p>
             {!isTatoueurAccount && (
@@ -205,30 +215,21 @@ export default function AppointmentModeSetting({
           </div>
 
           <div className="mt-4 space-y-3">
-            <div className="rounded-2xl border border-white/10 bg-white/4 p-3">
+            <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-white text-sm font-one">
                     Autoriser l&apos;accès agenda et RDV
                   </p>
-                  <p className="text-white/55 text-xs font-one mt-1">
+                  <p className="text-white/60 text-sm leading-relaxed font-one mt-2">
                     Le salon relié peut consulter ton agenda et la liste de tes rendez-vous.
                   </p>
                 </div>
-                <label
-                  className={`relative inline-flex items-center ${
-                    isTatoueurAccount ? "cursor-pointer" : "cursor-not-allowed"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
+                <SettingsSwitch label="Autoriser l’accès à l’agenda et aux rendez-vous" busy={isSavingAgendaAccess}
                     checked={permissions.canViewAgendaAndAppointments}
                     onChange={(e) => void handleAgendaAccessChange(e.target.checked)}
                     disabled={!isTatoueurAccount || isSavingAgendaAccess || isSavingCreationPermission}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-disabled:opacity-50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
-                </label>
+                   />
               </div>
             </div>
 
@@ -238,24 +239,15 @@ export default function AppointmentModeSetting({
                   <p className="text-white text-sm font-one">
                     Autoriser la création de RDV par le salon
                   </p>
-                  <p className="text-white/55 text-xs font-one mt-1">
+                  <p className="text-white/60 text-sm leading-relaxed font-one mt-2">
                     Le salon relié peut créer des rendez-vous pour toi.
                   </p>
                 </div>
-                <label
-                  className={`relative inline-flex items-center ${
-                    isTatoueurAccount ? "cursor-pointer" : "cursor-not-allowed"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
+                <SettingsSwitch label="Autoriser la création de rendez-vous par le salon" busy={isSavingCreationPermission}
                     checked={permissions.canCreateAppointmentForMe}
                     onChange={(e) => void handleCreateAppointmentChange(e.target.checked)}
                     disabled={!isTatoueurAccount || isSavingCreationPermission || isSavingAgendaAccess}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-disabled:opacity-50 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
-                </label>
+                   />
               </div>
             </div>
           </div>
@@ -265,8 +257,8 @@ export default function AppointmentModeSetting({
               <div className={`w-2 h-2 rounded-full ${statusColor}`}></div>
               <span className="text-xs font-one text-white/75">{statusLabel}</span>
             </div>
-            <p className="text-[11px] text-white/45 font-one">
-              Les autorisations sont envoyées au backend. Le chargement initial reste local tant que la route de lecture n&apos;est pas disponible.
+            <p className="text-[11px] text-white/55 font-one">
+              La création de rendez-vous par le salon nécessite un accès à votre agenda.
             </p>
           </div>
         </>

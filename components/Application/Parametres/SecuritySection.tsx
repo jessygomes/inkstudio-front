@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import styles from "./SettingsCard.module.css";
+
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { CiLock } from "react-icons/ci";
 import { useForm } from "react-hook-form";
@@ -34,6 +36,16 @@ export default function SecuritySection({
 }: SecuritySectionProps) {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showPasswords, setShowPasswords] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    if (!showPasswordModal) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+    dialog?.showModal();
+    return () => { dialog?.close(); previousFocus?.focus(); };
+  }, [showPasswordModal]);
 
   const passwordForm = useForm<z.infer<typeof changePasswordSchema>>({
     resolver: zodResolver(changePasswordSchema),
@@ -81,27 +93,29 @@ export default function SecuritySection({
   return (
     <>
       {/* Section Sécurité responsive */}
-      <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
-        <button
+      <div className={styles.card}>
+        <DashboardButton variant="secondary"
+          aria-expanded={openSections.security}
+          aria-controls="settings-security-content"
           onClick={() => toggleSection("security")}
-          className="w-full flex items-center justify-between mb-3 sm:mb-4"
+          className="min-w-0! mb-5 w-full min-w-0! justify-between! border-0! bg-transparent! p-0! text-left hover:translate-y-0!"
         >
-          <h2 className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl text-white font-one">
+          <h2 className="flex items-center gap-2 sm:gap-3 text-base font-semibold text-white font-one">
             <CiLock size={20} className="sm:w-6 sm:h-6 text-tertiary-400" />
             Sécurité
           </h2>
           <div className="text-white/50">
             {openSections.security ? "−" : "+"}
           </div>
-        </button>
+        </DashboardButton>
 
         {openSections.security && (
-          <div className="space-y-4">
+          <div id="settings-security-content" className="space-y-4">
             <div className="bg-white/5 rounded-2xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <h3 className="text-white font-one">Mot de passe</h3>
+              <div><h3 className="text-base font-semibold text-white font-one">Mot de passe de connexion</h3><p className="mt-1 text-sm leading-relaxed text-white/55">Choisissez un mot de passe unique pour votre compte.</p></div>
               <DashboardButton
-                onClick={() => setShowPasswordModal(true)}
-                className="w-full sm:w-[175px] min-w-0 h-auto py-2"
+                onClick={() => { setShowPasswords(false); setShowPasswordModal(true); }}
+                className="min-w-0! w-full sm:w-[175px] min-w-0 h-auto py-2"
               >
                 <span className="hidden sm:inline">
                   Changer le mot de passe
@@ -117,19 +131,19 @@ export default function SecuritySection({
                   <span className="hidden sm:inline">Sessions actives</span>
                   <span className="sm:hidden">Sessions</span>
                 </h3>
-                <p className="text-white/60 text-xs sm:text-sm font-one mb-3">
+                <p className="text-white/60 text-sm leading-relaxed font-one mb-3">
                   <span className="hidden sm:inline">
                     Gérez les appareils connectés à votre compte
                   </span>
                   <span className="sm:hidden">Appareils connectés</span>
                 </p>
               </div>
-              <button className="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors w-full sm:w-auto">
+              <DashboardButton variant="secondary" className="min-w-0! px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/30 rounded-lg text-xs font-one font-medium transition-colors w-full sm:w-auto">
                 <span className="hidden sm:inline">
                   Déconnecter tous les appareils
                 </span>
                 <span className="sm:hidden">Déconnecter</span>
-              </button>
+              </DashboardButton>
             </div> */}
           </div>
         )}
@@ -137,26 +151,28 @@ export default function SecuritySection({
 
       {/* Modale de changement de mot de passe */}
       {showPasswordModal && (
-        <div className="fixed inset-0 z-[9999] lg:bg-black/60 lg:backdrop-blur-sm bg-noir-700 flex items-end lg:items-center justify-center p-0 lg:p-4">
-          <div className="bg-noir-500 rounded-none lg:rounded-3xl w-full h-full lg:h-auto lg:max-w-md lg:max-h-[90vh] overflow-hidden flex flex-col border-0 lg:border lg:border-white/20 lg:shadow-2xl">
+        <dialog ref={dialogRef} aria-label="Changer le mot de passe" onCancel={(event) => { event.preventDefault(); if (!isChangingPassword) { setShowPasswordModal(false); passwordForm.reset(); } }} className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 text-white backdrop:bg-black/70 backdrop:backdrop-blur-sm">
+          <div className="flex h-full items-center justify-center p-3 sm:p-6">
+          <div className="flex max-h-[calc(100dvh-3rem)] w-full max-w-xl flex-col overflow-hidden rounded-3xl border border-white/15 bg-noir-500 shadow-2xl">
             {/* Header */}
-            <div className="p-6 lg:p-4 border-b border-white/10 bg-white/5">
+            <div className="shrink-0 p-5 sm:p-6 border-b border-white/10 bg-linear-to-r from-tertiary-500/10 to-transparent">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl lg:text-xl font-bold text-white font-one tracking-wide">
+                <h2 className="text-xl sm:text-2xl font-semibold text-white font-one">
                   Changer le mot de passe
                 </h2>
-                <button
+                <DashboardButton variant="secondary"
                   onClick={() => {
                     setShowPasswordModal(false);
                     passwordForm.reset();
                   }}
+                  aria-label="Fermer"
                   disabled={isChangingPassword}
-                  className="p-3 lg:p-2 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50"
+                  className="min-w-0! p-3 lg:p-2 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50"
                 >
                   <span className="cursor-pointer text-white text-2xl lg:text-xl">
                     ×
                   </span>
-                </button>
+                </DashboardButton>
               </div>
               <p className="text-white/70 mt-2 text-base lg:text-sm font-one">
                 Modifiez votre mot de passe de connexion
@@ -164,25 +180,31 @@ export default function SecuritySection({
             </div>
 
             {/* Contenu */}
-            <div className="flex-1 overflow-y-auto p-6 lg:p-4 min-h-0">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6">
               <form
+                id="change-password-form"
                 onSubmit={passwordForm.handleSubmit(handlePasswordChange)}
                 className="space-y-6 lg:space-y-4"
               >
+                <div className="flex justify-end"><DashboardButton variant="secondary" className="min-w-0! min-w-0!" aria-pressed={showPasswords} onClick={() => setShowPasswords((current) => !current)}>{showPasswords ? "Masquer les mots de passe" : "Afficher les mots de passe"}</DashboardButton></div>
                 {/* Mot de passe actuel */}
                 <div className="space-y-2 lg:space-y-2">
-                  <label className="text-base lg:text-sm text-white/80 font-one">
+                  <label htmlFor="currentPassword" className="text-base lg:text-sm text-white/80 font-one">
                     Mot de passe actuel
                   </label>
                   <input
-                    type="password"
+                    type={showPasswords ? "text" : "password"}
+                    id="currentPassword"
+                    aria-invalid={!!passwordForm.formState.errors.currentPassword}
+                    aria-describedby={passwordForm.formState.errors.currentPassword ? "currentPassword-error" : undefined}
+                    autoComplete="current-password"
                     {...passwordForm.register("currentPassword")}
                     disabled={isChangingPassword}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-base lg:text-sm focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-50"
+                    className="w-full min-h-12 px-4 py-3 bg-black/15 border border-white/15 rounded-xl text-white text-base focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
                     placeholder="Votre mot de passe actuel"
                   />
                   {passwordForm.formState.errors.currentPassword && (
-                    <p className="text-red-300 text-sm lg:text-xs">
+                    <p id="currentPassword-error" role="alert" className="text-red-300 text-sm">
                       {passwordForm.formState.errors.currentPassword.message}
                     </p>
                   )}
@@ -190,18 +212,22 @@ export default function SecuritySection({
 
                 {/* Nouveau mot de passe */}
                 <div className="space-y-2 lg:space-y-1">
-                  <label className="text-base lg:text-sm text-white/80 font-one">
+                  <label htmlFor="newPassword" className="text-base lg:text-sm text-white/80 font-one">
                     Nouveau mot de passe
                   </label>
                   <input
-                    type="password"
+                    type={showPasswords ? "text" : "password"}
+                    id="newPassword"
+                    aria-invalid={!!passwordForm.formState.errors.newPassword}
+                    aria-describedby={passwordForm.formState.errors.newPassword ? "newPassword-error" : undefined}
+                    autoComplete="new-password"
                     {...passwordForm.register("newPassword")}
                     disabled={isChangingPassword}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-base lg:text-sm focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-50"
+                    className="w-full min-h-12 px-4 py-3 bg-black/15 border border-white/15 rounded-xl text-white text-base focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
                     placeholder="Votre nouveau mot de passe"
                   />
                   {passwordForm.formState.errors.newPassword && (
-                    <p className="text-red-300 text-sm lg:text-xs">
+                    <p id="newPassword-error" role="alert" className="text-red-300 text-sm">
                       {passwordForm.formState.errors.newPassword.message}
                     </p>
                   )}
@@ -209,18 +235,22 @@ export default function SecuritySection({
 
                 {/* Confirmation nouveau mot de passe */}
                 <div className="space-y-2 lg:space-y-2">
-                  <label className="text-base lg:text-sm text-white/80 font-one">
+                  <label htmlFor="confirmPassword" className="text-base lg:text-sm text-white/80 font-one">
                     Confirmer le nouveau mot de passe
                   </label>
                   <input
-                    type="password"
+                    type={showPasswords ? "text" : "password"}
+                    id="confirmPassword"
+                    aria-invalid={!!passwordForm.formState.errors.confirmPassword}
+                    aria-describedby={passwordForm.formState.errors.confirmPassword ? "confirmPassword-error" : undefined}
+                    autoComplete="new-password"
                     {...passwordForm.register("confirmPassword")}
                     disabled={isChangingPassword}
-                    className="w-full p-4 lg:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-base lg:text-sm focus:outline-none focus:border-tertiary-400 transition-colors disabled:opacity-50"
+                    className="w-full min-h-12 px-4 py-3 bg-black/15 border border-white/15 rounded-xl text-white text-base focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
                     placeholder="Confirmez votre nouveau mot de passe"
                   />
                   {passwordForm.formState.errors.confirmPassword && (
-                    <p className="text-red-300 text-sm lg:text-xs">
+                    <p id="confirmPassword-error" role="alert" className="text-red-300 text-sm">
                       {passwordForm.formState.errors.confirmPassword.message}
                     </p>
                   )}
@@ -263,7 +293,7 @@ export default function SecuritySection({
             </div>
 
             {/* Footer fixe */}
-            <div className="p-6 lg:p-4 border-t border-white/10 bg-white/5 flex justify-end gap-4 lg:gap-3">
+            <div className="shrink-0 p-5 sm:p-6 border-t border-white/10 bg-white/3 flex flex-wrap justify-end gap-3">
               <DashboardButton
                 type="button"
                 onClick={() => {
@@ -272,15 +302,15 @@ export default function SecuritySection({
                 }}
                 disabled={isChangingPassword}
                 variant="secondary"
-                className="min-w-0 px-6 py-3 lg:px-4 lg:py-2 text-base lg:text-xs"
+                className="min-w-0! min-h-11 px-5"
               >
                 Annuler
               </DashboardButton>
               <DashboardButton
                 type="submit"
                 disabled={isChangingPassword}
-                onClick={passwordForm.handleSubmit(handlePasswordChange)}
-                className="min-w-0 px-8 py-3 lg:px-6 lg:py-2 text-base lg:text-xs"
+                form="change-password-form"
+                className="min-w-0! min-h-11 px-5"
               >
                 {isChangingPassword ? (
                   <>
@@ -308,7 +338,8 @@ export default function SecuritySection({
               </DashboardButton>
             </div>
           </div>
-        </div>
+          </div>
+        </dialog>
       )}
     </>
   );

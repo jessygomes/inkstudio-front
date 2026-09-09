@@ -31,7 +31,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="bg-noir-700 relative min-h-screen overflow-hidden px-3 pb-24 lg:px-8 lg:pb-14 xl:px-12">
-      <div className="relative mx-auto flex w-full max-w-[1600px] flex-col gap-5 pt-5 lg:gap-6 lg:pt-8">
+      <div className="relative mx-auto flex w-full flex-col gap-5 pt-5 lg:gap-6 lg:pt-8">
         {!isFreeAccount && (
           <header className="dashboard-welcome flex flex-col gap-5 rounded-[28px] border border-white/10 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between lg:p-7">
             <div>
