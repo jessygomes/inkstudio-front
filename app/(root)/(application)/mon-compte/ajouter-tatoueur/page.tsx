@@ -6,18 +6,15 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createTatoueurSchema } from "@/lib/zod/validator.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { TatoueurProps } from "@/lib/type";
-import Link from "next/link";
+import { ArrowLeft, UserRound, Phone, Palette, CalendarDays, CalendarCheck, Save, LoaderCircle } from "lucide-react";
 import TatoueurImageUploader, {
   TatoueurImageUploaderHandle,
 } from "@/components/Application/MonCompte/TatoueurImageUploader";
-import { CiUser } from "react-icons/ci";
-import { TbClockHour5 } from "react-icons/tb";
 import { IoClose } from "react-icons/io5";
 import { createOrUpdateTatoueur } from "@/lib/queries/tatoueur";
 import { toast } from "sonner";
-import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import InviteRegisteredTatoueurSection from "../../../../../components/Application/MonCompte/InviteRegisteredTatoueurSection";
 
@@ -205,7 +202,7 @@ export default function AddOrUpdateTatoueurPage() {
       hours: existingTatoueur?.hours || "",
       style: existingTatoueur?.style || [],
       skills: existingTatoueur?.skills || [],
-      rdvBookingEnabled: existingTatoueur?.rdvBookingEnabled || true,
+      rdvBookingEnabled: existingTatoueur?.rdvBookingEnabled ?? true,
     },
   });
 
@@ -220,7 +217,7 @@ export default function AddOrUpdateTatoueurPage() {
         hours: existingTatoueur.hours || "",
         style: existingTatoueur.style || [],
         skills: existingTatoueur.skills || [],
-        rdvBookingEnabled: existingTatoueur.rdvBookingEnabled || true,
+        rdvBookingEnabled: existingTatoueur.rdvBookingEnabled ?? true,
       });
 
       if (existingTatoueur.hours) {
@@ -348,19 +345,15 @@ export default function AddOrUpdateTatoueurPage() {
     });
   };
 
-  const sectionTitleClass =
-    "mb-2 flex items-center gap-2 text-[14px] font-semibold tracking-wide text-white font-one";
   const fieldLabelClass =
-    "text-[10px] uppercase tracking-wider text-white/50 font-one";
+    "mb-1.5 block text-xs font-medium text-white/65 font-one";
   const fieldInputClass =
-    "w-full rounded-2xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one";
-  const subSectionTitleClass =
-    "mb-2 text-[11px] uppercase tracking-wide text-white/70 font-one";
+    "w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 [color-scheme:dark] font-two";
   const badgeClass =
-    "inline-flex items-center gap-1 rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-2.5 py-1 text-xs text-tertiary-500 font-one";
+    "inline-flex items-center gap-1 rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-2.5 py-1 text-xs text-tertiary-400 font-one";
 
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
-    if (!salonId) return;
+    if (!salonId || loading) return;
 
     if (isEditing && isReadOnlyLinkedTatoueur(existingTatoueur as TeamTatoueur)) {
       toast.error("Modification non autorisée pour ce profil lié.");
@@ -426,42 +419,28 @@ export default function AddOrUpdateTatoueurPage() {
   }
 
   return (
-    <div className="wrapper-global pb-16 sm:pb-10 px-3 sm:px-4 lg:px-6">
-      <section className="w-full space-y-3 pt-4 pb-10 xl:pb-0">
-        <PageHeader
-          icon={<CiUser size={15} className="text-tertiary-400" />}
-          title={isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}
-        >
-          <Link
-            href="/mon-compte"
-            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-2xl border border-white/15 bg-white/8 px-3 text-xs text-white/85 transition-colors hover:bg-white/12 hover:text-white font-one"
-          >
-            <span aria-hidden="true">←</span>
-            <span>Retour</span>
-          </Link>
-        </PageHeader>
-
-        <p className="px-4 text-[11px] text-white/70 font-one sm:px-0">
-          {isEditing
-            ? "Mettez à jour les informations de votre tatoueur."
-            : "Ajoutez un nouveau membre à votre équipe."}
-        </p>
+    <div className="wrapper-global pb-24 lg:pb-8">
+      <section className="w-full space-y-5 pt-4">
+        <header className="flex flex-col gap-4 px-1 py-3 sm:px-2 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-tertiary-400 font-one">Mon compte · Équipe</p>
+            <h1 className="mt-1 text-xl font-semibold text-white font-one sm:text-2xl">{isEditing ? "Modifier le tatoueur" : "Ajouter un tatoueur"}</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55 font-one">{isEditing ? "Actualisez son profil, ses spécialités et ses disponibilités." : "Présentez votre nouveau tatoueur et préparez ses disponibilités au salon."}</p>
+          </div>
+          <DashboardButton href="/mon-compte" variant="secondary" className="w-full sm:w-auto"><ArrowLeft size={15} aria-hidden="true" />Retour au salon</DashboardButton>
+        </header>
 
         {!isEditing && <InviteRegisteredTatoueurSection />}
 
-        <div className="w-full rounded-3xl border border-white/10 bg-white/4 p-3 sm:p-4">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2.5">
-            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] xl:items-start">
-              <div className="p-3">
-                <h3 className={sectionTitleClass}>
-                  <CiUser size={20} className="sm:w-4 sm:h-4" />
-                  Informations générales
-                </h3>
+        <div className="w-full">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="create-rdv-form tablet-inputs space-y-4">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] xl:items-start">
+              <div className="min-w-0">
 
-                <div className="space-y-3">
-                  <div className="rounded-3xl border border-white/10 bg-white/5 p-3">
-                    <p className={subSectionTitleClass}>Profil</p>
-                    <div className="grid grid-cols-1 gap-3 lg:grid-cols-[220px_minmax(0,1fr)]">
+                <div className="space-y-4">
+                  <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+                    <TatoueurSectionHeader eyebrow="01 · Identité" title="Le visage de votre équipe" description="Ajoutez une photo et présentez le tatoueur. Le nom est obligatoire." icon={<UserRound size={18} />} />
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-[180px_minmax(0,1fr)]">
                       <div className="space-y-1">
                         <label className={fieldLabelClass}>Photo du tatoueur</label>
                         <TatoueurImageUploader
@@ -478,53 +457,57 @@ export default function AddOrUpdateTatoueurPage() {
 
                       <div className="space-y-2.5">
                         <div className="space-y-1">
-                          <label className={fieldLabelClass}>Nom du tatoueur *</label>
-                          <input
+                          <label htmlFor="tatoueur-name" className={fieldLabelClass}>Nom du tatoueur *</label>
+                          <input id="tatoueur-name" aria-invalid={Boolean(form.formState.errors.name)} aria-describedby={form.formState.errors.name ? "tatoueur-name-error" : undefined}
                             placeholder="Nom du tatoueur"
                             {...form.register("name")}
                             className={fieldInputClass}
                           />
+                          {form.formState.errors.name && <p id="tatoueur-name-error" role="alert" className="mt-1 text-xs text-red-300">{form.formState.errors.name?.message}</p>}
                         </div>
 
                         <div className="space-y-1">
-                          <label className={fieldLabelClass}>Description</label>
-                          <textarea
+                          <label htmlFor="tatoueur-description" className={fieldLabelClass}>Description</label>
+                          <textarea id="tatoueur-description" aria-invalid={Boolean(form.formState.errors.description)} aria-describedby={form.formState.errors.description ? "tatoueur-description-error" : undefined}
                             rows={5}
                             placeholder="Description du tatoueur, ses spécialités..."
                             {...form.register("description")}
-                            className={`${fieldInputClass} resize-none`}
+                            className={`${fieldInputClass} resize-y`}
                           />
+                          {form.formState.errors.description && <p id="tatoueur-description-error" role="alert" className="mt-1 text-xs text-red-300">{form.formState.errors.description?.message}</p>}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-3xl border border-white/10 bg-white/5 p-3">
-                    <p className={subSectionTitleClass}>Contact</p>
+                  <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+                    <TatoueurSectionHeader eyebrow="02 · Coordonnées" title="Comment le contacter ?" description="Renseignez ses coordonnées professionnelles et son compte Instagram." icon={<Phone size={18} />} />
                     <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                       <div className="space-y-1">
-                        <label className={fieldLabelClass}>Téléphone</label>
-                        <input
-                          placeholder="Numéro de téléphone"
+                        <label htmlFor="tatoueur-phone" className={fieldLabelClass}>Téléphone</label>
+                          <input type="tel" id="tatoueur-phone" aria-invalid={Boolean(form.formState.errors.phone)} aria-describedby={form.formState.errors.phone ? "tatoueur-phone-error" : undefined}
+                            placeholder="Numéro de téléphone"
                           {...form.register("phone")}
                           className={fieldInputClass}
                         />
+                          {form.formState.errors.phone && <p id="tatoueur-phone-error" role="alert" className="mt-1 text-xs text-red-300">{form.formState.errors.phone?.message}</p>}
                       </div>
 
                       <div className="space-y-1">
-                        <label className={fieldLabelClass}>Instagram</label>
-                        <input
-                          placeholder="@nom_instagram"
+                        <label htmlFor="tatoueur-instagram" className={fieldLabelClass}>Instagram</label>
+                          <input id="tatoueur-instagram" aria-invalid={Boolean(form.formState.errors.instagram)} aria-describedby={form.formState.errors.instagram ? "tatoueur-instagram-error" : undefined}
+                            placeholder="@nom_instagram"
                           {...form.register("instagram")}
                           className={fieldInputClass}
                         />
+                          {form.formState.errors.instagram && <p id="tatoueur-instagram-error" role="alert" className="mt-1 text-xs text-red-300">{form.formState.errors.instagram?.message}</p>}
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-3xl border border-white/10 bg-white/5 p-3">
-                    <p className={subSectionTitleClass}>Expertises</p>
-                    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                  <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+                    <TatoueurSectionHeader eyebrow="03 · Spécialités" title="Son savoir-faire" description="Ajoutez ses compétences et ses styles pour mettre en valeur son univers." icon={<Palette size={18} />} />
+                    <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
                       <div className="space-y-1">
                         <label className={fieldLabelClass}>
                           Compétences (ex: tatouage, piercing)
@@ -532,7 +515,7 @@ export default function AddOrUpdateTatoueurPage() {
                         <div className="flex flex-col gap-2 sm:flex-row">
                           <input
                             type="text"
-                            value={skillsInput}
+                            aria-label="Ajouter une compétence" value={skillsInput}
                             onChange={(e) => setSkillsInput(e.target.value)}
                             onKeyDown={(e) => {
                               if (e.key === "Enter") {
@@ -545,8 +528,8 @@ export default function AddOrUpdateTatoueurPage() {
                           />
                           <button
                             type="button"
-                            onClick={handleAddSkill}
-                            className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:opacity-50 disabled:cursor-not-allowed font-one"
+                            disabled={!skillsInput.trim()} onClick={handleAddSkill}
+                            className="cursor-pointer inline-flex min-h-11 items-center justify-center rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 px-4 text-xs font-medium text-tertiary-400 transition hover:bg-tertiary-500/20 disabled:opacity-50 disabled:cursor-not-allowed font-one"
                           >
                             Ajouter
                           </button>
@@ -557,7 +540,7 @@ export default function AddOrUpdateTatoueurPage() {
                               {skill}
                               <button
                                 type="button"
-                                onClick={() => handleRemoveSkill(skill)}
+                                aria-label={`Retirer la compétence ${skill}`} onClick={() => handleRemoveSkill(skill)}
                                 className="ml-0.5 text-tertiary-300 hover:text-red-300"
                                 title="Supprimer"
                               >
@@ -575,7 +558,7 @@ export default function AddOrUpdateTatoueurPage() {
                         <div className="flex flex-col gap-2 sm:flex-row">
                           <input
                             type="text"
-                            value={styleInput}
+                            aria-label="Ajouter un style" value={styleInput}
                             onChange={(e) => setStyleInput(e.target.value)}
                             onKeyDown={(e) => {
                               if (e.key === "Enter") {
@@ -588,8 +571,8 @@ export default function AddOrUpdateTatoueurPage() {
                           />
                           <button
                             type="button"
-                            onClick={handleAddStyle}
-                            className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:opacity-50 disabled:cursor-not-allowed font-one"
+                            disabled={!styleInput.trim()} onClick={handleAddStyle}
+                            className="cursor-pointer inline-flex min-h-11 items-center justify-center rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 px-4 text-xs font-medium text-tertiary-400 transition hover:bg-tertiary-500/20 disabled:opacity-50 disabled:cursor-not-allowed font-one"
                           >
                             Ajouter
                           </button>
@@ -600,7 +583,7 @@ export default function AddOrUpdateTatoueurPage() {
                               {style}
                               <button
                                 type="button"
-                                onClick={() => handleRemoveStyle(style)}
+                                aria-label={`Retirer le style ${style}`} onClick={() => handleRemoveStyle(style)}
                                 className="ml-0.5 text-tertiary-300 hover:text-red-300"
                                 title="Supprimer"
                               >
@@ -613,8 +596,8 @@ export default function AddOrUpdateTatoueurPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-3xl border border-white/10 bg-white/5 p-3">
-                    <p className={subSectionTitleClass}>Rendez-vous</p>
+                  <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+                    <TatoueurSectionHeader eyebrow="04 · Réservation" title="Disponibilité à la réservation" description="Choisissez si les clients peuvent prendre rendez-vous avec ce tatoueur." icon={<CalendarCheck size={18} />} />
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="text-[12px] uppercase tracking-wide text-white font-one">
@@ -626,11 +609,11 @@ export default function AddOrUpdateTatoueurPage() {
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
-                          type="checkbox"
+                          type="checkbox" aria-label="Autoriser la prise de rendez-vous"
                           {...form.register("rdvBookingEnabled")}
                           className="sr-only peer"
                         />
-                        <div className="w-12 h-7 sm:w-11 sm:h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
+                        <div className="w-12 h-7 sm:w-11 sm:h-6 bg-white/20 peer-focus-visible:ring-2 peer-focus-visible:ring-tertiary-400/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-tertiary-400"></div>
                       </label>
                     </div>
 
@@ -656,32 +639,29 @@ export default function AddOrUpdateTatoueurPage() {
                 </div>
               </div>
 
-              <div className="p-3">
-                <div className="mb-3 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-                  <h3 className={`${sectionTitleClass} mb-0`}>
-                    <TbClockHour5 size={20} className="sm:w-4 sm:h-4" />
-                    Horaires de travail
-                  </h3>
+              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+                <div className="mb-4 space-y-3">
+                  <TatoueurSectionHeader eyebrow="05 · Disponibilités" title="Son rythme au salon" description="Définissez les jours travaillés et les horaires de présence." icon={<CalendarDays size={18} />} />
 
                   <div className="flex flex-wrap items-center gap-1.5 lg:justify-end">
                     <button
                       type="button"
                       onClick={applyMondayToAllDays}
-                      className="inline-flex h-7 items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-2.5 text-[10px] text-white/85 transition-colors hover:bg-white/12 font-one"
+                      className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/15 bg-white/8 px-3 text-xs text-white/85 transition-colors hover:bg-white/12 font-one"
                     >
                       Copier le lundi sur tous les jours
                     </button>
                     <button
                       type="button"
                       onClick={openAllDays}
-                      className="cursor-pointer inline-flex h-7 items-center justify-center rounded-2xl border border-emerald-500/35 bg-emerald-500/12 px-2.5 text-[10px] text-emerald-300 transition-colors hover:bg-emerald-500/20 font-one"
+                      className="cursor-pointer inline-flex min-h-11 items-center justify-center rounded-2xl border border-emerald-500/35 bg-emerald-500/12 px-3 text-xs text-emerald-300 transition-colors hover:bg-emerald-500/20 font-one"
                     >
-                      Tout ouvrir
+                      Tout ouvrir · 09:00 – 18:00
                     </button>
                     <button
                       type="button"
                       onClick={closeAllDays}
-                      className="cursor-pointer inline-flex h-7 items-center justify-center rounded-2xl border border-red-500/35 bg-red-500/12 px-2.5 text-[10px] text-red-300 transition-colors hover:bg-red-500/20 font-one"
+                      className="cursor-pointer inline-flex min-h-11 items-center justify-center rounded-2xl border border-red-500/35 bg-red-500/12 px-3 text-xs text-red-300 transition-colors hover:bg-red-500/20 font-one"
                     >
                       Tout fermer
                     </button>
@@ -693,14 +673,14 @@ export default function AddOrUpdateTatoueurPage() {
                   pour appliquer les mêmes horaires.
                 </p> */}
 
-                <div className="space-y-1.5 sm:space-y-1.5">
+                <div className="space-y-3">
                   {daysOfWeek.map(({ key, label }) => {
                     const value = editingHours[key];
                     const isOpen = Boolean(value);
                     return (
                       <div
                         key={key}
-                        className="rounded-3xl border border-white/20 bg-white/10 p-2.5"
+                        className="rounded-2xl border border-white/10 bg-black/15 p-4"
                       >
                         <div className="flex flex-col gap-2 sm:gap-1.5">
                           <div className="flex items-center justify-between gap-2">
@@ -720,14 +700,14 @@ export default function AddOrUpdateTatoueurPage() {
                               </span>
 
                               <button
-                                type="button"
+                                type="button" aria-label={`${isOpen ? "Fermer" : "Ouvrir"} le ${label}`}
                                 onClick={() =>
                                   setDayHours(
                                     key,
                                     isOpen ? null : { start: "09:00", end: "18:00" },
                                   )
                                 }
-                                className={`cursor-pointer px-3 py-1.5 rounded-2xl text-xs border transition-colors font-one ${
+                                className={`cursor-pointer min-h-11 px-3 py-1.5 rounded-xl text-xs border transition-colors font-one ${
                                   isOpen
                                     ? "bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30"
                                     : "bg-green-500/20 text-green-300 border-green-500/30 hover:bg-green-500/30"
@@ -739,9 +719,9 @@ export default function AddOrUpdateTatoueurPage() {
                           </div>
 
                           {value ? (
-                            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                               <input
-                                type="time"
+                                type="time" aria-label={`Début de présence le ${label}`}
                                 value={value.start}
                                 onChange={(e) =>
                                   updateDayTime(key, "start", e.target.value)
@@ -749,7 +729,7 @@ export default function AddOrUpdateTatoueurPage() {
                                 className={fieldInputClass}
                               />
                               <input
-                                type="time"
+                                type="time" aria-label={`Fin de présence le ${label}`}
                                 value={value.end}
                                 onChange={(e) =>
                                   updateDayTime(key, "end", e.target.value)
@@ -852,7 +832,7 @@ export default function AddOrUpdateTatoueurPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          window.location.href = "/parametres";
+                          router.push("/parametres");
                         }}
                         className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg text-xs font-one font-medium transition-all duration-300"
                       >
@@ -876,26 +856,26 @@ export default function AddOrUpdateTatoueurPage() {
               </div>
             ) : null}
 
-            <div className="dashboard-embedded-footer flex flex-col justify-end gap-2 py-3 sm:flex-row sm:items-center">
+            <div className="sticky bottom-4 z-20 flex flex-col-reverse justify-end gap-3 rounded-2xl border border-white/10 bg-noir-700/90 p-4 backdrop-blur-xl sm:flex-row sm:items-center">
               <DashboardButton
                 href="/mon-compte"
                 variant="secondary"
-                className="h-9 px-4 text-[11px]"
+                className="w-full sm:w-auto"
               >
                 Annuler
               </DashboardButton>
               <DashboardButton
                 type="submit"
                 disabled={loading}
-                className="h-9 px-4 text-[11px]"
+                className="w-full sm:w-auto"
               >
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <LoaderCircle size={15} className="animate-spin" aria-hidden="true" />
                     <span>{isEditing ? "Enregistrement..." : "Création..."}</span>
                   </div>
                 ) : (
-                  <span>
+                  <span className="inline-flex items-center gap-2"><Save size={15} aria-hidden="true" />
                     {isEditing
                       ? "Sauvegarder les modifications"
                       : "Créer le tatoueur"}
@@ -906,6 +886,19 @@ export default function AddOrUpdateTatoueurPage() {
           </form>
         </div>
       </section>
+    </div>
+  );
+}
+
+function TatoueurSectionHeader({ eyebrow, title, description, icon }: { eyebrow: string; title: string; description: string; icon: ReactNode }) {
+  return (
+    <div className="mb-5 flex items-start gap-3">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 text-tertiary-400" aria-hidden="true">{icon}</span>
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-tertiary-400/80 font-one">{eyebrow}</p>
+        <h2 className="mt-1 text-base font-semibold text-white font-one">{title}</h2>
+        <p className="mt-1 text-xs leading-5 text-white/50 font-two">{description}</p>
+      </div>
     </div>
   );
 }

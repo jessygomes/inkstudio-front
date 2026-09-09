@@ -1,4 +1,7 @@
 "use client";
+import { ImagePlus, FileText, Save, LoaderCircle } from "lucide-react";
+import FormSectionHeader from "@/components/Shared/FormSectionHeader";
+import DashboardButton from "@/components/Shared/DashboardButton";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import { createOrUpdateProductAction } from "@/lib/queries/productSalon";
 import { ProductSalonProps } from "@/lib/type";
@@ -37,12 +40,10 @@ export default function CreateOrUpdateProduct({
     },
   });
 
-  const sectionTitleClass =
-    "mb-2 text-[12px] font-semibold text-white font-one";
   const labelClass =
-    "text-[11px] text-white/60 font-one uppercase tracking-wider";
+    "mb-1.5 block text-xs font-medium text-white/65 font-one";
   const inputClass =
-    "w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none transition-colors font-one";
+    "w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two";
 
   // Fonction pour supprimer une image d'UploadThing
   const deleteFromUploadThing = async (imageUrl: string): Promise<boolean> => {
@@ -179,16 +180,16 @@ export default function CreateOrUpdateProduct({
         style={{ height: "100dvh", width: "100vw" }}
       >
         <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none border-0 bg-[#1a1a1a] shadow-none sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)] md:max-h-[90vh]">
-          <div className="dashboard-embedded-header px-4 py-3.5 sm:rounded-t-[28px]">
+          <div className="shrink-0 border-b border-white/10 bg-gradient-to-r from-tertiary-500/10 to-transparent px-4 py-5 sm:px-6">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-tertiary-400 font-one">
                   Produits
                 </p>
-                <h2 className="mt-1 truncate text-base font-semibold tracking-wide text-white font-one sm:text-lg">
+                <h2 className="mt-1 text-lg font-semibold text-white font-one sm:text-xl">
                   {existingProduct ? "Modifier le produit" : "Ajouter un produit"}
                 </h2>
-                <p className="mt-0.5 text-xs text-white/65 font-one">
+                <p className="mt-2 text-xs leading-5 text-white/50 font-two">
                   {existingProduct
                     ? "Modifiez les informations de votre produit"
                     : "Ajoutez un nouveau produit a votre boutique"}
@@ -196,9 +197,9 @@ export default function CreateOrUpdateProduct({
               </div>
               <button
                 type="button"
-                onClick={handleClose}
+                aria-label="Fermer la fenêtre" onClick={handleClose}
                 disabled={isClosing || loading}
-                className="shrink-0 rounded-xl p-1.5 text-white/65 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex size-11 items-center justify-center border border-white/10 shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-tertiary-400 text-white/65 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isClosing ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -221,16 +222,17 @@ export default function CreateOrUpdateProduct({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-3 py-3 min-h-0 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5 sm:py-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
             <form
               id="product-create-update-form"
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-2.5"
+              className="create-rdv-form tablet-inputs space-y-4"
             >
-              <div className="dashboard-embedded-section p-3">
-                <h3 className={sectionTitleClass}>Image du produit</h3>
+              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+                <FormSectionHeader eyebrow="01 · Visuel" title="Votre produit en image" description="Choisissez une photo nette qui met en valeur votre produit." icon={<ImagePlus size={18} />} />
 
                 <SalonImageUploader
+                  appearance="media"
                   currentImage={
                     form.watch("imageUrl") ||
                     existingProduct?.imageUrl ||
@@ -271,15 +273,15 @@ export default function CreateOrUpdateProduct({
                 )}
               </div>
 
-              <div className="dashboard-embedded-section p-3">
-                <h3 className={sectionTitleClass}>Informations</h3>
+              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+                <FormSectionHeader eyebrow="02 · Présentation" title="Les détails du produit" description="Renseignez son nom, sa description et son prix de vente." icon={<FileText size={18} />} />
 
-                <div className="space-y-2.5">
+                <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className={labelClass}>
+                    <label htmlFor="product-name" className={labelClass}>
                       Nom du produit
                     </label>
-                    <input
+                    <input id="product-name" aria-invalid={Boolean(form.formState.errors.name)}
                       placeholder="Boucle d'oreille en argent"
                       {...form.register("name")}
                       className={inputClass}
@@ -292,14 +294,14 @@ export default function CreateOrUpdateProduct({
                   </div>
 
                   <div className="space-y-1">
-                    <label className={labelClass}>
+                    <label htmlFor="product-description" className={labelClass}>
                       Description (optionnelle)
                     </label>
-                    <textarea
+                    <textarea id="product-description" aria-invalid={Boolean(form.formState.errors.description)}
                       placeholder="Décrivez votre produit, ses caractéristiques..."
                       {...form.register("description")}
                       rows={4}
-                      className={`${inputClass} resize-none`}
+                      className={`${inputClass} resize-y`}
                     />
                     {form.formState.errors.description && (
                       <p className="mt-1 text-xs text-red-300 font-one">
@@ -309,10 +311,10 @@ export default function CreateOrUpdateProduct({
                   </div>
 
                   <div className="space-y-1">
-                    <label className={labelClass}>
+                    <label htmlFor="product-price" className={labelClass}>
                       Prix (€)
                     </label>
-                    <input
+                    <input id="product-price" aria-invalid={Boolean(form.formState.errors.price)}
                       type="number"
                       step="0.01"
                       min="0"
@@ -336,25 +338,25 @@ export default function CreateOrUpdateProduct({
               </div>
 
               {error && (
-                <div className="rounded-xl border border-red-500/45 bg-red-500/14 p-3">
+                <div role="alert" className="rounded-xl border border-red-500/45 bg-red-500/14 p-3">
                   <p className="text-red-300 text-xs font-one">{error}</p>
                 </div>
               )}
 
               {success && (
-                <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/14 p-3">
+                <div role="status" className="rounded-xl border border-emerald-500/40 bg-emerald-500/14 p-3">
                   <p className="text-emerald-300 text-xs font-one">{success}</p>
                 </div>
               )}
             </form>
           </div>
 
-          <div className="dashboard-embedded-footer flex items-center justify-end gap-2 px-4 py-2.5 sm:rounded-b-[28px]">
-            <button
+          <div className="shrink-0 border-t border-white/10 bg-noir-700 flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-3 p-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <DashboardButton
               type="button"
+              variant="secondary"
               onClick={handleClose}
               disabled={loading || isClosing}
-              className="cursor-pointer inline-flex h-9 items-center justify-center gap-2 rounded-[14px] border border-white/12 bg-white/8 px-3.5 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 disabled:opacity-50 disabled:cursor-not-allowed font-one"
             >
               {isClosing ? (
                 <>
@@ -364,19 +366,19 @@ export default function CreateOrUpdateProduct({
               ) : (
                 "Annuler"
               )}
-            </button>
-            <button
+            </DashboardButton>
+            <DashboardButton
               type="submit"
               form="product-create-update-form"
               disabled={loading || isClosing}
-              className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:opacity-50 disabled:cursor-not-allowed font-one"
             >
+              {loading ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Save size={15} aria-hidden="true" />}
               {loading
                 ? "Enregistrement..."
                 : existingProduct
                 ? "Modifier le produit"
                 : "Ajouter le produit"}
-            </button>
+            </DashboardButton>
           </div>
         </div>
       </div>

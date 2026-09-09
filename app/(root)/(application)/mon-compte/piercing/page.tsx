@@ -1,19 +1,20 @@
+import { ArrowLeft } from "lucide-react";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import PiercingManager from "@/components/Application/MonCompte/PiercingManager";
 
 export default function PiercingPage() {
   return (
-    <div className="wrapper-global pb-16 sm:pb-10 px-3 sm:px-4 lg:px-6">
-      <section className="w-full space-y-3 pt-4 pb-10 xl:pb-0">
-        <div className="dashboard-hero flex flex-col gap-3 px-4 py-3 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:py-2.5">
+    <div className="wrapper-global pb-24 lg:pb-8">
+      <section className="w-full space-y-5 pt-4">
+        <div className="flex flex-col gap-4 px-1 py-3 sm:px-2 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">
+            <p className="text-xs uppercase tracking-[0.18em] text-tertiary-400 font-one">
               Mon compte
             </p>
-            <h1 className="text-base font-bold uppercase tracking-wide text-white font-one sm:text-lg">
+            <h1 className="mt-1 text-xl font-semibold text-white font-one sm:text-2xl">
               Configuration piercing
             </h1>
-            <p className="mt-0.5 text-[11px] text-white/70 font-one">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55 font-one">
               Gérez ici les zones, services et tarifs de la prestation piercing.
             </p>
           </div>
@@ -24,7 +25,7 @@ export default function PiercingPage() {
               variant="secondary"
               className="min-w-0 px-4 text-[11px]"
             >
-              Retour
+              <ArrowLeft size={15} aria-hidden="true" /> Retour au salon
             </DashboardButton>
             <DashboardButton
               href="/mon-compte"
@@ -35,7 +36,7 @@ export default function PiercingPage() {
           </div>
         </div>
 
-        <div className="dashboard-embedded-section p-3 sm:p-4">
+        <div className="min-w-0">
           <PiercingManager />
         </div>
       </section>

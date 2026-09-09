@@ -3,7 +3,9 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { ArrowLeft, CalendarDays, Clock3, Copy, LoaderCircle, Save, Sparkles } from "lucide-react";
+import DashboardButton from "@/components/Shared/DashboardButton";
+import { toast } from "sonner";
 import SkeletonHoursForm from "@/components/Skeleton/SkeletonHoursForm";
 
 type OpeningHour = { start: string; end: string } | null;
@@ -78,7 +80,7 @@ export default function HorairesPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!session?.user?.id) return;
+    if (!session?.user?.id || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
@@ -92,23 +94,25 @@ export default function HorairesPage() {
       );
 
       if (res.ok) {
+        toast.success("Horaires enregistrés avec succès.");
         router.push("/mon-compte");
       } else {
         console.error("Erreur lors de la mise à jour des horaires");
+        toast.error("Impossible d’enregistrer les horaires. Veuillez réessayer.");
       }
     } catch (error) {
       console.error("Erreur lors de la mise à jour:", error);
+      toast.error("Impossible d’enregistrer les horaires. Veuillez réessayer.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const sectionTitleClass =
-    "mb-1 text-[14px] font-semibold tracking-wide text-white font-one";
   const labelClass =
-    "text-[10px] uppercase tracking-wider text-white/50 font-one";
+    "mb-1.5 block text-xs font-medium text-white/65 font-one";
   const inputClass =
-    "w-full rounded-lg border border-white/10 bg-white/6 px-2.5 py-1.5 text-[11px] text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one";
+    "w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 [color-scheme:dark] font-two";
+  const openDaysCount = daysOfWeek.filter(({ key }) => Boolean(editingHours[key])).length;
 
   const setDayHours = (day: DayKey, value: OpeningHour) => {
     setEditingHours((prev) => ({
@@ -172,165 +176,109 @@ export default function HorairesPage() {
   if (isLoading) return <SkeletonHoursForm />;
 
   return (
-    <div className="wrapper-global pb-16 sm:pb-10 px-3 sm:px-4 lg:px-6">
-      <section className="w-full space-y-3 pt-4 pb-10 xl:pb-0">
-        <div className="dashboard-hero flex items-center gap-3 px-4 py-3 sm:px-5 lg:py-2.5">
-          <div className="flex h-10 w-10 items-center justify-center">
-            <Link
-              href="/mon-compte"
-              className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-white/8 text-white/70 transition-colors hover:bg-white/12 hover:text-white"
-            >
-              ←
-            </Link>
+    <div className="wrapper-global pb-24 lg:pb-8">
+      <section className="w-full space-y-5 pt-4">
+        <header className="flex flex-col gap-4 px-1 py-3 sm:px-2 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-tertiary-400 font-one">Mon compte</p>
+            <h1 className="mt-1 text-xl font-semibold text-white font-one sm:text-2xl">Les horaires de votre salon</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55 font-one">Définissez votre semaine d’ouverture pour aider vos clients à préparer leur visite.</p>
           </div>
-          <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">
-              Mon compte
-            </p>
-            <h1 className="text-base font-bold uppercase tracking-wide text-white font-one sm:text-lg">
-              Modifier les horaires
-            </h1>
-            <p className="mt-0.5 text-[11px] text-white/70 font-one">
-              Définissez les horaires d&apos;ouverture de votre salon.
-            </p>
-          </div>
-        </div>
+          <DashboardButton href="/mon-compte" variant="secondary" className="w-full sm:w-auto">
+            <ArrowLeft size={15} aria-hidden="true" />Retour au salon
+          </DashboardButton>
+        </header>
 
-        <div className="w-full rounded-2xl border border-white/10 bg-white/4 p-2.5 sm:p-3">
-          <form onSubmit={handleSubmit} className="space-y-2">
-            <div className="dashboard-embedded-section p-2.5 sm:p-3">
-              <h3 className={sectionTitleClass}>Configuration des horaires</h3>
-              <p className="mb-2.5 text-[12px] text-white/60 font-one">
-                Activez un jour, puis choisissez l&apos;heure de début et de fin.
-                Utilisez les actions rapides pour gagner du temps.
-              </p>
+        <form onSubmit={handleSubmit} className="create-rdv-form tablet-inputs space-y-4">
+          <fieldset disabled={isSubmitting} className="min-w-0 space-y-4 disabled:opacity-60">
+            <legend className="sr-only">Configurer les horaires d’ouverture</legend>
+            <section className="rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-4 sm:p-5" aria-labelledby="hours-shortcuts-title">
+              <div className="mb-5 flex items-start gap-3">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 text-tertiary-400"><Sparkles size={18} aria-hidden="true" /></span>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-tertiary-400/80 font-one">01 · Réglages rapides</p>
+                  <h2 id="hours-shortcuts-title" className="mt-1 text-base font-semibold text-white font-one">Préparez votre semaine en un clic</h2>
+                  <p className="mt-1 text-xs leading-5 text-white/50 font-two">Appliquez une base commune, puis ajustez chaque jour dans le planning ci-dessous.</p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                <DashboardButton variant="secondary" onClick={applyWeekTemplate} className="min-h-11">
+                  <Copy size={15} aria-hidden="true" />Copier le lundi sur les 7 jours
+                </DashboardButton>
+                <DashboardButton variant="secondary" onClick={openAllDays} className="min-h-11">
+                  <Clock3 size={15} aria-hidden="true" />Tout ouvrir · 09:00 – 18:00
+                </DashboardButton>
+                <DashboardButton variant="secondary" onClick={closeAllDays} className="min-h-11">Tout fermer</DashboardButton>
+              </div>
+              <p className="mt-3 text-xs leading-5 text-white/40 font-two">Ces actions remplacent les réglages des sept jours, week-end compris.</p>
+            </section>
 
-              <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={applyWeekTemplate}
-                  className="inline-flex h-8 items-center justify-center rounded-[10px] border border-white/15 bg-white/8 px-2.5 text-[12px] text-white/85 transition-colors hover:bg-white/12 font-one"
-                >
-                  Copier le lundi sur tous les jours
-                </button>
-                <button
-                  type="button"
-                  onClick={openAllDays}
-                  className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-emerald-500/35 bg-emerald-500/12 px-2.5 text-[12px] text-emerald-300 transition-colors hover:bg-emerald-500/20 font-one"
-                >
-                  Tout ouvrir
-                </button>
-                <button
-                  type="button"
-                  onClick={closeAllDays}
-                  className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-red-500/35 bg-red-500/12 px-2.5 text-[12px] text-red-300 transition-colors hover:bg-red-500/20 font-one"
-                >
-                  Tout fermer
-                </button>
+            <section className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5" aria-labelledby="hours-planning-title">
+              <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 text-tertiary-400"><CalendarDays size={18} aria-hidden="true" /></span>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-tertiary-400/80 font-one">02 · Planning hebdomadaire</p>
+                    <h2 id="hours-planning-title" className="mt-1 text-base font-semibold text-white font-one">Vos horaires, jour par jour</h2>
+                    <p className="mt-1 text-xs leading-5 text-white/50 font-two">Activez les jours d’ouverture et renseignez une heure de début et de fin.</p>
+                  </div>
+                </div>
+                <span role="status" className="rounded-full border border-tertiary-400/25 bg-tertiary-500/10 px-3 py-1.5 text-xs text-tertiary-400 font-one">{openDaysCount} jour{openDaysCount > 1 ? "s" : ""} d’ouverture / 7</span>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-3">
                 {daysOfWeek.map(({ key, label }) => {
                   const value = editingHours[key];
                   const isOpen = Boolean(value);
 
                   return (
-                    <div
-                      key={key}
-                      className="rounded-xl border border-white/10 bg-white/5 p-2"
-                    >
-                      <div className="flex flex-col gap-2 sm:gap-1.5">
-                        <div className="flex items-center justify-between gap-2">
-                          <label className="text-[11px] tracking-wide text-white/90 font-one">
-                            {label}
-                          </label>
+                    <div key={key} role="group" aria-labelledby={`day-${key}`} className={`grid gap-4 rounded-2xl border p-4 transition-colors md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:items-center sm:p-5 ${isOpen ? "border-white/10 bg-black/15" : "border-white/5 bg-white/[0.015]"}`}>
+                      <div className="flex items-center justify-between gap-4 md:pr-5">
+                        <div>
+                          <h3 id={`day-${key}`} className={`text-sm font-semibold font-one ${isOpen ? "text-white" : "text-white/55"}`}>{label}</h3>
+                          <p className={`mt-1 flex items-center gap-1.5 text-xs font-two ${isOpen ? "text-tertiary-400" : "text-white/35"}`}><span className={`size-1.5 rounded-full ${isOpen ? "bg-tertiary-400" : "bg-white/25"}`} aria-hidden="true" />{isOpen ? "Ouvert" : "Fermé"}</p>
+                        </div>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={isOpen}
+                          aria-label={`Ouverture le ${label.toLowerCase()}`}
+                          onClick={() => setDayHours(key, isOpen ? null : { start: "09:00", end: "18:00" })}
+                          className="flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl focus-visible:outline-2 focus-visible:outline-tertiary-400"
+                        >
+                          <span className={`flex h-6 w-11 items-center rounded-full p-0.5 transition-colors ${isOpen ? "bg-tertiary-500" : "bg-white/15"}`} aria-hidden="true"><span className={`size-5 rounded-full bg-white shadow-sm transition-transform ${isOpen ? "translate-x-5" : "translate-x-0"}`} /></span>
+                        </button>
+                      </div>
 
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              className={`rounded-[10px] border px-2 py-0.5 text-[10px] font-one ${
-                                isOpen
-                                  ? "border-emerald-500/35 bg-emerald-500/12 text-emerald-300"
-                                  : "border-red-500/35 bg-red-500/12 text-red-300"
-                              }`}
-                            >
-                              {isOpen ? "Ouvert" : "Fermé"}
-                            </span>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setDayHours(
-                                  key,
-                                  isOpen ? null : { start: "09:00", end: "18:00" },
-                                )
-                              }
-                              className={`cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border px-2.5 text-[10px] transition-colors font-one ${
-                                isOpen
-                                  ? "border-red-500/35 bg-red-500/12 text-red-300 hover:bg-red-500/20"
-                                  : "border-green-500/35 bg-green-500/12 text-green-300 hover:bg-green-500/20"
-                              }`}
-                            >
-                              {isOpen ? "Fermer" : "Ouvrir"}
-                            </button>
+                      {value ? (
+                        <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
+                          <div className="min-w-0">
+                            <label htmlFor={`hours-${key}-start`} className={labelClass}>Ouverture</label>
+                            <input id={`hours-${key}-start`} type="time" value={value.start ?? ""} onChange={(event) => updateDayTime(key, "start", event.target.value)} className={inputClass} />
+                          </div>
+                          <div className="min-w-0">
+                            <label htmlFor={`hours-${key}-end`} className={labelClass}>Fermeture</label>
+                            <input id={`hours-${key}-end`} type="time" value={value.end ?? ""} onChange={(event) => updateDayTime(key, "end", event.target.value)} className={inputClass} />
                           </div>
                         </div>
-
-                        {value ? (
-                          <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                            <div className="space-y-0.5">
-                              <label className={labelClass}>Début</label>
-                              <input
-                                type="time"
-                                value={value.start ?? ""}
-                                onChange={(e) =>
-                                  updateDayTime(key, "start", e.target.value)
-                                }
-                                className={inputClass}
-                              />
-                            </div>
-                            <div className="space-y-0.5">
-                              <label className={labelClass}>Fin</label>
-                              <input
-                                type="time"
-                                value={value.end ?? ""}
-                                onChange={(e) =>
-                                  updateDayTime(key, "end", e.target.value)
-                                }
-                                className={inputClass}
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="rounded-lg border border-dashed border-white/15 bg-white/5 px-2.5 py-2 text-[12px] text-white/55 font-one">
-                            Ce jour est fermé. Utilisez le bouton Ouvrir pour
-                            définir des horaires.
-                          </div>
-                        )}
-                      </div>
+                      ) : (
+                        <p className="rounded-xl border border-dashed border-white/10 px-4 py-4 text-xs leading-5 text-white/35 font-two">Jour de fermeture. Activez l’interrupteur pour ajouter des horaires.</p>
+                      )}
                     </div>
                   );
                 })}
               </div>
-            </div>
+            </section>
+          </fieldset>
 
-            <div className="flex flex-col justify-end gap-1.5 border-t border-white/10 pt-2 sm:flex-row sm:items-center">
-              <button
-                type="button"
-                onClick={() => router.push("/mon-compte")}
-                className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[12px] border border-white/12 bg-white/8 px-3 text-[12px] font-medium text-white/85 transition-colors hover:bg-white/12 font-one"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[12px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-3 text-[12px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:opacity-50 disabled:cursor-not-allowed font-one"
-              >
-                {isSubmitting ? "Enregistrement..." : "Sauvegarder les horaires"}
-              </button>
-            </div>
-          </form>
-        </div>
+          <div className="sticky bottom-4 z-20 flex flex-col-reverse justify-end gap-3 rounded-2xl border border-white/10 bg-noir-700/90 p-4 backdrop-blur-xl sm:flex-row sm:items-center">
+            <DashboardButton variant="secondary" onClick={() => router.push("/mon-compte")} disabled={isSubmitting} className="w-full sm:w-auto">Annuler</DashboardButton>
+            <DashboardButton type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
+              {isSubmitting ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Save size={15} aria-hidden="true" />}
+              {isSubmitting ? "Enregistrement…" : "Enregistrer les horaires"}
+            </DashboardButton>
+          </div>
+        </form>
       </section>
     </div>
   );

@@ -75,12 +75,12 @@ export default async function DashboardPage() {
               <div className="dashboard-live-indicator"><span /> Données en direct</div>
             </div>
             <div className="grid grid-cols-12 items-stretch gap-4 lg:gap-5">
-              <div className="col-span-12 xl:col-span-6">
+              <div className="col-span-12 xl:col-span-5">
                 {/* <RendezVousToday userId={session?.user?.id ?? ""} /> */}
                 <RendezVousTodayModern userId={session?.user?.id ?? ""} />
               </div>
 
-              <div className="col-span-12 md:col-span-6 xl:col-span-3">
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 {/* <WaitingRdv userId={session?.user?.id ?? ""} /> */}
                 <WaitingRdvModern userId={session?.user?.id ?? ""} />
               </div>

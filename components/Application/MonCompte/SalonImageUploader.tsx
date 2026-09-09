@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useRef, useState } from "react";
+import { ImagePlus, LoaderCircle, RefreshCw, Trash2, Upload, UserRound } from "lucide-react";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
 import { useUploadThing } from "@/lib/utils/uploadthing";
@@ -15,6 +16,7 @@ interface SalonImageUploaderProps {
   onFileSelect?: (file: File) => void;
   selectedFile?: File | null;
   previewMode?: boolean;
+  appearance?: "default" | "identity" | "media";
 }
 
 const buildCroppedImage = async ({
@@ -91,6 +93,7 @@ export default function SalonImageUploader({
   onImageRemove,
   compact = false,
   variant = "default",
+  appearance = "default",
 }: // onFileSelect,
 // selectedFile,
 // previewMode = false,
@@ -98,6 +101,10 @@ SalonImageUploaderProps) {
   const [progress, setProgress] = useState<number>(0);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false); // État pour le loader de suppression
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const helpId = useId();
 
   const { startUpload, isUploading } = useUploadThing("imageUploader", {
     onClientUploadComplete: (res: { url?: string; ufsUrl?: string; key: string }[]) => {
@@ -112,8 +119,11 @@ SalonImageUploaderProps) {
     onUploadProgress: (p: number) => setProgress(p),
     onUploadError: (error: Error) => {
       console.error("Upload error:", error);
+      setUploadError("L’envoi a échoué. Veuillez réessayer.");
     },
   });
+
+  const busy = isProcessing || isUploading || isDeleting;
 
   // Fonction pour supprimer de UploadThing
   const deleteFromUploadThing = async (imageUrl: string): Promise<boolean> => {
@@ -178,16 +188,20 @@ SalonImageUploaderProps) {
   };
 
   async function handleFiles(files: FileList | null) {
-    if (!files?.length) return;
+    if (!files?.length || busy) return;
 
     const file = files[0];
 
     // Vérifier le type de fichier
     if (!file.type.startsWith("image/")) {
-      alert("Veuillez sélectionner une image valide");
+      if (appearance !== "default") setUploadError("Veuillez sélectionner une image valide.");
+      else alert("Veuillez sélectionner une image valide");
       return;
     }
 
+    setUploadError(null);
+    setProgress(0);
+    setIsProcessing(true);
     try {
       if (variant === "profile") {
         await uploadProcessedFile(file);
@@ -211,7 +225,10 @@ SalonImageUploaderProps) {
       await uploadProcessedFile(file);
     } catch (error) {
       console.error("Erreur lors de la compression:", error);
-      alert("Erreur lors du traitement de l'image");
+      if (appearance !== "default") setUploadError("Impossible de traiter cette image. Essayez un autre fichier.");
+      else alert("Erreur lors du traitement de l'image");
+    } finally {
+      setIsProcessing(false);
     }
   }
 
@@ -283,6 +300,58 @@ SalonImageUploaderProps) {
       : variant === "profile"
         ? "md:col-span-2"
         : "";
+
+  if (appearance !== "default") {
+    const isMedia = appearance === "media";
+    const isProfile = variant === "profile";
+    const imageLabel = isMedia ? "l’image" : isProfile ? "la photo de profil" : "la couverture";
+
+    return (
+      <div className="flex h-full min-w-0 flex-col gap-4">
+        <div
+          className={`relative flex min-h-52 flex-1 items-center justify-center overflow-hidden rounded-2xl border transition-colors focus-within:ring-2 focus-within:ring-tertiary-400/60 ${isDragOver ? "border-tertiary-400 bg-tertiary-500/15" : "border-white/10 bg-black/20"}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          aria-busy={busy}
+        >
+          <div className={isMedia ? "relative flex h-56 w-full items-center justify-center sm:h-72" : isProfile ? "relative my-6 size-36 shrink-0 overflow-hidden rounded-full border-4 border-white/10 bg-white/5 shadow-xl sm:size-40" : "relative flex aspect-[16/6] w-full items-center justify-center self-center"}>
+            {currentImage ? (
+              <Image src={currentImage} alt={isMedia ? "Aperçu de l’image sélectionnée" : isProfile ? "Photo de profil du salon" : "Couverture du salon"} fill sizes={isProfile ? "160px" : "(max-width: 768px) 100vw, 720px"} className={isMedia ? "object-contain p-3" : "object-cover"} />
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
+                {isProfile ? <UserRound size={36} className="text-tertiary-400/60" aria-hidden="true" /> : <ImagePlus size={32} className="text-tertiary-400/60" aria-hidden="true" />}
+                <span className="text-xs text-white/45 font-two">{isProfile ? "Votre logo ou portrait" : "Une image qui raconte votre univers"}</span>
+              </div>
+            )}
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            aria-label={`${currentImage ? "Remplacer" : "Ajouter"} ${imageLabel}`}
+            aria-describedby={helpId}
+            disabled={busy}
+            onChange={(event) => {
+              void handleFiles(event.target.files);
+              event.target.value = "";
+            }}
+            className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0 disabled:cursor-wait"
+          />
+          {busy && <div role="status" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center gap-2 bg-black/65 text-sm text-white backdrop-blur-sm"><LoaderCircle size={18} className="animate-spin" aria-hidden="true" /><span>{isDeleting ? "Suppression…" : isUploading ? `Envoi… ${progress} %` : "Préparation de l’image…"}</span></div>}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={() => fileInputRef.current?.click()} disabled={busy} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 px-4 py-2 text-xs font-medium text-tertiary-400 transition hover:bg-tertiary-500/20 focus-visible:outline-2 focus-visible:outline-tertiary-400 disabled:cursor-wait disabled:opacity-50 font-one">
+            {currentImage ? <RefreshCw size={14} aria-hidden="true" /> : <Upload size={14} aria-hidden="true" />}
+            {currentImage ? "Remplacer l’image" : "Choisir une image"}
+          </button>
+          {currentImage && <button type="button" onClick={handleImageRemove} disabled={busy} aria-label={`Supprimer ${imageLabel}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs text-white/55 transition hover:border-red-400/25 hover:bg-red-500/10 hover:text-red-300 focus-visible:outline-2 focus-visible:outline-red-300 disabled:opacity-50 font-one"><Trash2 size={14} aria-hidden="true" />Supprimer</button>}
+        </div>
+        <p id={helpId} className="text-xs leading-5 text-white/45 font-two">{isMedia ? "Choisissez une image bien éclairée. L’aperçu affiche l’intégralité du visuel." : isProfile ? "Privilégiez une image carrée, centrée sur votre logo ou votre visage." : "Choisissez une photo paysage. Elle sera automatiquement recadrée au format 16:6, depuis le centre."} <span className="mt-1 block text-white/35">JPG, PNG ou WebP · Glissez votre fichier sur l’aperçu.</span></p>
+        {uploadError && <p role="alert" className="text-xs text-red-300 font-two">{uploadError}</p>}
+      </div>
+    );
+  }
 
   return (
     <div className={compact ? "w-full space-y-2" : "w-full space-y-4"}>

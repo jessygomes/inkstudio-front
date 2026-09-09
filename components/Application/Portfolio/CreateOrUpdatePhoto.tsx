@@ -5,9 +5,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { PortfolioProps } from "@/lib/type";
 import { portfolioSchema } from "@/lib/zod/validator.schema";
+import { ImagePlus, FileText, Save, LoaderCircle } from "lucide-react";
+import FormSectionHeader from "@/components/Shared/FormSectionHeader";
+import DashboardButton from "@/components/Shared/DashboardButton";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
 import { createOrUpdatePortfolioAction } from "@/lib/queries/portfolio";
@@ -25,6 +29,7 @@ export default function CreateOrUpdatePhoto({
   setIsOpen?: (isOpen: boolean) => void;
 }) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [loading, setLoading] = useState(false);
@@ -256,16 +261,16 @@ export default function CreateOrUpdatePhoto({
         style={{ height: "100dvh", width: "100vw" }}
       >
         <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none border-0 bg-[#1a1a1a] shadow-none sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)] md:max-h-[90vh]">
-          <div className="dashboard-embedded-header px-4 py-3.5 sm:rounded-t-[28px]">
+          <div className="shrink-0 border-b border-white/10 bg-gradient-to-r from-tertiary-500/10 to-transparent px-4 py-5 sm:px-6">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-tertiary-400 font-one">
                   Portfolio
                 </p>
-                <h2 className="mt-1 truncate text-base font-semibold tracking-wide text-white font-one sm:text-lg">
+                <h2 className="mt-1 text-lg font-semibold text-white font-one sm:text-xl">
                   {existingPhoto ? "Modifier une photo" : "Ajouter une photo"}
                 </h2>
-                <p className="mt-0.5 text-xs text-white/65 font-one">
+                <p className="mt-2 text-xs leading-5 text-white/50 font-two">
                   {existingPhoto
                     ? "Mettez à jour les informations de votre visuel"
                     : "Ajoutez un nouveau visuel dans votre portfolio"}
@@ -274,9 +279,9 @@ export default function CreateOrUpdatePhoto({
 
               <button
                 type="button"
-                onClick={handleClose}
+                aria-label="Fermer la fenêtre" onClick={handleClose}
                 disabled={isClosing || loading}
-                className="shrink-0 rounded-xl p-1.5 text-white/65 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex size-11 items-center justify-center border border-white/10 shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-tertiary-400 text-white/65 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isClosing ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -299,18 +304,17 @@ export default function CreateOrUpdatePhoto({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-3 py-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5 sm:py-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
             <form
               id="portfolio-create-update-form"
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-2.5"
+              className="create-rdv-form tablet-inputs space-y-4"
             >
-              <div className="dashboard-embedded-section p-3">
-                <h3 className="mb-2 text-[12px] font-semibold text-white font-one">
-                  Image du portfolio
-                </h3>
+              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+                <FormSectionHeader eyebrow="01 · Visuel" title="Votre réalisation" description="Montrez les détails de votre travail avec une photo nette." icon={<ImagePlus size={18} />} />
 
                 <SalonImageUploader
+                  appearance="media"
                   currentImage={
                     form.watch("imageUrl") ||
                     existingPhoto?.imageUrl ||
@@ -351,20 +355,18 @@ export default function CreateOrUpdatePhoto({
                 )}
               </div>
 
-              <div className="dashboard-embedded-section p-3">
-                <h3 className="mb-2 text-[12px] font-semibold text-white font-one">
-                  Informations
-                </h3>
+              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+                <FormSectionHeader eyebrow="02 · Présentation" title="Présentez ce tatouage" description="Ajoutez un titre, son artiste et les styles qui le caractérisent." icon={<FileText size={18} />} />
 
-                <div className="space-y-2.5">
+                <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
+                    <label htmlFor="portfolio-title" className="mb-1.5 block text-xs font-medium text-white/65 font-one">
                       Titre du tatouage
                     </label>
-                    <input
+                    <input id="portfolio-title" aria-invalid={Boolean(form.formState.errors.title)}
                       placeholder="Donnez un titre à votre tatouage"
                       {...form.register("title")}
-                      className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
+                      className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                     />
                     {form.formState.errors.title && (
                       <p className="mt-1 text-xs text-red-300 font-one">
@@ -374,7 +376,7 @@ export default function CreateOrUpdatePhoto({
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
+                    <label className="mb-1.5 block text-xs font-medium text-white/65 font-one">
                       Tatoueur {isUserTatoueur ? "(automatique)" : "(optionnel)"}
                     </label>
                     {isUserTatoueur ? (
@@ -396,7 +398,7 @@ export default function CreateOrUpdatePhoto({
                     ) : (
                       <select
                         {...form.register("tatoueurId")}
-                        className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white focus:border-tertiary-400/40 focus:outline-none font-one"
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                       >
                         <option value="" className="bg-noir-500">
                           Aucun tatoueur assigné
@@ -415,13 +417,13 @@ export default function CreateOrUpdatePhoto({
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
+                    <label className="mb-1.5 block text-xs font-medium text-white/65 font-one">
                       Styles (optionnel)
                     </label>
 
                     <div className="flex items-center gap-2">
                       <input
-                        value={styleInput}
+                        aria-label="Ajouter un style" value={styleInput}
                         onChange={(event) => setStyleInput(event.target.value)}
                         onKeyDown={(event) => {
                           if (event.key === "Enter" || event.key === ",") {
@@ -431,12 +433,12 @@ export default function CreateOrUpdatePhoto({
                         }}
                         onBlur={addStylesFromInput}
                         placeholder="Ex: Blackwork, Fine Line, Réaliste"
-                        className="w-full rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                       />
                       <button
                         type="button"
                         onClick={addStylesFromInput}
-                        className="cursor-pointer inline-flex h-8 shrink-0 items-center justify-center rounded-lg border border-white/12 bg-white/8 px-3 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 font-one"
+                        className="cursor-pointer inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg border border-white/12 bg-white/8 px-3 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 font-one"
                       >
                         Ajouter
                       </button>
@@ -471,14 +473,14 @@ export default function CreateOrUpdatePhoto({
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[11px] text-white/60 font-one uppercase tracking-wider">
+                    <label htmlFor="portfolio-description" className="mb-1.5 block text-xs font-medium text-white/65 font-one">
                       Description (optionnelle)
                     </label>
-                    <textarea
+                    <textarea id="portfolio-description" aria-invalid={Boolean(form.formState.errors.description)}
                       placeholder="Décrivez votre œuvre, le style, la technique utilisée..."
                       {...form.register("description")}
                       rows={4}
-                      className="h-24 w-full resize-none rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
+                      className="h-24 w-full resize-y rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
                     />
                     {form.formState.errors.description && (
                       <p className="mt-1 text-xs text-red-300 font-one">
@@ -563,7 +565,7 @@ export default function CreateOrUpdatePhoto({
                         <button
                           type="button"
                           onClick={() => {
-                            window.location.href = "/parametres";
+                            router.push("/parametres");
                           }}
                           className="cursor-pointer inline-flex items-center justify-center rounded-[10px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-2.5 py-1 text-xs font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 font-one"
                         >
@@ -582,25 +584,25 @@ export default function CreateOrUpdatePhoto({
                   </div>
                 </div>
               ) : error ? (
-                <div className="rounded-xl border border-red-500/45 bg-red-500/14 p-3">
+                <div role="alert" className="rounded-xl border border-red-500/45 bg-red-500/14 p-3">
                   <p className="text-xs text-red-300 font-one">{error}</p>
                 </div>
               ) : null}
 
               {success && (
-                <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/14 p-3">
+                <div role="status" className="rounded-xl border border-emerald-500/40 bg-emerald-500/14 p-3">
                   <p className="text-xs text-emerald-300 font-one">{success}</p>
                 </div>
               )}
             </form>
           </div>
 
-          <div className="dashboard-embedded-footer flex items-center justify-end gap-2 px-4 py-2.5 sm:rounded-b-[28px]">
-            <button
+          <div className="shrink-0 border-t border-white/10 bg-noir-700 flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-3 p-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <DashboardButton
               type="button"
+              variant="secondary"
               onClick={handleClose}
               disabled={loading || isClosing}
-              className="cursor-pointer inline-flex h-9 items-center justify-center gap-2 rounded-[14px] border border-white/12 bg-white/8 px-3.5 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-50 font-one"
             >
               {isClosing ? (
                 <>
@@ -610,19 +612,19 @@ export default function CreateOrUpdatePhoto({
               ) : (
                 "Annuler"
               )}
-            </button>
-            <button
+            </DashboardButton>
+            <DashboardButton
               type="submit"
               form="portfolio-create-update-form"
               disabled={loading || isClosing}
-              className="cursor-pointer inline-flex h-9 items-center justify-center rounded-[14px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 text-[11px] font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:cursor-not-allowed disabled:opacity-50 font-one"
             >
+              {loading ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Save size={15} aria-hidden="true" />}
               {loading
                 ? "Enregistrement..."
                 : existingPhoto
                 ? "Modifier la photo"
                 : "Ajouter la photo"}
-            </button>
+            </DashboardButton>
           </div>
         </div>
       </div>

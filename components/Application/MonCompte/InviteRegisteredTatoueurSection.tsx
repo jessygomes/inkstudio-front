@@ -112,17 +112,17 @@ export default function InviteRegisteredTatoueurSection() {
   };
 
   return (
-    <div className="w-full rounded-3xl border border-white/10 bg-white/4 p-3 sm:p-4">
-      <h3 className="mb-2 text-[14px] font-semibold tracking-wide text-white font-one">
+    <div className="w-full rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-4 sm:p-5">
+      <h3 className="mb-2 text-base font-semibold text-white font-one">
         Inviter un tatoueur déjà inscrit
       </h3>
-      <p className="mb-3 text-[11px] text-white/65 font-one">
+      <p className="mb-4 text-xs leading-5 text-white/50 font-two">
         Recherchez un tatoueur inscrit par nom, prénom ou email.
       </p>
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <input
-          value={searchQuery}
+          aria-label="Rechercher un tatoueur par nom, prénom ou email" value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -131,7 +131,7 @@ export default function InviteRegisteredTatoueurSection() {
             }
           }}
           placeholder="Ex: julie, martin, email@..."
-          className="w-full rounded-2xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
+          className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
         />
         <button
           type="button"
@@ -145,10 +145,10 @@ export default function InviteRegisteredTatoueurSection() {
 
       <div className="mt-2">
         <input
-          value={inviteMessage}
+          aria-label="Message optionnel à joindre à la demande" value={inviteMessage}
           onChange={(e) => setInviteMessage(e.target.value)}
           placeholder="Message optionnel à joindre à la demande"
-          className="w-full rounded-2xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
+          className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
         />
       </div>
 

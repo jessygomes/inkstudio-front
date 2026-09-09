@@ -12,7 +12,7 @@ import {
   type PiercingZone,
   type PiercingPrice,
 } from "@/lib/queries/piercing";
-import { FaPlus } from "react-icons/fa";
+import { Gem, MapPin, Plus, Save, Trash2, LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface PiercingManagerProps {
@@ -53,13 +53,13 @@ export default function PiercingManager({}: PiercingManagerProps) {
   }>({ show: false, zoneId: "", serviceIndex: -1, serviceName: "" });
 
   const sectionTitleClass =
-    "mb-2 text-[12px] font-semibold tracking-wider text-white font-one";
+    "mb-2 text-base font-semibold text-white font-one";
   const labelClass =
-    "mb-1 block text-[10px] uppercase tracking-wider text-white/45 font-one";
+    "mb-1.5 block text-xs font-medium text-white/65 font-one";
   const fieldClass =
-    "w-full rounded-2xl border border-white/10 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-white/25 focus:outline-none font-one";
+    "w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two";
   const zoneCardClass =
-    "rounded-2xl border border-white/10 bg-white/[0.03] p-4";
+    "dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5";
 
   useEffect(() => {
     loadPiercingData();
@@ -358,15 +358,15 @@ export default function PiercingManager({}: PiercingManagerProps) {
   }
 
   return (
-    <div className="relative space-y-2.5">
-      <div>
-        <h4 className={sectionTitleClass}>
+    <div className="create-rdv-form tablet-inputs relative space-y-5">
+      <div className="rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-4 sm:p-5">
+        <div className="mb-4 flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 text-tertiary-400"><MapPin size={18} aria-hidden="true" /></span><div><p className="text-[10px] uppercase tracking-[0.16em] text-tertiary-400 font-one">01 · Votre offre</p><h4 className={sectionTitleClass}>
           Zones de piercing proposées
-        </h4>
+        </h4></div></div>
 
         {/* Sélection des zones globales */}
-        <div className="mb-2.5 p-2">
-          <p className="mb-2 text-[11px] text-white/60 font-one">
+        <div className="space-y-4">
+          <p className="mb-3 text-xs leading-5 text-white/55 font-two">
             Sélectionnez les zones de piercing que votre salon propose :
           </p>
           <div className="flex flex-wrap gap-2">
@@ -375,10 +375,10 @@ export default function PiercingManager({}: PiercingManagerProps) {
               return (
                 <label
                   key={zone}
-                  className={`cursor-pointer flex items-center justify-center rounded-3xl border px-3 py-1.5 text-[11px] font-one transition
+                  className={`cursor-pointer flex min-h-12 items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-one transition focus-within:ring-2 focus-within:ring-tertiary-400/50
                     ${
                       isSelected
-                        ? "border-tertiary-400/40 bg-tertiary-500/20 text-tertiary-500"
+                        ? "border-tertiary-400/40 bg-tertiary-500/10 text-tertiary-400"
                         : "border-white/15 bg-white/10 text-white/85 hover:bg-white/15"
                     }`}
                 >
@@ -396,7 +396,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
         </div>
       </div>
 
-      {/* Configuration des prix pour les zones sélectionnées */}
+      {/* Personnalisez vos prestations pour les zones sélectionnées */}
       {selectedZones.length === 0 ? (
         <div className="dashboard-empty-state rounded-2xl border border-white/10 p-5 text-center">
           <p className="text-xs text-white/60 font-one">
@@ -404,12 +404,13 @@ export default function PiercingManager({}: PiercingManagerProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          <div className="">
+        <div className="space-y-4">
+          <div className="px-1">
+            <p className="mb-1 text-[10px] uppercase tracking-[0.16em] text-tertiary-400 font-one">02 · Services et tarifs</p>
             <h5 className={sectionTitleClass}>
               Configuration des prix
             </h5>
-            <p className="text-[11px] text-white/50 font-one">
+            <p className="text-xs leading-5 text-white/50 font-two">
               Configurez chaque service rapidement : type, tarif, statut puis
               enregistrez ligne par ligne.
             </p>
@@ -422,7 +423,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
               <div className="mb-3 border-b border-white/10 pb-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold tracking-wide text-white font-one">
+                    <Gem size={18} className="text-tertiary-400" aria-hidden="true" /><span className="text-base font-semibold text-white font-one">
                       {zone.piercingZone}
                     </span>
                     <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
@@ -436,25 +437,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
               </div>
 
               {/* Services pour cette zone */}
-              <div className="space-y-2">
-                <div className="hidden border-b border-white/10 px-1 pb-2 md:grid md:grid-cols-[minmax(0,1fr)_130px_100px_120px_120px] md:items-center md:gap-2">
-                  <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
-                    Type spécifique
-                  </span>
-                  <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
-                    Prix (€)
-                  </span>
-                  <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
-                    Statut
-                  </span>
-                  <span className="text-[10px] uppercase tracking-wider text-white/45 font-one text-center">
-                    Sauvegarde
-                  </span>
-                  <span className="text-[10px] uppercase tracking-wider text-white/45 font-one text-center">
-                    Suppression
-                  </span>
-                </div>
-
+              <div className="space-y-4">
                 {(services[zone.id] || []).length === 0 && (
                   <div className="rounded-3xl border border-dashed border-white/15 bg-transparent px-3 py-5 text-center">
                     <p className="text-[11px] text-white/55 font-one">
@@ -465,9 +448,9 @@ export default function PiercingManager({}: PiercingManagerProps) {
                 {(services[zone.id] || []).map((service, idx) => (
                   <div
                     key={service.id || `${zone.id}-${idx}`}
-                    className="rounded-3xl bg-black/15 p-3 sm:p-2"
+                    className="rounded-2xl border border-white/10 bg-black/15 p-4"
                   >
-                    <div className="mb-2 flex items-center justify-between md:hidden">
+                    <div className="mb-4 flex items-center justify-between gap-2">
                       <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
                         Service {idx + 1}
                       </span>
@@ -478,12 +461,12 @@ export default function PiercingManager({}: PiercingManagerProps) {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 gap-2 md:grid-cols-[minmax(0,1fr)_130px_100px_120px_120px] md:items-end">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_130px_120px_150px_120px] xl:items-end">
                       <div>
-                        <label className={`${labelClass} md:sr-only`}>
+                        <label htmlFor={`piercing-type-${zone.id}-${idx}`} className={labelClass}>
                           Type spécifique
                         </label>
-                        <select
+                        <select id={`piercing-type-${zone.id}-${idx}`}
                           value={service.zone}
                           onChange={(e) =>
                             updateService(zone.id, idx, "zone", e.target.value)
@@ -507,10 +490,10 @@ export default function PiercingManager({}: PiercingManagerProps) {
                       </div>
 
                       <div>
-                        <label className={`${labelClass} md:sr-only`}>
+                        <label htmlFor={`piercing-price-${zone.id}-${idx}`} className={labelClass}>
                           Prix (EUR)
                         </label>
-                        <input
+                        <input id={`piercing-price-${zone.id}-${idx}`}
                           type="number"
                           min="0"
                           step="0.01"
@@ -530,12 +513,12 @@ export default function PiercingManager({}: PiercingManagerProps) {
                         />
                       </div>
 
-                      <div className="md:flex md:justify-center">
-                        <label className={`${labelClass} md:sr-only`}>
+                      <div className="min-w-0">
+                        <label className={labelClass}>
                           Statut
                         </label>
-                        <label className="inline-flex h-9 w-full cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 md:w-auto md:justify-center md:px-3">
-                          <span className="text-[11px] text-white/70 font-one md:sr-only">
+                        <label className="inline-flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 focus-within:ring-2 focus-within:ring-tertiary-400/50">
+                          <span className="text-xs text-white/70 font-one">
                             Actif
                           </span>
                           <input
@@ -568,25 +551,25 @@ export default function PiercingManager({}: PiercingManagerProps) {
                           !service.zone ||
                           service.price <= 0
                         }
-                        className={`inline-flex h-9 w-full items-center justify-center rounded-2xl px-2 text-[11px] transition-colors ${
+                        className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-3 text-xs transition-colors ${
                           service.isModified && service.zone && service.price > 0
-                            ? "cursor-pointer border border-white/20 bg-white/10 text-white hover:bg-white/15"
+                            ? "cursor-pointer border border-tertiary-400/30 bg-tertiary-500/20 text-tertiary-300 hover:bg-tertiary-500/30"
                             : "cursor-not-allowed border border-white/10 bg-white/8 text-white/30"
                         }`}
                         aria-label="Sauvegarder le service"
                         title="Sauvegarder"
                       >
-                        {service.isSaving ? "En cours..." : "Sauvegarder"}
+                        {service.isSaving ? <LoaderCircle size={14} className="animate-spin" aria-hidden="true" /> : <Save size={14} aria-hidden="true" />}{service.isSaving ? "Enregistrement…" : service.isModified ? "Enregistrer" : "Enregistré"}
                       </button>
 
                       <button
                         type="button"
                         onClick={() => removeService(zone.id, idx)}
-                        className="cursor-pointer inline-flex h-9 w-full items-center justify-center rounded-2xl px-2 text-[11px] border border-white/15 bg-transparent text-white/75 transition-colors hover:bg-white/8"
+                        className="cursor-pointer inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-3 text-xs border border-white/15 bg-transparent text-white/75 transition-colors hover:bg-white/8"
                         aria-label="Supprimer le service"
                         title="Supprimer"
                       >
-                        Supprimer
+                        <Trash2 size={14} aria-hidden="true" /> Supprimer
                       </button>
                     </div>
                   </div>
@@ -595,9 +578,9 @@ export default function PiercingManager({}: PiercingManagerProps) {
                 <button
                   type="button"
                   onClick={() => addService(zone.id)}
-                  className="cursor-pointer inline-flex h-10 w-full items-center justify-center gap-1 rounded-3xl border border-dashed border-white/20 bg-transparent text-xs text-white/70 transition-colors hover:bg-white/8 hover:text-white font-one"
+                  className="cursor-pointer inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-tertiary-400/30 bg-tertiary-500/5 text-sm text-tertiary-400 transition-colors hover:bg-tertiary-500/10 focus-visible:outline-2 focus-visible:outline-tertiary-400 font-one"
                 >
-                  <FaPlus className="h-3 w-3" />
+                  <Plus size={16} aria-hidden="true" />
                   Ajouter un service
                 </button>
               </div>

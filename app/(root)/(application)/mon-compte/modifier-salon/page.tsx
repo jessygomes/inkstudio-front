@@ -17,7 +17,7 @@ import {
   updateProjectAppointmentBookingAction,
 } from "@/lib/queries/user";
 import { toast } from "sonner";
-import { ImagePlus, UserRound, MapPin, Globe, FileText, Sparkles, Palette, Save, ArrowLeft, LoaderCircle } from "lucide-react";
+import { ImagePlus, UserRound, MapPin, Globe, FileText, Sparkles, Palette, Save, ArrowLeft, LoaderCircle, CalendarClock, Mail, Gem, ArrowRight } from "lucide-react";
 import { IoClose } from "react-icons/io5";
 
 export default function UpdateAccountPage() {
@@ -214,8 +214,6 @@ export default function UpdateAccountPage() {
     }
   };
 
-  const sectionTitleClass =
-    "mb-2 text-sm font-semibold text-white font-one";
   const labelClass =
     "mb-1.5 block text-xs font-medium text-white/65 font-one";
   const inputClass =
@@ -294,11 +292,17 @@ export default function UpdateAccountPage() {
           >
             <div className="col-span-12 rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-4 sm:p-6">
               <FormSectionHeader eyebrow="01 · Identité visuelle" title="L’image de votre salon" description="Votre photo de profil et votre couverture donnent le premier aperçu de votre univers." icon={<ImagePlus size={18} />} />
-              <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-              <div>
-                <h3 className={sectionTitleClass}>Photo de profil</h3>
+              <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]">
+              <div className="flex min-w-0 flex-col rounded-[20px] border border-white/10 bg-[#181818]/80 p-4 sm:p-5">
+                <div className="mb-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-sm font-semibold text-white font-one">Photo de profil</h3>
+                    <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] text-white/45 font-one">Format carré</span>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-white/50 font-two">Le repère visuel pour reconnaître votre salon au premier regard.</p>
+                </div>
                 <SalonImageUploader
-                  compact
+                  appearance="identity"
                   variant="profile"
                   currentImage={form.watch("profileImage") ?? undefined}
                   onImageUpload={(imageUrl) => {
@@ -308,12 +312,16 @@ export default function UpdateAccountPage() {
                 />
               </div>
 
-              <div>
-                <h3 className={sectionTitleClass}>Couverture du salon</h3>
-                <p className="mb-2 text-xs leading-5 text-white/60 font-one">
-                  Cette image est affichée comme couverture de votre salon.
-                </p>
+              <div className="flex min-w-0 flex-col rounded-[20px] border border-white/10 bg-[#181818]/80 p-4 sm:p-5">
+                <div className="mb-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-sm font-semibold text-white font-one">Couverture du salon</h3>
+                    <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] text-white/45 font-one">Paysage · 16:6</span>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-white/50 font-two">Mettez en scène votre espace, vos créations ou l’ambiance du salon.</p>
+                </div>
                 <SalonImageUploader
+                  appearance="identity"
                   variant="banner"
                   currentImage={form.watch("image") ?? undefined}
                   onImageUpload={(imageUrl) => {
@@ -556,23 +564,13 @@ export default function UpdateAccountPage() {
             </section>
 
             {showProjectConfig ? (
-              <div className="dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <h3 className="text-sm font-semibold tracking-wider text-white font-one">
-                    Configuration de la prestation Projet
-                  </h3>
-                  {projectDuration ? (
-                    <span className="rounded-full border border-white/15 bg-white/10 px-2 py-0.5 text-[10px] text-white/70 font-one">
-                      {formatDurationLabel(projectDuration)}
-                    </span>
-                  ) : null}
+              <div className={`dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5 ${showFollowUpEmailConfig ? "xl:col-span-6" : ""}`}>
+                <FormSectionHeader eyebrow="Réservation · Projet" title="Préparez le premier échange" description="Définissez la durée et le tarif du rendez-vous consacré au projet de votre client." icon={<CalendarClock size={18} />} />
+                <div className="mb-5 flex flex-wrap gap-2">
+                  <span className={badgeClass}>{projectDuration ? formatDurationLabel(projectDuration) : "Durée à définir"}</span>
+                  <span className={badgeClass}>{projectIsFree ? "Rendez-vous gratuit" : "Rendez-vous payant"}</span>
                 </div>
-
-                <p className="mb-2 text-xs leading-5 text-white/60 font-one">
-                  Durée par tranches de 30 minutes.
-                </p>
-
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 ">
+                <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
                   <div className="space-y-1">
                     <label htmlFor="salon-projectAppointmentDurationMinutes" className={labelClass}>Durée (minutes)</label>
                     <select id="salon-projectAppointmentDurationMinutes" aria-invalid={Boolean(form.formState.errors.projectAppointmentDurationMinutes)} aria-describedby={form.formState.errors.projectAppointmentDurationMinutes ? "salon-projectAppointmentDurationMinutes-error" : undefined}
@@ -593,10 +591,10 @@ export default function UpdateAccountPage() {
 
                   <div className="space-y-1">
                     <label className={labelClass}>Tarification</label>
-                    <label className="inline-flex h-9 w-full items-center gap-2 rounded-xl border border-white/10 bg-white/6 px-3 text-xs text-white font-one">
+                    <label className="inline-flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl border border-tertiary-400/20 bg-tertiary-500/5 px-3.5 py-2.5 text-sm text-white font-one focus-within:ring-2 focus-within:ring-tertiary-400/40">
                       <input
                         type="checkbox"
-                        checked={projectIsFree}
+                        className="size-4 accent-tertiary-500" checked={projectIsFree}
                         onChange={(e) => {
                           const checked = e.target.checked;
                           form.setValue("projectAppointmentIsFree", checked, {
@@ -641,20 +639,10 @@ export default function UpdateAccountPage() {
             ) : null}
 
             {showFollowUpEmailConfig ? (
-              <div className="dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <h3 className="text-sm font-semibold tracking-wider text-white font-one">
-                    Emails de suivi
-                  </h3>
-                </div>
-
-                <p className="mb-2 text-xs leading-5 text-white/60 font-one">
-                  Définissez le délai d’envoi des emails après la séance.
-                </p>
-
-                <div className={`grid grid-cols-1 gap-2 ${showRetouchEmailDelay ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}>
-                  <div className="space-y-1">
-                    <label htmlFor="salon-followUpEmailDelayDays" className={labelClass}>Suivi général (jours)</label>
+              <div className={`dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5 ${showProjectConfig ? "xl:col-span-6" : ""}`}>
+                <FormSectionHeader eyebrow="Relation client · Suivi" title="Gardez le contact après la séance" description="Personnalisez le délai d’envoi de vos emails de suivi, en jours après le rendez-vous." icon={<Mail size={18} />} />
+                <div className={`grid grid-cols-1 gap-4 ${showRetouchEmailDelay ? "sm:grid-cols-2" : "sm:max-w-lg"}`}>
+                  <div className="rounded-2xl border border-white/10 bg-black/10 p-4"><p className="mb-3 text-xs leading-5 text-white/50 font-two">Prenez des nouvelles de votre client après sa séance.</p><label htmlFor="salon-followUpEmailDelayDays" className={labelClass}>Suivi général (jours)</label>
                     <input id="salon-followUpEmailDelayDays" aria-invalid={Boolean(form.formState.errors.followUpEmailDelayDays)} aria-describedby={form.formState.errors.followUpEmailDelayDays ? "salon-followUpEmailDelayDays-error" : undefined}
                       type="number"
                       min={1}
@@ -669,8 +657,7 @@ export default function UpdateAccountPage() {
                   </div>
 
                   {showRetouchEmailDelay ? (
-                    <div className="space-y-1">
-                      <label htmlFor="salon-retouchEmailDelayDays" className={labelClass}>Suivi retouche (jours)</label>
+                    <div className="rounded-2xl border border-white/10 bg-black/10 p-4"><p className="mb-3 text-xs leading-5 text-white/50 font-two">Programmez un suivi dédié aux retouches.</p><label htmlFor="salon-retouchEmailDelayDays" className={labelClass}>Suivi retouche (jours)</label>
                       <input id="salon-retouchEmailDelayDays" aria-invalid={Boolean(form.formState.errors.retouchEmailDelayDays)} aria-describedby={form.formState.errors.retouchEmailDelayDays ? "salon-retouchEmailDelayDays-error" : undefined}
                         type="number"
                         min={1}
@@ -688,7 +675,27 @@ export default function UpdateAccountPage() {
               </div>
             ) : null}
 
-            <div className="sticky bottom-0 z-20 col-span-12 flex flex-col-reverse justify-end gap-3 rounded-2xl border border-white/10 bg-noir-700/90 p-4 backdrop-blur-xl sm:flex-row sm:items-center">
+          {(() => {
+            const showPiercing = selectedPrestations.includes("PIERCING");
+
+            if (!showPiercing) return null;
+
+            return (
+              <div className="dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <FormSectionHeader eyebrow="Catalogue · Piercing" title="Vos zones, services et tarifs" description="Composez votre offre de piercing et ajustez les prestations disponibles pour vos clients." icon={<Gem size={18} />} />
+                  <DashboardButton
+                    href="/mon-compte/piercing"
+                    className="w-full sm:w-auto"
+                  >
+                    Configurer les piercings <ArrowRight size={15} aria-hidden="true" />
+                  </DashboardButton>
+                </div>
+              </div>
+            );
+          })()}
+
+            <div className="sticky bottom-4 z-20 col-span-12 flex flex-col-reverse justify-end gap-3 rounded-2xl border border-white/10 bg-noir-700/90 p-4 backdrop-blur-xl sm:flex-row sm:items-center">
               <DashboardButton
                 variant="secondary"
                 onClick={() => router.push("/mon-compte")}
@@ -711,31 +718,7 @@ export default function UpdateAccountPage() {
             </div>
           </form>
 
-          {(() => {
-            const showPiercing = selectedPrestations.includes("PIERCING");
 
-            if (!showPiercing) return null;
-
-            return (
-              <div className="dashboard-embedded-section mt-4 rounded-[22px] p-4 sm:p-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h3 className={sectionTitleClass}>Configuration piercing</h3>
-                    <p className="text-xs leading-5 text-white/60 font-one">
-                      Configurer les zones, services et tarifs de votre prestation piercing.
-                    </p>
-                  </div>
-
-                  <DashboardButton
-                    href="/mon-compte/piercing"
-                    className="w-full sm:w-auto"
-                  >
-                    Configurer
-                  </DashboardButton>
-                </div>
-              </div>
-            );
-          })()}
         </div>
       </section>
     </div>

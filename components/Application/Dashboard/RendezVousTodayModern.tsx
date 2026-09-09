@@ -269,7 +269,7 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
 
   if (loading) {
     return (
-      <div className="dashboard-panel dashboard-panel-featured p-4 lg:p-5">
+      <div className="dashboard-panel dashboard-panel-featured min-h-[540px] p-4 lg:min-h-[540px] lg:p-5">
         <div className="dashboard-panel-content">
           <div className="dashboard-card-header mb-4">
             <div>
@@ -302,7 +302,7 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
 
   if (error) {
     return (
-      <div className="dashboard-panel dashboard-panel-featured p-4 lg:p-5">
+      <div className="dashboard-panel dashboard-panel-featured min-h-[540px] p-4 lg:min-h-[640px] lg:p-5">
         <div className="dashboard-panel-content">
           <div className="dashboard-card-header mb-4">
             <div>
@@ -340,7 +340,7 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="dashboard-panel dashboard-panel-featured relative h-[540px] overflow-y-auto scrollbar-hidden p-3.5 shadow-2xl lg:max-h-[520px] lg:p-4">
+    <div className="dashboard-panel dashboard-panel-featured relative min-h-[540px] lg:min-h-[640px] overflow-y-auto scrollbar-hidden p-3.5 shadow-2xl lg:p-4">
       <div
         className={`dashboard-panel-content flex h-full flex-col ${
           selectedAppointment ? "lg:pointer-events-none lg:opacity-0" : ""
