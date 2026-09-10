@@ -319,7 +319,7 @@ export default function MessageInput({
             )}
           </button>
         </div>
-        <p className="hidden px-1 text-[11px] text-white/50 sm:block">Entrée pour envoyer · Maj + Entrée pour revenir à la ligne</p>
+        {/* <p className="hidden px-1 text-[11px] text-white/50 sm:block">Entrée pour envoyer · Maj + Entrée pour revenir à la ligne</p> */}
       </form>
     </div>
   );

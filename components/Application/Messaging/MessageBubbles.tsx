@@ -60,7 +60,7 @@ export default function MessageBubbles({
             >
               <div className="flex min-w-0 items-start gap-1">
                 <div
-                  className={`min-w-0 px-4 py-3 rounded-2xl text-sm ${
+                  className={`min-w-0 px-4 py-3 rounded-2xl text-[13px] ${
                     isOwnMessage
                       ? "bg-tertiary-500/25 border border-tertiary-400/25 text-white rounded-br-md"
                       : "bg-white/5 border border-white/10 text-white/90 rounded-bl-md"
