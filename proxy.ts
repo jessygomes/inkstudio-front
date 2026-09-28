@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { ROUTES } from "@/lib/routes";
+import { ROUTES, PROTECTED_PATHS } from "@/lib/routes";
 import { NextResponse } from "next/server";
 
 /**
@@ -13,24 +13,7 @@ export default auth((req) => {
   const isAuthenticated = isLoggedIn && !hasExpiredToken;
 
   // Pages qui nécessitent une authentification
-  const protectedPaths = [
-    ROUTES.dashboard,
-    "/rdv",
-    "/mes-rendez-vous",
-    "/clients",
-    "/portfolio",
-    "/mon-portfolio",
-    "/mes-produits",
-    "/mes-flashs",
-    "/mon-compte",
-    "/parametres",
-    "/stocks",
-    "/factures",
-    "/messagerie",
-    "/review",
-    "/suiviDessin",
-    "/admin",
-  ];
+  const protectedPaths = PROTECTED_PATHS;
 
   // Pages d'authentification (connexion, inscription)
   const authPaths = [ROUTES.connexion, ROUTES.inscription];

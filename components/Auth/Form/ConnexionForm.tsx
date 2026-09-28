@@ -286,6 +286,12 @@ export const LoginForm = () => {
         >
           Mot de passe oublié ?
         </Link>
+        <Link
+          className="relative text-center text-white/70 text-xs hover:text-white transition-all ease-in-out duration-150"
+          href="/"
+        >
+          ← Retour à l&apos;accueil
+        </Link>
       </div>
     </div>
   );
