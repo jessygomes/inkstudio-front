@@ -12,7 +12,8 @@ interface NavbarClientProps {
 
 export function NavbarClient({ links }: NavbarClientProps) {
   const { data: session, status } = useSession();
-  const isLoggedIn = status === "authenticated" && !!session?.user;
+  const isLoggedIn =
+    status === "authenticated" && !!session?.user && !session?.error;
   const pathname = usePathname();
   const navRef = useRef<HTMLUListElement>(null);
 
