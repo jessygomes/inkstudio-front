@@ -23,7 +23,15 @@ async function clearSessionCookies() {
         (prefix) => cookie.name === prefix || cookie.name.startsWith(`${prefix}.`),
       )
     ) {
-      cookieStore.delete(cookie.name);
+      // Les cookies préfixés __Secure-/__Host- ne sont supprimés par le
+      // navigateur que si le Set-Cookie de suppression porte bien `secure`.
+      const needsSecure =
+        cookie.name.startsWith("__Secure-") || cookie.name.startsWith("__Host-");
+      cookieStore.delete({
+        name: cookie.name,
+        path: "/",
+        secure: needsSecure,
+      });
     }
   }
 }

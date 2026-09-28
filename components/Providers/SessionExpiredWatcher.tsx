@@ -3,7 +3,7 @@
 import { logoutAction } from "@/lib/auth.actions";
 import { clearClientSession } from "@/lib/client-session";
 import { PROTECTED_PATHS } from "@/lib/routes";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef } from "react";
 
@@ -17,8 +17,23 @@ import { useEffect, useRef } from "react";
 export function SessionExpiredWatcher() {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
   // Empêche les déclenchements multiples (refetch toutes les 60s) pendant la déconnexion
   const isHandlingRef = useRef(false);
+
+  // Si la page est restaurée depuis le cache navigateur (bouton précédent après
+  // déconnexion), on force une revalidation serveur : sans ça, une page protégée
+  // peut rester affichée depuis le bfcache sans jamais repasser par le middleware.
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        router.refresh();
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [router]);
 
   useEffect(() => {
     if (session?.error !== "AccessTokenExpired" || isHandlingRef.current) {

@@ -38,7 +38,16 @@ export default auth((req) => {
     return NextResponse.redirect(new URL(ROUTES.dashboard, req.url));
   }
 
-  return NextResponse.next();
+  const res = NextResponse.next();
+
+  // Empêche le navigateur de servir une page protégée depuis son cache
+  // (bfcache/back-forward) après une déconnexion : sans ça, un retour arrière
+  // navigateur peut réafficher le dashboard sans repasser par ce middleware.
+  if (isProtectedPath) {
+    res.headers.set("Cache-Control", "no-store, must-revalidate");
+  }
+
+  return res;
 });
 
 export const config = {

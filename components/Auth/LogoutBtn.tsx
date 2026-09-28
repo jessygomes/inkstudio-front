@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AiOutlineLogout } from "react-icons/ai";
 import { logoutAction } from "@/lib/auth.actions";
@@ -11,7 +10,6 @@ interface LogoutBtnProps {
 }
 
 export const LogoutBtn = ({ children }: LogoutBtnProps) => {
-  const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const onClick = async () => {
@@ -20,25 +18,17 @@ export const LogoutBtn = ({ children }: LogoutBtnProps) => {
     setIsLoggingOut(true);
 
     try {
-      const result = await logoutAction();
-
+      await logoutAction();
       clearClientSession();
       window.dispatchEvent(new Event("logout"));
-
       toast.success("Déconnexion réussie");
-
-      const nextUrl = result?.url || "/";
-
-      // Met à jour l'état Next.js immédiatement
-      router.replace(nextUrl);
-      router.refresh();
-
-      // Sécurise le logout en vidant le cache de navigation client
-      window.location.replace(nextUrl);
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
       toast.error("Erreur lors de la déconnexion");
-      setIsLoggingOut(false);
+    } finally {
+      // Rechargement complet (et non un simple router.push) pour garantir
+      // que le cache client/bfcache ne réaffiche pas une page authentifiée.
+      window.location.href = "/";
     }
   };
 
