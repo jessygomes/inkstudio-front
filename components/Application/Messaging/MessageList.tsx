@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
-import { AlertCircle, Archive, Inbox, MailOpen, MessageCircle, RefreshCw, Search } from "lucide-react";
+import { AlertCircle, Archive, Inbox, MessageCircle, RefreshCw, Search } from "lucide-react";
 import {
   getConversationsAction,
   type ConversationDto,
@@ -31,7 +31,6 @@ export default function MessageList() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
 
   const fetchConversations = useCallback(
     async (page = 1, status?: ConversationStatus) => {
@@ -44,7 +43,6 @@ export default function MessageList() {
         setConversations(result.data);
         setCurrentPage(result.page);
         setTotalPages(result.totalPages);
-        setTotal(result.total);
       } catch (fetchError) {
         setError(fetchError instanceof Error ? fetchError.message : "Erreur inconnue");
         setConversations([]);
@@ -109,65 +107,62 @@ export default function MessageList() {
       />
 
       {!isFreeAccount && (
-        <>
-          <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
-            <SummaryCard icon={<Inbox size={17} />} label="Conversations" value={total} />
-            <SummaryCard
-              icon={<MailOpen size={17} />}
-              label="Non lus"
-              value={unreadCount}
-              accent={unreadCount > 0}
-            />
-            <SummaryCard
-              icon={isActiveStatus ? <MessageCircle size={17} /> : <Archive size={17} />}
-              label="Vue actuelle"
-              value={isActiveStatus ? "Actives" : "Archivées"}
-              className="col-span-2 lg:col-span-1"
-            />
+        <ApplicationToolbar className="[&_input:not([type=checkbox])]:!rounded-2xl sm:[&_input:not([type=checkbox])]:!rounded-2xl">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:flex-nowrap">
+            <div className="flex shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-black/15 p-1">
+              {FILTERS.map((status) => {
+                const isSelected = statusFilter === status;
+
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => handleStatusChange(status)}
+                    className={`inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-2xl px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one ${
+                      isSelected
+                        ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                        : "text-white/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {status === "ACTIVE" ? <MessageCircle size={13} /> : <Archive size={13} />}
+                    {status === "ACTIVE" ? "Actives" : "Archivées"}
+                  </button>
+                );
+              })}
+            </div>
+
+            <label className="relative order-1 block min-w-0 flex-1 md:min-w-[120px]">
+              <Search
+                size={15}
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-white/35"
+              />
+              <span className="sr-only">Rechercher une conversation</span>
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Rechercher un client ou un sujet…"
+                className="h-10 w-full rounded-2xl border border-white/10 bg-black/15 py-2 pl-9 pr-3 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-tertiary-400 font-one"
+              />
+            </label>
+
+            <div
+              title="Messages non lus"
+              className="order-2 inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-2xl border border-white/12 bg-white/6 px-3 text-xs font-medium text-white font-one"
+            >
+              <span
+                className={`flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[11px] ${
+                  unreadCount > 0
+                    ? "bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white"
+                    : "bg-white/10 text-white/60"
+                }`}
+              >
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+              Non lus
+            </div>
           </div>
-
-          <ApplicationToolbar
-            search={
-              <label className="relative block w-full">
-                <Search
-                  size={15}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/35"
-                />
-                <span className="sr-only">Rechercher une conversation</span>
-                <input
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Rechercher un client ou un sujet…"
-                  className="h-10 w-full py-2 pl-9 pr-3 text-sm text-white outline-none placeholder:text-white/30 font-one"
-                />
-              </label>
-            }
-            filters={
-              <div className="flex rounded-xl border border-white/10 bg-black/15 p-1">
-                {FILTERS.map((status) => {
-                  const isSelected = statusFilter === status;
-
-                  return (
-                    <button
-                      key={status}
-                      type="button"
-                      aria-pressed={isSelected}
-                      onClick={() => handleStatusChange(status)}
-                      className={`inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-xs font-medium transition font-one ${
-                        isSelected
-                          ? "bg-tertiary-400/15 text-tertiary-400"
-                          : "text-white/45 hover:bg-white/[0.05] hover:text-white/75"
-                      }`}
-                    >
-                      {status === "ACTIVE" ? <MessageCircle size={13} /> : <Archive size={13} />}
-                      {status === "ACTIVE" ? "Actives" : "Archivées"}
-                    </button>
-                  );
-                })}
-              </div>
-            }
-          />
-        </>
+        </ApplicationToolbar>
       )}
 
       {isFreeAccount ? (
@@ -180,27 +175,8 @@ export default function MessageList() {
           primaryLabel="Passer à PRO"
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-white/[0.08] bg-gradient-to-br from-white/[0.045] to-white/[0.015] shadow-xl shadow-black/15">
-          <header className="flex items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-3.5 sm:px-5">
-            <div>
-              <h2 className="text-sm font-semibold text-white font-one">
-                {isActiveStatus ? "Boîte de réception" : "Conversations archivées"}
-              </h2>
-              <p className="mt-0.5 text-[11px] text-white/40 font-two">
-                {isActiveStatus
-                  ? "Vos échanges clients les plus récents"
-                  : "Les échanges que vous avez classés"}
-              </p>
-            </div>
-
-            {!loading && totalPages > 1 && (
-              <span className="rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] text-white/45 font-one">
-                Page {currentPage}/{totalPages}
-              </span>
-            )}
-          </header>
-
-          <div className="p-2 sm:p-3">
+        <div>
+          <div>
             {loading && <MessageListSkeleton />}
 
             {error && (
@@ -253,7 +229,7 @@ export default function MessageList() {
           </div>
 
           {!loading && !error && totalPages > 1 && (
-            <footer className="flex items-center justify-between gap-2 border-t border-white/[0.08] px-3 py-3 sm:px-4">
+            <footer className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
               <DashboardButton
                 variant="secondary"
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
@@ -270,7 +246,7 @@ export default function MessageList() {
                     type="button"
                     onClick={() => handlePageChange(page)}
                     aria-current={currentPage === page ? "page" : undefined}
-                    className={`h-8 min-w-8 cursor-pointer rounded-lg px-2 text-xs transition font-one ${
+                    className={`h-8 min-w-8 cursor-pointer rounded-xl px-2 text-xs transition font-one ${
                       currentPage === page
                         ? "bg-tertiary-400 text-white"
                         : "bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white"
@@ -294,45 +270,6 @@ export default function MessageList() {
         </div>
       )}
     </section>
-  );
-}
-
-function SummaryCard({
-  icon,
-  label,
-  value,
-  accent = false,
-  className = "",
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string | number;
-  accent?: boolean;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`flex items-center gap-3 rounded-2xl border p-3 ${
-        accent ? "border-tertiary-400/25 bg-tertiary-400/[0.08]" : "border-white/[0.08] bg-white/[0.025]"
-      } ${className}`}
-    >
-      <span
-        className={`flex h-9 w-9 items-center justify-center rounded-xl border ${
-          accent
-            ? "border-tertiary-400/25 bg-tertiary-400/10 text-tertiary-400"
-            : "border-white/10 bg-white/[0.04] text-white/45"
-        }`}
-      >
-        {icon}
-      </span>
-
-      <div>
-        <p className="text-[10px] uppercase tracking-[0.1em] text-white/35 font-one">{label}</p>
-        <p className={`mt-0.5 text-sm font-semibold font-one ${accent ? "text-tertiary-400" : "text-white"}`}>
-          {value}
-        </p>
-      </div>
-    </div>
   );
 }
 

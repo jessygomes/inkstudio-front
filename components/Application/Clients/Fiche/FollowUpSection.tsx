@@ -99,6 +99,7 @@ export default function FollowUpSection({
 
   return (
     <section aria-label="Suivis de cicatrisation">
+
       {followUpSubmissions && followUpSubmissions.length > 0 ? (
         <div className="space-y-2.5">
           {followUpSubmissions.map((followUp: FollowUpItem, index: number) => {
@@ -128,9 +129,9 @@ export default function FollowUpSection({
             return (
               <div
                 key={followUp.id}
-                className="overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r from-white/[0.045] to-white/[0.018] px-4 py-4 shadow-sm shadow-black/10 transition-all duration-200 hover:border-tertiary-400/25 hover:bg-white/[0.04] sm:px-5"
+                className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4 transition-colors hover:border-white/15"
               >
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
                     <div className="h-12 w-12 rounded-2xl overflow-hidden bg-white/10 border border-white/20 flex-shrink-0">
                       {followUp.photoUrl ? (
@@ -195,12 +196,12 @@ export default function FollowUpSection({
                         <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[11px] text-amber-200">
                           <Star size={11} fill="currentColor" /> {followUp.rating}/5
                         </span>
-                        <span className="text-[11px] text-white/55">{getRatingLabel(followUp.rating)}</span>
+                        <span className="text-xs text-white/55">{getRatingLabel(followUp.rating)}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                  <div className="flex flex-wrap items-center gap-2 border-t border-white/[0.07] pt-3 xl:border-t-0 xl:pt-0">
                     {followUp.photoUrl && (
                       <button type="button"
                         onClick={() => window.open(followUp.photoUrl, "_blank")}
@@ -221,9 +222,9 @@ export default function FollowUpSection({
                 </div>
 
                 {followUp.review && (
-                  <div className="mt-3 rounded-2xl border border-white/10 bg-black/20 p-3">
-                    <p className="mb-1 text-[10px] uppercase tracking-wide text-white/45 font-one">Avis client</p>
-                    <p className="text-xs italic leading-relaxed text-white/80 font-two">
+                  <div className="mt-3 border-l-2 border-tertiary-400/30 bg-white/[0.02] px-3 py-2.5">
+                    <p className="mb-1 text-[11px] font-medium text-white/55 font-one">Avis client</p>
+                    <p className="text-sm leading-relaxed text-white/80 font-two">
                       &quot;{followUp.review}&quot;
                     </p>
                   </div>
@@ -231,7 +232,7 @@ export default function FollowUpSection({
 
                 {appointmentId && isExpanded && (
                   <div className="mt-3 border-t border-white/10 pt-3">
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-3 space-y-2.5">
+                    <div className="rounded-xl bg-black/15 p-3 space-y-2.5">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-one uppercase tracking-wide text-white/45">RDV associé</p>
                         {isAppointmentLoading && <span className="text-[10px] text-white/60 font-one">Chargement...</span>}
@@ -242,28 +243,28 @@ export default function FollowUpSection({
                       {linkedAppointment && !isAppointmentLoading && (
                         <>
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm font-semibold text-white font-one truncate">{linkedAppointment.title}</p>
+                            <p className="text-sm font-semibold text-white font-one break-words">{linkedAppointment.title}</p>
                             <span className="rounded-2xl border border-tertiary-400/30 bg-tertiary-500/15 px-2 py-0.5 text-[10px] font-semibold text-white">
                               {linkedAppointment.prestation}
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-2.5 py-2 sm:col-span-2">
-                              <p className="text-[10px] uppercase tracking-wide text-white/50 font-one">Description</p>
-                              <p className="text-xs text-white/85 font-two leading-relaxed">{projectDescription}</p>
+                          <div className="grid grid-cols-1 gap-x-5 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="min-w-0 border-b border-white/[0.07] py-2.5 sm:col-span-2">
+                              <p className="text-[11px] font-medium text-white/55 font-one">Description</p>
+                              <p className="mt-1 break-words text-sm text-white/85 font-two leading-relaxed">{projectDescription}</p>
                             </div>
 
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-2.5 py-2">
-                              <p className="text-[10px] uppercase tracking-wide text-white/50 font-one">Prix</p>
-                              <p className="text-xs text-white/85 font-two">
+                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                              <p className="text-[11px] font-medium text-white/55 font-one">Prix</p>
+                              <p className="mt-1 break-words text-sm text-white/85 font-two">
                                 {projectPrice != null ? `${projectPrice} EUR` : "Non renseigné"}
                               </p>
                             </div>
 
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-2.5 py-2">
-                              <p className="text-[10px] uppercase tracking-wide text-white/50 font-one">Date</p>
-                              <p className="text-xs text-white/85 font-two">
+                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                              <p className="text-[11px] font-medium text-white/55 font-one">Date</p>
+                              <p className="mt-1 break-words text-sm text-white/85 font-two">
                                 {new Date(linkedAppointment.start).toLocaleDateString("fr-FR", {
                                   day: "2-digit",
                                   month: "short",
@@ -272,35 +273,35 @@ export default function FollowUpSection({
                               </p>
                             </div>
 
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-2.5 py-2">
-                              <p className="text-[10px] uppercase tracking-wide text-white/50 font-one">Horaire</p>
-                              <p className="text-xs text-white/85 font-two">
+                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                              <p className="text-[11px] font-medium text-white/55 font-one">Horaire</p>
+                              <p className="mt-1 break-words text-sm text-white/85 font-two">
                                 {new Date(linkedAppointment.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                                 {" - "}
                                 {new Date(linkedAppointment.end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                               </p>
                             </div>
 
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-2.5 py-2">
-                              <p className="text-[10px] uppercase tracking-wide text-white/50 font-one">
+                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                              <p className="text-[11px] font-medium text-white/55 font-one">
                                 {linkedAppointment.prestation === "PIERCING" ? "Zone de piercing" : "Zone"}
                               </p>
-                              <p className="text-xs text-white/85 font-two">{projectZone || "Non renseignée"}</p>
+                              <p className="mt-1 break-words text-sm text-white/85 font-two">{projectZone || "Non renseignée"}</p>
                             </div>
 
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-2.5 py-2">
-                              <p className="text-[10px] uppercase tracking-wide text-white/50 font-one">Taille</p>
-                              <p className="text-xs text-white/85 font-two">{projectSize}</p>
+                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                              <p className="text-[11px] font-medium text-white/55 font-one">Taille</p>
+                              <p className="mt-1 break-words text-sm text-white/85 font-two">{projectSize}</p>
                             </div>
 
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-2.5 py-2">
-                              <p className="text-[10px] uppercase tracking-wide text-white/50 font-one">Tatoueur</p>
-                              <p className="text-xs text-white/85 font-two">{linkedAppointment.tatoueur?.name || "Non renseigné"}</p>
+                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                              <p className="text-[11px] font-medium text-white/55 font-one">Tatoueur</p>
+                              <p className="mt-1 break-words text-sm text-white/85 font-two">{linkedAppointment.tatoueur?.name || "Non renseigné"}</p>
                             </div>
 
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-2.5 py-2">
-                              <p className="text-[10px] uppercase tracking-wide text-white/50 font-one">Statut</p>
-                              <p className="text-xs text-white/85 font-two">{linkedAppointment.status}</p>
+                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                              <p className="text-[11px] font-medium text-white/55 font-one">Statut</p>
+                              <p className="mt-1 break-words text-sm text-white/85 font-two">{linkedAppointment.status}</p>
                             </div>
                           </div>
                         </>

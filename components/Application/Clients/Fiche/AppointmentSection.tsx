@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import { CalendarDays, ChevronDown, Clock3, UserRound } from "lucide-react";
+import { CalendarDays, ChevronDown } from "lucide-react";
 import { AppointmentProps } from "@/lib/type";
 import { fetchAppointmentById } from "@/lib/queries/appointment";
 
@@ -94,15 +94,15 @@ export default function AppointmentSection({
   const getRdvStatusStyle = (status: AppointmentProps["status"]) => {
     switch (status) {
       case "CONFIRMED":
-        return { text: "Confirme", dot: "bg-green-400", pill: "bg-green-500/15 border-green-400/30 text-green-300" };
+        return { text: "Confirmé", dot: "bg-green-400", pill: "bg-green-500/15 border-green-400/30 text-green-300" };
       case "PENDING":
         return { text: "En attente", dot: "bg-orange-400", pill: "bg-orange-500/15 border-orange-400/30 text-orange-300" };
       case "CANCELLED":
-        return { text: "Annule", dot: "bg-red-400", pill: "bg-red-500/15 border-red-400/30 text-red-300" };
+        return { text: "Annulé", dot: "bg-red-400", pill: "bg-red-500/15 border-red-400/30 text-red-300" };
       case "DECLINED":
-        return { text: "Refuse", dot: "bg-gray-400", pill: "bg-gray-500/20 border-gray-400/30 text-gray-300" };
+        return { text: "Refusé", dot: "bg-gray-400", pill: "bg-gray-500/20 border-gray-400/30 text-gray-300" };
       case "COMPLETED":
-        return { text: "Termine", dot: "bg-blue-400", pill: "bg-blue-500/15 border-blue-400/30 text-blue-300" };
+        return { text: "Terminé", dot: "bg-blue-400", pill: "bg-blue-500/15 border-blue-400/30 text-blue-300" };
       case "NO_SHOW":
         return { text: "Absent", dot: "bg-rose-400", pill: "bg-rose-500/15 border-rose-400/30 text-rose-300" };
       case "RESCHEDULING":
@@ -114,6 +114,7 @@ export default function AppointmentSection({
 
   return (
     <section aria-label="Historique des rendez-vous">
+
 
       {appointments.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -161,72 +162,62 @@ export default function AppointmentSection({
             return (
               <div
                 key={rdv.id}
-                className="group overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r from-white/[0.045] to-white/[0.018] px-4 py-4 shadow-sm shadow-black/10 transition-all duration-200 hover:border-tertiary-400/25 hover:bg-white/[0.04] sm:px-5"
+                className="group overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03] p-3 transition-colors hover:border-white/15 sm:p-3.5"
               >
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="min-w-0 flex-1">
-                    <h4 className="truncate text-sm font-semibold text-white font-one sm:text-[15px]">
-                      {summaryRdv.title}
-                    </h4>
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <span className="whitespace-nowrap rounded-2xl border border-tertiary-400/30 bg-tertiary-500/15 px-2.5 py-1 text-[11px] font-semibold text-tertiary-500">
-                        {summaryRdv.prestation}
-                      </span>
-                      <span
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${statusStyle.pill}`}
-                      >
-                        <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
-                        {statusStyle.text}
-                      </span>
-                      <span
-                        className={`inline-flex items-center rounded-2xl border px-2.5 py-1 text-[11px] font-semibold ${
-                          summaryRdv.isPayed
-                            ? "border-green-400/30 bg-green-500/15 text-green-300"
-                            : "border-orange-400/30 bg-orange-500/15 text-orange-300"
-                        }`}
-                      >
-                        {summaryRdv.isPayed ? "Payé" : "Non payé"}
-                      </span>
-                    </div>
+                <div className="flex min-w-0 flex-wrap items-center gap-3 sm:flex-nowrap sm:gap-4">
+                  <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-white/[0.06] font-one text-white sm:h-16 sm:w-16">
+                    <span className="text-lg leading-none font-semibold">
+                      {new Date(summaryRdv.start).toLocaleDateString("fr-FR", { day: "2-digit" })}
+                    </span>
+                    <span className="mt-0.5 text-[10px] uppercase tracking-wider text-white/60">
+                      {new Date(summaryRdv.start).toLocaleDateString("fr-FR", { month: "short" })}
+                    </span>
+                    <span className="text-[9px] leading-none text-white/40">
+                      {new Date(summaryRdv.start).getFullYear()}
+                    </span>
                   </div>
 
-                  <dl className="flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-white/[0.07] py-3 lg:min-w-[390px] lg:border-y-0 lg:border-l lg:py-1 lg:pl-5">
-                    <div className="min-w-[105px]">
-                      <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-white/35 font-one"><CalendarDays size={12} />Date</dt>
-                      <dd className="mt-1 text-xs text-white/85 font-two">
-                        {new Date(summaryRdv.start).toLocaleDateString("fr-FR", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </dd>
+                  <div className="min-w-0 flex-1 font-one">
+                    <div className="flex items-center gap-2">
+                      <h4 className="truncate text-sm font-semibold text-white">{summaryRdv.title}</h4>
+                      <span className="hidden shrink-0 rounded-full border border-white/12 bg-white/6 px-2 py-0.5 text-[11px] text-white/75 sm:inline">
+                        {summaryRdv.prestation}
+                      </span>
                     </div>
-                    <div className="min-w-[80px]">
-                      <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-white/35 font-one"><Clock3 size={12} />Horaire</dt>
-                      <dd className="mt-1 text-xs text-white/85 font-two">
-                        {new Date(summaryRdv.start).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </dd>
-                    </div>
-                    <div className="min-w-[100px] flex-1">
-                      <dt className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-white/35 font-one"><UserRound size={12} />Tatoueur</dt>
-                      <dd className="mt-1 truncate text-xs text-white/85 font-two">
-                        {summaryRdv.tatoueur?.name || "Non renseigné"}
-                      </dd>
-                    </div>
-                  </dl>
+                    <p className="mt-1 truncate text-xs text-white/60">
+                      <span className="sm:hidden">{summaryRdv.prestation}<span className="mx-1.5">·</span></span>
+                      {new Date(summaryRdv.start).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                      <span className="mx-1.5">·</span>
+                      {summaryRdv.tatoueur?.name || "Non renseigné"}
+                    </p>
+                  </div>
 
-                <div className="">
-                  <button type="button"
-                    onClick={() => toggleRdvDetails(rdv.id)}
-                    aria-expanded={isExpanded}
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-tertiary-400/20 bg-tertiary-400/[0.08] px-3 py-2 text-[11px] text-tertiary-400 transition-colors hover:border-tertiary-400/35 hover:bg-tertiary-400/[0.12] font-one"
-                  >
-                    {isExpanded ? "Masquer les détails" : "Voir les détails"}<ChevronDown size={13} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                  </button>
-                </div>
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium whitespace-nowrap font-one ${statusStyle.pill}`}
+                    >
+                      <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
+                      {statusStyle.text}
+                    </span>
+                    <span
+                      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-medium whitespace-nowrap font-one ${
+                        summaryRdv.isPayed
+                          ? "border-green-400/30 bg-green-500/15 text-green-300"
+                          : "border-orange-400/30 bg-orange-500/15 text-orange-300"
+                      }`}
+                    >
+                      {summaryRdv.isPayed ? "Payé" : "Non payé"}
+                    </span>
+                    <button type="button"
+                      onClick={() => toggleRdvDetails(rdv.id)}
+                      aria-expanded={isExpanded}
+                      aria-label={isExpanded ? "Masquer les détails" : "Voir les détails"}
+                      title={isExpanded ? "Masquer les détails" : "Voir les détails"}
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-white/70 transition-colors hover:border-tertiary-400/40 hover:text-tertiary-400"
+                    >
+                      <ChevronDown size={15} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                    </button>
+                  </div>
                 </div>
 
                 {isExpanded && (
@@ -245,36 +236,36 @@ export default function AppointmentSection({
 
                     {fetchedRdv && (
                       <>
-                        <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
-                          <p className="mb-1 text-[10px] uppercase tracking-wide text-white/45 font-one">Description</p>
+                        <div className="rounded-xl bg-black/15 p-3">
+                          <p className="mb-1 text-[11px] font-medium text-white/55 font-one">Description</p>
                           <p className="text-xs text-white/80 font-two leading-relaxed">{detailDescription}</p>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                          <div className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-2">
-                            <p className="text-[10px] uppercase tracking-wide text-white/45 font-one">Zone</p>
-                            <p className="text-xs text-white/85 font-two">{detailZone}</p>
+                        <div className="grid grid-cols-1 gap-x-5 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
+                          <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <p className="text-[11px] font-medium text-white/55 font-one">Zone</p>
+                            <p className="mt-1 break-words text-sm text-white/85 font-two">{detailZone}</p>
                           </div>
 
-                          <div className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-2">
-                            <p className="text-[10px] uppercase tracking-wide text-white/45 font-one">Taille</p>
-                            <p className="text-xs text-white/85 font-two">{detailSize}</p>
+                          <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <p className="text-[11px] font-medium text-white/55 font-one">Taille</p>
+                            <p className="mt-1 break-words text-sm text-white/85 font-two">{detailSize}</p>
                           </div>
 
-                          <div className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-2">
-                            <p className="text-[10px] uppercase tracking-wide text-white/45 font-one">Prix</p>
-                            <p className="text-xs text-white/85 font-two">
+                          <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <p className="text-[11px] font-medium text-white/55 font-one">Prix</p>
+                            <p className="mt-1 break-words text-sm text-white/85 font-two">
                               {detailPrice != null ? `${detailPrice} EUR` : "Non renseigné"}
                             </p>
                           </div>
 
-                          <div className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-2">
-                            <p className="text-[10px] uppercase tracking-wide text-white/45 font-one">Couleur</p>
-                            <p className="text-xs text-white/85 font-two">{detailColor}</p>
+                          <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <p className="text-[11px] font-medium text-white/55 font-one">Couleur</p>
+                            <p className="mt-1 break-words text-sm text-white/85 font-two">{detailColor}</p>
                           </div>
 
-                          <div className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-2">
-                            <p className="text-[10px] uppercase tracking-wide text-white/45 font-one">Référence</p>
+                          <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <p className="text-[11px] font-medium text-white/55 font-one">Référence</p>
                             {hasReferenceImage ? (
                               <a
                                 href={detailReference}
@@ -293,12 +284,12 @@ export default function AppointmentSection({
                                 />
                               </a>
                             ) : (
-                              <p className="break-all text-xs text-white/85 font-two">{detailReference}</p>
+                              <p className="break-all mt-1 break-words text-sm text-white/85 font-two">{detailReference}</p>
                             )}
                           </div>
 
-                          <div className="rounded-xl border border-white/10 bg-black/20 px-2.5 py-2">
-                            <p className="text-[10px] uppercase tracking-wide text-white/45 font-one">Sketch</p>
+                          <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <p className="text-[11px] font-medium text-white/55 font-one">Sketch</p>
                             {hasSketchImage ? (
                               <a
                                 href={detailSketch}
@@ -317,7 +308,7 @@ export default function AppointmentSection({
                                 />
                               </a>
                             ) : (
-                              <p className="break-all text-xs text-white/85 font-two">{detailSketch}</p>
+                              <p className="break-all mt-1 break-words text-sm text-white/85 font-two">{detailSketch}</p>
                             )}
                           </div>
                         </div>

@@ -2,10 +2,8 @@ import Conversation from "@/components/Application/Messaging/Conversation";
 
 export default function MessagingPage() {
   return (
-    <div className="wrapper-global pb-10 lg:pb-0">
-      <div className="w-full mt-4">
-        <Conversation />
-      </div>
+    <div className="h-[calc(100dvh-7rem)] overflow-hidden bg-noir-700 xl:h-dvh">
+      <Conversation />
     </div>
   );
 }

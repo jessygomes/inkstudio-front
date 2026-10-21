@@ -252,7 +252,7 @@ export default function MessageInput({
 
         {/* Zone input */}
         <div
-          className="dashboard-embedded-section flex items-end gap-2 rounded-2xl border border-white/10 p-2 focus-within:border-tertiary-400/50"
+          className="flex items-end gap-2"
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
@@ -296,7 +296,7 @@ export default function MessageInput({
             placeholder={
               disabled ? "En attente de connexion…" : preview ? "Accompagnez votre image…" : "Écrivez votre message…"
             }
-            className="min-w-0 flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-relaxed text-white placeholder-white/45 focus:outline-none disabled:opacity-50"
+            className="min-w-0 flex-1 resize-none rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 focus:border-tertiary-400/50 text-sm leading-relaxed text-white placeholder-white/45 focus:outline-none disabled:opacity-50"
             disabled={disabled || sendingMessage || isUploading}
           />
 

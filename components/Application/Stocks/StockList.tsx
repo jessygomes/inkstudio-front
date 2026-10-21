@@ -260,43 +260,20 @@ export default function StockList() {
       <PageHeader icon={<FaDatabase size={15} className="text-tertiary-400" />} title="Stocks" />
 
       {!isFreeAccount && !loading && !error && (
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
-          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
-            <div className="dashboard-stat-inner">
-              <p className="dashboard-soft-label text-[10px] leading-none">Articles</p>
-              <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.totalItems}</p>
+        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-6">
+          {[
+            { label: "Articles", value: String(statistics.totalItems), tone: "text-white" },
+            { label: "Valeur totale", value: `${statistics.totalValue.toFixed(2)} €`, tone: "text-tertiary-400" },
+            { label: "Stock bas", value: String(statistics.lowStockItems), tone: "text-amber-300" },
+            { label: "Ruptures", value: String(statistics.outOfStockItems), tone: "text-red-300" },
+            { label: "Catégories", value: String(statistics.totalCategories), tone: "text-white" },
+            { label: "Valeur moyenne", value: `${statistics.averageValue.toFixed(2)} €`, tone: "text-white" },
+          ].map((stat) => (
+            <div key={stat.label} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+              <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/45 font-one">{stat.label}</p>
+              <p className={`mt-1.5 text-xl font-semibold font-one ${stat.tone}`}>{stat.value}</p>
             </div>
-          </div>
-          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
-            <div className="dashboard-stat-inner">
-              <p className="dashboard-soft-label text-[10px] leading-none">Valeur totale</p>
-              <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.totalValue.toFixed(2)} €</p>
-            </div>
-          </div>
-          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
-            <div className="dashboard-stat-inner">
-              <p className="dashboard-soft-label text-[10px] leading-none">Stock bas</p>
-              <p className="mt-1 text-base font-semibold text-amber-300 font-one lg:text-[17px]">{statistics.lowStockItems}</p>
-            </div>
-          </div>
-          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
-            <div className="dashboard-stat-inner">
-              <p className="dashboard-soft-label text-[10px] leading-none">Ruptures</p>
-              <p className="mt-1 text-base font-semibold text-red-300 font-one lg:text-[17px]">{statistics.outOfStockItems}</p>
-            </div>
-          </div>
-          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
-            <div className="dashboard-stat-inner">
-              <p className="dashboard-soft-label text-[10px] leading-none">Catégories</p>
-              <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.totalCategories}</p>
-            </div>
-          </div>
-          <div className="border-white/10 border-1 rounded-2xl p-2.5 lg:p-2">
-            <div className="dashboard-stat-inner">
-              <p className="dashboard-soft-label text-[10px] leading-none">Valeur moyenne</p>
-              <p className="mt-1 text-base font-semibold text-white font-one lg:text-[17px]">{statistics.averageValue.toFixed(2)} €</p>
-            </div>
-          </div>
+          ))}
         </div>
       )}
 
@@ -334,7 +311,7 @@ export default function StockList() {
         <div className=" space-y-3">
           <ApplicationToolbar>
             <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:items-center">
-              <div className="relative w-full lg:max-w-xl">
+              <div className="relative w-full sm:flex-1 lg:max-w-xl">
                 <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -343,14 +320,14 @@ export default function StockList() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Rechercher un article"
-                  className="w-full rounded-xl border border-white/15 bg-white/8 py-2 pl-9 pr-4 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 font-one"
+                  className="h-10 w-full rounded-2xl border border-white/10 bg-white/[0.04] pl-9 pr-4 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 font-one"
                 />
               </div>
 
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full rounded-xl border border-white/15 bg-white/8 px-3 py-2 text-xs text-white focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 font-one sm:w-56"
+                className="h-10 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-xs text-white focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 font-one sm:w-56"
               >
                 <option value="" className="text-black">Toutes les catégories</option>
                 {categories.map((category) => (
@@ -361,26 +338,21 @@ export default function StockList() {
               </select>
               <DashboardButton onClick={handleCreate} className="!min-w-0 sm:ml-auto">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                Nouvel article
+                Nouveau
               </DashboardButton>
             </div>
           </ApplicationToolbar>
 
           {!loading && !error && (
-            <div className="flex flex-col gap-2 text-xs text-white/65 font-one sm:flex-row sm:items-center sm:justify-between">
-              <p>
-                {filteredItems.length} article{filteredItems.length > 1 ? "s" : ""} visible{filteredItems.length > 1 ? "s" : ""}
-                {searchTerm ? ` · recherche "${searchTerm}"` : ""}
-                {categoryFilter ? ` · catégorie "${categoryFilter}"` : ""}
-              </p>
-              <p>Page {currentPage} sur {pagination.totalPages}</p>
-            </div>
+            <p className="text-right text-xs text-white/55 font-one">
+              {filteredItems.length} article{filteredItems.length > 1 ? "s" : ""} · Page {currentPage}/{pagination.totalPages}
+            </p>
           )}
 
           {loading ? (
             <div className="space-y-2.5">
               {[...Array(5)].map((_, index) => (
-                <div key={index} className="dashboard-list-item animate-pulse p-3">
+                <div key={index} className="animate-pulse rounded-2xl border border-white/8 bg-white/[0.03] p-4">
                   <div className="flex items-center justify-between gap-4">
                     <div className="space-y-2 flex-1">
                       <div className="h-4 w-40 rounded-lg bg-white/10" />

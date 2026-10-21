@@ -176,6 +176,17 @@ export default function ClientList() {
     setIsFullInfoModalOpen(true);
   };
 
+  const handleClientCardKeyDown = (
+    event: React.KeyboardEvent<HTMLDivElement>,
+    client: ClientProps,
+  ) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleShowReservations(client);
+    }
+  };
+
   //! Handlers pour les actions
   const handleEdit = (client: ClientProps) => {
     setSelectedClient(client);
@@ -238,7 +249,7 @@ export default function ClientList() {
                 />
               </div>
               {!loading && !error && (
-                <div className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-2.5 text-[10px] text-white/65 font-one sm:px-3 sm:text-xs">
+                <div className="inline-flex h-10 shrink-0 items-center justify-center px-2.5 text-[10px] text-white/65 font-one sm:px-3 sm:text-xs">
                   Page {currentPage} / {pagination.totalPages}
                 </div>
               )}
@@ -300,29 +311,7 @@ export default function ClientList() {
             primaryLabel="Passer à PRO"
           />
         ) : (
-          <div className="client-list-surface rounded-[28px] border border-white/10 p-2.5 sm:p-4">
-            {/* Header de tableau - masqué sur mobile */}
-            <div className="client-list-table-head hidden lg:grid grid-cols-6 gap-4 px-5 py-2.5 mb-2 rounded-xl text-white/45 font-one text-[10px] font-semibold tracking-[0.14em] uppercase">
-              <p className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
-                Client
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
-                Email
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
-                Téléphone
-              </p>
-              <p className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-tertiary-400 rounded-full"></span>
-                RDV
-              </p>
-              <p className="text-center">Détails</p>
-              <p className="text-center">Actions</p>
-            </div>
-
+          <div className="client-list-surface rounded-[28px] p-2.5 sm:p-0">
             {loading ? (
               <div className="space-y-2.5 mb-5">
                 {/* Vue desktop - skeletons */}
@@ -450,195 +439,81 @@ export default function ClientList() {
                 <div className="space-y-3 mb-3">
                   {clients.map((client) => (
                     <div key={client.id}>
-                      {/* Vue desktop - grille */}
-                      <div className="client-row hidden lg:grid grid-cols-6 gap-4 px-5 py-3 items-center group">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border border-tertiary-400/30 group-hover:border-tertiary-400/60 transition-all">
-                            <span className="text-white font-bold text-sm font-one">
+                      <div
+                        className="group flex cursor-pointer flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-3 transition-all duration-200 hover:border-white/20 hover:bg-white/[0.06] sm:flex-row sm:items-center sm:gap-4"
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Afficher les informations de ${client.firstName} ${client.lastName}`}
+                        onClick={() => handleShowReservations(client)}
+                        onKeyDown={(event) => handleClientCardKeyDown(event, client)}
+                      >
+                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/30 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/60 transition-colors group-hover:border-tertiary-400/60">
+                            <span className="font-one text-sm font-bold text-white">
                               {client.firstName.charAt(0)}
                               {client.lastName.charAt(0)}
                             </span>
                           </div>
-                          <p className="text-white font-one text-sm font-semibold">
-                            {client.firstName} {client.lastName}
-                          </p>
-                        </div>
-                        <p className="text-white/80 font-two text-xs break-all">
-                          {client.email}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <svg
-                            className="w-4 h-4 text-tertiary-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                            />
-                          </svg>
-                          <p className="text-white/80 font-two text-xs">
-                            {client.phone || "Non renseigné"}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="px-2.5 py-1 bg-tertiary-400/20 border border-tertiary-400/30 rounded-lg">
-                            <span className="text-tertiary-400 font-one text-xs font-semibold">
-                              {client.appointments.length}
-                            </span>
-                          </div>
-                          <span className="text-white/70 text-xs font-one">
-                            RDV
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 justify-center">
-                          <button
-                            onClick={() => handleShowReservations(client)}
-                            className="cursor-pointer text-white font-one text-xs px-3 py-2 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-2xl transition-all duration-200 font-medium group-hover:scale-105"
-                          >
-                            Voir infos
-                          </button>
-                          <button
-                            onClick={() => handleOpenConsent(client)}
-                            title="Formulaire de consentement"
-                            className={`cursor-pointer p-1.5 rounded-2xl border transition-all duration-200 group/btn ${
-                              client.consentSigned
-                                ? "bg-green-500/10 border-green-500/30 hover:bg-green-500/20"
-                                : "bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20"
-                            }`}
-                          >
-                            <FiFileText
-                              size={14}
-                              className={client.consentSigned ? "text-green-400" : "text-orange-400"}
-                            />
-                          </button>
-                        </div>
-                        <div className="flex gap-2 items-center justify-center">
-                          <button
-                            className="cursor-pointer p-1.5 bg-white/10 hover:bg-tertiary-400/20 rounded-2xl border border-white/20 hover:border-tertiary-400/50 transition-all duration-200 group/btn"
-                            onClick={() => handleEdit(client)}
-                          >
-                            <IoCreateOutline
-                              size={14}
-                              className="text-white group-hover/btn:text-tertiary-400 transition-colors"
-                            />
-                          </button>
-                          <button
-                            className="cursor-pointer p-1.5 bg-white/10 hover:bg-red-500/20 rounded-2xl border border-white/20 hover:border-red-400/50 transition-all duration-200 group/btn"
-                            onClick={() => handleDelete(client)}
-                          >
-                            <AiOutlineDelete
-                              size={14}
-                              className="text-white group-hover/btn:text-red-400 transition-colors"
-                            />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Vue mobile - format carte moderne */}
-                      <div className="client-card lg:hidden overflow-hidden rounded-2xl">
-                        {/* En-tête avec avatar et nom */}
-                        <div className="bg-gradient-to-r from-white/10 to-white/5 p-4 border-b border-white/10">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 flex items-center justify-center border-2 border-tertiary-400/30 flex-shrink-0">
-                              <span className="text-white font-bold text-base font-one">
-                                {client.firstName.charAt(0)}
-                                {client.lastName.charAt(0)}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="truncate font-one text-sm font-semibold text-white">
+                                {client.firstName} {client.lastName}
+                              </p>
+                              <span className="shrink-0 rounded-full border border-tertiary-400/30 bg-tertiary-400/15 px-2 py-0.5 font-one text-[11px] text-tertiary-400">
+                                {client.appointments.length} RDV
                               </span>
                             </div>
-                            <div className="flex justify-between items-center w-full">
-                              <h3 className="text-white font-one font-bold text-base mb-0.5 truncate">
-                                {client.firstName} {client.lastName}
-                              </h3>
-                              <div className="flex items-center gap-2">
-                                <div className="px-2 py-0.5 bg-tertiary-400/20 border border-tertiary-400/30 rounded-md">
-                                  <span className="text-white font-one text-xs">
-                                    {client.appointments.length} RDV
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Contenu principal */}
-                        <div className="p-4 space-y-3">
-                          <div className="flex items-start gap-2">
-                            <svg
-                              className="w-4 h-4 text-tertiary-400 mt-0.5 flex-shrink-0"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                              />
-                            </svg>
-                            <p className="text-white/80 font-two text-sm break-all flex-1">
+                            <p className="mt-1 truncate font-two text-xs text-white/60">
                               {client.email}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <svg
-                              className="w-4 h-4 text-tertiary-400 flex-shrink-0"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                              />
-                            </svg>
-                            <p className="text-white/80 font-two text-sm">
+                              <span className="mx-1.5">·</span>
                               {client.phone || "Tél. non renseigné"}
                             </p>
                           </div>
                         </div>
 
-                        {/* Actions - pied de carte */}
-                        <div className="flex items-center gap-2 p-3 bg-white/5 border-t border-white/10">
+                        <div className="flex shrink-0 items-center gap-2 sm:justify-end">
                           <button
-                            onClick={() => handleShowReservations(client)}
-                            className="cursor-pointer flex-1 text-white font-one text-sm font-medium px-4 py-2.5 bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 hover:from-tertiary-400/30 hover:to-tertiary-500/30 hover:border-tertiary-400/50 rounded-2xl transition-all duration-200"
-                          >
-                            📋 Voir les infos
-                          </button>
-
-                          <button
-                            onClick={() => handleOpenConsent(client)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleOpenConsent(client);
+                            }}
                             title="Formulaire de consentement"
-                            className={`cursor-pointer p-2 rounded-2xl border transition-all duration-200 ${
+                            className={`cursor-pointer rounded-xl border p-2 transition-all duration-200 ${
                               client.consentSigned
-                                ? "bg-green-500/10 border-green-500/30 hover:bg-green-500/20"
-                                : "bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20"
+                                ? "border-green-500/30 bg-green-500/10 hover:bg-green-500/20"
+                                : "border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20"
                             }`}
                           >
                             <FiFileText
-                              size={20}
+                              size={16}
                               className={client.consentSigned ? "text-green-400" : "text-orange-400"}
                             />
                           </button>
-
                           <button
-                            className="cursor-pointer p-2 bg-white/10 hover:bg-tertiary-400/20 rounded-2xl border border-white/20 hover:border-tertiary-400/50 transition-all duration-200"
-                            onClick={() => handleEdit(client)}
+                            title="Modifier"
+                            className="group/btn cursor-pointer rounded-xl border border-white/15 bg-white/10 p-2 transition-all duration-200 hover:border-tertiary-400/50 hover:bg-tertiary-400/20"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleEdit(client);
+                            }}
                           >
-                            <IoCreateOutline size={20} className="text-white" />
+                            <IoCreateOutline
+                              size={16}
+                              className="text-white transition-colors group-hover/btn:text-tertiary-400"
+                            />
                           </button>
                           <button
-                            className="cursor-pointer p-2 bg-white/10 hover:bg-red-500/20 rounded-2xl border border-white/20 hover:border-red-400/50 transition-all duration-200"
-                            onClick={() => handleDelete(client)}
+                            title="Supprimer"
+                            className="group/btn cursor-pointer rounded-xl border border-white/15 bg-white/10 p-2 transition-all duration-200 hover:border-red-400/50 hover:bg-red-500/20"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleDelete(client);
+                            }}
                           >
-                            <AiOutlineDelete size={20} className="text-white" />
+                            <AiOutlineDelete
+                              size={16}
+                              className="text-white transition-colors group-hover/btn:text-red-400"
+                            />
                           </button>
                         </div>
                       </div>
@@ -647,24 +522,7 @@ export default function ClientList() {
                 </div>
 
                 {/* Infos + pagination en bas de liste */}
-                <div className="flex flex-col gap-3 py-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="inline-flex items-center w-fit rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-xs text-white/72 font-one">
-                    Affichage de{" "}
-                    {Math.min(
-                      (currentPage - 1) * ITEMS_PER_PAGE + 1,
-                      pagination.totalClients,
-                    )}{" "}
-                    à{" "}
-                    {Math.min(currentPage * ITEMS_PER_PAGE, pagination.totalClients)}{" "}
-                    sur {pagination.totalClients} client
-                    {pagination.totalClients > 1 ? "s" : ""}
-                    {searchTerm && (
-                      <span className="ml-2 text-tertiary-400">
-                        (recherche: "{searchTerm}")
-                      </span>
-                    )}
-                  </div>
-
+                <div className="flex flex-col items-end gap-3 py-2 sm:flex-row sm:items-center sm:justify-end">
                   {pagination.totalPages > 1 && (
                     <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                       <button
@@ -723,6 +581,17 @@ export default function ClientList() {
                       </button>
                     </div>
                   )}
+
+                  <p className="text-right text-xs text-white/60 font-one">
+                    {Math.min(
+                      (currentPage - 1) * ITEMS_PER_PAGE + 1,
+                      pagination.totalClients,
+                    )}
+                    –
+                    {Math.min(currentPage * ITEMS_PER_PAGE, pagination.totalClients)}{" "}
+                    sur {pagination.totalClients} client
+                    {pagination.totalClients > 1 ? "s" : ""}
+                  </p>
                 </div>
               </div>
             )}

@@ -24,6 +24,7 @@ import {
 } from "@/lib/queries/appointment";
 import { FaArrowLeft } from "react-icons/fa6";
 import { CiCalendar, CiCalendarDate } from "react-icons/ci";
+import { SlidersHorizontal } from "lucide-react";
 import { Search } from "@/components/Shared/Search";
 import { toast } from "sonner";
 import { FaRegCalendarTimes } from "react-icons/fa";
@@ -36,6 +37,15 @@ import PageHeader from "@/components/Shared/PageHeader";
 import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
+
+const STATUS_BADGES: Record<string, { label: string; className: string }> = {
+  CANCELED: { label: "Annulé", className: "border-red-500/30 bg-red-500/10 text-red-300" },
+  RESCHEDULING: { label: "Reprogrammation", className: "border-blue-500/30 bg-blue-500/10 text-blue-300" },
+  COMPLETED: { label: "Complété", className: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" },
+  NO_SHOW: { label: "Pas présenté", className: "border-amber-500/30 bg-amber-500/10 text-amber-300" },
+  PENDING: { label: "En attente", className: "border-orange-500/30 bg-orange-500/10 text-orange-300" },
+  CONFIRMED: { label: "Confirmé", className: "border-green-500/30 bg-green-500/10 text-green-300" },
+};
 
 export default function RDV() {
   const { data: session } = useSession();
@@ -53,6 +63,7 @@ export default function RDV() {
   //! Définir le mode par défaut selon la taille d'écran
   const [viewMode, setViewMode] = useState<"calendar" | "list">("list"); // Changé à "list" par défaut
   const [currentPage, setCurrentPage] = useState(1);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const ITEMS_PER_PAGE = 10;
 
   //! États pour les filtres
@@ -173,6 +184,12 @@ export default function RDV() {
 
   // Utiliser les options de filtres retournées par le backend
   const uniquePrestations = rawData?.allPrestations || [];
+  const activeFiltersCount = [
+    statusFilter,
+    prestationFilter,
+    tatoueurFilter,
+    viewMode === "list" ? dateFilter : "all",
+  ].filter((value) => value !== "all").length;
   const uniqueTatoueurs = rawData?.allTatoueurs || [];
 
   const handleRdvUpdated = (updatedId: string) => {
@@ -387,9 +404,10 @@ export default function RDV() {
           />
         </div>
       ) : (
-        <div className=" flex w-full flex-col gap-4">
-          <ApplicationToolbar>
-            <div className="relative z-0 flex min-w-0 flex-col gap-2 md:flex-1 md:flex-row md:flex-wrap md:items-center">
+        <div className="flex w-full flex-col gap-4 xl:flex-row xl:gap-0">
+          <div className="flex min-w-0 flex-1 flex-col gap-4 xl:mr-[calc(36vw-2.5rem)] xl:pr-6">
+          <ApplicationToolbar className="sm:!flex-col sm:!items-stretch [&_input:not([type=checkbox])]:!rounded-2xl sm:[&_input:not([type=checkbox])]:!rounded-2xl">
+            <div className="relative z-0 flex w-full min-w-0 flex-wrap items-center gap-2 md:flex-nowrap">
               <div className="flex w-full shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-black/15 p-1 md:w-auto">
                 <button
                   onClick={() => handleViewModeChange("calendar")}
@@ -416,7 +434,31 @@ export default function RDV() {
               </div>
 
               <div
-                className={`${viewMode === "calendar" ? "hidden" : "flex"} scrollbar-hidden min-w-0 flex-nowrap items-center gap-2 overflow-x-auto pb-0.5 font-one md:shrink-0`}
+                className={`${viewMode === "calendar" ? "hidden" : "block"} relative order-2 shrink-0 font-one`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setIsFiltersOpen((open) => !open)}
+                  aria-label="Filtres"
+                  aria-expanded={isFiltersOpen}
+                  title="Filtres"
+                  className={`relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border transition-colors ${
+                    isFiltersOpen || activeFiltersCount > 0
+                      ? "border-tertiary-400/50 bg-tertiary-400/15 text-white"
+                      : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <SlidersHorizontal size={16} />
+                  {activeFiltersCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-tertiary-400 text-[10px] text-white">
+                      {activeFiltersCount}
+                    </span>
+                  )}
+                </button>
+
+                {isFiltersOpen && (
+              <div
+                className="absolute right-0 top-full z-30 mt-2 flex w-56 flex-col gap-2 rounded-2xl border border-white/10 bg-noir-500 p-3 shadow-xl"
               >
                 <select
                   value={statusFilter}
@@ -486,86 +528,41 @@ export default function RDV() {
                   </button>
                 )}
 
-                {(statusFilter !== "all" ||
-                  prestationFilter !== "all" ||
-                  tatoueurFilter !== "all" ||
-                  (viewMode === "list" && dateFilter !== "all")) && (
-                  <div className="hidden sm:flex items-center gap-2 ml-1">
-                    <span className="text-xs text-white/50 font-one whitespace-nowrap">
-                      Actifs :
-                    </span>
-                    {statusFilter !== "all" && (
-                      <span className="px-2 py-1 bg-tertiary-400/20 text-tertiary-500 rounded-full text-xs border border-tertiary-400/30 whitespace-nowrap">
-                        {statusFilter === "PENDING"
-                          ? "En attente"
-                          : statusFilter === "CONFIRMED"
-                            ? "Confirmés"
-                            : statusFilter === "COMPLETED"
-                              ? "Complétés"
-                              : statusFilter === "NO_SHOW"
-                                ? "Pas présentés"
-                                : statusFilter === "CANCELED"
-                                  ? "Annulés"
-                                  : statusFilter}
-                      </span>
-                    )}
-                    {prestationFilter !== "all" && (
-                      <span className="px-2 py-1 bg-purple-400/20 text-purple-500 rounded-full text-xs border border-purple-400/30 whitespace-nowrap">
-                        {prestationFilter}
-                      </span>
-                    )}
-                    {tatoueurFilter !== "all" && (
-                      <span className="px-2 py-1 bg-cyan-400/20 text-cyan-500 rounded-full text-xs border border-cyan-400/30 whitespace-nowrap">
-                        {
-                          uniqueTatoueurs.find(
-                            (t: any) => t.id === tatoueurFilter,
-                          )?.name
-                        }
-                      </span>
-                    )}
-                    {viewMode === "list" && dateFilter !== "all" && (
-                      <span className="px-2 py-1 bg-blue-400/20 text-blue-500 rounded-full text-xs border border-blue-400/30 whitespace-nowrap">
-                        {dateFilter === "upcoming"
-                          ? "À venir"
-                          : dateFilter === "past"
-                            ? "Passés"
-                            : dateFilter}
-                      </span>
-                    )}
-                  </div>
+              </div>
                 )}
               </div>
-            </div>
 
             <div
-              className={`${viewMode === "calendar" ? "hidden sm:block" : "block"} w-full md:ml-auto md:w-[250px] lg:w-[300px]`}
+              className={`${viewMode === "calendar" ? "hidden sm:block" : "block"} order-1 min-w-0 flex-1 md:min-w-[120px]`}
             >
               <Search />
             </div>
 
             {!isFreeAccount && (
-          <div className="flex w-full gap-2 md:w-auto">
-            <div className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-medium text-white font-one md:flex-none md:px-4">
+          <div className="order-3 flex w-full shrink-0 gap-2 md:w-auto">
+            <div
+              title="Rendez-vous en attente"
+              className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-medium text-white font-one md:flex-none"
+            >
               <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[11px]">
                 {pendingAppointmentsCount > 99 ? "99+" : pendingAppointmentsCount}
               </span>
-              RDV en attente
+              <span>En attente</span>
             </div>
             <DashboardButton href="/mes-rendez-vous/creer" className="!min-w-0 flex-1 whitespace-nowrap md:flex-none">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Créer un rendez-vous
+              Nouveau
             </DashboardButton>
           </div>
         )}
+            </div>
           </ApplicationToolbar>
 
-          {/* Layout responsive : flex-col sur mobile, flex-row sur desktop */}
-          <div className="relative z-0 flex flex-col xl:flex-row gap-2 w-full">
             {/* Section principale - prend toute la largeur sur mobile */}
             <section
-              className={`${viewMode === "calendar" ? "hidden xl:block" : "block"} dashboard-rdv-list w-full xl:w-3/5 rounded-[28px] p-3 sm:p-0 sm:px-4`}
+              className={`${viewMode === "calendar" ? "hidden xl:block" : "block"} dashboard-rdv-list w-full p-3 sm:p-0`}
             >
               {isLoading ? (
                 /* Skeleton loader - localisé dans la section */
@@ -573,29 +570,25 @@ export default function RDV() {
               ) : (
                 /* Contenu réel */
                 <>
+                  {viewMode === "calendar" && (
                   <div className="mb-4 sm:mb-3">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
-                      {/* Titre adaptatif : "Tous les rendez-vous" sur mobile, titre dynamique sur desktop */}
                       <div>
                       <h2 className="text-white font-one text-base font-semibold tracking-tight sm:text-xl">
-                        <span className="sm:hidden">Tous les rendez-vous</span>
-                        <span className="hidden sm:block">
-                          {viewMode === "calendar"
-                            ? getFormattedLabel()
-                            : "Tous les rendez-vous"}
-                        </span>
+                        {getFormattedLabel()}
                       </h2>
                       </div>
                     </div>
 
                     <div className="h-[1px] w-full bg-gradient-to-r from-tertiary-400/50 via-white/30 to-transparent" />
                   </div>
+                  )}
 
                   {/* Affichage conditionnel selon la vue */}
                   {paginatedEvents.length > 0 ? (
                     <div className="space-y-4">
                       {/* Header de la table - masqué sur mobile */}
-                      <div className="hidden sm:grid grid-cols-7 gap-4 rounded-xl border border-white/8 bg-black/15 px-3 py-2.5">
+                      {/* <div className="hidden sm:grid grid-cols-7 gap-4 rounded-xl border border-white/8 bg-black/15 px-3 py-2.5">
                         <p className="text-white/70 text-[10px] font-one font-semibold tracking-[0.12em] uppercase">
                           Date & Heure
                         </p>
@@ -617,10 +610,10 @@ export default function RDV() {
                         <p className="text-white/70 text-[10px] font-one font-semibold tracking-[0.12em] uppercase text-center">
                           Statut
                         </p>
-                      </div>
+                      </div> */}
 
                       {/* Liste des rendez-vous - layout adaptatif */}
-                      <div className="space-y-2 pt-1 lg:pr-2 lg:max-h-[55vh] lg:overflow-y-auto lg:scrollbar-thin lg:scrollbar-thumb-white/20 lg:scrollbar-track-transparent">
+                      <div className="space-y-2 pt-1">
                         {paginatedEvents.map((event: CalendarEvent) => {
                           const start = new Date(event.start ?? "").getTime();
                           const end = new Date(event.end ?? "").getTime();
@@ -634,170 +627,64 @@ export default function RDV() {
 
                           return (
                             <div key={event.id}>
-                              {/* Vue desktop - grille */}
                               <div
                                 onClick={() => openEventDetails(event)}
-                                className={`group hidden cursor-pointer sm:grid sm:grid-cols-7 items-center gap-4 border-white/8 bg-white/[0.025] p-3.5 transition-all duration-300 dashboard-list-item ${
+                                className={`group flex cursor-pointer items-center gap-3 rounded-2xl border bg-white/[0.03] p-2.5 transition-all duration-200 hover:bg-white/[0.06] sm:gap-4 sm:p-3 ${
                                   selectedEvent?.id === event.id
-                                    ? "dashboard-list-item-active"
-                                    : ""
+                                    ? "border-tertiary-400/50 bg-tertiary-400/10"
+                                    : "border-white/8 hover:border-white/20"
                                 }`}
                               >
-                                <div className="text-white font-one text-sm">
-                                  <p className="font-semibold">
-                                    {new Date(
-                                      event.start ?? "",
-                                    ).toLocaleDateString("fr-FR", {
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                      year: "2-digit",
-                                    })}
-                                  </p>
-                                  <p className="text-[11px] text-white/60 mt-0.5">
-                                    {new Date(
-                                      event.start ?? "",
-                                    ).toLocaleTimeString("fr-FR", {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })}
-                                  </p>
-                                </div>
-                                <p className="text-white/90 font-one text-sm truncate">
-                                  {event.title}
-                                </p>
-                                <button className="text-left text-white/90 font-one text-sm hover:text-tertiary-400 transition-colors duration-200 truncate">
-                                  {event.client.firstName}{" "}
-                                  {event.client.lastName}
-                                </button>
-                                <p className="text-white/75 font-one text-sm">
-                                  {durationHours}h
-                                  {durationMinutes > 0
-                                    ? `${durationMinutes}m`
-                                    : ""}
-                                </p>
-                                <p className="text-white/75 font-one text-xs truncate">
-                                  <span className="inline-flex items-center rounded-full border border-white/12 bg-white/6 px-2 py-0.5">
-                                    {event.prestation}
+                                <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-white/[0.06] font-one text-white sm:h-14 sm:w-14">
+                                  <span className="text-lg leading-none font-semibold">
+                                    {new Date(event.start ?? "").toLocaleDateString("fr-FR", { day: "2-digit" })}
                                   </span>
-                                </p>
-                                <p className="text-white/75 font-one text-sm truncate">
-                                  {event.performerUser?.salonName ||
-                                    (event.performerUser?.firstName ||
-                                    event.performerUser?.lastName
-                                      ? `${event.performerUser?.firstName ?? ""} ${event.performerUser?.lastName ?? ""}`.trim()
-                                      : event.tatoueur?.name) ||
-                                    "Non assigné"}
-                                </p>
-                                <div className="text-center">
-                                  <button
-                                    onClick={() => openEventDetails(event)}
-                                    className="w-full cursor-pointer"
-                                  >
-                                    {event.status === "CANCELED" ? (
-                                      <span className="inline-block px-3 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-2xl text-xs font-medium font-one hover:bg-red-500/30 transition-all duration-200 whitespace-nowrap">
-                                        Annulé
-                                      </span>
-                                    ) : event.status === "RESCHEDULING" ? (
-                                      <span className="inline-block px-1 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-2xl text-xs font-one font-medium hover:bg-blue-500/30 transition-all duration-200 whitespace-nowrap">
-                                        En attente de reprogrammation
-                                      </span>
-                                    ) : event.status === "COMPLETED" ? (
-                                      <span className="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-2xl text-xs font-medium font-one hover:bg-emerald-500/30 transition-all duration-200 whitespace-nowrap">
-                                        Complété
-                                      </span>
-                                    ) : event.status === "NO_SHOW" ? (
-                                      <span className="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-2xl text-xs font-medium font-one hover:bg-amber-500/30 transition-all duration-200 whitespace-nowrap">
-                                        Pas présenté
-                                      </span>
-                                    ) : event.status === "PENDING" ? (
-                                      <span className="inline-block px-2 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-2xl text-xs font-medium font-one hover:bg-orange-500/30 transition-all duration-200 whitespace-nowrap">
-                                        En attente
-                                      </span>
-                                    ) : (
-                                      <span className="inline-block px-3 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-2xl text-xs font-medium font-one hover:bg-green-500/30 transition-all duration-200 whitespace-nowrap">
-                                        Confirmé
-                                      </span>
-                                    )}
-                                  </button>
+                                  <span className="mt-1 text-[10px] uppercase tracking-wider text-white/60">
+                                    {new Date(event.start ?? "").toLocaleDateString("fr-FR", { month: "short" })}
+                                  </span>
                                 </div>
-                              </div>
 
-                              {/* Vue mobile - format carte (toujours en mode liste) */}
-                              <div
-                                className={`sm:hidden p-4 transition-all duration-300 cursor-pointer dashboard-list-item ${
-                                  selectedEvent?.id === event.id
-                                    ? "dashboard-list-item-active"
-                                    : ""
-                                }`}
-                                onClick={() => openEventDetails(event)}
-                              >
-                                <div className="flex justify-between items-start mb-3">
-                                  <div className="flex-1">
-                                    <h3 className="text-white font-one font-semibold text-sm mb-1 truncate pr-2">
+                                <div className="min-w-0 flex-1 font-one">
+                                  <div className="flex items-center gap-2">
+                                    <p className="truncate text-sm font-semibold text-white">
                                       {event.title}
-                                    </h3>
-                                    <p className="text-white/75 font-one text-sm">
-                                      {event.client.firstName}{" "}
-                                      {event.client.lastName}
                                     </p>
-                                  </div>
-                                  <div className="text-right">
-                                    {event.status === "CANCELED" ? (
-                                      <span className="inline-block px-2 py-1 bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg text-xs font-medium font-one whitespace-nowrap">
-                                        Annulé
-                                      </span>
-                                    ) : event.status === "RESCHEDULING" ? (
-                                      <span className="inline-block px-2 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-medium font-one whitespace-nowrap">
-                                        Reprogrammation
-                                      </span>
-                                    ) : event.status === "COMPLETED" ? (
-                                      <span className="inline-block px-2 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-medium font-one whitespace-nowrap">
-                                        Complété
-                                      </span>
-                                    ) : event.status === "NO_SHOW" ? (
-                                      <span className="inline-block px-2 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-medium font-one whitespace-nowrap">
-                                        Pas présenté
-                                      </span>
-                                    ) : event.status === "PENDING" ? (
-                                      <span className="inline-block px-2 py-1 bg-orange-500/20 text-orange-300 border border-orange-500/30 rounded-lg text-xs font-medium font-one whitespace-nowrap">
-                                        En attente
-                                      </span>
-                                    ) : (
-                                      <span className="inline-block px-2 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-lg text-xs font-medium font-one whitespace-nowrap">
-                                        Confirmé
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="flex justify-between items-center text-xs text-white/70 font-one gap-2">
-                                  <span className="truncate">
-                                    {new Date(
-                                      event.start ?? "",
-                                    ).toLocaleDateString("fr-FR")}{" "}
-                                    -
-                                    {new Date(
-                                      event.start ?? "",
-                                    ).toLocaleTimeString("fr-FR", {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })}
-                                  </span>
-                                  <span className="flex items-center gap-2 shrink-0">
-                                    <span className="inline-flex items-center rounded-full border border-white/12 bg-white/6 px-2 py-0.5 text-[11px]">
+                                    <span className="hidden shrink-0 rounded-full border border-white/12 bg-white/6 px-2 py-0.5 text-[11px] text-white/75 sm:inline">
                                       {event.prestation}
                                     </span>
-                                    <span>•</span>
-                                    <span>
-                                      {event.performerUser?.salonName ||
-                                        (event.performerUser?.firstName ||
-                                        event.performerUser?.lastName
-                                          ? `${event.performerUser?.firstName ?? ""} ${event.performerUser?.lastName ?? ""}`.trim()
-                                          : event.tatoueur?.name) ||
-                                        "Non assigné"}
-                                    </span>
-                                  </span>
+                                  </div>
+                                  <p className="mt-1 truncate text-xs text-white/60">
+                                    {event.client.firstName} {event.client.lastName}
+                                    <span className="mx-1.5 sm:hidden">·</span>
+                                    <span className="sm:hidden">{event.prestation}</span>
+                                    <span className="mx-1.5">·</span>
+                                    {new Date(event.start ?? "").toLocaleTimeString("fr-FR", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                    <span className="mx-1.5">·</span>
+                                    {durationHours}h{durationMinutes > 0 ? `${durationMinutes}m` : ""}
+                                    <span className="mx-1.5">·</span>
+                                    {event.performerUser?.salonName ||
+                                      (event.performerUser?.firstName ||
+                                      event.performerUser?.lastName
+                                        ? `${event.performerUser?.firstName ?? ""} ${event.performerUser?.lastName ?? ""}`.trim()
+                                        : event.tatoueur?.name) ||
+                                      "Non assigné"}
+                                  </p>
                                 </div>
+
+                                {(() => {
+                                  const status = STATUS_BADGES[event.status ?? ""] ?? STATUS_BADGES.CONFIRMED;
+                                  return (
+                                    <span
+                                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-1 text-[11px] font-medium whitespace-nowrap font-one sm:px-2.5 sm:text-xs ${status.className}`}
+                                    >
+                                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                      {status.label}
+                                    </span>
+                                  );
+                                })()}
                               </div>
                             </div>
                           );
@@ -968,9 +855,10 @@ export default function RDV() {
                 </>
               )}
             </section>
+          </div>
 
-            {/* Section détails/Calendrier - responsive */}
-            <section className="w-full xl:w-2/5 xl:h-[85vh] relative">
+            {/* Section détails/Calendrier - fixe sur toute la hauteur de l'écran */}
+            <section className="relative w-full xl:fixed xl:top-0 xl:right-0 xl:z-30 xl:h-screen xl:w-[36vw] xl:border-l xl:border-white/10">
               {/* Affichage mobile : Calendrier */}
               <div className="xl:hidden mb-4">
                 {viewMode === "calendar" ? (
@@ -1000,7 +888,7 @@ export default function RDV() {
                   price={price}
                 />
               ) : viewMode === "calendar" ? (
-                <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl border border-white/20 shadow-2xl h-full">
+                <div className="bg-noir-500 h-full">
                   <CalendarView
                     events={paginatedEvents}
                     currentDate={currentDate}
@@ -1011,7 +899,7 @@ export default function RDV() {
                   />
                 </div>
               ) : (
-                <div className="hidden xl:flex items-center justify-center bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl p-6 border border-white/20 shadow-2xl h-full ">
+                <div className="hidden xl:flex items-center justify-center bg-noir-500 p-6 h-full ">
                   <div className="text-center space-y-4">
                     <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                       <span className="text-3xl text-white">
@@ -1029,7 +917,6 @@ export default function RDV() {
               )}
               </div>
             </section>
-          </div>
         </div>
       )}
 

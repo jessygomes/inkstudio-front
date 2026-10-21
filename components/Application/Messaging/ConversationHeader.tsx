@@ -15,7 +15,7 @@ export default function ConversationHeader({ conversation, otherUser, isConnecte
     const connectionLabel = isConnected ? "Messagerie connectée" : "Connexion interrompue";
 
     return (
-        <header className="flex shrink-0 items-center gap-2 border-b border-white/10 px-3 py-2 sm:gap-3 sm:px-4">
+        <header className="flex shrink-0 items-center gap-2 border-b border-white/10 px-3 py-4 sm:gap-3 sm:px-4">
             <Image src={otherUser?.image || "/images/default-avatar.png"} width={32} height={32} alt="" className="h-8 w-8 shrink-0 rounded-xl object-cover" />
             <div className="flex min-w-0 flex-1 items-center gap-2">
                 <h1 title={name} className="min-w-0 truncate text-sm font-semibold text-white">{name}</h1>

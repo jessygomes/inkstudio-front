@@ -246,35 +246,30 @@ export default function AvisList() {
   };
 
   return (
-    <section className="w-full space-y-5 pb-12">
-      <header className="flex flex-col gap-4 px-1 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-tertiary-400 font-one">Relation client</p>
-          <h1 className="mt-1 text-xl font-semibold text-white font-one sm:text-2xl">Les avis de vos clients</h1>
-          <p className="mt-2 text-sm leading-6 text-white/50 font-two">Retrouvez leurs expériences et prenez le temps de leur répondre.</p>
-        </div>
-        <DashboardButton type="button" onClick={() => loadReviews(page)} disabled={loading || Boolean(submittingId || removingId)} variant="secondary" className="!min-w-0 min-h-11"><RefreshCw size={15} className={loading ? "animate-spin" : ""} aria-hidden="true" />Actualiser</DashboardButton>
+    <section className="w-full space-y-3 pb-10">
+      <header className="flex items-center justify-between gap-3">
+        <h1 className="text-lg font-semibold text-white font-one">Avis clients</h1>
+        <button type="button" onClick={() => loadReviews(page)} disabled={loading || Boolean(submittingId || removingId)} aria-label="Actualiser" title="Actualiser" className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white/70 transition-colors hover:border-tertiary-400/40 hover:text-white disabled:opacity-50"><RefreshCw size={15} className={loading ? "animate-spin" : ""} aria-hidden="true" /></button>
       </header>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
-        <div className="rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-5 sm:p-6">
-          <p className="text-xs text-white/55 font-one">Note moyenne du salon</p>
-          <div className="mt-3 flex flex-wrap items-center gap-4">
-            <p className="text-4xl font-semibold text-white font-one">{loading || error || statistics.averageRating == null ? "—" : formatRating(statistics.averageRating)}<span className="ml-1 text-base font-normal text-white/35">/ 5</span></p>
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <p className="text-3xl font-semibold text-white font-one">{loading || error || statistics.averageRating == null ? "—" : formatRating(statistics.averageRating)}<span className="ml-1 text-sm font-normal text-white/35">/ 5</span></p>
             <div>
-              <div className="flex gap-1 text-tertiary-400" aria-hidden="true">{[1, 2, 3, 4, 5].map((star) => <Star key={star} size={17} className={!loading && !error && star <= Math.round(statistics.averageRating ?? 0) ? "fill-current" : "text-white/15"} />)}</div>
-              <p className="mt-1.5 text-xs text-white/45 font-two">Les retours qui construisent votre réputation</p>
+              <div className="flex gap-0.5 text-tertiary-400" aria-hidden="true">{[1, 2, 3, 4, 5].map((star) => <Star key={star} size={15} className={!loading && !error && star <= Math.round(statistics.averageRating ?? 0) ? "fill-current" : "text-white/15"} />)}</div>
+              <p className="mt-1 text-[11px] text-white/45 font-two">Note moyenne du salon</p>
             </div>
           </div>
-          <dl className="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-4">
-            <div><dt className="text-xs text-white/45 font-two">Avis reçus</dt><dd className="mt-1 text-xl font-semibold text-white font-one">{loading || error ? "—" : statistics.totalReviews ?? total ?? "—"}</dd></div>
-            <div><dt className="flex items-center gap-1 text-xs text-white/45 font-two"><BadgeCheck size={13} aria-hidden="true" />Vérifiés</dt><dd className="mt-1 text-xl font-semibold text-white font-one">{loading || error ? "—" : statistics.verifiedReviewsCount ?? "—"}</dd></div>
-            <div><dt className="flex items-center gap-1 text-xs text-white/45 font-two"><Heart size={13} aria-hidden="true" />Favoris</dt><dd className="mt-1 text-xl font-semibold text-white font-one">{favoriteCount ?? "—"}</dd></div>
+          <dl className="mt-3 grid grid-cols-3 gap-3 border-t border-white/8 pt-3">
+            <div><dt className="text-[10px] uppercase tracking-[0.12em] text-white/45 font-one">Avis reçus</dt><dd className="mt-0.5 text-base font-semibold text-white font-one">{loading || error ? "—" : statistics.totalReviews ?? total ?? "—"}</dd></div>
+            <div><dt className="flex items-center gap-1 text-[10px] uppercase tracking-[0.12em] text-white/45 font-one"><BadgeCheck size={12} aria-hidden="true" />Vérifiés</dt><dd className="mt-0.5 text-base font-semibold text-white font-one">{loading || error ? "—" : statistics.verifiedReviewsCount ?? "—"}</dd></div>
+            <div><dt className="flex items-center gap-1 text-[10px] uppercase tracking-[0.12em] text-white/45 font-one"><Heart size={12} aria-hidden="true" />Favoris</dt><dd className="mt-0.5 text-base font-semibold text-white font-one">{favoriteCount ?? "—"}</dd></div>
           </dl>
         </div>
-        <div className="rounded-[22px] border border-white/10 bg-[#181818] p-5 sm:p-6">
-          <h2 className="text-sm font-semibold text-white font-one">Répartition des notes</h2>
-          <div className="mt-4 space-y-3">
+        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <h2 className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/45 font-one">Répartition des notes</h2>
+          <div className="mt-3 space-y-2">
             {[5, 4, 3, 2, 1].map((star) => {
               const count = statistics.ratingDistribution?.[String(star)];
               const reviewTotal = statistics.totalReviews ?? total ?? 0;
@@ -289,47 +284,47 @@ export default function AvisList() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 px-1">
-        <h2 className="text-base font-semibold text-white font-one">Derniers avis</h2>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold text-white font-one">Derniers avis</h2>
         <p className="text-xs text-white/45 font-two">Du plus récent au plus ancien</p>
       </div>
 
       {loading ? (
-        <div role="status" aria-label="Chargement des avis" className="space-y-4">{[0, 1, 2].map((index) => <div key={index} aria-hidden="true" className="animate-pulse space-y-4 rounded-[22px] border border-white/10 bg-[#181818] p-5"><div className="flex items-center gap-3"><div className="size-11 rounded-full bg-white/10" /><div className="h-4 w-32 rounded bg-white/10" /></div><div className="h-4 w-3/4 rounded bg-white/5" /><div className="h-4 w-1/2 rounded bg-white/5" /></div>)}</div>
+        <div role="status" aria-label="Chargement des avis" className="space-y-2.5">{[0, 1, 2].map((index) => <div key={index} aria-hidden="true" className="animate-pulse space-y-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4"><div className="flex items-center gap-3"><div className="size-9 rounded-xl bg-white/10" /><div className="h-4 w-32 rounded bg-white/10" /></div><div className="h-4 w-3/4 rounded bg-white/5" /><div className="h-4 w-1/2 rounded bg-white/5" /></div>)}</div>
       ) : error ? (
         <div role="alert" className="rounded-[22px] border border-red-400/20 bg-red-500/5 p-6"><p className="text-sm text-red-300 font-one">{error}</p><DashboardButton type="button" onClick={() => loadReviews(page)} variant="secondary" className="mt-4 !min-w-0 min-h-11">Réessayer</DashboardButton></div>
       ) : reviews.length === 0 ? (
         <div className="flex flex-col items-center rounded-[22px] border border-dashed border-white/15 p-10 text-center"><MessageSquare size={30} className="mb-4 text-tertiary-400/60" aria-hidden="true" /><h3 className="text-base font-semibold text-white font-one">Vos premiers avis apparaîtront ici</h3><p className="mt-2 max-w-md text-sm leading-6 text-white/45 font-two">Invitez vos clients à partager leur expérience après leur rendez-vous.</p></div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-2.5">
           {reviews.map((review) => {
             const busy = Boolean(submittingId || removingId);
             const draft = responseValues[review.id] ?? review.salonResponse ?? "";
             return (
-              <article key={review.id} className="overflow-hidden rounded-[22px] border border-white/10 bg-[#181818] p-4 sm:p-6">
-                <header className="flex flex-wrap items-start justify-between gap-3">
+              <article key={review.id} className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03] p-3.5 transition-colors hover:border-white/15 sm:p-4">
+                <header className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    {review.author?.image ? <Image src={review.author.image} alt="" width={44} height={44} className="size-11 shrink-0 rounded-full object-cover" /> : <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-tertiary-400/20 bg-tertiary-500/10 text-sm font-semibold text-tertiary-400">{review.author?.name?.charAt(0).toUpperCase() || "?"}</span>}
-                    <div className="min-w-0"><p className="break-words text-sm font-semibold text-white font-one">{review.author?.name || "Client anonyme"}</p><time dateTime={review.createdAt} className="mt-1 block text-xs text-white/40 font-two">{formatDate(review.createdAt)}</time></div>
+                    {review.author?.image ? <Image src={review.author.image} alt="" width={36} height={36} className="size-9 shrink-0 rounded-xl object-cover" /> : <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-500/10 text-sm font-semibold text-tertiary-400">{review.author?.name?.charAt(0).toUpperCase() || "?"}</span>}
+                    <div className="min-w-0">
+                      <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm font-semibold text-white font-one"><span className="break-words">{review.author?.name || "Client anonyme"}</span>{review.isVerified && <span title="Avis vérifié" className="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300"><BadgeCheck size={11} aria-hidden="true" />Vérifié</span>}</p>
+                      <time dateTime={review.createdAt} className="block text-[11px] text-white/40 font-two">{formatDate(review.createdAt)}</time>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {review.isVerified && <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-500/5 px-2.5 py-1 text-[11px] text-emerald-300 font-one"><BadgeCheck size={13} aria-hidden="true" />Avis vérifié</span>}
-                    <span className="inline-flex items-center gap-1.5 rounded-xl border border-tertiary-400/20 bg-tertiary-500/10 px-3 py-1.5 text-sm font-semibold text-tertiary-400 font-one"><Star size={14} className="fill-current" aria-hidden="true" />{formatRating(review.rating)}<span className="text-xs font-normal text-white/35">/ 5</span></span>
-                  </div>
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-tertiary-400/25 bg-tertiary-500/10 px-2.5 py-1 text-xs font-semibold text-tertiary-400 font-one"><Star size={12} className="fill-current" aria-hidden="true" />{formatRating(review.rating)}</span>
                 </header>
 
-                {review.title && <h3 className="mt-5 break-words text-base font-semibold text-white font-one">{review.title}</h3>}
-                {review.comment && <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-white/70 font-two">{review.comment}</p>}
-                {review.photos && review.photos.length > 0 && <div className="mt-4 flex flex-wrap gap-2">{review.photos.map((photo, index) => <DashboardButton type="button" key={`${photo}-${index}`} onClick={() => openImage(photo)} aria-label={`Ouvrir la photo ${index + 1} dans un nouvel onglet`} variant="secondary" className="relative !min-w-0 size-20 !p-0 overflow-hidden !rounded-xl focus-visible:outline-2 focus-visible:outline-tertiary-400 sm:size-24"><Image src={photo} alt={`Photo jointe à l’avis, ${index + 1}`} fill sizes="96px" className="object-cover" /></DashboardButton>)}</div>}
-                {review.appointment && <p className="mt-4 flex flex-wrap items-center gap-2 text-xs text-white/40 font-two"><CalendarDays size={14} aria-hidden="true" /><span>{review.appointment.prestation}</span><span aria-hidden="true">·</span><span>Rendez-vous du {formatDate(review.appointment.date)}</span></p>}
+                {review.title && <h3 className="mt-3 break-words text-sm font-semibold text-white font-one">{review.title}</h3>}
+                {review.comment && <p className="mt-1.5 whitespace-pre-wrap break-words text-[13px] leading-6 text-white/70 font-two">{review.comment}</p>}
+                {review.photos && review.photos.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{review.photos.map((photo, index) => <DashboardButton type="button" key={`${photo}-${index}`} onClick={() => openImage(photo)} aria-label={`Ouvrir la photo ${index + 1} dans un nouvel onglet`} variant="secondary" className="relative !min-w-0 size-16 !p-0 overflow-hidden !rounded-xl focus-visible:outline-2 focus-visible:outline-tertiary-400 sm:size-20"><Image src={photo} alt={`Photo jointe à l’avis, ${index + 1}`} fill sizes="80px" className="object-cover" /></DashboardButton>)}</div>}
+                {review.appointment && <p className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[11px] text-white/40 font-two"><CalendarDays size={12} aria-hidden="true" /><span>{review.appointment.prestation}</span><span aria-hidden="true">·</span><span>RDV du {formatDate(review.appointment.date)}</span></p>}
 
-                {review.salonResponse && expandedId !== review.id && <div className="mt-5 rounded-2xl border-l-2 border-tertiary-400/40 bg-white/[0.025] p-4"><p className="mb-2 flex items-center gap-2 text-xs font-semibold text-tertiary-400 font-one"><MessageSquare size={14} aria-hidden="true" />Votre réponse</p><p className="whitespace-pre-wrap break-words text-sm leading-6 text-white/65 font-two">{review.salonResponse}</p></div>}
+                {review.salonResponse && expandedId !== review.id && <div className="mt-3 rounded-xl border-l-2 border-tertiary-400/40 bg-white/[0.03] px-3 py-2.5"><p className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold text-tertiary-400 font-one"><MessageSquare size={12} aria-hidden="true" />Votre réponse</p><p className="whitespace-pre-wrap break-words text-[13px] leading-6 text-white/65 font-two">{review.salonResponse}</p></div>}
 
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-                  <span className={`text-xs font-two ${review.salonResponse ? "text-white/40" : "text-tertiary-400/80"}`}>{review.salonResponse ? "Réponse publiée" : "En attente de votre réponse"}</span>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/8 pt-3">
+                  <span className={`text-[11px] font-two ${review.salonResponse ? "text-white/40" : "text-tertiary-400/80"}`}>{review.salonResponse ? "Réponse publiée" : "En attente de votre réponse"}</span>
                   <div className="flex flex-wrap gap-2">
-                    {review.salonResponse && <DashboardButton type="button" disabled={busy} onClick={() => setConfirmRemoveId(review.id)} variant="danger" className="!min-w-0 min-h-11"><Trash2 size={14} aria-hidden="true" />Supprimer la réponse</DashboardButton>}
-                    <DashboardButton type="button" disabled={busy} onClick={() => toggleResponse(review.id)} aria-expanded={expandedId === review.id} aria-controls={`response-${review.id}`} variant="secondary" className="!min-w-0 min-h-11"><MessageSquare size={14} aria-hidden="true" />{expandedId === review.id ? "Fermer" : review.salonResponse ? "Modifier la réponse" : "Répondre"}</DashboardButton>
+                    {review.salonResponse && <DashboardButton type="button" disabled={busy} onClick={() => setConfirmRemoveId(review.id)} variant="danger" className="!min-w-0 !min-h-9 !rounded-xl !px-3 !py-1.5 !text-xs"><Trash2 size={13} aria-hidden="true" />Supprimer</DashboardButton>}
+                    <DashboardButton type="button" disabled={busy} onClick={() => toggleResponse(review.id)} aria-expanded={expandedId === review.id} aria-controls={`response-${review.id}`} variant="secondary" className="!min-w-0 !min-h-9 !rounded-xl !px-3 !py-1.5 !text-xs"><MessageSquare size={13} aria-hidden="true" />{expandedId === review.id ? "Fermer" : review.salonResponse ? "Modifier" : "Répondre"}</DashboardButton>
                   </div>
                 </div>
                 {expandedId === review.id && <form id={`response-${review.id}`} onSubmit={(event) => { event.preventDefault(); void submitResponse(review.id); }} className="mt-4 space-y-3 rounded-2xl border border-tertiary-400/20 bg-black/15 p-4">

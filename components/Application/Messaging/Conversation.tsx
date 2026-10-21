@@ -266,20 +266,20 @@ export default function Conversation() {
 
   return (
     <>
-      <div className="grid h-[calc(100dvh-7rem)] min-h-0 w-full gap-4 lg:h-[calc(100dvh-100px)] lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <section aria-label="Conversation" className="dashboard-embedded-panel flex min-h-0 min-w-0 flex-col overflow-hidden rounded-3xl">
+      <div className="grid h-full min-h-0 w-full lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <section aria-label="Conversation" className="flex min-h-0 min-w-0 flex-col overflow-hidden">
           <ConversationHeader conversation={conversation} otherUser={otherUser} isConnected={isConnected}
             onShowDetails={() => setShowRDVDetails(true)}
             onStatusChange={(status) => setConversation((current) => current ? { ...current, status } : current)} />
           <div ref={messagesContainerRef} role="log" aria-label="Messages"
-            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-6">
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-6 sm:px-6">
             <MessageBubbles messages={displayedMessages} currentUserId={session?.user?.id ?? undefined} onDeleteMessage={handleDeleteMessage} />
             {typingUsers.size > 0 && <p role="status" className="mt-4 text-xs text-white/60">Quelqu’un est en train d’écrire…</p>}
           </div>
           <MessageInput onSendMessage={handleSendMessage} onInputChange={handleInputChange} disabled={!isConnected}
             className="shrink-0 border-t border-white/10 p-3 sm:p-4" />
         </section>
-        <aside aria-label="Détails du rendez-vous" className="hidden min-h-0 min-w-0 lg:block">
+        <aside aria-label="Détails du rendez-vous" className="hidden min-h-0 min-w-0 border-l border-white/10 bg-noir-500 lg:block">
           <ConversationRDVDetails conversation={conversation} />
         </aside>
       </div>

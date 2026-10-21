@@ -85,7 +85,7 @@ export default function ConversationRDVDetails({
 
   if (loading) {
     return (
-      <div className="dashboard-embedded-panel h-full flex items-center justify-center rounded-2xl">
+      <div className="dashboard-embedded-panel h-full flex items-center justify-center !rounded-none !border-0">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-4 border-tertiary-500/50 rounded-full animate-spin border-t-tertiary-400"></div>
           <p className="text-white/50 text-sm font-one">Chargement...</p>
@@ -96,7 +96,7 @@ export default function ConversationRDVDetails({
 
   if (error || !appointment) {
     return (
-      <div className="dashboard-empty-state h-full flex items-center justify-center rounded-2xl">
+      <div className="dashboard-empty-state h-full flex items-center justify-center !rounded-none !border-0">
         <div className="text-center p-6">
           <p className="text-white/50 text-sm font-one">
             {error ? "Impossible de charger le rendez-vous. Rechargez la page pour réessayer." : "Aucun rendez-vous associé"}
@@ -108,9 +108,8 @@ export default function ConversationRDVDetails({
 
   const statusCfg = STATUS_CONFIG[appointment.status] ?? STATUS_CONFIG.PENDING;
   return (
-    <div className="dashboard-embedded-panel h-full min-h-0 flex flex-col overflow-hidden rounded-3xl">
-      <div className="dashboard-embedded-header shrink-0 border-b border-white/10 px-5 py-5">
-        <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/60">Votre rendez-vous</h2>
+    <div className="dashboard-embedded-panel !rounded-none !border-0 !bg-transparent h-full min-h-0 flex flex-col overflow-hidden">
+      <div className="dashboard-embedded-header shrink-0 border-b border-white/10 !rounded-none px-5 py-5">
         <div className="flex items-start gap-3">
           <div className="relative shrink-0">
             <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-tertiary-500 to-primary-500 flex items-center justify-center shadow-lg">

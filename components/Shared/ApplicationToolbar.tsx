@@ -11,10 +11,8 @@ interface ApplicationToolbarProps {
 
 const toolbarClasses = {
   root: [
-    "relative z-10 flex w-full flex-col gap-2.5 overflow-hidden rounded-2xl border border-white/[0.09] bg-noir-500 p-2",
-    "bg-[linear-gradient(145deg,rgba(255,255,255,0.05),rgba(255,255,255,0.018)),#181818]",
-    "shadow-[inset_0_1px_0_rgba(255,255,255,0.035),0_12px_32px_rgba(0,0,0,0.14)]",
-    "transition-colors focus-within:border-tertiary-400/20 sm:flex-row sm:items-center sm:gap-2 sm:overflow-visible sm:rounded-3xl sm:p-2.5",
+    "relative z-10 flex w-full flex-col gap-2.5 overflow-hidden rounded-2xl p-2",
+    "sm:flex-row sm:items-center sm:gap-2 sm:overflow-visible sm:rounded-3xl sm:p-2.5",
     "[&_input:not([type=checkbox])]:min-h-10 [&_input:not([type=checkbox])]:rounded-xl sm:[&_input:not([type=checkbox])]:rounded-3xl",
     "[&_input:not([type=checkbox])]:border-white/10 [&_input:not([type=checkbox])]:bg-black/15",
     "[&_select]:min-h-10 [&_select]:rounded-[14px] [&_select]:border-white/10 [&_select]:bg-black/15",

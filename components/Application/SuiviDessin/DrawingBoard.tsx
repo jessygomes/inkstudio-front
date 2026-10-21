@@ -171,7 +171,7 @@ export default function DrawingBoard() {
   };
 
   return (
-    <div className="mt-3 space-y-3 [&_button:not(:disabled)]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_select:not(:disabled)]:cursor-pointer [&_select:disabled]:cursor-not-allowed">
+    <div className="mt-3 flex flex-1 flex-col gap-3 [&_button:not(:disabled)]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_select:not(:disabled)]:cursor-pointer [&_select:disabled]:cursor-not-allowed">
       {/* Recherche et filtres du Kanban. */}
       <DrawingBoardFilters
         search={search}
@@ -208,13 +208,7 @@ export default function DrawingBoard() {
         </div>
       ) : (
         <div
-          className="grid items-start gap-3 overflow-x-auto pb-4"
-          style={{
-            // Les cinq pistes restent définies même lorsqu'un filtre masque des
-            // colonnes. La colonne filtrée conserve ainsi sa largeur habituelle
-            // au lieu de s'étirer sur toute la largeur disponible.
-            gridTemplateColumns: "repeat(5, minmax(260px, 1fr))",
-          }}
+          className="grid flex-1 grid-cols-[repeat(5,minmax(260px,1fr))] items-stretch gap-3 overflow-x-auto xl:grid-cols-[repeat(5,minmax(0,1fr))] xl:overflow-x-visible"
         >
           {visibleStatuses.map((status) => {
             const items = cards.filter((card) => card.status === status);
@@ -230,7 +224,7 @@ export default function DrawingBoard() {
                   );
                   if (card && card.status !== status) move(card, status);
                 }}
-                className="min-h-[420px] rounded-2xl border border-white/10 bg-white/[0.025] p-2.5"
+                className="min-h-[420px] min-w-0 rounded-2xl border border-white/10 bg-white/[0.025] p-2.5"
               >
                 <header className="mb-3 flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">

@@ -22,7 +22,7 @@ interface TabDefinition { id: SectionId; label: string; shortLabel: string; desc
 export default function InfoClient({ client, isOpen, onClose }: InfoClientProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [topOffset, setTopOffset] = useState(0);
-  const [bottomOffset, setBottomOffset] = useState(0);
+  const [leftOffset, setLeftOffset] = useState(0);
   const [activeSection, setActiveSection] = useState<SectionId>("infos");
   const tabsId = useId();
   const tabs: TabDefinition[] = [
@@ -44,10 +44,10 @@ export default function InfoClient({ client, isOpen, onClose }: InfoClientProps)
 
   useEffect(() => {
     const computeOffsets = () => {
-      const header = document.querySelector("div.sticky.bg-noir-700.top-0.left-0.w-full.z-50") as HTMLElement | null;
-      const mobileBottomNavbar = document.querySelector("div.fixed.bottom-0.left-0.right-0.z-40") as HTMLElement | null;
+      const header = document.querySelector("[data-app-mobile-header]") as HTMLElement | null;
+      const sidebar = document.querySelector("[data-app-sidebar]") as HTMLElement | null;
       setTopOffset(header?.offsetHeight ?? 0);
-      setBottomOffset(mobileBottomNavbar?.offsetHeight ?? 0);
+      setLeftOffset(sidebar?.offsetWidth ?? 0);
     };
     computeOffsets();
     window.addEventListener("resize", computeOffsets);
@@ -70,8 +70,8 @@ export default function InfoClient({ client, isOpen, onClose }: InfoClientProps)
   const fullName = `${client.firstName} ${client.lastName}`.trim();
   const initials = `${client.firstName?.charAt(0) ?? ""}${client.lastName?.charAt(0) ?? ""}`.toUpperCase();
   return createPortal(
-    <div data-modal role="dialog" aria-modal="true" aria-labelledby={`${tabsId}-title`} className="fixed left-0 right-0 z-[45] flex items-stretch justify-center overflow-hidden bg-noir-700 lg:bg-noir-700 lg:p-4 lg:backdrop-blur-md" style={{ top: `${topOffset}px`, bottom: `${bottomOffset}px` }}>
-      <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-noir-500 shadow-2xl shadow-black/40 lg:max-w-[1500px] lg:rounded-[28px] lg:border lg:border-white/10">
+    <div data-modal role="dialog" aria-modal="true" aria-labelledby={`${tabsId}-title`} className="fixed right-0 bottom-0 z-[45] flex items-stretch overflow-hidden bg-noir-700" style={{ top: `${topOffset}px`, left: `${leftOffset}px` }}>
+      <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-noir-700">
 
         <header className="relative shrink-0 border-b border-white/[0.08] px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex min-w-0 flex-wrap items-center gap-3 lg:flex-nowrap lg:gap-6">
@@ -91,8 +91,8 @@ export default function InfoClient({ client, isOpen, onClose }: InfoClientProps)
           </div>
         </header>
 
-        <main className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-6 sm:py-6 lg:px-6 bg-noir-500">
-          <div className="mx-auto w-full ">
+        <main className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-6 sm:py-6 lg:px-6 bg-noir-700">
+          <div className="mx-auto w-full max-w-[1440px]">
             <section role="tabpanel" id={`${tabsId}-panel-${activeSection}`} aria-labelledby={`${tabsId}-tab-${activeSection}`} tabIndex={0} className="outline-none">
               {activeSection === "infos" && <BaseInfoSection client={client} />}
               {activeSection === "appointments" && <AppointmentSection appointments={client.appointments ?? []} />}

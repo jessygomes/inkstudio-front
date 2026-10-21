@@ -77,10 +77,10 @@ export default function ConversationCard({
       className={`group relative cursor-pointer overflow-hidden rounded-2xl border transition-all duration-200
         ${isLoading ? "pointer-events-none opacity-50" : ""}
         ${isSelected
-          ? "border-tertiary-400/40 bg-tertiary-400/10 shadow-lg shadow-tertiary-500/10"
+          ? "border-tertiary-400/50 bg-tertiary-400/10"
           : hasUnread
-          ? "border-tertiary-400/50 bg-tertiary-400/5 hover:border-tertiary-400/70 hover:bg-tertiary-400/8"
-          : "border-white/[0.07] bg-black/10 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.035]"
+          ? "border-tertiary-400/40 bg-tertiary-400/5 hover:border-tertiary-400/60 hover:bg-tertiary-400/8"
+          : "border-white/8 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
         }`}
     >
       {/* Unread accent line */}

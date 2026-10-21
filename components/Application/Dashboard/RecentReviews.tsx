@@ -240,77 +240,59 @@ export default function RecentReviews() {
           <div
             key={review.id}
             onClick={() => handleOpenReview(review)}
-            className={`dashboard-list-item cursor-pointer p-4 ${
+            className={`cursor-pointer rounded-2xl border p-3 transition-colors ${
               selectedReview?.id === review.id
-                ? "dashboard-list-item-active border-blue-500/35"
-                : ""
+                ? "border-tertiary-400/40 bg-tertiary-500/10"
+                : "border-white/8 bg-white/[0.03] hover:border-white/15 hover:bg-white/[0.05]"
             }`}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3 flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
                 {review.author?.image ? (
-                  <div className="w-10 h-10 rounded-2xl overflow-hidden flex-shrink-0">
-                    <Image
-                      src={review.author.image}
-                      alt={review.author.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full object-cover"
-                    />
-                  </div>
+                  <Image
+                    src={review.author.image}
+                    alt={review.author.name}
+                    width={36}
+                    height={36}
+                    className="size-9 shrink-0 rounded-xl object-cover"
+                  />
                 ) : (
-                  <div className="w-10 h-10 rounded-2xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-blue-300 font-semibold text-sm">
-                      {review.author?.name?.charAt(0) || "?"}
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-500/10">
+                    <span className="text-sm font-semibold text-tertiary-400">
+                      {review.author?.name?.charAt(0).toUpperCase() || "?"}
                     </span>
                   </div>
                 )}
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-white font-medium text-sm font-one truncate">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    <p className="truncate text-sm font-semibold text-white font-one">
                       {review.author?.name || "Client anonyme"}
                     </p>
                     {review.isVerified && (
-                      <span className="bg-green-500/20 border border-green-500/50 rounded-full px-2 py-0.5 flex items-center gap-1">
-                        <svg
-                          className="w-3 h-3 text-green-400"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <span className="text-green-400 text-xs font-one">
-                          Vérifié
-                        </span>
+                      <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300 font-one">
+                        Vérifié
+                      </span>
+                    )}
+                    {!review.salonResponse && (
+                      <span className="rounded-full border border-tertiary-400/25 bg-tertiary-500/10 px-2 py-0.5 text-[10px] font-medium text-tertiary-400 font-one">
+                        À répondre
                       </span>
                     )}
                   </div>
-                  <p className="text-white/70 text-xs font-one truncate">
-                    {review.title}
-                  </p>
-                  <p className="text-white/50 text-xs font-one mt-1">
-                    {formatDate(review.createdAt)}
+                  <p className="truncate text-xs text-white/60 font-one">
+                    {review.title || "Sans titre"}
+                    <span className="text-white/35"> · {formatDate(review.createdAt)}</span>
                   </p>
                 </div>
               </div>
 
-              {/* Rating */}
-              <div className="ml-2 flex flex-shrink-0 items-center gap-2 rounded-2xl border border-yellow-500/40 bg-yellow-500/15 px-3 py-1.5">
-                <svg
-                  className="w-4 h-4 text-yellow-400 fill-yellow-400"
-                  viewBox="0 0 24 24"
-                >
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-tertiary-400/25 bg-tertiary-500/10 px-2.5 py-1 text-xs font-semibold text-tertiary-400 font-one">
+                <svg className="h-3 w-3 fill-current" viewBox="0 0 24 24">
                   <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2l-2.81 6.63L2 9.24l5.46 4.73L5.82 21 12 17.27z" />
                 </svg>
-                <span className="text-yellow-300 font-semibold text-sm font-one">
-                  {review.rating ? review.rating.toFixed(1) : "0.0"}
-                </span>
-              </div>
+                {review.rating ? review.rating.toFixed(1) : "0.0"}
+              </span>
             </div>
           </div>
         ))}

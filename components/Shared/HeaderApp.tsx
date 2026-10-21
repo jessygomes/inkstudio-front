@@ -1,28 +1,38 @@
-import React from "react";
-// import Link from "next/link";
-// import NavMobile from "./Navbar/NavMobile";
+"use client";
+
+import type { ReactNode } from "react";
+import { useState } from "react";
 import NavbarApp from "./Navbar/NavbarApp";
 import NavbarMobile from "./Navbar/NavbarMobile";
 
-export default function HeaderApp() {
+export default function HeaderApp({ children }: { children: ReactNode }) {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
   return (
-    <>
-      {" "}
-      <div className="block xl:hidden">
-        <NavbarMobile />
-      </div>
-      <div className="hidden xl:block">
-        <NavbarApp />
-      </div>
-      {/* <div className="sm:hidden px-4 pt-8 rounded-2xl flex justify-between items-center mx-2">
-        <Link
-          href={"/dashboard"}
-          className="text-xl font-one font-bold text-white "
+    <div className="flex min-h-screen w-full bg-noir-700">
+      <aside
+        data-app-sidebar
+        className={`relative hidden shrink-0 transition-[width] duration-200 xl:block ${
+          isSidebarCollapsed ? "w-[76px]" : "w-52"
+        }`}
+      >
+        <div
+          className={`fixed top-0 left-0 z-40 h-screen transition-[width] duration-200 ${
+            isSidebarCollapsed ? "w-[76px]" : "w-52"
+          }`}
         >
-          InkStudio
-        </Link>
-        <NavMobile />
-      </div> */}
-    </>
+          <NavbarApp
+            collapsed={isSidebarCollapsed}
+            onToggle={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
+          />
+        </div>
+      </aside>
+      <main className="min-w-0 flex-1">
+        <div data-app-mobile-header className="sticky top-0 z-50 bg-noir-700 xl:hidden">
+          <NavbarMobile />
+        </div>
+        {children}
+      </main>
+    </div>
   );
 }

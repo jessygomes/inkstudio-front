@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import HeaderApp from "@/components/Shared/HeaderApp";
 import { UserProvider } from "@/components/Auth/Context/UserContext";
-import Footer from "@/components/Shared/Footer/FooterApp";
 import Providers from "@/components/Providers/ReactQueryProvider";
 import { ColorProvider } from "@/components/ColorContext/ColorProvider";
 import VerificationNotification from "@/components/Shared/VerificationNotification";
@@ -42,12 +41,10 @@ export default async function DashboardLayout({
       <Providers>
         <ColorProvider>
           <MessagingProvider>
-            <div className="sticky bg-noir-700 top-0 left-0 w-full z-50">
-              <HeaderApp />
-            </div>
-            <VerificationNotification />
-            {children}
-            {/* <Footer /> */}
+            <HeaderApp>
+              <VerificationNotification />
+              {children}
+            </HeaderApp>
           </MessagingProvider>
         </ColorProvider>
       </Providers>

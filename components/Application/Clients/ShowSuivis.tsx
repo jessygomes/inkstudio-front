@@ -6,11 +6,13 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { MdOutlineRateReview, MdFilterList } from "react-icons/md";
-import { IoChevronDown } from "react-icons/io5";
+import { IoChevronDown, IoArrowBack } from "react-icons/io5";
+import Link from "next/link";
 import { toast } from "sonner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RiFileUserLine } from "react-icons/ri";
 import PageHeader from "@/components/Shared/PageHeader";
+import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import {
   deleteSuiviAction,
   getFollowUpAction,
@@ -85,6 +87,7 @@ export default function ShowSuivis() {
   const [followUpToDelete, setFollowUpToDelete] =
     useState<FollowUpSubmission | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   // Filtres (pilotés par URL)
   const statusFromUrl = (searchParams.get("status") || "all") as StatusFilter;
@@ -98,6 +101,10 @@ export default function ShowSuivis() {
   const [tatoueurFilter, setTatoueurFilter] =
     useState<TatoueurFilter>(tatoueurFromUrl);
   const [searchTerm, setSearchTerm] = useState(queryFromUrl);
+  const activeFiltersCount =
+    (statusFilter !== "all" ? 1 : 0) +
+    (tatoueurFilter !== "all" ? 1 : 0) +
+    (searchTerm ? 1 : 0);
 
   const [tatoueurs, setTatoueurs] = useState<Tatoueur[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
@@ -381,22 +388,17 @@ export default function ShowSuivis() {
         title="Suivi cicatrisation"
       />
 
-      <div className="dashboard-embedded-panel rounded-2xl border border-white/10 bg-white/4 p-3 sm:p-4">
-        <div className="mb-2.5 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/6">
-            <MdFilterList className="h-4 w-4 text-white/75" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-white/50 font-one">Filtres</p>
-            <p className="text-xs text-white/70 font-one">Affinez la liste des suivis</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-5">
-          <div className="sm:col-span-2 xl:col-span-2">
-            <label className="mb-1.5 block text-[10px] uppercase tracking-wider text-white/50 font-one">
-              Rechercher par client
-            </label>
+      <ApplicationToolbar>
+        <div className="flex w-full min-w-0 items-center gap-2">
+          <Link
+            href="/clients"
+            aria-label="Retour aux clients"
+            title="Retour aux clients"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <IoArrowBack className="h-4 w-4" />
+          </Link>
+          <div className="min-w-0 flex-1">
             <input
               type="text"
               value={searchTerm}
@@ -404,135 +406,108 @@ export default function ShowSuivis() {
               onChange={(e) => {
                 setSearchTerm(e.target.value);
               }}
-              placeholder="Nom du client..."
-              className="w-full rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/45 focus:outline-none font-one disabled:opacity-60"
+              placeholder="Rechercher un client..."
+              className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-2 text-sm text-white placeholder:text-white/30 focus:border-tertiary-400 focus:outline-none font-one transition-colors disabled:opacity-60"
             />
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-[10px] uppercase tracking-wider text-white/50 font-one">
-              Statut
-            </label>
-            <div className="relative">
-              <select
-                value={statusFilter}
-                disabled={loading}
-                onChange={(e) => {
-                  const v = e.target.value as StatusFilter;
-                  setStatusFilter(v);
-                  updateParam("status", v);
-                }}
-                className="w-full appearance-none rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs text-white focus:border-tertiary-400/45 focus:outline-none font-one disabled:opacity-60"
-              >
-                <option value="all" className="bg-noir-500">Tous les statuts</option>
-                <option value="unanswered" className="bg-noir-500">En attente</option>
-                <option value="answered" className="bg-noir-500">Répondus</option>
-              </select>
-              <IoChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/55" />
-            </div>
+          <div className="relative shrink-0 font-one">
+            <button
+              type="button"
+              onClick={() => setIsFiltersOpen((open) => !open)}
+              aria-label="Filtres"
+              aria-expanded={isFiltersOpen}
+              title="Filtres"
+              className={`relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border transition-colors ${
+                isFiltersOpen || activeFiltersCount > 0
+                  ? "border-tertiary-400/50 bg-tertiary-400/15 text-white"
+                  : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <MdFilterList className="h-4 w-4" />
+              {activeFiltersCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-tertiary-400 text-[10px] text-white">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+
+            {isFiltersOpen && (
+              <div className="absolute right-0 top-full z-30 mt-2 flex w-60 flex-col gap-2 rounded-2xl border border-white/10 bg-noir-500 p-3 shadow-xl">
+                <div className="relative">
+                  <select
+                    value={statusFilter}
+                    disabled={loading}
+                    onChange={(e) => {
+                      const v = e.target.value as StatusFilter;
+                      setStatusFilter(v);
+                      updateParam("status", v);
+                    }}
+                    className="w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white focus:border-tertiary-400 focus:outline-none font-one disabled:opacity-60"
+                  >
+                    <option value="all" className="bg-noir-500">Tous les statuts</option>
+                    <option value="unanswered" className="bg-noir-500">En attente</option>
+                    <option value="answered" className="bg-noir-500">Répondus</option>
+                  </select>
+                  <IoChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/55" />
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={tatoueurFilter}
+                    disabled={loading}
+                    onChange={(e) => {
+                      const v = e.target.value as TatoueurFilter;
+                      setTatoueurFilter(v);
+                      updateParam("tatoueurId", v);
+                    }}
+                    className="w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white focus:border-tertiary-400 focus:outline-none font-one disabled:opacity-60"
+                  >
+                    <option value="all" className="bg-noir-500">Tous les tatoueurs</option>
+                    {tatoueurs.map((t) => (
+                      <option key={t.id} value={t.id} className="bg-noir-500">
+                        {t.name}
+                      </option>
+                    ))}
+                  </select>
+                  <IoChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/55" />
+                </div>
+
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams(searchParams.toString());
+                      params.delete("status");
+                      params.delete("tatoueurId");
+                      params.delete("q");
+                      params.set("page", "1");
+                      router.replace(`${pathname}?${params.toString()}`, {
+                        scroll: false,
+                      });
+                    }}
+                    className="cursor-pointer rounded-2xl border border-red-400/25 bg-red-400/10 px-2.5 py-1.5 text-xs text-red-300 transition-colors hover:bg-red-400/20 font-one"
+                  >
+                    ✕ Effacer
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
-          <div>
-            <label className="mb-1.5 block text-[10px] uppercase tracking-wider text-white/50 font-one">
-              Tatoueur
-            </label>
-            <div className="relative">
-              <select
-                value={tatoueurFilter}
-                disabled={loading}
-                onChange={(e) => {
-                  const v = e.target.value as TatoueurFilter;
-                  setTatoueurFilter(v);
-                  updateParam("tatoueurId", v);
-                }}
-                className="w-full appearance-none rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs text-white focus:border-tertiary-400/45 focus:outline-none font-one disabled:opacity-60"
-              >
-                <option value="all" className="bg-noir-500">Tous les tatoueurs</option>
-                {tatoueurs.map((t) => (
-                  <option key={t.id} value={t.id} className="bg-noir-500">
-                    {t.name}
-                  </option>
-                ))}
-              </select>
-              <IoChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/55" />
-            </div>
-          </div>
-
-          <div className="">
-          
-            <div className="rounded-xl border border-white/10 bg-white/4 px-2.5 py-2 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-white/45 font-one">Total</p>
-              <p className="mt-0.5 text-sm font-semibold text-white font-one">
-                {loading ? "-" : (pagination?.totalFollowUps ?? 0)}
-              </p>
-            </div>
+          <div
+            title="Nombre de suivis"
+            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-2xl border border-white/12 bg-white/6 px-3 text-xs font-medium text-white font-one"
+          >
+            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-gradient-to-br from-tertiary-400 to-tertiary-500 px-1 text-[11px]">
+              {loading ? "-" : (pagination?.totalFollowUps ?? 0)}
+            </span>
+            Suivis
           </div>
         </div>
+      </ApplicationToolbar>
 
-        {(statusFilter !== "all" || tatoueurFilter !== "all" || searchTerm) && (
-          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-            {statusFilter !== "all" && (
-              <span className="inline-flex items-center gap-1 rounded-[10px] border border-cyan-400/35 bg-cyan-400/20 px-2 py-0.5 text-[10px] text-cyan-300 font-one">
-                {statusFilter === "unanswered" ? "En attente" : "Répondu"}
-                <button
-                  onClick={() => updateParam("status", "all")}
-                  className="cursor-pointer text-cyan-200 hover:text-white"
-                  aria-label="Supprimer filtre statut"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-
-            {tatoueurFilter !== "all" && (
-              <span className="inline-flex items-center gap-1 rounded-[10px] border border-violet-400/35 bg-violet-400/20 px-2 py-0.5 text-[10px] text-violet-300 font-one">
-                <span className="truncate max-w-24">
-                  {tatoueurs.find((t) => t.id === tatoueurFilter)?.name || tatoueurFilter}
-                </span>
-                <button
-                  onClick={() => updateParam("tatoueurId", "all")}
-                  className="cursor-pointer text-violet-200 hover:text-white"
-                  aria-label="Supprimer filtre tatoueur"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-
-            {searchTerm && (
-              <span className="inline-flex items-center gap-1 rounded-[10px] border border-amber-400/35 bg-amber-400/20 px-2 py-0.5 text-[10px] text-amber-300 font-one">
-                <span className="truncate max-w-24">"{searchTerm}"</span>
-                <button
-                  onClick={() => updateParam("q", undefined)}
-                  className="cursor-pointer text-amber-200 hover:text-white"
-                  aria-label="Supprimer filtre recherche"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-
-            <button
-              onClick={() => {
-                const params = new URLSearchParams(searchParams.toString());
-                params.delete("status");
-                params.delete("tatoueurId");
-                params.delete("q");
-                params.set("page", "1");
-                router.replace(`${pathname}?${params.toString()}`, {
-                  scroll: false,
-                });
-              }}
-              className="cursor-pointer inline-flex items-center rounded-[10px] border border-red-400/35 bg-red-400/20 px-2 py-0.5 text-[10px] text-red-300 transition-colors hover:bg-red-400/30 font-one"
-            >
-              Tout effacer
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="px-1 text-xs text-white/55 font-one">
-        Affichage de {pagination?.startIndex ?? 0} à {pagination?.endIndex ?? 0} sur {pagination?.totalFollowUps ?? 0}
+      <div className="px-1 text-right text-xs text-white/55 font-one">
+        {pagination?.startIndex ?? 0}–{pagination?.endIndex ?? 0} sur {pagination?.totalFollowUps ?? 0}
       </div>
 
       {error ? (
@@ -581,96 +556,94 @@ export default function ShowSuivis() {
           {followUps.map((followUp) => (
             <article
               key={followUp.id}
-              className="dashboard-embedded-section rounded-2xl border border-white/10 bg-white/4 p-3 transition-all duration-200 hover:border-tertiary-400/30"
+              className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-3 transition-all duration-200 hover:border-white/20 hover:bg-white/[0.05] sm:flex-row sm:gap-4"
             >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-                <div className="mx-auto h-16 w-16 overflow-hidden rounded-xl border border-white/12 bg-white/8 sm:mx-0 sm:h-20 sm:w-20">
-                  {followUp.photoUrl ? (
-                    <Image
-                      src={followUp.photoUrl}
-                      alt="Photo de cicatrisation"
-                      width={80}
-                      height={80}
-                      className="h-full w-full cursor-pointer object-cover transition-transform hover:scale-105"
-                      onClick={() => window.open(followUp.photoUrl, "_blank")}
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      <svg className="h-6 w-6 text-white/35" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                  )}
+              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/[0.06] sm:h-24 sm:w-24">
+                {followUp.photoUrl ? (
+                  <Image
+                    src={followUp.photoUrl}
+                    alt="Photo de cicatrisation"
+                    width={96}
+                    height={96}
+                    className="h-full w-full cursor-pointer object-cover transition-transform hover:scale-105"
+                    onClick={() => window.open(followUp.photoUrl, "_blank")}
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <svg className="h-6 w-6 text-white/35" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1 font-one">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="truncate text-sm font-semibold text-white">
+                      {followUp.appointment?.client?.firstName} {followUp.appointment?.client?.lastName}
+                    </h3>
+                    <p className="mt-1 truncate text-xs text-white/60">
+                      {followUp.appointment?.title}
+                      <span className="mx-1.5">·</span>
+                      {followUp.appointment?.tatoueur?.name}
+                      <span className="mx-1.5">·</span>
+                      {getTimeAgo(followUp.createdAt)}
+                    </p>
+                  </div>
+                  <span
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium whitespace-nowrap ${
+                      followUp.isAnswered
+                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                        : "border-orange-500/30 bg-orange-500/10 text-orange-300"
+                    }`}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                    {followUp.isAnswered ? "Répondu" : "En attente"}
+                  </span>
                 </div>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0 text-center sm:text-left">
-                      <h3 className="truncate text-sm font-semibold text-white font-one sm:text-base">
-                        {followUp.appointment?.client?.firstName} {followUp.appointment?.client?.lastName}
-                      </h3>
-                      <p className="mt-0.5 truncate text-xs text-white/70 font-one">
-                        {followUp.appointment?.title}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-white/50 font-one">
-                        Tatoueur: {followUp.appointment?.tatoueur?.name}
-                      </p>
-                    </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[13px] text-yellow-400">{getRatingStars(followUp.rating)}</span>
+                  <span className="text-[11px] text-white/70">{getRatingLabel(followUp.rating)}</span>
+                </div>
 
-                    <div className="flex items-center justify-center gap-2 sm:justify-end">
-                      <span
-                        className={`rounded-[10px] border px-2 py-0.5 text-[10px] font-medium font-one ${
-                          followUp.isAnswered
-                            ? "border-emerald-500/35 bg-emerald-500/20 text-emerald-300"
-                            : "border-orange-500/35 bg-orange-500/20 text-orange-300"
-                        }`}
-                      >
-                        {followUp.isAnswered ? "Répondu" : "En attente"}
-                      </span>
-                      <span className="text-[11px] text-white/45 font-one">{getTimeAgo(followUp.createdAt)}</span>
-                    </div>
-                  </div>
+                {followUp.review && (
+                  <p className="mt-2 line-clamp-3 rounded-xl bg-white/[0.04] px-3 py-2 text-xs italic text-white/80">
+                    "{followUp.review}"
+                  </p>
+                )}
 
-                  <div className="mt-2.5 flex items-center justify-center gap-2 sm:justify-start">
-                    <span className="text-[13px] text-yellow-400">{getRatingStars(followUp.rating)}</span>
-                    <span className="text-[11px] text-white/80 font-one">{getRatingLabel(followUp.rating)}</span>
-                  </div>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-white/50">
+                  <span>
+                    {formatDate(followUp.createdAt)}
+                    <span className="mx-1.5">·</span>
+                    <span className={followUp.isPhotoPublic ? "text-blue-300" : "text-white/40"}>
+                      Photo {followUp.isPhotoPublic ? "publique" : "privée"}
+                    </span>
+                  </span>
 
-                  {followUp.review && (
-                    <div className="mt-2.5 rounded-xl border border-white/10 bg-white/4 px-2.5 py-2">
-                      <p className="text-xs italic text-white/85 font-one">"{followUp.review}"</p>
-                    </div>
-                  )}
-
-                  <div className="mt-2.5 flex flex-col gap-2 text-[11px] text-white/50 sm:flex-row sm:items-center sm:justify-between font-one">
-                    <span className="text-center sm:text-left">Envoyé le {formatDate(followUp.createdAt)}</span>
-                    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-end">
-                      <span className={followUp.isPhotoPublic ? "text-blue-300" : "text-white/40"}>
-                        Photo {followUp.isPhotoPublic ? "publique" : "privée"}
-                      </span>
-
-                      {!followUp.isAnswered && (
-                        <button
-                          onClick={() => handleReplyClick(followUp)}
-                          className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-tertiary-400/30 bg-tertiary-400/12 px-2.5 text-[11px] text-tertiary-300 transition-colors hover:bg-tertiary-400/18"
-                        >
-                          Répondre
-                        </button>
-                      )}
-
+                  <div className="flex items-center gap-2">
+                    {!followUp.isAnswered && (
                       <button
-                        onClick={() => handleDeleteClick(followUp)}
-                        className="cursor-pointer inline-flex h-8 items-center justify-center rounded-[10px] border border-red-400/30 bg-red-400/10 px-2.5 text-[11px] text-red-300 transition-colors hover:bg-red-400/18"
-                        title="Supprimer ce suivi"
+                        onClick={() => handleReplyClick(followUp)}
+                        className="cursor-pointer inline-flex h-8 items-center justify-center rounded-xl border border-tertiary-400/30 bg-tertiary-400/10 px-3 text-[11px] text-tertiary-300 transition-colors hover:bg-tertiary-400/20"
                       >
-                        Supprimer
+                        Répondre
                       </button>
-                    </div>
+                    )}
+                    <button
+                      onClick={() => handleDeleteClick(followUp)}
+                      className="cursor-pointer inline-flex h-8 items-center justify-center rounded-xl border border-red-400/30 bg-red-400/10 px-3 text-[11px] text-red-300 transition-colors hover:bg-red-400/20"
+                      title="Supprimer ce suivi"
+                    >
+                      Supprimer
+                    </button>
                   </div>
                 </div>
               </div>

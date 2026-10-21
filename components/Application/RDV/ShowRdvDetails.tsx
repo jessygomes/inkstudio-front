@@ -232,8 +232,8 @@ export default function ShowRdvDetails({
 
   return (
     <>
-      <div className="dashboard-embedded-panel flex h-full flex-col">
-      <div className="dashboard-embedded-header rounded-t-[28px] px-4 pt-4 pb-3">
+      <div className="dashboard-embedded-panel !rounded-none !border-0 flex h-full flex-col">
+      <div className="dashboard-embedded-header px-4 pt-4 pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <div className="relative shrink-0">
@@ -440,7 +440,7 @@ export default function ShowRdvDetails({
         )}
       </div>
 
-      <div className="dashboard-embedded-footer flex items-center justify-between rounded-b-[28px] px-4 py-2.5">
+      <div className="dashboard-embedded-footer flex items-center justify-between px-4 py-2.5">
         <p className="text-[10px] text-white/30 font-one leading-none">
           RDV {new Date(selectedEvent.start).toLocaleDateString("fr-FR")}
         </p>

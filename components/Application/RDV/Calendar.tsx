@@ -229,7 +229,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
   return (
     <div className="h-full w-full p-0">
-      <div className="dashboard-embedded-panel flex h-full min-h-0 w-full flex-col overflow-hidden !rounded-[24px] !p-0">
+      <div className="dashboard-embedded-panel flex h-full min-h-0 w-full flex-col overflow-hidden !rounded-none !border-0 !p-0">
         <div className="dashboard-embedded-header border-b border-white/8 px-3 py-2 lg:px-3.5 lg:py-2.5">
           <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-[1fr_auto] lg:items-center">
             <div className="col-span-1 flex flex-wrap items-center gap-1.5 lg:col-span-2 lg:justify-between">
@@ -328,7 +328,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         </div>
 
         <div className="flex-1 min-h-0 p-1.5 lg:p-2">
-          <div className="inkera-calendar h-full w-full overflow-hidden rounded-xl bg-white/[0.02]">
+          <div className="inkera-calendar h-full w-full overflow-hidden bg-white/[0.02]">
         <style jsx global>{`
           .inkera-calendar .rbc-calendar {
             background: transparent !important;

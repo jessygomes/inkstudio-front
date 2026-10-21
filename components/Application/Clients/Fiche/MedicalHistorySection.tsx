@@ -1,103 +1,54 @@
-"use client";
-import React from "react";
-import { AlertTriangle, HeartPulse, Pill, ShieldCheck, Sparkles, Stethoscope } from "lucide-react";
-import { ClientProps } from "@/lib/type";
+﻿import { HeartPulse } from "lucide-react";
+import type { ClientProps } from "@/lib/type";
 
 interface MedicalHistorySectionProps {
   medicalHistory: ClientProps["medicalHistory"] | undefined;
 }
 
-export default function MedicalHistorySection({
-  medicalHistory,
-}: MedicalHistorySectionProps) {
-  const cardClass =
-    "rounded-2xl border border-white/[0.08] bg-black/10 p-4 transition-colors hover:border-white/15 hover:bg-white/[0.025]";
-  const labelClass = "mb-1 text-[11px] uppercase tracking-wide text-white/55 font-one";
-
+export default function MedicalHistorySection({ medicalHistory }: MedicalHistorySectionProps) {
   return (
     <section aria-label="Informations de santé">
-      {medicalHistory && <div className="mb-3 flex justify-end"><div
-          className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold font-one ${
-            medicalHistory?.pregnancy
-              ? "border-yellow-400/40 bg-yellow-500/10 text-yellow-200"
-              : "border-emerald-400/40 bg-emerald-500/10 text-emerald-200"
-          }`}
-        >
-          {medicalHistory.pregnancy ? "Vigilance requise" : "Aucun risque signalé"}
-        </div></div>}
+
       {medicalHistory ? (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-3">
-            <div className={cardClass}>
-              <p className={`${labelClass} flex items-center gap-2`}><AlertTriangle size={13} className="text-amber-300" />Allergies</p>
-              <p className="text-sm text-white font-two break-words">
-                {medicalHistory.allergies || "Aucune allergie connue"}
+        <div className="grid items-start gap-3 lg:grid-cols-2">
+          <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+            <h4 className="text-sm font-semibold text-white font-one">Déclarations du client</h4>
+            <dl className="mt-1 divide-y divide-white/[0.07]">
+              <MedicalItem label="Allergies" value={medicalHistory.allergies} />
+              <MedicalItem label="Problèmes de santé" value={medicalHistory.healthIssues} />
+              <MedicalItem label="Médicaments" value={medicalHistory.medications} />
+            </dl>
+            <div className={`mt-3 rounded-xl border p-3 ${medicalHistory.pregnancy ? "border-amber-400/25 bg-amber-400/[0.06]" : "border-white/10 bg-white/[0.025]"}`}>
+              <p className="text-xs text-white/60 font-one">Grossesse / Allaitement</p>
+              <p className={`mt-1 text-sm font-medium font-two ${medicalHistory.pregnancy ? "text-amber-200" : "text-white/85"}`}>
+                {medicalHistory.pregnancy ? "Enceinte ou allaite actuellement" : "Aucun signalement"}
               </p>
             </div>
-
-            <div className={cardClass}>
-              <p className={`${labelClass} flex items-center gap-2`}><Stethoscope size={13} className="text-tertiary-400" />Problèmes de santé</p>
-              <p className="text-sm text-white font-two break-words">
-                {medicalHistory.healthIssues || "Aucun problème signalé"}
-              </p>
-            </div>
-
-            <div className={cardClass}>
-              <p className={`${labelClass} flex items-center gap-2`}><Pill size={13} className="text-blue-300" />Médicaments</p>
-              <p className="text-sm text-white font-two break-words">
-                {medicalHistory.medications || "Aucun médicament"}
-              </p>
-            </div>
-
-            <div className={cardClass}>
-              <p className={`${labelClass} flex items-center gap-2`}><Sparkles size={13} className="text-tertiary-400" />Historique tatouages</p>
-              <p className="text-sm text-white font-two break-words">
-                {medicalHistory.tattooHistory || "Aucun historique de tatouage"}
-              </p>
-            </div>
-
-            <div className={cardClass}>
-              <p className={`${labelClass} flex items-center gap-2`}><ShieldCheck size={13} className="text-emerald-300" />Réactions antérieures</p>
-              <p className="text-sm text-white font-two break-words">
-                {medicalHistory.previousReactions || "Aucune réaction signalée"}
-              </p>
-            </div>
-
-            <div
-              className={`rounded-2xl border p-3 ${
-                medicalHistory.pregnancy
-                  ? "border-yellow-400/40 bg-yellow-500/10"
-                  : "border-emerald-400/40 bg-emerald-500/10"
-              }`}
-            >
-              <p className={labelClass}>Grossesse / Allaitement</p>
-              <p
-                className={`text-sm font-semibold ${
-                  medicalHistory.pregnancy
-                    ? "text-yellow-200"
-                    : "text-emerald-200"
-                }`}
-              >
-                {medicalHistory.pregnancy
-                  ? "Attention: enceinte ou allaite actuellement"
-                  : "Aucun signalement"}
-              </p>
-            </div>
-          </div>
+          </article>
+          <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+            <h4 className="text-sm font-semibold text-white font-one">Expériences précédentes</h4>
+            <dl className="mt-1 divide-y divide-white/[0.07]">
+              <MedicalItem label="Historique des tatouages" value={medicalHistory.tattooHistory} />
+              <MedicalItem label="Réactions antérieures" value={medicalHistory.previousReactions} />
+            </dl>
+          </article>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 py-10 text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-tertiary-400/20 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10">
-            <HeartPulse className="h-6 w-6 text-tertiary-300" />
-          </div>
-          <p className="text-sm text-white/65 font-one">
-            Aucune information médicale disponible
-          </p>
-          <p className="mt-1 text-xs text-white/45 font-two">
-            Les champs seront affichés dès qu’un historique est enregistré.
-          </p>
+        <div className="flex flex-col items-center rounded-2xl border border-dashed border-white/10 px-4 py-10 text-center">
+          <HeartPulse size={24} className="mb-3 text-tertiary-400" aria-hidden="true" />
+          <p className="text-sm text-white/75 font-one">Aucune information médicale disponible</p>
+          <p className="mt-1 text-xs text-white/55 font-two">Les informations apparaîtront une fois l’historique renseigné.</p>
         </div>
       )}
     </section>
+  );
+}
+
+function MedicalItem({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div className="py-3">
+      <dt className="text-xs font-medium text-white/55 font-one">{label}</dt>
+      <dd className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-white/85 font-two">{value?.trim() || "Non renseigné"}</dd>
+    </div>
   );
 }
