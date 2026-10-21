@@ -9,7 +9,11 @@ import ChangeRdv from "./ChangeRdv";
 import ChangeStatusButtons from "./ChangeStatusButtons";
 import SendMessageRdv from "./SendMessageRdv";
 import ConversationRdv from "./ConversationRdv";
-import { UpdateRdvFormProps } from "@/lib/type";
+import { UpdateRdvFormProps, ClientProps } from "@/lib/type";
+import { useSession } from "next-auth/react";
+import { UserRound } from "lucide-react";
+import { getSalonClientsAction } from "@/lib/queries/client";
+import InfoClient from "../Clients/InfoClient";
 import { RdvPaymentCard, RdvPlanningCard, RdvPrestationCard } from "./RdvInformationCards";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import Link from "next/link";
@@ -59,6 +63,31 @@ export default function ShowRdvDetails({
   const [moodboardLoading, setMoodboardLoading] = useState(false);
   const [moodboardError, setMoodboardError] = useState<string | null>(null);
   const [moodboardData, setMoodboardData] = useState<MoodboardDto | null>(null);
+  const { data: session } = useSession();
+  const [clientFile, setClientFile] = useState<ClientProps | null>(null);
+  const [clientLoading, setClientLoading] = useState(false);
+  const [clientError, setClientError] = useState<string | null>(null);
+
+  const openClientFile = async () => {
+    if (clientLoading) return;
+    setClientLoading(true);
+    setClientError(null);
+    try {
+      const { email, firstName, lastName } = selectedEvent.client;
+      const data = await getSalonClientsAction(1, email || `${firstName} ${lastName}`);
+      const found = (Array.isArray(data?.clients) ? data.clients : []).find(
+        (candidate: ClientProps) =>
+          (selectedEvent.clientId && candidate.id === selectedEvent.clientId) ||
+          (email && candidate.email === email),
+      );
+      if (found) setClientFile(found);
+      else setClientError("Fiche client introuvable.");
+    } catch {
+      setClientError("Impossible de charger la fiche client.");
+    } finally {
+      setClientLoading(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchPiercingDetails() {
@@ -245,9 +274,24 @@ export default function ShowRdvDetails({
               <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#1a1a1a] ${statusCfg.dot}`} />
             </div>
             <div className="min-w-0">
-              <h4 className="truncate text-base font-bold text-white font-one leading-tight">
-                {selectedEvent.client.firstName} {selectedEvent.client.lastName}
-              </h4>
+              <div className="flex min-w-0 items-center gap-1.5">
+                <h4 className="truncate text-base font-bold text-white font-one leading-tight">
+                  {selectedEvent.client.firstName} {selectedEvent.client.lastName}
+                </h4>
+                <button
+                  type="button"
+                  onClick={openClientFile}
+                  disabled={clientLoading}
+                  title="Voir la fiche client"
+                  aria-label="Voir la fiche client"
+                  className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.05] text-white/60 transition-colors hover:border-tertiary-400/40 hover:text-tertiary-400 disabled:opacity-60"
+                >
+                  <UserRound size={13} aria-hidden="true" />
+                </button>
+              </div>
+              {clientError && (
+                <p className="text-[10px] text-red-300 font-one">{clientError}</p>
+              )}
               <span className={`mt-1 inline-flex items-center gap-1.5 border rounded-full px-2 py-0.5 text-[10px] font-medium font-one ${statusCfg.pill}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
                 {statusCfg.label}
@@ -453,6 +497,14 @@ export default function ShowRdvDetails({
       </div>
       </div>
       {moodboardModal}
+      {clientFile && (
+        <InfoClient
+          client={clientFile}
+          isOpen
+          onClose={() => setClientFile(null)}
+          salonName={session?.user?.salonName ?? "Mon Salon"}
+        />
+      )}
     </>
   );
 }

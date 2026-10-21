@@ -105,11 +105,15 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
       className="relative flex h-full min-h-0 w-full flex-col border-r border-white/10 bg-noir-700 px-3 py-4"
     >
       <div
-        className={`mb-4 flex shrink-0 items-center ${
-          collapsed ? "flex-col gap-3" : "justify-between gap-3 px-2"
+        className={`relative mb-4 shrink-0 overflow-hidden transition-[height] duration-300 ease-in-out ${
+          collapsed ? "h-[88px]" : "h-9"
         }`}
       >
-        <Link href="/" aria-label="Inkera - Accueil" className="shrink-0">
+        <Link
+          href="/"
+          aria-label="Inkera - Accueil"
+          className="absolute left-[7px] top-0 shrink-0"
+        >
           <Image
             src="/images/LogoProfil.png"
             alt="Inkera"
@@ -123,13 +127,15 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
           onClick={onToggle}
           aria-label={collapsed ? "Développer la barre latérale" : "Rétracter la barre latérale"}
           title={collapsed ? "Développer" : "Rétracter"}
-          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"
+          className={`absolute flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/60 transition-all duration-300 ease-in-out hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 ${
+            collapsed ? "left-[7px] top-[52px]" : "left-[calc(100%-36px)] top-0"
+          }`}
         >
           {collapsed ? <MdMenu size={22} /> : <MdMenuOpen size={22} />}
         </button>
       </div>
 
-      <ul className="scrollbar-hidden flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
+      <ul className="scrollbar-hidden flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden">
         {filteredLinks.map((link) => {
           const isActive =
             pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -140,20 +146,20 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
                 href={link.href}
                 title={collapsed ? link.label : undefined}
                 aria-current={isActive ? "page" : undefined}
-                className={`relative flex min-h-11 items-center rounded-xl text-sm transition ${
-                  collapsed ? "justify-center px-2" : "gap-3 px-3"
-                } ${
+                className={`relative flex min-h-11 items-center gap-3 overflow-hidden rounded-xl px-[15px] text-sm transition-colors duration-300 ${
                   isActive
                     ? "bg-tertiary-400/15 text-white shadow-sm shadow-tertiary-500/10"
                     : "text-white/60 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <Icon size={20} className="shrink-0" aria-hidden="true" />
-                {!collapsed && (
-                  <span className="min-w-0 flex-1 truncate font-one">
-                    {link.label}
-                  </span>
-                )}
+                <span
+                  className={`min-w-0 flex-1 truncate whitespace-nowrap font-one transition-opacity duration-300 ${
+                    collapsed ? "opacity-0" : "opacity-100"
+                  }`}
+                >
+                  {link.label}
+                </span>
                 {link.label === "Messagerie" && unreadCount > 0 && (
                   <span
                     className={`flex h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-br from-tertiary-400 to-tertiary-500 px-1 text-[10px] font-bold text-white ${
@@ -176,9 +182,7 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
           aria-expanded={showMenu}
           aria-label="Menu du compte"
           title={collapsed ? session?.user?.salonName ?? "Mon compte" : undefined}
-          className={`flex min-h-11 w-full cursor-pointer items-center rounded-xl text-white/70 transition hover:bg-white/5 hover:text-white ${
-            collapsed ? "justify-center px-2" : "gap-3 px-3"
-          }`}
+          className="flex min-h-11 w-full cursor-pointer items-center gap-3 overflow-hidden rounded-xl px-[9px] text-white/70 transition-colors duration-300 hover:bg-white/5 hover:text-white"
         >
           {avatarSrc ? (
             <Image
@@ -189,13 +193,15 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
               className="h-8 w-8 shrink-0 rounded-full border border-tertiary-400/60 object-cover"
             />
           ) : (
-            <CgProfile size={22} className="shrink-0" />
+            <CgProfile size={32} className="shrink-0" />
           )}
-          {!collapsed && (
-            <span className="truncate text-left text-xs font-one">
-              {session?.user?.salonName || "Mon compte"}
-            </span>
-          )}
+          <span
+            className={`truncate whitespace-nowrap text-left text-xs font-one transition-opacity duration-300 ${
+              collapsed ? "opacity-0" : "opacity-100"
+            }`}
+          >
+            {session?.user?.salonName || "Mon compte"}
+          </span>
         </button>
 
         {showMenu && (

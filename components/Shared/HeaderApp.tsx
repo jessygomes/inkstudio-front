@@ -12,12 +12,12 @@ export default function HeaderApp({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen w-full bg-noir-700">
       <aside
         data-app-sidebar
-        className={`relative hidden shrink-0 transition-[width] duration-200 xl:block ${
+        className={`relative hidden shrink-0 transition-[width] duration-300 ease-in-out xl:block ${
           isSidebarCollapsed ? "w-[76px]" : "w-52"
         }`}
       >
         <div
-          className={`fixed top-0 left-0 z-40 h-screen transition-[width] duration-200 ${
+          className={`fixed top-0 left-0 z-40 h-screen transition-[width] duration-300 ease-in-out ${
             isSidebarCollapsed ? "w-[76px]" : "w-52"
           }`}
         >
