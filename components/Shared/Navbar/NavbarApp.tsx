@@ -53,7 +53,10 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
       }
     };
 
-    initializeUnreadCount();
+    void initializeUnreadCount();
+    // Garde le badge cohérent même si un message arrive depuis un autre appareil.
+    const timer = window.setInterval(() => void initializeUnreadCount(), 10000);
+    return () => window.clearInterval(timer);
   }, [setUnreadCount, session]);
 
   useEffect(() => {

@@ -21,13 +21,10 @@ export const metadata: Metadata = {
 };
 
 type AuthPageProps = {
-  searchParams?:
-    | {
-        callbackUrl?: string | string[];
-      }
-    | Promise<{
-        callbackUrl?: string | string[];
-      }>;
+  // Next.js 16 fournit les paramètres d'URL sous forme de Promise.
+  searchParams?: Promise<{
+    callbackUrl?: string | string[];
+  }>;
 };
 
 export default async function page({ searchParams }: AuthPageProps) {

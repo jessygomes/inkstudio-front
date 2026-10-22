@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { ConversationDto } from "@/lib/queries/conversation.action";
+import type { ConversationRDVPreview } from "./ConversationRDVModal";
 import { fetchAppointmentById } from "@/lib/queries/appointment";
 import { AppointmentProps } from "@/lib/type";
 import { RdvPaymentCard, RdvPlanningCard, RdvPrestationCard } from "../RDV/RdvInformationCards";
 import AppointmentDrawingCardAction from "@/components/Application/SuiviDessin/AppointmentDrawingCardAction";
 
 interface ConversationRDVDetailsProps {
-  conversation: ConversationDto;
+  conversation: ConversationRDVPreview;
 }
 
 const STATUS_CONFIG: Record<

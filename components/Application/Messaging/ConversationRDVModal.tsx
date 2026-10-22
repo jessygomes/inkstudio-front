@@ -1,9 +1,14 @@
 import React, { useEffect, useRef } from "react";
-import { ConversationDto } from "@/lib/queries/conversation.action";
 import ConversationRDVDetails from "./ConversationRDVDetails";
 
+export type ConversationRDVPreview = {
+  appointmentId?: string;
+  subject?: string;
+  client: { firstName: string; lastName: string };
+};
+
 interface ConversationRDVModalProps {
-  conversation: ConversationDto;
+  conversation: ConversationRDVPreview;
   onClose: () => void;
 }
 
