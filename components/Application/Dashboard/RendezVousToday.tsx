@@ -91,6 +91,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
 
       const data = await fetchTodayAppointmentsAction(date);
 
+      if (data.error) throw new Error(data.message);
       setAppointments(data.appointments || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");

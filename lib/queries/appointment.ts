@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
 
@@ -222,7 +222,7 @@ export const fetchTodayAppointmentsAction = async (date?: string) => {
     return data || [];
   } catch (error) {
     console.error("Error fetching today's appointments:", error);
-    throw error;
+    return { error: true, message: error instanceof Error ? error.message : "Une erreur est survenue" };
   }
 };
 
@@ -351,7 +351,7 @@ export const weeklyFillRateAction = async (start: string, end: string) => {
     return data || [];
   } catch (error) {
     console.error("Error fetching weekly fill rate:", error);
-    throw error;
+    return { error: true, message: error instanceof Error ? error.message : "Une erreur est survenue" };
   }
 };
 
@@ -381,7 +381,7 @@ export const cancelRateAction = async () => {
     return data || [];
   } catch (error) {
     console.error("Error fetching weekly fill rate:", error);
-    throw error;
+    return { error: true, message: error instanceof Error ? error.message : "Une erreur est survenue" };
   }
 };
 
@@ -414,7 +414,7 @@ export const totalPaidAppointmentsAction = async (
     return data || [];
   } catch (error) {
     console.error("Error fetching total paid appointments:", error);
-    throw error;
+    return { error: true, message: error instanceof Error ? error.message : "Une erreur est survenue" };
   }
 };
 
@@ -452,7 +452,7 @@ export const newClientsCountAction = async (
     return data;
   } catch (error) {
     console.error("Error fetching new clients count:", error);
-    throw error;
+    return { error: true, message: error instanceof Error ? error.message : "Une erreur est survenue" };
   }
 };
 

@@ -41,6 +41,7 @@ export default function NewClientsCount({ userId }: NewClientsCountProps) {
       setError(null);
 
       const result = await newClientsCountAction(userId, month, year);
+      if (result?.error) throw new Error(result.message);
       setData(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");

@@ -174,6 +174,7 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
       setError(null);
 
       const data = await fetchTodayAppointmentsAction(date);
+      if (data.error) throw new Error(data.message);
       const nextAppointments = data.appointments || [];
 
       setAppointments(nextAppointments);
@@ -197,6 +198,7 @@ export default function RendezVousTodayModern({ userId }: { userId: string }) {
         setError(null);
 
         const data = await fetchTodayAppointmentsAction(currentDate);
+        if (data.error) throw new Error(data.message);
         setAppointments(data.appointments || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Une erreur est survenue");

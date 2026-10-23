@@ -42,7 +42,7 @@ export default function TotalPayed({ userId }: TotalPayedProps) {
       const data = await totalPaidAppointmentsAction(month, year);
 
       if (data.error) {
-        throw new Error("Une erreur est survenue");
+        throw new Error(data.message || "Une erreur est survenue");
       }
 
       setData(data);
