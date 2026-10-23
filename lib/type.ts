@@ -256,6 +256,9 @@ export interface PortfolioProps {
   description: string | null;
   imageUrl: string; // URL de l'image
   style?: string[];
+  pieceSize?: "SMALL" | "MEDIUM" | "LARGE" | null;
+  categories?: { id: string; slug: string; name: string }[];
+  hashtags?: string[];
   createdAt: string; // Date de création au format ISO
   updatedAt: string; // Date de mise à jour au format ISO
   tatoueurId?: string | null; // ID du tatoueur associé

@@ -12,8 +12,12 @@ import PageHeader from "@/components/Shared/PageHeader";
 import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import {
+  getPortfolioCategoriesAction,
   getPortfolioPhotosAction,
+  getPortfolioStylesAction,
   getSalonTatoueursForPortfolioAction,
+  PortfolioCategoryDto,
+  PortfolioStyleDto,
   PortfolioTatoueurDto,
 } from "@/lib/queries/portfolio";
 
@@ -52,6 +56,13 @@ export default function ShowPortfolio() {
   const [hasNextPage, setHasNextPage] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [tatoueurFilter, setTatoueurFilter] = useState("all");
+  const [pieceSizeFilter, setPieceSizeFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [styleFilter, setStyleFilter] = useState("");
+  const [hashtagFilter, setHashtagFilter] = useState("");
+  const [hashtagInput, setHashtagInput] = useState("");
+  const [styles, setStyles] = useState<PortfolioStyleDto[]>([]);
+  const [categories, setCategories] = useState<PortfolioCategoryDto[]>([]);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const tatoueursRef = useRef<PortfolioTatoueurDto[]>([]);
 
@@ -130,6 +141,12 @@ export default function ShowPortfolio() {
         session.user.id,
         isLinkedFilter ? undefined : tatoueurFilter,
         page,
+        {
+          pieceSize: pieceSizeFilter,
+          category: categoryFilter,
+          style: styleFilter,
+          hashtag: hashtagFilter,
+        },
       );
 
       if (!result.ok || !result.data) {
@@ -166,6 +183,53 @@ export default function ShowPortfolio() {
       setLoading(false);
       setLoadingMore(false);
     }
+  }, [
+    session?.user?.id,
+    tatoueurFilter,
+    pieceSizeFilter,
+    categoryFilter,
+    styleFilter,
+    hashtagFilter,
+  ]);
+
+  useEffect(() => {
+    let active = true;
+    getPortfolioCategoriesAction().then((list) => {
+      if (active) setCategories(list);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const toggleCategoryFilter = (slug: string) =>
+    setCategoryFilter(slug);
+
+  const hasActiveFilters = Boolean(
+    pieceSizeFilter || categoryFilter || styleFilter || hashtagFilter,
+  );
+
+  const resetFilters = () => {
+    setPieceSizeFilter("");
+    setCategoryFilter("");
+    setStyleFilter("");
+    setHashtagFilter("");
+    setHashtagInput("");
+  };
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    let active = true;
+    getPortfolioStylesAction(session.user.id, tatoueurFilter).then((list) => {
+      if (!active) return;
+      setStyles(list);
+      setStyleFilter((current) =>
+        current && !list.some((s) => s.name === current) ? "" : current,
+      );
+    });
+    return () => {
+      active = false;
+    };
   }, [session?.user?.id, tatoueurFilter]);
 
   const fetchTatoueurs = useCallback(async () => {
@@ -239,7 +303,7 @@ export default function ShowPortfolio() {
   return (
     <section className="w-full space-y-3">
       <PageHeader icon={<FaIdCardClip size={15} className="text-tertiary-400" />} title="Portfolio" />
-      <ApplicationToolbar filters={<div className="flex items-center gap-2">
+      <ApplicationToolbar filters={<div className="flex flex-wrap items-center gap-x-4 gap-y-2"><div className="flex items-center gap-2">
           <label htmlFor="tatoueur-filter" className="text-xs text-white/60 font-one">
             Tatoueur
           </label>
@@ -260,6 +324,87 @@ export default function ShowPortfolio() {
               </option>
             ))}
           </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="piece-size-filter" className="text-xs text-white/60 font-one">
+            Taille
+          </label>
+          <select
+            id="piece-size-filter"
+            value={pieceSizeFilter}
+            onChange={(event) => setPieceSizeFilter(event.target.value)}
+            className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
+          >
+            <option value="" className="bg-noir-500">Toutes</option>
+            <option value="SMALL" className="bg-noir-500">Petite pièce</option>
+            <option value="MEDIUM" className="bg-noir-500">Moyenne pièce</option>
+            <option value="LARGE" className="bg-noir-500">Grosse pièce</option>
+          </select>
+        </div>
+        {categories.length > 0 && (
+          <div className="flex items-center gap-2">
+            <label htmlFor="category-filter" className="text-xs text-white/60 font-one">
+              Catégorie
+            </label>
+            <select
+              id="category-filter"
+              value={categoryFilter}
+              onChange={(event) => toggleCategoryFilter(event.target.value)}
+              className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
+            >
+              <option value="" className="bg-noir-500">Toutes</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.slug} className="bg-noir-500">
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <label htmlFor="style-filter" className="text-xs text-white/60 font-one">
+            Style
+          </label>
+          <select
+            id="style-filter"
+            value={styleFilter}
+            onChange={(event) => setStyleFilter(event.target.value)}
+            className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
+          >
+            <option value="" className="bg-noir-500">Tous</option>
+            {styles.map((style) => (
+              <option key={style.id ?? style.name} value={style.name} className="bg-noir-500">
+                {style.name}
+                {typeof style.count === "number" ? ` (${style.count})` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="hashtag-filter" className="text-xs text-white/60 font-one">
+            Hashtag
+          </label>
+          <input
+            id="hashtag-filter"
+            value={hashtagInput}
+            onChange={(event) => setHashtagInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") setHashtagFilter(hashtagInput.trim());
+            }}
+            onBlur={() => setHashtagFilter(hashtagInput.trim())}
+            placeholder="#hashtag"
+            className="w-28 rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white placeholder:text-white/35 focus:border-tertiary-400 focus:outline-none"
+          />
+        </div>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="cursor-pointer text-[11px] text-tertiary-400 underline font-one"
+          >
+            Réinitialiser
+          </button>
+        )}
         </div>} actions={<DashboardButton onClick={handleCreate}>
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -372,6 +517,17 @@ export default function ShowPortfolio() {
                     <p className="line-clamp-2 text-[11px] leading-relaxed text-white/70 font-one sm:line-clamp-3 sm:text-xs">
                       {photo.description}
                     </p>
+                    {(photo.pieceSize || (photo.categories && photo.categories.length > 0)) && (
+                      <p className="mt-2 text-[10px] uppercase tracking-wide text-white/50 font-one">
+                        {[
+                          photo.pieceSize &&
+                            { SMALL: "Petite pièce", MEDIUM: "Moyenne pièce", LARGE: "Grosse pièce" }[photo.pieceSize],
+                          ...(photo.categories?.map((c) => c.name) ?? []),
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </p>
+                    )}
                     {photo.style && photo.style.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {photo.style.map((styleItem) => (
@@ -383,6 +539,11 @@ export default function ShowPortfolio() {
                           </span>
                         ))}
                       </div>
+                    )}
+                    {photo.hashtags && photo.hashtags.length > 0 && (
+                      <p className="mt-1 text-[10px] text-white/45 font-one">
+                        {photo.hashtags.map((tag) => `#${tag}`).join(" ")}
+                      </p>
                     )}
                     {getTatoueurDisplayName(photo.tatoueur) && (
                       <p className="mt-1 text-[10px] text-white/50 font-one">

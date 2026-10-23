@@ -2,7 +2,7 @@
 
 import { useUser } from "@/components/Auth/Context/UserContext";
 import Link from "next/link";
-import { FiUsers, FiShield, FiSettings, FiBarChart2, FiFileText } from "react-icons/fi";
+import { FiUsers, FiShield, FiSettings, FiBarChart2, FiFileText, FiTag } from "react-icons/fi";
 import { LuShieldCheck } from "react-icons/lu";
 import DashboardStats from "@/components/Admin/DashboardStats";
 import PageHeader from "@/components/Shared/PageHeader";
@@ -78,6 +78,19 @@ export default function AdminPage() {
                   <div>
                     <p className="text-sm font-medium text-white font-one">Gérer les articles</p>
                     <p className="text-[11px] text-white/60 font-one">Créer, modifier et supprimer</p>
+                  </div>
+                </div>
+              </Link>
+
+              <Link
+                href="/admin/categories"
+                className="dashboard-list-item block rounded-2xl border border-white/10 bg-white/5 px-3 py-3 transition-colors hover:border-tertiary-400/35 hover:bg-white/10"
+              >
+                <div className="flex items-center gap-3">
+                  <FiTag className="h-5 w-5 text-tertiary-400" />
+                  <div>
+                    <p className="text-sm font-medium text-white font-one">Catégories de tatouages</p>
+                    <p className="text-[11px] text-white/60 font-one">Ajouter, modifier et supprimer</p>
                   </div>
                 </div>
               </Link>

@@ -369,6 +369,17 @@ export const portfolioSchema = z.object({
   imageUrl: z.string().url("L'URL de l'image doit être valide."),
   tatoueurId: z.string().optional(),
   style: z.array(z.string().trim().min(1)).optional().default([]),
+  pieceSize: z.enum(["SMALL", "MEDIUM", "LARGE"]).optional(),
+  categoryIds: z.array(z.string()).optional().default([]),
+  hashtags: z.array(z.string().trim().min(1)).optional().default([]),
+});
+
+export const portfolioBatchSchema = portfolioSchema.extend({
+  title: z.string().optional(),
+  imageUrl: z.string().optional(),
+  pieceSize: z.enum(["SMALL", "MEDIUM", "LARGE"], {
+    message: "Choisissez une taille de pièce.",
+  }),
 });
 
 //! FLASHS
