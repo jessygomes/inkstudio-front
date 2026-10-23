@@ -30,12 +30,12 @@ import type {
   InboxThread, InstagramConnection,
 } from "@/lib/queries/inbox.types";
 
-const CHANNELS: Array<{ value: "ALL" | InboxChannel; label: string; Icon: typeof MessageCircle }> = [
+const CHANNELS: Array<{ value: "ALL" | InboxChannel; label: string; Icon: typeof MessageCircle; comingSoon?: boolean }> = [
   { value: "ALL", label: "Tous", Icon: MessageCircle },
   { value: "INKERA", label: "Inkera", Icon: MessageCircle },
-  { value: "INSTAGRAM", label: "Instagram", Icon: Instagram },
-  { value: "FACEBOOK", label: "Facebook", Icon: Facebook },
-  { value: "EMAIL", label: "Emails", Icon: Mail },
+  { value: "INSTAGRAM", label: "Instagram", Icon: Instagram, comingSoon: true },
+  { value: "FACEBOOK", label: "Facebook", Icon: Facebook, comingSoon: true },
+  { value: "EMAIL", label: "Emails", Icon: Mail, comingSoon: true },
 ];
 
 const STATUS: Array<{ value: InboxStatus; label: string }> = [
@@ -460,13 +460,17 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
     <section className="flex h-full min-h-0 flex-col font-one text-white">
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-white/10 bg-noir-600 px-4">
         <nav className="-mb-px flex flex-wrap" aria-label="Canaux">
-          {CHANNELS.map(({ value, label, Icon }) => (
+          {CHANNELS.map(({ value, label, Icon, comingSoon }) => (
             <button type="button" key={value} aria-pressed={channel === value}
+              disabled={comingSoon} aria-disabled={comingSoon} title={comingSoon ? "Bientôt disponible" : undefined}
               onClick={() => changeFilter(() => { setChannel(value); setSelectedId(null); setThread(null); })}
-              className={`flex items-center gap-2 border-b-2 px-4 py-3.5 text-xs font-medium transition ${channel === value ? "border-tertiary-400 text-white" : "border-transparent text-white/50 hover:text-white"}`}>
+              className={`flex items-center gap-2 border-b-2 px-4 py-3.5 text-xs font-medium transition ${comingSoon ? "cursor-not-allowed border-transparent text-white/25" : channel === value ? "border-tertiary-400 text-white" : "border-transparent text-white/50 hover:text-white"}`}>
               <Icon size={15} /> {label}
             </button>
           ))}
+          <span className="ml-2 flex items-center self-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-white/55">
+            La connexion de vos comptes externes (Instagram, Facebook, Emails) sera bientôt disponible
+          </span>
         </nav>
         <div className="flex items-center gap-3 py-2">
           <button type="button" className={subtleButton} onClick={() => { setLoading(true); void refreshList(); if (selectedId) void refreshDetail(selectedId); }}><RefreshCw size={14} /> Actualiser</button>

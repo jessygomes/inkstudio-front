@@ -22,25 +22,15 @@ import InboxWorkspace from "./InboxWorkspace";
 const FILTERS = ["ACTIVE", "ARCHIVED"] as const;
 
 export default function MessageList() {
-  const [showLegacy, setShowLegacy] = useState(false);
-  const toggle = (
-    <div className="flex w-fit bg-noir-700 p-0.5 font-one">
-      <button type="button" aria-pressed={!showLegacy} onClick={() => setShowLegacy(false)} className={`px-3 py-1.5 text-xs transition ${!showLegacy ? "bg-tertiary-400 text-white" : "text-white/60 hover:text-white"}`}>Nouvelle boîte de réception</button>
-      <button type="button" aria-pressed={showLegacy} onClick={() => setShowLegacy(true)} className={`px-3 py-1.5 text-xs transition ${showLegacy ? "bg-tertiary-400 text-white" : "text-white/60 hover:text-white"}`}>Messagerie historique</button>
-    </div>
-  );
   return (
     <div className="flex h-full min-h-0 flex-col">
-      {showLegacy ? (
-        <>
-          <div className="mb-3 flex shrink-0 justify-end">{toggle}</div>
-          <div className="min-h-0 flex-1 overflow-y-auto"><LegacyMessageList /></div>
-        </>
-      ) : <InboxWorkspace toolbarRight={toggle} />}
+      <InboxWorkspace />
     </div>
   );
 }
 
+// Ancienne messagerie : masquée pour le moment, conservée pour un éventuel retour
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function LegacyMessageList() {
   const { data: session } = useSession();
   const isFreeAccount = session?.user?.saasPlan === "FREE";
