@@ -1,6 +1,7 @@
 import CreateRdvForm from "@/components/Application/RDV/CreateRdvForm";
 import PageHeader from "@/components/Shared/PageHeader";
 import { currentUser } from "@/lib/auth.server";
+import { auth } from "@/auth";
 import Link from "next/link";
 import { FaRegCalendarTimes } from "react-icons/fa";
 
@@ -23,6 +24,23 @@ export default async function CreerRDVpage() {
   }
 
   const userId = user?.id ?? "";
+  const session = await auth();
+
+  if (session?.user?.saasPlan === "FREE") {
+    return (
+      <div className="flex min-h-[100dvh] w-full flex-col items-center justify-center gap-4 bg-noir-700 px-4 text-center">
+        <h1 className="text-white">
+          La création de rendez-vous est réservée aux comptes PRO ou BUSINESS.
+        </h1>
+        <Link
+          href={"/mes-rendez-vous"}
+          className="relative text-xs cursor-pointer bg-gradient-to-l from-tertiary-400 to-tertiary-500 min-w-[200px] max-w-[400px] text-center text-white font-one py-2 px-4 rounded-[20px]"
+        >
+          Retour à mes rendez-vous
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <main className="flex min-h-[100dvh] w-full flex-col items-center justify-start bg-noir-700">

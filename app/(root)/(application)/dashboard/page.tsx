@@ -13,7 +13,7 @@ import LastMessage from "@/components/Application/Dashboard/LastMessage";
 import ProfileViewsStats from "@/components/Application/Dashboard/ProfileViewsStats";
 import DrawingFollowUpSummary from "@/components/Application/Dashboard/DrawingFollowUpSummary";
 import { auth } from "@/auth";
-import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
+import UpgradePromo from "@/components/Application/Dashboard/UpgradePromo";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import {
   ArrowUpRight,
@@ -136,34 +136,7 @@ export default async function DashboardPage() {
 
           {/* Message pour les comptes Free */}
           {isFreeAccount && (
-            <LockedFeatureCard
-              className="dashboard-panel p-6 lg:p-8"
-              icon={
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-              }
-              title="Découvrez INKERA PRO"
-              description="Avec un abonnement, vous débloquez les outils métier pour piloter votre activité au quotidien : organisation, suivi client, communication et performance."
-              features={[
-                "📅 Gestion avancée des rendez-vous",
-                "👥 Gestion des clients et historique",
-                "💬 Messagerie intégrée",
-                "📦 Gestion des stocks et produits",
-                "📈 Statistiques détaillées (remplissage, revenus, annulations)",
-                "🧾 Traçabilité",
-              ]}
-            />
+            <UpgradePromo isSalon={session?.user?.role === "user_salon" || session?.user?.role === "user"} />
           )}
         </div>
     </div>

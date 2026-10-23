@@ -5,11 +5,10 @@ import { useSession } from "next-auth/react";
 import { io } from "socket.io-client";
 import {
   ArrowLeft, AtSign, CheckCheck, ChevronLeft, ChevronRight, CircleAlert,
-  Clock3, Facebook, ImagePlus, Instagram, Mail, MessageCircle, NotebookPen,
+  Clock3, Facebook, ImagePlus, Instagram, Lock, Mail, MessageCircle, NotebookPen,
   PanelLeftClose, PanelLeftOpen, Plus, RefreshCw, Search, Send, SlidersHorizontal, Unplug, UserRound, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
-import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
 import ConversationRDVDetails from "./ConversationRDVDetails";
 import { getTatoueursByUserIdAction } from "@/lib/queries/tatoueur";
 import { searchClientsAction } from "@/lib/queries/client";
@@ -184,7 +183,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   }, [selectedId]);
 
   const refreshList = useCallback(async () => {
-    if (!userId || isFree) return;
+    if (!userId) return;
     try {
       setListError("");
       const result = await getInboxThreadsAction({
@@ -204,7 +203,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
     } finally {
       setLoading(false);
     }
-  }, [userId, isFree, channel, status, search, unreadOnly, assignedFilter, page]);
+  }, [userId, channel, status, search, unreadOnly, assignedFilter, page]);
 
   const syncNavbarUnread = useCallback(async () => {
     try {
@@ -244,7 +243,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   }, [acknowledgeThread]);
 
   useEffect(() => {
-    if (!userId || isFree) return;
+    if (!userId) return;
     setLoading(true);
     const timeout = window.setTimeout(() => void refreshList(), 250);
     return () => window.clearTimeout(timeout);
@@ -288,7 +287,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   }, [clientQuery, clientFormOpen, thread?.linkedClientId]);
 
   useEffect(() => {
-    if (!userId || isFree) return;
+    if (!userId) return;
     void getInboxSavedRepliesAction().then(setSavedReplies).catch(() => undefined);
     if (isSalon) {
       void getTatoueursByUserIdAction(userId).then((result) => {
@@ -298,7 +297,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   }, [userId, isFree, isSalon]);
 
   const refreshInstagramConnections = useCallback(async () => {
-    if (!userId || isFree) return;
+    if (!userId) return;
     try {
       setInstagramError("");
       setInstagramConnections(await getInstagramConnectionsAction());
@@ -307,7 +306,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
     } finally {
       setInstagramLoading(false);
     }
-  }, [userId, isFree]);
+  }, [userId]);
 
   useEffect(() => { void refreshInstagramConnections(); }, [refreshInstagramConnections]);
 
@@ -350,7 +349,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   };
 
   useEffect(() => {
-    if (!userId || isFree) return;
+    if (!userId) return;
     const timer = window.setInterval(() => {
       void refreshList();
       if (selectedIdRef.current) void refreshDetail(selectedIdRef.current);
@@ -359,7 +358,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   }, [userId, isFree, refreshList, refreshDetail]);
 
   useEffect(() => {
-    if (!session?.accessToken || isFree) return;
+    if (!session?.accessToken) return;
     const base = process.env.NEXT_PUBLIC_BACK_URL || process.env.NEXT_PUBLIC_API_URL;
     if (!base) return;
     const socket = io(`${base}/messaging`, {
@@ -454,8 +453,6 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   };
 
   if (sessionStatus === "loading") return <p className="p-6 text-sm text-white/60">Chargement de votre espace…</p>;
-  if (isFree) return <LockedFeatureCard icon={<MessageCircle size={24} />} title="Messagerie réservée aux comptes abonnés" description="Activez votre abonnement pour centraliser vos échanges Inkera, Instagram, Facebook et vos emails." features={["Conversations Inkera", "Attribution aux tatoueurs", "Suivi client"]} primaryLabel="Passer à PRO" />;
-
   return (
     <section className="flex h-full min-h-0 flex-col font-one text-white">
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-white/10 bg-noir-600 px-4">
@@ -602,7 +599,9 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                       </div></article>;
                     })}
                   </div>
-                  {(thread.channel === "INKERA" || (thread.channel === "INSTAGRAM" && ["ACTIVE", "ERROR"].includes(thread.externalConversation?.connection?.status || ""))) ? (
+                  {isFree ? (
+                    <div className="flex items-start gap-2 border-t border-white/10 bg-tertiary-400/5 p-4 text-xs leading-relaxed text-white/70"><Lock size={16} className="shrink-0 text-tertiary-400" /><span>Conversation en lecture seule : l&apos;envoi et la réception de messages sont réservés aux comptes PRO ou BUSINESS.</span></div>
+                  ) : (thread.channel === "INKERA" || (thread.channel === "INSTAGRAM" && ["ACTIVE", "ERROR"].includes(thread.externalConversation?.connection?.status || ""))) ? (
                     <div className="space-y-2 p-3">
                       <div className="flex gap-2"><select aria-label="Insérer une réponse enregistrée" className={`${field} min-w-0 flex-1 !py-1.5 text-[11px]`} defaultValue="" onChange={(event) => { const reply = savedReplies.find((item) => item.id === event.target.value); if (reply) setDraft(reply.content); event.target.value = ""; }}><option value="">Insérer une réponse enregistrée…</option>{savedReplies.filter((item) => !item.channel || item.channel === thread.channel).map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select>
                         <button type="button" className={`${subtleButton} shrink-0 !px-2.5 !py-1.5 text-[11px]`} aria-expanded={replyFormOpen} onClick={() => setReplyFormOpen((open) => !open)}>{replyFormOpen ? <X size={12} /> : <Plus size={12} />} Nouvelle réponse</button></div>
@@ -655,7 +654,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                       {clientResults.map((client) => <button type="button" key={client.id} className="block w-full rounded-lg border border-white/10 p-2 text-left hover:bg-white/5" disabled={pending} onClick={() => void mutate(() => linkInboxClientAction(thread.id, client.id), "Fiche client associée", true)}>{client.firstName} {client.lastName} <span className="block text-white/40">{client.email}</span></button>)}
                       <p className="pt-2 text-[11px] font-semibold uppercase tracking-widest text-white/50">Nouvelle fiche</p>
                       {(["firstName", "lastName", "email", "phone"] as const).map((key) => <input key={key} type={key === "email" ? "email" : "text"} className={field} aria-label={key} placeholder={({ firstName: "Prénom", lastName: "Nom", email: "Email", phone: "Téléphone" })[key]} value={newClient[key]} onChange={(event) => setNewClient((old) => ({ ...old, [key]: event.target.value }))} />)}
-                      <button type="button" className={`${primaryButton} w-full`} disabled={pending || Object.values(newClient).some((value) => !value.trim())} onClick={() => void mutate(() => createInboxClientAction(thread.id, newClient), "Fiche client créée et associée", true)}>Créer et associer</button>
+                      <button type="button" className={`${primaryButton} w-full`} disabled={pending || isFree || Object.values(newClient).some((value) => !value.trim())} onClick={() => void mutate(() => createInboxClientAction(thread.id, newClient), "Fiche client créée et associée", true)}>Créer et associer</button>
                     </div>}
                   </div>
 

@@ -36,7 +36,6 @@ import RdvListSkeleton from "@/components/Skeleton/RdvListSkeleton";
 import PageHeader from "@/components/Shared/PageHeader";
 import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
-import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
 
 const STATUS_BADGES: Record<string, { label: string; className: string }> = {
   CANCELED: { label: "Annulé", className: "border-red-500/30 bg-red-500/10 text-red-300" },
@@ -348,6 +347,17 @@ export default function RDV() {
       >
       </PageHeader>
 
+      {isFreeAccount && (
+        <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-tertiary-400/25 bg-tertiary-400/8 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-one text-sm leading-6 text-white/75">
+            Votre compte est en plan gratuit : vous pouvez consulter et gérer vos rendez-vous en cours, mais plus en créer de nouveaux.
+          </p>
+          <DashboardButton href="/parametres" className="min-w-0 shrink-0 px-4 py-2 text-sm">
+            Passer à PRO
+          </DashboardButton>
+        </div>
+      )}
+
       {error ? (
         <div className="h-[80vh] w-full flex items-center justify-center relative">
           <div className="text-center space-y-4">
@@ -367,41 +377,6 @@ export default function RDV() {
               Réessayer
             </button>
           </div>
-        </div>
-      ) : isFreeAccount ? (
-        /* Message pour les comptes Free */
-        <div className="w-full">
-          {!isFreeAccount && <Search />}
-
-          <LockedFeatureCard
-            className="dashboard-embedded-section mt-5"
-            icon={
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v8a2 2 0 002 2h4a2 2 0 002-2v-8m-6 0h8m-8 0V7a2 2 0 012-2h4a2 2 0 012 2v4m0 0v8a2 2 0 01-2 2H10a2 2 0 01-2-2v-8m0 0h8"
-                />
-              </svg>
-            }
-            title="Gestion des rendez-vous disponible avec un abonnement"
-            description="Accédez à la gestion complète de vos rendez-vous : planification, suivi des clients, historique des séances et bien plus."
-            features={[
-              "Calendrier interactif",
-              "Gestion des clients",
-              "Suivi des paiements",
-              "Statistiques détaillées",
-              "Notifications automatiques",
-              "Historique complet",
-            ]}
-            primaryLabel="Passer à PRO"
-          />
         </div>
       ) : (
         <div className="flex w-full flex-col gap-4 xl:flex-row xl:gap-0">
@@ -538,8 +513,7 @@ export default function RDV() {
               <Search />
             </div>
 
-            {!isFreeAccount && (
-          <div className="order-3 flex w-full shrink-0 gap-2 md:w-auto">
+            <div className="order-3 flex w-full shrink-0 gap-2 md:w-auto">
             <div
               title="Rendez-vous en attente"
               className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-medium text-white font-one md:flex-none"
@@ -549,14 +523,13 @@ export default function RDV() {
               </span>
               <span>En attente</span>
             </div>
-            <DashboardButton href="/mes-rendez-vous/creer" className="!min-w-0 flex-1 whitespace-nowrap md:flex-none">
+            {!isFreeAccount && <DashboardButton href="/mes-rendez-vous/creer" className="!min-w-0 flex-1 whitespace-nowrap md:flex-none">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               Nouveau
-            </DashboardButton>
+            </DashboardButton>}
           </div>
-        )}
             </div>
           </ApplicationToolbar>
 
