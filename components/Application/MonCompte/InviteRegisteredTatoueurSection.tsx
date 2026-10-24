@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { Search, Users } from "lucide-react";
 import { toast } from "sonner";
 import {
   createTeamRequestAction,
@@ -112,16 +113,19 @@ export default function InviteRegisteredTatoueurSection() {
   };
 
   return (
-    <div className="w-full rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-4 sm:p-5">
-      <h3 className="mb-2 text-base font-semibold text-white font-one">
+    <div className="w-full rounded-2xl border border-white/10 bg-noir-600 p-5 sm:p-8 [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed">
+      <div className="mb-5 flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-tertiary-400"><Users size={20} /></div>
+      <h3 className="mb-2 text-lg font-semibold tracking-tight text-white font-one">
         Inviter un tatoueur déjà inscrit
       </h3>
       <p className="mb-4 text-xs leading-5 text-white/50 font-two">
-        Recherchez un tatoueur inscrit par nom, prénom ou email.
+        Retrouvez son compte par nom, prénom ou email, puis envoyez-lui une invitation à rejoindre votre équipe. Il conserve la gestion de son profil.
       </p>
 
+      <label htmlFor="team-tatoueur-search" className="mb-2 block text-xs text-white/65 font-one">Nom, prénom ou email</label>
       <div className="flex flex-col gap-2 sm:flex-row">
         <input
+          id="team-tatoueur-search"
           aria-label="Rechercher un tatoueur par nom, prénom ou email" value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={(e) => {
@@ -137,14 +141,17 @@ export default function InviteRegisteredTatoueurSection() {
           type="button"
           onClick={handleSearchRegisteredTatoueurs}
           disabled={isSearchingTatoueurs}
-          className="cursor-pointer rounded-2xl bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2 text-xs text-white font-one transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-tertiary-400 px-4 py-2.5 text-xs text-white font-one transition hover:bg-tertiary-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
+          <Search size={14} />
           {isSearchingTatoueurs ? "Recherche..." : "Rechercher"}
         </button>
       </div>
 
-      <div className="mt-2">
+      <div className="mt-5">
+        <label htmlFor="team-invite-message" className="mb-2 block text-xs text-white/65 font-one">Un message pour accompagner l’invitation <span className="text-white/35">· facultatif</span></label>
         <input
+          id="team-invite-message"
           aria-label="Message optionnel à joindre à la demande" value={inviteMessage}
           onChange={(e) => setInviteMessage(e.target.value)}
           placeholder="Message optionnel à joindre à la demande"
@@ -153,7 +160,7 @@ export default function InviteRegisteredTatoueurSection() {
       </div>
 
       {searchError && (
-        <p className="mt-2 text-xs text-red-300 font-one">{searchError}</p>
+        <p role="alert" className="mt-2 text-xs text-red-300 font-one">{searchError}</p>
       )}
 
       {hasSearched && !searchError && searchResults.length === 0 && (
@@ -176,7 +183,7 @@ export default function InviteRegisteredTatoueurSection() {
                 key={tatoueur.id}
                 className="rounded-2xl border border-white/10 bg-white/6 p-3"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
                   <div className="flex min-w-0 items-center gap-2.5">
                     <div className="relative h-10 w-10 overflow-hidden rounded-xl border border-white/10 bg-white/10">
                       {tatoueur.image ? (
@@ -204,7 +211,7 @@ export default function InviteRegisteredTatoueurSection() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-1.5">
+                  <div className="flex shrink-0 flex-col items-start gap-1.5 sm:items-end">
                     {tatoueur.isAlreadyInTeam && (
                       <span className="rounded-full border border-emerald-500/35 bg-emerald-500/15 px-2 py-0.5 text-[10px] text-emerald-300 font-one">
                         Déjà dans l&apos;équipe

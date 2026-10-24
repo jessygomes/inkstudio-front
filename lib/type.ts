@@ -213,6 +213,9 @@ export interface TattooHistoryProps {
 //! CLIENTS
 export interface ClientProps {
   id: string;
+  linkedUserId?: string | null;
+  image?: string | null;
+  linkedUser?: { id?: string; image?: string | null } | null;
   firstName: string;
   lastName: string;
   email: string;
@@ -251,6 +254,7 @@ export interface ClientProps {
 
 //! PORTFOLIO
 export interface PortfolioProps {
+  appointmentPhotoId?: string | null;
   id: string;
   userId?: string;
   title: string;

@@ -1,4 +1,6 @@
 "use client";
+import AppointmentPhotos from "@/components/Application/RDV/AppointmentPhotos";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, ChevronDown } from "lucide-react";
@@ -27,6 +29,9 @@ const isImageUrl = (value: string) => {
 export default function AppointmentSection({
   appointments,
 }: AppointmentSectionProps) {
+  const sortedAppointments = [...appointments].sort(
+    (a, b) => new Date(b.start).getTime() - new Date(a.start).getTime()
+  );
   const [rdvDetailsById, setRdvDetailsById] = useState<Record<string, AppointmentProps>>({});
   const [expandedRdvIds, setExpandedRdvIds] = useState<Set<string>>(new Set());
   const [rdvDetailsLoadingIds, setRdvDetailsLoadingIds] = useState<Set<string>>(new Set());
@@ -125,7 +130,7 @@ export default function AppointmentSection({
         </div>
       ) : (
         <div className="space-y-2.5">
-          {appointments.map((rdv) => {
+          {sortedAppointments.map((rdv) => {
             const summaryRdv = rdv;
             const fetchedRdv = rdvDetailsById[rdv.id];
             const detailDescription =
@@ -162,11 +167,11 @@ export default function AppointmentSection({
             return (
               <div
                 key={rdv.id}
-                className="group overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03] p-3 transition-colors hover:border-white/15 sm:p-3.5"
+                className="group overflow-hidden rounded-xl border border-white/10 bg-noir-600 p-3 transition-colors hover:border-white/20 sm:p-4"
               >
-                <div className="flex min-w-0 flex-wrap items-center gap-3 sm:flex-nowrap sm:gap-4">
-                  <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-white/[0.06] font-one text-white sm:h-16 sm:w-16">
-                    <span className="text-lg leading-none font-semibold">
+                <div className="flex min-w-0 flex-wrap items-center gap-3 sm:flex-nowrap">
+                  <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.025] font-one text-white/70">
+                    <span className="text-base leading-none font-semibold">
                       {new Date(summaryRdv.start).toLocaleDateString("fr-FR", { day: "2-digit" })}
                     </span>
                     <span className="mt-0.5 text-[10px] uppercase tracking-wider text-white/60">
@@ -179,13 +184,13 @@ export default function AppointmentSection({
 
                   <div className="min-w-0 flex-1 font-one">
                     <div className="flex items-center gap-2">
-                      <h4 className="truncate text-sm font-semibold text-white">{summaryRdv.title}</h4>
+                      <h4 className="min-w-0 truncate text-xs font-semibold text-white"><button type="button" onClick={() => toggleRdvDetails(rdv.id)} aria-expanded={isExpanded} aria-controls={"client-rdv-" + rdv.id} className="max-w-full cursor-pointer truncate text-left hover:text-tertiary-400">{summaryRdv.title}</button></h4>
                       <span className="hidden shrink-0 rounded-full border border-white/12 bg-white/6 px-2 py-0.5 text-[11px] text-white/75 sm:inline">
-                        {summaryRdv.prestation}
+                        {{ TATTOO: "Tatouage", PROJET: "Projet", RETOUCHE: "Retouche", PIERCING: "Piercing" }[summaryRdv.prestation] || summaryRdv.prestation}
                       </span>
                     </div>
                     <p className="mt-1 truncate text-xs text-white/60">
-                      <span className="sm:hidden">{summaryRdv.prestation}<span className="mx-1.5">·</span></span>
+                      <span className="sm:hidden">{{ TATTOO: "Tatouage", PROJET: "Projet", RETOUCHE: "Retouche", PIERCING: "Piercing" }[summaryRdv.prestation] || summaryRdv.prestation}<span className="mx-1.5">·</span></span>
                       {new Date(summaryRdv.start).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
                       <span className="mx-1.5">·</span>
                       {summaryRdv.tatoueur?.name || "Non renseigné"}
@@ -194,13 +199,13 @@ export default function AppointmentSection({
 
                   <div className="flex shrink-0 flex-wrap items-center gap-2">
                     <span
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium whitespace-nowrap font-one ${statusStyle.pill}`}
+                      className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-0.5 text-[10px] font-medium whitespace-nowrap font-one ${statusStyle.pill}`}
                     >
                       <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
                       {statusStyle.text}
                     </span>
                     <span
-                      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-medium whitespace-nowrap font-one ${
+                      className={`inline-flex items-center rounded-lg border px-2 py-0.5 text-[10px] font-medium whitespace-nowrap font-one ${
                         summaryRdv.isPayed
                           ? "border-green-400/30 bg-green-500/15 text-green-300"
                           : "border-orange-400/30 bg-orange-500/15 text-orange-300"
@@ -211,6 +216,7 @@ export default function AppointmentSection({
                     <button type="button"
                       onClick={() => toggleRdvDetails(rdv.id)}
                       aria-expanded={isExpanded}
+                      aria-controls={"client-rdv-" + rdv.id}
                       aria-label={isExpanded ? "Masquer les détails" : "Voir les détails"}
                       title={isExpanded ? "Masquer les détails" : "Voir les détails"}
                       className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-white/70 transition-colors hover:border-tertiary-400/40 hover:text-tertiary-400"
@@ -221,7 +227,7 @@ export default function AppointmentSection({
                 </div>
 
                 {isExpanded && (
-                  <div className="mt-3 space-y-2.5 border-t border-white/12 pt-3">
+                  <div id={"client-rdv-" + rdv.id} className="mt-3 space-y-4 border-t border-white/[0.07] pt-4">
                     {isLoading && (
                       <p className="text-xs text-white/60 font-one rounded-xl border border-white/10 bg-white/5 px-2.5 py-2">
                         Chargement des détails du rendez-vous...
@@ -244,24 +250,24 @@ export default function AppointmentSection({
                         <div className="grid grid-cols-1 gap-x-5 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
                           <div className="min-w-0 border-b border-white/[0.07] py-2.5">
                             <p className="text-[11px] font-medium text-white/55 font-one">Zone</p>
-                            <p className="mt-1 break-words text-sm text-white/85 font-two">{detailZone}</p>
+                            <p className="mt-1 break-words text-xs text-white/75 font-two">{detailZone}</p>
                           </div>
 
                           <div className="min-w-0 border-b border-white/[0.07] py-2.5">
                             <p className="text-[11px] font-medium text-white/55 font-one">Taille</p>
-                            <p className="mt-1 break-words text-sm text-white/85 font-two">{detailSize}</p>
+                            <p className="mt-1 break-words text-xs text-white/75 font-two">{detailSize}</p>
                           </div>
 
                           <div className="min-w-0 border-b border-white/[0.07] py-2.5">
                             <p className="text-[11px] font-medium text-white/55 font-one">Prix</p>
-                            <p className="mt-1 break-words text-sm text-white/85 font-two">
+                            <p className="mt-1 break-words text-xs text-white/75 font-two">
                               {detailPrice != null ? `${detailPrice} EUR` : "Non renseigné"}
                             </p>
                           </div>
 
                           <div className="min-w-0 border-b border-white/[0.07] py-2.5">
                             <p className="text-[11px] font-medium text-white/55 font-one">Couleur</p>
-                            <p className="mt-1 break-words text-sm text-white/85 font-two">{detailColor}</p>
+                            <p className="mt-1 break-words text-xs text-white/75 font-two">{detailColor}</p>
                           </div>
 
                           <div className="min-w-0 border-b border-white/[0.07] py-2.5">
@@ -284,7 +290,7 @@ export default function AppointmentSection({
                                 />
                               </a>
                             ) : (
-                              <p className="break-all mt-1 break-words text-sm text-white/85 font-two">{detailReference}</p>
+                              <p className="break-all mt-1 break-words text-xs text-white/75 font-two">{detailReference}</p>
                             )}
                           </div>
 
@@ -308,13 +314,14 @@ export default function AppointmentSection({
                                 />
                               </a>
                             ) : (
-                              <p className="break-all mt-1 break-words text-sm text-white/85 font-two">{detailSketch}</p>
+                              <p className="break-all mt-1 break-words text-xs text-white/75 font-two">{detailSketch}</p>
                             )}
                           </div>
                         </div>
                       </>
                     )}
 
+                    <div className="border-t border-white/[0.07] pt-4"><AppointmentPhotos appointmentId={rdv.id} /></div>
                     {!isLoading && !error && !fetchedRdv && (
                       <p className="text-xs text-white/55 font-one rounded-xl border border-white/10 bg-white/5 px-2.5 py-2">
                         Aucun détail supplémentaire trouvé pour ce rendez-vous.

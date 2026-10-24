@@ -1,4 +1,7 @@
 "use client";
+import ClientAvatar from "@/components/Application/Clients/ClientAvatar";
+import AppointmentPhotos from "@/components/Application/RDV/AppointmentPhotos";
+
 import Image from "next/image";
 import Link from "next/link";
 import ConfirmRdv from "../RDV/ConfirmRdv";
@@ -86,11 +89,7 @@ export default function WaitingRdvDetailsPanelDesktop({
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <div className="relative shrink-0">
-              <div className="w-11 h-11 bg-gradient-to-br from-tertiary-500 to-primary-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-base leading-none">
-                  {selectedAppointment.client.firstName.charAt(0).toUpperCase()}
-                </span>
-              </div>
+              <ClientAvatar client={selectedAppointment.client} className="size-11 rounded-2xl" />
               <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#1a1a1a] ${statusCfg.dot}`} />
             </div>
             <div className="min-w-0">
@@ -297,8 +296,10 @@ export default function WaitingRdvDetailsPanelDesktop({
         )}
 
         {/* ── Détails prestation ── */}
-        {tattooDetail && (
+        {!tattooDetail && (<div className="dashboard-embedded-section p-3"><AppointmentPhotos appointmentId={selectedAppointment.id} /></div>)}
+            {tattooDetail && (
           <div className="dashboard-embedded-section p-3">
+            <div className="mb-3"><AppointmentPhotos appointmentId={selectedAppointment.id} /></div>
             <p className="mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">
               Détails · {selectedAppointment.prestation}
             </p>

@@ -1,8 +1,7 @@
 
 import { currentUser } from "@/lib/auth.server";
 import Link from "next/link";
-import { FiUserPlus } from "react-icons/fi";
-import PageHeader from "@/components/Shared/PageHeader";
+import { CreationPageHeader } from "@/components/Shared/CreationWorkspace";
 import CreateClientForm from "@/components/Application/Clients/CreateClientForm";
 
 export default async function CreerClientPage() {
@@ -26,17 +25,19 @@ export default async function CreerClientPage() {
   const userId = user?.id ?? "";
 
   return (
-    <div className="bg-noir-700 flex flex-col items-center justify-center gap-4 pb-20">
-      <div className="flex flex-col relative w-full bg-noir-700 mt-4 pb-4 px-3 sm:px-6 lg:px-10">
-        <PageHeader
-          icon={<FiUserPlus size={15} className="text-tertiary-400 animate-pulse" />} 
+    <main className="wrapper-global pb-24 pt-5 lg:pb-8">
+      <div className="w-full">
+        <CreationPageHeader
+          category="Clients"
           title="Créer un client"
-        >
-        </PageHeader>
+          description="Une fiche claire pour retrouver ses coordonnées, ses consentements et les informations utiles à son suivi."
+          backHref="/clients"
+          backLabel="Retour aux clients"
+        />
         <div className="w-full">
           <CreateClientForm userId={userId ?? ""} />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

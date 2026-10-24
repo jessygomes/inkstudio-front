@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { ImagePlus, FileText, Save, LoaderCircle, CalendarClock } from "lucide-react";
 import FormSectionHeader from "@/components/Shared/FormSectionHeader";
+import SideFormDrawer from "@/components/Shared/SideFormDrawer";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
@@ -198,86 +199,41 @@ export default function CreateOrUpdateFlash({
   };
 
   return (
-    <div>
-      {isClosing && (
-        <div
-          data-modal
-          className="fixed inset-0 z-[10000] bg-black/70 backdrop-blur-[2px] flex items-center justify-center overflow-hidden p-3"
-          style={{ height: "100dvh", width: "100vw" }}
-        >
-          <div className="dashboard-embedded-panel w-full max-w-sm rounded-2xl border border-white/15 bg-[#1a1a1a] p-4 shadow-2xl">
-            <div className="flex items-center gap-4">
-              <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-tertiary-400"></div>
-              <div className="text-white font-one">
-                <p className="text-sm font-medium">Nettoyage en cours...</p>
-                <p className="text-[11px] text-white/60">
-                  Suppression de l'image temporaire
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+    <SideFormDrawer category="Flashs" title={existingFlash ? "Modifier un flash" : "Ajouter un flash"} description="Présentez votre dessin, puis précisez les conditions de réservation de la séance." onClose={handleClose} busy={loading || isClosing} footer={<>
 
-      <div
-        data-modal
-        className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-[2px] p-0 sm:p-3 md:p-4 lg:flex lg:items-center lg:justify-center overflow-hidden"
-        style={{ height: "100dvh", width: "100vw" }}
-      >
-        <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none border-0 bg-[#1a1a1a] shadow-none sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)] md:max-h-[90vh]">
-          <div className="shrink-0 border-b border-white/10 bg-gradient-to-r from-tertiary-500/10 to-transparent px-4 py-5 sm:px-6">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-[0.18em] text-tertiary-400 font-one">
-                  Flash
-                </p>
-                <h2 className="mt-1 text-lg font-semibold text-white font-one sm:text-xl">
-                  {existingFlash ? "Modifier un flash" : "Ajouter un flash"}
-                </h2>
-                <p className="mt-2 text-xs leading-5 text-white/50 font-two">
-                  {existingFlash
-                    ? "Mettez à jour les informations de votre flash"
-                    : "Ajoutez un nouveau flash disponible à la réservation"}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                aria-label="Fermer la fenêtre" onClick={handleClose}
-                disabled={isClosing || loading}
-                className="flex size-11 items-center justify-center border border-white/10 shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-tertiary-400 text-white/65 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5 sm:py-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
-            <form
+            <DashboardButton className="!min-w-0 !rounded-xl !shadow-none"
+              type="button"
+              variant="secondary"
+              onClick={handleClose}
+              disabled={loading || isClosing}
+            >
+              {isClosing ? "Annulation..." : "Annuler"}
+            </DashboardButton>
+            <DashboardButton className="!min-w-0 !rounded-xl !shadow-none"
+              type="submit"
+              form="flash-create-update-form"
+              disabled={loading || isClosing}
+            >
+              {loading ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Save size={15} aria-hidden="true" />}
+              {loading
+                ? "Enregistrement..."
+                : existingFlash
+                  ? "Modifier le flash"
+                  : "Ajouter le flash"}
+            </DashboardButton>
+          
+    </>}>
+<form
               id="flash-create-update-form"
               onSubmit={form.handleSubmit(onSubmit)}
-              className="create-rdv-form tablet-inputs space-y-4"
+              noValidate className="space-y-4"
             >
-              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
-                <FormSectionHeader eyebrow="01 · Visuel" title="Le visuel de votre flash" description="Présentez votre dessin avec une image nette et bien cadrée." icon={<ImagePlus size={18} />} />
-                <SalonImageUploader
+              <div className="min-w-0 rounded-2xl border border-white/10 bg-noir-600 p-3.5">
+                <FormSectionHeader compact eyebrow="01 · Visuel" title="Le visuel de votre flash" description="Présentez votre dessin avec une image nette et bien cadrée." icon={<ImagePlus size={18} />} />
+                <SalonImageUploader compact
                   appearance="media"
                   currentImage={
-                    form.watch("imageUrl") ||
-                    existingFlash?.imageUrl ||
-                    undefined
+                    form.watch("imageUrl") || undefined
                   }
                   onImageUpload={(imageUrl) =>
                     form.setValue("imageUrl", imageUrl)
@@ -291,8 +247,8 @@ export default function CreateOrUpdateFlash({
                 )}
               </div>
 
-              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5 space-y-4">
-                <FormSectionHeader eyebrow="02 · Présentation" title="Décrivez votre création" description="Précisez le titre, l’artiste et les styles de votre flash." icon={<FileText size={18} />} />
+              <div className="min-w-0 rounded-2xl border border-white/10 bg-noir-600 p-3.5 space-y-4">
+                <FormSectionHeader compact eyebrow="02 · Présentation" title="Décrivez votre création" description="Précisez le titre, l’artiste et les styles de votre flash." icon={<FileText size={18} />} />
 
                 <div className="space-y-1">
                   <label htmlFor="flash-title" className="mb-1.5 block text-xs font-medium text-white/65 font-one">
@@ -301,7 +257,7 @@ export default function CreateOrUpdateFlash({
                   <input id="flash-title" aria-invalid={Boolean(form.formState.errors.title)}
                     {...form.register("title")}
                     placeholder="Nom du flash"
-                    className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                   />
                   {form.formState.errors.title && (
                     <p className="mt-1 text-xs text-red-300 font-one">
@@ -317,7 +273,7 @@ export default function CreateOrUpdateFlash({
                     </label>
                     <select
                       {...form.register("tatoueurId")}
-                      className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                      className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                     >
                       <option value="" className="bg-noir-500">
                         Aucun tatoueur assigné
@@ -352,7 +308,7 @@ export default function CreateOrUpdateFlash({
                       }}
                       onBlur={addStylesFromInput}
                       placeholder="Ex: Fine Line, Old School, Néo-trad"
-                      className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                      className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                     />
                     <button
                       type="button"
@@ -368,7 +324,7 @@ export default function CreateOrUpdateFlash({
                       {(form.watch("style") || []).map((style) => (
                         <span
                           key={style}
-                          className="inline-flex items-center gap-1 rounded-full border border-tertiary-400/35 bg-tertiary-500/10 px-2 py-1 text-[11px] text-white font-one"
+                          className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white font-one"
                         >
                           {style}
                           <button
@@ -398,14 +354,14 @@ export default function CreateOrUpdateFlash({
                   <textarea id="flash-description" aria-invalid={Boolean(form.formState.errors.description)}
                     {...form.register("description")}
                     placeholder="Description (optionnelle)"
-                    rows={4}
+                    rows={3}
                     className="h-24 w-full resize-y rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
                   />
                 </div>
 
                 </div>
-              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5 space-y-4">
-                <FormSectionHeader eyebrow="03 · Réservation" title="Préparez la séance" description="Définissez les dimensions, la durée et le tarif de ce flash." icon={<CalendarClock size={18} />} />
+              <div className="min-w-0 rounded-2xl border border-white/10 bg-noir-600 p-3.5 space-y-4">
+                <FormSectionHeader compact eyebrow="03 · Réservation" title="Préparez la séance" description="Définissez les dimensions, la durée et le tarif de ce flash." icon={<CalendarClock size={18} />} />
                 <div className="space-y-1">
                   <label htmlFor="flash-dimension" className="mb-1.5 block text-xs font-medium text-white/65 font-one">
                     Dimensions
@@ -413,7 +369,7 @@ export default function CreateOrUpdateFlash({
                   <input id="flash-dimension" aria-invalid={Boolean(form.formState.errors.dimension)}
                     {...form.register("dimension")}
                     placeholder="Ex: 10x15 cm"
-                    className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                   />
                   {form.formState.errors.dimension && (
                     <p className="mt-1 text-xs text-red-300 font-one">
@@ -430,7 +386,7 @@ export default function CreateOrUpdateFlash({
                     {...form.register("appointmentDurationMinutes", {
                       setValueAs: (value) => Number(value),
                     })}
-                    className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                   >
                     {[30, 60, 90, 120, 150, 180, 210, 240].map((duration) => (
                       <option key={duration} value={duration} className="bg-noir-500">
@@ -459,7 +415,7 @@ export default function CreateOrUpdateFlash({
                     step="0.01"
                     {...form.register("price", { valueAsNumber: true })}
                     placeholder="0"
-                    className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                   />
                   {form.formState.errors.price && (
                     <p className="mt-1 text-xs text-red-300 font-one">
@@ -495,32 +451,6 @@ export default function CreateOrUpdateFlash({
                 </div>
               )}
             </form>
-          </div>
-
-          <div className="shrink-0 border-t border-white/10 bg-noir-700 flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-3 p-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]">
-            <DashboardButton
-              type="button"
-              variant="secondary"
-              onClick={handleClose}
-              disabled={loading || isClosing}
-            >
-              {isClosing ? "Annulation..." : "Annuler"}
-            </DashboardButton>
-            <DashboardButton
-              type="submit"
-              form="flash-create-update-form"
-              disabled={loading || isClosing}
-            >
-              {loading ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Save size={15} aria-hidden="true" />}
-              {loading
-                ? "Enregistrement..."
-                : existingFlash
-                  ? "Modifier le flash"
-                  : "Ajouter le flash"}
-            </DashboardButton>
-          </div>
-        </div>
-      </div>
-    </div>
+    </SideFormDrawer>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { CalendarOff, ChevronDown, Clock3, Pencil } from "lucide-react";
-import BlockedSlots from "./BlockedSlots";
+import { CalendarOff, Clock3, Pencil } from "lucide-react";
+import BlockedSlotsDrawer from "./BlockedSlotsDrawer";
 import DashboardButton from "@/components/Shared/DashboardButton";
 
 interface HoraireProps {
@@ -75,51 +75,42 @@ export default function Horaire({ hours, salonId }: HoraireProps) {
   }).length;
 
   return (
-    <div className="space-y-5 font-one">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-4 font-one [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_a]:cursor-pointer [&_select]:cursor-pointer [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-2 [&_button:focus-visible]:ring-tertiary-400">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-tertiary-400/10 text-tertiary-400"><Clock3 size={20} aria-hidden="true" /></span>
+          <span className="flex size-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-tertiary-400"><Clock3 size={17} aria-hidden="true" /></span>
           <div>
-            <h3 className="text-base font-semibold text-white">Votre semaine type</h3>
-            <p className="mt-1 text-sm text-white/60">{hasHours ? `${openDays} jour${openDays > 1 ? "s" : ""} d’ouverture par semaine` : "Définissez vos horaires pour informer vos clients."}</p>
+            <h3 className="text-sm font-medium text-white">Votre semaine type</h3>
+            <p className="mt-1 text-[11px] text-white/40">{hasHours ? `${openDays} jour${openDays > 1 ? "s" : ""} d’ouverture par semaine` : "Définissez vos horaires pour informer vos clients."}</p>
           </div>
         </div>
-        <DashboardButton href="/mon-compte/horaires" variant="secondary">
-          <Pencil size={15} aria-hidden="true" />{hasHours ? "Modifier les horaires" : "Configurer les horaires"}
-        </DashboardButton>
+        <div className="ml-auto flex items-center gap-2">
+          <button type="button" aria-haspopup="dialog" onClick={() => setIsBlockedSlotsVisible(true)} className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/70 transition hover:bg-white/10 hover:text-white"><CalendarOff size={14} aria-hidden="true" />Absences & créneaux bloqués</button>
+          <DashboardButton href="/mon-compte/horaires" variant="secondary" aria-label={hasHours ? "Modifier les horaires" : "Configurer les horaires"} className="!size-9 !min-w-0 !rounded-xl !p-0">
+            <Pencil size={15} aria-hidden="true" />
+          </DashboardButton>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">
         {daysOfWeek.map(day => {
           const dayHours = salonHoursState?.[day.key as keyof SalonHours];
           const isOpen = Boolean(dayHours?.start && dayHours?.end);
           return (
-            <div key={day.key} className={`flex items-center justify-between gap-3 rounded-2xl border p-4 sm:flex-col sm:items-stretch ${isOpen ? "border-white/12 bg-white/[0.04]" : "border-white/8 bg-black/10"}`}>
-              <div>
-                <p className="text-sm font-semibold text-white">{day.label}</p>
-                <p className={`mt-2 flex items-center gap-1.5 text-xs ${isOpen ? "text-emerald-300" : "text-white/50"}`}>
-                  <span aria-hidden="true" className={`size-1.5 rounded-full ${isOpen ? "bg-emerald-400" : "bg-white/25"}`} />
-                  {isOpen ? "Ouvert" : hasHours ? "Fermé" : "À renseigner"}
-                </p>
+            <div key={day.key} className={`min-w-0 rounded-xl border px-3 py-3 ${isOpen ? "border-white/10 bg-noir-600" : "border-white/[0.06] bg-black/10"}`}>
+              <div className="flex items-center justify-between gap-2">
+                <p className={`text-xs font-medium ${isOpen ? "text-white/80" : "text-white/35"}`}>{day.label}</p>
+                <span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${isOpen ? "bg-emerald-400" : "bg-white/20"}`} />
               </div>
-              <div className="text-right sm:mt-2 sm:border-t sm:border-white/8 sm:pt-4 sm:text-left">
-                {isOpen ? <p className="whitespace-nowrap text-base tabular-nums text-white">{dayHours!.start}<span className="mx-1 text-white/35">–</span>{dayHours!.end}</p> : <p className="text-sm text-white/40">{hasHours ? "Pas d’ouverture" : "Non configuré"}</p>}
+              <div className="mt-2">
+                {isOpen ? <p className="whitespace-nowrap text-[11px] tabular-nums text-emerald-400">{dayHours!.start}<span className="mx-1 text-white/25">–</span>{dayHours!.end}</p> : <p className="text-[11px] text-white/30">{hasHours ? "Fermé" : "À renseigner"}</p>}
               </div>
             </div>
           );
         })}
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
-        <button type="button" aria-expanded={isBlockedSlotsVisible} aria-controls="account-blocked-slots" onClick={() => setIsBlockedSlotsVisible(!isBlockedSlotsVisible)} className="flex w-full cursor-pointer items-center gap-3 p-4 text-left transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-tertiary-400 sm:p-5">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white/65"><CalendarOff size={20} aria-hidden="true" /></span>
-          <span className="flex-1"><span className="block text-base font-semibold text-white">Absences & créneaux bloqués</span><span className="mt-1 block text-sm text-white/55">Gérez les congés et les indisponibilités du salon ou des artistes.</span></span>
-          <ChevronDown size={19} aria-hidden="true" className={`shrink-0 text-white/60 transition-transform ${isBlockedSlotsVisible ? "rotate-180" : ""}`} />
-        </button>
-        <div id="account-blocked-slots" hidden={!isBlockedSlotsVisible}>
-          {isBlockedSlotsVisible && <div className="border-t border-white/10 p-4 sm:p-5"><BlockedSlots userId={salonId} tatoueurs={tatoueurs} /></div>}
-        </div>
-      </div>
+      {isBlockedSlotsVisible && <BlockedSlotsDrawer userId={salonId} tatoueurs={tatoueurs} onClose={() => setIsBlockedSlotsVisible(false)} />}
     </div>
   );
 }

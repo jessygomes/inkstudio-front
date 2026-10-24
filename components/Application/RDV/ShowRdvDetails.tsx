@@ -1,3 +1,4 @@
+import ClientAvatar from "@/components/Application/Clients/ClientAvatar";
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
@@ -266,11 +267,7 @@ export default function ShowRdvDetails({
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <div className="relative shrink-0">
-              <div className="w-11 h-11 bg-gradient-to-br from-tertiary-500 to-primary-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-base leading-none">
-                  {selectedEvent.client.firstName.charAt(0).toUpperCase()}
-                </span>
-              </div>
+              <ClientAvatar client={selectedEvent.client} className="size-11 rounded-2xl" />
               <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#1a1a1a] ${statusCfg.dot}`} />
             </div>
             <div className="min-w-0">

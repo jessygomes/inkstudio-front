@@ -11,6 +11,7 @@ import {
   Copy,
   MapPin,
   Pencil,
+  Gem,
   Plus,
   QrCode,
   ShieldCheck,
@@ -163,10 +164,10 @@ export default function InfoSalon({ salon }: { salon: UpdateSalonUserProps }) {
                 </p>
               </div>
             </div>
-            <DashboardButton href={editHref} variant="secondary">
-              <Pencil size={15} aria-hidden="true" />
-              Modifier le profil
-            </DashboardButton>
+            <div className="flex shrink-0 items-center gap-2">
+              <Link href={editHref} title="Modifier le profil" aria-label="Modifier le profil" className="inline-flex size-9 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><Pencil size={15} aria-hidden="true" /></Link>
+              <Link href="/mon-compte/piercing" title="Configurer les piercings" aria-label="Configurer les piercings" className="inline-flex size-9 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><Gem size={16} aria-hidden="true" /></Link>
+            </div>
           </div>
         </div>
       </section>

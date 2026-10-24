@@ -1,6 +1,7 @@
 "use client";
 import { ImagePlus, FileText, Save, LoaderCircle } from "lucide-react";
 import FormSectionHeader from "@/components/Shared/FormSectionHeader";
+import SideFormDrawer from "@/components/Shared/SideFormDrawer";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import { createOrUpdateProductAction } from "@/lib/queries/productSalon";
@@ -152,91 +153,49 @@ export default function CreateOrUpdateProduct({
   };
 
   return (
-    <div>
-      {/* Overlay de chargement pour l'annulation */}
-      {isClosing && (
-        <div
-          data-modal
-          className="fixed inset-0 z-[10000] bg-black/70 backdrop-blur-[2px] flex items-center justify-center overflow-hidden p-3"
-          style={{ height: "100dvh", width: "100vw" }}
-        >
-          <div className="dashboard-embedded-panel w-full max-w-sm rounded-2xl border border-white/15 bg-[#1a1a1a] p-4 shadow-2xl">
-            <div className="flex items-center gap-4">
-              <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-tertiary-400"></div>
-              <div className="text-white font-one">
-                <p className="text-sm font-medium">Nettoyage en cours...</p>
-                <p className="text-[11px] text-white/60">
-                  Suppression de l&apos;image temporaire
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+    <SideFormDrawer category="Produits" title={existingProduct ? "Modifier un produit" : "Ajouter un produit"} description="Ajoutez une photo, une présentation claire et le prix de vente de votre produit." onClose={handleClose} busy={loading || isClosing} footer={<>
 
-      <div
-        data-modal
-        className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-[2px] p-0 sm:p-3 md:p-4 lg:flex lg:items-center lg:justify-center overflow-hidden"
-        style={{ height: "100dvh", width: "100vw" }}
-      >
-        <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none border-0 bg-[#1a1a1a] shadow-none sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)] md:max-h-[90vh]">
-          <div className="shrink-0 border-b border-white/10 bg-gradient-to-r from-tertiary-500/10 to-transparent px-4 py-5 sm:px-6">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-[0.18em] text-tertiary-400 font-one">
-                  Produits
-                </p>
-                <h2 className="mt-1 text-lg font-semibold text-white font-one sm:text-xl">
-                  {existingProduct ? "Modifier le produit" : "Ajouter un produit"}
-                </h2>
-                <p className="mt-2 text-xs leading-5 text-white/50 font-two">
-                  {existingProduct
-                    ? "Modifiez les informations de votre produit"
-                    : "Ajoutez un nouveau produit a votre boutique"}
-                </p>
-              </div>
-              <button
-                type="button"
-                aria-label="Fermer la fenêtre" onClick={handleClose}
-                disabled={isClosing || loading}
-                className="flex size-11 items-center justify-center border border-white/10 shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-tertiary-400 text-white/65 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isClosing ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                ) : (
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
-
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5 sm:py-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
-            <form
+            <DashboardButton className="!min-w-0 !rounded-xl !shadow-none"
+              type="button"
+              variant="secondary"
+              onClick={handleClose}
+              disabled={loading || isClosing}
+            >
+              {isClosing ? (
+                <>
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                  <span>Annulation...</span>
+                </>
+              ) : (
+                "Annuler"
+              )}
+            </DashboardButton>
+            <DashboardButton className="!min-w-0 !rounded-xl !shadow-none"
+              type="submit"
+              form="product-create-update-form"
+              disabled={loading || isClosing}
+            >
+              {loading ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Save size={15} aria-hidden="true" />}
+              {loading
+                ? "Enregistrement..."
+                : existingProduct
+                ? "Modifier le produit"
+                : "Ajouter le produit"}
+            </DashboardButton>
+          
+    </>}>
+<form
               id="product-create-update-form"
               onSubmit={form.handleSubmit(onSubmit)}
-              className="create-rdv-form tablet-inputs space-y-4"
+              noValidate className="space-y-4"
             >
-              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
-                <FormSectionHeader eyebrow="01 · Visuel" title="Votre produit en image" description="Choisissez une photo nette qui met en valeur votre produit." icon={<ImagePlus size={18} />} />
+              <div className="min-w-0 rounded-2xl border border-white/10 bg-noir-600 p-3.5">
+                <FormSectionHeader compact eyebrow="01 · Visuel" title="Votre produit en image" description="Choisissez une photo nette qui met en valeur votre produit." icon={<ImagePlus size={18} />} />
 
-                <SalonImageUploader
+                <SalonImageUploader compact
                   appearance="media"
                   currentImage={
-                    form.watch("imageUrl") ||
-                    existingProduct?.imageUrl ||
-                    undefined
+                    form.watch("imageUrl") || undefined
                   }
                   onImageUpload={(imageUrl) => {
                     form.setValue("imageUrl", imageUrl);
@@ -273,8 +232,8 @@ export default function CreateOrUpdateProduct({
                 )}
               </div>
 
-              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
-                <FormSectionHeader eyebrow="02 · Présentation" title="Les détails du produit" description="Renseignez son nom, sa description et son prix de vente." icon={<FileText size={18} />} />
+              <div className="min-w-0 rounded-2xl border border-white/10 bg-noir-600 p-3.5">
+                <FormSectionHeader compact eyebrow="02 · Présentation" title="Les détails du produit" description="Renseignez son nom, sa description et son prix de vente." icon={<FileText size={18} />} />
 
                 <div className="space-y-4">
                   <div className="space-y-1">
@@ -300,7 +259,7 @@ export default function CreateOrUpdateProduct({
                     <textarea id="product-description" aria-invalid={Boolean(form.formState.errors.description)}
                       placeholder="Décrivez votre produit, ses caractéristiques..."
                       {...form.register("description")}
-                      rows={4}
+                      rows={3}
                       className={`${inputClass} resize-y`}
                     />
                     {form.formState.errors.description && (
@@ -349,39 +308,6 @@ export default function CreateOrUpdateProduct({
                 </div>
               )}
             </form>
-          </div>
-
-          <div className="shrink-0 border-t border-white/10 bg-noir-700 flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-3 p-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]">
-            <DashboardButton
-              type="button"
-              variant="secondary"
-              onClick={handleClose}
-              disabled={loading || isClosing}
-            >
-              {isClosing ? (
-                <>
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                  <span>Annulation...</span>
-                </>
-              ) : (
-                "Annuler"
-              )}
-            </DashboardButton>
-            <DashboardButton
-              type="submit"
-              form="product-create-update-form"
-              disabled={loading || isClosing}
-            >
-              {loading ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Save size={15} aria-hidden="true" />}
-              {loading
-                ? "Enregistrement..."
-                : existingProduct
-                ? "Modifier le produit"
-                : "Ajouter le produit"}
-            </DashboardButton>
-          </div>
-        </div>
-      </div>
-    </div>
+    </SideFormDrawer>
   );
 }

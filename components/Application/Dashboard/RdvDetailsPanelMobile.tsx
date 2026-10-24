@@ -1,4 +1,7 @@
 "use client";
+import ClientAvatar from "@/components/Application/Clients/ClientAvatar";
+import AppointmentPhotos from "@/components/Application/RDV/AppointmentPhotos";
+
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import ConfirmRdv from "../RDV/ConfirmRdv";
@@ -97,13 +100,7 @@ export default function RdvDetailsPanelMobile({
           <div className="dashboard-embedded-header p-3.5">
             <div className="flex items-start justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500 to-tertiary-400 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-sm">
-                    {selectedAppointment.client.firstName
-                      .charAt(0)
-                      .toUpperCase()}
-                  </span>
-                </div>
+                <ClientAvatar client={selectedAppointment.client} className="size-10 rounded-xl" />
                 <div className="min-w-0 flex-1">
                   <h4 className="text-lg font-bold font-one text-white tracking-wide truncate">
                     {selectedAppointment.client.firstName}{" "}
@@ -515,8 +512,10 @@ export default function RdvDetailsPanelMobile({
             )}
 
             {/* Détails tattoo mobiles */}
+            {!selectedAppointment.tattooDetail && (<div className="dashboard-embedded-section p-3"><AppointmentPhotos appointmentId={selectedAppointment.id} /></div>)}
             {selectedAppointment.tattooDetail && (
               <div className="dashboard-embedded-section rounded-xl border border-white/10 p-3 backdrop-blur-sm">
+            <div className="mb-3"><AppointmentPhotos appointmentId={selectedAppointment.id} /></div>
                 <h5 className="mb-3 flex items-center gap-2 text-sm text-white font-one">
                   <svg className="h-4 w-4 text-tertiary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />

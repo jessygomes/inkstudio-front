@@ -143,6 +143,7 @@ export default function SalonAccount() {
         id="horaires"
         title="Horaires & disponibilités"
         description="Organisez votre semaine et gérez vos absences."
+        compact
       >
         <Horaire hours={salon.salonHours} salonId={salonId || ""} />
       </AccountSection>
@@ -179,11 +180,13 @@ function AccountSection({
   title,
   description,
   children,
+  compact = false,
 }: {
   id: string;
   title: string;
   description: string;
   children: React.ReactNode;
+  compact?: boolean;
 }) {
   return (
     <section
@@ -191,16 +194,16 @@ function AccountSection({
       aria-labelledby={id + "-title"}
       className="scroll-mt-6 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]"
     >
-      <header className="border-b border-white/8 p-5 sm:px-6">
+      <header className={compact ? "border-b border-white/[0.07] px-4 py-3 sm:px-5" : "border-b border-white/8 p-5 sm:px-6"}>
         <h2
           id={id + "-title"}
-          className="text-lg font-one font-semibold text-white"
+          className={compact ? "text-base font-one font-semibold tracking-tight text-white" : "text-lg font-one font-semibold text-white"}
         >
           {title}
         </h2>
-        <p className="mt-1 text-sm text-white/60">{description}</p>
+        <p className={compact ? "mt-1 text-xs text-white/40" : "mt-1 text-sm text-white/60"}>{description}</p>
       </header>
-      <div className="p-4 sm:p-6">{children}</div>
+      <div className={compact ? "p-3 sm:p-4" : "p-4 sm:p-6"}>{children}</div>
     </section>
   );
 }

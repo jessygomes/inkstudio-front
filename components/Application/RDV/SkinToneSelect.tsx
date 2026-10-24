@@ -55,6 +55,8 @@ export default function SkinToneSelect({
         <div
           role="radiogroup"
           aria-label="Teinte de peau"
+          aria-required={required}
+          aria-invalid={!!error}
           className="flex flex-wrap gap-3"
         >
           {options.map((option) => {
@@ -65,21 +67,24 @@ export default function SkinToneSelect({
                 key={option.value}
                 type="button"
                 role="radio"
+                aria-label={option.label}
+                title={option.label}
                 aria-checked={isSelected}
                 disabled={disabled}
                 onClick={() => onChange(option.value)}
-                className={`text-left rounded-xl border p-3 transition-all duration-200 ${
+                className={`text-left rounded-xl border p-2.5 transition-all duration-200 ${
                   isSelected
                     ? "border-tertiary-400 bg-tertiary-500/10 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
                     : "border-white/15 bg-white/5 hover:border-white/30 hover:bg-white/10"
                 } ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <span
-                    className="h-10 w-10 rounded-full border border-white/20 shadow-inner flex-shrink-0"
+                    className="h-7 w-7 rounded-full border border-white/20 shadow-inner flex-shrink-0"
                     style={{ backgroundColor: option.previewHex }}
                     aria-hidden="true"
                   />
+                  <span className="text-[11px] text-white/75">{option.label}</span>
                   {/* <div className="min-w-0">
                     <p className="text-sm text-white font-one font-medium truncate">
                       {option.label}
@@ -101,7 +106,7 @@ export default function SkinToneSelect({
         </div>
       )}
 
-      {error && <p className="text-red-300 text-xs">{error}</p>}
+      {error && <p role="alert" className="text-red-300 text-xs">{error}</p>}
     </div>
   );
 }

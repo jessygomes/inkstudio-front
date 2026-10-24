@@ -1,16 +1,17 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { PortfolioProps } from "@/lib/type";
 import { portfolioSchema, portfolioBatchSchema } from "@/lib/zod/validator.schema";
 import { ImagePlus, FileText, Save, LoaderCircle } from "lucide-react";
 import FormSectionHeader from "@/components/Shared/FormSectionHeader";
+import SideFormDrawer from "@/components/Shared/SideFormDrawer";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import BatchPhotoUploader from "./BatchPhotoUploader";
@@ -52,20 +53,21 @@ export default function CreateOrUpdatePhoto({
   onCreate,
   tatoueurs,
   existingPhoto,
+  sourcePhoto,
   setIsOpen = () => {},
 }: {
   onCreate: () => void;
   tatoueurs: PortfolioTatoueurDto[];
   existingPhoto?: PortfolioProps | null;
+  sourcePhoto?: { id: string; url: string };
   setIsOpen?: (isOpen: boolean) => void;
 }) {
   const { data: session } = useSession();
-  const router = useRouter();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [loading, setLoading] = useState(false);
   const [isClosing, setIsClosing] = useState(false); // Nouvel état pour le loader d'annulation
-  const [initialImageUrl] = useState(existingPhoto?.imageUrl || ""); // Stocker l'URL initiale
+  const [initialImageUrl] = useState(existingPhoto?.imageUrl || sourcePhoto?.url || ""); // Stocker l'URL initiale
   const [styleInput, setStyleInput] = useState("");
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [suggestions, setSuggestions] =
@@ -74,7 +76,8 @@ export default function CreateOrUpdatePhoto({
   const [batchUrls, setBatchUrls] = useState<string[]>([]);
   const [categories, setCategories] = useState<PortfolioCategoryDto[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const isBatch = !existingPhoto;
+  const sharedSourceUrl = sourcePhoto?.url || (existingPhoto?.appointmentPhotoId ? existingPhoto.imageUrl : undefined);
+  const isBatch = !existingPhoto && !sourcePhoto;
   const isUserTatoueur =
     session?.user?.role?.toLowerCase() === "user_tatoueur";
   const uniqueTatoueur = useMemo(
@@ -159,15 +162,15 @@ export default function CreateOrUpdatePhoto({
   };
 
   const form = useForm<z.infer<typeof portfolioSchema>>({
-    resolver: (existingPhoto
+    resolver: (!isBatch
       ? zodResolver(portfolioSchema)
       : zodResolver(portfolioBatchSchema)) as unknown as Resolver<
       z.infer<typeof portfolioSchema>
     >,
     defaultValues: {
-      title: existingPhoto?.title || "",
+      title: existingPhoto?.title || (sourcePhoto ? "Réalisation" : ""),
       description: existingPhoto?.description || "",
-      imageUrl: existingPhoto?.imageUrl || "",
+      imageUrl: existingPhoto?.imageUrl || sourcePhoto?.url || "",
       tatoueurId: existingPhoto?.tatoueurId || "",
       style: existingPhoto?.style || [],
       pieceSize: existingPhoto?.pieceSize || undefined,
@@ -347,11 +350,12 @@ export default function CreateOrUpdatePhoto({
         : await createOrUpdatePortfolioAction(
             {
               ...data,
+              ...(sourcePhoto ? { appointmentPhotoId: sourcePhoto.id, imageUrl: sourcePhoto.url } : {}),
               tatoueurId: resolvedTatoueurId ? resolvedTatoueurId : undefined,
               style: normalizeStyles(data.style || []),
               hashtags: normalizeHashtags(data.hashtags || []),
             },
-            "PUT",
+            existingPhoto ? "PUT" : "POST",
             url
           );
 
@@ -394,93 +398,53 @@ export default function CreateOrUpdatePhoto({
   };
 
   return (
-    <div>
-      {/* Overlay de chargement pour l'annulation */}
-      {isClosing && (
-        <div
-          data-modal
-          className="fixed inset-0 z-[10000] bg-black/70 backdrop-blur-[2px] flex items-center justify-center overflow-hidden p-3"
-          style={{ height: "100dvh", width: "100vw" }}
-        >
-          <div className="dashboard-embedded-panel w-full max-w-sm rounded-2xl border border-white/15 bg-[#1a1a1a] p-4 shadow-2xl">
-            <div className="flex items-center gap-4">
-              <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-tertiary-400"></div>
-              <div className="text-white font-one">
-                <p className="text-sm font-medium">Nettoyage en cours...</p>
-                <p className="text-[11px] text-white/60">
-                  Suppression de l'image temporaire
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+    <SideFormDrawer category="Portfolio" title={existingPhoto ? "Modifier une photo" : isBatch ? "Ajouter des photos" : "Ajouter une photo"} description="Ajoutez un visuel et les informations qui permettront de découvrir votre travail." onClose={handleClose} busy={loading || isClosing} footer={<>
 
-      <div
-        data-modal
-        className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-[2px] p-0 sm:p-3 md:p-4 lg:flex lg:items-center lg:justify-center overflow-hidden"
-        style={{ height: "100dvh", width: "100vw" }}
-      >
-        <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none border-0 bg-[#1a1a1a] shadow-none sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)] md:max-h-[90vh]">
-          <div className="shrink-0 border-b border-white/10 bg-gradient-to-r from-tertiary-500/10 to-transparent px-4 py-5 sm:px-6">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-[0.18em] text-tertiary-400 font-one">
-                  Portfolio
-                </p>
-                <h2 className="mt-1 text-lg font-semibold text-white font-one sm:text-xl">
-                  {existingPhoto ? "Modifier une photo" : "Ajouter une photo"}
-                </h2>
-                <p className="mt-2 text-xs leading-5 text-white/50 font-two">
-                  {existingPhoto
-                    ? "Mettez à jour les informations de votre visuel"
-                    : "Ajoutez un nouveau visuel dans votre portfolio"}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                aria-label="Fermer la fenêtre" onClick={handleClose}
-                disabled={isClosing || loading}
-                className="flex size-11 items-center justify-center border border-white/10 shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-tertiary-400 text-white/65 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isClosing ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                ) : (
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
-
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5 sm:py-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
-            <form
+            <DashboardButton className="!min-w-0 !rounded-xl !shadow-none"
+              type="button"
+              variant="secondary"
+              onClick={handleClose}
+              disabled={loading || isClosing}
+            >
+              {isClosing ? (
+                <>
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                  <span>Annulation...</span>
+                </>
+              ) : (
+                "Annuler"
+              )}
+            </DashboardButton>
+            <DashboardButton className="!min-w-0 !rounded-xl !shadow-none"
+              type="submit"
+              form="portfolio-create-update-form"
+              disabled={loading || isClosing}
+            >
+              {loading ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Save size={15} aria-hidden="true" />}
+              {loading
+                ? "Enregistrement..."
+                : existingPhoto
+                ? "Modifier la photo"
+                : isBatch && batchUrls.length > 1
+                ? `Ajouter ${batchUrls.length} photos`
+                : "Ajouter la photo"}
+            </DashboardButton>
+          
+    </>}>
+<form
               id="portfolio-create-update-form"
               onSubmit={form.handleSubmit(onSubmit)}
-              className="create-rdv-form tablet-inputs space-y-4"
+              noValidate className="space-y-4"
             >
               {!isBatch && (
-              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
-                <FormSectionHeader eyebrow="01 · Visuel" title="Votre réalisation" description="Montrez les détails de votre travail avec une photo nette." icon={<ImagePlus size={18} />} />
+              <div className="min-w-0 rounded-2xl border border-white/10 bg-noir-600 p-3.5">
+                <FormSectionHeader compact eyebrow="01 · Visuel" title="Votre réalisation" description="Montrez les détails de votre travail avec une photo nette." icon={<ImagePlus size={18} />} />
 
-                <SalonImageUploader
+                {sharedSourceUrl ? <div className="relative mx-auto h-48 w-full max-w-sm overflow-hidden rounded-xl bg-black/20 sm:h-56"><Image src={sharedSourceUrl} alt="Photo du rendez-vous à ajouter au portfolio" fill sizes="(max-width: 640px) 90vw, 384px" unoptimized className="object-contain" /></div> : (
+                <SalonImageUploader compact
                   appearance="media"
                   currentImage={
-                    form.watch("imageUrl") ||
-                    existingPhoto?.imageUrl ||
-                    undefined
+                    form.watch("imageUrl") || undefined
                   }
                   onImageUpload={(imageUrl) => {
                     form.setValue("imageUrl", imageUrl);
@@ -509,6 +473,7 @@ export default function CreateOrUpdatePhoto({
                     form.setValue("imageUrl", "");
                   }}
                 />
+                )}
 
                 {form.formState.errors.imageUrl && (
                   <p className="mt-2 text-xs text-red-300 font-one">
@@ -518,8 +483,19 @@ export default function CreateOrUpdatePhoto({
               </div>
               )}
 
-              <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
-                <FormSectionHeader eyebrow={isBatch ? "01 · Informations communes" : "02 · Présentation"} title={isBatch ? "Définissez votre lot" : "Présentez ce tatouage"} description={isBatch ? "Ces informations seront appliquées à toutes les photos du lot." : "Ajoutez un titre, son artiste et les styles qui le caractérisent."} icon={<FileText size={18} />} />
+              {isBatch && (
+                <div className="min-w-0 rounded-2xl border border-white/10 bg-noir-600 p-3.5">
+                  <FormSectionHeader compact eyebrow="01 · Visuels" title="Vos réalisations" description="Ajoutez autant de photos que vous le souhaitez (50 max). Elles recevront toutes les informations ci-dessus." icon={<ImagePlus size={18} />} />
+                  <BatchPhotoUploader
+                    urls={batchUrls}
+                    onChange={setBatchUrls}
+                    disabled={loading}
+                  />
+                </div>
+              )}
+
+              <div className="min-w-0 rounded-2xl border border-white/10 bg-noir-600 p-3.5">
+                <FormSectionHeader compact eyebrow={isBatch ? "02 · Informations communes" : "02 · Présentation"} title={isBatch ? "Définissez votre lot" : "Présentez ce tatouage"} description={isBatch ? "Ces informations seront appliquées à toutes les photos du lot." : "Ajoutez un titre, son artiste et les styles qui le caractérisent."} icon={<FileText size={18} />} />
 
                 <div className="space-y-4">
                   <div className="space-y-1">
@@ -531,7 +507,7 @@ export default function CreateOrUpdatePhoto({
                       {...form.register("pieceSize", {
                         setValueAs: (v) => (v === "" ? undefined : v),
                       })}
-                      className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                      className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                     >
                       <option value="" className="bg-noir-500">
                         Choisir une taille
@@ -575,7 +551,7 @@ export default function CreateOrUpdatePhoto({
                               type="button"
                               aria-pressed={selected}
                               onClick={() => toggleCategory(cat.id)}
-                              className={`cursor-pointer rounded-full border px-3 py-1.5 text-[11px] transition-colors font-one ${
+                              className={`cursor-pointer rounded-lg border px-2.5 py-1 text-[11px] transition-colors font-one ${
                                 selected
                                   ? "border-tertiary-400/60 bg-tertiary-500/20 text-white"
                                   : "border-white/12 bg-white/5 text-white/65 hover:bg-white/10"
@@ -597,7 +573,7 @@ export default function CreateOrUpdatePhoto({
                     <input id="portfolio-title" aria-invalid={Boolean(form.formState.errors.title)}
                       placeholder="Donnez un titre à votre tatouage"
                       {...form.register("title")}
-                      className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                      className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                     />
                     {form.formState.errors.title && (
                       <p className="mt-1 text-xs text-red-300 font-one">
@@ -630,7 +606,7 @@ export default function CreateOrUpdatePhoto({
                     ) : (
                       <select
                         {...form.register("tatoueurId")}
-                        className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                       >
                         <option value="" className="bg-noir-500">
                           Aucun tatoueur assigné
@@ -673,7 +649,7 @@ export default function CreateOrUpdatePhoto({
                         onBlur={() => setSuggestOpen(false)}
                         autoComplete="off"
                         placeholder="Ex: Blackwork, Fine Line, Réaliste"
-                        className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                       />
                       <button
                         type="button"
@@ -737,7 +713,7 @@ export default function CreateOrUpdatePhoto({
                         {(form.watch("style") || []).map((style) => (
                           <span
                             key={style}
-                            className="inline-flex items-center gap-1 rounded-full border border-tertiary-400/35 bg-tertiary-500/10 px-2 py-1 text-[11px] text-white font-one"
+                            className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white font-one"
                           >
                             {style}
                             <button
@@ -777,7 +753,7 @@ export default function CreateOrUpdatePhoto({
                         }}
                         onBlur={addHashtagsFromInput}
                         placeholder="Ex: #blackwork, #fineline"
-                        className="w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two"
                       />
                       <button
                         type="button"
@@ -817,7 +793,7 @@ export default function CreateOrUpdatePhoto({
                     <textarea id="portfolio-description" aria-invalid={Boolean(form.formState.errors.description)}
                       placeholder="Décrivez votre œuvre, le style, la technique utilisée..."
                       {...form.register("description")}
-                      rows={4}
+                      rows={3}
                       className="h-24 w-full resize-y rounded-xl border border-white/10 bg-white/6 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
                     />
                     {form.formState.errors.description && (
@@ -830,114 +806,7 @@ export default function CreateOrUpdatePhoto({
                 </div>
               </div>
 
-              {isBatch && (
-                <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
-                  <FormSectionHeader eyebrow="02 · Visuels" title="Vos réalisations" description="Ajoutez autant de photos que vous le souhaitez (50 max). Elles recevront toutes les informations ci-dessus." icon={<ImagePlus size={18} />} />
-                  <BatchPhotoUploader
-                    urls={batchUrls}
-                    onChange={setBatchUrls}
-                    disabled={loading}
-                  />
-                </div>
-              )}
-
-              {error && error === "SAAS_LIMIT" ? (
-                <div className="dashboard-embedded-section border-orange-500/35 bg-gradient-to-r from-orange-500/12 to-red-500/12 p-3">
-                  <div className="flex items-start gap-2">
-                    <div className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-orange-500/30">
-                      <svg
-                        className="w-3 h-3 text-orange-300"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="mb-1 text-xs font-semibold text-orange-300 font-one">
-                        Limite d'images portfolio atteinte
-                      </h3>
-
-                      <p className="mb-2 text-xs text-orange-200 font-one">
-                        Vous avez atteint la limite d'images portfolio de votre
-                        plan actuel.
-                      </p>
-
-                      <div className="mb-2 rounded-lg border border-white/10 bg-white/6 p-2">
-                        <h4 className="mb-1 text-xs font-semibold text-white font-one">
-                          Solutions disponibles
-                        </h4>
-                        <div className="space-y-1 text-xs">
-                          <div className="flex items-start gap-1">
-                            <div className="mt-0.5 flex h-3 w-3 flex-shrink-0 items-center justify-center rounded-full bg-tertiary-500/30">
-                              <span className="text-tertiary-400 text-[8px] font-bold">
-                                1
-                              </span>
-                            </div>
-                            <div className="text-white/90">
-                              <span className="font-semibold text-tertiary-400">
-                                Plan PRO (29€/mois)
-                              </span>
-                              <br />
-                              <span className="text-white/70 text-[10px]">
-                                Images portfolio illimitées + fonctionnalités
-                                avancées
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-start gap-1">
-                            <div className="mt-0.5 flex h-3 w-3 flex-shrink-0 items-center justify-center rounded-full bg-fuchsia-500/30">
-                              <span className="text-purple-400 text-[8px] font-bold">
-                                2
-                              </span>
-                            </div>
-                            <div className="text-white/90">
-                              <span className="font-semibold text-purple-400">
-                                Plan BUSINESS (69€/mois)
-                              </span>
-                              <br />
-                              <span className="text-white/70 text-[10px]">
-                                Solution complète multi-salons
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            router.push("/parametres");
-                          }}
-                          className="cursor-pointer inline-flex items-center justify-center rounded-[10px] bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-2.5 py-1 text-xs font-medium text-white transition-all duration-200 hover:from-tertiary-500 hover:to-tertiary-600 font-one"
-                        >
-                          Changer de plan
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setError("")}
-                          className="cursor-pointer inline-flex items-center justify-center rounded-[10px] border border-white/15 bg-white/8 px-2.5 py-1 text-xs font-medium text-white/85 transition-colors hover:bg-white/12 font-one"
-                        >
-                          Fermer
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : error ? (
-                <div role="alert" className="rounded-xl border border-red-500/45 bg-red-500/14 p-3">
-                  <p className="text-xs text-red-300 font-one">{error}</p>
-                </div>
-              ) : null}
+              {error && <div role="alert" className="rounded-xl border border-red-400/20 bg-red-400/5 p-3"><p className="text-xs leading-5 text-red-200">{error === "SAAS_LIMIT" ? "La limite de votre abonnement est atteinte." : error}</p>{error === "SAAS_LIMIT" && <DashboardButton href="/parametres" variant="secondary" className="mt-3 !min-w-0 !rounded-lg !text-[11px]">Voir mon abonnement</DashboardButton>}</div>}
 
               {success && (
                 <div role="status" className="rounded-xl border border-emerald-500/40 bg-emerald-500/14 p-3">
@@ -945,41 +814,6 @@ export default function CreateOrUpdatePhoto({
                 </div>
               )}
             </form>
-          </div>
-
-          <div className="shrink-0 border-t border-white/10 bg-noir-700 flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-3 p-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]">
-            <DashboardButton
-              type="button"
-              variant="secondary"
-              onClick={handleClose}
-              disabled={loading || isClosing}
-            >
-              {isClosing ? (
-                <>
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                  <span>Annulation...</span>
-                </>
-              ) : (
-                "Annuler"
-              )}
-            </DashboardButton>
-            <DashboardButton
-              type="submit"
-              form="portfolio-create-update-form"
-              disabled={loading || isClosing}
-            >
-              {loading ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Save size={15} aria-hidden="true" />}
-              {loading
-                ? "Enregistrement..."
-                : existingPhoto
-                ? "Modifier la photo"
-                : isBatch && batchUrls.length > 1
-                ? `Ajouter ${batchUrls.length} photos`
-                : "Ajouter la photo"}
-            </DashboardButton>
-          </div>
-        </div>
-      </div>
-    </div>
+    </SideFormDrawer>
   );
 }

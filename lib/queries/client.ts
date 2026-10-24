@@ -9,6 +9,30 @@ export type ClientSearchResult = {
   userClients?: any[];
 };
 
+export async function getClientAccountPhotoAction(linkedUserId?: string | null, email?: string | null): Promise<string | null> {
+  try {
+    let accountId = linkedUserId?.trim();
+    if (!accountId && email?.trim()) {
+      const normalizedEmail = email.trim().toLowerCase();
+      const results = await searchClientsAction(normalizedEmail);
+      const existingClient = results.clients?.find((item) => typeof item.email === "string" && item.email.trim().toLowerCase() === normalizedEmail);
+      const account = results.userClients?.find((item) => typeof item.email === "string" && item.email.trim().toLowerCase() === normalizedEmail);
+      accountId = typeof existingClient?.linkedUserId === "string" ? existingClient.linkedUserId
+        : typeof account?.id === "string" ? account.id : undefined;
+    }
+    if (!accountId) return null;
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/users/${encodeURIComponent(accountId)}`, {
+      headers: await getAuthHeaders(), cache: "no-store",
+    });
+    if (!response.ok) return null;
+    const account = await response.json();
+    return account?.role === "client" && typeof account.image === "string" && account.image.trim()
+      ? account.image : null;
+  } catch {
+    return null;
+  }
+}
+
 //! ----------------------------------------------------------------------------
 
 //! RECHERCHER UN CLIENT PAR NOM OU EMAIL

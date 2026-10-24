@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
-import { CalendarDays, CalendarCheck, Plus, X } from "lucide-react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { CalendarDays, CalendarCheck, Plus, X, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import CreateBlockedSlot from "./CreateBlockedSlot";
 import DashboardButton from "@/components/Shared/DashboardButton";
@@ -40,6 +40,30 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [slotToDelete, setSlotToDelete] = useState<BlockedSlot | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const confirmation = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isDeleteModalOpen) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    confirmation.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (!isDeleting) { setIsDeleteModalOpen(false); setSlotToDelete(null); }
+      }
+      if (event.key === "Tab") {
+        const buttons = Array.from(confirmation.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") || []);
+        const first = buttons[0];
+        const last = buttons[buttons.length - 1];
+        if (!first) { event.preventDefault(); return; }
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener("keydown", handleKey, true);
+    return () => { document.removeEventListener("keydown", handleKey, true); previousFocus?.focus(); };
+  }, [isDeleteModalOpen, isDeleting]);
 
   // Fetch des créneaux bloqués
   const fetchBlockedSlots = useCallback(async () => {
@@ -152,18 +176,18 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
 
   return (
     <>
-      <div className="space-y-5 font-one">
+      <div className="space-y-3 font-one [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_select]:cursor-pointer">
         {/* Barre: filtre + compteur + bouton */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="w-full sm:max-w-xs">
-          <label htmlFor="blocked-artist" className="mb-2 block text-xs text-white/60">Afficher les indisponibilités de</label>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+          <label htmlFor="blocked-artist" className="sr-only">Afficher les indisponibilités de</label>
           <select
             id="blocked-artist"
             value={selectedTatoueur}
             onChange={(e) => setSelectedTatoueur(e.target.value)}
-            className="w-full min-h-11 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white/80 text-sm font-one focus:outline-none focus:border-tertiary-400/50 transition-colors"
+            className="min-w-0 max-w-56 min-h-9 cursor-pointer px-2.5 py-2 bg-noir-700/70 border border-white/10 rounded-lg text-white/70 text-[11px] font-one focus:outline-none focus:border-tertiary-400/50 transition-colors"
           >
-            <option value="all" className="bg-noir-500">Tous</option>
+            <option value="all" className="bg-noir-500">Tous les artistes et le salon</option>
             <option value="salon" className="bg-noir-500">Salon complet</option>
             {tatoueurs.map((tatoueur) => (
               <option key={tatoueur.id} value={tatoueur.id} className="bg-noir-500">
@@ -171,21 +195,21 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
               </option>
             ))}
           </select>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-white/60 font-one text-xs shrink-0">
+          <span role="status" className="text-white/35 text-[10px] shrink-0">
             {filteredSlots.length} bloqué{filteredSlots.length > 1 ? "s" : ""}
           </span>
+          </div>
           <DashboardButton
             onClick={() => setIsCreateModalOpen((prev) => !prev)}
             variant="secondary"
+            className="!min-h-9 !min-w-0 !rounded-lg !px-3 !py-2 !text-[11px]"
+            aria-expanded={isCreateModalOpen}
           >
             {isCreateModalOpen ? <X size={13} aria-hidden="true" /> : <Plus size={15} aria-hidden="true" />}
             <span>
               {isCreateModalOpen ? "Fermer" : "Bloquer un créneau"}
             </span>
           </DashboardButton>
-          </div>
         </div>
 
         {/* Formulaire de création inline */}
@@ -214,39 +238,39 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
         )}
 
         {!error && (filteredSlots.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-5 py-8 text-center"><CalendarCheck size={28} className="mx-auto mb-3 text-tertiary-400" aria-hidden="true" /><p className="text-base text-white">Aucun créneau bloqué</p><p className="mt-2 text-sm text-white/55">Aucune indisponibilité enregistrée pour cette sélection.</p></div>
+          <div className="flex items-center gap-3 rounded-xl border border-dashed border-white/10 bg-black/10 px-4 py-5"><CalendarCheck size={20} className="shrink-0 text-emerald-400/70" aria-hidden="true" /><div><p className="text-xs font-medium text-white/75">Aucun créneau bloqué</p><p className="mt-1 text-[11px] text-white/35">Aucune indisponibilité pour cette sélection.</p></div></div>
         ) : (
-          <div className="space-y-5 max-h-[480px] overflow-y-auto pr-1">
+          <div className="space-y-3">
             {Object.entries(groupedSlots)
               .map(([date, slots]) => (
-                <div key={date} className="space-y-2">
-                  <h4 className="flex items-center gap-2 text-sm text-white/65"><CalendarDays size={15} aria-hidden="true" />{date}<span className="h-px flex-1 bg-white/8" /></h4>
+                <div key={date} className="space-y-1.5">
+                  <h4 className="flex items-center gap-2 text-[10px] text-white/40"><CalendarDays size={12} aria-hidden="true" />{date}<span className="h-px flex-1 bg-white/[0.06]" /></h4>
                   {slots.map((slot) => (
                     <div
                       key={slot.id}
-                      className="flex flex-wrap items-start gap-3 bg-white/[0.025] border border-white/10 rounded-2xl p-4 hover:bg-white/[0.04] transition-colors"
+                      className="flex items-start gap-2.5 bg-black/10 border border-white/[0.07] rounded-xl px-3 py-2.5 hover:bg-white/[0.025] transition-colors"
                     >
                       <div
-                        className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
+                        className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
                           slot.tatoueurId ? "bg-orange-400" : "bg-red-400"
                         }`}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-white font-one text-sm font-medium truncate">
+                        <p className="text-white/80 font-one text-xs font-medium truncate">
                           {slot.tatoueur?.name || "Salon complet"}
                         </p>
-                        <p className="text-white/65 font-one text-sm leading-6 mt-1">
-                          <span className="block"><span className="text-white/40">Du </span>{formatDateTime(slot.startDate)}</span><span className="block"><span className="text-white/40">Au </span>{formatDateTime(slot.endDate)}</span>
+                        <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-white/45 font-one text-[11px] leading-5 mt-0.5">
+                          <span>{formatDateTime(slot.startDate)}</span><ArrowRight size={11} className="text-white/25" aria-label="jusqu’au" /><span>{formatDateTime(slot.endDate)}</span>
                         </p>
                         {slot.reason && (
-                          <p className="text-white/55 font-one text-sm break-words mt-2">
+                          <p className="text-white/35 font-one text-[11px] break-words mt-1">
                             &ldquo;{slot.reason}&rdquo;
                           </p>
                         )}
                       </div>
                       <button
                         onClick={() => openDeleteModal(slot)}
-                        className="cursor-pointer shrink-0 text-white/60 hover:text-white font-one text-xs border border-white/10 rounded-lg px-3 py-1.5 hover:bg-white/5 transition-colors mt-0.5"
+                        className="cursor-pointer shrink-0 text-white/45 hover:text-white font-one text-[10px] border border-white/10 rounded-lg px-2 py-1.5 hover:bg-white/5 transition-colors"
                       >
                         Débloquer
                       </button>
@@ -263,6 +287,10 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
       {isDeleteModalOpen && slotToDelete && (
         <div
           data-modal
+          ref={confirmation}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Débloquer le créneau"
           className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-hidden"
           style={{ height: "100dvh", width: "100vw" }}
         >
@@ -282,6 +310,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
                   </p>
                 </div>
                 <button
+                  aria-label="Fermer la confirmation de déblocage"
                   onClick={closeDeleteModal}
                   disabled={isDeleting}
                   className="p-1 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50 ml-2"

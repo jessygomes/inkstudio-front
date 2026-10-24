@@ -1,3 +1,4 @@
+import AppointmentPhotos from "@/components/Application/RDV/AppointmentPhotos";
 import { ReactNode } from "react";
 import Image from "next/image";
 import { Check, MoreHorizontal, CreditCard, FileText, Image as ImageIcon, MapPin, Ruler } from "lucide-react";
@@ -6,6 +7,7 @@ import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTon
 import { openImageInNewTab } from "@/lib/utils/openImage";
 
 type AppointmentInformation = Omit<Pick<AppointmentProps, "start" | "end" | "prestation" | "tatoueur" | "skin" | "tattooDetail">, "start" | "end" | "prestation" | "skin"> & {
+  id: string;
   start: string | Date;
   end: string | Date;
   prestation?: string;
@@ -116,7 +118,7 @@ export function RdvPrestationCard({ appointment: selectedEvent, price, piercingZ
   const tattooDetail = selectedEvent.tattooDetail;
   const displayPrice = price ?? tattooDetail?.price ?? tattooDetail?.estimatedPrice;
   const hasPrice = typeof displayPrice === "number" && displayPrice > 0;
-  return (<>{tattooDetail && (
+  return (<>{(tattooDetail || selectedEvent.id) && (
           <div className="dashboard-embedded-section overflow-hidden p-3">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
@@ -133,32 +135,32 @@ export function RdvPrestationCard({ appointment: selectedEvent, price, piercingZ
             </div>
 
             <div className="space-y-2.5">
-              {tattooDetail.description && (
+              {tattooDetail?.description && (
                 <div className="rounded-2xl border border-white/8 bg-black/10 p-3">
                   <div className="mb-2 flex items-center gap-2">
                     <FileText size={13} className="text-white/40" />
                     <p className="text-[9px] font-medium uppercase tracking-wider text-white/35 font-one">Description</p>
                   </div>
-                  <p className="text-xs leading-relaxed text-white/80 font-one">{tattooDetail.description}</p>
+                  <p className="text-xs leading-relaxed text-white/80 font-one">{tattooDetail?.description}</p>
                 </div>
               )}
 
-              {(tattooDetail.zone ||
-                tattooDetail.size ||
+              {(tattooDetail?.zone ||
+                tattooDetail?.size ||
                 selectedEvent.skin ||
-                tattooDetail.piercingZone ||
+                tattooDetail?.piercingZone ||
                 piercingZoneName) && (
                 <div className="grid grid-cols-2 gap-2">
-                  {tattooDetail.zone && (
+                  {tattooDetail?.zone && (
                     <div className="flex min-w-0 items-center gap-2 rounded-xl border border-white/8 bg-white/[0.035] px-2.5 py-2">
                       <MapPin size={13} className="shrink-0 text-tertiary-300/80" />
-                      <span className="min-w-0 truncate text-[11px] text-white/75 font-one"><span className="mr-1 text-[9px] text-white/35">Zone</span>{tattooDetail.zone}</span>
+                      <span className="min-w-0 truncate text-[11px] text-white/75 font-one"><span className="mr-1 text-[9px] text-white/35">Zone</span>{tattooDetail?.zone}</span>
                     </div>
                   )}
-                  {tattooDetail.size && (
+                  {tattooDetail?.size && (
                     <div className="flex min-w-0 items-center gap-2 rounded-xl border border-white/8 bg-white/[0.035] px-2.5 py-2">
                       <Ruler size={13} className="shrink-0 text-tertiary-300/80" />
-                      <span className="min-w-0 truncate text-[11px] text-white/75 font-one"><span className="mr-1 text-[9px] text-white/35">Taille</span>{tattooDetail.size}</span>
+                      <span className="min-w-0 truncate text-[11px] text-white/75 font-one"><span className="mr-1 text-[9px] text-white/35">Taille</span>{tattooDetail?.size}</span>
                     </div>
                   )}
                   {selectedEvent.skin && (
@@ -167,9 +169,9 @@ export function RdvPrestationCard({ appointment: selectedEvent, price, piercingZ
                       {formatSkinTone(selectedEvent.skin)}
                     </span>
                   )}
-                  {tattooDetail.piercingZone && (
+                  {tattooDetail?.piercingZone && (
                     <span className="inline-flex min-w-0 items-center gap-1 rounded-xl border border-white/8 bg-white/[0.035] px-2.5 py-2 text-[11px] font-one text-white/75">
-                      <span className="text-white/40 text-[9px]">Piercing</span> {tattooDetail.piercingZone}
+                      <span className="text-white/40 text-[9px]">Piercing</span> {tattooDetail?.piercingZone}
                     </span>
                   )}
                   {piercingZoneName && (
@@ -185,7 +187,7 @@ export function RdvPrestationCard({ appointment: selectedEvent, price, piercingZ
                   <div className="flex items-center gap-2">
                     <CreditCard size={14} className="text-emerald-300" />
                     <span className="text-[9px] uppercase tracking-wider text-white/45 font-one">
-                    {tattooDetail.price ? "Prix final" : "Estimation"}
+                    {tattooDetail?.price ? "Prix final" : "Estimation"}
                     </span>
                   </div>
                   <span className="text-base font-bold text-white font-one">
@@ -195,30 +197,30 @@ export function RdvPrestationCard({ appointment: selectedEvent, price, piercingZ
                 </div>
               )}
 
-              {(tattooDetail.reference || tattooDetail.sketch) && (
+              {(tattooDetail?.reference || tattooDetail?.sketch) && (
                 <div>
                   <div className="mb-2 flex items-center gap-2">
                     <ImageIcon size={13} className="text-white/40" />
                     <p className="text-[9px] font-medium uppercase tracking-wider text-white/35 font-one">Références visuelles</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    {tattooDetail.reference && (
+                    {tattooDetail?.reference && (
                       <button
-                        onClick={() => openImageInNewTab(tattooDetail.reference as string)}
+                        onClick={() => openImageInNewTab(tattooDetail?.reference as string)}
                         className="group relative h-28 w-full cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-white/5"
                       >
-                        <Image src={tattooDetail.reference} alt="Référence" fill className="object-cover group-hover:scale-105 transition-transform duration-200" />
+                        <Image src={tattooDetail?.reference} alt="Référence" fill className="object-cover group-hover:scale-105 transition-transform duration-200" />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-end justify-center pb-2">
                           <span className="text-[10px] font-one text-white/0 group-hover:text-white/90 transition-colors font-medium">Référence</span>
                         </div>
                       </button>
                     )}
-                    {tattooDetail.sketch && (
+                    {tattooDetail?.sketch && (
                       <button
-                        onClick={() => openImageInNewTab(tattooDetail.sketch as string)}
+                        onClick={() => openImageInNewTab(tattooDetail?.sketch as string)}
                         className="group relative h-28 w-full cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-white/5"
                       >
-                        <Image src={tattooDetail.sketch} alt="Croquis" fill className="object-cover group-hover:scale-105 transition-transform duration-200" />
+                        <Image src={tattooDetail?.sketch} alt="Croquis" fill className="object-cover group-hover:scale-105 transition-transform duration-200" />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-end justify-center pb-2">
                           <span className="text-[10px] font-one text-white/0 group-hover:text-white/90 transition-colors font-medium">Croquis</span>
                         </div>
@@ -227,6 +229,7 @@ export function RdvPrestationCard({ appointment: selectedEvent, price, piercingZ
                   </div>
                 </div>
               )}
+              <AppointmentPhotos appointmentId={selectedEvent.id} />
               {children}
             </div>
           </div>

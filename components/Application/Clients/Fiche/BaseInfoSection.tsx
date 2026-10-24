@@ -6,95 +6,52 @@ import {
 } from "lucide-react";
 import type { ClientProps } from "@/lib/type";
 
-interface BaseInfoSectionProps { client: ClientProps }
+interface BaseInfoSectionProps { client: ClientProps; onOpenConsent: () => void }
 
 const emptyValue = "Non renseigné";
 
-export default function BaseInfoSection({ client }: BaseInfoSectionProps) {
+export default function BaseInfoSection({ client, onOpenConsent }: BaseInfoSectionProps) {
   const tags = (Array.isArray(client.tags) ? client.tags : client.tags?.split(",") ?? [])
     .map((tag) => tag.trim()).filter(Boolean);
-  return (
-    <section aria-label="Informations du profil" className="grid items-stretch gap-3 lg:grid-cols-3">
-        <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.025] p-4 lg:col-span-2">
-          <SectionHeading icon={Mail} title="Coordonnées" />
-          <dl className="mt-2 grid gap-x-5 gap-y-1 sm:grid-cols-2 xl:grid-cols-3">
-            <InfoItem icon={UserRound} label="Prénom">
-              {client.firstName ? client.firstName : emptyValue}
-            </InfoItem>
-            <InfoItem icon={UserRound} label="Nom">
-              {client.lastName ? client.lastName : emptyValue}
-            </InfoItem>
-            <InfoItem icon={CalendarDays} label="Date de naissance">{formatDate(client.birthDate)}</InfoItem>
-            <InfoItem icon={Mail} label="E-mail">
-              {client.email ? <a className="transition-colors hover:text-tertiary-400" href={`mailto:${client.email}`}>{client.email}</a> : emptyValue}
-            </InfoItem>
-            <InfoItem icon={Phone} label="Téléphone">
-              {client.phone ? <a className="transition-colors hover:text-tertiary-400" href={`tel:${client.phone}`}>{client.phone}</a> : emptyValue}
-            </InfoItem>
-            <InfoItem icon={MapPin} label="Adresse">{client.address || emptyValue}</InfoItem>
-          </dl>
-        </article>
-        <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-          <SectionHeading icon={ShieldCheck} title="Statut du profil" />
-          <dl className="mt-3 divide-y divide-white/[0.07]">
-            <StatusRow icon={UsersRound} label="Âge légal" positive={!client.isMinor} positiveLabel="Majeur" negativeLabel="Mineur" warning />
-            <StatusRow icon={Megaphone} label="Communication marketing" positive={Boolean(client.marketingConsent)} positiveLabel="Autorisée" negativeLabel="Refusée" />
-          </dl>
-        </article>
-        <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-          <SectionHeading icon={Tag} title="Repères client" />
-          {tags.length > 0 ? (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {tags.map((tag, index) => <span key={`${tag}-${index}`} className="rounded-full border border-tertiary-400/20 bg-tertiary-400/[0.08] px-3 py-1.5 text-[11px] font-medium text-tertiary-400 font-one">{tag}</span>)}
-            </div>
-          ) : (
-            <p className="mt-3 text-xs text-white/55 font-two">Aucun tag enregistré</p>
-          )}
-        </article>
-        <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-          <SectionHeading icon={FileText} title="Consentement" />
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.07] pt-3">
-            <div className="flex min-w-0 items-start gap-3">
-              <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${client.consentSigned ? "bg-emerald-400/10 text-emerald-300" : "bg-amber-400/10 text-amber-300"}`}>
-                {client.consentSigned ? <Check size={17} /> : <CircleAlert size={17} />}
-              </div>
-              <div className="min-w-0">
-                <p className={`text-sm font-medium font-one ${client.consentSigned ? "text-emerald-200" : "text-amber-200"}`}>{client.consentSigned ? "Signé" : "En attente de signature"}</p>
-                <p className="mt-1 text-xs leading-relaxed text-white/50 font-two">
-                  {client.consentSignedAt ? `Signé le ${formatDate(client.consentSignedAt)}` : "Aucune date de signature enregistrée"}
-                </p>
-              </div>
-            </div>
-            {client.consentFileUrl && (
-              <a href={client.consentFileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-tertiary-400/30 bg-tertiary-400/10 px-4 text-xs font-semibold text-tertiary-400 transition-all hover:border-tertiary-400/50 hover:bg-tertiary-400/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400/50 font-one">
-                Voir le document <ExternalLink size={14} aria-hidden="true" />
-              </a>
-            )}
-          </div>
-        </article>
-        <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-          <SectionHeading icon={UserRound} title="Tuteur légal" />
-          <div className="mt-3 border-t border-white/[0.07] pt-3">
-            <p className="text-sm font-medium text-white font-two">{client.guardianName || emptyValue}</p>
-            {client.guardianPhone ? (
-              <a href={`tel:${client.guardianPhone}`} className="mt-2 inline-flex items-center gap-2 text-xs text-white/55 transition-colors hover:text-tertiary-400 font-two">
-                <Phone size={13} aria-hidden="true" />{client.guardianPhone}
-              </a>
-            ) : <p className="mt-2 text-xs text-white/35 font-two">Aucun numéro associé</p>}
-          </div>
-        </article>
-    </section>
-  );
+  return <section aria-label="Informations du profil" className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+    <article className="min-w-0 rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-5">
+      <SectionHeading icon={UserRound} title="Identité & coordonnées" />
+      <dl className="mt-3 grid gap-x-6 gap-y-0 divide-white/[0.06] sm:grid-cols-2">
+        <InfoItem icon={UserRound} label="Prénom">{client.firstName || emptyValue}</InfoItem>
+        <InfoItem icon={UserRound} label="Nom">{client.lastName || emptyValue}</InfoItem>
+        <InfoItem icon={Mail} label="Email">{client.email ? <a className="cursor-pointer hover:text-white" href={"mailto:" + client.email}>{client.email}</a> : emptyValue}</InfoItem>
+        <InfoItem icon={Phone} label="Téléphone">{client.phone ? <a className="cursor-pointer hover:text-white" href={"tel:" + client.phone}>{client.phone}</a> : emptyValue}</InfoItem>
+        <InfoItem icon={CalendarDays} label="Date de naissance">{formatDate(client.birthDate)}</InfoItem>
+        <InfoItem icon={MapPin} label="Adresse">{client.address || emptyValue}</InfoItem>
+      </dl>
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/[0.07] pt-4"><span className="mr-1 inline-flex items-center gap-1.5 text-[10px] text-white/35"><Tag size={12} />Tags</span>{tags.length ? tags.map((tag, index) => <span key={tag + index} className="rounded-lg border border-white/[0.08] bg-white/5 px-2 py-1 text-[10px] text-white/65">{tag}</span>) : <span className="text-[11px] text-white/30">Aucun tag renseigné</span>}</div>
+    </article>
+    <div className="min-w-0 space-y-4">
+      <article className="rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-5">
+        <SectionHeading icon={FileText} title="Consentement" />
+        <div className="mt-4 flex items-start gap-2.5"><span className={"mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg " + (client.consentSigned ? "bg-emerald-400/10 text-emerald-400" : "bg-amber-400/10 text-amber-300")}>{client.consentSigned ? <Check size={14} /> : <CircleAlert size={14} />}</span><div><p className={"text-xs font-medium " + (client.consentSigned ? "text-emerald-400" : "text-amber-300")}>{client.consentSigned ? "Document signé" : "Signature en attente"}</p><p className="mt-1 text-[11px] leading-5 text-white/35">{client.consentSignedAt ? "Signé le " + formatDate(client.consentSignedAt) : "Aucune date de signature renseignée"}</p></div></div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button type="button" onClick={onOpenConsent} aria-haspopup="dialog" className="inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] text-white/75 transition hover:bg-white/10 hover:text-white"><FileText size={12} aria-hidden="true" />{client.consentSigned ? "Ouvrir le formulaire" : "Remplir le consentement"}</button>
+          {client.consentFileUrl && <a href={client.consentFileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] text-white/65 transition hover:bg-white/10 hover:text-white">Consulter le document<ExternalLink size={12} aria-hidden="true" /></a>}
+        </div>
+      </article>
+      <article className="rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-5">
+        <SectionHeading icon={ShieldCheck} title="Dossier administratif" />
+        <dl className="mt-4 divide-y divide-white/[0.07]"><StatusRow icon={UsersRound} label="Statut" positive={!client.isMinor} positiveLabel="Majeur" negativeLabel="Mineur" warning /><StatusRow icon={Megaphone} label="Communications marketing" positive={!!client.marketingConsent} positiveLabel="Autorisées" negativeLabel="Non autorisées" /></dl>
+        {(client.isMinor || client.guardianName || client.guardianPhone) && <div className="mt-4 border-t border-white/[0.07] pt-4"><p className="text-[10px] font-medium text-white/40">Représentant légal</p><p className="mt-1.5 text-xs text-white/75">{client.guardianName || emptyValue}</p>{client.guardianPhone ? <a href={"tel:" + client.guardianPhone} className="mt-2 inline-flex cursor-pointer items-center gap-1.5 text-[11px] text-white/45 hover:text-white"><Phone size={12} />{client.guardianPhone}</a> : <p className="mt-1 text-[11px] text-white/30">Téléphone non renseigné</p>}</div>}
+      </article>
+    </div>
+  </section>;
 }
 
 function SectionHeading({ icon: Icon, title }: { icon: LucideIcon; title: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-tertiary-400">
+    <div className="flex items-center gap-2.5">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.03] text-white/45">
         <Icon size={16} strokeWidth={1.8} aria-hidden="true" />
       </div>
       <div className="min-w-0">
-        <h4 className="text-sm font-semibold text-white font-one">{title}</h4>
+        <h4 className="text-xs font-semibold text-white/85 font-one">{title}</h4>
       </div>
     </div>
   );
@@ -102,9 +59,9 @@ function SectionHeading({ icon: Icon, title }: { icon: LucideIcon; title: string
 
 function InfoItem({ icon: Icon, label, children }: { icon: LucideIcon; label: string; children: ReactNode }) {
   return (
-    <div className="min-w-0 py-2.5">
-      <dt className="flex items-center gap-2 text-xs font-medium text-white/55 font-one"><Icon size={13} aria-hidden="true" />{label}</dt>
-      <dd className="mt-1.5 break-words text-sm leading-relaxed text-white/85 font-two">{children}</dd>
+    <div className="min-w-0 border-b border-white/[0.06] py-3">
+      <dt className="flex items-center gap-1.5 text-[10px] font-medium text-white/35 font-one"><Icon size={13} aria-hidden="true" />{label}</dt>
+      <dd className="mt-1.5 break-words text-xs leading-5 text-white/75 font-two">{children}</dd>
     </div>
   );
 }
@@ -113,8 +70,8 @@ function StatusRow({ icon: Icon, label, positive, positiveLabel, negativeLabel, 
   const negativeClass = warning ? "border-amber-400/25 bg-amber-400/10 text-amber-200" : "border-white/10 bg-white/[0.05] text-white/55";
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0">
-      <dt className="flex items-center gap-2 text-xs text-white/55 font-two"><Icon size={14} className="text-white/35" aria-hidden="true" />{label}</dt>
-      <dd><span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold font-one ${positive ? "border-emerald-400/25 bg-emerald-400/10 text-emerald-200" : negativeClass}`}><span className={`h-1.5 w-1.5 rounded-full ${positive ? "bg-emerald-300" : warning ? "bg-amber-300" : "bg-white/40"}`} />{positive ? positiveLabel : negativeLabel}</span></dd>
+      <dt className="flex items-center gap-2 text-[11px] text-white/45 font-two"><Icon size={14} className="text-white/35" aria-hidden="true" />{label}</dt>
+      <dd><span className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-0.5 text-[10px] font-medium font-one ${positive ? "border-emerald-400/25 bg-emerald-400/10 text-emerald-200" : negativeClass}`}><span className={`h-1.5 w-1.5 rounded-full ${positive ? "bg-emerald-300" : warning ? "bg-amber-300" : "bg-white/40"}`} />{positive ? positiveLabel : negativeLabel}</span></dd>
     </div>
   );
 }

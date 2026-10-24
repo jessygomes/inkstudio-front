@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Users, CalendarCheck, Phone } from "lucide-react";
+import { Plus, Users, CalendarCheck, Search, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -12,8 +12,9 @@ import {
 } from "@/lib/queries/tatoueur";
 import { TatoueurProps } from "@/lib/type"; // Utiliser le type centralisé
 import DashboardButton from "@/components/Shared/DashboardButton";
+import TeamMemberCard, { teamMemberName } from "./TeamMemberCard";
 
-type TeamTatoueur = TatoueurProps & {
+export type TeamTatoueur = TatoueurProps & {
   canBeEditedBySalon?: boolean;
   isLinkedAccount?: boolean;
   isLinkedUser?: boolean;
@@ -53,6 +54,8 @@ export default function TatoueurSalon({
   salonId: string;
   salonHours: string | null;
 }) {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "bookable" | "linked">("all");
   const [selectedTatoueur, setSelectedTatoueur] =
     useState<TeamTatoueur | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -229,188 +232,44 @@ export default function TatoueurSalon({
     }
   };
 
+  const linkedCount = teamTatoueurs.filter(isReadOnlyLinkedTatoueur).length;
+  const query = search.trim().toLocaleLowerCase("fr");
+  const filteredTeam = teamTatoueurs.filter((member) => {
+    const matchesFilter = filter === "all" || (filter === "bookable" ? isAppointmentBookingEnabled(member) : isReadOnlyLinkedTatoueur(member));
+    const searchable = [teamMemberName(member), member.email, member.description, ...(member.style || []), ...(member.skills || [])].filter(Boolean).join(" ").toLocaleLowerCase("fr");
+    return matchesFilter && (!query || searchable.includes(query));
+  });
+
   return (
-    <div className="w-full flex flex-col font-one [&_button]:min-h-11 [&_a]:focus-visible:outline-2 [&_a]:focus-visible:outline-tertiary-400 [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-tertiary-400">
-      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-3">
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-3">
-            <Users size={21} className="text-tertiary-400" aria-hidden="true" />
-            <div><p className="text-lg font-semibold text-white">{teamTatoueurs.length}<span className="ml-2 text-sm font-normal text-white/60">artiste{teamTatoueurs.length > 1 ? "s" : ""}</span></p></div>
-          </div>
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-3">
-            <CalendarCheck size={21} className="text-emerald-300" aria-hidden="true" />
-            <p className="text-sm text-white/60"><span className="mr-2 text-lg font-semibold text-white">{rdvEnabledCount}</span>avec réservation active</p>
-          </div>
+    <div className="w-full space-y-5 font-one [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_a]:cursor-pointer [&_a:focus-visible]:outline-none [&_a:focus-visible]:ring-2 [&_a:focus-visible]:ring-tertiary-400 [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-2 [&_button:focus-visible]:ring-tertiary-400">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/45">
+          <span className="inline-flex items-center gap-2"><Users size={15} className="text-white/35" /><strong className="text-base font-semibold text-white">{teamTatoueurs.length}</strong> artiste{teamTatoueurs.length > 1 ? "s" : ""}</span>
+          <span className="inline-flex items-center gap-2"><CalendarCheck size={15} className="text-emerald-400/65" /><strong className="font-medium text-white/80">{rdvEnabledCount}</strong> avec réservation active</span>
         </div>
-        <DashboardButton href="/mon-compte/ajouter-tatoueur" >
-          <Plus size={17} aria-hidden="true" />Ajouter un tatoueur
-        </DashboardButton>
+        <DashboardButton href="/mon-compte/ajouter-tatoueur" className="!min-w-0 !rounded-xl !shadow-none"><Plus size={15} />Ajouter un tatoueur</DashboardButton>
       </div>
-      {/* Liste des tatoueurs */}
-      {teamTatoueurs.length > 0 ? (
-        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2 2xl:grid-cols-3">
-          {teamTatoueurs.map((tatoueur) => {
-            const isReadOnly = isReadOnlyLinkedTatoueur(tatoueur);
-            const derivedName = `${tatoueur.firstName || ""} ${tatoueur.lastName || ""}`.trim();
-            const displayName = tatoueur.name || derivedName || tatoueur.email || "Tatoueur";
-            const displayImage = tatoueur.img || tatoueur.image;
-            const isUnlinking = Boolean(isUnlinkingById[tatoueur.id]);
-            const isUpdatingRdv = Boolean(isUpdatingRdvById[tatoueur.id]);
-            const rdvEnabled = isAppointmentBookingEnabled(tatoueur);
 
-            return (
-              <article
-                key={tatoueur.id}
-                className="min-w-0 rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.015] p-4 flex flex-col gap-3"
-              >
-                {/* Identité */}
-                <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-tertiary-400/25 to-tertiary-500/20 border border-tertiary-400/25 overflow-hidden flex items-center justify-center flex-shrink-0">
-                    {displayImage ? (
-                      <Image
-                        src={displayImage}
-                        alt={displayName}
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-tertiary-300 font-bold font-one text-sm">
-                        {displayName.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <h4 className="min-w-0 break-words text-white font-one text-base font-semibold">
-                        {displayName}
-                      </h4>
-                      {rdvEnabled ? (
-                        <span className="shrink-0 rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs text-emerald-300">
-                          Réservation active
-                        </span>
-                      ) : (
-                        <span className="shrink-0 rounded-full bg-white/5 px-2.5 py-1 text-xs text-white/55">
-                          Réservation inactive
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-white/60 font-two text-xs leading-5 mt-1 break-words line-clamp-2">
-                      {tatoueur.description || "Aucune description"}
-                    </p>
-                    {(tatoueur.phone || tatoueur.instagram?.trim()) && (
-                      <div className="mt-2 flex items-center gap-3 text-xs text-white/60">
-                        {tatoueur.phone && (
-                          <a href={`tel:${tatoueur.phone}`} className="inline-flex min-w-0 items-center gap-1.5 py-1 hover:text-white">
-                            <Phone size={12} className="shrink-0" aria-hidden="true" /><span className="truncate">{tatoueur.phone}</span>
-                          </a>
-                        )}
-                        {tatoueur.instagram?.trim() && (
-                          <a
-                            href={/^https?:\/\//i.test(tatoueur.instagram.trim())
-                              ? tatoueur.instagram.trim()
-                              : /^(www\.)?instagram\.com\//i.test(tatoueur.instagram.trim())
-                                ? `https://${tatoueur.instagram.trim()}`
-                                : `https://www.instagram.com/${tatoueur.instagram.trim().replace(/^@/, "")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="shrink-0 py-1 hover:text-white hover:underline"
-                          >
-                            Instagram<span className="sr-only"> (nouvel onglet)</span>
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid gap-3 border-t border-white/8 pt-3 sm:grid-cols-2">
-                  {[
-                    { title: "Compétences", values: tatoueur.skills, empty: "Aucune compétence renseignée" },
-                    { title: "Styles", values: tatoueur.style, empty: "Aucun style renseigné" },
-                  ].map(({ title, values, empty }) => (
-                    <div key={title} className="min-w-0">
-                      <h5 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">{title}</h5>
-                      {values?.length ? (
-                        <div className="flex flex-wrap gap-1.5">{values.map(value => <span key={value} className="max-w-full break-words rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white/75">{value}</span>)}</div>
-                      ) : <p className="text-sm text-white/45">{empty}</p>}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-wrap items-center gap-2 mt-auto border-t border-white/10 pt-3">
-                  {isReadOnly ? (
-                    <div className="flex w-full flex-wrap items-center gap-2">
-                      <span className="w-full mb-1 text-xs leading-5 text-sky-200/75">
-                        Compte indépendant · Lecture seule
-                      </span>
-                      <button
-                        type="button"
-                        disabled={isUpdatingRdv}
-                        aria-pressed={rdvEnabled}
-                        onClick={() => handleToggleLinkedTatoueurRdv(tatoueur)}
-                        className={`!min-h-8 cursor-pointer rounded-lg border px-2.5 py-1 text-xs transition-colors font-one disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap ${
-                          rdvEnabled
-                            ? "border-emerald-500/20 text-emerald-300/80 hover:bg-emerald-500/10 hover:text-emerald-300"
-                            : "border-white/10 text-white/65 hover:bg-white/5 hover:text-white"
-                        }`}
-                      >
-                        {isUpdatingRdv
-                          ? "Mise à jour…"
-                          : rdvEnabled
-                            ? "Désactiver les RDV"
-                            : "Activer les RDV"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isUnlinking}
-                        onClick={() => handleUnlinkLinkedTatoueur(tatoueur)}
-                        className="!min-h-8 cursor-pointer rounded-lg border border-transparent px-2.5 py-1 text-xs text-white/50 transition-colors hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-300 font-one disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isUnlinking ? "Retrait..." : "Retirer"}
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <Link
-                        href={`/mon-compte/ajouter-tatoueur?id=${tatoueur.id}`}
-                        className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-white/65 transition-colors hover:bg-white/5 hover:text-white"
-                      >
-                        <Pencil size={12} aria-hidden="true" />Modifier
-                      </Link>
-                      <button
-                        onClick={() => {
-                          setSelectedTatoueur(tatoueur);
-                          setIsDeleteModalOpen(true);
-                        }}
-                        className="!min-h-8 cursor-pointer rounded-lg border border-transparent px-2.5 py-1 text-xs text-white/50 transition-colors hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-300 font-one"
-                      >
-                        Supprimer
-                      </button>
-                    </>
-                  )}
-                </div>
-              </article>
-            );
-          })}
+      {teamTatoueurs.length > 0 ? <>
+        <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/10 p-2.5 lg:flex-row lg:items-center lg:justify-between">
+          <label className="relative block min-w-0 lg:w-72 xl:w-80"><Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/35" /><span className="sr-only">Rechercher un artiste ou une spécialité</span><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Un artiste, un style, une compétence…" className="h-10 w-full rounded-xl border border-white/10 bg-noir-700/70 py-2 pl-9 pr-3 text-xs text-white outline-none transition placeholder:text-white/30 focus:border-tertiary-400/60 focus:ring-2 focus:ring-tertiary-400/10" /></label>
+          <div role="group" aria-label="Filtrer les artistes" className="flex flex-wrap gap-1">
+            {([{ id: "all", label: "Toute l’équipe", count: teamTatoueurs.length }, { id: "bookable", label: "Réservation active", count: rdvEnabledCount }, { id: "linked", label: "Comptes liés", count: linkedCount }] as const).map((item) => <button key={item.id} type="button" aria-pressed={filter === item.id} onClick={() => setFilter(item.id)} className={"inline-flex min-h-9 items-center gap-2 rounded-lg px-3 py-2 text-[11px] transition " + (filter === item.id ? "bg-white/[0.08] text-white" : "text-white/45 hover:bg-white/[0.04] hover:text-white/80")}>{item.label}<span className={"rounded-md px-1.5 py-0.5 text-[10px] " + (filter === item.id ? "bg-white/10 text-white/75" : "bg-white/5 text-white/35")}>{item.count}</span></button>)}
+          </div>
         </div>
-      ) : (
-        <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.02] p-8 sm:p-12 text-center">
-          <p className="text-white font-one text-base sm:text-lg font-semibold">
-            Aucun tatoueur ajouté
-          </p>
-          <p className="text-white/60 font-two text-sm mt-1.5">
-            Ajoutez votre premier profil pour commencer la gestion de l&apos;équipe.
-          </p>
-          <Link
-            href="/mon-compte/ajouter-tatoueur"
-            className="inline-flex mt-4 rounded-[14px] px-5 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white transition-all duration-300 font-medium font-one text-xs"
-          >
-            Ajouter le premier tatoueur
-          </Link>
-        </div>
-      )}
+        <p role="status" className="sr-only">{filteredTeam.length} artiste{filteredTeam.length > 1 ? "s" : ""} affiché{filteredTeam.length > 1 ? "s" : ""}</p>
+        {filteredTeam.length ? <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+          {filteredTeam.map((member) => <TeamMemberCard key={member.id} member={member} linked={isReadOnlyLinkedTatoueur(member)} bookingEnabled={isAppointmentBookingEnabled(member)} updating={!!isUpdatingRdvById[member.id]} removing={!!isUnlinkingById[member.id]} onToggleBooking={() => void handleToggleLinkedTatoueurRdv(member)} onRemove={() => {
+            if (isReadOnlyLinkedTatoueur(member)) { void handleUnlinkLinkedTatoueur(member); }
+            else { setSelectedTatoueur(member); setIsDeleteModalOpen(true); }
+          }} />)}
+        </div> : <div className="rounded-2xl border border-white/10 bg-noir-600 px-5 py-12 text-center"><Search size={25} className="mx-auto mb-4 text-white/25" /><h3 className="text-sm font-medium text-white">Aucun artiste ne correspond</h3><p className="mt-2 text-xs text-white/40">Essayez un autre nom, une spécialité ou un autre filtre.</p><button type="button" onClick={() => { setSearch(""); setFilter("all"); }} className="mx-auto mt-5 inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-xs text-white/65 transition hover:bg-white/5"><X size={13} />Effacer les filtres</button></div>}
+      </> : <div className="flex flex-col items-center rounded-2xl border border-dashed border-white/15 bg-noir-600 px-5 py-12 text-center sm:py-16">
+        <div className="mb-5 flex size-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-tertiary-400"><Users size={24} /></div>
+        <h3 className="text-lg font-semibold tracking-tight text-white">Votre équipe commence ici</h3>
+        <p className="mt-2 max-w-sm text-xs leading-6 text-white/45">Ajoutez votre premier artiste ou invitez un tatoueur déjà inscrit sur Inkera pour construire votre équipe.</p>
+        <Link href="/mon-compte/ajouter-tatoueur" className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-xl bg-tertiary-400 px-4 py-2.5 text-xs font-medium text-white transition hover:bg-tertiary-500"><Plus size={15} />Ajouter le premier tatoueur</Link>
+      </div>}
 
       {/* Modale de suppression */}
       {isDeleteModalOpen && selectedTatoueur && (

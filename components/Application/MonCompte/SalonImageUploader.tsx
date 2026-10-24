@@ -307,15 +307,15 @@ SalonImageUploaderProps) {
     const imageLabel = isMedia ? "l’image" : isProfile ? "la photo de profil" : "la couverture";
 
     return (
-      <div className="flex h-full min-w-0 flex-col gap-4">
+      <div className={`flex h-full min-w-0 flex-col ${compact && isMedia ? "gap-3" : "gap-4"}`}>
         <div
-          className={`relative flex min-h-52 flex-1 items-center justify-center overflow-hidden rounded-2xl border transition-colors focus-within:ring-2 focus-within:ring-tertiary-400/60 ${isDragOver ? "border-tertiary-400 bg-tertiary-500/15" : "border-white/10 bg-black/20"}`}
+          className={`relative flex ${compact && isMedia ? "min-h-36" : "min-h-52"} flex-1 items-center justify-center overflow-hidden rounded-2xl border transition-colors focus-within:ring-2 focus-within:ring-tertiary-400/60 ${isDragOver ? "border-tertiary-400 bg-tertiary-500/15" : "border-white/10 bg-black/20"}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           aria-busy={busy}
         >
-          <div className={isMedia ? "relative flex h-56 w-full items-center justify-center sm:h-72" : isProfile ? "relative my-6 size-36 shrink-0 overflow-hidden rounded-full border-4 border-white/10 bg-white/5 shadow-xl sm:size-40" : "relative flex aspect-[16/6] w-full items-center justify-center self-center"}>
+          <div className={isMedia ? `relative flex w-full items-center justify-center ${compact ? "h-40" : "h-56 sm:h-72"}` : isProfile ? "relative my-6 size-36 shrink-0 overflow-hidden rounded-full border-4 border-white/10 bg-white/5 shadow-xl sm:size-40" : "relative flex aspect-[16/6] w-full items-center justify-center self-center"}>
             {currentImage ? (
               <Image src={currentImage} alt={isMedia ? "Aperçu de l’image sélectionnée" : isProfile ? "Photo de profil du salon" : "Couverture du salon"} fill sizes={isProfile ? "160px" : "(max-width: 768px) 100vw, 720px"} className={isMedia ? "object-contain p-3" : "object-cover"} />
             ) : (

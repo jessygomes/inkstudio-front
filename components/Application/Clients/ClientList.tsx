@@ -1,18 +1,15 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { ClientProps, PaginationInfo } from "@/lib/type";
 import React, { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 
+import ClientCard from "./ClientCard";
 import CreateOrUpdateClient from "./CreateOrUpdateClient";
 import DeleteClient from "./DeleteClient";
 import InfoClient from "./InfoClient";
 import ConsentFormModal from "./ConsentFormModal";
 
-import { IoCreateOutline } from "react-icons/io5";
-import { AiOutlineDelete } from "react-icons/ai";
 import { RiFileUserLine } from "react-icons/ri";
-import { FiFileText } from "react-icons/fi";
 import { getSalonClientsAction } from "@/lib/queries/client";
 import PageHeader from "@/components/Shared/PageHeader";
 import DashboardButton from "@/components/Shared/DashboardButton";
@@ -174,17 +171,6 @@ export default function ClientList() {
   const handleShowReservations = (client: ClientProps) => {
     setClientForInfos(client);
     setIsFullInfoModalOpen(true);
-  };
-
-  const handleClientCardKeyDown = (
-    event: React.KeyboardEvent<HTMLDivElement>,
-    client: ClientProps,
-  ) => {
-    if (event.target !== event.currentTarget) return;
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      handleShowReservations(client);
-    }
   };
 
   //! Handlers pour les actions
@@ -436,89 +422,15 @@ export default function ClientList() {
             ) : (
               <div>
                 {/* Liste des clients responsive */}
-                <div className="space-y-3 mb-3">
-                  {clients.map((client) => (
-                    <div key={client.id}>
-                      <div
-                        className="group flex cursor-pointer flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-3 transition-all duration-200 hover:border-white/20 hover:bg-white/[0.06] sm:flex-row sm:items-center sm:gap-4"
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`Afficher les informations de ${client.firstName} ${client.lastName}`}
-                        onClick={() => handleShowReservations(client)}
-                        onKeyDown={(event) => handleClientCardKeyDown(event, client)}
-                      >
-                        <div className="flex min-w-0 flex-1 items-center gap-3">
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/30 bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/60 transition-colors group-hover:border-tertiary-400/60">
-                            <span className="font-one text-sm font-bold text-white">
-                              {client.firstName.charAt(0)}
-                              {client.lastName.charAt(0)}
-                            </span>
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className="truncate font-one text-sm font-semibold text-white">
-                                {client.firstName} {client.lastName}
-                              </p>
-                              <span className="shrink-0 rounded-full border border-tertiary-400/30 bg-tertiary-400/15 px-2 py-0.5 font-one text-[11px] text-tertiary-400">
-                                {client.appointments.length} RDV
-                              </span>
-                            </div>
-                            <p className="mt-1 truncate font-two text-xs text-white/60">
-                              {client.email}
-                              <span className="mx-1.5">·</span>
-                              {client.phone || "Tél. non renseigné"}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex shrink-0 items-center gap-2 sm:justify-end">
-                          <button
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              handleOpenConsent(client);
-                            }}
-                            title="Formulaire de consentement"
-                            className={`cursor-pointer rounded-xl border p-2 transition-all duration-200 ${
-                              client.consentSigned
-                                ? "border-green-500/30 bg-green-500/10 hover:bg-green-500/20"
-                                : "border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20"
-                            }`}
-                          >
-                            <FiFileText
-                              size={16}
-                              className={client.consentSigned ? "text-green-400" : "text-orange-400"}
-                            />
-                          </button>
-                          <button
-                            title="Modifier"
-                            className="group/btn cursor-pointer rounded-xl border border-white/15 bg-white/10 p-2 transition-all duration-200 hover:border-tertiary-400/50 hover:bg-tertiary-400/20"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              handleEdit(client);
-                            }}
-                          >
-                            <IoCreateOutline
-                              size={16}
-                              className="text-white transition-colors group-hover/btn:text-tertiary-400"
-                            />
-                          </button>
-                          <button
-                            title="Supprimer"
-                            className="group/btn cursor-pointer rounded-xl border border-white/15 bg-white/10 p-2 transition-all duration-200 hover:border-red-400/50 hover:bg-red-500/20"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              handleDelete(client);
-                            }}
-                          >
-                            <AiOutlineDelete
-                              size={16}
-                              className="text-white transition-colors group-hover/btn:text-red-400"
-                            />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="space-y-2 mb-3">
+                  {clients.map((client) => <ClientCard
+                    key={client.id}
+                    client={client}
+                    onOpen={() => handleShowReservations(client)}
+                    onEdit={() => handleEdit(client)}
+                    onDelete={() => handleDelete(client)}
+                    onConsent={() => handleOpenConsent(client)}
+                  />)}
                 </div>
 
                 {/* Infos + pagination en bas de liste */}
@@ -605,6 +517,7 @@ export default function ClientList() {
             isOpen={isFullInfoModalOpen}
             onClose={() => setIsFullInfoModalOpen(false)}
             salonName={session?.user?.salonName ?? "Mon Salon"}
+            onConsentSaved={handleConsentSaved}
           />
         )}
 

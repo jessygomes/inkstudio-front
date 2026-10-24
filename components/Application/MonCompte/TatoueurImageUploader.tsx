@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { useState, useImperativeHandle, forwardRef } from "react";
@@ -169,7 +168,7 @@ const TatoueurImageUploader = forwardRef<
           {/* Preview de l'image actuelle */}
           <div className="relative w-fit">
             <div
-              className={`w-44 h-44 bg-white/10 rounded-xl border border-white/20 overflow-hidden flex items-center justify-center ${
+              className={`w-36 h-36 bg-black/15 rounded-2xl border border-dashed border-white/15 overflow-hidden flex items-center justify-center transition-colors hover:border-tertiary-400/50 hover:bg-white/5 focus-within:ring-2 focus-within:ring-tertiary-400/50 ${
                 isDragOver ? "border-tertiary-400 bg-tertiary-400/10" : ""
               } ${isUploading || isDeleting ? "opacity-50" : ""}`}
               onDragOver={handleDragOver}
@@ -180,8 +179,8 @@ const TatoueurImageUploader = forwardRef<
                 <Image
                   src={displayImage}
                   alt="Photo du tatoueur"
-                  width={80}
-                  height={80}
+                  width={144}
+                  height={144}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -193,19 +192,21 @@ const TatoueurImageUploader = forwardRef<
               {/* Input file invisible pour le drag & drop */}
               <input
                 type="file"
+                aria-label="Choisir la photo du tatoueur"
                 accept="image/*"
                 onChange={(e) => handleFiles(e.target.files)}
                 disabled={isUploading || isDeleting}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
               />
             </div>
 
             {displayImage && (
               <button
                 type="button"
+                aria-label="Retirer la photo du tatoueur"
                 onClick={handleImageRemove}
                 disabled={isUploading || isDeleting}
-                className="absolute cursor-pointer -top-2 -right-2 w-6 h-6 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center text-white text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute cursor-pointer -top-2 -right-2 w-7 h-7 border border-white/15 bg-noir-700 hover:bg-red-500/80 rounded-full flex items-center justify-center text-white text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isDeleting ? (
                   <div className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -217,7 +218,7 @@ const TatoueurImageUploader = forwardRef<
           </div>
 
           {/* Boutons d'action et informations */}
-          <div className="flex max-w-44 flex-col gap-2">
+          <div className="flex max-w-36 flex-col gap-2">
             <label className="cursor-pointer">
               <input
                 type="file"
@@ -227,7 +228,7 @@ const TatoueurImageUploader = forwardRef<
                 disabled={isUploading || isDeleting}
               />
               <div
-                className={`w-full px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-one text-xs text-center ${
+                className={`w-full px-3 py-2 bg-white/5 hover:bg-white/10 text-white/75 rounded-xl border border-white/10 transition-colors font-one text-[11px] text-center ${
                   isUploading || isDeleting
                     ? "opacity-50 cursor-not-allowed"
                     : ""
@@ -253,8 +254,8 @@ const TatoueurImageUploader = forwardRef<
               </div>
             </label>
 
-            <p className="text-xs text-white/50 font-two">
-              PNG, JPG, WebP jusqu'à 8MB
+            <p className="text-[10px] leading-4 text-white/35 font-two">
+              JPG, PNG ou WebP. Glissez une photo ou cliquez pour la choisir.
             </p>
 
             {isDragOver && !isUploading && !isDeleting && (

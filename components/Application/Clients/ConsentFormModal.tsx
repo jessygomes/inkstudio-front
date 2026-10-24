@@ -38,6 +38,7 @@ export default function ConsentFormModal({
   const [isMounted, setIsMounted] = useState(false);
   const sigCanvas = useRef<SignatureCanvas>(null);
   const signatureContainerRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const isSubmittingRef = useRef(false);
 
   // Info client éditable (pré-remplie)
@@ -72,6 +73,28 @@ export default function ConsentFormModal({
   );
 
   const { startUpload, isUploading } = useUploadThing("consentPdf");
+
+  useEffect(() => {
+    if (!isOpen || !isMounted) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    modalRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (!isGenerating && !isUploading) onClose();
+      }
+      if (event.key === "Tab") {
+        const items = Array.from(modalRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])') || []).filter((element) => element.tabIndex >= 0 && element.getClientRects().length > 0);
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    };
+    document.addEventListener("keydown", handleKey, true);
+    return () => { document.removeEventListener("keydown", handleKey, true); previousFocus?.focus(); };
+  }, [isOpen, isMounted, isGenerating, isUploading, onClose]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -220,9 +243,14 @@ export default function ConsentFormModal({
 
   return createPortal(
     <div
+      ref={modalRef}
+      data-modal
+      role="dialog"
+      aria-modal="true"
+      aria-label="Formulaire de consentement"
       className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
     >
-      <div className="bg-noir-500 w-full h-[100dvh] overflow-hidden flex flex-col sm:h-auto sm:max-h-[92vh] sm:w-full sm:max-w-2xl sm:rounded-2xl sm:border sm:border-white/10 sm:shadow-2xl">
+      <div className="bg-noir-500 w-full h-[100dvh] overflow-hidden flex flex-col sm:h-auto sm:max-h-[92vh] sm:w-[90vw] lg:w-[60vw] sm:max-w-none sm:rounded-2xl sm:border sm:border-white/10 sm:shadow-2xl">
 
         {/* ── Header ── */}
         <div className="relative bg-noir-700 border-b border-white/10 px-5 pt-4 pb-3 shrink-0">
@@ -236,6 +264,8 @@ export default function ConsentFormModal({
               </p>
             </div>
             <button
+              type="button"
+              aria-label="Fermer le formulaire de consentement"
               onClick={onClose}
               className="cursor-pointer p-2 hover:bg-white/10 rounded-2xl transition-all hover:rotate-90 group"
             >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   getPiercingEnumsAction,
   createPiercingZoneAction,
@@ -12,7 +12,7 @@ import {
   type PiercingZone,
   type PiercingPrice,
 } from "@/lib/queries/piercing";
-import { Gem, MapPin, Plus, Save, Trash2, LoaderCircle } from "lucide-react";
+import { Gem, MapPin, Plus, Save, Trash2, LoaderCircle, Check, ChevronRight, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface PiercingManagerProps {
@@ -24,7 +24,11 @@ export default function PiercingManager({}: PiercingManagerProps) {
   const [allAvailableZones, setAllAvailableZones] = useState<PiercingZone[]>(
     [],
   );
-  const [selectedZones, setSelectedZones] = useState<PiercingZone[]>([]);
+  const [activeZoneId, setActiveZoneId] = useState<string | null>(null);
+  const [addingZone, setAddingZone] = useState<PiercingZone | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const confirmation = useRef<HTMLDialogElement>(null);
   const [enums, setEnums] = useState<{
     zones?: PiercingZone[];
     oreille?: string[];
@@ -52,14 +56,18 @@ export default function PiercingManager({}: PiercingManagerProps) {
     serviceName: string;
   }>({ show: false, zoneId: "", serviceIndex: -1, serviceName: "" });
 
-  const sectionTitleClass =
-    "mb-2 text-base font-semibold text-white font-one";
-  const labelClass =
-    "mb-1.5 block text-xs font-medium text-white/65 font-one";
-  const fieldClass =
-    "w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:ring-2 focus:ring-tertiary-400/10 font-two";
-  const zoneCardClass =
-    "dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5";
+  const labelClass = "mb-1.5 block text-[11px] font-medium text-white/50";
+  const fieldClass = "h-10 w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2 text-xs text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]";
+  const zoneLabels: Record<PiercingZone, string> = { OREILLE: "Oreille", VISAGE: "Visage", BOUCHE: "Bouche", CORPS: "Corps", MICRODERMAL: "Microdermal", AUTRE: "Autre" };
+  const formatServiceName = (value: string) => value.replaceAll("_", " ").toLocaleLowerCase("fr").replace(/^./, (letter) => letter.toLocaleUpperCase("fr"));
+
+  useEffect(() => {
+    if (!deleteConfirmModal.show) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const dialog = confirmation.current;
+    dialog?.showModal();
+    return () => { dialog?.close(); previousFocus?.focus(); };
+  }, [deleteConfirmModal.show]);
 
   useEffect(() => {
     loadPiercingData();
@@ -74,21 +82,21 @@ export default function PiercingManager({}: PiercingManagerProps) {
       setEnums(result.data);
       // Charger toutes les zones disponibles depuis l'enum
       setAllAvailableZones(result.data.zones || []);
+    } else {
+      toast.error("Impossible de charger les zones disponibles.");
     }
   };
 
   //! CHARGER LES DONNÉES DE PIERCING
   const loadPiercingData = async () => {
     setLoading(true);
+    setLoadError(null);
     const result = await getPiercingZonesAction();
     if (result.ok) {
       setPiercingZones(result.data);
 
       // Marquer les zones déjà configurées comme sélectionnées
-      const configuredZones = result.data.map(
-        (z: PiercingPrice) => z.piercingZone,
-      );
-      setSelectedZones(configuredZones);
+      setActiveZoneId((previous) => result.data.some((zone: PiercingPrice) => zone.id === previous) ? previous : result.data[0]?.id || null);
 
       // Initialiser les services existants
       const existingServices: {
@@ -110,6 +118,8 @@ export default function PiercingManager({}: PiercingManagerProps) {
             service.piercingZoneVisage ||
             service.piercingZoneBouche ||
             service.piercingCorps ||
+            service.piercingZoneCorps ||
+            service.piercingZoneMicrodermal ||
             "",
           price: service.price,
           description: service.description || "",
@@ -119,36 +129,26 @@ export default function PiercingManager({}: PiercingManagerProps) {
         }));
       });
       setServices(existingServices);
+    } else {
+      setLoadError(result.message || "Impossible de charger le catalogue.");
     }
     setLoading(false);
   };
 
   //! GÉRER LA SÉLECTION DES ZONES DE PIERCING
-  const toggleZoneSelection = async (zone: PiercingZone) => {
-    const isCurrentlySelected = selectedZones.includes(zone);
-
-    if (isCurrentlySelected) {
-      // Supprimer la zone
-      const zoneToDelete = piercingZones.find((z) => z.piercingZone === zone);
-      if (zoneToDelete) {
-        const result = await deletePiercingZoneAction(zoneToDelete.id);
-        if (result.ok) {
-          setSelectedZones((prev) => prev.filter((z) => z !== zone));
-          await loadPiercingData();
-        }
-      }
-    } else {
-      // Ajouter la zone
-      const result = await createPiercingZoneAction({
-        piercingZone: zone,
-        isActive: true,
-      });
-
-      if (result.ok) {
-        setSelectedZones((prev) => [...prev, zone]);
-        await loadPiercingData();
-      }
-    }
+  const addZone = async (zone: PiercingZone) => {
+    if (addingZone) return;
+    setAddingZone(zone);
+    try {
+      const result = await createPiercingZoneAction({ piercingZone: zone, isActive: true });
+      if (!result.ok || !result.data?.id) { toast.error(result.message || "Impossible d’ajouter la zone."); return; }
+      const created = { ...result.data, services: result.data.services || [] } as PiercingPrice;
+      setPiercingZones((previous) => [...previous, created]);
+      setServices((previous) => ({ ...previous, [created.id]: [] }));
+      setActiveZoneId(created.id);
+      toast.success("Zone ajoutée au catalogue.");
+    } catch { toast.error("Impossible d’ajouter la zone."); }
+    finally { setAddingZone(null); }
   };
 
   const addService = (zoneId: string) => {
@@ -189,7 +189,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
   const saveService = async (zoneId: string, serviceIndex: number) => {
     const service = services[zoneId]?.[serviceIndex];
     if (!service || !service.zone || service.price <= 0) {
-      alert("Veuillez remplir tous les champs requis");
+      toast.error("Choisissez un type de piercing et un tarif supérieur à 0 €.");
       return;
     }
 
@@ -222,7 +222,7 @@ export default function PiercingManager({}: PiercingManagerProps) {
       } else if (zone.piercingZone === "BOUCHE") {
         serviceData.piercingZoneBouche = service.zone;
       } else if (zone.piercingZone === "CORPS") {
-        serviceData.piercingCorps = service.zone;
+        serviceData.piercingZoneCorps = service.zone;
       } else if (zone.piercingZone === "MICRODERMAL") {
         serviceData.piercingZoneMicrodermal = service.zone;
       }
@@ -298,33 +298,30 @@ export default function PiercingManager({}: PiercingManagerProps) {
   };
 
   //! CONFIRMER LA SUPPRESSION
+  const closeConfirmation = () => setDeleteConfirmModal({ show: false, zoneId: "", serviceIndex: -1, serviceName: "" });
   const confirmDelete = async () => {
+    if (isDeleting) return;
     const { zoneId, serviceIndex } = deleteConfirmModal;
-    const service = services[zoneId]?.[serviceIndex];
-
-    if (service?.id) {
-      try {
-        await deletePiercingServiceAction(service.id);
-        toast.success("Service supprimé avec succès !");
-      } catch (error) {
-        console.error("Erreur lors de la suppression:", error);
-        toast.error("Erreur lors de la suppression");
+    setIsDeleting(true);
+    try {
+      if (serviceIndex === -1) {
+        const result = await deletePiercingZoneAction(zoneId);
+        if (!result.ok) { toast.error(result.message || "Retrait impossible."); return; }
+        setPiercingZones((previous) => previous.filter((zone) => zone.id !== zoneId));
+        setActiveZoneId(null);
+        setServices((previous) => { const next = { ...previous }; delete next[zoneId]; return next; });
+        toast.success("Zone retirée du catalogue.");
+      } else {
+        const service = services[zoneId]?.[serviceIndex];
+        if (!service?.id) return;
+        const result = await deletePiercingServiceAction(service.id);
+        if (!result.ok) { toast.error(result.message || "Suppression impossible."); return; }
+        setServices((previous) => ({ ...previous, [zoneId]: previous[zoneId]?.filter((_, index) => index !== serviceIndex) || [] }));
+        toast.success("Prestation supprimée.");
       }
-    }
-
-    // Supprimer de l'interface
-    setServices((prev) => ({
-      ...prev,
-      [zoneId]: prev[zoneId]?.filter((_, idx) => idx !== serviceIndex) || [],
-    }));
-
-    // Fermer la modale
-    setDeleteConfirmModal({
-      show: false,
-      zoneId: "",
-      serviceIndex: -1,
-      serviceName: "",
-    });
+      closeConfirmation();
+    } catch { toast.error("La suppression a échoué. Veuillez réessayer."); }
+    finally { setIsDeleting(false); }
   };
 
   const getZoneSpecificOptions = (piercingZone: PiercingZone) => {
@@ -346,297 +343,51 @@ export default function PiercingManager({}: PiercingManagerProps) {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="dashboard-embedded-section p-3">
-        <div className="animate-pulse flex space-x-4">
-          <div className="h-4 w-1/4 rounded bg-white/15"></div>
-          <div className="h-4 w-1/2 rounded bg-white/15"></div>
-        </div>
-      </div>
-    );
-  }
+  const activeZone = piercingZones.find((zone) => zone.id === activeZoneId) || piercingZones[0];
+  const availableZones = allAvailableZones.filter((zone) => !piercingZones.some((item) => item.piercingZone === zone));
+  const allServices = Object.values(services).flat();
+  const pendingCount = allServices.filter((service) => service.isModified).length;
+  const activeServices = activeZone ? services[activeZone.id] || [] : [];
+  const anySaving = allServices.some((service) => service.isSaving);
+  const actionClass = "inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/70 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40";
 
-  return (
-    <div className="create-rdv-form tablet-inputs relative space-y-5">
-      <div className="rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-4 sm:p-5">
-        <div className="mb-4 flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 text-tertiary-400"><MapPin size={18} aria-hidden="true" /></span><div><p className="text-[10px] uppercase tracking-[0.16em] text-tertiary-400 font-one">01 · Votre offre</p><h4 className={sectionTitleClass}>
-          Zones de piercing proposées
-        </h4></div></div>
+  if (loading) return <div role="status" className="flex min-h-60 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-noir-600 text-xs text-white/45"><LoaderCircle size={17} className="animate-spin" />Chargement du catalogue…</div>;
+  if (loadError) return <div role="alert" className="rounded-2xl border border-red-400/20 bg-red-400/5 p-5"><p className="text-sm text-red-200">{loadError}</p><button type="button" className={actionClass + " mt-4"} onClick={() => { void loadPiercingData(); void loadEnums(); }}>Réessayer</button></div>;
 
-        {/* Sélection des zones globales */}
-        <div className="space-y-4">
-          <p className="mb-3 text-xs leading-5 text-white/55 font-two">
-            Sélectionnez les zones de piercing que votre salon propose :
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {allAvailableZones.map((zone) => {
-              const isSelected = selectedZones.includes(zone);
-              return (
-                <label
-                  key={zone}
-                  className={`cursor-pointer flex min-h-12 items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-one transition focus-within:ring-2 focus-within:ring-tertiary-400/50
-                    ${
-                      isSelected
-                        ? "border-tertiary-400/40 bg-tertiary-500/10 text-tertiary-400"
-                        : "border-white/15 bg-white/10 text-white/85 hover:bg-white/15"
-                    }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleZoneSelection(zone)}
-                    className="sr-only"
-                  />
-                  {zone}
-                </label>
-              );
-            })}
+  return <div className="font-one text-white [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_select]:cursor-pointer [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-2 [&_button:focus-visible]:ring-tertiary-400">
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 text-[11px] text-white/40"><div className="flex flex-wrap gap-4"><span><strong className="mr-1 text-sm font-medium text-white/80">{piercingZones.length}</strong>zone{piercingZones.length > 1 ? "s" : ""} configurée{piercingZones.length > 1 ? "s" : ""}</span><span><strong className="mr-1 text-sm font-medium text-white/80">{allServices.filter((service) => service.isActive && service.id).length}</strong>prestation{allServices.filter((service) => service.isActive && service.id).length > 1 ? "s" : ""} active{allServices.filter((service) => service.isActive && service.id).length > 1 ? "s" : ""}</span></div>{pendingCount > 0 && <span role="status" className="inline-flex items-center gap-1.5 rounded-lg bg-amber-400/5 px-2.5 py-1.5 text-amber-300/80"><span className="size-1.5 rounded-full bg-amber-300" />{pendingCount} ligne{pendingCount > 1 ? "s" : ""} à enregistrer</span>}</div>
+    <div className="grid items-start gap-4 xl:grid-cols-[240px_minmax(0,1fr)] xl:gap-5">
+      <aside className="rounded-2xl border border-white/10 bg-noir-600 p-4 xl:sticky xl:top-5">
+        <h2 className="mb-3 flex items-center gap-2 text-xs font-semibold text-white/75"><MapPin size={14} className="text-white/35" />Zones du catalogue</h2>
+        <nav aria-label="Zones de piercing" className="flex gap-1 overflow-x-auto pb-1 xl:flex-col xl:overflow-visible">
+          {piercingZones.map((zone) => <button key={zone.id} type="button" aria-current={activeZone?.id === zone.id ? "true" : undefined} onClick={() => setActiveZoneId(zone.id)} className={"flex shrink-0 items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition xl:w-full " + (activeZone?.id === zone.id ? "border-white/10 bg-white/[0.07] text-white" : "border-transparent text-white/45 hover:bg-white/[0.035] hover:text-white/80")}><Gem size={14} className={activeZone?.id === zone.id ? "text-tertiary-400" : "text-white/25"} /><span className="flex-1">{zoneLabels[zone.piercingZone]}</span><span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-white/40">{(services[zone.id] || []).length}</span></button>)}
+          {!piercingZones.length && <p className="py-2 text-[11px] text-white/30">Aucune zone configurée.</p>}
+        </nav>
+        {availableZones.length > 0 && <div className="mt-4 border-t border-white/[0.07] pt-4"><p className="mb-2 text-[10px] font-medium uppercase tracking-[0.1em] text-white/35">Ajouter une zone</p><div className="flex flex-wrap gap-1.5">{availableZones.map((zone) => <button key={zone} type="button" disabled={!!addingZone} onClick={() => void addZone(zone)} className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-white/10 px-2 py-1.5 text-[10px] text-white/55 transition hover:border-white/20 hover:bg-white/5 hover:text-white disabled:opacity-40">{addingZone === zone ? <LoaderCircle size={11} className="animate-spin" /> : <Plus size={11} />}{zoneLabels[zone]}</button>)}</div></div>}
+        <p className="mt-5 border-t border-white/[0.07] pt-4 text-[11px] leading-5 text-white/35">Sélectionnez une zone, puis ajoutez ses prestations. Chaque ligne s’enregistre séparément.</p>
+      </aside>
+      <section aria-label="Prestations de la zone" className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-noir-600">
+        {activeZone ? <>
+          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] px-4 py-4 sm:px-5"><div><p className="text-[10px] uppercase tracking-[0.12em] text-white/35">Prestations & tarifs</p><h2 className="mt-1 text-lg font-semibold tracking-tight">{zoneLabels[activeZone.piercingZone]}</h2><p className="mt-1 text-[11px] text-white/40">{activeServices.filter((service) => service.isActive).length} active{activeServices.filter((service) => service.isActive).length > 1 ? "s" : ""} sur {activeServices.length} · Enregistrez pour appliquer vos changements.</p></div><button type="button" onClick={() => addService(activeZone.id)} className="inline-flex min-h-9 items-center gap-1.5 rounded-xl bg-tertiary-400 px-3 py-2 text-xs font-medium text-white transition hover:bg-tertiary-500"><Plus size={14} />Ajouter une prestation</button></header>
+          <div className="space-y-3 p-3 sm:p-5">
+            {!activeServices.length && <div className="rounded-xl border border-dashed border-white/10 bg-black/10 px-4 py-10 text-center"><Gem size={24} className="mx-auto mb-3 text-white/25" /><h3 className="text-sm font-medium text-white/75">La zone est prête à être configurée</h3><p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-white/35">Ajoutez une première prestation, choisissez son type et indiquez son tarif.</p></div>}
+            {activeServices.map((service, index) => <div key={service.id || activeZone.id + "-" + index} className="rounded-xl border border-white/[0.08] bg-black/10 p-3 sm:p-4">
+              <div className="mb-3 flex items-center justify-between gap-2"><h3 className="flex items-center gap-2 text-xs font-medium text-white/75"><span className="text-[10px] text-white/25">{String(index + 1).padStart(2, "0")}</span>{service.zone ? formatServiceName(service.zone) : "Nouvelle prestation"}</h3><span className={"text-[10px] " + (service.isModified ? "text-amber-300/75" : "text-white/30")}>{service.isSaving ? "Enregistrement…" : service.isModified ? "Modifications non enregistrées" : "Enregistrée"}</span></div>
+              <fieldset disabled={service.isSaving || isDeleting} className="grid min-w-0 grid-cols-2 items-end gap-3 disabled:opacity-60 2xl:grid-cols-[minmax(0,1fr)_100px_110px_auto]">
+                <div className="col-span-2 min-w-0 sm:col-span-1 2xl:col-span-1"><label htmlFor={"piercing-type-" + activeZone.id + "-" + index} className={labelClass}>Type de piercing <span className="text-tertiary-400">*</span></label><select id={"piercing-type-" + activeZone.id + "-" + index} value={service.zone} onChange={(event) => updateService(activeZone.id, index, "zone", event.target.value)} className={fieldClass}><option value="">Choisir un type…</option>{getZoneSpecificOptions(activeZone.piercingZone).map((option) => <option key={option} value={option}>{formatServiceName(option)}</option>)}</select></div>
+                <div className="min-w-0"><label htmlFor={"piercing-price-" + activeZone.id + "-" + index} className={labelClass}>Tarif (€) <span className="text-tertiary-400">*</span></label><input id={"piercing-price-" + activeZone.id + "-" + index} type="number" min="0" step="0.01" inputMode="decimal" value={service.price} onChange={(event) => updateService(activeZone.id, index, "price", parseFloat(event.target.value) || 0)} className={fieldClass} /></div>
+                <div><span className={labelClass}>Disponibilité</span><label className="flex h-10 cursor-pointer items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-2.5"><span className={"text-[11px] " + (service.isActive ? "text-emerald-400" : "text-white/35")}>{service.isActive ? "Active" : "Inactive"}</span><input type="checkbox" aria-label="Activer la prestation" checked={service.isActive} onChange={(event) => updateService(activeZone.id, index, "isActive", event.target.checked)} className="peer sr-only" /><span className="relative h-4 w-7 shrink-0 rounded-full bg-white/15 transition after:absolute after:left-0.5 after:top-0.5 after:size-3 after:rounded-full after:bg-white after:transition peer-checked:bg-emerald-500 peer-checked:after:translate-x-3 peer-focus-visible:ring-2 peer-focus-visible:ring-tertiary-400" /></label></div>
+                <div className="col-span-2 flex items-center justify-end gap-1.5 sm:col-span-1 2xl:col-span-1"><button type="button" disabled={!service.isModified || service.isSaving || !service.zone || service.price <= 0} onClick={() => void saveService(activeZone.id, index)} className={actionClass + " disabled:opacity-30"}>{service.isSaving ? <LoaderCircle size={13} className="animate-spin" /> : service.isModified ? <Save size={13} /> : <Check size={13} />}{service.isSaving ? "En cours…" : service.isModified ? "Enregistrer" : "Enregistrée"}</button><button type="button" disabled={anySaving} onClick={() => void removeService(activeZone.id, index)} aria-label="Supprimer cette prestation" title="Supprimer cette prestation" className="flex size-9 shrink-0 items-center justify-center rounded-xl text-white/30 transition hover:bg-red-400/10 hover:text-red-300 disabled:opacity-30"><Trash2 size={14} /></button></div>
+              </fieldset>
+            </div>)}
           </div>
-        </div>
-      </div>
-
-      {/* Personnalisez vos prestations pour les zones sélectionnées */}
-      {selectedZones.length === 0 ? (
-        <div className="dashboard-empty-state rounded-2xl border border-white/10 p-5 text-center">
-          <p className="text-xs text-white/60 font-one">
-            Sélectionnez au moins une zone pour configurer les prix
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="px-1">
-            <p className="mb-1 text-[10px] uppercase tracking-[0.16em] text-tertiary-400 font-one">02 · Services et tarifs</p>
-            <h5 className={sectionTitleClass}>
-              Configuration des prix
-            </h5>
-            <p className="text-xs leading-5 text-white/50 font-two">
-              Configurez chaque service rapidement : type, tarif, statut puis
-              enregistrez ligne par ligne.
-            </p>
-          </div>
-          {piercingZones.map((zone) => (
-            <div
-              key={zone.id}
-              className={zoneCardClass}
-            >
-              <div className="mb-3 border-b border-white/10 pb-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <Gem size={18} className="text-tertiary-400" aria-hidden="true" /><span className="text-base font-semibold text-white font-one">
-                      {zone.piercingZone}
-                    </span>
-                    <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
-                      Services
-                    </span>
-                  </div>
-                  <span className="text-[11px] text-white/55 font-one">
-                    {(services[zone.id] || []).filter((s) => s.isActive).length} actifs / {(services[zone.id] || []).length} total
-                  </span>
-                </div>
-              </div>
-
-              {/* Services pour cette zone */}
-              <div className="space-y-4">
-                {(services[zone.id] || []).length === 0 && (
-                  <div className="rounded-3xl border border-dashed border-white/15 bg-transparent px-3 py-5 text-center">
-                    <p className="text-[11px] text-white/55 font-one">
-                      Aucun service pour cette zone. Ajoutez-en un pour commencer.
-                    </p>
-                  </div>
-                )}
-                {(services[zone.id] || []).map((service, idx) => (
-                  <div
-                    key={service.id || `${zone.id}-${idx}`}
-                    className="rounded-2xl border border-white/10 bg-black/15 p-4"
-                  >
-                    <div className="mb-4 flex items-center justify-between gap-2">
-                      <span className="text-[10px] uppercase tracking-wider text-white/45 font-one">
-                        Service {idx + 1}
-                      </span>
-                      {service.isModified && (
-                        <span className="text-[10px] text-amber-200 font-one">
-                          Non sauvegardé
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_130px_120px_150px_120px] xl:items-end">
-                      <div>
-                        <label htmlFor={`piercing-type-${zone.id}-${idx}`} className={labelClass}>
-                          Type spécifique
-                        </label>
-                        <select id={`piercing-type-${zone.id}-${idx}`}
-                          value={service.zone}
-                          onChange={(e) =>
-                            updateService(zone.id, idx, "zone", e.target.value)
-                          }
-                          className={fieldClass}
-                          aria-label="Type spécifique du service"
-                        >
-                          <option value="">Sélectionner...</option>
-                          {getZoneSpecificOptions(zone.piercingZone).map(
-                            (option: string) => (
-                              <option
-                                key={option}
-                                value={option}
-                                className="bg-noir-700"
-                              >
-                                {option}
-                              </option>
-                            ),
-                          )}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label htmlFor={`piercing-price-${zone.id}-${idx}`} className={labelClass}>
-                          Prix (EUR)
-                        </label>
-                        <input id={`piercing-price-${zone.id}-${idx}`}
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          inputMode="decimal"
-                          value={service.price}
-                          onChange={(e) =>
-                            updateService(
-                              zone.id,
-                              idx,
-                              "price",
-                              parseFloat(e.target.value) || 0,
-                            )
-                          }
-                          className={fieldClass}
-                          placeholder="0"
-                          aria-label="Prix du service"
-                        />
-                      </div>
-
-                      <div className="min-w-0">
-                        <label className={labelClass}>
-                          Statut
-                        </label>
-                        <label className="inline-flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 focus-within:ring-2 focus-within:ring-tertiary-400/50">
-                          <span className="text-xs text-white/70 font-one">
-                            Actif
-                          </span>
-                          <input
-                            type="checkbox"
-                            checked={service.isActive}
-                            onChange={(e) =>
-                              updateService(
-                                zone.id,
-                                idx,
-                                "isActive",
-                                e.target.checked,
-                              )
-                            }
-                            className="peer sr-only"
-                          />
-                          <span
-                            className={`relative h-5 w-9 rounded-full transition-colors ${
-                              service.isActive ? "bg-tertiary-500" : "bg-white/20"
-                            } peer-checked:after:translate-x-4 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all`}
-                          ></span>
-                        </label>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => saveService(zone.id, idx)}
-                        disabled={
-                          !service.isModified ||
-                          service.isSaving ||
-                          !service.zone ||
-                          service.price <= 0
-                        }
-                        className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-3 text-xs transition-colors ${
-                          service.isModified && service.zone && service.price > 0
-                            ? "cursor-pointer border border-tertiary-400/30 bg-tertiary-500/20 text-tertiary-300 hover:bg-tertiary-500/30"
-                            : "cursor-not-allowed border border-white/10 bg-white/8 text-white/30"
-                        }`}
-                        aria-label="Sauvegarder le service"
-                        title="Sauvegarder"
-                      >
-                        {service.isSaving ? <LoaderCircle size={14} className="animate-spin" aria-hidden="true" /> : <Save size={14} aria-hidden="true" />}{service.isSaving ? "Enregistrement…" : service.isModified ? "Enregistrer" : "Enregistré"}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => removeService(zone.id, idx)}
-                        className="cursor-pointer inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-3 text-xs border border-white/15 bg-transparent text-white/75 transition-colors hover:bg-white/8"
-                        aria-label="Supprimer le service"
-                        title="Supprimer"
-                      >
-                        <Trash2 size={14} aria-hidden="true" /> Supprimer
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={() => addService(zone.id)}
-                  className="cursor-pointer inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-tertiary-400/30 bg-tertiary-500/5 text-sm text-tertiary-400 transition-colors hover:bg-tertiary-500/10 focus-visible:outline-2 focus-visible:outline-tertiary-400 font-one"
-                >
-                  <Plus size={16} aria-hidden="true" />
-                  Ajouter un service
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Modale de confirmation de suppression */}
-      {deleteConfirmModal.show && (
-        <div className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-[2px] p-3 md:p-4 lg:flex lg:items-center lg:justify-center">
-          <div className="dashboard-embedded-panel w-full max-w-md overflow-hidden rounded-2xl border border-white/12 bg-[#1a1a1a] shadow-2xl">
-            <div className="dashboard-embedded-header px-4 py-3">
-              <h3 className="text-base font-semibold text-white font-one">
-                Confirmer la suppression
-              </h3>
-            </div>
-
-            <div className="space-y-2.5 p-3">
-              <p className="text-xs text-white/80 font-one">
-              Êtes-vous sûr de vouloir supprimer ce service de piercing ?
-              </p>
-
-              <div className="rounded-xl border border-white/10 bg-white/6 p-2.5">
-                <p className="text-xs font-medium text-tertiary-300 font-one">
-                  {deleteConfirmModal.serviceName}
-                </p>
-              </div>
-            </div>
-
-            <div className="dashboard-embedded-footer flex gap-2 p-3">
-              <button
-                type="button"
-                onClick={() =>
-                  setDeleteConfirmModal({
-                    show: false,
-                    zoneId: "",
-                    serviceIndex: -1,
-                    serviceName: "",
-                  })
-                }
-                className="flex-1 rounded-[14px] border border-white/12 bg-white/8 px-3 py-2 text-[11px] text-white/85 transition-colors hover:bg-white/12 font-one"
-              >
-                Annuler
-              </button>
-              <button
-                type="button"
-                onClick={confirmDelete}
-                className="flex-1 rounded-[14px] bg-gradient-to-r from-red-500 to-red-600 px-3 py-2 text-[11px] text-white transition-colors hover:from-red-600 hover:to-red-700 font-one"
-              >
-                Supprimer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.07] px-4 py-3 sm:px-5"><p className="text-[10px] text-white/30">Les prestations inactives restent dans votre catalogue.</p><button type="button" disabled={anySaving || isDeleting} onClick={() => setDeleteConfirmModal({ show: true, zoneId: activeZone.id, serviceIndex: -1, serviceName: zoneLabels[activeZone.piercingZone] })} className="inline-flex min-h-8 items-center gap-1.5 rounded-lg px-2 text-[10px] text-white/30 transition hover:bg-red-400/10 hover:text-red-300 disabled:opacity-30"><Trash2 size={12} />Retirer la zone</button></footer>
+        </> : <div className="flex min-h-80 flex-col items-center justify-center px-5 py-12 text-center"><div className="mb-5 flex size-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-tertiary-400"><Gem size={22} /></div><h2 className="text-lg font-semibold tracking-tight">Construisez votre catalogue piercing</h2><p className="mt-2 max-w-md text-xs leading-6 text-white/40">Ajoutez une zone depuis le menu, puis configurez les types de piercing proposés et leurs tarifs.</p><span className="mt-5 inline-flex items-center gap-1 text-[11px] text-white/30">Commencez par une zone<ChevronRight size={12} /></span></div>}
+      </section>
     </div>
-  );
+    <dialog ref={confirmation} aria-labelledby="piercing-confirm-title" onCancel={(event) => { event.preventDefault(); if (!isDeleting) closeConfirmation(); }} className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-white/15 bg-noir-600 p-0 text-white shadow-2xl backdrop:bg-black/65 backdrop:backdrop-blur-[2px]">
+      <div className="p-5"><div className="mb-4 flex size-9 items-center justify-center rounded-xl bg-red-400/10 text-red-300"><AlertCircle size={18} /></div><h2 id="piercing-confirm-title" className="text-base font-semibold">{deleteConfirmModal.serviceIndex === -1 ? "Retirer cette zone ?" : "Supprimer cette prestation ?"}</h2><p className="mt-2 break-words text-xs leading-6 text-white/50">{deleteConfirmModal.serviceName}</p><p className="mt-2 text-[11px] leading-5 text-white/35">{deleteConfirmModal.serviceIndex === -1 ? "La zone et toutes ses prestations seront supprimées du catalogue." : "Cette prestation sera supprimée du catalogue."}</p></div>
+      <div className="flex justify-end gap-2 border-t border-white/10 p-4"><button type="button" disabled={isDeleting} onClick={closeConfirmation} className={actionClass}>Annuler</button><button type="button" disabled={isDeleting} onClick={() => void confirmDelete()} className="inline-flex min-h-9 items-center gap-2 rounded-xl bg-red-400/15 px-3 py-2 text-xs text-red-200 hover:bg-red-400/25 disabled:opacity-40">{isDeleting && <LoaderCircle size={13} className="animate-spin" />}{isDeleting ? "Suppression…" : "Confirmer la suppression"}</button></div>
+    </dialog>
+  </div>;
 }

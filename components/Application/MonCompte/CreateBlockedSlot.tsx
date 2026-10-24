@@ -353,49 +353,46 @@ export default function CreateBlockedSlot({
     ? [Math.floor(minutes / 1440) ? `${Math.floor(minutes / 1440)} j` : "", Math.floor(minutes % 1440 / 60) ? `${Math.floor(minutes % 1440 / 60)} h` : "", minutes % 60 ? `${minutes % 60} min` : ""].filter(Boolean).join(" ")
     : "Choisissez une période de 15 minutes à 30 jours.";
   const scope = tatoueurs.find(t => t.id === values.tatoueurId)?.name || "Salon complet";
-  const inputClass = "w-full min-w-0 min-h-11 rounded-xl border border-white/15 bg-noir-500 px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 disabled:opacity-50 [color-scheme:dark]";
+  const inputClass = "w-full min-w-0 min-h-9 rounded-lg border border-white/10 bg-noir-700/80 px-2.5 py-2 text-xs text-white outline-none transition-colors focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 disabled:opacity-50 [color-scheme:dark]";
 
   return (
-    <section aria-labelledby="create-blocked-title" className="overflow-hidden rounded-3xl border border-tertiary-400/20 bg-white/[0.025] font-one">
-      <header className="flex items-start gap-3 border-b border-white/10 p-5 sm:p-6">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-tertiary-400/10 text-tertiary-400"><CalendarOff size={21} aria-hidden="true" /></span>
+    <section aria-labelledby="create-blocked-title" className="@container overflow-hidden rounded-xl border border-white/10 bg-black/10 font-one [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_select]:cursor-pointer [&_input[type=date]]:cursor-pointer [&_input[type=time]]:cursor-pointer [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-2 [&_button:focus-visible]:ring-tertiary-400">
+      <header className="flex items-start gap-2.5 border-b border-white/[0.07] px-4 py-3">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-tertiary-400"><CalendarOff size={16} aria-hidden="true" /></span>
         <div className="flex-1">
-          <h3 id="create-blocked-title" className="text-lg font-semibold text-white">Nouvelle indisponibilité</h3>
-          <p className="mt-1 text-sm leading-6 text-white/60">Réservez une période pour une absence, une pause ou des congés.</p>
+          <h3 id="create-blocked-title" className="text-sm font-medium text-white">Nouvelle indisponibilité</h3>
+          <p className="mt-1 text-[11px] leading-4 text-white/40">Réservez une période pour une absence, une pause ou des congés.</p>
         </div>
-        <button type="button" onClick={onClose} disabled={loading} aria-label="Fermer le formulaire" className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/50 hover:bg-white/5 hover:text-white disabled:opacity-50"><X size={18} /></button>
+        <button type="button" onClick={onClose} disabled={loading} aria-label="Fermer le formulaire" className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/50 hover:bg-white/5 hover:text-white disabled:opacity-50"><X size={18} /></button>
       </header>
 
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-        <fieldset disabled={loading} className="min-w-0 space-y-6 p-5 disabled:opacity-70 sm:p-6">
+        <fieldset disabled={loading} className="min-w-0 space-y-4 p-4 disabled:opacity-70">
           <legend className="sr-only">Détails du créneau à bloquer</legend>
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="grid gap-3 @min-[480px]:grid-cols-2 @min-[480px]:items-end">
             <div>
-              <label htmlFor="blocked-scope" className="mb-2 block text-sm font-semibold text-white">Qui est concerné ?</label>
+              <label htmlFor="blocked-scope" className="mb-1.5 block text-xs font-medium text-white/75">Qui est concerné ?</label>
               <select id="blocked-scope" {...form.register("tatoueurId")} className={inputClass} aria-describedby="blocked-scope-help">
                 <option value="">Salon complet</option>
                 {tatoueurs.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
-              <p id="blocked-scope-help" className="mt-2 text-xs leading-5 text-white/50">Choisissez le salon entier ou un artiste en particulier.</p>
+              <p id="blocked-scope-help" className="mt-1.5 text-[10px] leading-4 text-white/35">Choisissez le salon entier ou un artiste en particulier.</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-              <p className="flex items-center gap-2 text-sm text-white/80"><LockKeyhole size={16} className="shrink-0 text-tertiary-400" aria-hidden="true" />{scope}</p>
-              <p className="mt-2 text-sm leading-6 text-white/55">La prise de rendez-vous sera indisponible pour cette sélection pendant la période indiquée.</p>
-            </div>
+            <p className="pb-1 text-[11px] leading-5 text-white/40">La réservation sera bloquée pour <span className="text-white/65">{scope}</span> sur cette période.</p>
           </div>
 
           <div>
-            <h4 className="mb-3 text-sm font-semibold text-white">Quelle période bloquer ?</h4>
-            <div className="grid gap-4 md:grid-cols-2">
+            <h4 className="mb-2 text-xs font-medium text-white/75">Quelle période bloquer ?</h4>
+            <div className="grid gap-3 @min-[640px]:grid-cols-2">
               {([
                 { title: "Début", date: "startDate", time: "startTime" },
                 { title: "Fin", date: "endDate", time: "endTime" },
               ] as const).map(({ title, date, time }) => (
-                <fieldset key={date} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-                  <legend className="px-2 text-sm text-tertiary-400">{title}</legend>
-                  <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+                <fieldset key={date} className="min-w-0 rounded-xl border border-white/[0.07] px-3 pb-3 pt-1">
+                  <legend className="px-1 text-[11px] text-white/60">{title}</legend>
+                  <div className="grid min-w-0 grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-2">
                     <div className="min-w-0">
-                      <label htmlFor={`blocked-${date}`} className="mb-2 block text-xs text-white/65">Date de {title.toLowerCase()}</label>
+                      <label htmlFor={`blocked-${date}`} className="mb-1.5 block text-[10px] text-white/45">Date de {title.toLowerCase()}</label>
                       <input id={`blocked-${date}`} type="date" {...form.register(date)} min={date === "startDate" ? localDate(new Date()) : values.startDate || localDate(new Date())} aria-invalid={Boolean(form.formState.errors[date])} aria-describedby={form.formState.errors[date] ? `error-${date}` : undefined} onChange={e => {
                         form.setValue(date, e.target.value, { shouldDirty: true, shouldValidate: true });
                         if (date === "startDate") handleStartDateChange(e.target.value, values.startTime);
@@ -405,7 +402,7 @@ export default function CreateBlockedSlot({
                       {form.formState.errors[date] && <p id={`error-${date}`} className="mt-2 text-xs text-red-300">{form.formState.errors[date]?.message}</p>}
                     </div>
                     <div className="min-w-0">
-                      <label htmlFor={`blocked-${time}`} className="mb-2 block text-xs text-white/65">Heure de {title.toLowerCase()}</label>
+                      <label htmlFor={`blocked-${time}`} className="mb-1.5 block text-[10px] text-white/45">Heure de {title.toLowerCase()}</label>
                       <input id={`blocked-${time}`} type="time" {...form.register(time)} aria-invalid={Boolean(form.formState.errors[time])} aria-describedby={form.formState.errors[time] ? `error-${time}` : undefined} onChange={e => {
                         form.setValue(time, e.target.value, { shouldDirty: true, shouldValidate: true });
                         if (time === "startTime") handleStartDateChange(values.startDate, e.target.value);
@@ -418,25 +415,25 @@ export default function CreateBlockedSlot({
                 </fieldset>
               ))}
             </div>
-            <div role="status" className={`mt-3 flex flex-wrap items-center gap-2 rounded-xl px-4 py-3 text-sm ${validDuration ? "bg-tertiary-400/5 text-tertiary-400" : "bg-white/5 text-white/60"}`}>
+            <div role="status" className={`mt-2 flex flex-wrap items-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] ${validDuration ? "bg-emerald-400/5 text-emerald-400" : "bg-white/5 text-white/60"}`}>
               <Clock3 size={16} aria-hidden="true" /><span>{validDuration ? `Durée du blocage : ${duration}` : duration}</span>
-              {validDuration && <span className="ml-auto text-xs text-white/50">Minimum 15 min · Maximum 30 jours</span>}
+              {validDuration && <span className="ml-auto text-[10px] text-white/35">Minimum 15 min · Maximum 30 jours</span>}
             </div>
           </div>
 
           <div>
-            <label htmlFor="blocked-reason" className="mb-2 block text-sm font-semibold text-white">Motif <span className="ml-1 font-normal text-white/45">(facultatif)</span></label>
-            <textarea id="blocked-reason" {...form.register("reason")} rows={2} placeholder="Ajoutez une précision utile à votre équipe…" className={`${inputClass} resize-y placeholder:text-white/35`} />
+            <label htmlFor="blocked-reason" className="mb-1.5 block text-xs font-medium text-white/75">Motif <span className="ml-1 font-normal text-white/45">(facultatif)</span></label>
+            <textarea id="blocked-reason" {...form.register("reason")} rows={1} placeholder="Ajoutez une précision utile à votre équipe…" className={`${inputClass} resize-y placeholder:text-white/35`} />
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className="mr-1 text-xs text-white/50">Suggestions :</span>
-              {["Congés", "Formation", "Maladie", "Pause déjeuner"].map(reason => <button key={reason} type="button" aria-pressed={values.reason === reason} onClick={() => form.setValue("reason", reason, { shouldDirty: true })} className={`cursor-pointer rounded-lg border px-3 py-1.5 text-xs transition-colors ${values.reason === reason ? "border-tertiary-400/30 bg-tertiary-400/10 text-tertiary-400" : "border-white/10 text-white/60 hover:bg-white/5 hover:text-white"}`}>{reason}</button>)}
+              <span className="mr-1 text-[10px] text-white/35">Suggestions :</span>
+              {["Congés", "Formation", "Maladie", "Pause déjeuner"].map(reason => <button key={reason} type="button" aria-pressed={values.reason === reason} onClick={() => form.setValue("reason", reason, { shouldDirty: true })} className={`cursor-pointer rounded-md border px-2 py-1 text-[10px] transition-colors ${values.reason === reason ? "border-tertiary-400/30 bg-tertiary-400/10 text-tertiary-400" : "border-white/10 text-white/60 hover:bg-white/5 hover:text-white"}`}>{reason}</button>)}
             </div>
           </div>
         </fieldset>
-        {error && <div role="alert" className="mx-5 mb-5 rounded-xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-200 sm:mx-6">{error}</div>}
-        <footer className="flex flex-col-reverse gap-3 border-t border-white/10 bg-white/[0.02] p-5 sm:flex-row sm:justify-end sm:p-6">
-          <DashboardButton className="!min-h-0" variant="secondary" onClick={onClose} disabled={loading}>Annuler</DashboardButton>
-          <DashboardButton className="!min-h-0" type="submit" disabled={loading}>
+        {error && <div role="alert" className="mx-4 mb-4 rounded-lg border border-red-400/20 bg-red-400/10 p-3 text-xs text-red-200">{error}</div>}
+        <footer className="flex flex-wrap justify-end gap-2 border-t border-white/[0.07] bg-white/[0.02] px-4 py-3">
+          <DashboardButton className="!min-h-9 !min-w-0 !rounded-lg !px-3 !py-2 !text-[11px] !shadow-none" variant="secondary" onClick={onClose} disabled={loading}>Annuler</DashboardButton>
+          <DashboardButton className="!min-h-9 !min-w-0 !rounded-lg !px-3 !py-2 !text-[11px] !shadow-none" type="submit" disabled={loading}>
             {loading ? <LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> : <LockKeyhole size={16} aria-hidden="true" />}
             {loading ? "Blocage en cours…" : "Bloquer le créneau"}
           </DashboardButton>

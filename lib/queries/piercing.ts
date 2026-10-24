@@ -48,6 +48,8 @@ export interface PiercingServicePrice {
   piercingZoneVisage?: PiercingZoneVisage;
   piercingZoneBouche?: PiercingZoneBouche;
   piercingCorps?: PiercingCorps;
+  piercingZoneCorps?: PiercingCorps;
+  piercingZoneMicrodermal?: string;
   price: number;
   description?: string;
   isActive: boolean;

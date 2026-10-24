@@ -67,7 +67,7 @@ export default function DeletePhoto({
       await deletePortfolioImageAction(photo.id);
 
       // 2. Supprimer de UploadThing si l'URL provient d'UploadThing
-      if (photo.imageUrl && photo.imageUrl.includes("utfs.io")) {
+      if (!photo.appointmentPhotoId && photo.imageUrl && photo.imageUrl.includes("utfs.io")) {
         const fileKey = extractUploadThingKey(photo.imageUrl);
         if (fileKey) {
           const uploadThingDeleted = await deleteFromUploadThing(fileKey);

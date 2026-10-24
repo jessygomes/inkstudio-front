@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -13,6 +12,8 @@ import { TatoueurProps, TimeSlotProps } from "@/lib/type";
 import { addMinutes, format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
+import CreationWorkspace from "@/components/Shared/CreationWorkspace";
+import { Paintbrush, MessageSquare, Sparkles, Gem, Check, Save, LoaderCircle } from "lucide-react";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import SkinToneSelect, {
@@ -81,17 +82,17 @@ function RdvSectionHeader({
   description?: string;
 }) {
   return (
-    <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-5 flex flex-col gap-1.5">
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-tertiary-400 font-one">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35 font-one">
           {eyebrow}
         </p>
-        <h3 className="mt-1 text-base font-semibold text-white font-one">
+        <h3 className="mt-1 text-base font-semibold tracking-tight text-white font-one">
           {title}
         </h3>
       </div>
       {description && (
-        <p className="max-w-md text-[11px] leading-relaxed text-white/40 font-one sm:text-right">
+        <p className="max-w-2xl text-xs leading-5 text-white/40 font-one">
           {description}
         </p>
       )}
@@ -769,49 +770,33 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
   //! Affichage du formulaire de création de rendez-vous
   return (
-    <div className="mx-auto w-full max-w-[1600px] pb-8">
-      <div className="w-full">
-        <div className="!h-auto overflow-hidden !rounded-[28px] !p-0">
-          {/* En-tête du parcours : il situe immédiatement les trois blocs principaux. */}
-          <div className="relative z-10 flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-tertiary-400 font-one">
-                Nouveau rendez-vous
-              </p>
-              <h2 className="text-lg font-semibold text-white font-one sm:text-xl">
-                Renseignez les informations du rendez-vous
-              </h2>
-              <p className="mt-1 max-w-2xl text-xs leading-relaxed text-white/45 font-one">
-                Choisissez d'abord la prestation. Les champs adaptés seront
-                ensuite affichés jusqu'au choix du créneau.
-              </p>
-            </div>
-
-            <div className="hidden items-center gap-2 xl:flex">
-              {["Prestation", "Client", "Rendez-vous", "Créneau"].map(
-                (step, index) => (
-                  <div key={step} className="flex items-center gap-2">
-                    {index > 0 && <span className="h-px w-5 bg-white/10" />}
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-tertiary-400/25 bg-tertiary-500/10 text-[10px] font-semibold text-tertiary-400 font-one">
-                      {index + 1}
-                    </span>
-                    <span className="text-[11px] text-white/55 font-one">
-                      {step}
-                    </span>
-                  </div>
-                ),
-              )}
-            </div>
-          </div>
-
+    <CreationWorkspace sections={[
+      { id: "rdv-service", label: "Prestation", hint: "Le type de rendez-vous" },
+      { id: "rdv-client", label: "Client", hint: "Retrouver ou renseigner ses coordonnées", disabled: !selectedPrestation },
+      { id: "rdv-appointment", label: "Organisation", hint: "Le titre et l’artiste", disabled: !selectedPrestation },
+      { id: "rdv-details", label: "Détails de la séance", hint: "Le projet, les références et le tarif", disabled: !selectedPrestation },
+      ...(isSkinRequired ? [{ id: "rdv-skin", label: "Carnation", hint: "Préparer la séance" }] : []),
+      { id: "rdv-schedule", label: "Date & créneau", hint: "Les disponibilités de l’artiste", disabled: !selectedPrestation || !selectedTatoueur },
+    ]} summary={<div className="space-y-4 text-[11px]">
+      <div><p className="text-white/35">Prestation</p><p className="mt-1 font-medium text-white/80">{PRESTATION_OPTIONS.find((option) => option.value === selectedPrestation)?.label || "À choisir"}</p></div>
+      <div><p className="text-white/35">Client</p><p className="mt-1 break-words text-white/80">{[form.watch("clientFirstname"), form.watch("clientLastname")].filter(Boolean).join(" ") || "À renseigner"}</p></div>
+      <div><p className="text-white/35">Artiste</p><p className="mt-1 break-words text-white/80">{tatoueurs.find((artist) => artist.id === selectedTatoueur)?.name || "À sélectionner"}</p></div>
+      <div className="border-t border-white/[0.07] pt-4"><p className="text-white/35">Votre sélection</p>{selectedSlots.length > 0 ? <><p className="mt-1 text-white/80">{format(new Date([...selectedSlots].sort()[0]), "EEEE d MMMM", { locale: fr })}</p><p className="mt-1 text-emerald-400">{format(new Date([...selectedSlots].sort()[0]), "HH:mm")} – {format(addMinutes(new Date([...selectedSlots].sort().at(-1)!), 30), "HH:mm")} · {selectedSlots.length * 30} min</p></> : <p className="mt-1 leading-5 text-white/40">Choisissez une date et des créneaux consécutifs dans l’agenda.</p>}</div>
+    </div>}>
           <form
             onSubmit={form.handleSubmit(onSubmit, (errors) => {
-              console.log("❌ Erreurs de validation", errors);
+              setError("Merci de compléter les champs obligatoires signalés dans le formulaire.");
+              const field = Object.keys(errors)[0];
+              requestAnimationFrame(() => {
+                const element = document.querySelector<HTMLElement>(field === "skin" ? '#rdv-skin [role="radio"]' : '[name="' + field + '"]');
+                element?.scrollIntoView({ block: "center", behavior: "smooth" });
+                element?.focus();
+              });
             })}
-            className="create-rdv-form tablet-inputs relative z-10 grid grid-cols-12 gap-4 p-3 sm:p-5 lg:p-6"
+            noValidate className="grid min-w-0 grid-cols-12 gap-4"
           >
             {/* Étape 1 : la prestation pilote les champs affichés ensuite. */}
-            <section className="create-rdv-prestation order-1 col-span-12 overflow-hidden rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-4 sm:p-5">
+            <section id="rdv-service" className="order-1 col-span-12 scroll-mt-5 rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-6">
               <RdvSectionHeader
                 eyebrow="Étape 1 · Prestation"
                 title="Quel rendez-vous souhaitez-vous créer ?"
@@ -819,9 +804,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
               />
 
               <input type="hidden" {...form.register("prestation")} />
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                {PRESTATION_OPTIONS.map((option, index) => {
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+                {PRESTATION_OPTIONS.map((option) => {
                   const isSelected = selectedPrestation === option.value;
+                  const Icon = { TATTOO: Paintbrush, PROJET: MessageSquare, RETOUCHE: Sparkles, PIERCING: Gem }[option.value];
 
                   return (
                     <button
@@ -845,8 +831,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       }}
                       className={`group flex cursor-pointer items-start gap-3 rounded-2xl border p-3.5 text-left transition-all duration-200 ${
                         isSelected
-                          ? "border-tertiary-400/60 bg-tertiary-500/15 shadow-[0_12px_32px_rgba(255,157,0,0.09)]"
-                          : "border-white/8 bg-white/[0.035] hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.06]"
+                          ? "border-tertiary-400/45 bg-tertiary-400/[0.06]"
+                          : "border-white/10 bg-black/10 hover:border-white/20 hover:bg-white/[0.03]"
                       }`}
                     >
                       <span
@@ -856,7 +842,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                             : "border-white/10 bg-black/20 text-white/45 group-hover:text-white/70"
                         }`}
                       >
-                        {index + 1}
+                        {isSelected ? <Check size={16} aria-hidden="true" /> : <Icon size={16} aria-hidden="true" />}
                       </span>
                       <span className="min-w-0">
                         <span className="block text-sm font-medium text-white font-one">
@@ -879,7 +865,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
             {/* Étape 2 : recherche et coordonnées sont réunies dans un seul bloc. */}
             <div
-              className={`dashboard-embedded-section order-2 col-span-12 rounded-2xl p-3 sm:p-4 ${
+              id="rdv-client" className={`scroll-mt-5 border border-white/10 bg-noir-600 order-2 col-span-12 rounded-2xl p-4 sm:p-6 ${
                 selectedPrestation ? "" : "hidden"
               }`}
             >
@@ -891,14 +877,14 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
               <div className="rounded-2xl border border-white/8 bg-black/15 p-3 sm:p-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-white/65 font-one">
+                  <label htmlFor="rdv-field-1" className="text-xs font-medium text-white/65 font-one">
                     Retrouver un client existant
                   </label>
-                  <input
+                  <input id="rdv-field-1"
                     type="text"
                     value={searchClientQuery}
                     onChange={(e) => setSearchClientQuery(e.target.value)}
-                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
                     placeholder="Saisissez au moins 2 caractères : nom, prénom ou email"
                   />
                   <p className="text-[10px] text-white/35 font-one">
@@ -911,9 +897,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   <div className="mt-2 max-h-56 overflow-auto rounded-xl border border-white/12 bg-[#111] shadow-2xl">
                     {/* Clients existants du salon */}
                     {clientResults.map((client) => (
-                      <div
+                      <button type="button"
                         key={`salon-${client.id}`}
-                        className="cursor-pointer px-3 py-3 sm:py-2 text-white text-sm sm:text-xs hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
+                        className="block w-full text-left cursor-pointer px-3 py-3 sm:py-2 text-white text-sm sm:text-xs hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
                         onClick={() => {
                           form.setValue("clientLastname", client.lastName);
                           form.setValue("clientFirstname", client.firstName);
@@ -954,7 +940,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </button>
                     ))}
 
                     {/* UserClients (clients avec compte plateforme) */}
@@ -965,9 +951,9 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       );
 
                       return (
-                        <div
+                        <button type="button"
                           key={`user-${userClient.id}`}
-                          className="cursor-pointer px-3 py-3 sm:py-2 text-white text-sm sm:text-xs hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
+                          className="block w-full text-left cursor-pointer px-3 py-3 sm:py-2 text-white text-sm sm:text-xs hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
                           onClick={() => {
                             form.setValue(
                               "clientLastname",
@@ -1022,7 +1008,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
@@ -1037,15 +1023,15 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 <span className="h-px flex-1 bg-white/8" />
               </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-3">
                 <div className="space-y-1">
-                  <label className="text-xs text-white/70 font-one">
+                  <label htmlFor="rdv-field-2" className="text-xs text-white/70 font-one">
                     Nom *
                   </label>
-                  <input
+                  <input id="rdv-field-2" aria-invalid={!!form.formState.errors.clientLastname} aria-required="true"
                     placeholder="Nom du client"
                     {...form.register("clientLastname")}
-                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
                   />
                   {form.formState.errors.clientLastname && (
                     <p className="text-red-300 text-xs">
@@ -1055,13 +1041,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs text-white/70 font-one">
+                  <label htmlFor="rdv-field-3" className="text-xs text-white/70 font-one">
                     Prénom *
                   </label>
-                  <input
+                  <input id="rdv-field-3" aria-invalid={!!form.formState.errors.clientFirstname} aria-required="true"
                     placeholder="Prénom du client"
                     {...form.register("clientFirstname")}
-                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
                   />
                   {form.formState.errors.clientFirstname && (
                     <p className="text-red-300 text-xs">
@@ -1071,13 +1057,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs text-white/70 font-one">
+                  <label htmlFor="rdv-field-4" className="text-xs text-white/70 font-one">
                     Email *
                   </label>
-                  <input
+                  <input id="rdv-field-4" aria-invalid={!!form.formState.errors.clientEmail} aria-required="true" type="email" autoComplete="email"
                     placeholder="Email du client"
                     {...form.register("clientEmail")}
-                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
                   />
                   {form.formState.errors.clientEmail && (
                     <p className="text-red-300 text-xs">
@@ -1087,13 +1073,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs text-white/70 font-one">
+                  <label htmlFor="rdv-field-5" className="text-xs text-white/70 font-one">
                     Téléphone *
                   </label>
-                  <input
+                  <input id="rdv-field-5" aria-invalid={!!form.formState.errors.clientPhone} aria-required="true" type="tel" autoComplete="tel"
                     placeholder="Téléphone du client"
                     {...form.register("clientPhone")}
-                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
                   />
                   {form.formState.errors.clientPhone && (
                     <p className="text-red-300 text-xs">
@@ -1103,14 +1089,14 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs text-white/70 font-one">
+                  <label htmlFor="rdv-field-6" className="text-xs text-white/70 font-one">
                     Date de naissance *
                   </label>
-                  <input
+                  <input id="rdv-field-6" aria-invalid={!!form.formState.errors.clientBirthdate} aria-required="true"
                     type="date"
                     placeholder="Date de naissance"
                     {...form.register("clientBirthdate")}
-                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
                   />
                   {form.formState.errors.clientBirthdate && (
                     <p className="text-red-300 text-xs">
@@ -1123,7 +1109,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
             {/* Section: Informations générales */}
             <div
-              className={`dashboard-embedded-section order-4 col-span-12 rounded-2xl p-3 sm:p-4 ${
+              id="rdv-appointment" className={`scroll-mt-5 border border-white/10 bg-noir-600 order-4 col-span-12 rounded-2xl p-4 sm:p-6 ${
                 selectedPrestation ? "" : "hidden"
               }`}
             >
@@ -1134,13 +1120,13 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
               />
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs text-white/70 font-one">
-                    Titre
+                  <label htmlFor="rdv-field-7" className="text-xs text-white/70 font-one">
+                    Titre *
                   </label>
-                  <input
+                  <input id="rdv-field-7" aria-invalid={!!form.formState.errors.title} aria-required="true"
                     placeholder="Titre du rendez-vous"
                     {...form.register("title")}
-                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
                   />
                   {form.formState.errors.title && (
                     <p className="text-red-300 text-xs">
@@ -1150,10 +1136,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs text-white/70 font-one">
-                    Tatoueur
+                  <label htmlFor="rdv-field-8" className="text-xs text-white/70 font-one">
+                    Artiste *
                   </label>
-                  <select
+                  <select id="rdv-field-8" aria-invalid={!!form.formState.errors.tatoueurId} aria-required="true"
                     {...form.register("tatoueurId")}
                     disabled={isUserTatoueur}
                     onChange={(e) => {
@@ -1163,7 +1149,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       });
                       setSelectedTatoueur(e.target.value);
                     }}
-                    className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
+                    className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
                   >
                     {isUserTatoueur ? (
                       <option value={userId} className="bg-noir-500">
@@ -1211,8 +1197,371 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
               )}
             </div>
 
+            {/* Sections conditionnelles selon le type de prestation - responsive */}
+            {selectedPrestation === "PROJET" && (
+              <div id="rdv-details" className="scroll-mt-5 border border-white/10 bg-noir-600 order-5 col-span-12 rounded-2xl p-4 sm:p-6">
+                <RdvSectionHeader
+                  eyebrow="Détails de la prestation"
+                  title="Préparer le projet"
+                  description="Décrivez l’idée et ajoutez les références utiles à l’artiste."
+                />
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label htmlFor="rdv-field-9" className="text-xs text-white/70 font-one">
+                      Description du projet
+                    </label>
+                    <textarea id="rdv-field-9" aria-invalid={!!form.formState.errors.description}
+                      placeholder="Description du projet"
+                      {...form.register("description")}
+                      rows={3}
+                      className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark] resize-y"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                      <label htmlFor="rdv-field-10" className="text-xs text-white/70 font-one">
+                        Zone du corps
+                      </label>
+                      <input id="rdv-field-10" aria-invalid={!!form.formState.errors.zone}
+                        placeholder="Bras avant droit"
+                        {...form.register("zone")}
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="rdv-field-11" className="text-xs text-white/70 font-one">
+                        Taille (cm)
+                      </label>
+                      <input id="rdv-field-11" aria-invalid={!!form.formState.errors.size}
+                        placeholder="20cm x 30cm"
+                        {...form.register("size")}
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="rdv-field-12" className="text-xs text-white/70 font-one">
+                        Style/Couleur
+                      </label>
+                      <input id="rdv-field-12" aria-invalid={!!form.formState.errors.colorStyle}
+                        placeholder="Style gothique, rouge et noir"
+                        {...form.register("colorStyle")}
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="rdv-field-13" className="text-xs text-white/70 font-one">
+                        Prix estimé (€)
+                      </label>
+                      <input id="rdv-field-13" aria-invalid={!!form.formState.errors.estimatedPrice}
+                        type="number"
+                        min={0}
+                        placeholder="Prix estimé"
+                        {...form.register("estimatedPrice", {
+                          valueAsNumber: true,
+                        })}
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Section Upload des images de référence - responsive */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs text-white/70 font-one">
+                        Image de référence 1
+                      </label>
+                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                        <SalonImageUploader
+                          currentImage={form.watch("reference") || undefined}
+                          onImageUpload={(imageUrl) => {
+                            form.setValue("reference", imageUrl);
+                          }}
+                          onImageRemove={() => {
+                            form.setValue("reference", "");
+                          }}
+                          compact={true}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs text-white/70 font-one">
+                        Croquis / Référence 2
+                      </label>
+                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
+                        <SalonImageUploader
+                          currentImage={form.watch("sketch") || undefined}
+                          onImageUpload={(imageUrl) => {
+                            form.setValue("sketch", imageUrl);
+                          }}
+                          onImageRemove={() => {
+                            form.setValue("sketch", "");
+                          }}
+                          compact={true}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedPrestation === "TATTOO" && (
+              <div id="rdv-details" className="scroll-mt-5 border border-white/10 bg-noir-600 order-5 col-span-12 rounded-2xl p-4 sm:p-6">
+                <RdvSectionHeader
+                  eyebrow="Détails de la prestation"
+                  title="Préparer le tatouage"
+                  description="Associez éventuellement un dessin approuvé puis précisez la séance."
+                />
+                <div className="space-y-4">
+                  <DrawingCardSelect
+                    value={form.watch("drawingCardId")}
+                    clientEmail={form.watch("clientEmail")}
+                    onChange={(value) => form.setValue("drawingCardId", value)}
+                  />
+                  <div className="space-y-1">
+                    <label htmlFor="rdv-field-14" className="text-xs text-white/70 font-one">
+                      Description
+                    </label>
+                    <input id="rdv-field-14" aria-invalid={!!form.formState.errors.description}
+                      placeholder="Description du tatouage"
+                      {...form.register("description")}
+                      className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label htmlFor="rdv-field-15" className="text-xs text-white/70 font-one">
+                        Zone du corps
+                      </label>
+                      <input id="rdv-field-15" aria-invalid={!!form.formState.errors.zone}
+                        placeholder="Avant bras droit"
+                        {...form.register("zone")}
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="rdv-field-16" className="text-xs text-white/70 font-one">
+                        Taille
+                      </label>
+                      <input id="rdv-field-16" aria-invalid={!!form.formState.errors.size}
+                        placeholder="30cm x 20cm"
+                        {...form.register("size")}
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="rdv-field-17" className="text-xs text-white/70 font-one">
+                        Style/Couleur
+                      </label>
+                      <input id="rdv-field-17" aria-invalid={!!form.formState.errors.colorStyle}
+                        placeholder="Style gothique, rouge et noir"
+                        {...form.register("colorStyle")}
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="rdv-field-18" className="text-xs text-white/70 font-one">
+                        Prix (€)
+                      </label>
+                      <input id="rdv-field-18" aria-invalid={!!form.formState.errors.price}
+                        type="number"
+                        min={0}
+                        placeholder="Prix"
+                        {...form.register("price", {
+                          valueAsNumber: true,
+                        })}
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedPrestation === "PIERCING" && (
+              <div id="rdv-details" className="scroll-mt-5 border border-white/10 bg-noir-600 order-5 col-span-12 rounded-2xl p-4 sm:p-6">
+                <RdvSectionHeader
+                  eyebrow="Détails de la prestation"
+                  title="Configurer le piercing"
+                  description="Choisissez la zone et le service correspondant."
+                />
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-xs text-white/70 font-one">
+                      Zone de piercing
+                    </label>
+                    {isLoadingPiercingZones ? (
+                      <div className="flex items-center justify-center p-4 bg-white/5 rounded-lg border border-white/10">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-tertiary-400 border-t-transparent mr-2"></div>
+                        <span className="text-white/70 text-xs">
+                          Chargement des zones...
+                        </span>
+                      </div>
+                    ) : piercingZones.length > 0 ? (
+                      <select
+                        className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                        value={selectedPiercingZone}
+                        onChange={(e) => {
+                          setSelectedPiercingZone(e.target.value);
+                          setSelectedPiercingService(""); // Reset service selection
+                          form.setValue(
+                            "zone",
+                            e.target.value
+                              ? piercingZones.find(
+                                  (z) => z.id === e.target.value,
+                                )?.piercingZone || ""
+                              : "",
+                          );
+                        }}
+                      >
+                        <option value="" className="bg-noir-500">
+                          -- Choisissez une zone --
+                        </option>
+                        {piercingZones.map((zone) => (
+                          <option
+                            key={zone.id}
+                            value={zone.id}
+                            className="bg-noir-500"
+                          >
+                            {zone.piercingZone} ({zone.servicesCount} option
+                            {zone.servicesCount > 1 ? "s" : ""})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                        <p className="text-orange-300 text-xs font-one">
+                          Aucune zone de piercing configurée pour ce salon.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Sélection du service spécifique */}
+                  {selectedPiercingZone && selectedZoneServices.length > 0 && (
+                    <div className="space-y-1">
+                      <label className="text-xs text-white/70 font-one">
+                        Zone détaillée et prix
+                      </label>
+                      <div className="space-y-2">
+                        {selectedZoneServices.map((service) => (
+                          <label
+                            key={service.id}
+                            className={`cursor-pointer p-3 rounded-lg border transition-all duration-200 block ${
+                              selectedPiercingService === service.id
+                                ? "border-tertiary-500/70 bg-tertiary-500/10"
+                                : "border-white/20 bg-white/5 hover:border-white/30 hover:bg-white/8"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="radio"
+                                name="piercingService"
+                                value={service.id}
+                                checked={selectedPiercingService === service.id}
+                                onChange={(e) => {
+                                  setSelectedPiercingService(e.target.value);
+                                  // Mettre à jour le prix dans le formulaire
+                                  form.setValue("price", service.price);
+                                  form.setValue(
+                                    "estimatedPrice",
+                                    service.price,
+                                  );
+                                }}
+                                className="w-3 h-3 text-tertiary-500 focus:ring-tertiary-400 bg-transparent border-white/30"
+                              />
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex flex-col">
+                                    <span className="text-white font-one font-medium text-sm">
+                                      {getServiceZoneName(service)}
+                                    </span>
+                                    {service.description && (
+                                      <span className="text-xs text-white/60 font-one mt-1">
+                                        {service.description}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="text-tertiary-400 font-one font-bold">
+                                    {service.price}€
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Prix total affiché */}
+                  {selectedServicePrice > 0 && (
+                    <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-tertiary-400 font-semibold font-one text-sm">
+                            Prix du piercing
+                          </h4>
+                          <p className="text-white/70 text-xs font-one">
+                            Prix indicatif, peut varier selon les bijoux choisis
+                          </p>
+                        </div>
+                        <div className="text-xl font-bold text-tertiary-400 font-one">
+                          {selectedServicePrice}€
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {selectedPrestation === "RETOUCHE" && (
+              <div id="rdv-details" className="scroll-mt-5 border border-white/10 bg-noir-600 order-5 col-span-12 rounded-2xl p-4 sm:p-6">
+                <RdvSectionHeader
+                  eyebrow="Détails de la prestation"
+                  title="Préparer la retouche"
+                  description="Précisez le travail attendu, la zone concernée et le tarif."
+                />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <label htmlFor="rdv-field-19" className="text-xs text-white/70 font-one">
+                      Description de la retouche
+                    </label>
+                    <input id="rdv-field-19" aria-invalid={!!form.formState.errors.description}
+                      placeholder="Description de la retouche"
+                      {...form.register("description")}
+                      className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="rdv-field-20" className="text-xs text-white/70 font-one">
+                      Zone du tatouage
+                    </label>
+                    <input id="rdv-field-20" aria-invalid={!!form.formState.errors.zone}
+                      placeholder="Mollet gauche"
+                      {...form.register("zone")}
+                      className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="rdv-field-21" className="text-xs text-white/70 font-one">
+                      Prix (€)
+                    </label>
+                    <input id="rdv-field-21" aria-invalid={!!form.formState.errors.price}
+                      type="number"
+                      placeholder="Prix"
+                      {...form.register("price")}
+                      className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {isSkinRequired && (
-              <div className="dashboard-embedded-section order-6 col-span-12 w-full rounded-2xl p-3 sm:p-4">
+              <div id="rdv-skin" className="scroll-mt-5 border border-white/10 bg-noir-600 order-6 col-span-12 w-full rounded-2xl p-4 sm:p-6">
                 <RdvSectionHeader
                   eyebrow="Informations complémentaires"
                   title="Carnation du client"
@@ -1244,7 +1593,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
             {/* Section: Créneaux horaires */}
             {selectedPrestation && selectedTatoueur && (
-              <div className="dashboard-embedded-section order-7 col-span-12 rounded-2xl p-3 sm:p-4">
+              <div id="rdv-schedule" className="scroll-mt-5 border border-white/10 bg-noir-600 order-7 col-span-12 rounded-2xl p-4 sm:p-6">
                 <RdvSectionHeader
                   eyebrow="Étape 4 · Planification"
                   title="Choisir la date et le créneau"
@@ -1253,10 +1602,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 <div className="space-y-4">
                   <div className="mb-1 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
                     <div>
-                      <label className="text-xs text-white/80 font-one mb-2 block uppercase tracking-wide">
+                      <label htmlFor="rdv-field-22" className="text-xs text-white/80 font-one mb-2 block uppercase tracking-wide">
                         Date souhaitée
                       </label>
-                      <input
+                      <input id="rdv-field-22"
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
@@ -1282,7 +1631,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         <h4 className="text-white/80 font-one font-semibold text-xs mb-2 uppercase tracking-wide">
                           Légende
                         </h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-8 gap-2 text-xs">
+                        <div className="flex flex-wrap gap-x-4 gap-y-2 text-[11px]">
                           <div className="flex items-center gap-2">
                             <div className="w-4 h-4 border border-white/20 rounded" />
                             <span className="text-white/70 font-one">
@@ -1325,7 +1674,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                               (ils doivent être consécutifs).
                             </p>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 2xl:grid-cols-6">
                               {displayedTimeSlots.map((slot) => {
                                 const isSelected = selectedSlots.includes(
                                   slot.start,
@@ -1368,7 +1717,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                                       !isDisabled && handleSlotClick(slot.start)
                                     }
                                     disabled={isDisabled}
-                                    className={`p-3 rounded-2xl text-xs font-one font-medium transition-all duration-200 border ${
+                                    aria-pressed={isSelected} className={`px-2 py-2.5 rounded-xl text-xs font-one font-medium transition-all duration-200 border ${
                                       isSelected
                                         ? "bg-linear-to-br from-tertiary-500/30 to-tertiary-400/20 border-tertiary-400/60 text-white shadow-lg cursor-pointer"
                                         : !isDisabled
@@ -1550,589 +1899,37 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
               </div>
             )}
 
-            {/* Sections conditionnelles selon le type de prestation - responsive */}
-            {selectedPrestation === "PROJET" && (
-              <div className="dashboard-embedded-section order-5 col-span-12 rounded-2xl p-3 sm:p-4">
-                <RdvSectionHeader
-                  eyebrow="Détails de la prestation"
-                  title="Préparer le projet"
-                  description="Décrivez l’idée et ajoutez les références utiles à l’artiste."
-                />
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-xs text-white/70 font-one">
-                      Description du projet
-                    </label>
-                    <textarea
-                      placeholder="Description du projet"
-                      {...form.register("description")}
-                      rows={3}
-                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors resize-none placeholder-white/50"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/70 font-one">
-                        Zone du corps
-                      </label>
-                      <input
-                        placeholder="Bras avant droit"
-                        {...form.register("zone")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/70 font-one">
-                        Taille (cm)
-                      </label>
-                      <input
-                        placeholder="20cm x 30cm"
-                        {...form.register("size")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/70 font-one">
-                        Style/Couleur
-                      </label>
-                      <input
-                        placeholder="Style gothique, rouge et noir"
-                        {...form.register("colorStyle")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/70 font-one">
-                        Prix estimé (€)
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        placeholder="Prix estimé"
-                        {...form.register("estimatedPrice", {
-                          valueAsNumber: true,
-                        })}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-2xl text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                      />
-                    </div>
-                  </div>
+            {error && <div role="alert" className="order-8 col-span-12 rounded-xl border border-red-400/20 bg-red-400/10 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0 flex-1"><h4 className="text-sm font-medium text-red-200">Le rendez-vous n’a pas pu être créé</h4><p className="mt-1 text-xs leading-5 text-red-200/75">{error === "SAAS_LIMIT_APPOINTMENTS" ? "La limite de rendez-vous de votre abonnement est atteinte." : error === "SAAS_LIMIT_CLIENTS" ? "La limite de fiches clients est atteinte. Sélectionnez un client existant ou consultez votre abonnement." : error}</p></div>{error.startsWith("SAAS_LIMIT") && <DashboardButton href="/parametres" variant="secondary" className="!min-w-0 !rounded-xl">Voir mon abonnement</DashboardButton>}</div>
+            </div>}
+            {success && <div role="status" className="order-8 col-span-12 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-xs text-emerald-300">{success}</div>}
 
-                  {/* Section Upload des images de référence - responsive */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/70 font-one">
-                        Image de référence 1
-                      </label>
-                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
-                        <SalonImageUploader
-                          currentImage={form.watch("reference") || undefined}
-                          onImageUpload={(imageUrl) => {
-                            form.setValue("reference", imageUrl);
-                          }}
-                          onImageRemove={() => {
-                            form.setValue("reference", "");
-                          }}
-                          compact={true}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-xs text-white/70 font-one">
-                        Croquis / Référence 2
-                      </label>
-                      <div className="bg-white/5 rounded-lg p-2 border border-white/10">
-                        <SalonImageUploader
-                          currentImage={form.watch("sketch") || undefined}
-                          onImageUpload={(imageUrl) => {
-                            form.setValue("sketch", imageUrl);
-                          }}
-                          onImageRemove={() => {
-                            form.setValue("sketch", "");
-                          }}
-                          compact={true}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {selectedPrestation === "TATTOO" && (
-              <div className="dashboard-embedded-section order-5 col-span-12 rounded-2xl p-3 sm:p-4">
-                <RdvSectionHeader
-                  eyebrow="Détails de la prestation"
-                  title="Préparer le tatouage"
-                  description="Associez éventuellement un dessin approuvé puis précisez la séance."
-                />
-                <div className="space-y-4">
-                  <DrawingCardSelect
-                    value={form.watch("drawingCardId")}
-                    clientEmail={form.watch("clientEmail")}
-                    onChange={(value) => form.setValue("drawingCardId", value)}
-                  />
-                  <div className="space-y-1">
-                    <label className="text-xs text-white/70 font-one">
-                      Description
-                    </label>
-                    <input
-                      placeholder="Description du tatouage"
-                      {...form.register("description")}
-                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
-                        Zone du corps
-                      </label>
-                      <input
-                        placeholder="Avant bras droit"
-                        {...form.register("zone")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
-                        Taille
-                      </label>
-                      <input
-                        placeholder="30cm x 20cm"
-                        {...form.register("size")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
-                        Style/Couleur
-                      </label>
-                      <input
-                        placeholder="Style gothique, rouge et noir"
-                        {...form.register("colorStyle")}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
-                        Prix (€)
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        placeholder="Prix"
-                        {...form.register("price", {
-                          valueAsNumber: true,
-                        })}
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {selectedPrestation === "PIERCING" && (
-              <div className="dashboard-embedded-section order-5 col-span-12 rounded-2xl p-3 sm:p-4">
-                <RdvSectionHeader
-                  eyebrow="Détails de la prestation"
-                  title="Configurer le piercing"
-                  description="Choisissez la zone et le service correspondant."
-                />
-                <div className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="text-xs text-white/70 font-one">
-                      Zone de piercing
-                    </label>
-                    {isLoadingPiercingZones ? (
-                      <div className="flex items-center justify-center p-4 bg-white/5 rounded-lg border border-white/10">
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-tertiary-400 border-t-transparent mr-2"></div>
-                        <span className="text-white/70 text-xs">
-                          Chargement des zones...
-                        </span>
-                      </div>
-                    ) : piercingZones.length > 0 ? (
-                      <select
-                        className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors"
-                        value={selectedPiercingZone}
-                        onChange={(e) => {
-                          setSelectedPiercingZone(e.target.value);
-                          setSelectedPiercingService(""); // Reset service selection
-                          form.setValue(
-                            "zone",
-                            e.target.value
-                              ? piercingZones.find(
-                                  (z) => z.id === e.target.value,
-                                )?.piercingZone || ""
-                              : "",
-                          );
-                        }}
-                      >
-                        <option value="" className="bg-noir-500">
-                          -- Choisissez une zone --
-                        </option>
-                        {piercingZones.map((zone) => (
-                          <option
-                            key={zone.id}
-                            value={zone.id}
-                            className="bg-noir-500"
-                          >
-                            {zone.piercingZone} ({zone.servicesCount} option
-                            {zone.servicesCount > 1 ? "s" : ""})
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
-                        <p className="text-orange-300 text-xs font-one">
-                          Aucune zone de piercing configurée pour ce salon.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Sélection du service spécifique */}
-                  {selectedPiercingZone && selectedZoneServices.length > 0 && (
-                    <div className="space-y-1">
-                      <label className="text-xs text-white/70 font-one">
-                        Zone détaillée et prix
-                      </label>
-                      <div className="space-y-2">
-                        {selectedZoneServices.map((service) => (
-                          <label
-                            key={service.id}
-                            className={`cursor-pointer p-3 rounded-lg border transition-all duration-200 block ${
-                              selectedPiercingService === service.id
-                                ? "border-tertiary-500/70 bg-tertiary-500/10"
-                                : "border-white/20 bg-white/5 hover:border-white/30 hover:bg-white/8"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <input
-                                type="radio"
-                                name="piercingService"
-                                value={service.id}
-                                checked={selectedPiercingService === service.id}
-                                onChange={(e) => {
-                                  setSelectedPiercingService(e.target.value);
-                                  // Mettre à jour le prix dans le formulaire
-                                  form.setValue("price", service.price);
-                                  form.setValue(
-                                    "estimatedPrice",
-                                    service.price,
-                                  );
-                                }}
-                                className="w-3 h-3 text-tertiary-500 focus:ring-tertiary-400 bg-transparent border-white/30"
-                              />
-                              <div className="flex-1">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex flex-col">
-                                    <span className="text-white font-one font-medium text-sm">
-                                      {getServiceZoneName(service)}
-                                    </span>
-                                    {service.description && (
-                                      <span className="text-xs text-white/60 font-one mt-1">
-                                        {service.description}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <span className="text-tertiary-400 font-one font-bold">
-                                    {service.price}€
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Prix total affiché */}
-                  {selectedServicePrice > 0 && (
-                    <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="text-tertiary-400 font-semibold font-one text-sm">
-                            Prix du piercing
-                          </h4>
-                          <p className="text-white/70 text-xs font-one">
-                            Prix indicatif, peut varier selon les bijoux choisis
-                          </p>
-                        </div>
-                        <div className="text-xl font-bold text-tertiary-400 font-one">
-                          {selectedServicePrice}€
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {selectedPrestation === "RETOUCHE" && (
-              <div className="dashboard-embedded-section order-5 col-span-12 rounded-2xl p-3 sm:p-4">
-                <RdvSectionHeader
-                  eyebrow="Détails de la prestation"
-                  title="Préparer la retouche"
-                  description="Précisez le travail attendu, la zone concernée et le tarif."
-                />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs text-white/70 font-one">
-                      Description de la retouche
-                    </label>
-                    <input
-                      placeholder="Description de la retouche"
-                      {...form.register("description")}
-                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-white/70 font-one">
-                      Zone du tatouage
-                    </label>
-                    <input
-                      placeholder="Mollet gauche"
-                      {...form.register("zone")}
-                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs text-white/70 font-one">
-                      Prix (€)
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="Prix"
-                      {...form.register("price")}
-                      className="w-full p-3 sm:p-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm sm:text-xs focus:outline-none focus:border-tertiary-400 transition-colors placeholder-white/50"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Messages d'erreur and de succès - responsive */}
-            {error && error === "SAAS_LIMIT_APPOINTMENTS" ? (
-              /* Message spécial pour la limite de rendez-vous */
-              <div className="order-8 col-span-12 rounded-2xl border border-orange-500/50 bg-gradient-to-r from-orange-500/20 to-red-500/20 p-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-orange-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg
-                      className="w-4 h-4 text-orange-300"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 2m8-2l2 2m-2-2v6a2 2 0 01-2 2H10a2 2 0 01-2-2v-6"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-orange-300 font-semibold font-one mb-2 text-sm">
-                      📅 Limite de rendez-vous atteinte
-                    </h3>
-
-                    <p className="text-orange-200 text-xs font-one mb-3">
-                      Vous avez atteint la limite de rendez-vous par mois de
-                      votre plan actuel.
-                    </p>
-
-                    <div className="bg-white/10 rounded-lg p-3 mb-3">
-                      <h4 className="text-white font-semibold font-one text-xs mb-2">
-                        📈 Solutions disponibles :
-                      </h4>
-                      <div className="space-y-2 text-xs">
-                        <div className="flex items-start gap-2">
-                          <div className="w-4 h-4 bg-tertiary-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <span className="text-tertiary-400 text-[10px] font-bold">
-                              1
-                            </span>
-                          </div>
-                          <div className="text-white/90">
-                            <span className="font-semibold text-tertiary-400">
-                              Plan PRO (29€/mois)
-                            </span>
-                            <br />
-                            <span className="text-white/70">
-                              Rendez-vous illimités + fonctionnalités avancées
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-2">
-                          <div className="w-4 h-4 bg-purple-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <span className="text-purple-400 text-[10px] font-bold">
-                              2
-                            </span>
-                          </div>
-                          <div className="text-white/90">
-                            <span className="font-semibold text-purple-400">
-                              Plan BUSINESS (69€/mois)
-                            </span>
-                            <br />
-                            <span className="text-white/70">
-                              Solution complète multi-salons
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <DashboardButton
-                        type="button"
-                        onClick={() => router.push("/parametres")}
-                        className="min-w-0"
-                      >
-                        Changer de plan
-                      </DashboardButton>
-
-                      <DashboardButton
-                        type="button"
-                        onClick={() => setError("")}
-                        variant="secondary"
-                        className="min-w-0"
-                      >
-                        Fermer
-                      </DashboardButton>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : error && error === "SAAS_LIMIT_CLIENTS" ? (
-              /* Message spécial pour la limite de clients (lors de création automatique) */
-              <div className="order-8 col-span-12 rounded-2xl border border-red-500/50 bg-gradient-to-r from-red-500/20 to-purple-500/20 p-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-red-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg
-                      className="w-4 h-4 text-red-300"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-red-300 font-semibold font-one mb-2 text-sm">
-                      👥 Impossible de créer le client
-                    </h3>
-
-                    <p className="text-red-200 text-xs font-one mb-3">
-                      Ce client n'existe pas dans votre base et vous avez
-                      atteint la limite de fiches clients de votre plan.
-                    </p>
-
-                    <div className="bg-white/10 rounded-lg p-3 mb-3">
-                      <h4 className="text-white font-semibold font-one text-xs mb-2">
-                        💡 Options disponibles :
-                      </h4>
-                      <div className="space-y-2 text-xs">
-                        <div className="flex items-start gap-2">
-                          <div className="w-4 h-4 bg-blue-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <span className="text-blue-400 text-[10px] font-bold">
-                              1
-                            </span>
-                          </div>
-                          <div className="text-white/90">
-                            <span className="font-semibold text-blue-400">
-                              Utiliser un client existant
-                            </span>
-                            <br />
-                            <span className="text-white/70">
-                              Recherchez le client dans la liste ci-dessus
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-2">
-                          <div className="w-4 h-4 bg-tertiary-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <span className="text-tertiary-400 text-[10px] font-bold">
-                              2
-                            </span>
-                          </div>
-                          <div className="text-white/90">
-                            <span className="font-semibold text-tertiary-400">
-                              Plan PRO/BUSINESS
-                            </span>
-                            <br />
-                            <span className="text-white/70">
-                              Clients et rendez-vous illimités
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <DashboardButton
-                        type="button"
-                        onClick={() => router.push("/parametres")}
-                        className="min-w-0"
-                      >
-                        Changer de plan
-                      </DashboardButton>
-
-                      <DashboardButton
-                        type="button"
-                        onClick={() => setError("")}
-                        variant="secondary"
-                        className="min-w-0"
-                      >
-                        Fermer
-                      </DashboardButton>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : error ? (
-              /* Message d'erreur standard */
-              <div className="order-8 col-span-12 rounded-xl border border-red-500/50 bg-red-500/20 p-3">
-                <p className="text-red-300 text-xs">{error}</p>
-              </div>
-            ) : null}
-
-            {success && (
-              <div className="order-8 col-span-12 rounded-xl border border-green-500/50 bg-green-500/20 p-3">
-                <p className="text-green-300 text-xs">{success}</p>
-              </div>
-            )}
-
-            {/* Footer avec boutons d'action - responsive */}
-            <div className="sticky bottom-0 z-20 order-9 col-span-12 -mx-3 -mb-3 flex flex-col-reverse justify-end gap-2 px-3 py-3 backdrop-blur-xl sm:-mx-5 sm:-mb-5 sm:flex-row sm:px-5 lg:-mx-6 lg:-mb-6 lg:px-6">
+            {/* Actions de création */}
+            <div className="sticky bottom-4 z-20 order-9 col-span-12 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-noir-600/95 p-4 shadow-xl shadow-black/20 backdrop-blur-xl">
+              <p className="text-[11px] text-white/40">{selectedSlots.length ? selectedSlots.length * 30 + " min sélectionnées" : "Choisissez un créneau pour finaliser le rendez-vous."}</p>
+              <div className="ml-auto flex flex-wrap gap-2">
               <DashboardButton
                 href="/mes-rendez-vous"
                 variant="secondary"
-                className="w-full sm:w-auto"
+                className="!min-w-0 !rounded-xl !shadow-none"
               >
                 Annuler
               </DashboardButton>
               <DashboardButton
                 type="submit"
                 disabled={loading || !selectedPrestation}
-                className="w-full sm:w-auto"
+                className="!min-w-0 !rounded-xl !shadow-none"
               >
+                {loading ? <LoaderCircle size={14} className="animate-spin" aria-hidden="true" /> : <Save size={14} aria-hidden="true" />}
                 {loading
                   ? "Création..."
                   : selectedPrestation
                     ? "Créer le rendez-vous"
                     : "Choisir une prestation"}
               </DashboardButton>
+              </div>
             </div>
           </form>
-        </div>
-      </div>
-    </div>
+    </CreationWorkspace>
   );
 }

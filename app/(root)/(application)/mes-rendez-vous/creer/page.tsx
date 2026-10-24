@@ -1,9 +1,8 @@
 import CreateRdvForm from "@/components/Application/RDV/CreateRdvForm";
-import PageHeader from "@/components/Shared/PageHeader";
+import { CreationPageHeader } from "@/components/Shared/CreationWorkspace";
 import { currentUser } from "@/lib/auth.server";
 import { auth } from "@/auth";
 import Link from "next/link";
-import { FaRegCalendarTimes } from "react-icons/fa";
 
 export default async function CreerRDVpage() {
   const user = await currentUser();
@@ -43,14 +42,17 @@ export default async function CreerRDVpage() {
   }
 
   return (
-    <main className="flex min-h-[100dvh] w-full flex-col items-center justify-start bg-noir-700">
-      <div className="relative mt-4 flex min-h-[calc(100dvh-1rem)] w-full flex-col bg-noir-700 px-3 pb-4 sm:px-6 lg:px-10">
-        <PageHeader
-          icon={<FaRegCalendarTimes size={15} className="text-tertiary-400 animate-pulse" />}
+    <main className="wrapper-global pb-24 pt-5 lg:pb-8">
+      <div className="w-full">
+        <CreationPageHeader
+          category="Rendez-vous"
           title="Créer un rendez-vous"
+          description="Choisissez une prestation, préparez la séance et trouvez le bon créneau pour votre client."
+          backHref="/mes-rendez-vous"
+          backLabel="Retour aux rendez-vous"
         />
 
-        <div className="w-full mt-3">
+        <div className="w-full">
           <CreateRdvForm userId={userId ?? ""} />
         </div>
       </div>

@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateSalonSchema } from "@/lib/zod/validator.schema";
 import { z } from "zod";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
+import CreationWorkspace, { CreationPageHeader } from "@/components/Shared/CreationWorkspace";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import SkeletonForm from "@/components/Skeleton/SkeletonForm";
 import { useRouter } from "next/navigation";
@@ -17,7 +18,7 @@ import {
   updateProjectAppointmentBookingAction,
 } from "@/lib/queries/user";
 import { toast } from "sonner";
-import { ImagePlus, UserRound, MapPin, Globe, FileText, Sparkles, Palette, Save, ArrowLeft, LoaderCircle, CalendarClock, Mail, Gem, ArrowRight } from "lucide-react";
+import { ImagePlus, UserRound, MapPin, Globe, FileText, Sparkles, Palette, Save, LoaderCircle, CalendarClock, Mail, Gem, ArrowRight } from "lucide-react";
 import { IoClose } from "react-icons/io5";
 
 export default function UpdateAccountPage() {
@@ -215,11 +216,11 @@ export default function UpdateAccountPage() {
   };
 
   const labelClass =
-    "mb-1.5 block text-xs font-medium text-white/65 font-one";
+    "mb-2 block text-xs font-medium text-white/70 font-one";
   const inputClass =
-    "w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:bg-white/[0.045] focus:ring-2 focus:ring-tertiary-400/10 font-two";
+    "w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/45 focus:bg-white/[0.045] focus:ring-2 focus:ring-tertiary-400/10 font-two";
   const badgeClass =
-    "inline-flex items-center gap-1 rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-2.5 py-1 text-xs text-tertiary-400 font-one";
+    "inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/75 font-one";
   const selectedPrestations = form.watch("prestations") ?? [];
   const showProjectConfig = selectedPrestations.includes("PROJET");
   const showFollowUpEmailConfig = selectedPrestations.some((prestation) =>
@@ -258,42 +259,30 @@ export default function UpdateAccountPage() {
   }
 
   return (
-    <div className="wrapper-global pb-24 lg:pb-8">
-      <section className="w-full space-y-5 pt-4">
-        <div className="flex flex-col gap-4 px-1 py-3 sm:px-2 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.18em] text-tertiary-400 font-one">
-              Mon compte
-            </p>
-            <h1 className="mt-1 text-xl font-semibold text-white font-one sm:text-2xl">
-              Modifier mes informations
-            </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55 font-one">
-                Mettez à jour les informations de votre salon, ajoutez des photos, gérez vos réseaux sociaux et configurez les prestations proposées.
-              </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <DashboardButton
-              href="/mon-compte"
-              className="w-full sm:w-auto"
-              variant="secondary"
-            >
-              <ArrowLeft size={15} aria-hidden="true" />Retour au salon
-            </DashboardButton>
-          </div>
-        </div>
-
-        <div className="w-full">
+    <div className="wrapper-global pb-24 pt-5 lg:pb-8">
+      <section className="w-full">
+        <CreationPageHeader category="Mon compte" context="Profil du salon" title="Modifier les informations du salon" description="Présentez votre univers, mettez à jour vos coordonnées et préparez l’accueil de vos clients." backHref="/mon-compte" backLabel="Retour au profil du salon" />
+        <CreationWorkspace sections={[
+          { id: "salon-visual", label: "Photos du salon", hint: "Profil et couverture" },
+          { id: "salon-identity", label: "Identité", hint: "Le salon et son propriétaire" },
+          { id: "salon-contact", label: "Coordonnées", hint: "Téléphone et localisation" },
+          { id: "salon-description-section", label: "Présentation", hint: "Votre univers en quelques mots" },
+          { id: "salon-online", label: "Présence en ligne", hint: "Réseaux sociaux et site web" },
+          { id: "salon-services", label: "Prestations", hint: "Votre offre" },
+          { id: "salon-specialties", label: "Spécialités", hint: "Vos styles de tatouage" },
+          ...(showProjectConfig ? [{ id: "salon-booking", label: "Rendez-vous projet", hint: "Durée et tarif" }] : []),
+          ...(showFollowUpEmailConfig ? [{ id: "salon-followup", label: "Suivi client", hint: "Les emails après la séance" }] : []),
+          ...(selectedPrestations.includes("PIERCING") ? [{ id: "salon-piercing", label: "Catalogue piercing", hint: "Zones, services et tarifs" }] : []),
+        ]} summary={<div className="space-y-4"><div><p className="break-words text-sm font-medium text-white/85">{form.watch("salonName") || "Votre salon"}</p><p className="mt-1 text-[11px] text-white/40">{[form.watch("postalCode"), form.watch("city")].filter(Boolean).join(" ") || "Localisation à compléter"}</p></div><div className="flex flex-wrap gap-1.5">{selectedPrestations.map((service) => <span key={service} className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-white/55">{{ TATTOO: "Tatouage", PROJET: "Projet", RETOUCHE: "Retouche", PIERCING: "Piercing" }[service]}</span>)}</div><p className="text-[11px] leading-5 text-white/35">Complétez chaque rubrique pour aider vos clients à découvrir le salon et préparer leur visite.</p></div>}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="create-rdv-form tablet-inputs relative grid grid-cols-12 gap-4"
+            className="grid min-w-0 grid-cols-12 gap-4"
             noValidate
           >
-            <div className="col-span-12 rounded-[22px] border border-tertiary-400/20 bg-gradient-to-br from-tertiary-500/10 via-[#181818] to-[#181818] p-4 sm:p-6">
+            <div id="salon-visual" className="col-span-12 min-w-0 scroll-mt-5 rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-5">
               <FormSectionHeader eyebrow="01 · Identité visuelle" title="L’image de votre salon" description="Votre photo de profil et votre couverture donnent le premier aperçu de votre univers." icon={<ImagePlus size={18} />} />
               <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]">
-              <div className="flex min-w-0 flex-col rounded-[20px] border border-white/10 bg-[#181818]/80 p-4 sm:p-5">
+              <div className="flex min-w-0 flex-col rounded-xl border border-white/[0.07] bg-black/10 p-3 sm:p-4">
                 <div className="mb-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h3 className="text-sm font-semibold text-white font-one">Photo de profil</h3>
@@ -312,7 +301,7 @@ export default function UpdateAccountPage() {
                 />
               </div>
 
-              <div className="flex min-w-0 flex-col rounded-[20px] border border-white/10 bg-[#181818]/80 p-4 sm:p-5">
+              <div className="flex min-w-0 flex-col rounded-xl border border-white/[0.07] bg-black/10 p-3 sm:p-4">
                 <div className="mb-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h3 className="text-sm font-semibold text-white font-one">Couverture du salon</h3>
@@ -333,9 +322,9 @@ export default function UpdateAccountPage() {
             </div>
 
             </div>
-            <div className="dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5 xl:col-span-6">
+            <div id="salon-identity" className="scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5 2xl:col-span-6">
               <FormSectionHeader eyebrow="02 · Identité" title="Votre salon et son propriétaire" description="Les informations essentielles de votre compte professionnel." icon={<UserRound size={18} />} />
-              <div className="space-y-2.5">
+              <div className="space-y-4">
                 <div className="space-y-1">
                   <label htmlFor="salon-salonName" className={labelClass}>Nom du salon</label>
                   <input id="salon-salonName" aria-invalid={Boolean(form.formState.errors.salonName)} aria-describedby={form.formState.errors.salonName ? "salon-salonName-error" : undefined}
@@ -370,9 +359,9 @@ export default function UpdateAccountPage() {
               </div>
             </div>
 
-            <div className="dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5 xl:col-span-6">
+            <div id="salon-contact" className="scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5 2xl:col-span-6">
               <FormSectionHeader eyebrow="03 · Coordonnées" title="Où vous trouver ?" description="Renseignez les coordonnées utiles pour vous contacter et vous rendre visite." icon={<MapPin size={18} />} />
-              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
                   <label htmlFor="salon-phone" className={labelClass}>Téléphone</label>
                   <input id="salon-phone" aria-invalid={Boolean(form.formState.errors.phone)} aria-describedby={form.formState.errors.phone ? "salon-phone-error" : undefined}
@@ -415,9 +404,22 @@ export default function UpdateAccountPage() {
               </div>
             </div>
 
-            <div className="dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5 xl:col-span-6">
-              <FormSectionHeader eyebrow="04 · Présence en ligne" title="Gardez le contact" description="Ajoutez les liens de vos réseaux sociaux et de votre site." icon={<Globe size={18} />} />
-              <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <div id="salon-description-section" className="scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5">
+              <FormSectionHeader eyebrow="04 · Présentation" title="Racontez votre univers" description="Présentez votre approche, votre ambiance et ce qui vous distingue." icon={<FileText size={18} />} />
+              <div className="space-y-1">
+                <label htmlFor="salon-description" className={labelClass}>Description du salon</label>
+                <textarea id="salon-description" aria-invalid={Boolean(form.formState.errors.description)} aria-describedby={form.formState.errors.description ? "salon-description-error" : undefined}
+                  placeholder="Décrivez votre salon, votre style, votre ambiance..."
+                  {...form.register("description")}
+                  rows={4}
+                  className={`${inputClass} resize-y`}
+                />
+              </div>
+            </div>
+
+            <div id="salon-online" className="scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5 2xl:col-span-6">
+              <FormSectionHeader eyebrow="05 · Présence en ligne" title="Gardez le contact" description="Ajoutez les liens de vos réseaux sociaux et de votre site." icon={<Globe size={18} />} />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
                   <label htmlFor="salon-instagram" className={labelClass}>Instagram</label>
                   <input id="salon-instagram" aria-invalid={Boolean(form.formState.errors.instagram)} aria-describedby={form.formState.errors.instagram ? "salon-instagram-error" : undefined}
@@ -460,21 +462,7 @@ export default function UpdateAccountPage() {
               </div>
             </div>
 
-            <div className="dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5 xl:col-span-6">
-              <FormSectionHeader eyebrow="05 · Présentation" title="Racontez votre univers" description="Présentez votre approche, votre ambiance et ce qui vous distingue." icon={<FileText size={18} />} />
-              <div className="space-y-1">
-                <label htmlFor="salon-description" className={labelClass}>Description du salon</label>
-                <textarea id="salon-description" aria-invalid={Boolean(form.formState.errors.description)} aria-describedby={form.formState.errors.description ? "salon-description-error" : undefined}
-                  placeholder="Décrivez votre salon, votre style, votre ambiance..."
-                  {...form.register("description")}
-                  rows={5}
-                  className={`${inputClass} resize-y`}
-                />
-              </div>
-            </div>
-
-          <section className="col-span-12 grid gap-4 xl:grid-cols-2" aria-label="Prestations et styles">
-            <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+            <div id="salon-services" className="col-span-12 2xl:col-span-6 scroll-mt-5 border border-white/10 bg-noir-600 min-w-0 rounded-2xl p-4 sm:p-5">
               <FormSectionHeader eyebrow="06 · Prestations" title="Que proposez-vous ?" description="Les réglages de réservation apparaissent selon votre sélection." icon={<Sparkles size={18} />} />
 
               <p className="mb-3 text-xs leading-5 text-white/60 font-one">
@@ -510,7 +498,7 @@ export default function UpdateAccountPage() {
                             {...form.register("prestations")}
                             className="sr-only"
                           />
-                          {opt}
+                          {{ TATTOO: "Tatouage", RETOUCHE: "Retouche", PROJET: "Projet", PIERCING: "Piercing" }[opt]}
                         </label>
                       );
                     })}
@@ -519,7 +507,7 @@ export default function UpdateAccountPage() {
               })()}
             </div>
 
-            <div className="dashboard-embedded-section min-w-0 rounded-[22px] p-4 sm:p-5">
+            <div id="salon-specialties" className="col-span-12 scroll-mt-5 border border-white/10 bg-noir-600 min-w-0 rounded-2xl p-4 sm:p-5">
               <FormSectionHeader eyebrow="07 · Spécialités" title="Vos styles de tatouage" description="Aidez les clients à reconnaître votre savoir-faire." icon={<Palette size={18} />} />
 
               <p className="mb-3 text-xs leading-5 text-white/60 font-one">
@@ -561,10 +549,9 @@ export default function UpdateAccountPage() {
                 ))}
               </div>
             </div>
-            </section>
 
             {showProjectConfig ? (
-              <div className={`dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5 ${showFollowUpEmailConfig ? "xl:col-span-6" : ""}`}>
+              <div id="salon-booking" className={`scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5 ${showFollowUpEmailConfig ? "2xl:col-span-6" : ""}`}>
                 <FormSectionHeader eyebrow="Réservation · Projet" title="Préparez le premier échange" description="Définissez la durée et le tarif du rendez-vous consacré au projet de votre client." icon={<CalendarClock size={18} />} />
                 <div className="mb-5 flex flex-wrap gap-2">
                   <span className={badgeClass}>{projectDuration ? formatDurationLabel(projectDuration) : "Durée à définir"}</span>
@@ -639,7 +626,7 @@ export default function UpdateAccountPage() {
             ) : null}
 
             {showFollowUpEmailConfig ? (
-              <div className={`dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5 ${showProjectConfig ? "xl:col-span-6" : ""}`}>
+              <div id="salon-followup" className={`scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5 ${showProjectConfig ? "2xl:col-span-6" : ""}`}>
                 <FormSectionHeader eyebrow="Relation client · Suivi" title="Gardez le contact après la séance" description="Personnalisez le délai d’envoi de vos emails de suivi, en jours après le rendez-vous." icon={<Mail size={18} />} />
                 <div className={`grid grid-cols-1 gap-4 ${showRetouchEmailDelay ? "sm:grid-cols-2" : "sm:max-w-lg"}`}>
                   <div className="rounded-2xl border border-white/10 bg-black/10 p-4"><p className="mb-3 text-xs leading-5 text-white/50 font-two">Prenez des nouvelles de votre client après sa séance.</p><label htmlFor="salon-followUpEmailDelayDays" className={labelClass}>Suivi général (jours)</label>
@@ -681,12 +668,12 @@ export default function UpdateAccountPage() {
             if (!showPiercing) return null;
 
             return (
-              <div className="dashboard-embedded-section col-span-12 min-w-0 rounded-[22px] p-4 sm:p-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5">
+                <div id="salon-piercing" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <FormSectionHeader eyebrow="Catalogue · Piercing" title="Vos zones, services et tarifs" description="Composez votre offre de piercing et ajustez les prestations disponibles pour vos clients." icon={<Gem size={18} />} />
                   <DashboardButton
                     href="/mon-compte/piercing"
-                    className="w-full sm:w-auto"
+                    className="!min-w-0 !rounded-xl !shadow-none"
                   >
                     Configurer les piercings <ArrowRight size={15} aria-hidden="true" />
                   </DashboardButton>
@@ -695,19 +682,19 @@ export default function UpdateAccountPage() {
             );
           })()}
 
-            <div className="sticky bottom-4 z-20 col-span-12 flex flex-col-reverse justify-end gap-3 rounded-2xl border border-white/10 bg-noir-700/90 p-4 backdrop-blur-xl sm:flex-row sm:items-center">
+            <div className="sticky bottom-4 z-20 col-span-12 flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-white/10 bg-noir-600/95 p-4 shadow-xl shadow-black/20 backdrop-blur-xl">
               <DashboardButton
                 variant="secondary"
                 onClick={() => router.push("/mon-compte")}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto"
+                className="!min-w-0 !rounded-xl !shadow-none"
               >
                 Annuler
               </DashboardButton>
               <DashboardButton
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto"
+                className="!min-w-0 !rounded-xl !shadow-none"
               >
                 {isSubmitting ? (
                   <><LoaderCircle size={15} className="animate-spin" aria-hidden="true" /><span>Enregistrement…</span></>
@@ -717,9 +704,7 @@ export default function UpdateAccountPage() {
               </DashboardButton>
             </div>
           </form>
-
-
-        </div>
+        </CreationWorkspace>
       </section>
     </div>
   );
@@ -727,7 +712,7 @@ export default function UpdateAccountPage() {
 
 function FormSectionHeader({ eyebrow, title, description, icon }: { eyebrow: string; title: string; description: string; icon: ReactNode }) {
   return <div className="mb-5 flex items-start gap-3">
-    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/25 bg-tertiary-500/10 text-tertiary-400" aria-hidden="true">{icon}</span>
-    <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-tertiary-400/80 font-one">{eyebrow}</p><h3 className="mt-1 text-base font-semibold text-white font-one">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50 font-two">{description}</p></div>
+    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-tertiary-400" aria-hidden="true">{icon}</span>
+    <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35 font-one">{eyebrow}</p><h3 className="mt-1 text-base font-semibold tracking-tight text-white font-one">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50 font-two">{description}</p></div>
   </div>;
 }
