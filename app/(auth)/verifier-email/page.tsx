@@ -28,7 +28,7 @@ function VerifyEmailContent() {
     const verify = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/auth/verify-email?token=${token}&email=${email}`
+          `${process.env.NEXT_PUBLIC_BACK_URL}/auth/verify-email?${new URLSearchParams({ token, email })}`
         );
         const data = await res.json();
 

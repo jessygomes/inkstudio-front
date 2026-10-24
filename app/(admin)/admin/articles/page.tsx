@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FiChevronLeft, FiEdit2, FiFileText, FiPlus, FiTrash2 } from "react-icons/fi";
-import PageHeader from "@/components/Shared/PageHeader";
+import AdminConfirmDialog from "@/components/Admin/AdminConfirmDialog";
+import PageHeader from "@/components/Admin/AdminPageHeader";
 import { toast } from "sonner";
 import ArticleImagesUploader from "@/components/Shared/UploadImage/ArticleImagesUploader";
 import {
@@ -28,6 +29,8 @@ const toEditFormState = (article: AdminArticle): EditFormState => ({
 });
 
 export default function AdminArticlesPage() {
+  const [query, setQuery] = useState("");
+  const [deleteCandidate, setDeleteCandidate] = useState<AdminArticle | null>(null);
   const [articles, setArticles] = useState<AdminArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -116,8 +119,7 @@ export default function AdminArticlesPage() {
   };
 
   const removeArticle = async (id: string) => {
-    const confirmed = window.confirm("Supprimer cet article ?");
-    if (!confirmed) return;
+
 
     try {
       setDeletingId(id);
@@ -129,6 +131,7 @@ export default function AdminArticlesPage() {
       }
 
       setArticles((prev) => prev.filter((article) => article.id !== id));
+      setDeleteCandidate(null);
       toast.success("Article supprime");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur inconnue");
@@ -138,7 +141,7 @@ export default function AdminArticlesPage() {
   };
 
   return (
-    <div className="wrapper-global">
+    <div className="admin-page">
       <section className="w-full space-y-3 pt-4">
         <PageHeader icon={<FiFileText size={18} />} title="Gestion des Articles">
           <Link
@@ -154,6 +157,7 @@ export default function AdminArticlesPage() {
             <FiPlus size={14} /> Nouvel article
           </Link>
         </PageHeader>
+        <section className="admin-panel mb-5"><label htmlFor="article-search" className="admin-label">Rechercher une publication</label><input id="article-search" className="admin-field" placeholder="Titre ou auteur…" value={query} onChange={e => setQuery(e.target.value)} /></section>
 
         <div className="">
           {loading && (
@@ -172,13 +176,16 @@ export default function AdminArticlesPage() {
             </div>
           )}
 
+          {!loading && !error && articles.length > 0 && !articles.some(article => `${article.title} ${article.author}`.toLowerCase().includes(query.trim().toLowerCase())) && (
+            <div className="admin-empty">Aucune publication ne correspond à votre recherche.</div>
+          )}
           {!loading && !error && articles.length === 0 && (
             <p className="text-sm text-white/60 font-one">Aucun article pour le moment.</p>
           )}
 
           {!loading && !error && articles.length > 0 && (
             <div className="space-y-3">
-              {articles.map((article) => {
+              {articles.filter(article => `${article.title} ${article.author}`.toLowerCase().includes(query.trim().toLowerCase())).map((article) => {
                 const isEditing = editingId === article.id;
                 const isSaving = savingId === article.id;
                 const isDeleting = deletingId === article.id;
@@ -190,8 +197,7 @@ export default function AdminArticlesPage() {
                   >
                     {isEditing ? (
                       <div className="space-y-3">
-                        <input
-                          value={editForm.title}
+                        <label className="admin-label" htmlFor="edit-article-title">Titre</label><input id="edit-article-title" value={editForm.title}
                           onChange={(e) =>
                             setEditForm((prev) => ({ ...prev, title: e.target.value }))
                           }
@@ -199,8 +205,7 @@ export default function AdminArticlesPage() {
                           placeholder="Titre"
                         />
 
-                        <input
-                          value={editForm.author}
+                        <label className="admin-label" htmlFor="edit-article-author">Auteur</label><input id="edit-article-author" value={editForm.author}
                           onChange={(e) =>
                             setEditForm((prev) => ({ ...prev, author: e.target.value }))
                           }
@@ -208,8 +213,7 @@ export default function AdminArticlesPage() {
                           placeholder="Auteur"
                         />
 
-                        <textarea
-                          value={editForm.content}
+                        <label className="admin-label" htmlFor="edit-article-content">Contenu</label><textarea id="edit-article-content" value={editForm.content}
                           onChange={(e) =>
                             setEditForm((prev) => ({ ...prev, content: e.target.value }))
                           }
@@ -283,7 +287,7 @@ export default function AdminArticlesPage() {
                                 <FiEdit2 size={14} />
                               </button>
                               <button
-                                onClick={() => removeArticle(article.id)}
+                                onClick={() => setDeleteCandidate(article)}
                                 disabled={isDeleting}
                                 className="cursor-pointer rounded-lg border border-red-400/30 bg-red-400/10 p-2 text-red-300 hover:bg-red-400/20 disabled:opacity-50"
                                 aria-label="Supprimer l'article"
@@ -306,6 +310,7 @@ export default function AdminArticlesPage() {
           )}
         </div>
       </section>
+      <AdminConfirmDialog open={!!deleteCandidate} title="Supprimer cet article ?" busy={!!deletingId} onCancel={() => setDeleteCandidate(null)} onConfirm={() => { if(deleteCandidate) void removeArticle(deleteCandidate.id); }}><p>« {deleteCandidate?.title} » sera définitivement supprimé des publications.</p></AdminConfirmDialog>
     </div>
   );
 }

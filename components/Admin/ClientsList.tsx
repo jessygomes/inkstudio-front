@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { getAllClients } from "@/lib/queries/admin";
 import { FiSearch, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import Image from "next/image";
+import Link from "next/link";
+import AccountAge from "./AccountAge";
 
 interface Client {
   id: string;
@@ -111,7 +113,7 @@ export default function ClientsList() {
           {pagination.totalClients > 1 ? "s" : ""}
         </p>
         <p>
-          Page {pagination.currentPage} sur {pagination.totalPages}
+          Page {pagination.currentPage} sur {Math.max(1, pagination.totalPages)}
         </p>
       </div>
 
@@ -139,7 +141,7 @@ export default function ClientsList() {
                   <th className="px-4 py-3">Client</th>
                   <th className="px-4 py-3">Contact</th>
                   <th className="px-4 py-3">Localisation</th>
-                  <th className="px-4 py-3">Créé le</th>
+                  <th className="px-4 py-3">Ancienneté</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -197,14 +199,10 @@ export default function ClientsList() {
                       </td>
 
                       <td className="px-4 py-4 text-xs text-white/70 font-one">
-                        {new Date(client.createdAt).toLocaleDateString("fr-FR", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })}
+                        <AccountAge createdAt={client.createdAt} />
                       </td>
 
-                      <td className="px-4 py-4 text-right">
+                      <td className="px-4 py-4 text-right"><Link className="admin-button mr-2" href={`/admin/users/${client.id}`}>Voir la fiche</Link>
                         <a
                           href={`mailto:${client.email}`}
                           className="inline-flex rounded-2xl border border-white/15 bg-white/8 px-3 py-1.5 text-[11px] font-medium text-white/85 transition-colors hover:bg-white/15 font-one"

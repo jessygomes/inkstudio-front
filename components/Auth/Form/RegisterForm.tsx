@@ -10,8 +10,9 @@ import { CardWrapper } from "../CardWrapper";
 // import { FormError } from "@/components/Shared/FormError";
 // import { FormSuccess } from "@/components/Shared/FormSuccess";
 import Link from "next/link";
+import { toast } from "sonner";
 import { step1Schema, step2Schema, step3Schema } from "@/lib/zod/validator.schema";
-import { isTatoueurProOfferEligible, type SignupPlan, type SignupRole } from "@/lib/offers";
+import { isSignupPlanAllowed, isInkeraTrialEligible, type SignupPlan, type SignupRole } from "@/lib/offers";
 // import { createSession } from "@/lib/session";
 
 interface RegisterProps {
@@ -36,7 +37,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
       const url = new URL(safeCallbackUrl, "https://inkera-studio.local");
       const checkoutPlan = url.searchParams.get("checkout");
 
-      if (checkoutPlan === "PRO") {
+      if (checkoutPlan === "PRO" || checkoutPlan === "BUSINESS") {
         return checkoutPlan;
       }
 
@@ -115,8 +116,8 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
       isTatoueurProOfferActive
         ? "PRO"
         : data.role === "user_salon"
-          ? "FREE"
-          : formData.saasPlan;
+          ? preselectedPlan === "BUSINESS" ? "BUSINESS" : "FREE"
+          : isSignupPlanAllowed(data.role, formData.saasPlan) ? formData.saasPlan : "FREE";
 
     setFormData({
       ...formData,
@@ -136,13 +137,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
   const handleStep2Submit = (data: { saasPlan: SignupPlan }) => {
     let nextPlan: SignupPlan = data.saasPlan;
 
-    // Le plan Business est temporairement indisponible.
-    if (nextPlan === "BUSINESS") {
-      nextPlan = "FREE";
-    }
-
-    // Le plan Pro est réservé aux indépendants.
-    if (formData.role !== "user_tatoueur" && nextPlan === "PRO") {
+    if (!isSignupPlanAllowed(formData.role, nextPlan)) {
       nextPlan = "FREE";
     }
 
@@ -171,11 +166,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
     try {
       let selectedPlan: SignupPlan = formData.saasPlan;
 
-      if (selectedPlan === "BUSINESS") {
-        selectedPlan = "FREE";
-      }
-
-      if (formData.role !== "user_tatoueur" && selectedPlan === "PRO") {
+      if (!isSignupPlanAllowed(formData.role, selectedPlan)) {
         selectedPlan = "FREE";
       }
 
@@ -183,10 +174,9 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
         selectedPlan = "PRO";
       }
 
-      const skipStripeCheckout = isTatoueurProOfferEligible(
+      const skipStripeCheckout = isInkeraTrialEligible(
         formData.role,
         selectedPlan,
-        isTatoueurProOfferActive,
       );
 
       const finalData = {
@@ -227,6 +217,19 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
         return;
       }
 
+      toast.success("Un e-mail de vérification vous a été envoyé.", {
+        id: "signup-email-verification",
+        description: "Consultez votre boîte de réception et vos courriers indésirables pour activer votre compte Inkera Studio.",
+        duration: 12000,
+      });
+      try {
+        sessionStorage.setItem("signup_notice_pending", "1");
+        sessionStorage.setItem("signup_notice_email", data.email);
+        sessionStorage.setItem("signup_notice_plan", skipStripeCheckout ? "FREE" : selectedPlan);
+      } catch {
+        // Le toast global reste affiché pendant la navigation interne.
+      }
+
       // L'utilisateur a choisi un plan payant (STUDIO ou PRO)
       const isPaymentPlanSelected =
         selectedPlan !== "FREE" && !skipStripeCheckout;
@@ -261,12 +264,6 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
 
         setSuccess("Compte créé. Redirection vers le paiement...");
 
-        // Mémoriser le contexte d'inscription pour afficher un message clair
-        // sur la page de connexion si l'utilisateur revient depuis Stripe.
-        sessionStorage.setItem("signup_notice_pending", "1");
-        sessionStorage.setItem("signup_notice_email", data.email);
-        sessionStorage.setItem("signup_notice_plan", selectedPlan);
-
         // Rediriger l'utilisateur vers Stripe
         setIsPending(false);
         window.location.href = checkoutUrl;
@@ -276,7 +273,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
       // Plan FREE: redirection après succès
       setSuccess(
         skipStripeCheckout
-          ? "Inscription réussie ! Votre offre Pro avec 3 mois offerts est activée, sans carte bancaire."
+          ? `Inscription réussie ! Votre offre ${selectedPlan === "BUSINESS" ? "Business avec 60 jours" : "Pro avec 3 mois"} offerts est activée, sans carte bancaire.`
           : infos.message || "Inscription réussie !",
       );
       setIsPending(false);
@@ -378,7 +375,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                                 leur profil au salon.
                               </p>
                               <p className="text-xs text-white/80 leading-relaxed">
-                                Prochainement, un salon en compte Business
+                                Un salon en compte Business
                                 pourra voir les rendez-vous de ses tatoueurs
                                 créés ou liés, et gérer aussi son équipe.
                               </p>
@@ -503,14 +500,14 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                       </option>
                       {formData.role === "user_tatoueur" && (
                         <option value="PRO" className="bg-white text-black">
-                          {isTatoueurProOfferActive
-                            ? "Pro - 3 mois offerts puis 29,99€/mois"
-                            : "Pro - 29,99€/mois"}
+                          Pro - 3 mois offerts puis 29,99€/mois
                         </option>
                       )}
-                      {/* <option value="BUSINESS" className="bg-white text-black">
-                        Business - 59,99€/mois
-                      </option> */}
+                      {formData.role === "user_salon" && (
+                        <option value="BUSINESS" className="bg-white text-black">
+                          Business - 60 jours offerts puis 59,99€/mois
+                        </option>
+                      )}
                     </select>
 
                     {formData.role !== "user_tatoueur" && (
@@ -563,9 +560,10 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                       {step2Form.watch("saasPlan") === "BUSINESS" && (
                         <div className="text-xs text-white/80">
                           <p className="font-semibold mb-2 text-tertiary-400">
-                            Plan Business - 59,99€/mois :
+                            Plan Business - 60 jours offerts puis 59,99€/mois :
                           </p>
                           <div className="text-xs space-y-1">
+                            <p>• 60 jours offerts, sans carte bancaire</p>
                             <p>• Tatoueurs illimités</p>
                             <p>• Gestion du stock</p>
                             <p>• Tout du plan Pro</p>
@@ -596,18 +594,12 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                           </svg>
                           <div>
                             <p className="text-tertiary-400 text-xs font-semibold mb-1">
-                              {step2Form.watch("saasPlan") === "PRO" &&
-                              formData.role === "user_tatoueur" &&
-                              isTatoueurProOfferActive
-                                ? "Offre Pro active"
-                                : "Paiement après création du compte"}
+                              Période offerte sans carte bancaire
                             </p>
                             <p className="text-tertiary-400/80 text-xs">
-                              {step2Form.watch("saasPlan") === "PRO" &&
-                              formData.role === "user_tatoueur" &&
-                              isTatoueurProOfferActive
-                                ? "Votre compte Pro sera créé avec 3 mois offerts, sans carte bancaire et sans redirection vers Stripe. Une fois les 3 mois écoulés, vous pourrez choisir de continuer avec le plan Pro ou de passer au plan Free."
-                                : "Après validation de votre inscription, vous serez redirigé vers Stripe pour finaliser votre abonnement."}
+                              {step2Form.watch("saasPlan") === "BUSINESS"
+                                ? "Votre compte Business sera créé avec 60 jours offerts, sans carte bancaire. Des rappels vous inviteront à souscrire avant la fin. Sans souscription, votre compte repassera en Free."
+                                : "Votre compte Pro sera créé avec 3 mois offerts, sans carte bancaire. Des rappels vous inviteront à souscrire avant la fin. Sans souscription, votre compte repassera en Free."}
                             </p>
                           </div>
                         </div>

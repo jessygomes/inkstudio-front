@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FiChevronLeft, FiFileText } from "react-icons/fi";
 import { toast } from "sonner";
-import PageHeader from "@/components/Shared/PageHeader";
+import PageHeader from "@/components/Admin/AdminPageHeader";
 import { createAdminArticleAction } from "@/lib/queries/articles.action";
 import ArticleImagesUploader from "@/components/Shared/UploadImage/ArticleImagesUploader";
 
@@ -51,7 +51,7 @@ export default function NewAdminArticlePage() {
   };
 
   return (
-    <div className="wrapper-global">
+    <div className="admin-page">
       <section className="w-full space-y-3 pt-4">
         <PageHeader icon={<FiFileText size={18} />} title="Nouvel Article">
           <Link
@@ -64,24 +64,24 @@ export default function NewAdminArticlePage() {
 
         <form
           onSubmit={onSubmit}
-          className="bg-noir-500 p-4 rounded-2xl space-y-3 font-one"
+          className="admin-panel max-w-4xl space-y-5"
         >
-          <input
-            value={title}
+          <label className="admin-label" htmlFor="article-title">Titre de l’article *</label>
+          <input id="article-title" required disabled={saving} value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded-2xl border border-white/15 bg-noir-500/60 px-3 py-2 text-sm text-white outline-none focus:border-tertiary-400"
             placeholder="Titre"
           />
 
-          <input
-            value={author}
+          <label className="admin-label" htmlFor="article-author">Auteur *</label>
+          <input id="article-author" required disabled={saving} value={author}
             onChange={(e) => setAuthor(e.target.value)}
             className="w-full rounded-2xl border border-white/15 bg-noir-500/60 px-3 py-2 text-sm text-white outline-none focus:border-tertiary-400"
             placeholder="Auteur"
           />
 
-          <textarea
-            value={content}
+          <label className="admin-label" htmlFor="article-content">Contenu *</label>
+          <textarea id="article-content" required disabled={saving} value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={10}
             className="w-full rounded-2xl border border-white/15 bg-noir-500/60 px-3 py-2 text-sm text-white outline-none focus:border-tertiary-400"
@@ -97,7 +97,7 @@ export default function NewAdminArticlePage() {
           <button
             type="submit"
             disabled={saving}
-            className="cursor-pointer rounded-2xl bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-4 py-2 text-xs text-white disabled:opacity-50 font-one"
+            className="admin-button admin-button-primary"
           >
             {saving ? "Création..." : "Créer l'article"}
           </button>

@@ -2,6 +2,7 @@
 
 import { FiMail, FiPhone, FiMapPin, FiCalendar } from "react-icons/fi";
 import { LuShieldCheck } from "react-icons/lu";
+import AccountAge from "./AccountAge";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -29,14 +30,6 @@ interface UserCardProps {
 }
 
 export default function UserCard({ user, type, onDetails }: UserCardProps) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
   const getPlanBadgeClasses = (plan?: string) => {
     switch (plan?.toUpperCase()) {
       case "FREE":
@@ -156,7 +149,7 @@ export default function UserCard({ user, type, onDetails }: UserCardProps) {
         <div className="flex items-center gap-1 text-[10px] text-white/45 font-one">
           <FiCalendar size={11} />
           <span className="font-one">
-            Inscrit le {formatDate(user.createdAt)}
+            <AccountAge createdAt={user.createdAt} />
           </span>
         </div>
 

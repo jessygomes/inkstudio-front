@@ -160,7 +160,8 @@ export interface Subscription {
   id: string;
   userId: string;
   currentPlan: "FREE" | "PRO" | "BUSINESS";
-  planStatus: "ACTIVE" | "CANCELLED" | "EXPIRED";
+  planStatus: "ACTIVE" | "CANCELLED" | "EXPIRED" | "TRIAL" | "PAST_DUE";
+  hasStripeSubscription?: boolean;
   startDate: string;
   endDate: string | null;
   trialEndDate: string | null;

@@ -146,44 +146,6 @@ export default function TarificationPage() {
     ],
   };
 
-  const plans = [
-    {
-      id: "PRO",
-      link:
-        process.env.NODE_ENV === "development"
-          ? "https://buy.stripe.com/test_3cI9AUfbhcKDgaOg4m2ZO00"
-          : "",
-      priceId:
-        process.env.NODE_ENV === "development"
-          ? "price_1TBynYJMlGOwiqiVbpmg4EHu"
-          : "",
-      name: "Offre Pro",
-      price: 29.99,
-      duration: "/month",
-    },
-    // {
-    //   id: "BUSINESS",
-    //   link:
-    //     process.env.NODE_ENV === "development"
-    //       ? "https://buy.stripe.com/test_4gM7sM2ov5ib4s67xQ2ZO01"
-    //       : "",
-    //   priceId:
-    //     process.env.NODE_ENV === "development"
-    //       ? "price_1TC2itJMlGOwiqiVEtpAD8js"
-    //       : "",
-    //   name: "Offre Business",
-    //   price: 59.99,
-    //   duration: "/month",
-    // },
-  ] satisfies Array<{
-    id: "PRO";
-    link: string;
-    priceId: string;
-    name: string;
-    price: number;
-    duration: string;
-  }>;
-
   return (
     <>
       <Script
@@ -346,10 +308,7 @@ export default function TarificationPage() {
 
       {/* Composant Tarifs modernisé */}
       <div className="bg-gradient-to-b from-noir-500 to-noir-700">
-        <Tarifs
-          paymentPlans={plans}
-          isTatoueurProOfferActive={isTatoueurProOfferActive}
-        />
+        <Tarifs />
       </div>
 
       {/* Section finale CTA */}

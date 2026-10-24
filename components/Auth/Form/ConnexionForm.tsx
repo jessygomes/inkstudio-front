@@ -13,6 +13,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getSession, signIn } from "next-auth/react";
 import { ROUTES } from "@/lib/routes";
+import { toast } from "sonner";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -46,6 +47,11 @@ export const LoginForm = () => {
       const signupPlan = sessionStorage.getItem("signup_notice_plan");
 
       if (hasSignupNotice === "1") {
+        toast.success("Un e-mail de vérification vous a été envoyé.", {
+          id: "signup-email-verification",
+          description: "Consultez votre boîte de réception et vos courriers indésirables pour activer votre compte Inkera Studio.",
+          duration: 12000,
+        });
         setSignupNotice({
           email: signupEmail,
           plan: signupPlan,

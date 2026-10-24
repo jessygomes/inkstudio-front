@@ -2,20 +2,8 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect, useMemo } from "react";
 import { FaCheck, FaCrown, FaRocket, FaUsers } from "react-icons/fa";
-
-type PaymentPlan = {
-  id: "PRO";
-  link: string;
-};
-
-interface TarifsProps {
-  paymentPlans?: PaymentPlan[];
-  isTatoueurProOfferActive?: boolean;
-}
 
 type DisplayPlan = {
   id: "FREE" | "PRO" | "BUSINESS";
@@ -32,41 +20,8 @@ type DisplayPlan = {
   color: "blue" | "tertiary" | "purple";
 };
 
-const isPaidPlanId = (value: string | null): value is PaymentPlan["id"] => {
-  return value === "PRO";
-};
-
-const isCheckoutPlanId = (
-  value: DisplayPlan["id"],
-): value is PaymentPlan["id"] => {
-  return value === "PRO";
-};
-
-export default function Tarifs({
-  paymentPlans = [],
-  isTatoueurProOfferActive = false,
-}: TarifsProps) {
-  const searchParams = useSearchParams();
-  const { status } = useSession();
-
-  const paymentLinksById = useMemo(
-    () => new Map(paymentPlans.map((plan) => [plan.id, plan.link])),
-    [paymentPlans],
-  );
-
-  const checkoutPlan = searchParams.get("checkout");
-
-  useEffect(() => {
-    if (status !== "authenticated" || !isPaidPlanId(checkoutPlan)) {
-      return;
-    }
-
-    const checkoutLink = paymentLinksById.get(checkoutPlan);
-
-    if (checkoutLink) {
-      window.location.href = checkoutLink;
-    }
-  }, [status, checkoutPlan, paymentLinksById]);
+export default function Tarifs() {
+  const { status, data: session } = useSession();
 
   const plans: DisplayPlan[] = [
     {
@@ -97,14 +52,10 @@ export default function Tarifs({
       period: "mois",
       description:
         "Idéal pour les tatoueurs indépendants qui démarrent leur activité et veulent se professionnaliser.",
-      highlight: isTatoueurProOfferActive
-        ? "3 mois offerts dès l'inscription, sans carte bancaire."
-        : undefined,
+      highlight: "3 mois offerts dès l’inscription, sans carte bancaire.",
       icon: <FaCrown size={24} className="text-tertiary-400" />,
       features: [
-        ...(isTatoueurProOfferActive
-          ? ["3 mois offerts dès l'inscription"]
-          : []),
+        "3 mois offerts dès l’inscription",
         "1 tatoueur",
         "Réservation en ligne",
         "Gestion clients illimitée",
@@ -125,7 +76,7 @@ export default function Tarifs({
       period: "mois",
       description:
         "Solution complète pour les salons avec plusieurs artistes et une gestion avancée.",
-      highlight: "Bientôt disponible",
+      highlight: "Réservé aux salons · 60 jours offerts, sans carte bancaire",
       icon: <FaRocket size={24} className="text-purple-400" />,
       features: [
         "Tatoueurs illimités",
@@ -136,7 +87,7 @@ export default function Tarifs({
         "Formations incluses",
       ],
       popular: false,
-      cta: "Bientôt disponible",
+      cta: "Choisir Business",
       color: "purple",
     },
   ];
@@ -159,25 +110,10 @@ export default function Tarifs({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {plans.map((plan, index) => {
             const isFreePlan = plan.id === "FREE";
-            const paidPlanId = isCheckoutPlanId(plan.id) ? plan.id : null;
-            const isPaidPlan = paidPlanId !== null;
-            const checkoutLink = paidPlanId
-              ? paymentLinksById.get(paidPlanId)
-              : undefined;
-            const authRedirectUrl = paidPlanId
-              ? `/connexion?callbackUrl=${encodeURIComponent(
-                  `/tarification?checkout=${paidPlanId}`,
-                )}`
-              : "";
-            const isActionEnabled =
-              isFreePlan || (isPaidPlan && Boolean(checkoutLink));
-            const ctaLabel =
-              isFreePlan && status !== "authenticated"
-                ? "S'inscrire gratuitement"
-                : isPaidPlan && status !== "authenticated"
-                  ? "Se connecter / s'inscrire"
-                  : plan.cta;
-
+            const canChoosePlan = isFreePlan || status !== "authenticated" ||
+              (plan.id === "BUSINESS" ? session?.user?.role === "user_salon" : session?.user?.role === "user_tatoueur");
+            const isActionEnabled = canChoosePlan;
+            const ctaLabel = status === "authenticated" ? "Gérer mon abonnement" : plan.cta;
             const ctaClasses = `block w-full py-2 px-6 rounded-3xl text-center font-one font-semibold transition-all duration-300 ${
               isActionEnabled
                 ? "hover:scale-105"
@@ -290,31 +226,13 @@ export default function Tarifs({
                   ))}
                 </div>
 
-                {/* CTA */}
-                {isFreePlan ? (
-                  status === "authenticated" ? (
-                    <Link href="/tableau-de-bord" className={ctaClasses}>
-                      {ctaLabel}
-                    </Link>
-                  ) : (
-                    <Link href="/inscription" className={ctaClasses}>
-                      {ctaLabel}
-                    </Link>
-                  )
-                ) : isPaidPlan && isActionEnabled ? (
-                  status === "authenticated" ? (
-                    <a href={checkoutLink} className={ctaClasses}>
-                      {ctaLabel}
-                    </a>
-                  ) : (
-                    <Link href={authRedirectUrl} className={ctaClasses}>
-                      {ctaLabel}
-                    </Link>
-                  )
+                {canChoosePlan ? (
+                  <Link
+                    href={status === "authenticated" ? (isFreePlan ? "/dashboard" : "/parametres#facturation") : isFreePlan ? "/inscription" : "/inscription?callbackUrl=" + encodeURIComponent("/tarification?checkout=" + plan.id)}
+                    className={ctaClasses}
+                  >{ctaLabel}</Link>
                 ) : (
-                  <button type="button" className={ctaClasses} disabled>
-                    {ctaLabel}
-                  </button>
+                  <button type="button" className={ctaClasses} disabled>{plan.id === "BUSINESS" ? "Réservé aux comptes salon" : "Réservé aux indépendants"}</button>
                 )}
               </div>
             );
@@ -371,9 +289,7 @@ export default function Tarifs({
 
             <div className="text-center mt-8 p-6 bg-white/5 rounded-2xl">
               <p className="text-white tracking-widest font-one font-semibold">
-                {isTatoueurProOfferActive
-                  ? "Offre Pro : 3 mois offerts dès l'inscription, sans carte bancaire requise"
-                  : "Offre Pro disponible sans engagement, activation immediate selon la formule choisie"}
+                Pro indépendant : 3 mois offerts. Business salon : 60 jours offerts. Sans carte bancaire.
               </p>
             </div>
           </div>

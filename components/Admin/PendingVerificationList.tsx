@@ -7,11 +7,10 @@ import {
   FiSearch,
   FiChevronLeft,
   FiChevronRight,
-  FiExternalLink,
-  FiFile,
   FiClock,
+  FiCheckCircle,
 } from "react-icons/fi";
-import DocumentReviewActions from "./DocumentReviewActions";
+import VerificationDocumentsSection from "./VerificationDocumentsSection";
 
 type DocItem = {
   url?: string;
@@ -32,6 +31,7 @@ type PendingSalon = {
   description: string | null;
   createdAt: string;
   updatedAt: string;
+  verifiedSalon?: boolean;
   // documents shape can vary; we keep it flexible
   documents?: DocItem[];
   verificationDocuments?: DocItem[];
@@ -109,22 +109,11 @@ export default function PendingVerificationList() {
     fetchPending(newPage, search);
   };
 
-  const [viewerOpen, setViewerOpen] = useState(false);
-  const [viewerDocs, setViewerDocs] = useState<string[]>([]);
-  const [viewerIndex, setViewerIndex] = useState(0);
-
-  const openViewer = (urls: string[]) => {
-    setViewerDocs(urls);
-    setViewerIndex(0);
-    setViewerOpen(true);
-  };
-
-  const closeViewer = () => setViewerOpen(false);
 
   return (
     <div className="space-y-3">
       {/* Search */}
-      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <FiSearch
             className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/50"
@@ -132,6 +121,8 @@ export default function PendingVerificationList() {
           />
           <input
             type="text"
+            aria-label="Rechercher un salon ou un indépendant"
+            style={{ paddingLeft: "2.5rem" }}
             placeholder="Rechercher (nom, email, ville)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -149,10 +140,10 @@ export default function PendingVerificationList() {
       {/* Results Info */}
       <div className="flex items-center justify-between text-white/70 text-xs font-one">
         <p>
-          {totalLabel} salon{(totalLabel ?? 0) > 1 ? "s" : ""} à vérifier
+          {totalLabel} salon{(totalLabel ?? 0) > 1 ? "s" : ""} avec des pièces à traiter
         </p>
         <p>
-          Page {pagination.currentPage} sur {pagination.totalPages}
+          Page {pagination.currentPage} sur {Math.max(1, pagination.totalPages)}
         </p>
       </div>
 
@@ -172,7 +163,7 @@ export default function PendingVerificationList() {
 
       {/* Grid */}
       {!loading && !error && salons.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        <div className="grid w-full grid-cols-1 items-start gap-3">
           {salons.map((salon) => {
             const displayName =
               salon.salonName ||
@@ -182,11 +173,11 @@ export default function PendingVerificationList() {
             return (
               <div
                 key={salon.id}
-                className="flex flex-col bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-tertiary-400/40 transition-all duration-300 p-3 shadow-lg gap-2.5"
+                className="flex min-w-0 flex-col rounded-xl border border-white/10 bg-[#191e20] p-3 gap-2"
               >
                 {/* Header */}
-                <div className="flex items-center gap-2.5">
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white/10 flex-shrink-0 border border-white/10">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="relative w-9 h-9 rounded-lg overflow-hidden bg-white/10 flex-shrink-0 border border-white/10">
                     {salon.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -200,85 +191,35 @@ export default function PendingVerificationList() {
                       </div>
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-white font-one font-bold text-sm truncate">
+                  <div className="min-w-0 flex-1 basis-40">
+                    <h3 title={displayName} className="text-white font-one font-medium text-sm break-words">
                       {displayName}
                     </h3>
-                    <p className="text-white/50 text-[11px] font-one truncate">
+                    <p className="text-white/50 text-xs font-one truncate">
                       {salon.email}
                     </p>
                     {(salon.city || salon.postalCode) && (
-                      <p className="text-white/40 text-[10px] font-one truncate">
+                      <p className="text-white/40 text-xs font-one truncate">
                         {salon.postalCode ? `${salon.postalCode} ` : ""}{salon.city || ""}
                       </p>
                     )}
                   </div>
-                  <span className="flex-shrink-0 flex items-center gap-1 text-[10px] font-one font-semibold px-2 py-0.5 rounded-full border border-amber-400/30 text-amber-400 bg-amber-400/10">
-                    <FiClock size={10} />
-                    En attente
+                  <div className="ml-auto flex shrink-0 items-center gap-2">
+                  <span className={`admin-badge gap-1 ${salon.verifiedSalon ? "text-emerald-300" : "text-amber-300"}`}>
+                    {salon.verifiedSalon ? <FiCheckCircle size={14} /> : <FiClock size={14} />}
+                    {salon.verifiedSalon ? "Compte vérifié" : "À vérifier"}
                   </span>
-                </div>
-
-                {/* Documents */}
-                {Array.isArray(salon.SalonVerificationDocument) && salon.SalonVerificationDocument.length > 0 ? (
-                  <div className="space-y-1.5">
-                    <p className="text-white/50 text-[10px] font-one uppercase tracking-wider">
-                      Documents ({salon.SalonVerificationDocument.length})
-                    </p>
-                    <div className="space-y-1.5">
-                      {salon.SalonVerificationDocument.map((doc) => (
-                        <div
-                          key={doc.id}
-                          className="rounded-xl border border-white/10 bg-white/5 p-2"
-                        >
-                          <div className="flex items-center justify-between gap-2 mb-1.5">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <FiFile size={11} className="text-white/40 flex-shrink-0" />
-                              <span className="text-[10px] font-one text-white/70 truncate">
-                                {doc.type.replace(/_/g, ' ')}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1 flex-shrink-0">
-                              <button
-                                onClick={() => openViewer([doc.fileUrl])}
-                                className="p-1 rounded-md bg-tertiary-500/10 hover:bg-tertiary-500/20 text-tertiary-400 transition-colors text-[10px] font-one px-2"
-                              >
-                                Voir
-                              </button>
-                              <a
-                                href={doc.fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-1 rounded-md bg-white/5 hover:bg-white/15 text-white/50 hover:text-white transition-colors"
-                              >
-                                <FiExternalLink size={11} />
-                              </a>
-                            </div>
-                          </div>
-                          <DocumentReviewActions
-                            documentId={doc.id}
-                            documentType={doc.type}
-                            onReviewed={() => fetchPending(pagination.currentPage, search)}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-white/30 text-[11px] font-one">
-                    Aucun document disponible
-                  </p>
-                )}
-
-                {/* Footer */}
-                <div className="pt-2 border-t border-white/10 mt-auto">
                   <Link
                     href={`/admin/users/${salon.id}`}
-                    className="flex items-center justify-center gap-1.5 w-full px-3 py-1.5 bg-white/8 hover:bg-white/15 border border-white/15 text-white rounded-xl transition-all duration-200 text-[11px] font-one font-medium"
+                    className="inline-flex min-h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2 text-xs text-white/65 transition-colors hover:bg-white/5 hover:text-white"
                   >
-                    Voir le profil complet
+                    Voir la fiche <FiChevronRight aria-hidden size={14} />
                   </Link>
+                  </div>
                 </div>
+
+                <VerificationDocumentsSection compact documents={salon.SalonVerificationDocument || []} verifiedSalon={salon.verifiedSalon} onDocumentReviewed={() => fetchPending(pagination.currentPage, search)} />
+
               </div>
             );
           })}
@@ -331,58 +272,7 @@ export default function PendingVerificationList() {
         </div>
       )}
 
-      {/* Viewer Modal */}
-      {viewerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/70" onClick={closeViewer} />
-          <div className="relative z-10 w-[95vw] max-w-4xl bg-noir-700 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
-              <div className="text-white/70 text-xs font-one">
-                Document {viewerIndex + 1} / {viewerDocs.length}
-              </div>
-              <button
-                onClick={closeViewer}
-                className="px-2.5 py-1 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg font-one transition-colors"
-              >
-                Fermer
-              </button>
-            </div>
-            <div className="relative w-full h-[70vh] bg-black">
-              <iframe
-                src={viewerDocs[viewerIndex]}
-                title="Document"
-                className="w-full h-full"
-                referrerPolicy="no-referrer"
-                allow="fullscreen"
-              />
-              <div className="absolute bottom-2 right-2">
-                <a
-                  href={viewerDocs[viewerIndex]}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-2.5 py-1 text-[10px] bg-white/10 hover:bg-white/20 text-white rounded-lg font-one"
-                >
-                  Ouvrir dans un onglet
-                </a>
-              </div>
-            </div>
-            {viewerDocs.length > 1 && (
-              <div className="flex items-center justify-center gap-2 p-2 border-t border-white/10">
-                {viewerDocs.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setViewerIndex(i)}
-                    className={`w-6 h-1.5 rounded-full transition-colors ${
-                      i === viewerIndex ? "bg-tertiary-500" : "bg-white/20"
-                    }`}
-                    aria-label={`Aller au document ${i + 1}`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }

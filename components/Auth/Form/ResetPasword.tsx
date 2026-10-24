@@ -54,7 +54,7 @@ export default function ResetPasswordForm() {
   });
 
   const onSubmit = async (data: ResetPasswordData) => {
-    if (!token) {
+    if (!token || !email) {
       setError("Token manquant. Veuillez utiliser le lien reçu par email.");
       return;
     }
@@ -79,10 +79,10 @@ export default function ResetPasswordForm() {
         }
       );
 
-      const result = await res.json();
+      const result = await res.json().catch(() => null);
 
-      if (!res.ok || result.error) {
-        throw new Error(result.message || "Une erreur est survenue.");
+      if (!res.ok || result?.error) {
+        throw new Error(result?.message || "Une erreur est survenue.");
       }
 
       setSuccess("Mot de passe réinitialisé avec succès ! Redirection...");
@@ -92,19 +92,18 @@ export default function ResetPasswordForm() {
         router.push("/connexion");
       }, 2000);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Une erreur est survenue.");
     } finally {
       setIsPending(false);
     }
   };
 
-  if (!token) {
+  if (!token || !email) {
     return (
-      <div>
+      <div className="w-full min-w-0 max-w-[550px]">
         <h2 className="text-center font-two text-white uppercase mb-6">
-          InkStudio
+          Inkera
         </h2>
         <CardWrapper headerLabel="Lien invalide">
           <div className="text-center text-white">
@@ -124,9 +123,9 @@ export default function ResetPasswordForm() {
   }
 
   return (
-    <div>
+    <div className="w-full min-w-0 max-w-[550px]">
       <h2 className="text-center font-two text-white uppercase mb-6">
-        InkStudio
+        Inkera
       </h2>
       <CardWrapper headerLabel="Créez votre nouveau mot de passe">
         <form
@@ -143,8 +142,10 @@ export default function ResetPasswordForm() {
                 id="password"
                 placeholder="Votre nouveau mot de passe"
                 type="password"
+                autoComplete="new-password"
+                disabled={isPending || !!success}
                 required
-                className="bg-white/30 py-2 px-4 rounded-lg"
+                className="min-h-11 w-full min-w-0 bg-white/30 py-2 px-4 rounded-lg text-base"
                 {...form.register("password")}
               />
               {form.formState.errors.password && (
@@ -162,8 +163,10 @@ export default function ResetPasswordForm() {
                 id="confirmPassword"
                 placeholder="Confirmez votre mot de passe"
                 type="password"
+                autoComplete="new-password"
+                disabled={isPending || !!success}
                 required
-                className="bg-white/30 py-2 px-4 rounded-lg"
+                className="min-h-11 w-full min-w-0 bg-white/30 py-2 px-4 rounded-lg text-base"
                 {...form.register("confirmPassword")}
               />
               {form.formState.errors.confirmPassword && (
@@ -177,9 +180,9 @@ export default function ResetPasswordForm() {
             <FormSuccess message={success} />
 
             <button
-              className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
+              className="min-h-11 cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm"
               type="submit"
-              disabled={isPending}
+              disabled={isPending || !!success}
             >
               RÉINITIALISER &rarr;
             </button>
@@ -196,7 +199,7 @@ export default function ResetPasswordForm() {
             Se connecter
           </Link>
         </p>
-        <div className="h-[1px] bg-white w-[300px]"></div>
+        <div className="h-px w-full max-w-[300px] bg-white"></div>
         <Link
           className="relative text-center text-white text-xs hover:text-white/70 transition-all ease-in-out duration-150"
           href="/inscription"

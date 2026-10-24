@@ -6,7 +6,7 @@ import { FiUsers, FiChevronLeft } from "react-icons/fi";
 import { LuStore } from "react-icons/lu";
 import SalonsList from "@/components/Admin/SalonsList";
 import ClientsList from "@/components/Admin/ClientsList";
-import PageHeader from "@/components/Shared/PageHeader";
+import PageHeader from "@/components/Admin/AdminPageHeader";
 
 type TabType = "salons" | "clients";
 
@@ -14,7 +14,7 @@ export default function UsersPage() {
   const [activeTab, setActiveTab] = useState<TabType>("salons");
 
   return (
-    <div className="wrapper-global pb-10">
+    <div className="admin-page">
       <section className="w-full space-y-3 pt-4">
         <PageHeader
           icon={<FiUsers size={20} className="text-tertiary-400" />}
@@ -31,6 +31,7 @@ export default function UsersPage() {
         <div className="">
           <div className="flex gap-1.5 rounded-2xl border border-white/10 bg-white/5 p-1">
           <button
+            aria-pressed={activeTab === "salons"}
             onClick={() => setActiveTab("salons")}
             className={`cursor-pointer flex-1 flex items-center justify-center gap-1.5 rounded-2xl px-4 py-2 font-one text-sm font-medium transition-all duration-300 ${
               activeTab === "salons"
@@ -39,10 +40,11 @@ export default function UsersPage() {
             }`}
           >
             <LuStore size={16} />
-            <span>Salons</span>
+            <span>Salons et indépendants</span>
           </button>
 
           <button
+            aria-pressed={activeTab === "clients"}
             onClick={() => setActiveTab("clients")}
             className={`cursor-pointer flex-1 flex items-center justify-center gap-1.5 rounded-2xl px-4 py-2 font-one text-sm font-medium transition-all duration-300 ${
               activeTab === "clients"

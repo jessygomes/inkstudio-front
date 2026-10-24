@@ -16,7 +16,8 @@ import {
 import VerificationDocumentsSection from "@/components/Admin/VerificationDocumentsSection";
 import DeleteUser from "@/components/Admin/DeleteUser";
 import ContactUser from "@/components/Admin/ContactUser";
-import PageHeader from "@/components/Shared/PageHeader";
+import AccountAge from "@/components/Admin/AccountAge";
+import PageHeader from "@/components/Admin/AdminPageHeader";
 
 // Page serveur : nécessite l'auth admin via le layout parent
 export default async function AdminUserDetail({
@@ -28,7 +29,7 @@ export default async function AdminUserDetail({
 
   const result = await getSalonById(id);
 
-  console.log(result);
+
 
   if (!result.ok) {
     // Rediriger vers la liste si l'ID est invalide ou l'API renvoie une erreur
@@ -132,7 +133,7 @@ export default async function AdminUserDetail({
     "Sans nom";
 
   const roleLabel =
-    salon.role === "user_tatoueur" ? "Compte tatoueur" : "Compte salon";
+    salon.role === "client" ? "Compte client" : salon.role === "admin" ? "Administrateur" : salon.role === "user_tatoueur" ? "Compte indépendant" : "Compte salon";
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "-";
@@ -229,14 +230,14 @@ export default async function AdminUserDetail({
       status === "valide"
     );
   }).length;
-  const pendingDocsCount = verificationDocs.length - approvedDocsCount;
+  const pendingDocsCount = verificationDocs.filter(doc => !doc.status || doc.status.toLowerCase() === "pending").length;
   const completionRate =
     verificationDocs.length > 0
       ? Math.round((approvedDocsCount / verificationDocs.length) * 100)
       : 0;
 
   return (
-    <div className="wrapper-global pb-10">
+    <div className="admin-page">
       <section className="w-full space-y-4 pt-4">
         <PageHeader
           icon={<FiUsers size={20} className="text-tertiary-400" />}
@@ -285,9 +286,9 @@ export default async function AdminUserDetail({
 
                 <div className="min-w-0 space-y-2 text-center sm:text-left">
                   <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                    <h1 className="truncate text-xl font-semibold text-white font-one sm:text-2xl">
+                    <h2 className="truncate text-xl font-semibold text-white font-one sm:text-2xl">
                       {displayName}
-                    </h1>
+                    </h2>
                     {salon.verifiedSalon && (
                       <span className="inline-flex items-center rounded-full border border-tertiary-400/35 bg-tertiary-500/15 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-tertiary-300 font-one">
                         Vérifié
@@ -306,7 +307,7 @@ export default async function AdminUserDetail({
                       {salon.verifiedSalon ? "Vérifié" : "Non vérifié"}
                     </span>
                     <span className="rounded-full border border-white/15 bg-white/8 px-2.5 py-1 text-[10px] text-white/70 font-one">
-                      Créé le {formatDate(salon.createdAt)}
+                      <AccountAge createdAt={salon.createdAt} />
                     </span>
                     <span className="rounded-full border border-white/15 bg-white/8 px-2.5 py-1 text-[10px] text-white/70 font-one">
                       Mis à jour le {formatDate(salon.updatedAt)}
@@ -508,7 +509,7 @@ export default async function AdminUserDetail({
                 <p className="text-[10px] uppercase tracking-[0.22em] text-white/45 font-one">
                   Documents de vérification
                 </p>
-                {verificationDocs.length > 0 && (
+                {!salon.verifiedSalon && verificationDocs.length > 0 && (
                   <div className="flex items-center gap-2 text-[10px] text-white/55 font-one">
                     <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5">
                       {approvedDocsCount} validés
@@ -519,7 +520,7 @@ export default async function AdminUserDetail({
                   </div>
                 )}
               </div>
-              <VerificationDocumentsSection documents={verificationDocs} />
+              <VerificationDocumentsSection documents={verificationDocs} verifiedSalon={salon.verifiedSalon} />
             </div>
           </div>
 

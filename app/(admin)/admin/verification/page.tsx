@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { FiChevronLeft, FiFileText } from "react-icons/fi";
 import PendingVerificationList from "../../../../components/Admin/PendingVerificationList";
-import PageHeader from "@/components/Shared/PageHeader";
+import PageHeader from "@/components/Admin/AdminPageHeader";
 
 export default function VerificationPage() {
   return (
-    <div className="wrapper-global pb-10">
+    <div className="admin-page">
       <section className="w-full space-y-3 pt-4">
         <PageHeader
           icon={<FiFileText size={20} className="text-tertiary-400" />}
-          title="Vérification des salons"
+          title="Vérifications professionnelles" description="Salons et indépendants : distinguez le statut du compte des pièces restant à examiner. Retrouvez les dossiers déjà validés dans les fiches utilisateurs."
         >
           <Link
             href="/admin"

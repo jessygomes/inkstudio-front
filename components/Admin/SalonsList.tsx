@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { getAllRegisteredSalons } from "@/lib/queries/admin";
 import { FiSearch, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import Image from "next/image";
+import AccountAge from "./AccountAge";
 import Link from "next/link";
 import { LuShieldCheck } from "react-icons/lu";
 
@@ -86,7 +87,7 @@ export default function SalonsList() {
     }
   };
 
-  console.log("Salons:", salons);
+
 
   useEffect(() => {
     fetchSalons(1, search, plan, verified, role);
@@ -197,7 +198,7 @@ export default function SalonsList() {
           {pagination.totalSalons > 1 ? "s" : ""}
         </p>
         <p>
-          Page {pagination.currentPage} sur {pagination.totalPages}
+          Page {pagination.currentPage} sur {Math.max(1, pagination.totalPages)}
         </p>
       </div>
 
@@ -222,13 +223,13 @@ export default function SalonsList() {
             <table className="min-w-full divide-y divide-white/10">
               <thead className="bg-white/[0.03]">
                 <tr className="text-left text-[10px] uppercase tracking-[0.18em] text-white/45 font-one">
-                  <th className="px-4 py-3">Salon</th>
+                  <th className="px-4 py-3">Compte professionnel</th>
                   <th className="px-4 py-3">Contact</th>
                   <th className="px-4 py-3">Localisation</th>
                   <th className="px-4 py-3">Rôle</th>
                   <th className="px-4 py-3">Plan</th>
                   <th className="px-4 py-3">Statut</th>
-                  <th className="px-4 py-3">Créé le</th>
+                  <th className="px-4 py-3">Ancienneté</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -297,7 +298,7 @@ export default function SalonsList() {
 
                       <td className="px-4 py-4">
                         <span className="inline-flex rounded-full border border-white/15 bg-white/8 px-2 py-0.5 text-[10px] uppercase text-white/70 font-one">
-                          {salon.role || "-"}
+                          {salon.role === "user_tatoueur" ? "Indépendant" : salon.role === "user_salon" ? "Salon" : "Professionnel"}
                         </span>
                       </td>
 
@@ -314,11 +315,7 @@ export default function SalonsList() {
                       </td>
 
                       <td className="px-4 py-4 text-xs text-white/70 font-one">
-                        {new Date(salon.createdAt).toLocaleDateString("fr-FR", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })}
+                        <AccountAge createdAt={salon.createdAt} />
                       </td>
 
                       <td className="px-4 py-4 text-right">

@@ -48,7 +48,6 @@ const getRankClasses = (rank: number) => {
 
 export default function TopSalons({ initialData = [], loading = false }: TopSalonsProps) {
   const [salons] = useState<TopSalon[]>(initialData);
-  const [days] = useState(30);
 
   const maxViews = salons.length > 0 ? Math.max(...salons.map(s => s.views)) : 100;
 

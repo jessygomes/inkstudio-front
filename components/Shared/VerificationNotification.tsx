@@ -3,9 +3,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CgDanger } from "react-icons/cg";
 import { useSession } from "next-auth/react";
+import { getTrialNotice, type TrialNotice } from "@/lib/trial-reminders";
 
 type UserPlanResponse = {
   planStatus?: string;
+  trialEndDate?: string | null;
+  currentPlan?: string;
+  hasStripeSubscription?: boolean;
 };
 
 const getTodayIsoDate = () => new Date().toISOString().slice(0, 10);
@@ -22,6 +26,16 @@ export default function VerificationNotification() {
   const router = useRouter();
   const [isVerificationVisible, setIsVerificationVisible] = useState(false);
   const [isPastDueVisible, setIsPastDueVisible] = useState(false);
+  const [trialNotice, setTrialNotice] = useState<TrialNotice | null>(null);
+
+  const dismissTrialNotice = () => {
+    if (user?.id && trialNotice) {
+      try {
+        sessionStorage.setItem(`inkera:trial-notice:${user.id}:${trialNotice.endDate}`, getTodayIsoDate());
+      } catch { /* Le rappel reste masquable si le stockage est indisponible. */ }
+    }
+    setTrialNotice(null);
+  };
 
   const dismissPastDueNotice = () => {
     if (user?.id) {
@@ -60,6 +74,7 @@ export default function VerificationNotification() {
   }, [status, user?.id, user?.verifiedSalon]);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchPlanStatus = async () => {
       if (status !== "authenticated" || !user?.id) {
         return;
@@ -82,6 +97,15 @@ export default function VerificationNotification() {
         }
 
         const data = (await response.json()) as UserPlanResponse;
+        if (cancelled) return;
+        const notice = getTrialNotice(data);
+        let dismissedTrialToday = false;
+        if (notice) {
+          try {
+            dismissedTrialToday = sessionStorage.getItem(`inkera:trial-notice:${user.id}:${notice.endDate}`) === getTodayIsoDate();
+          } catch { /* Afficher le rappel même sans stockage navigateur. */ }
+        }
+        setTrialNotice(dismissedTrialToday ? null : notice);
         const normalizedPlanStatus = (data.planStatus || "")
           .toLowerCase()
           .replaceAll("_", "-");
@@ -106,18 +130,48 @@ export default function VerificationNotification() {
     };
 
     fetchPlanStatus();
+    const interval = window.setInterval(fetchPlanStatus, 5 * 60_000);
+    const refreshOnReturn = () => { if (document.visibilityState === "visible") void fetchPlanStatus(); };
+    document.addEventListener("visibilitychange", refreshOnReturn);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refreshOnReturn);
+    };
   }, [status, user?.id]);
 
   const showVerificationNotice =
     isVerificationVisible && user?.verifiedSalon === false;
   const showPastDueNotice = isPastDueVisible;
 
-  if (!showVerificationNotice && !showPastDueNotice) {
+  const showTrialNotice = status === "authenticated" && trialNotice &&
+    ((trialNotice.plan === "PRO" && user?.role === "user_tatoueur") ||
+      (trialNotice.plan === "BUSINESS" && user?.role === "user_salon"));
+
+  if (!showVerificationNotice && !showPastDueNotice && !showTrialNotice) {
     return null;
   }
 
   return (
-    <div className="fixed top-4 left-4 right-4 lg:top-auto lg:bottom-4 lg:left-auto lg:right-4 z-[9998] max-w-sm mx-auto lg:mx-0 space-y-3">
+    <div className="fixed top-4 left-4 right-4 lg:top-auto lg:bottom-4 lg:left-auto lg:right-4 z-[9998] max-h-[calc(100dvh-2rem)] overflow-y-auto max-w-sm mx-auto lg:mx-0 space-y-3">
+      {showTrialNotice && trialNotice && (
+        <div role="status" className="rounded-3xl border border-tertiary-400/50 bg-noir-700/95 p-4 shadow-xl backdrop-blur-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="mb-1 text-sm text-white font-one">Votre période offerte se termine bientôt</h3>
+              <p className="text-xs leading-relaxed text-white/80 font-one">
+                Il vous reste {trialNotice.daysLeft} jour{trialNotice.daysLeft > 1 ? "s" : ""} sur votre offre {trialNotice.plan === "BUSINESS" ? "Business" : "Pro"}, jusqu’au {new Date(trialNotice.endDate).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" })}.
+                {" "}Souscrivez avant la fin pour conserver vos fonctionnalités. Sans abonnement, votre compte repassera en Free.
+              </p>
+            </div>
+            <button type="button" onClick={dismissTrialNotice} aria-label="Masquer le rappel d’essai pour aujourd’hui" className="min-h-11 min-w-11 shrink-0 cursor-pointer rounded-lg text-xl text-white/60 hover:text-white">×</button>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <button type="button" onClick={dismissTrialNotice} className="min-h-11 flex-1 cursor-pointer rounded-lg border border-white/20 px-3 py-1.5 text-xs text-white/80 font-one">Plus tard</button>
+            <button type="button" onClick={() => { router.push("/parametres#facturation"); }} className="min-h-11 flex-1 cursor-pointer rounded-lg bg-tertiary-500 px-3 py-1.5 text-xs font-semibold text-white font-one">Souscrire</button>
+          </div>
+        </div>
+      )}
       {showPastDueNotice && (
         <div className="bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/50 rounded-3xl p-4 shadow-xl backdrop-blur-sm">
           <div className="flex items-start justify-between gap-3">

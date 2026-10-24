@@ -6,6 +6,7 @@ import styles from "./SettingsCard.module.css";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 import { CiCreditCard1 } from "react-icons/ci";
 import { FaCheck } from "react-icons/fa";
 import { availablePlans, getPlanDetails } from "@/lib/saasPlan.data";
@@ -39,6 +40,7 @@ export default function SubscriptionSection({
   userId,
   onBillingRefresh,
 }: SubscriptionSectionProps) {
+  const { data: session } = useSession();
   const planDialogRef = useRef<HTMLDialogElement>(null);
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -46,6 +48,7 @@ export default function SubscriptionSection({
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [isChangingPlan, setIsChangingPlan] = useState(false);
   const [loading, setLoading] = useState(true);
+  const isNativeTrial = subscription?.planStatus === "TRIAL" && !subscription.hasStripeSubscription;
 
   useEffect(() => {
     if (!showPlanModal) return;
@@ -245,13 +248,13 @@ export default function SubscriptionSection({
                     </div>
                   </div>
 
-                  {subscription.trialEndDate && (
+                  {subscription.planStatus === "TRIAL" && subscription.trialEndDate && (
                     <div className="mt-3 rounded-[10px] border border-tertiary-500/25 bg-tertiary-500/10 px-2.5 py-2">
                       <p className="text-tertiary-300 font-one text-xs font-semibold">
                         Période d'essai active
                       </p>
                       <p className="text-tertiary-200/80 font-two text-[11px] mt-0.5">
-                        Expire le {new Date(subscription.trialEndDate).toLocaleDateString("fr-FR")}
+                        Expire le {new Date(subscription.trialEndDate).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" })}
                       </p>
                     </div>
                   )}
@@ -263,16 +266,16 @@ export default function SubscriptionSection({
                 </div>}
                 <div className="flex flex-col-reverse gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
                   <DashboardButton
-                    onClick={() => setShowCancelModal(true)}
+                    onClick={() => isNativeTrial ? handlePlanChange(subscription.currentPlan) : setShowCancelModal(true)}
                     disabled={isChangingPlan || subscription.currentPlan === "FREE"}
                     variant="secondary"
                     className="min-w-0! min-h-11 px-4"
                   >
-                    Annuler l'abonnement
+                    {isNativeTrial ? "Souscrire pour continuer après l’essai" : "Annuler l'abonnement"}
                   </DashboardButton>
 
                   <DashboardButton
-                    onClick={() => setShowPlanModal(true)}
+                    onClick={() => { setSelectedPlan(isNativeTrial ? subscription.currentPlan : ""); setShowPlanModal(true); }}
                     className="min-w-0! min-h-11 px-5"
                   >
                     Comparer les offres
@@ -320,7 +323,7 @@ export default function SubscriptionSection({
 
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-7 space-y-5">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {availablePlans.map((plan) => {
+                {availablePlans.filter((plan) => plan.id !== "BUSINESS" || session?.user?.role === "user_salon").map((plan) => {
                   const isCurrentPlan = subscription.currentPlan === plan.id;
                   const isSelected = selectedPlan === plan.id;
 
@@ -335,7 +338,7 @@ export default function SubscriptionSection({
                           : "bg-white/3 border-white/12 hover:bg-white/6"
                       }`}
                     >
-                      <label className="mb-4 flex items-center gap-2 text-xs text-white/65"><input type="radio" name="subscription-plan" checked={selectedPlan ? isSelected : isCurrentPlan} disabled={isCurrentPlan || isChangingPlan} onChange={() => setSelectedPlan(plan.id)} className="h-4 w-4 accent-tertiary-500" />{isCurrentPlan ? "Votre offre actuelle" : "Choisir cette offre"}</label>
+                      <label className="mb-4 flex items-center gap-2 text-xs text-white/65"><input type="radio" name="subscription-plan" checked={selectedPlan ? isSelected : isCurrentPlan} disabled={(isCurrentPlan && !isNativeTrial) || isChangingPlan} onChange={() => setSelectedPlan(plan.id)} className="h-4 w-4 accent-tertiary-500" />{isCurrentPlan && isNativeTrial ? "Souscrire à cette offre après l’essai" : isCurrentPlan ? "Votre offre actuelle" : "Choisir cette offre"}</label>
                       {isCurrentPlan && (
                         <span className="absolute top-2 right-2 rounded-2xl border border-green-500/35 bg-green-500/20 px-2 py-0.5 text-[10px] text-green-300 font-one">
                           Actuel

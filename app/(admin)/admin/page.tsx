@@ -1,126 +1,24 @@
-"use client";
-
-import { useUser } from "@/components/Auth/Context/UserContext";
 import Link from "next/link";
-import { FiUsers, FiShield, FiSettings, FiBarChart2, FiFileText, FiTag } from "react-icons/fi";
-import { LuShieldCheck } from "react-icons/lu";
+import { ArrowUpRight, ChartNoAxesCombined, LayoutDashboard, Newspaper, Palette, ShieldCheck, Shapes, UsersRound } from "lucide-react";
 import DashboardStats from "@/components/Admin/DashboardStats";
-import PageHeader from "@/components/Shared/PageHeader";
+import AdminPageHeader from "@/components/Admin/AdminPageHeader";
+
+const shortcuts = [
+  { href: "/admin/users", title: "Utilisateurs", description: "Comptes, ancienneté et informations de contact.", icon: UsersRound },
+  { href: "/admin/verification", title: "Dossiers de vérification", description: "Consulter les pièces et traiter les demandes.", icon: ShieldCheck },
+  { href: "/admin/styles", title: "Styles de tatouage", description: "Un catalogue cohérent pour les portfolios.", icon: Palette },
+  { href: "/admin/categories", title: "Catégories", description: "Organiser les contenus et leur visibilité.", icon: Shapes },
+  { href: "/admin/articles", title: "Articles", description: "Rédiger et gérer les publications Inkera.", icon: Newspaper },
+  { href: "/admin/stats", title: "Statistiques", description: "Évolution des inscriptions et de l’activité.", icon: ChartNoAxesCombined },
+];
 
 export default function AdminPage() {
-  const user = useUser();
-
-  return (
-    <div className="wrapper-global pb-10">
-      <section className="w-full space-y-3 pt-4">
-        <PageHeader
-          icon={<LuShieldCheck size={20} className="text-tertiary-400" />}
-          title="Panneau d'administration"
-        >
-          <span className="rounded-full border border-tertiary-400/30 bg-tertiary-500/15 px-2.5 py-1 text-[10px] uppercase tracking-wider text-tertiary-400 font-one">
-            Admin
-          </span>
-        </PageHeader>
-
-        <DashboardStats />
-
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-          <div className="dashboard-embedded-panel p-3 sm:p-4 lg:col-span-2">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
-              Actions rapides
-            </h2>
-            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
-              <Link
-                href="/admin/users"
-                className="dashboard-list-item block rounded-2xl border border-white/10 bg-white/5 px-3 py-3 transition-colors hover:border-tertiary-400/35 hover:bg-white/10"
-              >
-                <div className="flex items-center gap-3">
-                  <FiUsers className="h-5 w-5 text-tertiary-400" />
-                  <div>
-                    <p className="text-sm font-medium text-white font-one">Gérer les utilisateurs</p>
-                    <p className="text-[11px] text-white/60 font-one">Voir et modifier les comptes salons</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link
-                href="/admin/verification"
-                className="dashboard-list-item block rounded-2xl border border-white/10 bg-white/5 px-3 py-3 transition-colors hover:border-primary-400/35 hover:bg-white/10"
-              >
-                <div className="flex items-center gap-3">
-                  <FiShield className="h-5 w-5 text-primary-400" />
-                  <div>
-                    <p className="text-sm font-medium text-white font-one">Vérifier les documents</p>
-                    <p className="text-[11px] text-white/60 font-one">Approuver ou rejeter les dossiers</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link
-                href="/admin/stats"
-                className="dashboard-list-item block rounded-2xl border border-white/10 bg-white/5 px-3 py-3 transition-colors hover:border-cuatro-500/35 hover:bg-white/10"
-              >
-                <div className="flex items-center gap-3">
-                  <FiBarChart2 className="h-5 w-5 text-cuatro-500" />
-                  <div>
-                    <p className="text-sm font-medium text-white font-one">Voir les statistiques</p>
-                    <p className="text-[11px] text-white/60 font-one">Analyser l&apos;utilisation de la plateforme</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link
-                href="/admin/articles"
-                className="dashboard-list-item block rounded-2xl border border-white/10 bg-white/5 px-3 py-3 transition-colors hover:border-tertiary-400/35 hover:bg-white/10"
-              >
-                <div className="flex items-center gap-3">
-                  <FiFileText className="h-5 w-5 text-tertiary-400" />
-                  <div>
-                    <p className="text-sm font-medium text-white font-one">Gérer les articles</p>
-                    <p className="text-[11px] text-white/60 font-one">Créer, modifier et supprimer</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link
-                href="/admin/categories"
-                className="dashboard-list-item block rounded-2xl border border-white/10 bg-white/5 px-3 py-3 transition-colors hover:border-tertiary-400/35 hover:bg-white/10"
-              >
-                <div className="flex items-center gap-3">
-                  <FiTag className="h-5 w-5 text-tertiary-400" />
-                  <div>
-                    <p className="text-sm font-medium text-white font-one">Catégories de tatouages</p>
-                    <p className="text-[11px] text-white/60 font-one">Ajouter, modifier et supprimer</p>
-                  </div>
-                </div>
-              </Link>
-
-              <button className="w-full text-left rounded-2xl border border-white/10 bg-white/5 px-3 py-3 transition-colors hover:border-secondary-500/35 hover:bg-white/10">
-                <div className="flex items-center gap-3">
-                  <FiSettings className="h-5 w-5 text-secondary-400" />
-                  <div>
-                    <p className="text-sm font-medium text-white font-one">Paramètres système</p>
-                    <p className="text-[11px] text-white/60 font-one">Configuration avancée de la plateforme</p>
-                  </div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div className="dashboard-embedded-panel p-3 sm:p-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-white font-one sm:text-base">
-              Notifications
-            </h2>
-            <div className="space-y-4">
-              <div className="dashboard-empty-state py-8 text-center text-white/50">
-                <p className="text-sm font-one">
-                  Aucune notification pour le moment
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+  return <div className="admin-page">
+    <AdminPageHeader icon={<LayoutDashboard size={16} />} title="Vue d’ensemble" />
+    <DashboardStats />
+    <section className="mt-8">
+      <div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-medium text-white font-two">Votre espace de gestion</h2><span className="admin-muted hidden sm:inline">Accès rapides</span></div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{shortcuts.map(({ href, title, description, icon: Icon }) => <Link href={href} key={href} className="admin-shortcut"><Icon size={22} strokeWidth={1.5} /><div className="min-w-0 flex-1"><strong>{title}</strong><p>{description}</p></div><ArrowUpRight size={16} /></Link>)}</div>
+    </section>
+  </div>;
 }

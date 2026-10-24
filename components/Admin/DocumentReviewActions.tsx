@@ -1,191 +1,57 @@
 "use client";
 
-import { useState } from "react";
-import { createPortal } from "react-dom";
-import { reviewSalonDocument } from "@/lib/queries/admin";
+import { useEffect, useId, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FiCheck, FiX } from "react-icons/fi";
 import { toast } from "sonner";
+import { reviewSalonDocument } from "@/lib/queries/admin";
+import { documentStatus as normalizeStatus } from "@/lib/admin-verification";
+import styles from "./AdminShell.module.css";
 
-interface DocumentReviewActionsProps {
-  documentId: string;
-  documentType: string;
-  documentStatus?: string;
-  onReviewed?: () => void;
-}
-
-export default function DocumentReviewActions({
-  documentId,
-  documentType,
-  documentStatus,
-  onReviewed,
-}: DocumentReviewActionsProps) {
+export default function DocumentReviewActions({ documentId, documentType, documentStatus, onReviewed, compact = false }: {
+  documentId: string; documentType: string; documentStatus?: string; onReviewed?: () => void; compact?: boolean;
+}) {
+  const router = useRouter();
+  const dialog = useRef<HTMLDialogElement>(null);
+  const reasonId = useId();
+  const titleId = useId();
   const [loading, setLoading] = useState(false);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState("");
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
+  const isApproved = normalizeStatus(documentStatus) === "approved";
+  const isRejected = normalizeStatus(documentStatus) === "rejected";
+  useEffect(() => { if (open) dialog.current?.showModal(); else dialog.current?.close(); }, [open]);
 
-  const rejectionReasons = [
-    "Document illisible ou de mauvaise qualité",
-    "Document expiré",
-    "Document incomplet",
-    "Mauvais type de document",
-    "Document falsifié ou modifié",
-    "Informations non conformes",
-  ];
-
-  const handleApprove = async () => {
-    setLoading(true);
+  async function review(status: "APPROVED" | "REJECTED") {
+    if (loading || (status === "REJECTED" && !reason.trim())) return;
+    setLoading(true); setError("");
     try {
-      const result = await reviewSalonDocument(documentId, "APPROVED");
-      if (result.ok) {
-        toast.success("Document approuvé avec succès");
-        onReviewed?.();
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error) {
-      toast.error("Erreur lors de l'approbation");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleReject = async () => {
-    if (!rejectionReason.trim()) {
-      toast.error("Veuillez indiquer une raison de rejet");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const result = await reviewSalonDocument(
-        documentId,
-        "REJECTED",
-        rejectionReason
-      );
-      if (result.ok) {
-        toast.success("Document rejeté");
-        setShowRejectModal(false);
-        setRejectionReason("");
-        onReviewed?.();
-      } else {
-        toast.error(result.message);
-      }
-    } catch (error) {
-      toast.error("Erreur lors du rejet");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const isApproved =
-    documentStatus?.toLowerCase() === "approved" ||
-    documentStatus?.toLowerCase() === "approuve" ||
-    documentStatus?.toLowerCase() === "validé" ||
-    documentStatus?.toLowerCase() === "valide";
-
-  return (
-    <>
-      <div className="flex items-center gap-1.5">
-        {!isApproved && (
-          <button
-            onClick={handleApprove}
-            disabled={loading}
-            className="cursor-pointer flex-1 px-2 py-1 bg-green-500/20 hover:bg-green-500/30 border border-green-400/30 hover:border-green-400/50 text-green-400 rounded-2xl transition-all duration-300 text-[10px] font-one font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
-            title="Approuver"
-          >
-            <FiCheck size={12} />
-            Valider
-          </button>
-        )}
-
-        <button
-          onClick={() => setShowRejectModal(true)}
-          disabled={loading}
-          className={`cursor-pointer px-2 py-1 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 hover:border-red-400/50 text-red-400 rounded-2xl transition-all duration-300 text-[10px] font-one font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 ${
-            isApproved ? "flex-1" : "flex-1"
-          }`}
-          title="Rejeter"
-        >
-          <FiX size={12} />
-          Rejeter
-        </button>
-      </div>
-
-      {/* Reject Modal - using portal to render at document body level */}
-      {showRejectModal &&
-        typeof document !== "undefined" &&
-        createPortal(
-          <div className="fixed inset-0 z-[60] flex items-center justify-center">
-            <div
-              className="absolute inset-0 bg-black/70"
-              onClick={() => !loading && setShowRejectModal(false)}
-            />
-            <div className="relative z-10 w-[90vw] max-w-md bg-noir-700 border border-white/10 rounded-xl overflow-hidden shadow-2xl p-5">
-              <h3 className="text-white font-one font-bold text-lg mb-3">
-                Rejeter le document
-              </h3>
-              <p className="text-white/70 text-sm font-one mb-4">
-                Type: <span className="text-white">{documentType}</span>
-              </p>
-
-              <label className="block text-white/80 text-xs font-one mb-2">
-                Raisons prédéfinies
-              </label>
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                {rejectionReasons.map((reason, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setRejectionReason(reason)}
-                    className={`px-2 py-1 text-[10px] font-one rounded transition-colors ${
-                      rejectionReason === reason
-                        ? "bg-red-500/30 border border-red-400/50 text-red-300"
-                        : "bg-white/10 border border-white/20 text-white/70 hover:bg-white/20"
-                    }`}
-                    disabled={loading}
-                  >
-                    {reason}
-                  </button>
-                ))}
-              </div>
-
-              <label className="block text-white/80 text-xs font-one mb-2">
-                Raison du rejet (personnalisée) *
-              </label>
-              <textarea
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Ou écrivez votre propre raison..."
-                className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-red-400/50 transition-colors font-one resize-none"
-                rows={3}
-                disabled={loading}
-              />
-
-              <div className="flex items-center gap-2 mt-4">
-                <button
-                  onClick={() => {
-                    setShowRejectModal(false);
-                    setRejectionReason("");
-                  }}
-                  disabled={loading}
-                  className="flex-1 px-4 py-2 text-sm bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors font-one disabled:opacity-50"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={handleReject}
-                  disabled={loading || !rejectionReason.trim()}
-                  className="flex-1 px-4 py-2 text-sm bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 text-red-400 rounded-lg transition-colors font-one font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? "En cours..." : "Confirmer le rejet"}
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
-    </>
-  );
+      const result = await reviewSalonDocument(documentId, status, status === "REJECTED" ? reason.trim() : undefined);
+      if (!result.ok) throw new Error(result.message || "Impossible de modifier ce fichier.");
+      toast.success(status === "APPROVED" ? "Document consulté et vérifié" : isApproved ? "Validation du document retirée" : "Document refusé");
+      setOpen(false); setReason("");
+      router.refresh(); onReviewed?.();
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : "Impossible de modifier ce fichier.";
+      setError(message); toast.error(message);
+    } finally { setLoading(false); }
+  }
+  return <>
+    <div className={`flex flex-wrap gap-2 ${compact ? styles.compactReviewActions : ""}`}>
+      {!isApproved && <button className="admin-button flex-1 justify-center gap-1 text-emerald-300" disabled={loading} onClick={() => void review("APPROVED")}><FiCheck />{loading ? "En cours…" : compact ? "Valider" : "Valider le fichier"}</button>}
+      {!isRejected && <button className={`admin-button flex-1 justify-center gap-1 ${isApproved ? "text-white/60" : "text-red-300"}`} disabled={loading} onClick={() => { setReason(""); setError(""); setOpen(true); }}><FiX />{isApproved ? compact ? "Dévalider" : "Dévalider le fichier" : "Rejeter"}</button>}
+    </div>
+    <dialog ref={dialog} className={styles.dialog} aria-labelledby={titleId} onCancel={event => { event.preventDefault(); if (!loading) setOpen(false); }}>
+      <h2 id={titleId}>{isApproved ? "Dévalider le fichier" : "Rejeter le fichier"}</h2>
+      <p className="mt-3 text-sm text-white/65">{documentType}</p>
+      {isApproved && <p className="mt-3 text-sm leading-relaxed text-amber-200/85">Cette correction peut retirer la vérification du compte si le justificatif obligatoire n’est plus valide.</p>}
+      <p className="mt-2 text-xs leading-relaxed text-white/50">Le motif sera visible par le professionnel.</p>
+      <div className="mt-5 flex flex-wrap gap-2">{["Document illisible", "Document expiré", "Mauvais justificatif", "Validation effectuée par erreur"].map(preset => <button key={preset} className="admin-button text-xs" disabled={loading} aria-pressed={reason === preset} onClick={() => setReason(preset)}>{preset}</button>)}</div>
+      <label className="mt-5 block text-sm text-white/80" htmlFor={reasonId}>Motif de la décision *</label>
+      <textarea id={reasonId} className="mt-2 w-full" rows={3} required maxLength={1000} value={reason} disabled={loading} onChange={event => setReason(event.target.value)} />
+      {error && <p role="alert" className="mt-3 text-sm text-red-300">{error}</p>}
+      <div className={styles.dialogActions}><button autoFocus className="admin-button" disabled={loading} onClick={() => setOpen(false)}>Annuler</button><button className="admin-button admin-button-danger" disabled={loading || !reason.trim()} onClick={() => void review("REJECTED")}>{loading ? "Enregistrement…" : isApproved ? "Confirmer la dévalidation" : "Confirmer le rejet"}</button></div>
+    </dialog>
+  </>;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import AccountAge from "./AccountAge";
 import Image from "next/image";
 import { FiMail, FiPhone, FiMapPin, FiCalendar } from "react-icons/fi";
 import { LuShieldCheck, LuX } from "react-icons/lu";
@@ -118,7 +119,7 @@ export default function SalonQuickViewModal({
             )}
             <div className="flex items-center gap-2 text-white/70">
               <FiCalendar size={14} />
-              <span>Créé le {formatDate(salon.createdAt)}</span>
+              <AccountAge createdAt={salon.createdAt} />
             </div>
             <div className="flex items-center gap-2 text-white/70">
               <FiCalendar size={14} />
