@@ -163,7 +163,7 @@ export default function AppointmentPhotos({ appointmentId, clientId, readOnly = 
         </button>
         {canAdd && <div className="absolute inset-x-0 bottom-0 flex h-7 items-center justify-end overflow-hidden rounded-b-xl bg-black/60 text-white backdrop-blur-sm">
           {!photo.portfolios.some((item) => item.userId === session?.user?.id) && <button type="button" title="Ajouter au portfolio" aria-label="Ajouter au portfolio" onClick={() => setPortfolio(photo)} className="inline-flex h-full min-w-0 flex-1 items-center justify-center gap-1 px-1 text-[10px] hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70"><ImagePlus size={12} className="shrink-0" />Portfolio</button>}
-          <button type="button" disabled={saving} title="Supprimer la photo du rendez-vous" aria-label="Supprimer la photo du rendez-vous" onClick={() => { setDeleting(photo); setDeleteError(""); }} className="inline-flex h-full w-7 shrink-0 items-center justify-center hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70 disabled:opacity-40"><Trash2 size={12} /></button>
+          <button type="button" disabled={saving} title="Supprimer la photo du rendez-vous" aria-label="Supprimer la photo du rendez-vous" onClick={() => { setDeleting(photo); setDeleteError(""); }} className="inline-flex h-full w-7 shrink-0 items-center justify-center hover:bg-tertiary-400/15 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70 disabled:opacity-40"><Trash2 size={12} /></button>
         </div>}
         </div>
         {photo.appointment && <p className="text-[11px] text-white/55">{photo.appointment.title} · {new Date(photo.appointment.start).toLocaleDateString("fr-FR")}</p>}

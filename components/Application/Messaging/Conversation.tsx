@@ -224,7 +224,7 @@ export default function Conversation() {
     return (
       <div className="dashboard-empty-state w-full rounded-xl p-6">
         <div className="text-center py-8">
-          <div className="w-12 h-12 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 bg-tertiary-400/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               className="w-6 h-6 text-red-400"
               fill="none"

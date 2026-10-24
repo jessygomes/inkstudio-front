@@ -1,18 +1,15 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+import SettingsSectionHeader from "./SettingsSectionHeader";
+import { BadgeCheck } from "lucide-react";
 
 import DashboardButton from "@/components/Shared/DashboardButton";
 import styles from "./SettingsCard.module.css";
 import { useEffect, useState, useCallback } from "react";
 import { useUser } from "@/components/Auth/Context/UserContext";
-import {
-  getSalonVerificationDocuments,
-  submitSalonDocument,
-  SalonVerificationDocumentType,
-  SalonVerificationDocument,
-} from "@/lib/queries/salon-verification";
+import { getSalonVerificationDocuments, submitSalonDocument, SalonVerificationDocumentType, SalonVerificationDocument } from "@/lib/queries/salon-verification";
 import { useUploadThing } from "@/lib/utils/uploadthing";
-import { MdOutlineVerified } from "react-icons/md";
+
 import { FiUploadCloud } from "react-icons/fi";
 
 interface DocumentType {
@@ -191,129 +188,11 @@ export default function VerificationDocumentsSection() {
     }
   };
 
-  return (
-    <div className={styles.card}>
-      <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-tertiary-400/30 flex items-center justify-center">
-          <MdOutlineVerified className="w-5 h-5 sm:w-6 sm:h-6 text-tertiary-400" />
-        </div>
-        <h2 className="text-base font-semibold text-white font-one font-semibold">
-          Vérification du salon
-        </h2>
-      </div>
-
-      <p className="text-white/70 text-xs sm:text-sm font-one mb-6">
-        Déposez les documents requis pour vérifier votre salon et augmenter la
-        confiance de vos clients.
-      </p>
-
-      {error && (
-        <div className="mb-4 bg-red-500/10 border border-red-500/50 rounded-2xl p-3 flex items-start gap-3">
-          <svg
-            className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <p role="alert" className="text-red-300 text-xs sm:text-sm font-one">{error}</p>
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tertiary-400"></div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-          {DOCUMENT_TYPES.map((docType) => {
-            const doc = getDocumentStatus(docType.id);
-
-            return (
-              <div
-                key={docType.id}
-                className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-2xl p-4 flex flex-col gap-3 hover:border-tertiary-400/30 transition-all duration-200"
-              >
-                {/* Header avec icône et statut */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="w-10 h-10 rounded-2xl bg-tertiary-400/20 flex items-center justify-center text-tertiary-400 flex-shrink-0">
-                    {docType.icon}
-                  </div>
-                  {doc ? (
-                    <span
-                      className={`px-2 py-1 rounded-2xl text-xs font-semibold border ${getStatusColor(
-                        doc.status,
-                      )}`}
-                    >
-                      {getStatusLabel(doc.status)}
-                    </span>
-                  ) : <span className="rounded-full border border-white/10 px-2 py-1 text-xs text-white/55">À fournir</span>}
-                </div>
-
-                {/* Titre et description */}
-                <div>
-                  <h3 className="text-white font-semibold text-sm font-one mb-1">
-                    {docType.label}
-                  </h3>
-                  <p className="text-white/60 text-xs font-one leading-relaxed">
-                    {docType.description}
-                  </p>
-                </div>
-
-                <div className="mt-auto space-y-3 border-t border-white/10 pt-4">
-                  {doc && <p className="text-xs text-white/55">Déposé le {new Date(doc.uploadedAt).toLocaleDateString("fr-FR")}</p>}
-                  {doc?.rejectionReason && <p className="rounded-xl bg-red-500/10 p-3 text-sm text-red-300">{doc.rejectionReason}</p>}
-                  {(!doc || doc.status === "REJECTED") && <>
-                    <input id={`document-${docType.id}`} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
-                      disabled={uploading[docType.id]}
-                      onChange={(event) => { void handleFileUpload(docType.id, event.target.files); event.target.value = ""; }} />
-                    <DashboardButton variant="secondary" className="min-h-11 w-full min-w-0!" disabled={uploading[docType.id]}
-                      onClick={() => document.getElementById(`document-${docType.id}`)?.click()}>
-                      <FiUploadCloud className="h-4 w-4" />
-                      {uploading[docType.id] ? "Envoi en cours…" : doc ? "Renvoyer le document" : "Ajouter un document"}
-                    </DashboardButton>
-                    <p className="text-center text-xs text-white/50">PDF, JPG ou PNG</p>
-                  </>}
-                  {doc?.status === "PENDING" && <p className="text-xs text-amber-300">Votre document est en cours de vérification.</p>}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Info message */}
-      <div className="mt-6 bg-tertiary-500/10 border border-tertiary-500/30 rounded-2xl p-4 flex items-start gap-3">
-        <div className="w-5 h-5 rounded-full bg-tertiary-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <svg
-            className="w-3 h-3 text-tertiary-400"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zm-11-1a1 1 0 11-2 0 1 1 0 012 0z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-        <div>
-          <p className="text-tertiary-400 text-xs sm:text-sm font-one mb-1">
-            Seul le document "Hygiène & Salubrité" est obligatoire pour
-            vérifier votre salon.
-          </p>
-          <p className="text-white/70 text-xs font-one leading-relaxed">
-            Votre salon sera marqué comme vérifié, augmentant ainsi la confiance
-            de vos clients. Nous vous recommandons de déposer tous les documents
-            pour maximiser vos chances d'approbation et augmenter votre
-            crédibilité.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  return (<div className={styles.card}><SettingsSectionHeader icon={BadgeCheck} title="Vérification du salon" description="Vos justificatifs professionnels et leur état de validation."/>
+<div className={styles.body}>{error && <p role="alert" className="rounded-xl border border-red-400/20 bg-red-400/5 p-3 text-xs text-red-300">{error}</p>}
+{loading ? <p role="status" className={styles.empty}>Chargement des documents…</p> : <div>{DOCUMENT_TYPES.map(docType=>{const doc=getDocumentStatus(docType.id);return <div key={docType.id} className={styles.document}>
+<span className={styles.icon}>{docType.icon}</span><div><div className="flex flex-wrap items-center gap-2"><h3 className={styles.label}>{docType.label}</h3><span className={"rounded-md border px-2 py-0.5 text-[10px] " + (doc ? getStatusColor(doc.status) : "border-white/10 text-white/40")}>{doc ? getStatusLabel(doc.status) : "À fournir"}</span></div><p className={styles.note}>{docType.description}</p>{doc && <p className={styles.note}>Déposé le {new Date(doc.uploadedAt).toLocaleDateString("fr-FR")}</p>}{doc?.rejectionReason && <p className="mt-2 text-xs text-red-300">{doc.rejectionReason}</p>}{doc?.status==="PENDING" && <p className={styles.note}>En cours de vérification par notre équipe.</p>}</div>
+{(!doc || doc.status==="REJECTED") && <div className={styles.documentActions}><input id={"document-"+docType.id} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" disabled={uploading[docType.id]} onChange={event=>{void handleFileUpload(docType.id,event.target.files);event.target.value="";}}/><DashboardButton variant="secondary" className="min-w-0! h-9 px-3" disabled={uploading[docType.id]} onClick={()=>document.getElementById("document-"+docType.id)?.click()}><FiUploadCloud className="h-3.5 w-3.5"/>{uploading[docType.id] ? "Envoi…" : doc ? "Renvoyer" : "Ajouter"}</DashboardButton></div>}
+</div>})}</div>}
+<div className={styles.notice}><p className={styles.label}>Hygiène &amp; Salubrité : le justificatif obligatoire</p><p>Ce document permet de vérifier votre salon. Les autres justificatifs complètent votre dossier.</p><p className={styles.note}>Formats acceptés : PDF, JPG ou PNG.</p></div></div></div>);
 }

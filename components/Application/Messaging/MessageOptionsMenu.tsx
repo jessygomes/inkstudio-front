@@ -60,7 +60,7 @@ export default function MessageOptionsMenu({
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="cursor-pointer p-1 rounded-full hover:bg-white/10 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
+        className="cursor-pointer p-1 rounded-full hover:bg-tertiary-400/15 transition-colors opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100"
         aria-label="Options du message"
         aria-expanded={isOpen}
       >

@@ -88,7 +88,7 @@ export function NavMobileClient({
         </Link>
         <button
           onClick={handleOpen}
-          className="text-2xl p-2 rounded-xl hover:bg-white/10 transition-all duration-300"
+          className="text-2xl p-2 rounded-xl hover:bg-tertiary-400/15 transition-all duration-300"
         >
           <MdMenu size={32} className="" />
         </button>
@@ -119,7 +119,7 @@ export function NavMobileClient({
           </div>
           <button
             onClick={handleClose}
-            className="text-2xl p-2 rounded-xl hover:bg-white/10 transition-all duration-300"
+            className="text-2xl p-2 rounded-xl hover:bg-tertiary-400/15 transition-all duration-300"
           >
             <MdClose />
           </button>

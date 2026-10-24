@@ -116,7 +116,7 @@ const StockTable: React.FC<StockTableProps> = ({
                   <td className="px-4 py-3 align-middle">
                     <div className="flex items-center justify-end gap-1.5">
                       <button
-                        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-white transition-colors hover:border-tertiary-400/40 hover:bg-white/10"
+                        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-white transition-colors hover:border-tertiary-400/40 hover:bg-tertiary-400/15"
                         onClick={() => onEdit(item)}
                         title="Modifier l'article"
                         aria-label="Modifier l'article"
@@ -124,7 +124,7 @@ const StockTable: React.FC<StockTableProps> = ({
                         <AiOutlineEdit size={15} />
                       </button>
                       <button
-                        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-white transition-colors hover:border-red-400/40 hover:bg-red-500/12"
+                        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-white transition-colors hover:border-red-400/40 hover:bg-red-500/12"
                         onClick={() => onDelete(item)}
                         title="Supprimer l'article"
                         aria-label="Supprimer l'article"

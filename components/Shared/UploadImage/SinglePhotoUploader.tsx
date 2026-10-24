@@ -148,8 +148,8 @@ export default function SinglePhotoUploader({
               />
 
               <div className="space-y-4">
-                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
-                  <MdOutlineAddAPhoto size={24} className="text-white/60" />
+                <div className="w-16 h-16 bg-tertiary-400/10 rounded-full flex items-center justify-center mx-auto">
+                  <MdOutlineAddAPhoto size={24} className="text-tertiary-400" />
                 </div>
                 <div className="text-white/80">
                   <div className="space-y-2">

@@ -1,7 +1,9 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
-import { useState } from "react";
+import { useId, useState } from "react";
 import Image from "next/image";
+import { LoaderCircle, Send, Star, X } from "lucide-react";
+import { openImageInNewTab } from "@/lib/utils/openImage";
+import { dashboardControl } from "./DashboardPrimitives";
 import { toast } from "sonner";
 
 interface Client {
@@ -43,12 +45,11 @@ export default function NotAnswerClientReplyPanel({
   onClose,
   onReplySuccess,
 }: NotAnswerClientReplyPanelProps) {
+  const inputId = useId();
   const [replyText, setReplyText] = useState("");
   const [isReplying, setIsReplying] = useState(false);
 
-  const getRatingStars = (rating: number) => {
-    return "⭐".repeat(rating) + "☆".repeat(5 - rating);
-  };
+
 
   const getRatingLabel = (rating: number) => {
     switch (rating) {
@@ -127,220 +128,5 @@ export default function NotAnswerClientReplyPanel({
     }
   };
 
-  return (
-    <div
-      data-modal
-      className="fixed inset-0 z-50 bg-noir-700 lg:absolute lg:inset-0 lg:bg-transparent animate-in slide-in-from-bottom-4 lg:slide-in-from-right-4 duration-300"
-      style={{ height: "100dvh", width: "100vw" }}
-    >
-      <div className="dashboard-embedded-panel min-h-0 flex h-full w-full flex-col rounded-none border-0 lg:rounded-[28px] lg:border animate-in slide-in-from-right-2 duration-300">
-        {/* Header compact */}
-        <div className="dashboard-embedded-header p-4 lg:p-4 rounded-none lg:rounded-t-[28px]">
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-sm">
-                  {selectedFollowUp.appointment?.client?.firstName
-                    ?.charAt(0)
-                    .toUpperCase() || "?"}
-                </span>
-              </div>
-              <div>
-                <h2 className="text-lg lg:text-lg font-bold text-white font-one tracking-wide">
-                  Répondre au suivi
-                </h2>
-                <p className="text-white/70 text-sm lg:text-xs font-one">
-                  {selectedFollowUp.appointment?.client?.firstName}{" "}
-                  {selectedFollowUp.appointment?.client?.lastName}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="cursor-pointer p-2 lg:p-1.5 hover:bg-white/10 rounded-lg transition-colors group"
-            >
-              <svg
-                className="w-6 h-6 lg:w-5 lg:h-5 text-white/70 group-hover:text-white transition-colors"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Contenu avec design compact */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-4 space-y-4 lg:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-          {/* Récapitulatif compact du suivi */}
-          <div className="dashboard-embedded-section p-3">
-            <div className="flex items-start gap-3">
-              <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10 border border-white/20 flex-shrink-0">
-                {selectedFollowUp.photoUrl ? (
-                  <Image
-                    src={selectedFollowUp.photoUrl}
-                    alt="Photo de cicatrisation"
-                    width={48}
-                    height={48}
-                    className="w-full h-full object-cover cursor-pointer"
-                    onClick={() =>
-                      window.open(selectedFollowUp.photoUrl, "_blank")
-                    }
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <svg
-                      className="w-6 h-6 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-yellow-400 text-xs">
-                    {getRatingStars(selectedFollowUp.rating)}
-                  </span>
-                  <span className="text-white/80 text-xs font-one">
-                    {getRatingLabel(selectedFollowUp.rating)}
-                  </span>
-                </div>
-
-                <p className="text-white font-one text-sm mb-1">
-                  {selectedFollowUp.appointment?.title}
-                </p>
-
-                <p className="text-white/70 text-xs font-one">
-                  {formatDate(selectedFollowUp.createdAt)}
-                </p>
-
-                {selectedFollowUp.review && (
-                  <div className="mt-2 bg-white/10 p-2 rounded-lg border border-white/20">
-                    <p className="text-white/90 text-xs font-one italic">
-                      "{selectedFollowUp.review}"
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Zone de réponse compacte */}
-          <div className="dashboard-embedded-section p-3">
-            <h3 className="text-white font-one text-sm flex items-center gap-2 mb-3">
-              <svg
-                className="w-4 h-4 text-orange-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                />
-              </svg>
-              Votre réponse
-            </h3>
-            <div className="space-y-3">
-              <textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Rédigez votre réponse personnalisée pour le client..."
-                className="w-full h-20 p-3 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none transition-colors"
-                maxLength={500}
-                disabled={isReplying}
-              />
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-white/50 font-one">
-                  Le client recevra votre réponse par email
-                </p>
-                <p className="text-xs text-white/50 font-one">
-                  {replyText.length}/500
-                </p>
-              </div>
-
-              {/* Suggestions compactes */}
-              <div className="space-y-1">
-                <p className="text-xs text-white/70 font-one">
-                  💡 Suggestions :
-                </p>
-                {[
-                  "Votre tatouage cicatrise parfaitement !",
-                  "Merci pour cette belle photo !",
-                  "La cicatrisation suit son cours normal.",
-                ].map((suggestion, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setReplyText(suggestion)}
-                    disabled={isReplying}
-                    className="cursor-pointer block w-full text-left p-2 bg-white/5 hover:bg-white/10 rounded-md border border-white/10 hover:border-orange-400/30 transition-all text-xs text-white/80 font-one disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer compact */}
-        <div className="dashboard-embedded-footer flex justify-end gap-2 p-4 lg:p-3 rounded-none lg:rounded-b-[28px]">
-          <button
-            onClick={onClose}
-            disabled={isReplying}
-            className="cursor-pointer px-4 py-3 lg:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-medium font-one text-sm lg:text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Annuler
-          </button>
-          <button
-            onClick={handleReplySubmit}
-            disabled={isReplying || !replyText.trim()}
-            className="cursor-pointer px-4 py-3 lg:py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm lg:text-xs flex items-center gap-2"
-          >
-            {isReplying ? (
-              <>
-                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                <span>Envoi...</span>
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-3 h-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                  />
-                </svg>
-                <span>Envoyer</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  return <div className="flex h-full min-h-0 flex-col bg-noir-700 font-one"><header className="flex shrink-0 items-center gap-3 border-b border-white/10 bg-noir-600 p-4"><div className="min-w-0 flex-1"><p className="text-[10px] text-white/40">Suivi de cicatrisation</p><h2 className="mt-1 text-sm font-semibold text-white/90">{selectedFollowUp.appointment.client.firstName} {selectedFollowUp.appointment.client.lastName}</h2></div><button type="button" onClick={onClose} disabled={isReplying} aria-label="Fermer le suivi" className={dashboardControl + " size-8 !p-0"}><X size={16} /></button></header><div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 scrollbar-hidden"><section className="rounded-2xl border border-white/10 bg-noir-600 p-4"><div className="flex items-center justify-between gap-2"><h3 className="text-xs font-medium text-white/80">{selectedFollowUp.appointment.title}</h3><span className="flex items-center gap-1 text-[11px] text-amber-200"><Star size={12} />{selectedFollowUp.rating}/5</span></div><p className="mt-1.5 text-[10px] text-white/40">{getRatingLabel(selectedFollowUp.rating)} · {formatDate(selectedFollowUp.createdAt)}</p>{selectedFollowUp.review && <p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-white/65">{selectedFollowUp.review}</p>}{selectedFollowUp.photoUrl && <button type="button" onClick={() => openImageInNewTab(selectedFollowUp.photoUrl)} aria-label="Agrandir la photo de cicatrisation" className="relative mt-3 block size-24 cursor-pointer overflow-hidden rounded-xl border border-white/10"><Image src={selectedFollowUp.photoUrl} alt="Photo de cicatrisation" fill sizes="96px" unoptimized className="object-cover" /></button>}</section><div className="rounded-2xl border border-white/10 bg-noir-600 p-4"><label htmlFor={inputId} className="mb-2 block text-xs font-medium text-white/75">Votre réponse</label><p className="mb-3 text-[11px] leading-5 text-white/40">Accompagnez votre client et donnez-lui vos conseils de cicatrisation. Votre réponse lui sera envoyée par email.</p><textarea id={inputId} value={replyText} onChange={event => setReplyText(event.target.value)} disabled={isReplying} rows={6} placeholder="Écrivez votre réponse…" className="w-full resize-y rounded-xl border border-white/10 bg-noir-700 p-3 text-xs leading-6 text-white placeholder:text-white/30 focus:border-tertiary-400/50 focus:outline-none focus:ring-2 focus:ring-tertiary-400/10" /></div></div><footer className="flex shrink-0 justify-end gap-2 border-t border-white/10 bg-noir-600 p-4"><button type="button" onClick={onClose} disabled={isReplying} className={dashboardControl}>Fermer</button><button type="button" onClick={handleReplySubmit} disabled={isReplying || !replyText.trim()} className={dashboardControl + " !bg-white/90 !text-noir-700"}>{isReplying ? <LoaderCircle size={13} className="animate-spin" /> : <Send size={13} />}{isReplying ? "Envoi…" : "Envoyer la réponse"}</button></footer></div>;
 }

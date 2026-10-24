@@ -1,10 +1,12 @@
 "use client";
+import SettingsSectionHeader from "./SettingsSectionHeader";
+import { ShieldCheck } from "lucide-react";
 
 import styles from "./SettingsCard.module.css";
 
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { CiLock } from "react-icons/ci";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -94,25 +96,12 @@ export default function SecuritySection({
     <>
       {/* Section Sécurité responsive */}
       <div className={styles.card}>
-        <DashboardButton variant="secondary"
-          aria-expanded={openSections.security}
-          aria-controls="settings-security-content"
-          onClick={() => toggleSection("security")}
-          className="min-w-0! mb-5 w-full min-w-0! justify-between! border-0! bg-transparent! p-0! text-left hover:translate-y-0!"
-        >
-          <h2 className="flex items-center gap-2 sm:gap-3 text-base font-semibold text-white font-one">
-            <CiLock size={20} className="sm:w-6 sm:h-6 text-tertiary-400" />
-            Sécurité
-          </h2>
-          <div className="text-white/50">
-            {openSections.security ? "−" : "+"}
-          </div>
-        </DashboardButton>
+        <SettingsSectionHeader icon={ShieldCheck} title="Connexion et sécurité" description="Protégez l’accès à votre compte." expanded={openSections.security} controls="settings-security-content" onToggle={() => toggleSection("security")} />
 
         {openSections.security && (
-          <div id="settings-security-content" className="space-y-4">
-            <div className="bg-white/5 rounded-2xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div><h3 className="text-base font-semibold text-white font-one">Mot de passe de connexion</h3><p className="mt-1 text-sm leading-relaxed text-white/55">Choisissez un mot de passe unique pour votre compte.</p></div>
+          <div id="settings-security-content" className="mt-4 space-y-4 border-t border-white/[0.07] pt-4">
+            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div><h3 className="text-sm font-semibold text-white font-one">Mot de passe de connexion</h3><p className="mt-1 text-xs leading-relaxed text-white/55">Choisissez un mot de passe unique pour votre compte.</p></div>
               <DashboardButton
                 onClick={() => { setShowPasswords(false); setShowPasswordModal(true); }}
                 className="min-w-0! w-full sm:w-[175px] min-w-0 h-auto py-2"
@@ -127,11 +116,11 @@ export default function SecuritySection({
             {/* SESSIONS ACTIVE */}
             {/* <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
-                <h3 className="text-white font-one mb-2 text-sm sm:text-base">
+                <h3 className="text-white font-one mb-2 text-xs sm:text-sm">
                   <span className="hidden sm:inline">Sessions actives</span>
                   <span className="sm:hidden">Sessions</span>
                 </h3>
-                <p className="text-white/60 text-sm leading-relaxed font-one mb-3">
+                <p className="text-white/60 text-xs leading-relaxed font-one mb-3">
                   <span className="hidden sm:inline">
                     Gérez les appareils connectés à votre compte
                   </span>
@@ -153,7 +142,7 @@ export default function SecuritySection({
       {showPasswordModal && (
         <dialog ref={dialogRef} aria-label="Changer le mot de passe" onCancel={(event) => { event.preventDefault(); if (!isChangingPassword) { setShowPasswordModal(false); passwordForm.reset(); } }} className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 text-white backdrop:bg-black/70 backdrop:backdrop-blur-sm">
           <div className="flex h-full items-center justify-center p-3 sm:p-6">
-          <div className="flex max-h-[calc(100dvh-3rem)] w-full max-w-xl flex-col overflow-hidden rounded-3xl border border-white/15 bg-noir-500 shadow-2xl">
+          <div className="flex max-h-[calc(100dvh-3rem)] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-noir-500 shadow-2xl">
             {/* Header */}
             <div className="shrink-0 p-5 sm:p-6 border-b border-white/10 bg-linear-to-r from-tertiary-500/10 to-transparent">
               <div className="flex items-center justify-between">
@@ -174,7 +163,7 @@ export default function SecuritySection({
                   </span>
                 </DashboardButton>
               </div>
-              <p className="text-white/70 mt-2 text-base lg:text-sm font-one">
+              <p className="text-white/70 mt-2 text-sm lg:text-xs font-one">
                 Modifiez votre mot de passe de connexion
               </p>
             </div>
@@ -184,12 +173,12 @@ export default function SecuritySection({
               <form
                 id="change-password-form"
                 onSubmit={passwordForm.handleSubmit(handlePasswordChange)}
-                className="space-y-6 lg:space-y-4"
+                className="space-y-4"
               >
-                <div className="flex justify-end"><DashboardButton variant="secondary" className="min-w-0! min-w-0!" aria-pressed={showPasswords} onClick={() => setShowPasswords((current) => !current)}>{showPasswords ? "Masquer les mots de passe" : "Afficher les mots de passe"}</DashboardButton></div>
+                <div className="flex justify-end"><DashboardButton variant="secondary" className="min-w-0!" aria-pressed={showPasswords} onClick={() => setShowPasswords((current) => !current)}>{showPasswords ? "Masquer les mots de passe" : "Afficher les mots de passe"}</DashboardButton></div>
                 {/* Mot de passe actuel */}
                 <div className="space-y-2 lg:space-y-2">
-                  <label htmlFor="currentPassword" className="text-base lg:text-sm text-white/80 font-one">
+                  <label htmlFor="currentPassword" className="text-sm lg:text-xs text-white/80 font-one">
                     Mot de passe actuel
                   </label>
                   <input
@@ -200,11 +189,11 @@ export default function SecuritySection({
                     autoComplete="current-password"
                     {...passwordForm.register("currentPassword")}
                     disabled={isChangingPassword}
-                    className="w-full min-h-12 px-4 py-3 bg-black/15 border border-white/15 rounded-xl text-white text-base focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
+                    className="w-full min-h-10 px-3 py-2.5 bg-black/15 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
                     placeholder="Votre mot de passe actuel"
                   />
                   {passwordForm.formState.errors.currentPassword && (
-                    <p id="currentPassword-error" role="alert" className="text-red-300 text-sm">
+                    <p id="currentPassword-error" role="alert" className="text-red-300 text-xs">
                       {passwordForm.formState.errors.currentPassword.message}
                     </p>
                   )}
@@ -212,7 +201,7 @@ export default function SecuritySection({
 
                 {/* Nouveau mot de passe */}
                 <div className="space-y-2 lg:space-y-1">
-                  <label htmlFor="newPassword" className="text-base lg:text-sm text-white/80 font-one">
+                  <label htmlFor="newPassword" className="text-sm lg:text-xs text-white/80 font-one">
                     Nouveau mot de passe
                   </label>
                   <input
@@ -223,11 +212,11 @@ export default function SecuritySection({
                     autoComplete="new-password"
                     {...passwordForm.register("newPassword")}
                     disabled={isChangingPassword}
-                    className="w-full min-h-12 px-4 py-3 bg-black/15 border border-white/15 rounded-xl text-white text-base focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
+                    className="w-full min-h-10 px-3 py-2.5 bg-black/15 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
                     placeholder="Votre nouveau mot de passe"
                   />
                   {passwordForm.formState.errors.newPassword && (
-                    <p id="newPassword-error" role="alert" className="text-red-300 text-sm">
+                    <p id="newPassword-error" role="alert" className="text-red-300 text-xs">
                       {passwordForm.formState.errors.newPassword.message}
                     </p>
                   )}
@@ -235,7 +224,7 @@ export default function SecuritySection({
 
                 {/* Confirmation nouveau mot de passe */}
                 <div className="space-y-2 lg:space-y-2">
-                  <label htmlFor="confirmPassword" className="text-base lg:text-sm text-white/80 font-one">
+                  <label htmlFor="confirmPassword" className="text-sm lg:text-xs text-white/80 font-one">
                     Confirmer le nouveau mot de passe
                   </label>
                   <input
@@ -246,18 +235,18 @@ export default function SecuritySection({
                     autoComplete="new-password"
                     {...passwordForm.register("confirmPassword")}
                     disabled={isChangingPassword}
-                    className="w-full min-h-12 px-4 py-3 bg-black/15 border border-white/15 rounded-xl text-white text-base focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
+                    className="w-full min-h-10 px-3 py-2.5 bg-black/15 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
                     placeholder="Confirmez votre nouveau mot de passe"
                   />
                   {passwordForm.formState.errors.confirmPassword && (
-                    <p id="confirmPassword-error" role="alert" className="text-red-300 text-sm">
+                    <p id="confirmPassword-error" role="alert" className="text-red-300 text-xs">
                       {passwordForm.formState.errors.confirmPassword.message}
                     </p>
                   )}
                 </div>
 
                 {/* Règles de sécurité */}
-                <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-2xl p-4 lg:p-3 mt-6 lg:mt-4 font-one">
+                <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-xl p-4 lg:p-3 mt-6 lg:mt-4 font-one">
                   <div className="flex items-start gap-3 lg:gap-2">
                     <svg
                       className="w-5 h-5 lg:w-4 lg:h-4 text-tertiary-400 mt-0.5 flex-shrink-0"
@@ -273,10 +262,10 @@ export default function SecuritySection({
                       />
                     </svg>
                     <div>
-                      <p className="text-tertiary-400 text-sm lg:text-xs font-semibold mb-2 lg:mb-1">
+                      <p className="text-tertiary-400 text-xs lg:text-xs font-semibold mb-2 lg:mb-1">
                         Exigences du mot de passe
                       </p>
-                      <ul className="text-tertiary-400/80 text-sm lg:text-xs space-y-2 lg:space-y-1">
+                      <ul className="text-tertiary-400/80 text-xs lg:text-xs space-y-2 lg:space-y-1">
                         <li>• Au moins 8 caractères</li>
                         <li>• Différent de votre mot de passe actuel</li>
                         <li>
@@ -293,7 +282,7 @@ export default function SecuritySection({
             </div>
 
             {/* Footer fixe */}
-            <div className="shrink-0 p-5 sm:p-6 border-t border-white/10 bg-white/3 flex flex-wrap justify-end gap-3">
+            <div className="shrink-0 p-4 sm:p-5 border-t border-white/10 flex flex-wrap justify-end gap-2">
               <DashboardButton
                 type="button"
                 onClick={() => {

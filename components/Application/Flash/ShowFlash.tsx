@@ -372,13 +372,13 @@ export default function ShowFlash() {
                 {!isLinkedFlash(flash) && (
                   <div className="flex gap-2 justify-end pt-2">
                     <button
-                      className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-white/20"
+                      className="cursor-pointer rounded-lg bg-tertiary-400/10 p-1.5 transition-all duration-200 hover:bg-tertiary-400/15"
                       onClick={() => handleEdit(flash)}
                     >
                       <IoCreateOutline size={16} className="text-white" />
                     </button>
                     <button
-                      className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
+                      className="cursor-pointer rounded-lg bg-tertiary-400/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
                       onClick={() => handleDelete(flash)}
                     >
                       <AiOutlineDelete size={16} className="text-white" />

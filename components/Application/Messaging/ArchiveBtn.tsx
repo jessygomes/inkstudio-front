@@ -59,7 +59,7 @@ export default function ArchiveBtn({
       <button
         onClick={() => setIsOpen(true)}
         disabled={isClosed}
-        className="cursor-pointer p-2 rounded-2xl bg-noir-700/40 border border-white/10 hover:bg-noir-700/60 hover:border-white/20 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+        className="cursor-pointer p-2 rounded-2xl bg-tertiary-400/10 border border-white/10 hover:bg-tertiary-400/15 hover:border-white/20 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
         title={
           isClosed
             ? "Impossible d'archiver une conversation fermée"

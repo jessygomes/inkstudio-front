@@ -342,7 +342,7 @@ function CardItem({
         <button
           disabled={index === 0}
           onClick={() => onMove(card, DRAWING_CARD_STATUSES[index - 1])}
-          className="flex flex-1 justify-center py-2 text-white/45 hover:bg-white/5 disabled:opacity-20"
+          className="flex flex-1 justify-center py-2 text-white/45 hover:bg-tertiary-400/15 disabled:opacity-20"
           aria-label="Colonne précédente"
         >
           <ChevronLeft size={15} />
@@ -350,7 +350,7 @@ function CardItem({
         <button
           disabled={index === DRAWING_CARD_STATUSES.length - 1}
           onClick={() => onMove(card, DRAWING_CARD_STATUSES[index + 1])}
-          className="flex flex-1 justify-center border-l border-white/8 py-2 text-white/45 hover:bg-white/5 disabled:opacity-20"
+          className="flex flex-1 justify-center border-l border-white/8 py-2 text-white/45 hover:bg-tertiary-400/15 disabled:opacity-20"
           aria-label="Colonne suivante"
         >
           <ChevronRight size={15} />
@@ -511,7 +511,7 @@ function CardPanel({
           </div>
           <button
             onClick={onClose}
-            className="rounded-xl p-2 text-white/60 hover:bg-white/8"
+            className="rounded-xl p-2 text-white/60 hover:bg-tertiary-400/15"
           >
             <X size={18} />
           </button>
@@ -931,7 +931,7 @@ function ImageItem({
                   "Légende modifiée",
                 ).then(() => setEditing(false))
               }
-              className="rounded-lg bg-white/10 px-2 text-white"
+              className="rounded-lg bg-tertiary-400/10 px-2 text-white"
             >
               <Check size={13} />
             </button>
@@ -956,7 +956,7 @@ function ImageItem({
           </button>
           <button
             onClick={() => setEditing(!editing)}
-            className="rounded-lg bg-white/7 px-2 text-white/60"
+            className="rounded-lg bg-tertiary-400/10 px-2 text-white/60"
           >
             <Pencil size={12} />
           </button>

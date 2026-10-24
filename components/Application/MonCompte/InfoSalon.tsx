@@ -101,7 +101,7 @@ export default function InfoSalon({ salon }: { salon: UpdateSalonUserProps }) {
         aria-labelledby="salon-identity"
         className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]"
       >
-        <div className="relative h-40 xl:flex-1 xl:min-h-52 bg-[radial-gradient(ellipse_at_top_right,rgba(255,157,0,0.2),transparent_65%)] sm:h-52">
+        <div className="relative h-40 xl:flex-1 xl:min-h-52 bg-[radial-gradient(ellipse_at_top_right,color-mix(in_srgb,var(--color-tertiary-400)_20%,transparent),transparent_65%)] sm:h-52">
           {salon.image && (
             <Image
               fill
@@ -165,8 +165,8 @@ export default function InfoSalon({ salon }: { salon: UpdateSalonUserProps }) {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <Link href={editHref} title="Modifier le profil" aria-label="Modifier le profil" className="inline-flex size-9 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><Pencil size={15} aria-hidden="true" /></Link>
-              <Link href="/mon-compte/piercing" title="Configurer les piercings" aria-label="Configurer les piercings" className="inline-flex size-9 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><Gem size={16} aria-hidden="true" /></Link>
+              <Link href={editHref} title="Modifier le profil" aria-label="Modifier le profil" className="inline-flex size-9 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-tertiary-400/10 text-white/60 transition hover:bg-tertiary-400/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><Pencil size={15} aria-hidden="true" /></Link>
+              <Link href="/mon-compte/piercing" title="Configurer les piercings" aria-label="Configurer les piercings" className="inline-flex size-9 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-tertiary-400/10 text-white/60 transition hover:bg-tertiary-400/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><Gem size={16} aria-hidden="true" /></Link>
             </div>
           </div>
         </div>
@@ -411,7 +411,7 @@ export default function InfoSalon({ salon }: { salon: UpdateSalonUserProps }) {
               className="flex min-h-14 items-center gap-3 py-3 text-sm text-white/70 transition-colors hover:text-tertiary-400"
             >
               <span
-                className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/5"
+                className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-tertiary-400/10"
                 aria-hidden="true"
               >
                 {icon}

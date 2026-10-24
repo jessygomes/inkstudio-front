@@ -14,7 +14,7 @@ export default function ClientCard({ client, onOpen, onEdit, onDelete, onConsent
   const name = [client.firstName, client.lastName].filter(Boolean).join(" ") || "Client";
   const tags = [...new Set((Array.isArray(client.tags) ? client.tags : (client.tags || "").split(",")).map((tag) => tag.trim()).filter(Boolean))];
   const appointmentsCount = client.appointments?.length || 0;
-  const iconButtonClass = "inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-white/40 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400";
+  const iconButtonClass = "inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-white/40 transition hover:bg-tertiary-400/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400";
 
   return <article className="group relative isolate min-w-0 rounded-xl border border-white/10 bg-noir-600 font-one transition-colors hover:border-white/20 hover:bg-white/[0.025] focus-within:border-white/20">
     <div className="flex items-center gap-3 px-3 py-2.5">

@@ -1,29 +1,21 @@
-import ClientAvatar from "@/components/Application/Clients/ClientAvatar";
-import AppointmentPhotos from "@/components/Application/RDV/AppointmentPhotos";
-import React, { useEffect, useState } from "react";
+import RdvDetailsHeader from "./RdvDetailsHeader";
+import RdvActions from "./RdvActions";
+import { RdvPlanningCard, RdvPaymentCard, RdvPrestationCard } from "@/components/Application/RDV/RdvInformationCards";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { CalendarEvent } from "./Calendar";
-import ConfirmRdv from "./ConfirmRdv";
-import UpdateRdv from "./UpdateRdv";
-import CancelRdv from "./CancelRdv";
-import ChangeRdv from "./ChangeRdv";
+
 import ConsumablesList from "./Consumables/ConsumablesList";
 import AppointmentDrawingCardAction from "@/components/Application/SuiviDessin/AppointmentDrawingCardAction";
-import { UpdateRdvFormProps } from "@/lib/type";
-import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
-import { calculateDuration } from "@/lib/utils/calculateDuration";
+
 import Link from "next/link";
-import SendMessageRdv from "./SendMessageRdv";
-import ConversationRdv from "./ConversationRdv";
+
 import { useScrollLock } from "@/lib/hook/useScrollLock";
 import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
-import {
-  getMoodboardByAppointmentAction,
-  MoodboardDto,
-} from "@/lib/queries/moodboard";
+import { getMoodboardByAppointmentAction, MoodboardDto } from "@/lib/queries/moodboard";
 import Image from "next/image";
 import { openImageInNewTab } from "@/lib/utils/openImage";
-import { Check, Palette, Zap } from "lucide-react";
+import { Palette } from "lucide-react";
 
 interface ShowRdvDetailsMobileProps {
   selectedEvent: CalendarEvent & {
@@ -51,14 +43,14 @@ export default function ShowRdvDetailsMobile({
   selectedEvent,
   onClose,
   handleRdvUpdated,
-  handleStatusChange: _handleStatusChange,
+  handleStatusChange,
   handlePaymentStatusChange,
   userId,
   price,
 }: ShowRdvDetailsMobileProps) {
   // Bloquer le scroll du body quand la modal est ouverte
   useScrollLock(true);
-  void _handleStatusChange;
+
   const [isMounted, setIsMounted] = useState(false);
 
   // État pour le nom de la zone de piercing détaillée
@@ -246,269 +238,16 @@ export default function ShowRdvDetailsMobile({
       <div className="w-full h-full">
         <div className="w-full h-full bg-gradient-to-br from-noir-500 to-noir-600 overflow-hidden flex flex-col min-h-0 lg:rounded-[28px]">
           {/* Header mobile */}
-          <div className="dashboard-embedded-header p-3.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <ClientAvatar client={selectedEvent.client} className="size-10 rounded-xl" />
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-lg font-bold font-one text-white tracking-wide truncate">
-                    {selectedEvent.client.firstName}{" "}
-                    {selectedEvent.client.lastName}
-                  </h4>
-                  <p className="text-white/70 text-xs font-one truncate">
-                    {selectedEvent.title}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={onClose}
-                className="cursor-pointer p-2 hover:bg-white/10 rounded-full transition-colors"
-              >
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-white/10 bg-white/6 px-2.5 py-0.5 text-[10px] text-white/72 font-one">
-                {selectedEvent.prestation}
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/6 px-2.5 py-0.5 text-[10px] text-white/72 font-one">
-                {new Date(selectedEvent.start).toLocaleDateString("fr-FR", {
-                  day: "2-digit",
-                  month: "2-digit",
-                })}
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/6 px-2.5 py-0.5 text-[10px] text-white/72 font-one">
-                {new Date(selectedEvent.start).toLocaleTimeString("fr-FR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </div>
-          </div>
+          <RdvDetailsHeader client={selectedEvent.client} status={selectedEvent.status} title={selectedEvent.title} onClose={onClose}></RdvDetailsHeader>
 
           {/* Contenu scrollable mobile */}
           <div className="flex-1 min-h-0 space-y-3 overflow-y-auto bg-noir-700/70 p-3">
-            {/* Statut */}
-            <div className="dashboard-embedded-section p-2.5">
-              <h5 className="text-white font-one text-sm mb-2">Statut</h5>
-              {selectedEvent.status === "PENDING" ? (
-                <div className="bg-gradient-to-r from-orange-500/15 to-amber-500/15 border border-orange-400/30 rounded-lg p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
-                    <span className="text-orange-300 font-medium font-one text-xs">
-                      En attente de confirmation
-                    </span>
-                  </div>
-                </div>
-              ) : selectedEvent.status === "CONFIRMED" ? (
-                <div className="bg-gradient-to-r from-green-500/15 to-emerald-500/15 border border-green-400/30 rounded-lg p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-green-300 font-medium font-one text-xs">
-                      Confirmé
-                    </span>
-                  </div>
-                </div>
-              ) : selectedEvent.status === "COMPLETED" ? (
-                <div className="bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-400/30 rounded-2xl p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                    <span className="text-emerald-300 font-medium font-one text-xs">
-                      Complété
-                    </span>
-                  </div>
-                </div>
-              ) : selectedEvent.status === "NO_SHOW" ? (
-                <div className="bg-gradient-to-r from-amber-500/15 to-orange-600/15 border border-amber-400/30 rounded-2xl p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                    <span className="text-amber-300 font-medium font-one text-xs">
-                      Pas présenté
-                    </span>
-                  </div>
-                </div>
-              ) : selectedEvent.status === "CANCELED" ? (
-                <div className="bg-gradient-to-r from-red-500/15 to-rose-500/15 border border-red-400/30 rounded-2xl p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                    <span className="text-red-300 font-medium font-one text-xs">
-                      Annulé
-                    </span>
-                  </div>
-                </div>
-              ) : selectedEvent.status === "RESCHEDULING" ? (
-                <div className="bg-gradient-to-r from-blue-500/15 to-cyan-500/15 border border-blue-400/30 rounded-2xl p-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                    <span className="text-blue-300 font-medium font-one text-xs">
-                      En attente de reprogrammation
-                    </span>
-                  </div>
-                  <p className="text-blue-200/80 text-xs font-one mt-1">
-                    Le client doit choisir un nouveau créneau
-                  </p>
-                </div>
-              ) : null}
-            </div>
 
             {/* Actions mobiles */}
-            <div className="dashboard-embedded-section overflow-hidden p-2.5">
-              <div className="mb-2 flex items-center justify-between">
-                <h5 className="text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">
-                  Actions rapides
-                </h5>
-                <div className="flex h-6 w-6 items-center justify-center rounded-lg border border-tertiary-400/20 bg-tertiary-400/10">
-                  <Zap size={12} className="text-tertiary-300" />
-                </div>
-              </div>
-              <div className="flex items-stretch gap-1.5 overflow-x-auto scrollbar-hidden [&_button]:!py-2 [&_button]:!text-[11px]">
-                {selectedEvent.status !== "CONFIRMED" && selectedEvent.status !== "RESCHEDULING" && (
-                  <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.07]">
-                    <ConfirmRdv rdvId={selectedEvent.id} appointment={selectedEvent} onConfirm={() => handleRdvUpdated(selectedEvent.id)} />
-                  </div>
-                )}
-                <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035]">
-                  <UpdateRdv rdv={selectedEvent as unknown as UpdateRdvFormProps} userId={userId || ""} onUpdate={() => handleRdvUpdated(selectedEvent.id)} />
-                </div>
-                <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-cyan-400/15 bg-cyan-500/[0.05]">
-                  <ChangeRdv rdvId={selectedEvent.id} appointment={selectedEvent} userId={userId || ""} />
-                </div>
-                {selectedEvent.status !== "CANCELED" && (
-                  <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-red-400/10 bg-red-500/[0.035]">
-                    <CancelRdv rdvId={selectedEvent.id} appointment={selectedEvent} onCancel={() => handleRdvUpdated(selectedEvent.id)} />
-                  </div>
-                )}
-                {selectedEvent.conversation?.id && (
-                  <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035]">
-                    <ConversationRdv conversationId={selectedEvent.conversation.id} />
-                  </div>
-                )}
-                {selectedEvent.status !== "CANCELED" && (
-                  <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035]">
-                    <SendMessageRdv rdvId={selectedEvent.id} appointment={selectedEvent} onMessageSent={() => handleRdvUpdated(selectedEvent.id)} buttonLabel="Mail" />
-                  </div>
-                )}
-              </div>
-            </div>
+            <RdvActions appointment={selectedEvent} userId={userId} onUpdated={handleRdvUpdated} onStatusChange={handleStatusChange} />
 
             {/* Informations principales */}
-            <div className="dashboard-embedded-section rounded-xl border border-white/10 p-3 backdrop-blur-sm">
-              <h5 className="mb-3 flex items-center gap-2 text-sm text-white font-one">
-                <svg className="h-4 w-4 text-tertiary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Informations
-              </h5>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(59,130,246,0.10),rgba(255,255,255,0.03))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                  <div className="flex items-start gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-blue-400/18 bg-blue-500/14">
-                      <svg className="h-3 w-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 2m8-2l2 2m-2-2v6a2 2 0 01-2 2H10a2 2 0 01-2-2v-6" />
-                      </svg>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
-                        Date & heure
-                      </p>
-                      <div className="mt-1 flex flex-wrap gap-1.5">
-                        <span className="rounded-full border border-white/10 bg-white/7 px-2 py-0.5 text-[10px] text-white/78 font-one">
-                          {new Date(selectedEvent.start).toLocaleDateString("fr-FR")}
-                        </span>
-                        <span className="rounded-full border border-white/10 bg-white/7 px-2 py-0.5 text-[10px] text-white/78 font-one">
-                          {new Date(selectedEvent.start).toLocaleTimeString("fr-FR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}{" "}
-                          -{" "}
-                          {new Date(selectedEvent.end).toLocaleTimeString("fr-FR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(168,85,247,0.10),rgba(255,255,255,0.03))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                  <div className="flex items-start gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-purple-400/18 bg-purple-500/14">
-                      <svg className="h-3 w-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
-                        Durée
-                      </p>
-                      <p className="mt-1 text-sm font-semibold leading-none text-white font-one">
-                        {calculateDuration(
-                          String(selectedEvent.start),
-                          String(selectedEvent.end),
-                        )}
-                        <span className="ml-1 text-[10px] font-medium text-white/50">min</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(34,197,94,0.10),rgba(255,255,255,0.03))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                  <div className="flex items-start gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-green-400/18 bg-green-500/14">
-                      <svg className="h-3 w-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
-                        Prestation
-                      </p>
-                      <p className="mt-1 truncate text-xs font-medium text-white/86 font-one">
-                        {selectedEvent.prestation}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(249,115,22,0.10),rgba(255,255,255,0.03))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                  <div className="flex items-start gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-orange-400/18 bg-orange-500/14">
-                      <svg className="h-3 w-3 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
-                        Tatoueur
-                      </p>
-                      <p className="mt-1 truncate text-xs font-medium text-white/86 font-one">
-                        {selectedEvent.performerUser?.salonName ||
-                          (selectedEvent.performerUser?.firstName ||
-                          selectedEvent.performerUser?.lastName
-                            ? `${selectedEvent.performerUser?.firstName ?? ""} ${selectedEvent.performerUser?.lastName ?? ""}`.trim()
-                            : selectedEvent.tatoueur?.name) ||
-                          "Non assigné"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <RdvPlanningCard appointment={selectedEvent} />
 
             {/* Section Visio si applicable */}
             {selectedEvent.visio && (
@@ -548,127 +287,11 @@ export default function ShowRdvDetailsMobile({
             )}
 
             {/* Paiement mobile si applicable */}
-            {(selectedEvent.prestation === "RETOUCHE" ||
-              selectedEvent.prestation === "TATTOO" ||
-              selectedEvent.prestation === "PIERCING") && (
-              <div className="dashboard-embedded-section rounded-2xl border border-white/10 p-2.5 backdrop-blur-sm">
-                <h5 className="mb-3 flex items-center gap-2 text-sm text-white font-one">
-                  <svg className="h-4 w-4 text-tertiary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  Paiement
-                </h5>
-                  <div className="flex gap-2">
-                    <label className={`flex flex-1 cursor-pointer items-center justify-between gap-2 rounded-2xl border px-2.5 py-2 transition-all ${selectedEvent.isPayed === false ? "border-red-400/35 bg-red-500/15 text-red-200" : "border-white/8 bg-white/[0.035] text-white/45 hover:bg-white/[0.07]"}`}>
-                    <input
-                      type="radio"
-                      name={`payment-mobile-${selectedEvent.id}`}
-                      checked={selectedEvent.isPayed === false}
-                      onChange={() =>
-                        handlePaymentStatusChange(selectedEvent.id, false)
-                      }
-                      className="w-3 h-3 text-red-500"
-                    />
-                    <span className="text-xs font-medium font-one">Non payé</span>
-                    {selectedEvent.isPayed === false && <Check size={13} />}
-                  </label>
-                  <label className={`flex flex-1 cursor-pointer items-center justify-between gap-2 rounded-2xl border px-2.5 py-2 transition-all ${selectedEvent.isPayed === true ? "border-emerald-400/35 bg-emerald-500/15 text-emerald-200" : "border-white/8 bg-white/[0.035] text-white/45 hover:bg-white/[0.07]"}`}>
-                    <input
-                      type="radio"
-                      name={`payment-mobile-${selectedEvent.id}`}
-                      checked={selectedEvent.isPayed === true}
-                      onChange={() =>
-                        handlePaymentStatusChange(selectedEvent.id, true)
-                      }
-                      className="w-3 h-3 text-green-500"
-                    />
-                    <span className="text-xs font-medium font-one">Payé</span>
-                    {selectedEvent.isPayed === true && <Check size={13} />}
-                  </label>
-                </div>
-              </div>
-            )}
+            <RdvPaymentCard appointment={selectedEvent} onPaymentChange={(paid) => handlePaymentStatusChange(selectedEvent.id, paid)} />
 
             {/* Détails tattoo mobiles */}
-            {!selectedEvent.tattooDetail && (<div className="dashboard-embedded-section p-3"><AppointmentPhotos appointmentId={selectedEvent.id} /></div>)}
-            {selectedEvent.tattooDetail && (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-2.5 backdrop-blur-sm">
-            <div className="mb-3"><AppointmentPhotos appointmentId={selectedEvent.id} /></div>
-                <h5 className="mb-3 flex items-center gap-2 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">
-                  <svg className="h-4 w-4 text-tertiary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                  </svg>
-                  Détails {selectedEvent.prestation}
-                </h5>
-                <div className="space-y-2">
-                  {selectedEvent.tattooDetail.description && (
-                    <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                      <p className="mb-1 text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
-                        Description
-                      </p>
-                      <p className="text-xs leading-relaxed text-white/86 font-one">
-                        {selectedEvent.tattooDetail.description}
-                      </p>
-                    </div>
-                  )}
-                  <div className="grid grid-cols-2 gap-2">
-                    {selectedEvent.tattooDetail.zone && (
-                      <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">Zone</p>
-                        <p className="mt-1 text-xs font-medium text-white/86 font-one">
-                          {selectedEvent.tattooDetail.zone}
-                        </p>
-                      </div>
-                    )}
-                    {selectedEvent.skin && (
-                      <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
-                          Teinte de peau
-                        </p>
-                        <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-white/86 font-one">
-                          <span
-                            className="inline-block h-3 w-3 rounded-full border border-white/20 flex-shrink-0"
-                            style={{
-                              backgroundColor:
-                                getSkinTonePreviewHex(selectedEvent.skin) ?? undefined,
-                            }}
-                            aria-hidden="true"
-                          />
-                          {formatSkinTone(selectedEvent.skin)}
-                        </p>
-                      </div>
-                    )}
-                    {selectedEvent.tattooDetail.size && (
-                      <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">Taille</p>
-                        <p className="mt-1 text-xs font-medium text-white/86 font-one">
-                          {selectedEvent.tattooDetail.size}
-                        </p>
-                      </div>
-                    )}
-                    {selectedEvent.tattooDetail.piercingZone && (
-                      <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                        <p className="mb-1 text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
-                          Zone de piercing
-                        </p>
-                        <p className="text-xs leading-relaxed text-white/86 font-one">
-                          {selectedEvent.tattooDetail.piercingZone}
-                        </p>
-                      </div>
-                    )}
 
-                    {piercingZoneName && (
-                      <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                        <p className="mb-1 text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
-                          Zone de piercing spécifique
-                        </p>
-                        <p className="text-xs leading-relaxed text-white/86 font-one">
-                          {piercingZoneName}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                   <button
+            <RdvPrestationCard appointment={selectedEvent} price={price} piercingZoneName={piercingZoneName}><button
                 type="button"
                 onClick={openMoodboard}
                 className="mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-indigo-400/20 bg-indigo-500/10 px-3 py-2 text-xs font-medium text-indigo-200 transition-colors duration-200 hover:bg-indigo-500/20 font-one"
@@ -676,23 +299,7 @@ export default function ShowRdvDetailsMobile({
               >
                 <Palette size={14} className="shrink-0" />
                 <span>Voir le moodboard</span>
-              </button>
-                  {price !== undefined && price !== null && (
-                    <div className="rounded-[20px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                      <p className="mb-1 text-[10px] uppercase tracking-[0.12em] text-white/42 font-one">
-                        Budget
-                      </p>
-                      <div className="rounded-[16px] border border-white/8 bg-white/5 px-2.5 py-2">
-                        <p className="text-xs font-semibold text-white font-one">
-                          Prix final :
-                          <span className="ml-1 text-white/86">{price}€</span>
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+              </button></RdvPrestationCard>
 
             {(selectedEvent.prestation === "PROJET" ||
               selectedEvent.prestation === "TATTOO") && (
@@ -707,7 +314,7 @@ export default function ShowRdvDetailsMobile({
               selectedEvent.prestation === "PIERCING" ||
               selectedEvent.prestation === "RETOUCHE") && (
               <div className="rounded-2xl border border-white/10 p-3 backdrop-blur-sm">
-                <ConsumablesList appointmentId={selectedEvent.id} />
+                <ConsumablesList key={selectedEvent.id} appointmentId={selectedEvent.id} />
               </div>
             )}
 
@@ -769,10 +376,11 @@ export default function ShowRdvDetailsMobile({
           </div>
 
           {/* Footer mobile */}
-          <div className="dashboard-embedded-footer px-3 py-2.5">
+          <div className="shrink-0 border-t border-white/10 bg-noir-700 px-3 py-2.5">
             <div className="flex items-center justify-end gap-2 rounded-[18px] border border-white/8 bg-black/12 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
               <button
                 onClick={onClose}
+                aria-label="Fermer le rendez-vous"
                 className="cursor-pointer inline-flex min-w-[92px] items-center justify-center rounded-[14px] border border-white/12 bg-white/8 px-4 py-2 text-[13px] font-medium text-white transition-colors duration-200 hover:bg-white/14 font-one"
               >
                 Fermer

@@ -298,7 +298,7 @@ export default function CreateTatoueurModal({
               /* Message spécial pour les limites SaaS */
               <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/50 rounded-2xl p-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-orange-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-8 h-8 bg-tertiary-400/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <svg
                       className="w-4 h-4 text-orange-300"
                       fill="none"

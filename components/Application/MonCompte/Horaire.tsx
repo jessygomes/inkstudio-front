@@ -78,7 +78,7 @@ export default function Horaire({ hours, salonId }: HoraireProps) {
     <div className="space-y-4 font-one [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_a]:cursor-pointer [&_select]:cursor-pointer [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-2 [&_button:focus-visible]:ring-tertiary-400">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex size-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-tertiary-400"><Clock3 size={17} aria-hidden="true" /></span>
+          <span className="flex size-9 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400"><Clock3 size={17} aria-hidden="true" /></span>
           <div>
             <h3 className="text-sm font-medium text-white">Votre semaine type</h3>
             <p className="mt-1 text-[11px] text-white/40">{hasHours ? `${openDays} jour${openDays > 1 ? "s" : ""} d’ouverture par semaine` : "Définissez vos horaires pour informer vos clients."}</p>

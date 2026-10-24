@@ -1,16 +1,11 @@
-import ClientAvatar from "@/components/Application/Clients/ClientAvatar";
-import React, { useEffect, useState } from "react";
+import RdvDetailsHeader from "./RdvDetailsHeader";
+import RdvActions from "./RdvActions";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { CalendarEvent } from "./Calendar";
-import ConfirmRdv from "./ConfirmRdv";
-import UpdateRdv from "./UpdateRdv";
-import CancelRdv from "./CancelRdv";
-import ChangeRdv from "./ChangeRdv";
-import ChangeStatusButtons from "./ChangeStatusButtons";
-import SendMessageRdv from "./SendMessageRdv";
-import ConversationRdv from "./ConversationRdv";
-import { UpdateRdvFormProps, ClientProps } from "@/lib/type";
+
+import { ClientProps } from "@/lib/type";
 import { useSession } from "next-auth/react";
 import { UserRound } from "lucide-react";
 import { getSalonClientsAction } from "@/lib/queries/client";
@@ -19,26 +14,10 @@ import { RdvPaymentCard, RdvPlanningCard, RdvPrestationCard } from "./RdvInforma
 import { openImageInNewTab } from "@/lib/utils/openImage";
 import Link from "next/link";
 import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
-import {
-  getMoodboardByAppointmentAction,
-  MoodboardDto,
-} from "@/lib/queries/moodboard";
+import { getMoodboardByAppointmentAction, MoodboardDto } from "@/lib/queries/moodboard";
 import ConsumablesList from "./Consumables/ConsumablesList";
 import AppointmentDrawingCardAction from "@/components/Application/SuiviDessin/AppointmentDrawingCardAction";
-import {
-  ExternalLink,
-  Palette,
-  Zap,
-} from "lucide-react";
-
-const STATUS_CONFIG = {
-  PENDING: { label: "En attente", dot: "bg-amber-400 animate-pulse", pill: "bg-amber-500/12 text-amber-300 border-amber-400/25" },
-  CONFIRMED: { label: "Confirmé", dot: "bg-emerald-400", pill: "bg-emerald-500/12 text-emerald-300 border-emerald-400/25" },
-  COMPLETED: { label: "Complété", dot: "bg-teal-400", pill: "bg-teal-500/12 text-teal-300 border-teal-400/25" },
-  NO_SHOW: { label: "Pas présenté", dot: "bg-orange-400", pill: "bg-orange-500/12 text-orange-300 border-orange-400/25" },
-  CANCELED: { label: "Annulé", dot: "bg-red-400", pill: "bg-red-500/12 text-red-300 border-red-400/25" },
-  RESCHEDULING: { label: "Reprogrammation", dot: "bg-blue-400 animate-pulse", pill: "bg-blue-500/12 text-blue-300 border-blue-400/25" },
-} as const;
+import { ExternalLink, Palette } from "lucide-react";
 
 interface ShowRdvDetailsProps {
   selectedEvent: CalendarEvent;
@@ -120,19 +99,6 @@ export default function ShowRdvDetails({
 
     fetchPiercingDetails();
   }, [selectedEvent.id, selectedEvent.tattooDetail?.piercingServicePriceId]);
-
-  const statusCfg =
-    STATUS_CONFIG[selectedEvent.status as keyof typeof STATUS_CONFIG] ??
-    STATUS_CONFIG.PENDING;
-
-  const isPastOrDone =
-    (selectedEvent.status === "CONFIRMED" &&
-      new Date(selectedEvent.end) < new Date()) ||
-    selectedEvent.status === "COMPLETED" ||
-    selectedEvent.status === "NO_SHOW";
-  const canConfirm =
-    selectedEvent.status !== "CONFIRMED" &&
-    selectedEvent.status !== "RESCHEDULING";
 
   const openMoodboard = async () => {
     setIsMoodboardOpen(true);
@@ -262,135 +228,26 @@ export default function ShowRdvDetails({
 
   return (
     <>
-      <div className="dashboard-embedded-panel !rounded-none !border-0 flex h-full flex-col">
-      <div className="dashboard-embedded-header px-4 pt-4 pb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="relative shrink-0">
-              <ClientAvatar client={selectedEvent.client} className="size-11 rounded-2xl" />
-              <span className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#1a1a1a] ${statusCfg.dot}`} />
-            </div>
-            <div className="min-w-0">
-              <div className="flex min-w-0 items-center gap-1.5">
-                <h4 className="truncate text-base font-bold text-white font-one leading-tight">
-                  {selectedEvent.client.firstName} {selectedEvent.client.lastName}
-                </h4>
-                <button
+      <div className="bg-noir-700 font-one [&_button]:cursor-pointer [&_a]:cursor-pointer [&_button]:disabled:cursor-not-allowed !rounded-none !border-0 flex h-full flex-col">
+      <RdvDetailsHeader client={selectedEvent.client} status={selectedEvent.status} title={selectedEvent.title} onClose={onClose} error={clientError}><button
                   type="button"
                   onClick={openClientFile}
                   disabled={clientLoading}
                   title="Voir la fiche client"
                   aria-label="Voir la fiche client"
-                  className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-white/[0.05] text-white/60 transition-colors hover:border-tertiary-400/40 hover:text-tertiary-400 disabled:opacity-60"
+                  className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-tertiary-400/20 bg-tertiary-400/10 text-white/60 transition-colors hover:border-tertiary-400/40 hover:text-tertiary-400 disabled:opacity-60"
                 >
                   <UserRound size={13} aria-hidden="true" />
-                </button>
-              </div>
-              {clientError && (
-                <p className="text-[10px] text-red-300 font-one">{clientError}</p>
-              )}
-              <span className={`mt-1 inline-flex items-center gap-1.5 border rounded-full px-2 py-0.5 text-[10px] font-medium font-one ${statusCfg.pill}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-                {statusCfg.label}
-                {selectedEvent.status === "RESCHEDULING" && (
-                  <span className="text-[9px] opacity-70"> · client doit replanifier</span>
-                )}
-              </span>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="cursor-pointer shrink-0 p-1.5 hover:bg-white/10 rounded-xl transition-colors group"
-          >
-            <svg className="w-4 h-4 text-white/50 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
+                </button></RdvDetailsHeader>
 
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
         <RdvPlanningCard appointment={selectedEvent} />
 
-        <div className="dashboard-embedded-section overflow-hidden p-2.5">
-          <div className="mb-2 flex items-center justify-between">
-            <div>
-              <p className="text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">
-                Actions rapides
-              </p>
-            </div>
-            <div className="flex h-6 w-6 items-center justify-center">
-              <Zap size={12} className="text-tertiary-400" />
-            </div>
-          </div>
-          <div className="flex items-stretch gap-1.5 overflow-x-auto scrollbar-hidden [&_button]:!py-2 [&_button]:!text-[11px]">
-            {isPastOrDone ? (
-              <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035] transition-colors hover:border-white/20 hover:bg-white/[0.07]">
-                <ChangeStatusButtons
-                  rdvId={selectedEvent.id}
-                  currentStatus={selectedEvent.status}
-                  onStatusChange={handleStatusChange}
-                  size="sm"
-                  className="w-full"
-                />
-              </div>
-            ) : (
-              <>
-                {canConfirm && (
-                  <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.07] transition-colors hover:border-emerald-400/35 hover:bg-emerald-500/[0.12]">
-                    <ConfirmRdv
-                      rdvId={selectedEvent.id}
-                      appointment={selectedEvent}
-                      onConfirm={() => handleRdvUpdated(selectedEvent.id)}
-                    />
-                  </div>
-                )}
-                <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035] transition-colors hover:border-white/20 hover:bg-white/[0.07]">
-                  <UpdateRdv
-                    rdv={selectedEvent as unknown as UpdateRdvFormProps}
-                    userId={userId || ""}
-                    onUpdate={() => handleRdvUpdated(selectedEvent.id)}
-                  />
-                </div>
-                <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-cyan-400/15 bg-cyan-500/[0.05] transition-colors hover:border-cyan-400/30 hover:bg-cyan-500/[0.1]">
-                  <ChangeRdv
-                    rdvId={selectedEvent.id}
-                    appointment={selectedEvent}
-                    userId={userId || ""}
-                  />
-                </div>
-              </>
-            )}
-                {selectedEvent.conversation?.id && (
-              <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035] transition-colors hover:border-white/20 hover:bg-white/[0.07]">
-                  <ConversationRdv conversationId={selectedEvent.conversation.id} />
-                </div>
-                )}
-                {selectedEvent.status !== "CANCELED" && (
-                <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035] transition-colors hover:border-white/20 hover:bg-white/[0.07]">
-                  <SendMessageRdv
-                    rdvId={selectedEvent.id}
-                    appointment={selectedEvent}
-                    onMessageSent={() => handleRdvUpdated(selectedEvent.id)}
-                    buttonLabel="Mail"
-                  />
-                </div>
-                )}
-                {!isPastOrDone && selectedEvent.status !== "CANCELED" && (
-                <div className="flex min-w-0 basis-0 flex-1 overflow-hidden rounded-2xl border border-red-400/10 bg-red-500/[0.035] transition-colors hover:border-red-400/25 hover:bg-red-500/[0.08]">
-                  <CancelRdv
-                    rdvId={selectedEvent.id}
-                    appointment={selectedEvent}
-                    onCancel={() => handleRdvUpdated(selectedEvent.id)}
-                  />
-                </div>
-                )}
-          </div>
-        </div>
+        <RdvActions appointment={selectedEvent} userId={userId} onUpdated={handleRdvUpdated} onStatusChange={handleStatusChange} />
 
         {/* Section Visio */}
         {selectedEvent.visio && (
-          <div className="dashboard-embedded-section p-3">
+          <div className="rounded-2xl border border-white/10 bg-noir-600 p-3">
             <div className="flex items-center justify-between mb-2.5">
               <p className="text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">Visioconférence</p>
               <span className="inline-flex items-center gap-1 border border-blue-400/25 bg-blue-500/12 rounded-full px-2 py-0.5 text-[10px] font-medium font-one text-blue-300">
@@ -444,14 +301,14 @@ export default function ShowRdvDetails({
         {(selectedEvent.prestation === "TATTOO" ||
           selectedEvent.prestation === "PIERCING" ||
           selectedEvent.prestation === "RETOUCHE") && (
-          <div className="dashboard-embedded-section p-3">
-            <ConsumablesList appointmentId={selectedEvent.id} />
+          <div className="rounded-2xl border border-white/10 bg-noir-600 p-3">
+            <ConsumablesList key={selectedEvent.id} appointmentId={selectedEvent.id} />
           </div>
         )}
 
         {/* Avis */}
         {selectedEvent.salonReview && (
-          <div className="dashboard-embedded-section p-3">
+          <div className="rounded-2xl border border-white/10 bg-noir-600 p-3">
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex-1 min-w-0">
                 <p className="text-[9px] uppercase tracking-[0.14em] text-white/35 font-one">Avis client</p>
@@ -481,12 +338,13 @@ export default function ShowRdvDetails({
         )}
       </div>
 
-      <div className="dashboard-embedded-footer flex items-center justify-between px-4 py-2.5">
+      <div className="shrink-0 border-t border-white/10 bg-noir-700 flex items-center justify-between px-4 py-2.5">
         <p className="text-[10px] text-white/30 font-one leading-none">
           RDV {new Date(selectedEvent.start).toLocaleDateString("fr-FR")}
         </p>
         <button
           onClick={onClose}
+          aria-label="Fermer le rendez-vous"
           className="cursor-pointer inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/6 px-4 py-1 text-[11px] font-medium text-white/70 hover:text-white hover:bg-white/12 transition-all duration-200 font-one"
         >
           Fermer

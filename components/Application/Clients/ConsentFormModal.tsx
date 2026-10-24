@@ -267,7 +267,7 @@ export default function ConsentFormModal({
               type="button"
               aria-label="Fermer le formulaire de consentement"
               onClick={onClose}
-              className="cursor-pointer p-2 hover:bg-white/10 rounded-2xl transition-all hover:rotate-90 group"
+              className="cursor-pointer p-2 hover:bg-tertiary-400/15 rounded-2xl transition-all hover:rotate-90 group"
             >
               <svg className="w-4 h-4 text-white/70 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

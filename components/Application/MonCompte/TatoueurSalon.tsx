@@ -265,7 +265,7 @@ export default function TatoueurSalon({
           }} />)}
         </div> : <div className="rounded-2xl border border-white/10 bg-noir-600 px-5 py-12 text-center"><Search size={25} className="mx-auto mb-4 text-white/25" /><h3 className="text-sm font-medium text-white">Aucun artiste ne correspond</h3><p className="mt-2 text-xs text-white/40">Essayez un autre nom, une spécialité ou un autre filtre.</p><button type="button" onClick={() => { setSearch(""); setFilter("all"); }} className="mx-auto mt-5 inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-xs text-white/65 transition hover:bg-white/5"><X size={13} />Effacer les filtres</button></div>}
       </> : <div className="flex flex-col items-center rounded-2xl border border-dashed border-white/15 bg-noir-600 px-5 py-12 text-center sm:py-16">
-        <div className="mb-5 flex size-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-tertiary-400"><Users size={24} /></div>
+        <div className="mb-5 flex size-14 items-center justify-center rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400"><Users size={24} /></div>
         <h3 className="text-lg font-semibold tracking-tight text-white">Votre équipe commence ici</h3>
         <p className="mt-2 max-w-sm text-xs leading-6 text-white/45">Ajoutez votre premier artiste ou invitez un tatoueur déjà inscrit sur Inkera pour construire votre équipe.</p>
         <Link href="/mon-compte/ajouter-tatoueur" className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-xl bg-tertiary-400 px-4 py-2.5 text-xs font-medium text-white transition hover:bg-tertiary-500"><Plus size={15} />Ajouter le premier tatoueur</Link>

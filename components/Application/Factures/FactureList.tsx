@@ -291,7 +291,7 @@ export default function FactureList() {
           {error && (
             <div className="bg-noir-700 rounded-xl border border-white/20 p-6">
               <div className="text-center py-8">
-                <div className="w-12 h-12 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-12 h-12 bg-tertiary-400/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg
                     className="w-6 h-6 text-red-400"
                     fill="none"
@@ -326,9 +326,9 @@ export default function FactureList() {
               {/* Total Factures */}
               <div className="dashboard-stat-card p-2.5 lg:p-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/20">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-tertiary-400/10">
                     <svg
-                      className="w-5 h-5 text-blue-400"
+                      className="w-5 h-5 text-tertiary-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -355,7 +355,7 @@ export default function FactureList() {
               {/* Chiffre d'affaires */}
               <div className="dashboard-stat-card p-2.5 lg:p-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/20">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-tertiary-400/10">
                     <svg
                       className="w-5 h-5 text-green-400"
                       fill="none"
@@ -411,9 +411,9 @@ export default function FactureList() {
               {/* Taux de paiement */}
               <div className="dashboard-stat-card p-2.5 lg:p-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-500/20">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-tertiary-400/10">
                     <svg
-                      className="w-5 h-5 text-purple-400"
+                      className="w-5 h-5 text-tertiary-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -505,9 +505,9 @@ export default function FactureList() {
 
               {factures.length === 0 ? (
                 <div className="text-center py-12 bg-noir-700 rounded-xl border border-white/20">
-                  <div className="w-16 h-16 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-tertiary-400/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <svg
-                      className="w-8 h-8 text-gray-500"
+                      className="w-8 h-8 text-tertiary-400"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

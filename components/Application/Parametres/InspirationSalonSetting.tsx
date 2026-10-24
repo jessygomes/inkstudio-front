@@ -1,17 +1,15 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
-
+import SettingsSectionHeader from "./SettingsSectionHeader";
 import { Sparkles } from "lucide-react";
+
 import styles from "./SettingsCard.module.css";
 
 import SettingsSwitch from "./SettingsSwitch";
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  fetchInspirationSalonStatusAction,
-  toggleInspirationSalonAction,
-} from "@/lib/queries/user";
+import { fetchInspirationSalonStatusAction, toggleInspirationSalonAction } from "@/lib/queries/user";
 
 interface InspirationSalonSettingProps {
   userId: string | null;
@@ -89,75 +87,5 @@ export default function InspirationSalonSetting({
     }
   };
 
-  return (
-    <div className={styles.card}>
-      {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-tertiary-400"></div>
-          <span className="ml-2 text-white/70 text-sm font-one">
-            Chargement...
-          </span>
-        </div>
-      ) : (
-        <>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10"><Sparkles className="h-5 w-5 text-tertiary-400" aria-hidden="true" /></div>
-              <h3 className="text-white font-one mb-1 text-base font-semibold">
-                <span className="hidden sm:inline">
-                  Afficher mon salon dans les inspirations
-                </span>
-                <span className="sm:hidden">Salon en inspiration</span>
-              </h3>
-              <p className="text-white/60 text-sm leading-relaxed font-one">
-                <span className="hidden sm:inline">
-                  Si activé, les images de votre portfolio peuvent être affichées
-                  sur la page inspiration de InkeraPeople.
-                </span>
-                <span className="sm:hidden">
-                  Afficher mes images sur InkeraPeople
-                </span>
-              </p>
-            </div>
-            <SettingsSwitch label="Afficher mon salon dans les inspirations" busy={updating}
-                checked={isInspirationSalon}
-                onChange={handleInspirationToggle}
-               />
-          </div>
-
-          <div className="mt-3 pt-3 border-t border-white/10">
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  isInspirationSalon ? "bg-green-400" : "bg-white/40"
-                }`}
-              ></div>
-              <span className="text-xs font-one text-white/70">
-                {isInspirationSalon ? (
-                  <span className="text-green-300">
-                    <span className="hidden sm:inline">
-                      Votre salon peut apparaître dans les inspirations
-                      Inkera People.
-                    </span>
-                    <span className="sm:hidden">Visible en inspiration</span>
-                  </span>
-                ) : (
-                  <span className="text-white/60">
-                    <span className="hidden sm:inline">
-                      Votre salon n'apparaît pas dans les inspirations
-                      Inkera People. <br/> <br/>
-                    </span>
-                    <span className="hidden sm:inline">
-                      Activez cette option pour que vos images soient visibles par tous. Les salons affichés dans les inspirations bénéficient d'une meilleure visibilité et peuvent attirer plus de clients.
-                    </span>
-                    <span className="sm:hidden">Non visible en inspiration</span>
-                  </span>
-                )}
-              </span>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
+  return (<div className={styles.card}><SettingsSectionHeader icon={Sparkles} title="Visibilité dans les inspirations" description="Faites découvrir votre travail sur Inkera People." /><div className={styles.body}>{loading ? <p role="status" className={styles.empty}>Chargement de la visibilité…</p> : <><div className={styles.row}><div><p className={styles.label}>Partager votre portfolio dans les inspirations</p><p className={styles.note}>Vos photos pourront être découvertes par tous les visiteurs.</p></div><SettingsSwitch label="Afficher mon salon dans les inspirations" busy={updating} disabled={!userId} checked={isInspirationSalon} onChange={handleInspirationToggle}/></div><div className={styles.notice}><span className={styles.badge}>{isInspirationSalon ? "Diffusion autorisée" : "Diffusion désactivée"}</span><p>{isInspirationSalon ? "Votre salon et vos créations peuvent apparaître dans les inspirations Inkera People." : "Votre portfolio n’est pas diffusé dans les inspirations. Activez cette option pour lui donner plus de visibilité."}</p></div><p className={styles.note}>Les changements sont enregistrés automatiquement.</p></>}</div></div>);
 }

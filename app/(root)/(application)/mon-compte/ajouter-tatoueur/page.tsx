@@ -429,7 +429,7 @@ export default function AddOrUpdateTatoueurPage() {
           <div>
             <p className="flex items-center gap-2 text-xs text-white/45"><Users size={14} />Mon compte <span className="text-white/20">/</span> Équipe</p>
             <div className="mt-3 flex items-center gap-3">
-              <Link href="/mon-compte" aria-label="Retour à l’équipe" title="Retour à l’équipe" className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/60 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><ArrowLeft size={22} aria-hidden="true" /></Link>
+              <Link href="/mon-compte" aria-label="Retour à l’équipe" title="Retour à l’équipe" className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/60 transition hover:bg-tertiary-400/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><ArrowLeft size={22} aria-hidden="true" /></Link>
               <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">{isEditing ? "Modifier le tatoueur" : "Un nouveau talent au salon"}</h1>
             </div>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">{isEditing ? "Ajustez son profil, ses spécialités et ses disponibilités." : "Créez son profil ou invitez un tatoueur qui possède déjà un compte Inkera."}</p>
@@ -761,7 +761,7 @@ export default function AddOrUpdateTatoueurPage() {
             </div>}
 
             <div className="sticky bottom-4 z-20 flex flex-col gap-4 rounded-2xl border border-white/10 bg-noir-600/95 p-4 shadow-xl shadow-black/20 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-[11px] text-white/40"></p>
+              <p className="text-[11px] text-white/40"></p> 
               <div className="flex flex-col-reverse gap-2 sm:flex-row">
               <DashboardButton
                 href="/mon-compte"
@@ -801,7 +801,7 @@ export default function AddOrUpdateTatoueurPage() {
 function TatoueurSectionHeader({ eyebrow, title, description, icon }: { eyebrow: string; title: string; description: string; icon: ReactNode }) {
   return (
     <div className="mb-6 flex items-start gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-tertiary-400" aria-hidden="true">{icon}</span>
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400" aria-hidden="true">{icon}</span>
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35 font-one">{eyebrow}</p>
         <h2 className="mt-1 text-base font-semibold tracking-tight text-white font-one">{title}</h2>

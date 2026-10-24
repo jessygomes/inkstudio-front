@@ -303,7 +303,7 @@ function EmptyState({
       <span
         className={`mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border ${
           tone === "error"
-            ? "border-red-400/20 bg-red-400/10 text-red-300"
+            ? "border-red-400/20 bg-tertiary-400/10 text-red-300"
             : "border-tertiary-400/20 bg-tertiary-400/[0.08] text-tertiary-400"
         }`}
       >

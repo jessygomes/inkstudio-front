@@ -238,9 +238,9 @@ export default function JitsiMeeting() {
       <section>
         <div className="my-6 flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
           <div className="w-full flex items-center gap-3 sm:gap-4 mb-4 md:mb-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/30 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/10 rounded-full flex items-center justify-center">
               <svg
-                className="w-6 h-6 text-blue-400"
+                className="w-6 h-6 text-tertiary-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -303,9 +303,9 @@ export default function JitsiMeeting() {
 
         <div className="h-full w-full flex">
           <div className="mt-4 w-full rounded-2xl shadow-xl border border-white/10 p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/30 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/10 rounded-full flex items-center justify-center">
               <svg
-                className="w-6 h-6 text-blue-400"
+                className="w-6 h-6 text-tertiary-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -331,9 +331,9 @@ export default function JitsiMeeting() {
       {/* Header de la salle de visio */}
       <div className="mb-6 mt-6 flex flex-col md:flex-row items-start md:items-center justify-between bg-gradient-to-r from-noir-700/80 to-noir-500/80 p-4 rounded-xl shadow-xl border border-white/10">
         <div className="w-full flex items-center gap-3 sm:gap-4 mb-4 md:mb-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/30 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-tertiary-400/10 rounded-full flex items-center justify-center">
             <svg
-              className="w-6 h-6 text-blue-400"
+              className="w-6 h-6 text-tertiary-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

@@ -161,7 +161,7 @@ export default function CreateOrUpdateClient({ onCreate, existingClient, setIsOp
 
             <section className="dashboard-embedded-section overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] lg:col-span-12">
               <DashboardButton type="button" variant="secondary" onClick={() => setShowMedicalHistory((current) => !current)} className="!min-h-16 !w-full !min-w-0 !justify-between !rounded-none !border-0 !bg-transparent !px-4 sm:!px-5">
-                <span className="flex items-center gap-3 text-left"><span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-tertiary-400"><HeartPulse size={17} /></span><span><span className="block text-sm font-semibold text-white">Informations de santé</span><span className="mt-0.5 block text-[11px] font-normal text-white/40 font-two">Antécédents médicaux facultatifs et confidentiels</span></span></span>
+                <span className="flex items-center gap-3 text-left"><span className="flex h-9 w-9 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400"><HeartPulse size={17} /></span><span><span className="block text-sm font-semibold text-white">Informations de santé</span><span className="mt-0.5 block text-[11px] font-normal text-white/40 font-two">Antécédents médicaux facultatifs et confidentiels</span></span></span>
                 <ChevronDown size={17} className={`text-white/45 transition-transform ${showMedicalHistory ? "rotate-180" : ""}`} />
               </DashboardButton>
               {showMedicalHistory && (
@@ -191,7 +191,7 @@ export default function CreateOrUpdateClient({ onCreate, existingClient, setIsOp
 }
 
 function FormSection({ icon, title, description, className = "", children }: { icon: ReactNode; title: string; description: string; className?: string; children: ReactNode }) {
-  return <section className={`dashboard-embedded-section rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4 sm:p-5 ${className}`}><div className="mb-4 flex items-center gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-tertiary-400">{icon}</span><div><h3 className="text-sm font-semibold text-white font-one">{title}</h3><p className="mt-0.5 text-[11px] text-white/40 font-two">{description}</p></div></div>{children}</section>;
+  return <section className={`dashboard-embedded-section rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4 sm:p-5 ${className}`}><div className="mb-4 flex items-center gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400">{icon}</span><div><h3 className="text-sm font-semibold text-white font-one">{title}</h3><p className="mt-0.5 text-[11px] text-white/40 font-two">{description}</p></div></div>{children}</section>;
 }
 
 function Field({ label, type = "text", registration, error, placeholder, hint, icon, required = false }: { label: string; type?: string; registration: UseFormRegisterReturn; error?: string; placeholder?: string; hint?: string; icon?: ReactNode; required?: boolean }) {

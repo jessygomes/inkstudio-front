@@ -1,14 +1,13 @@
 "use client";
+import SettingsSectionHeader from "../Parametres/SettingsSectionHeader";
+import { Palette } from "lucide-react";
 
 import styles from "../Parametres/SettingsCard.module.css";
 
 import { useEffect, useMemo, useState } from "react";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { useColors } from "@/components/ColorContext/ColorProvider";
-import {
-  getColorProfileAction,
-  updateColorProfileAction,
-} from "@/lib/queries/user";
+import { getColorProfileAction, updateColorProfileAction } from "@/lib/queries/user";
 import { generateSecondaryColor, isLightColor } from "@/lib/utils/colorUtils";
 import { toast } from "sonner";
 import DashboardButton from "@/components/Shared/DashboardButton";
@@ -194,48 +193,12 @@ export default function ColorProfile() {
 
   return (
     <div className={styles.card}>
-      <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-11 h-11 rounded-2xl border border-tertiary-400/25 bg-tertiary-400/15 flex items-center justify-center shrink-0">
-            <svg
-              className="w-4 h-4 text-tertiary-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a4 4 0 004-4V5z"
-              />
-            </svg>
-          </div>
-          <div className="min-w-0">
-            <p className="text-white/50 font-one text-[11px] uppercase tracking-wider">
-              Thème
-            </p>
-            <h3 className="text-white font-one text-base font-semibold">
-              Couleurs de l&apos;interface
-            </h3>
-          </div>
-        </div>
+      <SettingsSectionHeader icon={Palette} title="Couleurs de l’interface" description="Personnalisez votre espace avec la couleur de votre choix." action={<span className="rounded-lg border border-tertiary-400/20 bg-tertiary-400/10 px-2 py-1 text-[9px] text-tertiary-400">{isDefaultMode ? "Système" : "Personnalisé"}</span>} />
 
-        <span
-          className={`rounded-[10px] px-2 py-1 text-[10px] font-one border ${
-            isDefaultMode
-              ? "border-white/20 bg-white/10 text-white/70"
-              : "border-tertiary-500/30 bg-tertiary-500/15 text-white"
-          }`}
-        >
-          {isDefaultMode ? "Système" : "Personnalisé"}
-        </span>
-      </div>
-
-      <form onSubmit={handleSubmit} className="pt-5 space-y-5">
-        <div className="rounded-xl border border-white/10 bg-white/3 p-3 space-y-2">
+      <form onSubmit={handleSubmit} className={styles.body}>
+        <div className="space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-white font-one text-xs sm:text-sm font-medium">
+            <p className="text-white font-one text-xs sm:text-xs font-medium">
               Palette recommandée
             </p>
             <span className="text-[11px] text-white/50 font-two">
@@ -243,12 +206,12 @@ export default function ColorProfile() {
             </span>
           </div>
 
-          <div className="grid grid-cols-4 gap-3 sm:grid-cols-6">
+          <div className="grid grid-cols-6 gap-2">
             {colorPalette.map((item) => (
               <label key={item.color} className="relative cursor-pointer">
                 <input type="radio" name="profile-color" value={item.color} checked={colorProfile === item.color}
                   onChange={() => setColorProfile(item.color)} disabled={loading} aria-label={item.name} className="peer sr-only" />
-                <span className="flex h-12 w-full items-center justify-center rounded-xl border-2 border-white/15 transition-transform peer-checked:border-white peer-checked:ring-2 peer-checked:ring-white/30 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-white peer-disabled:opacity-50" style={{ backgroundColor: item.color }}>
+                <span className="flex h-10 w-full items-center justify-center rounded-xl border-2 border-white/15 transition-transform peer-checked:border-white peer-checked:ring-2 peer-checked:ring-white/30 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-white peer-disabled:opacity-50" style={{ backgroundColor: item.color }}>
                   {colorProfile === item.color && <span aria-hidden="true" className="rounded-full bg-black/50 px-1.5 text-white">✓</span>}
                 </span>
                 <span className="mt-1 block truncate text-center text-[10px] text-white/60">{item.name}</span>
@@ -261,61 +224,14 @@ export default function ColorProfile() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-white/3 p-3 space-y-2">
-          <p className="text-white font-one text-xs sm:text-sm font-medium">Aperçu du thème</p>
+        <div className="space-y-3">
+          <p className="text-white font-one text-xs sm:text-xs font-medium">Aperçu du thème</p>
 
-          <div className="grid grid-cols-2 gap-2">
-            {isDefaultMode ? (
-              <>
-                <div
-                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
-                  style={{ backgroundColor: DEFAULT_TERTIARY_400 }}
-                >
-                  Accent
-                </div>
-                <div
-                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
-                  style={{ backgroundColor: DEFAULT_TERTIARY_500 }}
-                >
-                  Principal
-                </div>
-              </>
-            ) : isLightColor(colorProfile) ? (
-              <>
-                <div
-                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
-                  style={{ backgroundColor: colorProfile }}
-                >
-                  Principal
-                </div>
-                <div
-                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
-                  style={{ backgroundColor: colorProfileBis }}
-                >
-                  Générée
-                </div>
-              </>
-            ) : (
-              <>
-                <div
-                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
-                  style={{ backgroundColor: colorProfileBis }}
-                >
-                  Générée
-                </div>
-                <div
-                  className="h-8 rounded-2xl text-white text-xs font-one flex items-center justify-center"
-                  style={{ backgroundColor: colorProfile }}
-                >
-                  Principal
-                </div>
-              </>
-            )}
-          </div>
+          <div className={styles.preview} aria-label="Aperçu de la couleur sélectionnée"><span className={styles.icon}><Palette className="h-4 w-4" /></span><div className="mr-auto"><p className={styles.label}>Votre espace Inkera</p><p className={styles.note}>Icônes, badges et actions à vos couleurs</p></div><span className={styles.badge}>Votre couleur</span><span aria-hidden="true" className="h-8 w-14 rounded-lg bg-linear-to-r from-tertiary-400 to-tertiary-500" /></div>
         </div>
 
         <p className="text-xs text-white/55">L’aperçu est appliqué immédiatement. Enregistrez pour conserver votre choix.</p>
-        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/10 pt-4">
+        <div className={styles.footer}>
           {hasChanges && <p role="status" className="mr-auto text-xs text-amber-300">Modifications non enregistrées</p>}
           {!hasChanges && (
             <span className="text-[11px] text-white/55 font-two mr-auto">

@@ -114,7 +114,7 @@ export default function InviteRegisteredTatoueurSection() {
 
   return (
     <div className="w-full rounded-2xl border border-white/10 bg-noir-600 p-5 sm:p-8 [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed">
-      <div className="mb-5 flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-tertiary-400"><Users size={20} /></div>
+      <div className="mb-5 flex size-11 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400"><Users size={20} /></div>
       <h3 className="mb-2 text-lg font-semibold tracking-tight text-white font-one">
         Inviter un tatoueur déjà inscrit
       </h3>

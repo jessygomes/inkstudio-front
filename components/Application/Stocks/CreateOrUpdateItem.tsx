@@ -125,7 +125,7 @@ export default function CreateOrUpdateItem({
               <button
                 type="button" aria-label="Fermer la fenêtre" onClick={handleClose}
                 disabled={loading}
-                className="flex size-11 shrink-0 items-center justify-center border border-white/10 text-white/60 hover:bg-white/10 hover:text-white rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-tertiary-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex size-11 shrink-0 items-center justify-center border border-tertiary-400/20 text-white/60 hover:bg-tertiary-400/15 hover:text-white rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-tertiary-400 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <X size={18} aria-hidden="true" />
               </button>

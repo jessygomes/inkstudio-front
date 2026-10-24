@@ -1,4 +1,5 @@
 "use client";
+import { Package, Plus } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { AppointmentConsumable } from "@/lib/type";
 import {
@@ -46,6 +47,7 @@ export default function ConsumablesList({ appointmentId }: ConsumablesListProps)
   }, [loadConsumables]);
 
   const handleAdd = async (values: FormValues) => {
+    setError(null);
     setSubmitting(true);
     const res = await addAppointmentConsumableAction(appointmentId, values);
     if (res.ok && res.data) {
@@ -74,6 +76,7 @@ export default function ConsumablesList({ appointmentId }: ConsumablesListProps)
   };
 
   const handleDelete = async (consumableId: string) => {
+    setError(null);
     setDeletingId(consumableId);
     const res = await deleteAppointmentConsumableAction(appointmentId, consumableId);
     if (res.ok) {
@@ -95,20 +98,16 @@ export default function ConsumablesList({ appointmentId }: ConsumablesListProps)
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3 font-one">
       <div className="flex items-center justify-between">
-        <p className="text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">
-          Consommables utilisés
-        </p>
+        <div className="flex min-w-0 items-center gap-2"><Package size={14} className="shrink-0 text-white/40" /><h3 className="text-xs font-semibold text-white/85">Consommables utilisés</h3><span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] tabular-nums text-white/45">{consumables.length}</span></div>
         {uiState === "idle" && (
           <button
             type="button"
             onClick={() => setUiState("adding")}
-            className="cursor-pointer inline-flex items-center gap-1 rounded-2xl border border-indigo-400/25 bg-indigo-500/12 px-2.5 py-1 text-[10px] font-medium font-one text-indigo-300 transition-colors hover:bg-indigo-500/20"
+            className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.025] px-2.5 py-2 text-[11px] font-medium text-white/75 transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"
           >
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-            </svg>
+            <Plus size={14} />
             Ajouter
           </button>
         )}
@@ -125,12 +124,12 @@ export default function ConsumablesList({ appointmentId }: ConsumablesListProps)
       ) : (
         <>
           {consumables.length === 0 && uiState === "idle" && (
-            <p className="text-[11px] text-white/30 font-one italic">
+            <p className="rounded-xl border border-dashed border-white/10 px-4 py-5 text-center text-[11px] leading-5 text-white/40">
               Aucun consommable enregistré pour ce rendez-vous.
             </p>
           )}
 
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {consumables.map((c) =>
               uiState === "editing" && editingItem?.id === c.id ? (
                 <ConsumableForm
@@ -147,6 +146,7 @@ export default function ConsumablesList({ appointmentId }: ConsumablesListProps)
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   isDeleting={deletingId === c.id}
+                  disabled={submitting || !!deletingId}
                 />
               ),
             )}

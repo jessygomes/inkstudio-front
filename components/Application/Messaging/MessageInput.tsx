@@ -261,7 +261,7 @@ export default function MessageInput({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled || sendingMessage || isUploading}
-            className="rdv-btn-secondary cursor-pointer bg-noir-700 border border-white/20 hover:border-tertiary-400 text-tertiary-500 hover:text-tertiary-300 h-10 w-10 rounded-xl transition-colors flex items-center justify-center text-xs flex-shrink-0"
+            className="rdv-btn-secondary cursor-pointer bg-tertiary-400/10 border border-tertiary-400/20 hover:border-tertiary-400 text-tertiary-500 hover:text-tertiary-300 h-10 w-10 rounded-xl transition-colors flex items-center justify-center text-xs flex-shrink-0"
             title="Ajouter une image"
             aria-label="Ajouter une image"
           >

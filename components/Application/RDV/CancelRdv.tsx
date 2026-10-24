@@ -1,328 +1,60 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react/no-unescaped-entities */
 "use client";
-import React, { useState } from "react";
+
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useMutation } from "@tanstack/react-query";
+import { AlertTriangle, CalendarDays, LoaderCircle, Mail, X } from "lucide-react";
 import { toast } from "sonner";
-import {
-  calculateDurationForModal,
-} from "@/lib/utils/date-format/format-date-for-modal";
 import { confirmAppointmentAction } from "@/lib/queries/appointment";
 
-export default function CancelRdv({
-  rdvId,
-  appointment,
-  onCancel,
-}: {
-  rdvId: string;
-  appointment?: any; // Pour passer les détails du RDV
-  onCancel: () => void;
-}) {
-  const [showModal, setShowModal] = useState(false);
-  const [actionMessage, setActionMessage] = useState("");
-  const [error, setError] = useState<string | null>(null);
+type CancellationDetails = {
+  title?: string; start?: string | Date; end?: string | Date;
+  client?: { firstName?: string; lastName?: string; email?: string };
+};
+const buttonClass = "inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed disabled:opacity-50";
 
+function CancelConfirmation({ appointment, busy, error, reason, setReason, onClose, onConfirm }: {
+  appointment?: CancellationDetails; busy: boolean; error: string | null; reason: string;
+  setReason: (reason: string) => void; onClose: () => void; onConfirm: () => void;
+}) {
+  const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  const reasonId = useId();
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const dialog = ref.current;
+    dialog?.showModal();
+    return () => { dialog?.close(); document.body.style.overflow = previousOverflow; previous?.focus(); };
+  }, []);
+  return createPortal(<dialog ref={ref} role="alertdialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}
+    onCancel={event => { event.preventDefault(); if (!busy) onClose(); }}
+    className="fixed inset-0 m-auto h-fit max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-md overflow-y-auto rounded-2xl border border-white/15 bg-noir-700 p-0 text-white shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm font-one">
+    <form onSubmit={event => { event.preventDefault(); if (!busy) onConfirm(); }}>
+      <header className="flex items-start gap-3 border-b border-white/10 bg-noir-600 p-4"><div className="grid size-9 shrink-0 place-items-center rounded-xl border border-red-400/20 bg-tertiary-400/10 text-red-300"><AlertTriangle size={17} /></div><div className="min-w-0 flex-1"><h2 id={titleId} className="text-sm font-semibold">Annuler ce rendez-vous ?</h2><p className="mt-1 text-[11px] text-white/45">Une confirmation est nécessaire.</p></div><button type="button" onClick={onClose} disabled={busy} aria-label="Fermer la confirmation" className={buttonClass + " min-h-8 border-transparent p-1.5 text-white/45 hover:bg-tertiary-400/15"}><X size={16} /></button></header>
+      <div className="space-y-4 p-4"><div id={descriptionId} className="rounded-xl border border-red-400/15 bg-red-400/[0.025] p-3"><p className="text-xs font-medium text-red-200">Cette annulation est définitive.</p><p className="mt-1.5 text-[11px] leading-5 text-white/60">Le rendez-vous sera annulé et ne pourra plus être rétabli. Le client recevra un email pour l’en informer.</p></div>
+        {appointment && <div className="space-y-2 rounded-xl border border-white/10 p-3"><p className="text-xs font-medium text-white/85">{[appointment.client?.firstName, appointment.client?.lastName].filter(Boolean).join(" ") || appointment.title || "Rendez-vous"}</p>{appointment.title && <p className="text-[11px] text-white/50">{appointment.title}</p>}{appointment.start && <p className="flex items-center gap-2 text-[11px] text-white/55"><CalendarDays size={13} />{new Date(appointment.start).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>}{appointment.client?.email && <p className="flex items-center gap-2 break-all text-[11px] text-white/45"><Mail size={13} className="shrink-0" />{appointment.client.email}</p>}</div>}
+        <div><label htmlFor={reasonId} className="mb-2 block text-[11px] font-medium text-white/65">Message au client <span className="font-normal text-white/35">(facultatif)</span></label><textarea id={reasonId} value={reason} onChange={event => setReason(event.target.value)} maxLength={300} rows={3} disabled={busy} placeholder="Précisez la raison de l’annulation…" className="w-full resize-y rounded-xl border border-white/10 bg-noir-600 p-3 text-xs text-white placeholder:text-white/30 focus:border-tertiary-400/50 focus:outline-none focus:ring-2 focus:ring-tertiary-400/10" /><p className="mt-1 text-[10px] text-white/35">Ce message sera inclus dans l’email d’annulation.</p></div>
+        {error && <p role="alert" className="rounded-xl border border-red-400/20 bg-red-400/5 p-3 text-xs text-red-300">{error}</p>}
+      </div><footer className="flex flex-wrap justify-end gap-2 border-t border-white/10 bg-noir-600 p-4"><button type="button" autoFocus onClick={onClose} disabled={busy} className={buttonClass + " border-white/10 text-white/70 hover:bg-white/5"}>Conserver le RDV</button><button type="submit" disabled={busy} className={buttonClass + " border-red-400/20 bg-red-500/15 text-red-200 hover:bg-red-500/25"}>{busy && <LoaderCircle size={14} className="animate-spin" />}{busy ? "Annulation…" : "Confirmer l’annulation"}</button></footer>
+    </form>
+  </dialog>, document.body);
+}
+
+export default function CancelRdv({ rdvId, appointment, onCancel }: { rdvId: string; appointment?: CancellationDetails; onCancel: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const mutation = useMutation({
     mutationFn: async () => {
-      const res = await confirmAppointmentAction(
-        rdvId,
-        "cancel",
-        actionMessage,
-      );
-
-      if (res) {
-        toast.success(
-          "Rendez-vous annulé avec succès ! Le client va recevoir un email.",
-        );
-        onCancel();
-        setShowModal(false);
-        setActionMessage("");
-      } else {
-        setError(res.message);
-        toast.error(`Erreur lors de l'annulation: ${res.message}`);
-      }
+      const result = await confirmAppointmentAction(rdvId, "cancel", reason);
+      if (!result || result.error) throw new Error(result?.message || "L’annulation n’a pas pu être enregistrée.");
+      return result;
     },
+    onSuccess: () => { setOpen(false); setReason(""); toast.success("Rendez-vous annulé. Le client va recevoir un email."); onCancel(); },
+    onError: (cause: Error) => setError(cause.message || "Impossible d’annuler ce rendez-vous."),
   });
-
-  return (
-    <>
-      <button
-        className="w-full cursor-pointer px-2 py-2.5 text-rose-300 hover:text-rose-200 text-xs font-one font-medium transition-colors duration-200 flex items-center justify-center gap-1.5 hover:bg-white/6"
-        onClick={() => setShowModal(true)}
-        title="Annuler ce rendez-vous"
-      >
-        <svg
-          className="w-3.5 h-3.5 flex-shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2.5}
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <span>Annuler</span>
-      </button>
-
-      {/* Modale d'action */}
-      {showModal && (
-        <div className="absolute inset-0 z-[9999] bg-black/30 backdrop-blur-[1px]">
-          <div className="dashboard-embedded-panel flex h-full w-full flex-col overflow-hidden rounded-[28px]">
-            {/* Header */}
-            <div className="dashboard-embedded-header px-4 py-3.5">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white font-one tracking-wide">
-                  ❌ Annuler le rendez-vous
-                </h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="p-1.5 hover:bg-white/10 rounded-xl transition-colors"
-                >
-                  <span className="cursor-pointer text-white text-xl">×</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Contenu */}
-            <div className="flex-1 overflow-y-auto px-3 py-3 min-h-0 space-y-2.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
-              {/* Récapitulatif du rendez-vous */}
-              {appointment && (
-                <div className="dashboard-embedded-section p-3">
-                  <div className="flex items-start">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-white font-one font-semibold text-sm mb-0.5 truncate">
-                        {appointment.client?.firstName}{" "}
-                        {appointment.client?.lastName}
-                      </h3>
-                      <p className="text-white/70 text-xs font-one mb-2 truncate">
-                        {appointment.title}
-                      </p>
-
-                      <div className="grid grid-cols-2 gap-1.5 text-[11px] font-one">
-                        <div className="rounded-xl border border-white/8 bg-white/4 px-2 py-1.5">
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-blue-500/12 border border-blue-400/15">
-                              <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[9px] uppercase tracking-wider text-white/35">Date</p>
-                              <p className="mt-0.5 text-white/90 text-xs truncate">
-                                {new Date(appointment.start).toLocaleDateString("fr-FR", {
-                                  weekday: "short",
-                                  day: "2-digit",
-                                  month: "2-digit",
-                                  year: "numeric",
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="rounded-xl border border-white/8 bg-white/4 px-2 py-1.5">
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-blue-500/12 border border-blue-400/15">
-                              <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[9px] uppercase tracking-wider text-white/35">Heure</p>
-                              <p className="mt-0.5 text-white/90 text-xs tabular-nums">
-                                {new Date(appointment.start).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
-                                {" - "}
-                                {new Date(appointment.end).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="rounded-xl border border-white/8 bg-white/4 px-2 py-1.5">
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-purple-500/12 border border-purple-400/15">
-                              <svg className="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[9px] uppercase tracking-wider text-white/35">Durée</p>
-                              <p className="mt-0.5 text-white/90 text-xs">
-                                {calculateDurationForModal(
-                                  appointment.start,
-                                  appointment.end,
-                                )}{" "}
-                                min
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="rounded-xl border border-white/8 bg-white/4 px-2 py-1.5">
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-500/12 border border-emerald-400/15">
-                              <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                              </svg>
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[9px] uppercase tracking-wider text-white/35">Prestation</p>
-                              <p className="mt-0.5 text-white/90 text-xs truncate">
-                                {appointment.prestation}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-span-2 rounded-xl border border-white/8 bg-white/4 px-2 py-1.5">
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-tertiary-500/12 border border-tertiary-400/15">
-                              <svg className="w-3.5 h-3.5 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                              </svg>
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[9px] uppercase tracking-wider text-white/35">Artiste</p>
-                              <p className="mt-0.5 text-white/90 text-xs truncate">
-                                {appointment.performerUser?.salonName ||
-                                  (appointment.performerUser?.firstName ||
-                                  appointment.performerUser?.lastName
-                                    ? `${appointment.performerUser?.firstName ?? ""} ${appointment.performerUser?.lastName ?? ""}`.trim()
-                                    : appointment.tatoueur?.name) ||
-                                  "Non assigné"}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        {Boolean(appointment.tattooDetail?.price) && (
-                          <div className="col-span-2 rounded-xl border border-white/8 bg-white/4 px-2 py-1.5 flex items-center justify-between">
-                            <p className="text-[9px] uppercase tracking-wider text-white/35 font-one">Prix</p>
-                            <p className="text-emerald-300 font-one font-semibold text-xs">
-                              {appointment.tattooDetail.price}€
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                      {appointment.client?.email && (
-                        <div className="mt-2.5 rounded-xl border border-white/10 bg-white/3 p-2">
-                          <p className="text-[9px] uppercase tracking-wider text-white/35 font-one mb-1">
-                            Contact
-                          </p>
-                          <div className="space-y-1">
-                            <div className="rounded-lg border border-white/8 bg-white/5 px-2 py-1 text-[11px] text-white/85 font-one truncate">
-                              {appointment.client.email}
-                            </div>
-                            {appointment.client.phone && (
-                              <div className="rounded-lg border border-white/8 bg-white/5 px-2 py-1 text-[11px] text-white/85 font-one truncate">
-                                {appointment.client.phone}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Zone de message */}
-              <div className="dashboard-embedded-section p-3">
-                <div className="mb-2.5 flex items-center justify-between gap-2">
-                  <h3 className="text-white font-semibold font-one text-sm">
-                    Raison de l'annulation
-                  </h3>
-                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-white/55 font-one">
-                    {actionMessage.length}/300
-                  </span>
-                </div>
-                <div className="space-y-2.5">
-                  <textarea
-                    value={actionMessage}
-                    onChange={(e) => setActionMessage(e.target.value)}
-                    placeholder="Expliquez brièvement la raison de l'annulation..."
-                    className="w-full h-24 p-3 bg-white/6 border border-white/12 rounded-xl text-white text-sm placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-tertiary-400/50 focus:border-transparent resize-none transition-colors"
-                    maxLength={300}
-                    disabled={mutation.isPending}
-                  />
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs text-white/50 font-one">
-                      Le client recevra un email d'annulation
-                    </p>
-                  </div>
-
-                  {/* Suggestions */}
-                  <div className="space-y-1.5">
-                    <p className="text-[11px] text-white/65 font-one">Suggestions rapides</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {[
-                        "Imprévu de dernière minute, désolé pour la gêne occasionnée.",
-                        "Problème technique, nous vous recontacterons rapidement.",
-                        "Changement d'agenda, nous proposons de nouvelles dates.",
-                      ].map((suggestion, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setActionMessage(suggestion)}
-                          disabled={mutation.isPending}
-                          className="cursor-pointer px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-tertiary-400/30 transition-all text-[11px] text-white/80 font-one disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Messages d'erreur */}
-              {error && (
-                <div className="mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
-                  <p className="text-red-300 text-xs">{error}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="dashboard-embedded-footer px-4 py-2.5 flex flex-row justify-end gap-2">
-              <button
-                onClick={() => setShowModal(false)}
-                disabled={mutation.isPending}
-                className="cursor-pointer px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-[14px] border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={() => mutation.mutate()}
-                disabled={mutation.isPending}
-                className="cursor-pointer px-4 py-1.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-[14px] transition-all duration-300 font-medium font-one text-xs flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {mutation.isPending ? (
-                  <>
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                    <span>Annulation...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-3 h-3"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                    <span>Annuler le RDV</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
+  return <><button type="button" onClick={() => { setError(null); setOpen(true); }} title="Annuler ce rendez-vous" className={buttonClass + " w-full border-red-400/15 bg-red-400/[0.025] text-red-300 hover:bg-red-400/10 font-one"}><X size={14} />Annuler</button>{open && <CancelConfirmation appointment={appointment} busy={mutation.isPending} error={error} reason={reason} setReason={setReason} onClose={() => { if (!mutation.isPending) setOpen(false); }} onConfirm={() => { if (!mutation.isPending) mutation.mutate(); }} />}</>;
 }

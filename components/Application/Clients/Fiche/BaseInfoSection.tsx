@@ -29,7 +29,7 @@ export default function BaseInfoSection({ client, onOpenConsent }: BaseInfoSecti
     <div className="min-w-0 space-y-4">
       <article className="rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-5">
         <SectionHeading icon={FileText} title="Consentement" />
-        <div className="mt-4 flex items-start gap-2.5"><span className={"mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg " + (client.consentSigned ? "bg-emerald-400/10 text-emerald-400" : "bg-amber-400/10 text-amber-300")}>{client.consentSigned ? <Check size={14} /> : <CircleAlert size={14} />}</span><div><p className={"text-xs font-medium " + (client.consentSigned ? "text-emerald-400" : "text-amber-300")}>{client.consentSigned ? "Document signé" : "Signature en attente"}</p><p className="mt-1 text-[11px] leading-5 text-white/35">{client.consentSignedAt ? "Signé le " + formatDate(client.consentSignedAt) : "Aucune date de signature renseignée"}</p></div></div>
+        <div className="mt-4 flex items-start gap-2.5"><span className={"mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg " + (client.consentSigned ? "bg-tertiary-400/10 text-emerald-400" : "bg-tertiary-400/10 text-amber-300")}>{client.consentSigned ? <Check size={14} /> : <CircleAlert size={14} />}</span><div><p className={"text-xs font-medium " + (client.consentSigned ? "text-emerald-400" : "text-amber-300")}>{client.consentSigned ? "Document signé" : "Signature en attente"}</p><p className="mt-1 text-[11px] leading-5 text-white/35">{client.consentSignedAt ? "Signé le " + formatDate(client.consentSignedAt) : "Aucune date de signature renseignée"}</p></div></div>
         <div className="mt-4 flex flex-wrap gap-2">
           <button type="button" onClick={onOpenConsent} aria-haspopup="dialog" className="inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] text-white/75 transition hover:bg-white/10 hover:text-white"><FileText size={12} aria-hidden="true" />{client.consentSigned ? "Ouvrir le formulaire" : "Remplir le consentement"}</button>
           {client.consentFileUrl && <a href={client.consentFileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] text-white/65 transition hover:bg-white/10 hover:text-white">Consulter le document<ExternalLink size={12} aria-hidden="true" /></a>}
@@ -47,7 +47,7 @@ export default function BaseInfoSection({ client, onOpenConsent }: BaseInfoSecti
 function SectionHeading({ icon: Icon, title }: { icon: LucideIcon; title: string }) {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.03] text-white/45">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400">
         <Icon size={16} strokeWidth={1.8} aria-hidden="true" />
       </div>
       <div className="min-w-0">

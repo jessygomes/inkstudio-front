@@ -1,6 +1,7 @@
 "use client";
-
+import SettingsSectionHeader from "./SettingsSectionHeader";
 import { CalendarDays } from "lucide-react";
+
 import styles from "./SettingsCard.module.css";
 
 import SettingsSwitch from "./SettingsSwitch";
@@ -8,11 +9,7 @@ import SettingsSwitch from "./SettingsSwitch";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import {
-  getSalonLinkedPermissionsAction,
-  updateSalonAgendaAccessPermissionAction,
-  updateSalonAppointmentCreationPermissionAction,
-} from "@/lib/queries/parametre.action";
+import { getSalonLinkedPermissionsAction, updateSalonAgendaAccessPermissionAction, updateSalonAppointmentCreationPermissionAction } from "@/lib/queries/parametre.action";
 
 interface AppointmentModeSettingProps {
   userId: string | null;
@@ -114,8 +111,8 @@ export default function AppointmentModeSetting({
 
       toast.success(
         value
-          ? "Le salon relié peut désormais voir ton agenda et tes RDV."
-          : "Le salon relié ne peut plus voir ton agenda et tes RDV.",
+          ? "Le salon relié peut désormais voir votre agenda et tes RDV."
+          : "Le salon relié ne peut plus voir votre agenda et tes RDV.",
       );
     } catch {
       toast.error("Impossible de modifier l’accès. Veuillez réessayer.");
@@ -171,8 +168,8 @@ export default function AppointmentModeSetting({
 
       toast.success(
         value
-          ? "Le salon relié peut désormais créer des RDV pour toi."
-          : "Le salon relié ne peut plus créer de RDV pour toi.",
+          ? "Le salon relié peut désormais créer des RDV pour vous."
+          : "Le salon relié ne peut plus créer de RDV pour vous.",
       );
     } catch {
       toast.error("Impossible de modifier l’autorisation. Veuillez réessayer.");
@@ -181,88 +178,7 @@ export default function AppointmentModeSetting({
     }
   };
 
-  const statusColor = permissions.canViewAgendaAndAppointments
-    ? "bg-emerald-400"
-    : "bg-orange-400";
-  const statusLabel = permissions.canViewAgendaAndAppointments
-    ? "Partage actif avec le salon relié"
-    : "Partage inactif";
-
-  return (
-    <div className={styles.card}>
-      {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-tertiary-400"></div>
-          <span className="ml-2 text-white/70 text-sm font-one">
-            Chargement...
-          </span>
-        </div>
-      ) : (
-        <>
-          <div>
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10"><CalendarDays className="h-5 w-5 text-tertiary-400" aria-hidden="true" /></div>
-            <h3 className="text-white font-one mb-1 text-base font-semibold">
-              Permissions du salon relié
-            </h3>
-            <p className="text-white/60 text-sm leading-relaxed font-one">
-              Définis ce qu&apos;un salon relié peut faire sur ton agenda.
-            </p>
-            {!isTatoueurAccount && (
-              <p className="text-amber-300 text-xs sm:text-sm font-one mt-2">
-                Cette section est réservée aux comptes tatoueurs.
-              </p>
-            )}
-          </div>
-
-          <div className="mt-4 space-y-3">
-            <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-white text-sm font-one">
-                    Autoriser l&apos;accès agenda et RDV
-                  </p>
-                  <p className="text-white/60 text-sm leading-relaxed font-one mt-2">
-                    Le salon relié peut consulter ton agenda et la liste de tes rendez-vous.
-                  </p>
-                </div>
-                <SettingsSwitch label="Autoriser l’accès à l’agenda et aux rendez-vous" busy={isSavingAgendaAccess}
-                    checked={permissions.canViewAgendaAndAppointments}
-                    onChange={(e) => void handleAgendaAccessChange(e.target.checked)}
-                    disabled={!isTatoueurAccount || isSavingAgendaAccess || isSavingCreationPermission}
-                   />
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/4 p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-white text-sm font-one">
-                    Autoriser la création de RDV par le salon
-                  </p>
-                  <p className="text-white/60 text-sm leading-relaxed font-one mt-2">
-                    Le salon relié peut créer des rendez-vous pour toi.
-                  </p>
-                </div>
-                <SettingsSwitch label="Autoriser la création de rendez-vous par le salon" busy={isSavingCreationPermission}
-                    checked={permissions.canCreateAppointmentForMe}
-                    onChange={(e) => void handleCreateAppointmentChange(e.target.checked)}
-                    disabled={!isTatoueurAccount || isSavingCreationPermission || isSavingAgendaAccess}
-                   />
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${statusColor}`}></div>
-              <span className="text-xs font-one text-white/75">{statusLabel}</span>
-            </div>
-            <p className="text-[11px] text-white/55 font-one">
-              La création de rendez-vous par le salon nécessite un accès à votre agenda.
-            </p>
-          </div>
-        </>
-      )}
-    </div>
-  );
+  return (<div className={styles.card}><SettingsSectionHeader icon={CalendarDays} title="Accès du salon à votre agenda" description="Gérez ce que votre salon relié peut consulter et organiser."/><div className={styles.body}>{loading ? <p role="status" className={styles.empty}>Chargement des autorisations…</p> : <>
+<div className={styles.rows}><div className={styles.row}><div><p className={styles.label}>Consulter votre agenda et vos rendez-vous</p><p className={styles.note}>Le salon peut voir vos disponibilités et les rendez-vous prévus.</p></div><SettingsSwitch label="Autoriser l’accès à l’agenda et aux rendez-vous" busy={isSavingAgendaAccess} checked={permissions.canViewAgendaAndAppointments} onChange={e=>void handleAgendaAccessChange(e.target.checked)} disabled={!isTatoueurAccount || isSavingAgendaAccess || isSavingCreationPermission}/></div>
+<div className={styles.row}><div><p className={styles.label}>Créer des rendez-vous pour vous</p><p className={styles.note}>Cette autorisation active également la consultation de votre agenda.</p></div><SettingsSwitch label="Autoriser la création de rendez-vous par le salon" busy={isSavingCreationPermission} checked={permissions.canCreateAppointmentForMe} onChange={e=>void handleCreateAppointmentChange(e.target.checked)} disabled={!isTatoueurAccount || isSavingCreationPermission || isSavingAgendaAccess}/></div></div><p className={styles.note}>Autorisations enregistrées automatiquement. Vous pouvez les modifier à tout moment.</p></>}</div></div>);
 }

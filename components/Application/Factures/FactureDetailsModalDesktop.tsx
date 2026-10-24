@@ -151,7 +151,7 @@ export default function FactureDetailsModalDesktop({
               <button
                 onClick={onClose}
                 aria-label="Fermer la modale"
-                className="cursor-pointer flex h-9 w-9 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 hover:bg-white/20 transition-colors"
+                className="cursor-pointer flex h-9 w-9 items-center justify-center rounded-[14px] border border-tertiary-400/20 bg-tertiary-400/10 hover:bg-tertiary-400/15 transition-colors"
               >
                 <svg
                   className="w-5 h-5 text-white"

@@ -61,7 +61,7 @@ export default function ReviewResponseModal({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="cursor-pointer p-1.5 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
+            className="cursor-pointer p-1.5 hover:bg-tertiary-400/15 rounded-lg transition-colors disabled:opacity-50"
           >
             <svg
               className="w-5 h-5 text-white/70 hover:text-white"

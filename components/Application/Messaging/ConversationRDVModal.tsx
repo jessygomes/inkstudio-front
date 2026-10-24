@@ -4,7 +4,7 @@ import ConversationRDVDetails from "./ConversationRDVDetails";
 export type ConversationRDVPreview = {
   appointmentId?: string;
   subject?: string;
-  client: { firstName: string; lastName: string };
+  client: { firstName: string; lastName: string; email?: string; image?: string | null; linkedUserId?: string };
 };
 
 interface ConversationRDVModalProps {
@@ -43,7 +43,7 @@ export default function ConversationRDVModal({
         <div className="dashboard-embedded-panel w-full h-full overflow-hidden flex flex-col min-h-0 rounded-none">
           {/* Contenu scrollable */}
           <div className="flex-1 overflow-y-auto min-h-0">
-            <ConversationRDVDetails conversation={conversation} />
+            <ConversationRDVDetails conversation={conversation} onClose={onClose} />
           </div>
 
           {/* Footer mobile */}

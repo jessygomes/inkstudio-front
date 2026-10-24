@@ -484,7 +484,7 @@ export default function ShowPortfolio() {
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden xl:flex">
                       <div className="flex gap-3">
                         <button
-                          className="cursor-pointer p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-200"
+                          className="cursor-pointer p-2 bg-tertiary-400/10 backdrop-blur-sm rounded-full hover:bg-tertiary-400/15 transition-all duration-200"
                           onClick={() => handleEdit(photo)}
                         >
                           <IoCreateOutline
@@ -493,7 +493,7 @@ export default function ShowPortfolio() {
                           />
                         </button>
                         <button
-                          className="cursor-pointer p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-red-500/30 transition-all duration-200"
+                          className="cursor-pointer p-2 bg-tertiary-400/10 backdrop-blur-sm rounded-full hover:bg-red-500/30 transition-all duration-200"
                           onClick={() => handleDelete(photo)}
                         >
                           <AiOutlineDelete
@@ -555,7 +555,7 @@ export default function ShowPortfolio() {
                   {!isLinkedPortfolioPhoto(photo) && (
                     <div className="flex gap-2 justify-end pt-2 xl:hidden">
                       <button
-                        className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-white/20"
+                        className="cursor-pointer rounded-lg bg-tertiary-400/10 p-1.5 transition-all duration-200 hover:bg-tertiary-400/15"
                         onClick={() => handleEdit(photo)}
                       >
                         <IoCreateOutline
@@ -564,7 +564,7 @@ export default function ShowPortfolio() {
                         />
                       </button>
                       <button
-                        className="cursor-pointer rounded-lg bg-white/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
+                        className="cursor-pointer rounded-lg bg-tertiary-400/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
                         onClick={() => handleDelete(photo)}
                       >
                         <AiOutlineDelete

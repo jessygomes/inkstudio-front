@@ -358,12 +358,12 @@ export default function CreateBlockedSlot({
   return (
     <section aria-labelledby="create-blocked-title" className="@container overflow-hidden rounded-xl border border-white/10 bg-black/10 font-one [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_select]:cursor-pointer [&_input[type=date]]:cursor-pointer [&_input[type=time]]:cursor-pointer [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-2 [&_button:focus-visible]:ring-tertiary-400">
       <header className="flex items-start gap-2.5 border-b border-white/[0.07] px-4 py-3">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-tertiary-400"><CalendarOff size={16} aria-hidden="true" /></span>
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-tertiary-400/10 text-tertiary-400"><CalendarOff size={16} aria-hidden="true" /></span>
         <div className="flex-1">
           <h3 id="create-blocked-title" className="text-sm font-medium text-white">Nouvelle indisponibilité</h3>
           <p className="mt-1 text-[11px] leading-4 text-white/40">Réservez une période pour une absence, une pause ou des congés.</p>
         </div>
-        <button type="button" onClick={onClose} disabled={loading} aria-label="Fermer le formulaire" className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/50 hover:bg-white/5 hover:text-white disabled:opacity-50"><X size={18} /></button>
+        <button type="button" onClick={onClose} disabled={loading} aria-label="Fermer le formulaire" className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/50 hover:bg-tertiary-400/15 hover:text-white disabled:opacity-50"><X size={18} /></button>
       </header>
 
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate>

@@ -219,7 +219,7 @@ export default function AppointmentSection({
                       aria-controls={"client-rdv-" + rdv.id}
                       aria-label={isExpanded ? "Masquer les détails" : "Voir les détails"}
                       title={isExpanded ? "Masquer les détails" : "Voir les détails"}
-                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-white/70 transition-colors hover:border-tertiary-400/40 hover:text-tertiary-400"
+                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-white/70 transition-colors hover:border-tertiary-400/40 hover:text-tertiary-400"
                     >
                       <ChevronDown size={15} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                     </button>

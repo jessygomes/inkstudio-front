@@ -249,7 +249,7 @@ export default function AvisList() {
     <section className="w-full space-y-3 pb-10">
       <header className="flex items-center justify-between gap-3">
         <h1 className="text-lg font-semibold text-white font-one">Avis clients</h1>
-        <button type="button" onClick={() => loadReviews(page)} disabled={loading || Boolean(submittingId || removingId)} aria-label="Actualiser" title="Actualiser" className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white/70 transition-colors hover:border-tertiary-400/40 hover:text-white disabled:opacity-50"><RefreshCw size={15} className={loading ? "animate-spin" : ""} aria-hidden="true" /></button>
+        <button type="button" onClick={() => loadReviews(page)} disabled={loading || Boolean(submittingId || removingId)} aria-label="Actualiser" title="Actualiser" className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10 text-white/70 transition-colors hover:border-tertiary-400/40 hover:text-white disabled:opacity-50"><RefreshCw size={15} className={loading ? "animate-spin" : ""} aria-hidden="true" /></button>
       </header>
 
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">

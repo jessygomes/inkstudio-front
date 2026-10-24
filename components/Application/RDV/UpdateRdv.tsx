@@ -2,8 +2,8 @@
 "use client";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useEffect, useMemo, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { updateAppointmentSchema } from "@/lib/zod/validator.schema";
@@ -13,6 +13,8 @@ import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
 import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUploader";
 import { updateAppointment } from "@/lib/queries/appointment";
+import SideFormDrawer from "@/components/Shared/SideFormDrawer";
+import { LoaderCircle } from "lucide-react";
 import DrawingCardSelect from "@/components/Application/SuiviDessin/DrawingCardSelect";
 
 export default function UpdateRdv({
@@ -26,6 +28,10 @@ export default function UpdateRdv({
 }) {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
+  const formId = useId();
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState<string | null>(null);
+  const [slotsRetry, setSlotsRetry] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,8 +75,12 @@ export default function UpdateRdv({
     },
   });
 
-  const watchPrestation = form.watch("prestation");
-  const watchStart = form.watch("start");
+  const watchPrestation = useWatch({ control: form.control, name: "prestation" });
+  const watchStart = useWatch({ control: form.control, name: "start" });
+
+  const referenceImage = useWatch({ control: form.control, name: "tattooDetail.reference" });
+  const sketchImage = useWatch({ control: form.control, name: "tattooDetail.sketch" });
+  const drawingCardId = useWatch({ control: form.control, name: "drawingCardId" });
 
   const selectedDay = watchStart
     ? format(new Date(watchStart), "yyyy-MM-dd")
@@ -120,12 +130,10 @@ export default function UpdateRdv({
   const rdvDayStr = format(new Date(rdv.start), "yyyy-MM-dd");
 
   const sectionTitleClass =
-    "mb-2.5 text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one";
-  const labelClass = "text-[11px] text-white/65 font-one";
+    "mb-4 text-xs font-semibold text-white/85";
+  const labelClass = "mb-1.5 block text-[11px] font-medium text-white/60";
   const inputClass =
-    "w-full p-2.5 bg-white/6 border border-white/12 rounded-xl text-white text-xs placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-tertiary-400/50 focus:border-transparent transition-colors";
-  const disabledInputClass =
-    "w-full p-2.5 bg-white/5 border border-white/10 rounded-xl text-white/80 text-xs";
+    "min-h-10 w-full rounded-xl border border-white/10 bg-noir-700 px-3 py-2 text-xs text-white placeholder:text-white/30 transition focus:border-tertiary-400/50 focus:outline-none focus:ring-2 focus:ring-tertiary-400/10";
 
   //! FETCH tatoueurs
   useEffect(() => {
@@ -186,16 +194,22 @@ export default function UpdateRdv({
 
   //! FETCH timeSlots (dispos), occupiedSlots, proposedSlots (pour la journée)
   useEffect(() => {
+    if (!showModal) return;
     const selectedDate = watchStart
       ? format(new Date(watchStart), "yyyy-MM-dd")
       : null;
     if (!selectedDate || (!selectedTatoueur && !isUserTatoueur)) {
+      setSlotsLoading(false);
+      setSlotsError(null);
       setTimeSlots([]);
       setOccupiedSlots([]);
       setProposedSlots([]);
       return;
     }
 
+    let active = true;
+    setSlotsLoading(true);
+    setSlotsError(null);
     const fetchAll = async () => {
       try {
         const tatoueurScopeId = isUserTatoueur ? userId : selectedTatoueur;
@@ -204,8 +218,9 @@ export default function UpdateRdv({
         const slotsRes = await fetch(
           `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${tatoueurScopeId}&includeUnavailable=true`
         );
+        if (!slotsRes.ok) throw new Error("Disponibilités indisponibles");
         const slotsData = await slotsRes.json();
-        setTimeSlots(slotsData);
+        if (active) setTimeSlots(Array.isArray(slotsData) ? slotsData : []);
 
         // bornes journée
         const startOfDay = new Date(selectedDate);
@@ -223,8 +238,9 @@ export default function UpdateRdv({
             }/appointments/tatoueur-range?tatoueurId=${tatoueurScopeId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`;
 
         const occupiedRes = await fetch(occupiedUrl);
+        if (!occupiedRes.ok) throw new Error("Agenda indisponible");
         const occupiedData = await occupiedRes.json();
-        setOccupiedSlots(Array.isArray(occupiedData) ? occupiedData : occupiedData?.appointments || []);
+        if (active) setOccupiedSlots(Array.isArray(occupiedData) ? occupiedData : occupiedData?.appointments || []);
 
         // 3) créneaux déjà proposés
         const proposeUrl = `${
@@ -234,18 +250,23 @@ export default function UpdateRdv({
         )}&end=${encodeURIComponent(endOfDay.toISOString())}`;
 
         const proposedRes = await fetch(proposeUrl);
+        if (!proposedRes.ok) throw new Error("Créneaux proposés indisponibles");
         const proposedData = await proposedRes.json();
-        setProposedSlots(Array.isArray(proposedData) ? proposedData : []);
+        if (active) setProposedSlots(Array.isArray(proposedData) ? proposedData : []);
       } catch (err) {
+        if (active) setSlotsError("Impossible de charger les disponibilités. Réessayez en sélectionnant la date.");
         console.error("Erreur fetch slots UpdateRdv:", err);
-        setTimeSlots([]);
-        setOccupiedSlots([]);
-        setProposedSlots([]);
+        if (active) setTimeSlots([]);
+        if (active) setOccupiedSlots([]);
+        if (active) setProposedSlots([]);
+      } finally {
+        if (active) setSlotsLoading(false);
       }
     };
 
     fetchAll();
-  }, [watchStart, selectedTatoueur, isUserTatoueur, shouldUseGlobalAgenda, userId]);
+    return () => { active = false; };
+  }, [watchStart, selectedTatoueur, isUserTatoueur, shouldUseGlobalAgenda, userId, showModal, slotsRetry]);
 
   // Reset form quand RDV change (et initialise initialSlots + selectedSlots)
   useEffect(() => {
@@ -321,7 +342,7 @@ export default function UpdateRdv({
     mutationFn: async (
       updatedData: z.infer<typeof updateAppointmentSchema>
     ) => {
-      console.log("Mutation with data:", updatedData);
+
       const data = await updateAppointment(rdv.id, updatedData);
 
       if (data.error) throw new Error(data.message || "Erreur inconnue");
@@ -344,6 +365,10 @@ export default function UpdateRdv({
 
   const onSubmit = async (data: z.infer<typeof updateAppointmentSchema>) => {
     if (loading || mutation.isPending) return;
+    if (slotsLoading || slotsError) {
+      setError("Attendez le chargement des disponibilités avant d’enregistrer.");
+      return;
+    }
 
     // console.log("Données soumises :", data);
 
@@ -414,6 +439,7 @@ export default function UpdateRdv({
 
   // SÉLECTION des créneaux (consécutifs) + découpe intelligente
   const handleSlotClick = (slotStart: string) => {
+    setError(null);
     const clickedTs = toTs(slotStart);
     const isAlreadySelected = selectedSlots.some((s) => toTs(s) === clickedTs);
 
@@ -444,7 +470,7 @@ export default function UpdateRdv({
     if (areConsecutive(times)) {
       setSelectedSlots(ns);
     } else {
-      alert("Les créneaux doivent être consécutifs.");
+      setError("Sélectionnez des créneaux consécutifs pour définir la durée du rendez-vous.");
     }
   };
 
@@ -462,7 +488,7 @@ export default function UpdateRdv({
               : new Date(rdv.start).toISOString();
           form.setValue("start", startStr);
         }}
-        className="w-full cursor-pointer px-2 py-2.5 text-amber-300 hover:text-amber-200 text-xs font-one font-medium transition-colors duration-200 flex items-center justify-center gap-1.5 hover:bg-white/6"
+        className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium font-one transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed disabled:opacity-50 border-white/10 bg-white/[0.025] text-white/70 hover:border-white/20 hover:bg-white/5 hover:text-white"
         title="Modifier ce rendez-vous"
       >
         <svg
@@ -481,102 +507,33 @@ export default function UpdateRdv({
         <span>Modifier</span>
       </button>
 
-      {showModal && (
-        <div className="absolute inset-0 z-[9999] bg-black/30 backdrop-blur-[1px]">
-          <div className="dashboard-embedded-panel flex h-full w-full flex-col overflow-hidden rounded-2xl">
-            {/* Header */}
-            <div className="dashboard-embedded-header px-4 py-3.5">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-white font-one tracking-wide">
-                  Modifier le rendez-vous
-                </h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="p-1.5 hover:bg-white/10 rounded-xl transition-colors"
-                >
-                  <span className="cursor-pointer text-white text-xl">×</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Form Content */}
-            <div className="flex-1 overflow-y-auto px-3 py-3 min-h-0 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-2.5"
-              >
+      {showModal && <SideFormDrawer title="Modifier le rendez-vous" category="Rendez-vous" description="Ajustez la prestation, l’artiste et les horaires, puis enregistrez vos modifications." onClose={() => setShowModal(false)} busy={loading || mutation.isPending} footer={<><button type="button" onClick={() => setShowModal(false)} disabled={loading || mutation.isPending} className="min-h-10 cursor-pointer rounded-xl border border-white/10 px-3 py-2 text-xs text-white/65 transition hover:bg-white/5 disabled:opacity-50">Fermer</button><button type="submit" form={formId} disabled={loading || mutation.isPending || slotsLoading || !!slotsError} className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-white/90 px-4 py-2 text-xs font-medium text-noir-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50">{(loading || mutation.isPending) && <LoaderCircle size={14} className="animate-spin" />}{loading || mutation.isPending ? "Enregistrement…" : "Enregistrer les modifications"}</button></>}><form id={formId}
+                onSubmit={form.handleSubmit(onSubmit, () => setError("Merci de vérifier les champs du formulaire."))}
+                className="@container space-y-4"
+              ><fieldset disabled={loading || mutation.isPending} className="min-w-0 space-y-4 disabled:opacity-60">
                 {/* Client (lecture seule) */}
-                <div className="dashboard-embedded-section p-3">
-                  <h3 className={sectionTitleClass}>
-                    Client{" "}
-                    <span className="text-[10px] font-medium text-white/45 normal-case tracking-normal">
-                      (les infos du client ne sont pas modifiables ici.)
-                    </span>
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className={labelClass}>
-                        Prénom
-                      </label>
-                      <input
-                        {...form.register("client.firstName")}
-                        disabled
-                        className={disabledInputClass}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className={labelClass}>
-                        Nom
-                      </label>
-                      <input
-                        {...form.register("client.lastName")}
-                        disabled
-                        className={disabledInputClass}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className={labelClass}>
-                        Email
-                      </label>
-                      <input
-                        {...form.register("client.email")}
-                        disabled
-                        className={disabledInputClass}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className={labelClass}>
-                        Téléphone
-                      </label>
-                      <input
-                        {...form.register("client.phone")}
-                        disabled
-                        className={disabledInputClass}
-                      />
-                    </div>
-                  </div>
-                </div>
+                <section className="flex items-center gap-3 rounded-2xl border border-white/10 bg-noir-600 p-4"><div className="grid size-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/5 text-sm font-medium text-white/60">{rdv.client?.firstName?.charAt(0)}{rdv.client?.lastName?.charAt(0)}</div><div className="min-w-0"><p className="text-[10px] text-white/40">Rendez-vous de</p><p className="mt-1 truncate text-sm font-medium text-white/85">{rdv.client?.firstName} {rdv.client?.lastName}</p><p className="mt-1 break-all text-[11px] text-white/45">{rdv.client?.email}{rdv.client?.phone ? " · " + rdv.client?.phone : ""}</p></div></section>
 
                 {/* Détails RDV */}
-                <div className="dashboard-embedded-section p-3">
+                <div className="rounded-2xl border border-white/10 bg-noir-600 p-4">
                   <h3 className={sectionTitleClass}>
                     Détails du rendez-vous
                   </h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-1 @sm:grid-cols-2 gap-4 mb-4">
                     <div className="space-y-1">
-                      <label className={labelClass}>
+                      <label htmlFor={formId + "-title"} className={labelClass}>
                         Titre
                       </label>
-                      <input
+                      <input id={formId + "-title"} aria-invalid={!!form.getFieldState("title", form.formState).error}
                         {...form.register("title")}
                         className={inputClass}
-                      />
+                      />{form.getFieldState("title", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("title", form.formState).error?.message}</p>}
                     </div>
                     <div className="space-y-1">
-                      <label className={labelClass}>
+                      <label htmlFor={formId + "-tatoueurId"} className={labelClass}>
                         Tatoueur
                       </label>
-                      <select
+                      <select id={formId + "-tatoueurId"} aria-invalid={!!form.getFieldState("tatoueurId", form.formState).error}
                         {...form.register("tatoueurId")}
                         disabled={isUserTatoueur}
                         onChange={(e) => {
@@ -586,7 +543,7 @@ export default function UpdateRdv({
                         className={inputClass}
                       >
                         {isUserTatoueur && tatoueurs.length === 0 && (
-                          <option value={userId} className="bg-primary-500">
+                          <option value={userId} className="bg-noir-700">
                             {session?.user?.name || "Mon agenda"}
                           </option>
                         )}
@@ -594,31 +551,31 @@ export default function UpdateRdv({
                           <option
                             key={tatoueur.id}
                             value={tatoueur.id}
-                            className="bg-primary-500"
+                            className="bg-noir-700"
                           >
                             {tatoueur.name}
                           </option>
                         ))}
                       </select>
                     </div>
-                    <div className="space-y-1 col-span-2">
-                      <label className={labelClass}>
+                    <div className="space-y-1 @sm:col-span-2">
+                      <label htmlFor={formId + "-prestation"} className={labelClass}>
                         Type
                       </label>
-                      <select
+                      <select id={formId + "-prestation"} aria-invalid={!!form.getFieldState("prestation", form.formState).error}
                         {...form.register("prestation")}
                         className={inputClass}
                       >
-                        <option value="TATTOO" className="bg-primary-500">
+                        <option value="TATTOO" className="bg-noir-700">
                           Tatouage
                         </option>
-                        <option value="PROJET" className="bg-primary-500">
+                        <option value="PROJET" className="bg-noir-700">
                           Projet
                         </option>
-                        <option value="RETOUCHE" className="bg-primary-500">
+                        <option value="RETOUCHE" className="bg-noir-700">
                           Retouche
                         </option>
-                        <option value="PIERCING" className="bg-primary-500">
+                        <option value="PIERCING" className="bg-noir-700">
                           Piercing
                         </option>
                       </select>
@@ -627,16 +584,16 @@ export default function UpdateRdv({
                 </div>
 
                 {/* Créneaux horaires */}
-                <div className="dashboard-embedded-section p-3">
+                <div className="rounded-2xl border border-white/10 bg-noir-600 p-4">
                   <h3 className={sectionTitleClass}>
                     Créneaux horaires
                   </h3>
 
                   <div className="space-y-1">
-                    <label className={labelClass}>
+                    <label htmlFor={formId + "-date"} className={labelClass}>
                       Date
                     </label>
-                    <input
+                    <input id={formId + "-date"} style={{ colorScheme: "dark" }}
                       type="date"
                       value={
                         watchStart && isValid(new Date(watchStart))
@@ -644,6 +601,7 @@ export default function UpdateRdv({
                           : format(new Date(), "yyyy-MM-dd")
                       }
                       onChange={(e) => {
+                        if (!e.target.value) return;
                         const dateIso = new Date(e.target.value).toISOString();
                         form.setValue("start", dateIso);
                         form.setValue("end", dateIso);
@@ -671,26 +629,9 @@ export default function UpdateRdv({
                     />
                   </div>
 
-                  <div className="flex items-center justify-between my-4">
-                    <div>
-                      <label className="text-xs text-white/70 font-one">
-                        Sélectionnez les créneaux (30 min)
-                      </label>
-                      <p className="text-xs text-white/50">
-                        Cliquez pour (dé)sélectionner. Les créneaux doivent
-                        rester consécutifs.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSlots([])}
-                      className="cursor-pointer px-2.5 py-1.5 bg-white/8 hover:bg-white/14 text-white rounded-xl border border-white/15 transition-colors text-xs font-one"
-                    >
-                      Tout désélectionner
-                    </button>
-                  </div>
+                  <div className="my-4 flex flex-wrap items-start justify-between gap-3"><div><p className="text-[11px] font-medium text-white/70">Choisir les horaires</p><p className="mt-1 text-[10px] leading-5 text-white/40">Sélectionnez des créneaux consécutifs de 30 minutes.</p></div><button type="button" onClick={() => setSelectedSlots([])} className="min-h-8 cursor-pointer rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] text-white/55 transition hover:bg-white/5">Effacer la sélection</button></div><div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-noir-700 px-3 py-2.5"><span className="text-[11px] text-white/45">Durée sélectionnée</span><span className="text-xs font-medium tabular-nums text-white/85">{selectedDurationLabel}</span></div>{slotsLoading && <p role="status" className="mb-3 flex items-center gap-2 text-[11px] text-white/45"><LoaderCircle size={13} className="animate-spin" />Chargement des disponibilités…</p>}{slotsError && <div role="alert" className="mb-3 rounded-xl border border-red-400/15 bg-red-400/5 p-3 text-[11px] text-red-300">{slotsError}<button type="button" onClick={() => setSlotsRetry(value => value + 1)} className="ml-2 cursor-pointer underline underline-offset-2">Réessayer</button></div>}{!slotsLoading && !slotsError && !displayedTimeSlots.length && <p className="mb-3 rounded-xl border border-dashed border-white/10 p-4 text-center text-[11px] text-white/45">Aucun créneau disponible pour cette date et cet artiste.</p>}
 
-                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                  <div className="grid grid-cols-3 gap-2 @sm:grid-cols-4 @lg:grid-cols-5">
                     {displayedTimeSlots.map((slot) => {
                       const slotTime = new Date(slot.start).getTime();
 
@@ -724,54 +665,8 @@ export default function UpdateRdv({
                       const disabled =
                         (isTaken || blocked || isProposed) && !isCurrent;
 
-                      // style du bouton — ordre de priorité :
-                      // 1) états désactivés (proposé/bloqué/occupé) hors "current"
-                      // 2) sélection combinée :
-                      //    - conservé (current + selected) -> cyan
-                      //    - sera retiré (current sans selected) -> amber
-                      //    - nouveau (selected sans current) -> green
-                      // 3) libre (par défaut)
-                      let buttonClass =
-                        "p-2 rounded-xl text-xs font-medium transition-all duration-200 border ";
-                      let buttonText = `${format(
-                        new Date(slot.start),
-                        "HH:mm",
-                        {
-                          locale: fr,
-                        }
-                      )}-${format(new Date(slot.end), "HH:mm", {
-                        locale: fr,
-                      })}`;
-
-                      if (isProposed && !isCurrent) {
-                        buttonClass +=
-                          "bg-blue-900/40 text-blue-300 border-blue-700/50 cursor-not-allowed";
-                        buttonText += " ⏳";
-                      } else if (blocked && !isCurrent) {
-                        buttonClass +=
-                          "bg-red-900/50 text-red-300 border-red-700/50 cursor-not-allowed";
-                        buttonText += " 🚫";
-                      } else if (isTaken && !isCurrent) {
-                        buttonClass +=
-                          "bg-gray-700/50 text-gray-400 border-gray-600/50 cursor-not-allowed";
-                        buttonText += " ❌";
-                      } else if (isSelected && isCurrent) {
-                        // Conservé (dans le RDV et encore sélectionné)
-                        buttonClass +=
-                          "bg-green-800/30 text-green-200 border-green-800/50 hover:bg-green-800/50";
-                      } else if (!isSelected && isCurrent) {
-                        // Sera retiré (actuel mais décoché)
-                        buttonClass +=
-                          "bg-amber-600/30 text-amber-200 border-amber-500/50 hover:bg-amber-600/50";
-                      } else if (isSelected && !isCurrent) {
-                        // Nouveau (sélectionné, pas encore dans le RDV)
-                        buttonClass +=
-                          "bg-green-600/30 text-green-200 border-green-500/50 hover:bg-green-600/50";
-                      } else {
-                        // Libre
-                        buttonClass +=
-                          "bg-white/10 text-white border border-white/20 hover:bg-white/20 hover:border-tertiary-400/50";
-                      }
+                      const buttonClass = "min-h-14 cursor-pointer rounded-xl border px-2 py-2 text-center text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed " + (disabled ? "border-white/[0.06] bg-white/[0.015] text-white/25" : isSelected ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/15" : isCurrent ? "border-amber-400/20 bg-amber-400/5 text-amber-200 hover:bg-amber-400/10" : "border-white/10 bg-noir-700 text-white/65 hover:border-white/25 hover:bg-white/5");
+                      const buttonText = format(new Date(slot.start), "HH:mm", { locale: fr }) + " – " + format(new Date(slot.end), "HH:mm", { locale: fr });
 
                       // tooltip
                       let title = "";
@@ -804,121 +699,79 @@ export default function UpdateRdv({
                         <button
                           key={slot.start}
                           type="button"
-                          disabled={disabled}
+                          disabled={disabled || slotsLoading || !!slotsError}
                           onClick={() =>
                             !disabled && handleSlotClick(slot.start)
                           }
                           className={buttonClass}
                           title={title}
+                          aria-label={buttonText + " : " + title}
+                          aria-pressed={isSelected}
                         >
-                          <div className="text-center">{buttonText}</div>
+                          <span className="block tabular-nums">{format(new Date(slot.start), "HH:mm")}</span><span className="mt-1 block text-[9px] font-normal opacity-70">{disabled ? "Indisponible" : isSelected ? "Sélectionné" : isCurrent ? "Actuel" : "à " + format(new Date(slot.end), "HH:mm")}</span>
                         </button>
                       );
                     })}
                   </div>
 
                   {/* Légende */}
-                  <div className="mt-4 flex flex-wrap gap-4 text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-white/10 border border-white/20 rounded" />
-                      <span className="text-white/70 font-one">Libre</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-800/30 border border-green-800/50 rounded" />
-                      <span className="text-white/70 font-one">
-                        Conservé (actuel + sélection)
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-amber-600/30 border border-amber-500/50 rounded" />
-                      <span className="text-white/70 font-one">Actuel</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-600/30 border border-green-500/50 rounded" />
-                      <span className="text-white/70 font-one">
-                        Nouveau sélectionné
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-gray-700/50 border border-gray-600/50 rounded" />
-                      <span className="text-white/70 font-one">Occupé ❌</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-red-900/50 border border-red-700/50 rounded" />
-                      <span className="text-white/70 font-one">Bloqué 🚫</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-blue-900/40 border border-blue-700/50 rounded" />
-                      <span className="text-white/70 font-one">Proposé ⏳</span>
-                    </div>
-                  </div>
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[10px] text-white/45">{[{ label: "Disponible", style: "border-white/20 bg-noir-700" }, { label: "Sélectionné", style: "border-emerald-400/30 bg-emerald-400/10" }, { label: "Actuel non retenu", style: "border-amber-400/20 bg-amber-400/5" }, { label: "Indisponible", style: "border-white/5 bg-white/5" }].map(item => <span key={item.label} className="flex items-center gap-1.5"><span className={"size-2.5 rounded border " + item.style} />{item.label}</span>)}</div>
 
                   {/* Indication de changement */}
                   {!sameSet(selectedSlots, initialSlots) && (
-                    <div className="mt-4 flex justify-between p-2 rounded-2xl border border-tertiary-500/30 bg-tertiary-500/10 font-one text-[10px] text-white/50">
-                      <p>Modifications détectées : l’horaire sera mis à jour à
-                      l’enregistrement.</p> 
-                      <div className="flex  items-center gap-2">
-                        <p className="text-[10px] uppercase tracking-wide text-tertiary-300 font-one">
-                        Temps sélectionné
-                      </p>
-                      <p className="text-xs text-white font-one font-medium">
-                        {selectedDurationLabel}
-                      </p>
-                      </div>
-                    </div>
+                    <p className="mt-3 rounded-xl border border-white/10 bg-white/[0.025] p-3 text-[11px] leading-5 text-white/55">L’horaire sera mis à jour à l’enregistrement.</p>
                   )}
                 </div>
 
                 {/* Sections conditionnelles */}
                 {watchPrestation === "PROJET" && (
-                  <div className="dashboard-embedded-section p-3">
+                  <div className="rounded-2xl border border-white/10 bg-noir-600 p-4">
                     <h3 className={sectionTitleClass}>
                       Détails du projet
                     </h3>
                     <div className="space-y-4">
                       <div className="space-y-1">
-                        <label className={labelClass}>
+                        <label htmlFor={formId + "-tattooDetail-description"} className={labelClass}>
                           Description
                         </label>
-                        <textarea
+                        <textarea id={formId + "-tattooDetail-description"} aria-invalid={!!form.getFieldState("tattooDetail.description", form.formState).error}
                           {...form.register("tattooDetail.description")}
                           rows={3}
-                          className={`${inputClass} h-44 resize-none`}
-                        />
+                          className={`${inputClass} min-h-24 resize-y`}
+                        />{form.getFieldState("tattooDetail.description", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.description", form.formState).error?.message}</p>}
                       </div>
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-2 @md:grid-cols-3 gap-3">
                         <div className="space-y-1">
-                          <label className={labelClass}>
+                          <label htmlFor={formId + "-tattooDetail-zone"} className={labelClass}>
                             Zone
                           </label>
-                          <input
+                          <input id={formId + "-tattooDetail-zone"} aria-invalid={!!form.getFieldState("tattooDetail.zone", form.formState).error}
                             {...form.register("tattooDetail.zone")}
                             className={inputClass}
-                          />
+                          />{form.getFieldState("tattooDetail.zone", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.zone", form.formState).error?.message}</p>}
                         </div>
                         <div className="space-y-1">
-                          <label className={labelClass}>
+                          <label htmlFor={formId + "-tattooDetail-size"} className={labelClass}>
                             Taille
                           </label>
-                          <input
+                          <input id={formId + "-tattooDetail-size"} aria-invalid={!!form.getFieldState("tattooDetail.size", form.formState).error}
                             {...form.register("tattooDetail.size")}
                             className={inputClass}
-                          />
+                          />{form.getFieldState("tattooDetail.size", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.size", form.formState).error?.message}</p>}
                         </div>
                         <div className="space-y-1">
-                          <label className={labelClass}>
+                          <label htmlFor={formId + "-tattooDetail-colorStyle"} className={labelClass}>
                             Style/Couleur
                           </label>
-                          <input
+                          <input id={formId + "-tattooDetail-colorStyle"} aria-invalid={!!form.getFieldState("tattooDetail.colorStyle", form.formState).error}
                             {...form.register("tattooDetail.colorStyle")}
                             className={inputClass}
-                          />
+                          />{form.getFieldState("tattooDetail.colorStyle", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.colorStyle", form.formState).error?.message}</p>}
                         </div>
                       </div>
 
                       {/* Uploads */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 @sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-xs text-white/70 font-one">
                             Image de référence 1
@@ -926,7 +779,7 @@ export default function UpdateRdv({
                           <div className="bg-white/5 rounded-lg p-2 border border-white/10">
                             <SalonImageUploader
                               currentImage={
-                                form.watch("tattooDetail.reference") ||
+                                referenceImage ||
                                 undefined
                               }
                               onImageUpload={(imageUrl) =>
@@ -950,7 +803,7 @@ export default function UpdateRdv({
                           <div className="bg-white/5 rounded-lg p-2 border border-white/10">
                             <SalonImageUploader
                               currentImage={
-                                form.watch("tattooDetail.sketch") || undefined
+                                sketchImage || undefined
                               }
                               onImageUpload={(imageUrl) =>
                                 form.setValue("tattooDetail.sketch", imageUrl)
@@ -965,84 +818,84 @@ export default function UpdateRdv({
                       </div>
 
                       <div className="space-y-1">
-                        <label className={labelClass}>
+                        <label htmlFor={formId + "-tattooDetail-estimatedPrice"} className={labelClass}>
                           Prix (€)
                         </label>
-                        <input
+                        <input id={formId + "-tattooDetail-estimatedPrice"} aria-invalid={!!form.getFieldState("tattooDetail.estimatedPrice", form.formState).error}
                           type="number"
                           step="0.01"
                           {...form.register("tattooDetail.estimatedPrice", {
-                            valueAsNumber: true,
+                            setValueAs: value => value === "" ? undefined : Number(value),
                           })}
                           className={inputClass}
-                        />
+                        />{form.getFieldState("tattooDetail.estimatedPrice", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.estimatedPrice", form.formState).error?.message}</p>}
                       </div>
                     </div>
                   </div>
                 )}
 
                 {watchPrestation === "TATTOO" && (
-                  <div className="dashboard-embedded-section p-3">
+                  <div className="rounded-2xl border border-white/10 bg-noir-600 p-4">
                     <h3 className={sectionTitleClass}>
                       Détails du tatouage
                     </h3>
                     <div className="space-y-4">
                       <DrawingCardSelect
-                        value={form.watch("drawingCardId")}
+                        value={drawingCardId}
                         clientId={rdv.clientId}
                         clientEmail={rdv.client?.email}
                         onChange={(value) => form.setValue("drawingCardId", value)}
                       />
                       <div className="space-y-1">
-                        <label className={labelClass}>
+                        <label htmlFor={formId + "-tattooDetail-description"} className={labelClass}>
                           Description
                         </label>
-                        <textarea
+                        <textarea id={formId + "-tattooDetail-description"} aria-invalid={!!form.getFieldState("tattooDetail.description", form.formState).error}
                           {...form.register("tattooDetail.description")}
                           rows={3}
                           className={`${inputClass} resize-none`}
-                        />
+                        />{form.getFieldState("tattooDetail.description", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.description", form.formState).error?.message}</p>}
                       </div>
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 @lg:grid-cols-4 gap-3">
                         <div className="space-y-1">
-                          <label className={labelClass}>
+                          <label htmlFor={formId + "-tattooDetail-zone"} className={labelClass}>
                             Zone
                           </label>
-                          <input
+                          <input id={formId + "-tattooDetail-zone"} aria-invalid={!!form.getFieldState("tattooDetail.zone", form.formState).error}
                             {...form.register("tattooDetail.zone")}
                             className={inputClass}
-                          />
+                          />{form.getFieldState("tattooDetail.zone", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.zone", form.formState).error?.message}</p>}
                         </div>
                         <div className="space-y-1">
-                          <label className={labelClass}>
+                          <label htmlFor={formId + "-tattooDetail-size"} className={labelClass}>
                             Taille
                           </label>
-                          <input
+                          <input id={formId + "-tattooDetail-size"} aria-invalid={!!form.getFieldState("tattooDetail.size", form.formState).error}
                             {...form.register("tattooDetail.size")}
                             className={inputClass}
-                          />
+                          />{form.getFieldState("tattooDetail.size", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.size", form.formState).error?.message}</p>}
                         </div>
                         <div className="space-y-1">
-                          <label className={labelClass}>
+                          <label htmlFor={formId + "-tattooDetail-colorStyle"} className={labelClass}>
                             Style/Couleur
                           </label>
-                          <input
+                          <input id={formId + "-tattooDetail-colorStyle"} aria-invalid={!!form.getFieldState("tattooDetail.colorStyle", form.formState).error}
                             {...form.register("tattooDetail.colorStyle")}
                             className={inputClass}
-                          />
+                          />{form.getFieldState("tattooDetail.colorStyle", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.colorStyle", form.formState).error?.message}</p>}
                         </div>
                         <div className="space-y-1">
-                          <label className={labelClass}>
+                          <label htmlFor={formId + "-tattooDetail-price"} className={labelClass}>
                             Prix (€)
                           </label>
-                          <input
+                          <input id={formId + "-tattooDetail-price"} aria-invalid={!!form.getFieldState("tattooDetail.price", form.formState).error}
                             type="number"
                             step="0.01"
                             {...form.register("tattooDetail.price", {
-                              valueAsNumber: true,
+                              setValueAs: value => value === "" ? undefined : Number(value),
                             })}
                             className={inputClass}
-                          />
+                          />{form.getFieldState("tattooDetail.price", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.price", form.formState).error?.message}</p>}
                         </div>
                       </div>
                     </div>
@@ -1050,82 +903,82 @@ export default function UpdateRdv({
                 )}
 
                 {watchPrestation === "PIERCING" && (
-                  <div className="dashboard-embedded-section p-3">
+                  <div className="rounded-2xl border border-white/10 bg-noir-600 p-4">
                     <h3 className={sectionTitleClass}>
                       Détails du piercing
                     </h3>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 @md:grid-cols-3 gap-3">
                       <div className="space-y-1">
-                        <label className={labelClass}>
+                        <label htmlFor={formId + "-tattooDetail-description"} className={labelClass}>
                           Description
                         </label>
-                        <input
+                        <input id={formId + "-tattooDetail-description"} aria-invalid={!!form.getFieldState("tattooDetail.description", form.formState).error}
                           {...form.register("tattooDetail.description")}
                           className={inputClass}
-                        />
+                        />{form.getFieldState("tattooDetail.description", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.description", form.formState).error?.message}</p>}
                       </div>
                       <div className="space-y-1">
-                        <label className={labelClass}>
+                        <label htmlFor={formId + "-tattooDetail-zone"} className={labelClass}>
                           Zone
                         </label>
-                        <input
+                        <input id={formId + "-tattooDetail-zone"} aria-invalid={!!form.getFieldState("tattooDetail.zone", form.formState).error}
                           {...form.register("tattooDetail.zone")}
                           className={inputClass}
-                        />
+                        />{form.getFieldState("tattooDetail.zone", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.zone", form.formState).error?.message}</p>}
                       </div>
                       <div className="space-y-1">
-                        <label className={labelClass}>
+                        <label htmlFor={formId + "-tattooDetail-price"} className={labelClass}>
                           Prix (€)
                         </label>
-                        <input
+                        <input id={formId + "-tattooDetail-price"} aria-invalid={!!form.getFieldState("tattooDetail.price", form.formState).error}
                           type="number"
                           step="0.01"
                           {...form.register("tattooDetail.price", {
-                            valueAsNumber: true,
+                            setValueAs: value => value === "" ? undefined : Number(value),
                           })}
                           className={inputClass}
-                        />
+                        />{form.getFieldState("tattooDetail.price", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.price", form.formState).error?.message}</p>}
                       </div>
                     </div>
                   </div>
                 )}
 
                 {watchPrestation === "RETOUCHE" && (
-                  <div className="dashboard-embedded-section p-3">
+                  <div className="rounded-2xl border border-white/10 bg-noir-600 p-4">
                     <h3 className={sectionTitleClass}>
                       Détails de la retouche
                     </h3>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 @md:grid-cols-3 gap-3">
                       <div className="space-y-1">
-                        <label className={labelClass}>
+                        <label htmlFor={formId + "-tattooDetail-description"} className={labelClass}>
                           Description
                         </label>
-                        <input
+                        <input id={formId + "-tattooDetail-description"} aria-invalid={!!form.getFieldState("tattooDetail.description", form.formState).error}
                           {...form.register("tattooDetail.description")}
                           className={inputClass}
-                        />
+                        />{form.getFieldState("tattooDetail.description", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.description", form.formState).error?.message}</p>}
                       </div>
                       <div className="space-y-1">
-                        <label className={labelClass}>
+                        <label htmlFor={formId + "-tattooDetail-zone"} className={labelClass}>
                           Zone
                         </label>
-                        <input
+                        <input id={formId + "-tattooDetail-zone"} aria-invalid={!!form.getFieldState("tattooDetail.zone", form.formState).error}
                           {...form.register("tattooDetail.zone")}
                           className={inputClass}
-                        />
+                        />{form.getFieldState("tattooDetail.zone", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.zone", form.formState).error?.message}</p>}
                       </div>
                       <div className="space-y-1">
-                        <label className={labelClass}>
+                        <label htmlFor={formId + "-tattooDetail-price"} className={labelClass}>
                           Prix (€)
                         </label>
-                        <input
+                        <input id={formId + "-tattooDetail-price"} aria-invalid={!!form.getFieldState("tattooDetail.price", form.formState).error}
                           type="number"
                           step="0.01"
                           {...form.register("tattooDetail.price", {
-                            valueAsNumber: true,
+                            setValueAs: value => value === "" ? undefined : Number(value),
                           })}
                           className={inputClass}
-                        />
+                        />{form.getFieldState("tattooDetail.price", form.formState).error?.message && <p role="alert" className="mt-1 text-[10px] text-red-300">{form.getFieldState("tattooDetail.price", form.formState).error?.message}</p>}
                       </div>
                     </div>
                   </div>
@@ -1137,32 +990,7 @@ export default function UpdateRdv({
                     <p className="text-red-300 text-xs">{error}</p>
                   </div>
                 )}
-              </form>
-            </div>
-
-            {/* Footer */}
-            <div className="dashboard-embedded-footer px-4 py-2.5 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="cursor-pointer px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-[14px] border border-white/20 transition-colors font-medium font-one text-xs"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                disabled={loading || mutation.isPending}
-                onClick={form.handleSubmit(onSubmit)}
-                className="cursor-pointer px-5 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-500 text-white rounded-[14px] transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-xs"
-              >
-                {loading || mutation.isPending
-                  ? "Modification..."
-                  : "Sauvegarder"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              </fieldset></form></SideFormDrawer>}
     </>
   );
 }

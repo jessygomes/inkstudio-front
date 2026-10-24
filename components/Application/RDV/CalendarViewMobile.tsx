@@ -154,7 +154,7 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
                   }
                   setCurrentDate(newDate);
                 }}
-                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-white/70 hover:bg-white/10 hover:text-white md:h-8 md:w-8"
+                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-white/70 hover:bg-tertiary-400/15 hover:text-white md:h-8 md:w-8"
               >
                 <svg
                   className="h-3.5 w-3.5 md:h-4 md:w-4"
@@ -182,7 +182,7 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
                   }
                   setCurrentDate(newDate);
                 }}
-                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-white/70 hover:bg-white/10 hover:text-white md:h-8 md:w-8"
+                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-white/70 hover:bg-tertiary-400/15 hover:text-white md:h-8 md:w-8"
               >
                 <svg
                   className="h-3.5 w-3.5 md:h-4 md:w-4"
@@ -298,12 +298,12 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
               }
 
               .inkera-calendar-mobile .rbc-today {
-                background: rgba(255, 157, 0, 0.08) !important;
+                background: color-mix(in srgb, var(--color-tertiary-400) 8%, transparent) !important;
                 border-radius: 0 !important;
               }
 
               .inkera-calendar-mobile .rbc-header.rbc-today {
-                background: rgba(255, 157, 0, 0.12) !important;
+                background: color-mix(in srgb, var(--color-tertiary-400) 12%, transparent) !important;
               }
 
               .inkera-calendar-mobile .rbc-time-slot {
@@ -384,11 +384,11 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
               }
 
               .inkera-calendar-mobile .rbc-show-more {
-                color: #ff9d00 !important;
+                color: var(--color-tertiary-400) !important;
                 font-weight: 600 !important;
                 font-size: 8px !important;
-                background: rgba(255, 157, 0, 0.12) !important;
-                border: 1px solid rgba(255, 157, 0, 0.3) !important;
+                background: color-mix(in srgb, var(--color-tertiary-400) 12%, transparent) !important;
+                border: 1px solid color-mix(in srgb, var(--color-tertiary-400) 30%, transparent) !important;
                 border-radius: 4px !important;
                 padding: 2px 4px !important;
               }

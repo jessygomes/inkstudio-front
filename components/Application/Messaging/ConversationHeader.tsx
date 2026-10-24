@@ -32,7 +32,7 @@ export default function ConversationHeader({ conversation, otherUser, isConnecte
                 <ArchiveBtn conversationId={conversation.id} status={conversation.status} onStatusChange={onStatusChange} />
                 <DeleteConversationBtn conversationId={conversation.id} />
                 {conversation.appointmentId && (
-                    <button type="button" onClick={onShowDetails} aria-label="Voir le rendez-vous" title="Voir le rendez-vous" className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 text-white/75 hover:bg-white/10 focus-visible:outline-2 lg:hidden">
+                    <button type="button" onClick={onShowDetails} aria-label="Voir le rendez-vous" title="Voir le rendez-vous" className="flex h-9 w-9 items-center justify-center rounded-xl border border-tertiary-400/20 text-white/75 hover:bg-tertiary-400/15 focus-visible:outline-2 lg:hidden">
                         <CalendarDays className="h-4 w-4" aria-hidden="true" />
                     </button>
                 )}

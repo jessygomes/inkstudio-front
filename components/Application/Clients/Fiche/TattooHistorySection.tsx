@@ -32,7 +32,7 @@ export default function TattooHistorySection({
             </span>
           </h3>
         </div>
-        <div className="p-1 cursor-pointer bg-white/5 rounded-lg group-hover:bg-white/10 transition-colors">
+        <div className="p-1 cursor-pointer bg-tertiary-400/10 rounded-lg group-hover:bg-tertiary-400/15 transition-colors">
           {showTattooHistory ? (
             <IoChevronUp className="text-white/70 w-5 h-5" />
           ) : (

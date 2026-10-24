@@ -4,7 +4,9 @@ export const dynamic = "force-dynamic";
 
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { CiSettings } from "react-icons/ci";
+import { Settings2 } from "lucide-react";
+import Link from "next/link";
+import styles from "./settings.module.css";
 import AccountInfoSection from "@/components/Application/Parametres/AccountInfoSection";
 import AppointmentModeSetting from "@/components/Application/Parametres/AppointmentModeSetting";
 import AppointmentConfirmationSetting from "@/components/Application/Parametres/AppointmentConfirmationSetting";
@@ -15,7 +17,7 @@ import VerificationDocumentsSection from "@/components/Application/Parametres/Ve
 import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
 import NotifChatPreference from "@/components/Application/Parametres/NotifChatPreference";
 import InspirationSalonSetting from "@/components/Application/Parametres/InspirationSalonSetting";
-import PageHeader from "@/components/Shared/PageHeader";
+
 
 import { SettingsGroup, SettingsNavigation } from "@/components/Application/Parametres/SettingsLayout";
 
@@ -41,15 +43,12 @@ export default function ParamPage() {
   };
 
   return (
-    <div className="min-h-screen bg-noir-700 gap-4 px-3 pb-24 sm:px-4 lg:px-10 lg:pb-10">
-      <div className="space-y-6 pt-4">
-        <div>
-          <PageHeader icon={<CiSettings size={20} className="text-tertiary-400" />} title="Paramètres" />
-          <p className="mt-2 text-sm text-white/55">Personnalisez votre espace et gérez votre compte au même endroit.</p>
-        </div>
-        <div className="grid items-start gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8">
+    <div className={styles.page + " min-h-screen min-w-0 bg-noir-700 px-3 pb-24 pt-5 lg:px-6 lg:pb-12 lg:pt-7 xl:px-8"}>
+      <div className="mx-auto max-w-[1600px] space-y-6">
+        <header><nav aria-label="Fil d’Ariane" className="mb-3 flex items-center gap-2 text-[10px] text-white/35"><Link href="/mon-compte" className="transition hover:text-tertiary-400">Mon compte</Link><span aria-hidden="true">/</span><span aria-current="page" className="text-white/55">Paramètres</span></nav><div className="flex items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400"><Settings2 size={19} /></span><div><h1 className="text-xl font-semibold tracking-tight text-white">Paramètres</h1><p className="mt-1.5 text-xs leading-5 text-white/45">Votre compte, vos préférences et les réglages de votre activité.</p></div></div></header>
+        <div className="grid min-w-0 items-start gap-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-6">
           <SettingsNavigation />
-          <div className="min-w-0 space-y-10">
+          <div className="min-w-0 space-y-7">
             <SettingsGroup id="compte" title="Compte et documents" description="Vos informations professionnelles et les documents de vérification de votre compte.">
               <AccountInfoSection userId={session?.user?.id || null} openSections={openSections} toggleSection={toggleSection} />
               <VerificationDocumentsSection />
@@ -61,7 +60,7 @@ export default function ParamPage() {
               )}
             </SettingsGroup>
             <SettingsGroup id="preferences" title="Préférences" description="Adaptez les notifications, les couleurs et la visibilité de votre portfolio.">
-              <div className="grid items-start gap-4 2xl:grid-cols-2">
+              <div className="grid min-w-0 items-start gap-3 2xl:grid-cols-2">
                 <NotifChatPreference />
                 <ColorProfile />
               </div>

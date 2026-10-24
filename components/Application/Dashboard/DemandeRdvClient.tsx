@@ -159,7 +159,7 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
           Demandes de RDV
         </h3>
         <div className="text-center py-6">
-          <div className="w-10 h-10 bg-red-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-10 h-10 bg-tertiary-400/10 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg
               className="w-5 h-5 text-red-400"
               fill="none"
@@ -199,9 +199,9 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
 
       {demandes.length === 0 ? (
         <div className="text-center py-8">
-          <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 bg-tertiary-400/10 rounded-lg flex items-center justify-center mx-auto mb-3">
             <svg
-              className="w-6 h-6 text-gray-500"
+              className="w-6 h-6 text-tertiary-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -370,7 +370,7 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
                     </div>
                     <button
                       onClick={() => setSelected(null)}
-                      className="cursor-pointer p-2 md:p-1.5 hover:bg-white/10 rounded-lg transition-colors group"
+                      className="cursor-pointer p-2 md:p-1.5 hover:bg-tertiary-400/15 rounded-lg transition-colors group"
                       aria-label="Fermer"
                     >
                       <svg

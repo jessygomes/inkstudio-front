@@ -394,7 +394,7 @@ export default function ShowSuivis() {
             href="/clients"
             aria-label="Retour aux clients"
             title="Retour aux clients"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-tertiary-400/10 text-white/70 transition-colors hover:bg-tertiary-400/15 hover:text-white"
           >
             <IoArrowBack className="h-4 w-4" />
           </Link>
@@ -545,8 +545,8 @@ export default function ShowSuivis() {
         </div>
       ) : followUps.length === 0 ? (
         <div className="dashboard-empty-state rounded-2xl border border-white/10 p-8 text-center sm:p-10">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white/7">
-            <MdOutlineRateReview className="h-7 w-7 text-white/40" />
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-tertiary-400/10">
+            <MdOutlineRateReview className="h-7 w-7 text-tertiary-400" />
           </div>
           <p className="text-base text-white font-one">Aucun suivi trouvé</p>
           <p className="mt-1 text-xs text-white/55 font-one">Essayez de modifier vos filtres.</p>
@@ -731,7 +731,7 @@ export default function ShowSuivis() {
                 <button
                   type="button"
                   onClick={() => setIsReplyModalOpen(false)}
-                  className="shrink-0 rounded-xl p-1.5 text-white/65 transition-colors hover:bg-white/10 hover:text-white"
+                  className="shrink-0 rounded-xl p-1.5 text-white/65 transition-colors hover:bg-tertiary-400/15 hover:text-white"
                 >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -881,7 +881,7 @@ export default function ShowSuivis() {
                 <button
                   type="button"
                   onClick={handleDeleteCancel}
-                  className="shrink-0 rounded-xl p-1.5 text-white/65 transition-colors hover:bg-white/10 hover:text-white"
+                  className="shrink-0 rounded-xl p-1.5 text-white/65 transition-colors hover:bg-tertiary-400/15 hover:text-white"
                 >
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

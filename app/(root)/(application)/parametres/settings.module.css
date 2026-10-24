@@ -1,0 +1,9 @@
+.page { font-family: var(--font-one); }
+.page :is(button, a, select, input[type="checkbox"], input[type="radio"], input[type="file"]) { cursor: pointer; }
+.page :is(button, input, select):disabled { cursor: not-allowed; }
+.page :is(button, a):focus-visible { outline: 2px solid var(--color-tertiary-400); outline-offset: 3px; }
+.page :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):not([type="file"]) { border-radius: .75rem; font-size: .75rem; }
+.page :is(input, select, textarea):focus-visible { border-color: color-mix(in srgb, var(--color-tertiary-400) 50%, transparent); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-tertiary-400) 12%, transparent); }
+.page dialog { font-family: var(--font-one); }
+.page dialog h2 { font-size: 1.125rem; line-height: 1.5; }
+@media (prefers-reduced-motion: no-preference) { .page section[id] { scroll-margin-top: 1.25rem; } }

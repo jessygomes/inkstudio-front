@@ -1,4 +1,5 @@
 "use client";
+import NavbarAccountMenu from "./NavbarAccountMenu";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { LogoutBtn } from "@/components/Auth/LogoutBtn";
 import { makeSlug } from "@/lib/utils/makeLink";
@@ -11,17 +12,8 @@ import { QRCodeSVG } from "qrcode.react";
 // import { CgProfile } from "react-icons/cg";
 import { CiSettings } from "react-icons/ci";
 import { FaDatabase } from "react-icons/fa";
-import {
-  MdDashboard,
-  MdEvent,
-  MdPeople,
-  MdPhotoLibrary,
-  MdShoppingBag,
-  MdAccountCircle,
-  MdOutlineMessage,
-  MdQrCode,
-} from "react-icons/md";
-import { PiInvoiceDuotone } from "react-icons/pi";
+import { MdDashboard, MdEvent, MdPeople, MdPhotoLibrary, MdShoppingBag, MdAccountCircle, MdOutlineMessage, MdQrCode } from "react-icons/md";
+
 
 export default function NavbarMobile() {
   const user = useUser();
@@ -69,6 +61,7 @@ export default function NavbarMobile() {
   // };
 
   const handleClickOutside = (event: MouseEvent) => {
+    if (event.target instanceof Element && event.target.closest("[data-account-menu]")) return;
     if (navRef.current && !navRef.current.contains(event.target as Node)) {
       setIsOpen(false);
       // setShowProfileMenu(false);
@@ -131,11 +124,6 @@ export default function NavbarMobile() {
     //   label: "Factures",
     //   icon: <PiInvoiceDuotone size={20} />,
     // },
-    {
-      href: "/mon-compte",
-      label: "Mon profil",
-      icon: <MdAccountCircle size={20} />,
-    },
   ];
 
   const filteredLinks = isFreePlan
@@ -221,9 +209,7 @@ export default function NavbarMobile() {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/20 bg-noir-600">
-          <div className="text-lg font-bold font-two">
-            {user?.salonName || "Inkera Studio"}
-          </div>
+          <div className="min-w-0 flex-1"><NavbarAccountMenu placement="below" salonName={user?.salonName} onNavigate={handleClose} /></div>
           <button
             onClick={handleClose}
             className="text-2xl hover:text-white/70 transition-colors"

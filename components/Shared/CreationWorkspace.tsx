@@ -10,7 +10,7 @@ export function CreationPageHeader({ title, description, backHref, backLabel, ca
   return <header className="mb-6 font-one">
     <nav aria-label="Fil d’Ariane" className="mb-3 flex items-center text-[11px] text-white/40">{categoryHref ? <Link href={categoryHref} className="cursor-pointer rounded transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400">{category}</Link> : <span>{category}</span>}<span aria-hidden="true" className="mx-2 text-white/20">/</span><span aria-current="page">{context}</span></nav>
     <div className="flex items-start gap-3">
-      <Link href={backHref} aria-label={backLabel} title={backLabel} className="mt-0.5 inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/55 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><ArrowLeft size={21} aria-hidden="true" /></Link>
+      <Link href={backHref} aria-label={backLabel} title={backLabel} className="mt-0.5 inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white/55 transition hover:bg-tertiary-400/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><ArrowLeft size={21} aria-hidden="true" /></Link>
       <div><h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">{title}</h1><p className="mt-2 max-w-2xl text-xs leading-6 text-white/45 sm:text-sm">{description}</p></div>
     </div>
   </header>;

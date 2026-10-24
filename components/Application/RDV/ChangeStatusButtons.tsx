@@ -1,6 +1,7 @@
 "use client";
 import { changeAppointmentStatusAction } from "@/lib/queries/appointment";
 import { toast } from "sonner";
+import { useState } from "react";
 
 interface ChangeStatusButtonsProps {
   rdvId: string;
@@ -17,10 +18,13 @@ export default function ChangeStatusButtons({
   size = "sm",
   className = "",
 }: ChangeStatusButtonsProps) {
+  const [saving, setSaving] = useState(false);
   //! Changer le statut du RDV (COMPLETED ou NO_SHOW)
   const handleAppointmentStatusChange = async (
     status: "COMPLETED" | "NO_SHOW",
   ) => {
+    if (saving) return;
+    setSaving(true);
     try {
       await changeAppointmentStatusAction(rdvId, status);
 
@@ -38,6 +42,8 @@ export default function ChangeStatusButtons({
     } catch (error) {
       console.error("Erreur:", error);
       toast.error("Une erreur est survenue lors de la mise à jour du statut");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -50,13 +56,17 @@ export default function ChangeStatusButtons({
 
   const buttonSizeClass = sizeClasses[size];
 
+  if (currentStatus === "COMPLETED" || currentStatus === "NO_SHOW" || currentStatus === "CANCELED" || currentStatus === "CANCELLED") return null;
+
   return (
-    <div className={`flex w-full ${className}`}>
+    <div className={`grid w-full grid-cols-2 gap-2 ${className}`} aria-busy={saving}>
       {/* Bouton Terminé - Affiché si le statut n'est pas COMPLETED */}
       {currentStatus !== "COMPLETED" && (
         <button
+          type="button"
+          disabled={saving}
           onClick={() => handleAppointmentStatusChange("COMPLETED")}
-          className={`cursor-pointer flex-1 ${buttonSizeClass} text-emerald-300 hover:text-emerald-200 border-r border-white/10 transition-colors duration-200 font-one font-medium flex items-center justify-center gap-1.5 hover:bg-white/6`}
+          className={`min-h-10 cursor-pointer rounded-xl border border-emerald-400/20 bg-emerald-400/5 px-3 ${buttonSizeClass} text-emerald-300 hover:bg-emerald-400/10 transition font-one font-medium flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed disabled:opacity-50`}
           title="Marquer comme terminé"
         >
           <svg
@@ -73,8 +83,10 @@ export default function ChangeStatusButtons({
       {/* Bouton Absent - Affiché si le statut n'est pas NO_SHOW */}
       {currentStatus !== "NO_SHOW" && (
         <button
+          type="button"
+          disabled={saving}
           onClick={() => handleAppointmentStatusChange("NO_SHOW")}
-          className={`cursor-pointer flex-1 ${buttonSizeClass} text-amber-300 hover:text-amber-200 transition-colors duration-200 font-one font-medium flex items-center justify-center gap-1.5 hover:bg-white/6`}
+          className={`min-h-10 cursor-pointer rounded-xl border border-amber-400/20 bg-amber-400/5 px-3 ${buttonSizeClass} text-amber-300 hover:bg-amber-400/10 transition font-one font-medium flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed disabled:opacity-50`}
           title="Marquer comme absent"
         >
           <svg

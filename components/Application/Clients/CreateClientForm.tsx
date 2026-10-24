@@ -125,7 +125,7 @@ export default function CreateClientForm({ userId }: { userId: string }) {
 }
 
 function SectionHeader({ eyebrow, title, description, icon }: { eyebrow: string; title: string; description: string; icon: ReactNode }) {
-  return <div className="mb-4 flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-tertiary-400">{icon}</span><div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35 font-one">{eyebrow}</p><h3 className="mt-1 text-sm font-semibold text-white font-one sm:text-base tracking-tight">{title}</h3><p className="mt-1 text-[11px] leading-relaxed text-white/40 font-two">{description}</p></div></div>;
+  return <div className="mb-4 flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400">{icon}</span><div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35 font-one">{eyebrow}</p><h3 className="mt-1 text-sm font-semibold text-white font-one sm:text-base tracking-tight">{title}</h3><p className="mt-1 text-[11px] leading-relaxed text-white/40 font-two">{description}</p></div></div>;
 }
 
 function Field({ label, type = "text", registration, error, placeholder, hint, icon, required = false }: { label: string; type?: string; registration: UseFormRegisterReturn; error?: string; placeholder?: string; hint?: string; icon?: ReactNode; required?: boolean }) {

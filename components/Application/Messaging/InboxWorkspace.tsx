@@ -88,7 +88,7 @@ const imageUrl = (raw?: string | null, mime?: string | null) => {
 };
 
 const field = "w-full rounded-xl border border-white/10 bg-noir-700/80 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-tertiary-400";
-const subtleButton = "inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40";
+const subtleButton = "inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 bg-tertiary-400/10 px-3 py-2 text-xs text-white/80 transition hover:bg-tertiary-400/15 disabled:cursor-not-allowed disabled:opacity-40";
 const primaryButton = "inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-tertiary-400 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-tertiary-500 disabled:cursor-not-allowed disabled:opacity-40";
 const MAX_COMPOSER_LINES = 6;
 

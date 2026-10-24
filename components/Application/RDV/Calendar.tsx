@@ -251,7 +251,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         }
                         setCurrentDate(newDate);
                       }}
-                      className="cursor-pointer flex h-6 w-6 items-center justify-center rounded-md text-white/70 hover:text-white hover:bg-white/10"
+                      className="cursor-pointer flex h-6 w-6 items-center justify-center rounded-md text-white/70 hover:text-white hover:bg-tertiary-400/15"
                       aria-label="Période précédente"
                     >
                       <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,7 +270,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         }
                         setCurrentDate(newDate);
                       }}
-                      className="cursor-pointer flex h-6 w-6 items-center justify-center rounded-md text-white/70 hover:text-white hover:bg-white/10"
+                      className="cursor-pointer flex h-6 w-6 items-center justify-center rounded-md text-white/70 hover:text-white hover:bg-tertiary-400/15"
                       aria-label="Période suivante"
                     >
                       <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -462,11 +462,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           }
 
           .inkera-calendar .rbc-show-more {
-            color: #ff9d00 !important;
+            color: var(--color-tertiary-400) !important;
             font-weight: 600 !important;
             font-size: 10px !important;
-            background: rgba(255, 157, 0, 0.14) !important;
-            border: 1px solid rgba(255, 157, 0, 0.3) !important;
+            background: color-mix(in srgb, var(--color-tertiary-400) 14%, transparent) !important;
+            border: 1px solid color-mix(in srgb, var(--color-tertiary-400) 30%, transparent) !important;
             border-radius: 999px !important;
             padding: 2px 6px !important;
           }

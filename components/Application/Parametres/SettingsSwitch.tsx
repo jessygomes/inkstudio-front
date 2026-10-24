@@ -1,4 +1,5 @@
 import { ChangeEventHandler } from "react";
+import { LoaderCircle } from "lucide-react";
 
 interface SettingsSwitchProps {
   label: string;
@@ -12,11 +13,11 @@ export default function SettingsSwitch({ label, checked, onChange, disabled, bus
   const status = checked ? "Activé" : "Désactivé";
 
   return (
-    <label className="relative inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-2 has-disabled:cursor-not-allowed" title={`Cliquer pour ${checked ? "désactiver" : "activer"}`}>
+    <label className="relative inline-flex min-h-9 shrink-0 cursor-pointer items-center gap-2 has-disabled:cursor-not-allowed" title={`Cliquer pour ${checked ? "désactiver" : "activer"}`}>
       {busy ? (
-        <span role="status" className="text-xs text-white/55">Enregistrement…</span>
+        <span role="status" className="text-tertiary-400"><LoaderCircle size={13} className="animate-spin" /><span className="sr-only">Enregistrement…</span></span>
       ) : (
-        <span className="text-xs font-semibold text-white">
+        <span className={`text-[10px] font-medium ${checked ? "text-tertiary-400" : "text-white/40"}`}>
           {status}
         </span>
       )}

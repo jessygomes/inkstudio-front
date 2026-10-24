@@ -1,17 +1,14 @@
 "use client";
+import SettingsSectionHeader from "./SettingsSectionHeader";
+import { ReceiptText, CreditCard, Download, ExternalLink } from "lucide-react";
 
 import DashboardButton from "@/components/Shared/DashboardButton";
 import styles from "./SettingsCard.module.css";
 
 import { useCallback, useEffect, useState } from "react";
-import { CreditCard, Download, ExternalLink, ReceiptText } from "lucide-react";
+
 import { toast } from "sonner";
-import {
-  getInvoicesAction,
-  getPortalSessionAction,
-  StripeInvoice,
-  StripeInvoicesPage,
-} from "@/lib/queries/stripe";
+import { getInvoicesAction, getPortalSessionAction, StripeInvoice, StripeInvoicesPage } from "@/lib/queries/stripe";
 
 const INVOICES_PER_PAGE = 5;
 
@@ -194,43 +191,28 @@ export default function BillingHistorySection({
   return (
     <div className={styles.card}>
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10"><ReceiptText className="h-5 w-5 text-tertiary-400" /></div>
-            <div>
-              <h2 className="text-base font-semibold text-white font-one">
-                Historique de facturation
-              </h2>
-              <p className="text-white/60 font-one text-xs sm:text-sm mt-1">
-                Consultez vos dernières factures Stripe et gérez vos moyens de
-                paiement.
-              </p>
-            </div>
-          </div>
-
-          <DashboardButton variant="secondary"
+        <SettingsSectionHeader icon={ReceiptText} title="Historique de facturation" description="Vos factures et moyens de paiement, au même endroit." action={<DashboardButton variant="secondary"
             onClick={handleOpenPortal}
             disabled={isOpeningPortal || !userId}
-            className="min-w-0! cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-3xl border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="min-w-0! cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-2xl border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <CreditCard className="h-4 w-4" />
             {isOpeningPortal ? "Ouverture..." : "Gérer mes paiements"}
-          </DashboardButton>
-        </div>
+          </DashboardButton>} />
 
         {isInvoicesLoading ? (
           <div className="flex items-center justify-center py-6">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-tertiary-400"></div>
-            <span className="ml-2 text-white/70 text-sm font-one">
+            <span className="ml-2 text-white/70 text-xs font-one">
               Chargement des factures...
             </span>
           </div>
         ) : invoicesError ? (
-          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 space-y-3">
-            <p className="text-red-300 text-sm font-one">{invoicesError}</p>
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 space-y-3">
+            <p className="text-red-300 text-xs font-one">{invoicesError}</p>
             <DashboardButton variant="secondary"
               onClick={() => fetchInvoices(currentPage)}
-              className="min-w-0! cursor-pointer px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-200 rounded-2xl border border-red-500/20 transition-colors font-medium font-one text-xs"
+              className="min-w-0! cursor-pointer px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-200 rounded-xl border border-red-500/20 transition-colors font-medium font-one text-xs"
             >
               Réessayer
             </DashboardButton>
@@ -238,20 +220,20 @@ export default function BillingHistorySection({
         ) : invoices.length > 0 ? (
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-4">
-              <h3 className="text-sm font-semibold text-white">Vos factures</h3>
+              <h3 className="text-xs font-semibold text-white">Vos factures</h3>
               <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/60">{pagination.total} facture{pagination.total > 1 ? "s" : ""}</span>
             </div>
             <ul className="divide-y divide-white/10">
               {invoices.map((invoice) => (
-                <li key={invoice.id} className="grid items-center gap-4 py-5 xl:grid-cols-[minmax(0,1fr)_auto]">
+                <li key={invoice.id} className="grid items-center gap-3 py-3 xl:grid-cols-[minmax(0,1fr)_auto]">
                   <div className="flex min-w-0 items-start gap-3">
-                    <div className="mt-1 hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 sm:flex"><ReceiptText className="h-4 w-4 text-white/50" /></div>
+                    <div className="mt-1 hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-tertiary-400/10 sm:flex"><ReceiptText className="h-4 w-4 text-tertiary-400" /></div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-3">
-                        <p className="text-lg font-semibold tabular-nums text-white">{formatInvoiceAmount(invoice)}</p>
+                        <p className="text-base font-semibold tabular-nums text-white">{formatInvoiceAmount(invoice)}</p>
                         <span className={`rounded-full px-2.5 py-1 text-[11px] ${getInvoiceStatusClassName(invoice.status)}`}>{getInvoiceStatusLabel(invoice.status)}</span>
                       </div>
-                      <p className="mt-1 text-sm text-white/65">{formatInvoicePeriod(invoice)}</p>
+                      <p className="mt-1 text-xs text-white/65">{formatInvoicePeriod(invoice)}</p>
                       <p className="mt-1 break-all text-xs text-white/45">Réf. {invoice.number ?? invoice.id}</p>
                     </div>
                   </div>
@@ -302,8 +284,8 @@ export default function BillingHistorySection({
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-white/15 bg-black/10 px-5 py-10 text-center">
-            <p className="text-white/70 text-sm font-one">
+          <div className="rounded-xl border border-dashed border-white/15 bg-noir-700 px-5 py-10 text-center">
+            <p className="text-white/70 text-xs font-one">
               Vous n’avez pas encore de facture.
             </p>
             <p className="text-white/50 text-xs font-one mt-1">
