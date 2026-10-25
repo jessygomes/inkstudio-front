@@ -2,6 +2,12 @@
 
 import { getAuthHeaders } from "../session";
 
+export async function getAppointmentMoodboardOptions(email: string): Promise<{ id: string; name: string }[]> {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/moodboard/appointment-options?email=${encodeURIComponent(email)}`, { headers: await getAuthHeaders(), cache: "no-store" });
+  if (!response.ok) throw new Error("Moodboards indisponibles.");
+  return response.json();
+}
+
 export interface MoodboardImageDto {
   id: string;
   imageUrl?: string;

@@ -23,7 +23,7 @@ const FILTERS = ["ACTIVE", "ARCHIVED"] as const;
 
 export default function MessageList() {
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex min-h-0 flex-col">
       <InboxWorkspace />
     </div>
   );

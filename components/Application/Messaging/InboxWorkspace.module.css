@@ -1,0 +1,36 @@
+.workspace {
+  --inbox-nav-height: 76px;
+  min-height: 100dvh;
+  padding-bottom: var(--inbox-nav-height);
+}
+
+.workspace[data-conversation-open="true"] {
+  height: calc(100dvh - var(--inbox-nav-height));
+  min-height: 0;
+  padding-bottom: 0;
+}
+
+.columns,
+.threadList {
+  overflow: visible;
+}
+
+.workspace[data-conversation-open="true"] .columns {
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .workspace {
+    height: calc(100dvh - var(--inbox-nav-height));
+    min-height: 0;
+    padding-bottom: 0;
+  }
+
+  .columns { overflow: hidden; }
+  .threadList { overflow-y: auto; }
+}
+
+@media (min-width: 1280px) {
+  .workspace,
+  .workspace[data-conversation-open="true"] { height: 100dvh; }
+}

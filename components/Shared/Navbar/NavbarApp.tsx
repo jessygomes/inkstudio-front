@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useMessagingContext } from "@/components/Providers/MessagingProvider";
 import { getUnreadMessagesCountAction } from "@/lib/queries/conversation.action";
-import { MdAccountCircle, MdDashboard, MdEvent, MdOutlineMessage, MdPeople, MdPhotoLibrary, MdShoppingBag, MdMenuOpen, MdMenu } from "react-icons/md";
+import { MdAccountCircle, MdDashboard, MdEvent, MdOutlineMessage, MdPeople, MdPhotoLibrary, MdShoppingBag, MdMenuOpen, MdMenu, MdPublic } from "react-icons/md";
 import { FaDatabase, FaBolt } from "react-icons/fa";
 
 
@@ -115,7 +115,7 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
         </button>
       </div>
 
-      <ul className="scrollbar-hidden flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden">
+      <ul className={`scrollbar-hidden flex min-h-0 flex-1 flex-col ${collapsed ? "gap-0.5" : "gap-1"} overflow-y-auto overflow-x-hidden`}>
         {filteredLinks.map((link) => {
           const isActive =
             pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -126,13 +126,13 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
                 href={link.href}
                 title={collapsed ? link.label : undefined}
                 aria-current={isActive ? "page" : undefined}
-                className={`relative flex min-h-11 items-center gap-3 overflow-hidden rounded-xl px-[15px] text-sm transition-colors duration-300 ${
+                className={`relative flex ${collapsed ? "min-h-9" : "min-h-11"} items-center gap-3 overflow-hidden rounded-xl px-[15px] text-sm transition-colors duration-300 ${
                   isActive
                     ? "bg-tertiary-400/15 text-white shadow-sm shadow-tertiary-500/10"
                     : "text-white/60 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <Icon size={20} className="shrink-0" aria-hidden="true" />
+                <Icon size={collapsed ? 18 : 20} className="shrink-0" aria-hidden="true" />
                 <span
                   className={`min-w-0 flex-1 truncate whitespace-nowrap font-one transition-opacity duration-300 ${
                     collapsed ? "opacity-0" : "opacity-100"
@@ -154,6 +154,29 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
           );
         })}
       </ul>
+
+      {!isFreePlan && (() => {
+        const isActive = pathname === "/explorer" || pathname.startsWith("/explorer/");
+        return (
+          <div className="mt-3 shrink-0 border-t border-white/10 pt-3">
+            <Link
+              href="/explorer"
+              title={collapsed ? "Explorer" : undefined}
+              aria-current={isActive ? "page" : undefined}
+              className={`relative flex ${collapsed ? "min-h-9" : "min-h-11"} items-center gap-3 overflow-hidden rounded-xl px-[15px] text-sm transition-colors duration-300 ${
+                isActive
+                  ? "bg-tertiary-400/15 text-white shadow-sm shadow-tertiary-500/10"
+                  : "text-white/60 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <MdPublic size={collapsed ? 18 : 20} className="shrink-0" aria-hidden="true" />
+              <span className={`min-w-0 flex-1 truncate whitespace-nowrap font-one transition-opacity duration-300 ${collapsed ? "opacity-0" : "opacity-100"}`}>
+                Explorer
+              </span>
+            </Link>
+          </div>
+        );
+      })()}
 
       <div className="mt-3 shrink-0 border-t border-white/10 pt-3"><NavbarAccountMenu collapsed={collapsed} /></div>
     </nav>

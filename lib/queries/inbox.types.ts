@@ -11,6 +11,7 @@ export type InboxPerson = {
 };
 
 export type InboxThread = {
+  contactBlocked?: boolean;
   id: string;
   ownerUserId: string;
   channel: InboxChannel;
@@ -22,6 +23,7 @@ export type InboxThread = {
   assignedUserId?: string | null;
   assignedTatoueurId?: string | null;
   conversation?: {
+    projectContactPending?: boolean;
     id: string;
     subject?: string | null;
     clientUserId: string;

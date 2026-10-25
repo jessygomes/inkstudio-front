@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { io } from "socket.io-client";
 import {
   ArrowLeft, AtSign, CheckCheck, ChevronLeft, ChevronRight, CircleAlert,
-  Clock3, Facebook, ImagePlus, Instagram, Lock, Mail, MessageCircle, NotebookPen,
+  Clock3, Eye, Facebook, ImagePlus, Instagram, Lock, Mail, MessageCircle, NotebookPen,
   PanelLeftClose, PanelLeftOpen, Plus, RefreshCw, Search, Send, SlidersHorizontal, Unplug, UserRound, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import ConversationRDVDetails from "./ConversationRDVDetails";
+import styles from "./InboxWorkspace.module.css";
 import { getTatoueursByUserIdAction } from "@/lib/queries/tatoueur";
 import { searchClientsAction } from "@/lib/queries/client";
 import { getUnreadMessagesCountAction } from "@/lib/queries/conversation.action";
@@ -73,6 +75,18 @@ const threadName = (thread: InboxThread) => {
 const threadTitle = (thread: InboxThread) =>
   thread.conversation?.subject || thread.externalConversation?.subject || "Conversation";
 
+function ThreadAvatar({ thread }: { thread: InboxThread }) {
+  const [failedSource, setFailedSource] = useState<string | null>(null);
+  const source = thread.conversation?.clientUser?.image?.trim() || thread.linkedClient?.image?.trim();
+  return (
+    <span aria-hidden="true" className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10 text-xs font-bold text-white/75 ring-1 ring-white/10">
+      {source && source !== failedSource ? (
+        <Image src={source} alt="" width={32} height={32} sizes="32px" className="h-full w-full object-cover" onError={() => setFailedSource(source)} />
+      ) : threadName(thread).charAt(0).toUpperCase()}
+    </span>
+  );
+}
+
 const displayDate = (raw?: string | null) => raw
   ? new Date(raw).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })
   : "";
@@ -110,6 +124,15 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   const [totalPages, setTotalPages] = useState(1);
   const [, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState("");
+  const listRequestRef = useRef(0);
+  const listFetchingRef = useRef(false);
+  const loadedPagesRef = useRef(1);
+  const workspaceRef = useRef<HTMLElement>(null);
+  const threadListRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const listScrollRef = useRef(0);
   const [listError, setListError] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const liveSocketRef = useRef<ReturnType<typeof io> | null>(null);
@@ -182,28 +205,64 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
     setActiveAppointment(null);
   }, [selectedId]);
 
+  const fetchListPage = useCallback((requestedPage: number) => getInboxThreadsAction({
+    ...(channel !== "ALL" && { channel }),
+    ...(status && { status }),
+    ...(search.trim() && { search: search.trim() }),
+    ...(unreadOnly && { unreadOnly }),
+    ...(assignedFilter.startsWith('user:') && { assignedUserId: assignedFilter.slice(5) }),
+    ...(assignedFilter.startsWith('artist:') && { assignedTatoueurId: assignedFilter.slice(7) }),
+    page: requestedPage, limit: 20,
+  }), [channel, status, search, unreadOnly, assignedFilter]);
+
   const refreshList = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || listFetchingRef.current) return;
+    listFetchingRef.current = true;
+    const request = ++listRequestRef.current;
     try {
       setListError("");
-      const result = await getInboxThreadsAction({
-        ...(channel !== "ALL" && { channel }),
-        ...(status && { status }),
-        ...(search.trim() && { search: search.trim() }),
-        ...(unreadOnly && { unreadOnly }),
-        ...(assignedFilter.startsWith('user:') && { assignedUserId: assignedFilter.slice(5) }),
-        ...(assignedFilter.startsWith('artist:') && { assignedTatoueurId: assignedFilter.slice(7) }),
-        page, limit: 20,
-      });
-      setThreads(result.data);
+      const results = await Promise.all(Array.from({ length: loadedPagesRef.current }, (_, index) => fetchListPage(index + 1)));
+      if (request !== listRequestRef.current) return;
+      const result = results[0];
+      setThreads([...new Map(results.flatMap((item) => item.data).map((item) => [item.id, item])).values()]);
+      setTotal(result.total);
+      setTotalPages(Math.max(1, result.totalPages));
+      loadedPagesRef.current = Math.min(loadedPagesRef.current, Math.max(1, result.totalPages));
+      setPage(loadedPagesRef.current);
+    } catch (error) {
+      if (request === listRequestRef.current) setListError(error instanceof Error ? error.message : "Chargement impossible");
+    } finally {
+      if (request === listRequestRef.current) {
+        listFetchingRef.current = false;
+        setLoading(false);
+      }
+    }
+  }, [userId, fetchListPage]);
+
+  const loadMore = useCallback(async () => {
+    if (!userId || listFetchingRef.current || loadedPagesRef.current >= totalPages) return;
+    listFetchingRef.current = true;
+    setLoadingMore(true);
+    setLoadMoreError("");
+    const request = ++listRequestRef.current;
+    const nextPage = loadedPagesRef.current + 1;
+    try {
+      const result = await fetchListPage(nextPage);
+      if (request !== listRequestRef.current) return;
+      setThreads((current) => [...new Map([...current, ...result.data].map((item) => [item.id, item])).values()]);
+      loadedPagesRef.current = nextPage;
+      setPage(nextPage);
       setTotal(result.total);
       setTotalPages(Math.max(1, result.totalPages));
     } catch (error) {
-      setListError(error instanceof Error ? error.message : "Chargement impossible");
+      if (request === listRequestRef.current) setLoadMoreError(error instanceof Error ? error.message : "Chargement impossible");
     } finally {
-      setLoading(false);
+      if (request === listRequestRef.current) {
+        listFetchingRef.current = false;
+        setLoadingMore(false);
+      }
     }
-  }, [userId, channel, status, search, unreadOnly, assignedFilter, page]);
+  }, [userId, totalPages, fetchListPage]);
 
   const syncNavbarUnread = useCallback(async () => {
     try {
@@ -244,10 +303,59 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
 
   useEffect(() => {
     if (!userId) return;
+    const invalidateRequests = () => {
+      listRequestRef.current++;
+      listFetchingRef.current = false;
+    };
+    invalidateRequests();
+    loadedPagesRef.current = 1;
+    setPage(1);
+    setThreads([]);
+    setTotalPages(1);
+    setLoadMoreError("");
+    setLoadingMore(false);
     setLoading(true);
     const timeout = window.setTimeout(() => void refreshList(), 250);
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.clearTimeout(timeout);
+      invalidateRequests();
+    };
   }, [refreshList, userId, isFree]);
+
+  useEffect(() => {
+    const nav = document.querySelector<HTMLElement>("[data-app-mobile-nav]");
+    if (!nav) return;
+    const updateHeight = () => workspaceRef.current?.style.setProperty("--inbox-nav-height", `${nav.getBoundingClientRect().height}px`);
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, [sessionStatus]);
+
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 1024px)").matches) return;
+    const frame = window.requestAnimationFrame(() => window.scrollTo({ top: selectedId ? 0 : listScrollRef.current, behavior: "instant" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [selectedId]);
+
+  useEffect(() => {
+    if (loading || loadingMore || listError || loadMoreError || page >= totalPages) return;
+    const sentinel = loadMoreRef.current;
+    if (!sentinel) return;
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    let observer: IntersectionObserver | undefined;
+    const observe = () => {
+      observer?.disconnect();
+      if ((!desktop.matches && selectedId) || (desktop.matches && listCollapsed)) return;
+      observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) void loadMore();
+      }, { root: desktop.matches ? threadListRef.current : null, rootMargin: "200px" });
+      observer.observe(sentinel);
+    };
+    observe();
+    desktop.addEventListener("change", observe);
+    return () => { observer?.disconnect(); desktop.removeEventListener("change", observe); };
+  }, [loading, loadingMore, listError, loadMoreError, page, totalPages, selectedId, listCollapsed, loadMore, threads]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -389,7 +497,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
 
   const selectedName = useMemo(() => thread && threadName(thread), [thread]);
 
-  const changeFilter = (next: () => void) => { setPage(1); next(); };
+  const changeFilter = (next: () => void) => { next(); };
 
   const mutate = async (action: () => Promise<unknown>, success: string, closeClientForm = false): Promise<boolean> => {
     if (!selectedId) return false;
@@ -454,24 +562,22 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
 
   if (sessionStatus === "loading") return <p className="p-6 text-sm text-white/60">Chargement de votre espace…</p>;
   return (
-    <section className="flex h-full min-h-0 flex-col font-one text-white">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-white/10 bg-noir-600 px-4">
-        <nav className="-mb-px flex flex-wrap" aria-label="Canaux">
+    <section ref={workspaceRef} data-conversation-open={Boolean(selectedId)} className={`${styles.workspace} flex min-h-0 flex-col font-one text-white`}>
+      <div className={`${selectedId ? "hidden lg:flex" : "flex"} shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-white/10 bg-noir-700 px-3 py-2 lg:px-4`}>
+        <nav className="flex w-full items-center justify-between gap-1 lg:w-auto lg:justify-start" aria-label="Canaux">
           {CHANNELS.map(({ value, label, Icon, comingSoon }) => (
-            <button type="button" key={value} aria-pressed={channel === value}
-              disabled={comingSoon} aria-disabled={comingSoon} title={comingSoon ? "Bientôt disponible" : undefined}
+            <button type="button" key={value} aria-pressed={channel === value} aria-label={comingSoon ? `${label} — bientôt disponible` : label}
+              disabled={comingSoon} aria-disabled={comingSoon} title={comingSoon ? `${label} — bientôt disponible` : label}
               onClick={() => changeFilter(() => { setChannel(value); setSelectedId(null); setThread(null); })}
-              className={`flex items-center gap-2 border-b-2 px-4 py-3.5 text-xs font-medium transition ${comingSoon ? "cursor-not-allowed border-transparent text-white/25" : channel === value ? "border-tertiary-400 text-white" : "border-transparent text-white/50 hover:text-white"}`}>
-              <Icon size={15} /> {label}
+              className={`flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-medium transition lg:rounded-none lg:border-x-0 lg:border-t-0 lg:border-b-2 lg:px-4 ${comingSoon ? "cursor-not-allowed border-transparent text-white/25" : channel === value ? "border-tertiary-400/30 bg-tertiary-400/10 text-tertiary-400 lg:border-tertiary-400 lg:bg-transparent lg:text-white" : "border-transparent text-white/50 hover:text-white"}`}>
+              <Icon size={17} aria-hidden="true" /> <span className="sr-only lg:not-sr-only">{label}</span>
             </button>
           ))}
-          <span className="ml-2 flex items-center self-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-white/55">
-            La connexion de vos comptes externes (Instagram, Facebook, Emails) sera bientôt disponible
-          </span>
         </nav>
-        <div className="flex items-center gap-3 py-2">
-          <button type="button" className={subtleButton} onClick={() => { setLoading(true); void refreshList(); if (selectedId) void refreshDetail(selectedId); }}><RefreshCw size={14} /> Actualiser</button>
-          {toolbarRight}
+        {toolbarRight && <div className="flex items-center gap-2">{toolbarRight}</div>}
+        <div className="flex w-full items-start gap-2 rounded-xl border border-white/5 bg-white/[0.025] px-3 py-2 text-[11px] leading-4 text-white/45 lg:w-auto lg:flex-1 lg:border-0 lg:bg-transparent lg:px-0">
+          <Clock3 size={13} className="mt-0.5 shrink-0 text-tertiary-400/65" aria-hidden="true" />
+          <p><span className="font-semibold text-white/65">Bientôt disponible</span><span className="mx-1.5 hidden lg:inline">·</span><span className="block lg:inline">Instagram, Facebook et les emails réunis ici.</span></p>
         </div>
       </div>
 
@@ -495,9 +601,9 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
         </div>
       )}
 
-      <div className="flex min-h-0 flex-1 gap-px overflow-hidden bg-white/5">
+      <div className={`${styles.columns} flex min-h-0 flex-1 gap-px bg-white/5`}>
         <aside aria-hidden={!listCollapsed} className={`hidden shrink-0 justify-center overflow-hidden bg-noir-500 pt-3 transition-[width,opacity] duration-300 ease-in-out lg:flex ${listCollapsed ? "w-9 opacity-100" : "pointer-events-none w-0 opacity-0"}`}><button type="button" tabIndex={listCollapsed ? 0 : -1} aria-label="Afficher la liste des conversations" title="Afficher la liste" className={`${subtleButton} h-7 w-7 shrink-0 !rounded-md !px-0`} onClick={() => setListCollapsed(false)}><PanelLeftOpen size={14} /></button></aside>
-        <aside aria-hidden={listCollapsed} className={`${listCollapsed ? "lg:pointer-events-none lg:-ml-[290px] lg:opacity-0 xl:-ml-[320px]" : "lg:ml-0 lg:opacity-100"} ${selectedId ? "hidden lg:flex" : "flex"} w-full min-w-0 flex-col bg-noir-500 transition-[margin,opacity] duration-300 ease-in-out lg:w-[290px] lg:shrink-0 xl:w-[320px]`}>
+        <aside className={`${listCollapsed ? "lg:invisible lg:pointer-events-none lg:-ml-[290px] lg:opacity-0 xl:-ml-[320px]" : "lg:ml-0 lg:opacity-100"} ${selectedId ? "hidden lg:flex" : "flex"} w-full min-w-0 flex-col bg-noir-500 transition-[margin,opacity] duration-300 ease-in-out lg:w-[290px] lg:shrink-0 xl:w-[320px]`}>
           <div className="relative flex items-center gap-2 p-3">
             <label className="relative block min-w-0 flex-1">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
@@ -507,7 +613,8 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
               <SlidersHorizontal size={15} />
               {activeFilters > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-tertiary-400 px-1 text-[10px] text-white">{activeFilters}</span>}
             </button>
-            <button type="button" aria-label="Masquer la liste des conversations" title="Masquer la liste" className={`${subtleButton} hidden h-[38px] w-[38px] shrink-0 !px-0 lg:inline-flex`} onClick={() => { setFiltersOpen(false); setListCollapsed(true); }}><PanelLeftClose size={15} /></button>
+            <button type="button" aria-label="Actualiser les conversations" title="Actualiser" disabled={loading || loadingMore} className={`${subtleButton} h-[38px] w-[38px] shrink-0 !px-0`} onClick={() => { void refreshList(); if (selectedId) void refreshDetail(selectedId); }}><RefreshCw size={15} className={loading || loadingMore ? "motion-safe:animate-spin" : ""} aria-hidden="true" /></button>
+            <div className="hidden lg:block"><button type="button" aria-label="Masquer la liste des conversations" title="Masquer la liste" className={`${subtleButton} h-[38px] w-[38px] shrink-0 !px-0`} onClick={() => { setFiltersOpen(false); setListCollapsed(true); }}><PanelLeftClose size={15} /></button></div>
             {filtersOpen && (
               <div className="absolute inset-x-3 top-full z-20 -mt-1 space-y-2 border border-white/10 bg-noir-700 p-3 shadow-xl">
                 <select aria-label="Filtrer par statut" className={`${field} text-xs`} value={status} onChange={(event) => changeFilter(() => setStatus(event.target.value as "" | InboxStatus))}>
@@ -526,7 +633,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
             )}
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto p-2" aria-label="Conversations">
+          <div ref={threadListRef} className={`${styles.threadList} min-h-0 flex-1 p-2`} aria-label="Conversations" aria-busy={loading || loadingMore}>
             {loading && <p className="px-3 py-8 text-center text-xs text-white/50">Chargement des conversations…</p>}
             {listError && <div className="space-y-2 p-4 text-sm text-red-300"><p>{listError}</p><button className={subtleButton} onClick={() => void refreshList()}>Réessayer</button></div>}
             {!loading && !listError && threads.length === 0 && (
@@ -536,11 +643,11 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                 <p className="mt-2 text-xs leading-relaxed text-white/45">{channel === "INSTAGRAM" ? "Les conversations apparaîtront après réception d’un premier message Instagram et activation des Webhooks Meta." : channel !== "ALL" && channel !== "INKERA" ? "Ce canal n’est pas encore connecté. L’intégration des comptes externes sera la prochaine étape." : "Les nouveaux échanges Inkera apparaîtront ici. Vous pouvez aussi les lancer depuis un profil public."}</p>
               </div>
             )}
-            {!loading && !listError && threads.map((item) => (
-              <button key={item.id} type="button" onClick={() => { setSelectedId(item.id); setAppointmentPage(1); setDetailLoading(true); }}
+            {!loading && threads.map((item) => (
+              <button key={item.id} type="button" onClick={() => { listScrollRef.current = window.scrollY; setSelectedId(item.id); setAppointmentPage(1); setDetailLoading(true); }}
                 className={`w-full border-l-2 px-3 py-2 text-left transition ${selectedId === item.id ? "border-tertiary-400/50 bg-tertiary-400/15" : (item.unreadCount || 0) > 0 ? "border-tertiary-400 bg-tertiary-400/10 hover:bg-tertiary-400/15" : "border-transparent hover:border-white/10 hover:bg-white/5"}`}>
                 <div className="flex items-start gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-bold text-white/75">{threadName(item).charAt(0).toUpperCase()}</span>
+                  <ThreadAvatar thread={item} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2"><strong className={`truncate text-sm ${(item.unreadCount || 0) > 0 ? 'font-bold text-white' : 'font-medium'}`}>{threadName(item)}</strong><span className="shrink-0 text-[10px] text-white/40">{displayDate(item.lastMessageAt)}</span>{(item.unreadCount || 0) > 0 && <span aria-label={`${item.unreadCount} messages non lus`} className="rounded-full bg-tertiary-400 px-1.5 py-0.5 text-[10px] font-bold text-white">{item.unreadCount}</span>}</div>
                     <p className="mt-1 truncate text-xs text-white/50">{threadTitle(item)}</p>
@@ -555,10 +662,10 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                 </div>
               </button>
             ))}
-          </div>
-          <div className="flex items-center justify-between p-3 text-xs text-white/55">
-            <span>Page {page} / {totalPages}</span>
-            <div className="flex gap-2"><button type="button" aria-label="Page précédente" className={subtleButton} disabled={page <= 1} onClick={() => setPage((v) => v - 1)}><ChevronLeft size={14} /></button><button type="button" aria-label="Page suivante" className={subtleButton} disabled={page >= totalPages} onClick={() => setPage((v) => v + 1)}><ChevronRight size={14} /></button></div>
+            <div ref={loadMoreRef} className="h-px" aria-hidden="true" />
+            {loadingMore && <p role="status" className="flex items-center justify-center gap-2 py-5 text-xs text-white/45"><RefreshCw size={14} className="motion-safe:animate-spin" aria-hidden="true" /> Chargement des conversations…</p>}
+            {loadMoreError && <div role="alert" className="space-y-2 p-3 text-center text-xs text-red-300"><p>{loadMoreError}</p><button type="button" className={subtleButton} onClick={() => void loadMore()}>Réessayer</button></div>}
+            {!loading && !loadingMore && !listError && threads.length > 0 && page >= totalPages && <p className="py-4 text-center text-[11px] text-white/30">Toutes vos conversations sont affichées</p>}
           </div>
         </aside>
 
@@ -571,15 +678,16 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
             <div className="m-auto space-y-3 px-5 text-center"><CircleAlert className="mx-auto text-red-300"/><p className="text-sm text-red-300">{detailError}</p><button className={subtleButton} onClick={() => selectedId && void refreshDetail(selectedId)}>Réessayer</button></div>
           ) : thread ? (
             <>
-              <header className="flex items-center justify-between gap-2 px-4 py-3">
-                <div className="flex min-w-0 items-center gap-2">
-                  <button type="button" aria-label="Retour aux conversations" className={`${subtleButton} lg:hidden`} onClick={() => setSelectedId(null)}><ArrowLeft size={15} /></button>
+              <header className="flex shrink-0 items-center justify-between gap-2 border-b border-white/10 px-3 py-2.5 lg:px-4 lg:py-3">
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <button type="button" aria-label="Retour aux conversations" className={`${subtleButton} h-10 w-9 shrink-0 !px-0 lg:hidden`} onClick={() => setSelectedId(null)}><ArrowLeft size={15} /></button>
+                  <ThreadAvatar thread={thread} />
                   <div className="min-w-0"><h2 className="truncate text-sm font-semibold">{selectedName}</h2><p className="mt-1 truncate text-xs text-white/50">{threadTitle(thread)} · {CHANNELS.find(({ value }) => value === thread.channel)?.label}{thread.ownerUserId !== userId ? " · Salon lié" : ""}</p></div>
                 </div>
-                <div className="flex gap-1">
-                  <button type="button" className={`${subtleButton} xl:hidden`} onClick={() => setShowDetailsMobile(true)}>Afficher les détails</button>
-                  <button type="button" disabled={pending} className={subtleButton} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, false), "Conversation marquée lue")}><CheckCheck size={13} /><span className="hidden xl:inline">Lue</span></button>
-                  <button type="button" disabled={pending} className={subtleButton} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, true), "Conversation marquée non lue")}><AtSign size={13} /><span className="hidden xl:inline">Non lue</span></button>
+                <div className="flex shrink-0 gap-1">
+                  <button type="button" aria-label={showDetailsMobile ? "Afficher les messages" : "Afficher les détails"} title={showDetailsMobile ? "Afficher les messages" : "Afficher les détails"} aria-expanded={showDetailsMobile} className={`${subtleButton} h-10 w-10 !px-0 xl:hidden`} onClick={() => { setActiveAppointment(null); setShowDetailsMobile((open) => !open); }}><Eye size={16} aria-hidden="true" /></button>
+                  <button type="button" aria-label="Marquer comme lue" title="Marquer comme lue" disabled={pending} className={`${subtleButton} h-10 w-9 !px-0 xl:w-auto xl:!px-3`} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, false), "Conversation marquée lue")}><CheckCheck size={15} aria-hidden="true" /><span className="hidden xl:inline">Lue</span></button>
+                  <button type="button" aria-label="Marquer comme non lue" title="Marquer comme non lue" disabled={pending} className={`${subtleButton} h-10 w-9 !px-0 xl:w-auto xl:!px-3`} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, true), "Conversation marquée non lue")}><AtSign size={15} aria-hidden="true" /><span className="hidden xl:inline">Non lue</span></button>
                   
                 </div>
               </header>
@@ -599,19 +707,19 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                       </div></article>;
                     })}
                   </div>
-                  {isFree ? (
+                  {(thread.contactBlocked || thread.conversation?.projectContactPending) ? <p className="border-t border-white/10 p-4 text-sm text-white/60">{thread.contactBlocked ? "Ce contact est bloqué." : "La demande de contact doit être acceptée par le client avant de poursuivre la conversation."}</p> : isFree ? (
                     <div className="flex items-start gap-2 border-t border-white/10 bg-tertiary-400/5 p-4 text-xs leading-relaxed text-white/70"><Lock size={16} className="shrink-0 text-tertiary-400" /><span>Conversation en lecture seule : l&apos;envoi et la réception de messages sont réservés aux comptes PRO ou BUSINESS.</span></div>
                   ) : (thread.channel === "INKERA" || (thread.channel === "INSTAGRAM" && ["ACTIVE", "ERROR"].includes(thread.externalConversation?.connection?.status || ""))) ? (
                     <div className="space-y-2 p-3">
                       <div className="flex gap-2"><select aria-label="Insérer une réponse enregistrée" className={`${field} min-w-0 flex-1 !py-1.5 text-[11px]`} defaultValue="" onChange={(event) => { const reply = savedReplies.find((item) => item.id === event.target.value); if (reply) setDraft(reply.content); event.target.value = ""; }}><option value="">Insérer une réponse enregistrée…</option>{savedReplies.filter((item) => !item.channel || item.channel === thread.channel).map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select>
-                        <button type="button" className={`${subtleButton} shrink-0 !px-2.5 !py-1.5 text-[11px]`} aria-expanded={replyFormOpen} onClick={() => setReplyFormOpen((open) => !open)}>{replyFormOpen ? <X size={12} /> : <Plus size={12} />} Nouvelle réponse</button></div>
+                        <button type="button" className={`${subtleButton} shrink-0 !px-2.5 !py-1.5 text-[11px]`} aria-label={replyFormOpen ? "Fermer la nouvelle réponse enregistrée" : "Créer une réponse enregistrée"} title="Nouvelle réponse enregistrée" aria-expanded={replyFormOpen} onClick={() => setReplyFormOpen((open) => !open)}>{replyFormOpen ? <X size={14} /> : <Plus size={14} />}<span className="hidden sm:inline">Nouvelle réponse</span></button></div>
                       {replyFormOpen && <div className="flex gap-2"><input aria-label="Titre de la réponse enregistrée" value={replyTitle} onChange={(event) => setReplyTitle(event.target.value)} placeholder="Titre (le texte saisi ci-dessous sera enregistré)" className={`${field} !py-1.5 text-[11px]`} /><button className={`${subtleButton} shrink-0 !py-1.5 text-[11px]`} type="button" disabled={pending || !replyTitle.trim() || !draft.trim()} onClick={() => void mutate(() => createInboxSavedReplyAction(replyTitle, draft, thread.channel), "Réponse enregistrée").then(async (ok) => { if (ok) { setReplyTitle(""); setReplyFormOpen(false); setSavedReplies(await getInboxSavedRepliesAction()); } })}>Enregistrer</button></div>}
                       <form onSubmit={sendMessage} className="space-y-2">
                         {selectedImage && <div className="flex items-center justify-between gap-2 rounded-lg border border-tertiary-400/20 bg-tertiary-400/5 px-3 py-2 text-xs"><span className="truncate">Image : {selectedImage.name}</span><button type="button" aria-label="Retirer l'image" onClick={() => setSelectedImage(null)}><X size={14} /></button></div>}
                         <div className="flex items-end gap-2">
                           <label className={`${subtleButton} h-11 shrink-0`} title="Joindre une image"><ImagePlus size={17} /><span className="sr-only">Joindre une image</span><input type="file" className="sr-only" accept="image/*" disabled={pending || processingImage || isUploading} onChange={(event) => { setSelectedImage(event.target.files?.[0] || null); event.target.value = ""; }} /></label>
                           <textarea ref={composerRef} aria-label="Votre réponse" value={draft} onChange={(event) => setDraft(event.target.value)} rows={1} maxLength={thread.channel === "INSTAGRAM" ? 1000 : 20000} placeholder={thread.channel === "INSTAGRAM" ? "Répondre sur Instagram…" : "Écrire un message au client…"} className={`${field} min-h-10 resize-none leading-5`} />
-                          <button type="submit" className={primaryButton} disabled={pending || processingImage || isUploading || (!draft.trim() && !selectedImage)}><Send size={16} /><span className="hidden sm:inline">{processingImage || isUploading ? "Envoi…" : "Envoyer"}</span></button>
+                          <button type="submit" aria-label={processingImage || isUploading ? "Envoi en cours" : "Envoyer le message"} className={`${primaryButton} shrink-0`} disabled={pending || processingImage || isUploading || (!draft.trim() && !selectedImage)}><Send size={16} /><span className="hidden sm:inline">{processingImage || isUploading ? "Envoi…" : "Envoyer"}</span></button>
                         </div>
                       </form>
                     </div>

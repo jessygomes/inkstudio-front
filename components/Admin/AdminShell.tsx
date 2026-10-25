@@ -15,6 +15,7 @@ import {
 import styles from "./AdminShell.module.css";
 
 export const adminNavigation = [
+  { href: "/admin/signalements", label: "Signalements", icon: ShieldCheck },
   { href: "/admin", label: "Vue d’ensemble", icon: LayoutDashboard },
   { href: "/admin/users", label: "Utilisateurs", icon: UsersRound },
   { href: "/admin/verification", label: "Vérifications", icon: ShieldCheck },

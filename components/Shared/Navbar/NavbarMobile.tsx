@@ -69,6 +69,7 @@ export default function NavbarMobile() {
   };
 
   const links = [
+    { href: "/explorer", label: "Explorer", icon: <MdPhotoLibrary size={20} /> },
     {
       href: "/dashboard",
       label: "Dashboard",
@@ -134,6 +135,7 @@ export default function NavbarMobile() {
             "/suiviDessin",
             "/clients",
             "/messagerie",
+            "/explorer",
             "/stocks",
           ].includes(link.href)
       )
@@ -284,7 +286,7 @@ export default function NavbarMobile() {
       </div>
 
       {/* Bottom Navigation Bar - Style App Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-noir-700/95 backdrop-blur-md border-t border-white/20">
+      <div data-app-mobile-nav className="fixed bottom-0 left-0 right-0 z-40 bg-noir-700/95 backdrop-blur-md border-t border-white/20">
         <div className="flex items-center justify-around py-2 px-2 sm:px-4">
           {/* Dashboard */}
           <Link

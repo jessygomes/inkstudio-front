@@ -20,6 +20,7 @@ export const PROTECTED_PATHS = [
   "/stocks",
   "/factures",
   "/messagerie",
+  "/explorer",
   "/review",
   "/suiviDessin",
   "/admin",

@@ -276,7 +276,8 @@ export default function Conversation() {
             <MessageBubbles messages={displayedMessages} currentUserId={session?.user?.id ?? undefined} onDeleteMessage={handleDeleteMessage} />
             {typingUsers.size > 0 && <p role="status" className="mt-4 text-xs text-white/60">Quelqu’un est en train d’écrire…</p>}
           </div>
-          <MessageInput onSendMessage={handleSendMessage} onInputChange={handleInputChange} disabled={!isConnected}
+          {(conversation.projectContactPending || conversation.contactBlocked) && <p className="px-4 py-2 text-sm text-white/60">{conversation.contactBlocked ? "Ce contact est bloqué." : "La demande de contact est en attente d’acceptation par le client."}</p>}
+          <MessageInput onSendMessage={handleSendMessage} onInputChange={handleInputChange} disabled={!isConnected || conversation.projectContactPending || conversation.contactBlocked}
             className="shrink-0 border-t border-white/10 p-3 sm:p-4" />
         </section>
         <aside aria-label="Détails du rendez-vous" className="hidden min-h-0 min-w-0 border-l border-white/10 bg-noir-500 lg:block">

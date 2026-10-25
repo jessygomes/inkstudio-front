@@ -23,6 +23,7 @@ import { createAppointment } from "@/lib/queries/appointment";
 import { getPiercingPrice } from "@/lib/queries/piercing";
 import DrawingCardSelect from "@/components/Application/SuiviDessin/DrawingCardSelect";
 import { searchClientsAction } from "@/lib/queries/client";
+import { getAppointmentMoodboardOptions } from "@/lib/queries/moodboard";
 
 type PiercingZone = {
   id: string;
@@ -625,6 +626,20 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
   });
 
   const isSkinRequired = SKIN_REQUIRED_PRESTATIONS.has(selectedPrestation);
+  const [selectedMoodboardId, setSelectedMoodboardId] = useState("");
+  const [moodboardOptions, setMoodboardOptions] = useState<{ id: string; name: string }[]>([]);
+  const [moodboardError, setMoodboardError] = useState("");
+  const clientMoodboardEmail = form.watch("clientEmail");
+  useEffect(() => {
+    let cancelled = false;
+    setSelectedMoodboardId(""); setMoodboardOptions([]); setMoodboardError("");
+    if (!clientMoodboardEmail?.includes("@")) return;
+    const timer = setTimeout(() => {
+      getAppointmentMoodboardOptions(clientMoodboardEmail).then(data => { if (!cancelled) setMoodboardOptions(data); })
+        .catch(() => { if (!cancelled) setMoodboardError("Impossible de charger les moodboards du client."); });
+    }, 400);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [clientMoodboardEmail]);
 
   useEffect(() => {
     if (!isUserTatoueur) return;
@@ -667,6 +682,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
     const rdvBody = {
       ...data,
+      ...(selectedMoodboardId && { moodboardId: selectedMoodboardId }),
       start,
       end,
     };
@@ -1306,6 +1322,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
               </div>
             )}
 
+            {isSkinRequired && <div className="order-5 col-span-12 rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-6"><label className="block text-sm text-white">Moodboard du client (facultatif)<select value={selectedMoodboardId} onChange={e => setSelectedMoodboardId(e.target.value)} className="mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-noir-700 px-3"><option value="">Aucun moodboard lié</option>{moodboardOptions.map(board => <option key={board.id} value={board.id}>{board.name}</option>)}</select></label><p className="mt-2 text-xs text-white/50">Les projets partagés ou déjà accessibles pour ce client sont proposés ici. Le client peut aussi joindre un moodboard privé lors de sa réservation.</p>{moodboardError && <p role="alert" className="mt-2 text-xs text-red-300">{moodboardError}</p>}</div>}
             {selectedPrestation === "TATTOO" && (
               <div id="rdv-details" className="scroll-mt-5 border border-white/10 bg-noir-600 order-5 col-span-12 rounded-2xl p-4 sm:p-6">
                 <RdvSectionHeader
