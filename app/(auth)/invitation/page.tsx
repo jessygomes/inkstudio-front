@@ -2,6 +2,13 @@ import Link from "next/link";
 import { currentUser } from "@/lib/auth.server";
 import InvitationRegister from "@/components/Auth/Form/InvitationRegister";
 import type { Metadata } from "next";
+import { ArrowRight, Gift, LockKeyhole, MailWarning } from "lucide-react";
+import AuthShell from "@/components/Auth/AuthShell";
+import InvitationSessionNotice from "@/components/Auth/InvitationSessionNotice";
+import DashboardButton from "@/components/Shared/DashboardButton";
+import { FormError } from "@/components/Shared/FormError";
+import styles from "@/components/Auth/AuthForms.module.css";
+import invitation from "@/components/Auth/Invitation.module.css";
 
 export const metadata: Metadata = {
   title: "Votre invitation Inkera Studio",
@@ -34,31 +41,29 @@ export default async function InvitationPage({
     }
   }
   return (
-    <section className="flex min-h-screen items-center justify-center bg-neutral-950 px-4 py-12 text-white">
-      <div className="w-full max-w-xl rounded-2xl border border-white/15 bg-white/5 p-6 sm:p-8">
+    <AuthShell mode="register">
         {user ? (
-          <div className="space-y-4">
-            <h1 className="text-xl font-semibold">Vous êtes déjà connecté</h1>
-            <p>
+          <div className={styles.card}>
+            <span className={invitation.stateIcon}><LockKeyhole size={23} /></span>
+            <header className={styles.heading}><span className={styles.kicker}><Gift size={13} />Votre invitation Inkera</span><h1>Vous êtes déjà connecté.</h1></header>
+            <p className={invitation.stateText}>
               Cette invitation permet de créer un nouveau compte.
-              Déconnectez-vous pour utiliser le lien avec l’email invité.
+              Déconnectez-vous pour l’utiliser avec l’adresse e-mail souhaitée.
             </p>
-            <Link className="underline" href="/dashboard">
-              Retour à mon compte
-            </Link>
+            <InvitationSessionNotice token={token} />
+            <div className={styles.footnote}><Link href="/dashboard">Retour à mon compte<ArrowRight size={12} className="ml-1 inline" /></Link></div>
           </div>
         ) : offer ? (
           <InvitationRegister offer={offer} token={token} />
         ) : (
-          <div className="space-y-4">
-            <h1 className="text-xl font-semibold">Invitation indisponible</h1>
-            <p role="alert">{message}</p>
-            <Link className="underline" href="/connexion">
-              Se connecter
-            </Link>
+          <div className={styles.card}>
+            <span className={invitation.stateIcon}><MailWarning size={23} /></span>
+            <header className={styles.heading}><span className={styles.kicker}>Votre invitation Inkera</span><h1>Invitation indisponible.</h1><p>Ce lien ne permet pas de poursuivre l’inscription pour le moment.</p></header>
+            <FormError title="Impossible d’utiliser ce lien" message={message} />
+            <p className={`${invitation.stateText} mt-5`}>Si le lien a expiré ou a déjà été utilisé, demandez une nouvelle invitation à la personne qui vous l’a partagé.</p>
+            <div className={invitation.actions}><DashboardButton href="/connexion" className="!min-w-0">Se connecter<ArrowRight size={14} /></DashboardButton><DashboardButton href="/inscription" variant="secondary" className="!min-w-0">Créer un compte</DashboardButton></div>
           </div>
         )}
-      </div>
-    </section>
+    </AuthShell>
   );
 }

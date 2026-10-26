@@ -1,0 +1,30 @@
+.offer { padding: 18px; margin-bottom: 25px; border: 1px solid rgb(255 157 0 / 20%); border-radius: 15px; background: linear-gradient(135deg, rgb(255 157 0 / 6%), transparent 75%), #161615; }
+.offerTop { display: flex; align-items: flex-start; gap: 11px; }
+.offerIcon { display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border: 1px solid rgb(255 157 0 / 18%); border-radius: 11px; color: var(--color-tertiary-400); background: rgb(255 157 0 / 6%); }
+.offerLabel { color: #a89a86; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.offer h2 { margin-top: 4px; color: #e9dfcf; font-size: 17px; line-height: 1.5; font-family: var(--font-two), sans-serif; font-weight: 500; }
+.offerDescription { margin-top: 5px; color: #b5a998; font-size: 11px; line-height: 1.8; }
+.offerTags { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 14px; padding-top: 13px; border-top: 1px solid rgb(255 255 255 / 7%); }
+.offerTags > span { display: inline-flex; align-items: center; gap: 5px; color: #b7ac9e; font-size: 10px; }
+.offerNote { margin-top: 12px; color: #968e83; font-size: 10px; line-height: 1.8; }
+.form { display: grid; gap: 23px; }
+.form > fieldset { margin: 0; }
+.form .fieldRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.sectionBody { display: grid; gap: 17px; }
+.lockedNote { display: flex; align-items: flex-start; gap: 6px; color: #968e83; font-size: 10px; line-height: 1.8; }
+.lockedNote svg { flex-shrink: 0; margin-top: 3px; }
+.profileNote { margin-top: 10px; color: #a49a8a; font-size: 11px; line-height: 1.8; }
+.profileNote strong { color: #c8b99f; font-weight: 500; }
+.submitNote { color: #8c857b; font-size: 10px; line-height: 1.8; text-align: center; }
+.submitButton { width: 100%; min-width: 0 !important; white-space: normal; }
+.stateIcon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 20px; border: 1px solid rgb(255 157 0 / 18%); border-radius: 15px; color: var(--color-tertiary-400); background: rgb(255 157 0 / 5%); }
+.stateIcon[data-success="true"] { border-color: rgb(110 193 146 / 20%); color: #9bc7a6; background: rgb(110 193 146 / 5%); }
+.stateText { color: #aaa49a; font-size: 12px; line-height: 1.9; overflow-wrap: anywhere; }
+.stateText strong { color: #dfd4c5; font-weight: 500; }
+.nextSteps { display: grid; gap: 16px; margin: 24px 0; padding: 18px 0; border-top: 1px solid rgb(255 255 255 / 8%); border-bottom: 1px solid rgb(255 255 255 / 8%); }
+.nextSteps li { display: flex; align-items: flex-start; gap: 10px; color: #a49b8e; font-size: 11px; line-height: 1.8; }
+.nextSteps li > span { display: grid; width: 23px; height: 23px; flex-shrink: 0; place-items: center; border: 1px solid rgb(255 255 255 / 12%); border-radius: 7px; color: #c6b89f; font-size: 10px; }
+.nextSteps strong { display: block; color: #d5cfc5; font-weight: 500; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.actions > * { flex: 1; min-width: 0 !important; }
+@media (max-width: 480px) { .form .fieldRow { grid-template-columns: minmax(0, 1fr); } .offer { padding: 15px; } .offer h2 { font-size: 16px; } .actions { flex-direction: column; } }

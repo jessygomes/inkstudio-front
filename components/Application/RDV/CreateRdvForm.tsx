@@ -19,6 +19,7 @@ import SalonImageUploader from "@/components/Application/MonCompte/SalonImageUpl
 import SkinToneSelect, {
   SkinToneOption,
 } from "@/components/Application/RDV/SkinToneSelect";
+import { residencyRequest } from "@/lib/residencies-client";
 import { createAppointment } from "@/lib/queries/appointment";
 import { getPiercingPrice } from "@/lib/queries/piercing";
 import DrawingCardSelect from "@/components/Application/SuiviDessin/DrawingCardSelect";
@@ -116,6 +117,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
     String(agendaMode || "").toUpperCase() === "GLOBAL";
   const shouldUseGlobalAgenda = isSalonGlobal; // user_tatoueur ne doit PAS utiliser la vue globale
 
+  const [residencies, setResidencies] = useState<any[]>([]);
+  const [venueSalonId, setVenueSalonId] = useState("");
+  const [residenciesReady, setResidenciesReady] = useState(false);
+  useEffect(() => { if (!isUserTatoueur) { setResidenciesReady(true); return; } let active = true; residencyRequest().then(data => { if (active) { setResidencies(data.residencies); setResidenciesReady(true); } }).catch(() => { if (active) setError("Impossible de charger les salons. Rechargez la page."); }); return () => { active = false; }; }, [isUserTatoueur]);
   //! Date sélectionnée pour le rendez-vous
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().slice(0, 10),
@@ -212,19 +217,23 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
   useEffect(() => {
     if (!selectedDate || (!selectedTatoueur && !isUserTatoueur)) return;
+    if (!residenciesReady || (isUserTatoueur && residencies.length > 0 && !venueSalonId)) { setTimeSlots([]); return; }
 
     const tatoueurScopeId = isUserTatoueur ? userId : selectedTatoueur;
     if (!tatoueurScopeId) return;
 
+    let active = true;
     const fetchTimeSlots = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${tatoueurScopeId}&includeUnavailable=true`,
+          (isUserTatoueur && venueSalonId) || (!isUserTatoueur && selectedTatoueur?.startsWith("linked_")) ? `${process.env.NEXT_PUBLIC_BACK_URL}/residencies/my-availability?date=${selectedDate}&artistId=${String(tatoueurScopeId).replace(/^linked_/, "")}&salonId=${isUserTatoueur ? venueSalonId : userId}` : isUserTatoueur ? `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/salon/${userId}?date=${selectedDate}&includeUnavailable=true` : `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${tatoueurScopeId}&includeUnavailable=true`,
+          { headers: { Authorization: `Bearer ${session?.accessToken}` } },
         );
+        if (!res.ok) throw new Error("Disponibilités indisponibles");
         const data = await res.json();
-        setTimeSlots(data);
+        if (active) setTimeSlots(Array.isArray(data) ? data : []);
       } catch (err) {
-        setTimeSlots([]);
+        if (active) setTimeSlots([]);
         console.error("Erreur lors du fetch des créneaux :", err);
       }
     };
@@ -246,7 +255,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
       const res = await fetch(occupiedUrl);
       const data = await res.json();
-      setOccupiedSlots(Array.isArray(data) ? data : data?.appointments || []);
+      if (active) setOccupiedSlots(Array.isArray(data) ? data : data?.appointments || []);
     };
 
     const fetchBlockedSlots = async () => {
@@ -258,30 +267,29 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
         const res = await fetch(blockedUrl);
         const data = await res.json();
         if (!data.error) {
-          setBlockedSlots(data.blockedSlots || []);
+          if (active) setBlockedSlots(data.blockedSlots || []);
         }
       } catch (err) {
         console.error("Erreur lors du fetch des créneaux bloqués :", err);
-        setBlockedSlots([]);
+        if (active) setBlockedSlots([]);
       }
     };
 
     const fetchAllSlotsData = async () => {
       setIsLoadingSlots(true);
       try {
-        await Promise.allSettled([
-          fetchTimeSlots(),
-          fetchOccupied(),
-          fetchBlockedSlots(),
-        ]);
+        if ((isUserTatoueur && venueSalonId) || selectedTatoueur?.startsWith("linked_")) { setOccupiedSlots([]); setBlockedSlots([]); await fetchTimeSlots(); }
+        else await Promise.allSettled([fetchTimeSlots(), fetchOccupied(), fetchBlockedSlots()]);
       } finally {
-        setIsLoadingSlots(false);
+        if (active) setIsLoadingSlots(false);
       }
     };
 
     fetchAllSlotsData();
+    return () => { active = false; };
   }, [
     selectedDate,
+    venueSalonId, residenciesReady, residencies.length, session?.accessToken,
     selectedTatoueur,
     isUserTatoueur,
     shouldUseGlobalAgenda,
@@ -680,8 +688,10 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       return;
     }
 
+    if (isUserTatoueur && (!residenciesReady || (residencies.length > 0 && !venueSalonId))) { setError("Choisissez le salon du rendez-vous."); setLoading(false); return; }
     const rdvBody = {
       ...data,
+      venueSalonId: isUserTatoueur ? venueSalonId || undefined : userId,
       ...(selectedMoodboardId && { moodboardId: selectedMoodboardId }),
       start,
       end,
@@ -1609,6 +1619,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
             )}
 
             {/* Section: Créneaux horaires */}
+            {isUserTatoueur && residencies.length > 0 && <div className="mb-5 space-y-2"><label htmlFor="rdv-venue" className="block text-sm">Salon du rendez-vous</label><select id="rdv-venue" required className="w-full rounded-lg border border-white/20 bg-noir-500 p-3" value={venueSalonId} onChange={e => { setVenueSalonId(e.target.value); setIsLoadingSlots(false); setSelectedSlots([]); setTimeSlots([]); setSelectedDate(""); }}><option value="">Choisir un salon</option>{residencies.filter(r => r.salonAllowsArtistCreate).map(r => <option key={r.id} value={r.salonId}>{r.salon.salonName} · {r.salon.city}</option>)}</select><p className="text-xs text-white/60">Seuls les horaires de présence validés dans ce salon seront proposés.</p></div>}
             {selectedPrestation && selectedTatoueur && (
               <div id="rdv-schedule" className="scroll-mt-5 border border-white/10 bg-noir-600 order-7 col-span-12 rounded-2xl p-4 sm:p-6">
                 <RdvSectionHeader

@@ -49,6 +49,7 @@ const isReadOnlyLinkedTatoueur = (tatoueur: TeamTatoueur) => {
 
 export default function TatoueurSalon({
   tatoueurs,
+  salonId,
 }: {
   tatoueurs: TatoueurProps[];
   salonId: string;
@@ -259,7 +260,7 @@ export default function TatoueurSalon({
         </div>
         <p role="status" className="sr-only">{filteredTeam.length} artiste{filteredTeam.length > 1 ? "s" : ""} affiché{filteredTeam.length > 1 ? "s" : ""}</p>
         {filteredTeam.length ? <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-          {filteredTeam.map((member) => <TeamMemberCard key={member.id} member={member} linked={isReadOnlyLinkedTatoueur(member)} bookingEnabled={isAppointmentBookingEnabled(member)} updating={!!isUpdatingRdvById[member.id]} removing={!!isUnlinkingById[member.id]} onToggleBooking={() => void handleToggleLinkedTatoueurRdv(member)} onRemove={() => {
+          {filteredTeam.map((member) => <TeamMemberCard onDetached={() => setTeamTatoueurs(previous => previous.filter(item => item.id !== member.id))} salonId={salonId} key={member.id} member={member} linked={isReadOnlyLinkedTatoueur(member)} bookingEnabled={isAppointmentBookingEnabled(member)} updating={!!isUpdatingRdvById[member.id]} removing={!!isUnlinkingById[member.id]} onToggleBooking={() => void handleToggleLinkedTatoueurRdv(member)} onRemove={() => {
             if (isReadOnlyLinkedTatoueur(member)) { void handleUnlinkLinkedTatoueur(member); }
             else { setSelectedTatoueur(member); setIsDeleteModalOpen(true); }
           }} />)}

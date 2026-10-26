@@ -216,7 +216,8 @@ export default function UpdateRdv({
 
         // 1) créneaux dispos
         const slotsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${tatoueurScopeId}&includeUnavailable=true`
+          rdv.venueSalonId && (isUserTatoueur || (rdv as any).performerUserId) ? `${process.env.NEXT_PUBLIC_BACK_URL}/residencies/my-availability?date=${selectedDate}&artistId=${isUserTatoueur ? userId : (rdv as any).performerUserId}&salonId=${rdv.venueSalonId}&appointmentId=${rdv.id}` : isUserTatoueur ? `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/salon/${userId}?date=${selectedDate}&includeUnavailable=true` : `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${tatoueurScopeId}&includeUnavailable=true`,
+          { headers: { Authorization: `Bearer ${session?.accessToken}` } }
         );
         if (!slotsRes.ok) throw new Error("Disponibilités indisponibles");
         const slotsData = await slotsRes.json();

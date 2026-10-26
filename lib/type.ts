@@ -21,6 +21,12 @@ export interface TimeSlotProps {
 
 //! RENDEZ-VOUS
 export interface AppointmentProps {
+  venueSalonId?: string | null;
+  venueName?: string | null;
+  venueAddress?: string | null;
+  venueCity?: string | null;
+  venuePostalCode?: string | null;
+
   id: string;
   title: string;
   description: string;
@@ -68,6 +74,12 @@ export interface AppointmentProps {
 }
 
 export type UpdateRdvFormProps = {
+  venueSalonId?: string | null;
+  venueName?: string | null;
+  venueAddress?: string | null;
+  venueCity?: string | null;
+  venuePostalCode?: string | null;
+
   id: string;
   title: string;
   description: string;

@@ -6,6 +6,12 @@ import AppointmentPhotos from "./AppointmentPhotos";
 import { formatSkinTone, getSkinTonePreviewHex } from "@/lib/utils/formatSkinTone";
 import { openImageInNewTab } from "@/lib/utils/openImage";
 type AppointmentInformation = {
+  venueSalonId?: string | null;
+  venueName?: string | null;
+  venueAddress?: string | null;
+  venueCity?: string | null;
+  venuePostalCode?: string | null;
+
     id: string;
     start: string | Date;
     end: string | Date;
@@ -48,6 +54,7 @@ export function RdvPlanningCard({ appointment }: {
     return <section aria-label="Planning du rendez-vous" className={panel}>
     <div className="mb-4 flex items-center justify-between gap-2"><h3 className="flex items-center gap-2 text-xs font-semibold text-white/85"><CalendarDays size={14} className="text-white/35"/>Date & horaire</h3><span className="shrink-0 rounded-md border border-tertiary-400/20 bg-tertiary-400/10 px-2 py-1 text-[10px] font-medium text-tertiary-400">{serviceNames[appointment.prestation || ""] || appointment.prestation}</span></div>
     <div className="flex items-center gap-3"><div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.025]"><span className="text-lg font-semibold leading-none text-white/85">{start.toLocaleDateString("fr-FR", { day: "2-digit" })}</span><span className="mt-1 text-[9px] uppercase text-white/35">{start.toLocaleDateString("fr-FR", { month: "short" })}</span></div><div className="min-w-0 flex-1"><p className="text-xs font-medium text-white/80">{start.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p><p className="mt-1.5 text-sm font-medium tabular-nums text-white">{time(start)}<span className="mx-1.5 text-white/25">–</span>{time(end)}</p></div></div>
+    {appointment.venueName && <div className="mt-4 rounded-xl border border-white/10 p-3"><p className="text-sm text-white">{appointment.venueName}</p><p className="mt-1 text-xs text-white/60">{[appointment.venueAddress, appointment.venuePostalCode, appointment.venueCity].filter(Boolean).join(", ")}</p></div>}
     <dl className="mt-4 divide-y divide-white/[0.06] border-t border-white/[0.06]"><div className="flex items-center justify-between gap-3 py-2.5"><dt className="flex items-center gap-1.5 text-[11px] text-white/35"><Clock3 size={12}/>Durée</dt><dd className="text-xs text-white/70">{minutes >= 60 ? Math.floor(minutes / 60) + " h" + (minutes % 60 ? " " + minutes % 60 : "") : minutes + " min"}</dd></div><div className="flex items-center justify-between gap-3 pt-2.5"><dt className="flex items-center gap-1.5 text-[11px] text-white/35"><UserRound size={12}/>Artiste</dt><dd className="min-w-0 truncate text-xs text-white/70">{artist || "Non assigné"}</dd></div></dl>
   </section>;
 }

@@ -1,0 +1,33 @@
+.content { display: grid; gap: 25px; font-family: var(--font-one), sans-serif; }
+.context { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; padding-bottom: 20px; border-bottom: 1px solid rgb(var(--app-ink-rgb) / 8%); }
+.contextIcon { display: grid; place-items: center; width: 39px; height: 39px; flex-shrink: 0; border: 1px solid color-mix(in srgb, var(--color-tertiary-400) 18%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--color-tertiary-400) 6%, transparent); color: var(--color-tertiary-400); }
+.context > div { min-width: 0; flex: 1; }
+.context p { font-size: 10px; color: rgb(var(--app-ink-rgb) / max(40%, var(--app-muted-opacity))); }
+.context strong { display: block; margin-top: 5px; color: var(--app-ink); font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.context div > span { display: block; margin-top: 5px; color: rgb(var(--app-ink-rgb) / max(45%, var(--app-muted-opacity))); font-size: 10px; }
+.count { margin-left: auto; padding: 5px 8px; border: 1px solid rgb(var(--app-ink-rgb) / 9%); border-radius: 7px; color: rgb(var(--app-ink-rgb) / max(55%, var(--app-muted-opacity))); font-size: 10px; white-space: nowrap; }
+.explanation { display: flex; align-items: flex-start; gap: 9px; color: rgb(var(--app-ink-rgb) / max(45%, var(--app-muted-opacity))); font-size: 11px; line-height: 1.85; }
+.explanation > svg { flex-shrink: 0; margin-top: 3px; color: var(--color-tertiary-400); }
+.explanation strong { color: rgb(var(--app-ink-rgb) / 80%); font-weight: 500; }
+.sectionHeading { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 13px; }
+.sectionHeading > svg { flex-shrink: 0; margin-top: 2px; color: var(--color-tertiary-400); }
+.sectionHeading h3 { color: var(--app-ink); font-size: 13px; font-weight: 500; }
+.sectionHeading p { margin-top: 5px; color: rgb(var(--app-ink-rgb) / max(40%, var(--app-muted-opacity))); font-size: 10px; line-height: 1.7; }
+.permissionList { border-top: 1px solid rgb(var(--app-ink-rgb) / 8%); }
+.permission { display: flex; align-items: flex-start; gap: 11px; padding: 16px 0; border-bottom: 1px solid rgb(var(--app-ink-rgb) / 7%); }
+.permissionIcon { display: grid; place-items: center; width: 31px; height: 31px; flex-shrink: 0; border: 1px solid rgb(var(--app-ink-rgb) / 7%); border-radius: 9px; background: rgb(var(--app-ink-rgb) / 2%); color: rgb(var(--app-ink-rgb) / 50%); }
+.permissionText { flex: 1; min-width: 0; }
+.permissionText h4 { color: rgb(var(--app-ink-rgb) / 85%); font-size: 12px; font-weight: 500; line-height: 1.7; }
+.permissionText p { margin-top: 5px; color: rgb(var(--app-ink-rgb) / max(40%, var(--app-muted-opacity))); font-size: 11px; line-height: 1.85; }
+.receivedStatus { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; margin-top: 3px; color: rgb(var(--app-ink-rgb) / max(35%, var(--app-muted-opacity))); font-size: 10px; }
+.receivedStatus[data-enabled="true"] { color: var(--color-emerald-400); }
+.saveStatus { display: inline-flex; align-items: center; gap: 6px; margin-right: auto; color: rgb(var(--app-ink-rgb) / max(40%, var(--app-muted-opacity))); font-size: 10px; line-height: 1.7; }
+.saveStatus svg { flex-shrink: 0; }
+.endSection { border-top: 1px solid rgb(var(--app-ink-rgb) / 8%); padding-top: 24px; }
+.endSection > header > svg { color: var(--color-red-400); }
+.endDescription { margin-bottom: 16px; color: rgb(var(--app-ink-rgb) / max(45%, var(--app-muted-opacity))); font-size: 11px; line-height: 1.85; }
+.endConfirmation { padding: 16px; border: 1px solid color-mix(in srgb, var(--color-red-400) 25%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--color-red-400) 4%, transparent); }
+.endConfirmation > p { color: var(--app-ink); font-size: 12px; font-weight: 500; }
+.endConfirmation > span { display: block; margin-top: 6px; color: rgb(var(--app-ink-rgb) / max(45%, var(--app-muted-opacity))); font-size: 11px; line-height: 1.8; }
+.endConfirmation > div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+@container (max-width: 450px) { .permission { flex-wrap: wrap; } .permissionText { flex-basis: calc(100% - 45px); } .permission > label, .receivedStatus { margin-left: 42px; } .count { margin-left: 51px; } }

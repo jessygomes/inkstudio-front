@@ -25,6 +25,12 @@ const localizer = dateFnsLocalizer({
 });
 
 export type CalendarEvent = Event & {
+  venueSalonId?: string | null;
+  venueName?: string | null;
+  venueAddress?: string | null;
+  venueCity?: string | null;
+  venuePostalCode?: string | null;
+
   id: string;
   status?: string;
   prestation?: string;
@@ -164,7 +170,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
     const styled = events.map((event) => ({
       ...event,
-      title: `${event.title} - ${
+      title: `${event.venueName ? event.venueName + " · " : ""}${event.title} - ${
         event.client.firstName + " " + event.client.lastName || ""
       }`,
       allDay: event.allDay ?? false,

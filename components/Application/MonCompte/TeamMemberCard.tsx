@@ -1,23 +1,29 @@
 "use client";
 
+import { useState } from "react";
+import LinkedTatoueurManagement from "./LinkedTatoueurManagement";
+import DashboardButton from "@/components/Shared/DashboardButton";
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarCheck, Instagram, Link2, LoaderCircle, Pencil, Phone, Trash2, Unlink } from "lucide-react";
+import { ShieldCheck, Instagram, Link2, LoaderCircle, Pencil, Phone, Trash2 } from "lucide-react";
 import type { TeamTatoueur } from "./TatoueurSalon";
 
 export function teamMemberName(member: TeamTatoueur) {
   return member.name || [member.firstName, member.lastName].filter(Boolean).join(" ") || member.email || "Tatoueur";
 }
 
-export default function TeamMemberCard({ member, linked, bookingEnabled, updating, removing, onToggleBooking, onRemove }: {
+export default function TeamMemberCard({ member, salonId, linked, bookingEnabled, updating, removing, onToggleBooking, onRemove, onDetached }: {
   member: TeamTatoueur;
+  salonId: string;
   linked: boolean;
   bookingEnabled: boolean;
   updating: boolean;
   removing: boolean;
   onToggleBooking: () => void;
   onRemove: () => void;
+  onDetached: () => void;
 }) {
+  const [managementOpen, setManagementOpen] = useState(false);
   const name = teamMemberName(member);
   const image = member.img || member.image;
   const instagram = member.instagram?.trim();
@@ -55,9 +61,10 @@ export default function TeamMemberCard({ member, linked, bookingEnabled, updatin
     </div>
 
     <footer className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.07] bg-black/10 px-4 py-3 sm:px-5">
-      {linked ? <button type="button" disabled={updating || removing} aria-pressed={bookingEnabled} onClick={onToggleBooking} className={actionClass}>{updating ? <LoaderCircle size={13} className="animate-spin" /> : <CalendarCheck size={13} />}{updating ? "Mise à jour…" : bookingEnabled ? "Désactiver les RDV" : "Activer les RDV"}</button>
+      {linked ? <DashboardButton variant="secondary" disabled={updating || removing} aria-haspopup="dialog" onClick={() => setManagementOpen(true)} className="!min-w-0 !px-3 !py-2 !text-[11px]"><ShieldCheck size={13} />Gérer les autorisations</DashboardButton>
         : <Link href={`/mon-compte/ajouter-tatoueur?id=${member.id}`} className={actionClass}><Pencil size={12} />Modifier le profil</Link>}
-      <button type="button" disabled={removing || updating} onClick={onRemove} aria-label={`${linked ? "Retirer" : "Supprimer"} ${name}`} className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-[11px] text-white/35 transition hover:bg-red-400/10 hover:text-red-300 disabled:opacity-40">{removing ? <LoaderCircle size={13} className="animate-spin" /> : linked ? <Unlink size={13} /> : <Trash2 size={13} />}{removing ? "Retrait…" : linked ? "Retirer" : "Supprimer"}</button>
+      {!linked && <button type="button" disabled={removing || updating} onClick={onRemove} aria-label={`Supprimer ${name}`} className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-[11px] text-white/35 transition hover:bg-red-400/10 hover:text-red-300 disabled:opacity-40">{removing ? <LoaderCircle size={13} className="animate-spin" /> : <Trash2 size={13} />}{removing ? "Retrait…" : "Supprimer"}</button>}
     </footer>
+    {managementOpen && <LinkedTatoueurManagement onDetached={onDetached} onRemove={onRemove} artistId={member.linkedUserId || member.tatoueurUserId} salonId={salonId} name={name} bookingEnabled={bookingEnabled} updating={updating || removing} onToggleBooking={onToggleBooking} onClose={() => setManagementOpen(false)} />}
   </article>;
 }
