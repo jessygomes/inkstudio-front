@@ -1,8 +1,11 @@
 import { UserProvider } from "@/components/Auth/Context/UserContext";
 import { auth } from "@/auth";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import React from "react";
 import AdminShell from "@/components/Admin/AdminShell";
+
+export const metadata: Metadata = { robots: { index: false, follow: false, noarchive: true }, referrer: "no-referrer" };
 
 export default async function AdminLayout({
   children,
@@ -12,8 +15,8 @@ export default async function AdminLayout({
   const session = await auth();
 
   // ✅ Si pas de session, redirection (normalement géré par le middleware)
-  if (!session || !session.user) {
-    redirect("/connexion");
+  if (!session?.user || session.error === "AccessTokenExpired") {
+    notFound();
   }
 
   // ✅ Si l'utilisateur n'est pas admin, masquer la route admin

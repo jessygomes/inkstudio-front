@@ -390,7 +390,7 @@ export default function ConsentFormModal({
             </div>
             <div
               ref={signatureContainerRef}
-              className="rounded-xl border-2 border-dashed border-white/20 bg-white overflow-hidden touch-none h-40"
+              className="rounded-xl border-2 border-dashed border-white/20 bg-[#fff] overflow-hidden touch-none h-40"
             >
               <SignatureCanvas
                 ref={sigCanvas}

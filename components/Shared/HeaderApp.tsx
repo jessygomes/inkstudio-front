@@ -5,7 +5,7 @@ import { useState } from "react";
 import NavbarApp from "./Navbar/NavbarApp";
 import NavbarMobile from "./Navbar/NavbarMobile";
 
-export default function HeaderApp({ children }: { children: ReactNode }) {
+export default function HeaderApp({ children, backOfficeHref }: { children: ReactNode; backOfficeHref?: string | null }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
@@ -22,6 +22,7 @@ export default function HeaderApp({ children }: { children: ReactNode }) {
           }`}
         >
           <NavbarApp
+            backOfficeHref={backOfficeHref}
             collapsed={isSidebarCollapsed}
             onToggle={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
           />
@@ -29,7 +30,7 @@ export default function HeaderApp({ children }: { children: ReactNode }) {
       </aside>
       <main className="min-w-0 flex-1">
         <div data-app-mobile-header className="sticky top-0 z-50 bg-noir-700 xl:hidden">
-          <NavbarMobile />
+          <NavbarMobile backOfficeHref={backOfficeHref} />
         </div>
         {children}
       </main>

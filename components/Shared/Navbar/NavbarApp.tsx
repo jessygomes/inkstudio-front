@@ -8,18 +8,19 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useMessagingContext } from "@/components/Providers/MessagingProvider";
 import { getUnreadMessagesCountAction } from "@/lib/queries/conversation.action";
-import { MdAccountCircle, MdDashboard, MdEvent, MdOutlineMessage, MdPeople, MdPhotoLibrary, MdShoppingBag, MdMenuOpen, MdMenu, MdPublic } from "react-icons/md";
+import { MdAccountCircle, MdDashboard, MdEvent, MdOutlineMessage, MdPeople, MdPhotoLibrary, MdShoppingBag, MdMenuOpen, MdMenu, MdPublic, MdAdminPanelSettings } from "react-icons/md";
 import { FaDatabase, FaBolt } from "react-icons/fa";
 
 
 import Image from "next/image";
 
 interface NavbarAppProps {
+  backOfficeHref?: string | null;
   collapsed: boolean;
   onToggle: () => void;
 }
 
-export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
+export default function NavbarApp({ collapsed, onToggle, backOfficeHref }: NavbarAppProps) {
   const { data: session } = useSession();
   const pathname = usePathname();
 
@@ -63,6 +64,7 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
     { href: "/mes-flashs", label: "Flashs", icon: FaBolt },
     { href: "/mes-produits", label: "Produits", icon: MdShoppingBag },
     { href: "/review", label: "Avis", icon: MdAccountCircle },
+    ...(backOfficeHref && session?.user?.role === "admin" && session.error !== "AccessTokenExpired" ? [{ href: backOfficeHref, label: "BO", icon: MdAdminPanelSettings }] : []),
   ];
 
   const filteredLinks = (isFreePlan
@@ -99,7 +101,14 @@ export default function NavbarApp({ collapsed, onToggle }: NavbarAppProps) {
             alt="Inkera"
             width={32}
             height={32}
-            className="h-9 w-9 object-contain"
+            className="app-sidebar-logo-dark h-9 w-9 object-contain"
+          />
+          <Image
+            src="/images/Logo15.png"
+            alt="Inkera"
+            width={32}
+            height={32}
+            className="app-sidebar-logo-light h-9 w-9 object-contain"
           />
         </Link>
         <button

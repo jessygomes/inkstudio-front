@@ -4,11 +4,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { CardWrapper } from "../CardWrapper";
-// import { FormError } from "@/components/Shared/FormError";
-// import { FormSuccess } from "@/components/Shared/FormSuccess";
+import styles from "../AuthForms.module.css";
+import SignupProfileInfo from "../SignupProfileInfo";
+import SignupPlanDetails from "../SignupPlanDetails";
+import SignupAccessFields, { type SignupAccessValues } from "../SignupAccessFields";
+import DashboardButton from "@/components/Shared/DashboardButton";
+import { Building2, Check, Sparkles, UserRound } from "lucide-react";
+import { FormError } from "@/components/Shared/FormError";
+import { FormSuccess } from "@/components/Shared/FormSuccess";
 import Link from "next/link";
 import { toast } from "sonner";
 import { step1Schema, step2Schema, step3Schema } from "@/lib/zod/validator.schema";
@@ -56,9 +61,6 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
   const [isPending, setIsPending] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordConfirmation, setShowPasswordConfirmation] =
-    useState(false);
 
   // Données collectées à travers les étapes
   const [formData, setFormData] = useState(() => ({
@@ -85,7 +87,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
     defaultValues: { saasPlan: formData.saasPlan },
   });
 
-  const step3Form = useForm({
+  const step3Form = useForm<SignupAccessValues>({
     resolver: zodResolver(step3Schema),
     defaultValues: {
       firstName: formData.firstName,
@@ -97,6 +99,14 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
       passwordConfirmation: formData.passwordConfirmation,
     },
   });
+
+  const previousStep = useRef(currentStep);
+  useEffect(() => {
+    if (previousStep.current !== currentStep) {
+      document.getElementById(currentStep === 1 ? "salonName" : currentStep === 2 ? "saasPlan" : "firstName")?.focus();
+      previousStep.current = currentStep;
+    }
+  }, [currentStep]);
 
   // Navigation entre les étapes
   const nextStep = () => {
@@ -303,36 +313,22 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-10 sm:py-3 px-0 sm:px-4">
-      <div className="w-full max-w-2xl lg:max-w-4xl">
-        <CardWrapper headerLabel={getStepTitle()}>
-          {/* Indicateur d'étapes */}
-          <div className="flex items-center justify-center mb-6">
-            <div className="flex items-center space-x-4">
-              {[1, 2, 3].map((step) => (
-                <div key={step} className="flex items-center">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                      step <= currentStep
-                        ? "bg-tertiary-500 text-white"
-                        : "bg-white/20 text-white/50"
-                    }`}
-                  >
-                    {step}
-                  </div>
-                  {step < 3 && (
-                    <div
-                      className={`w-8 h-0.5 mx-2 ${
-                        step < currentStep ? "bg-tertiary-500" : "bg-white/20"
-                      }`}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+    <div>
+      <div className={`${styles.card} ${styles.registration}`}>
+        <header className={styles.heading}>
+          <span className={styles.kicker}><Sparkles size={13} />Bienvenue chez Inkera</span>
+          <h1>{getStepTitle()}</h1>
+          <p>Un espace pour votre activité. Commençons par le vôtre.</p>
+        </header>
+        <ol className={styles.steps} aria-label="Étapes de création du compte">
+          {["Votre profil", "Votre offre", "Vos accès"].map((label, index) => (
+            <li key={label} aria-current={currentStep === index + 1 ? "step" : undefined} data-complete={currentStep > index + 1}>
+              <span aria-hidden="true">{currentStep > index + 1 ? <Check size={12} /> : index + 1}</span>
+              <span>{label}</span>
+            </li>
+          ))}
+        </ol>
+          <div>
             {/* Étape 1: Nom du salon */}
             {currentStep === 1 && (
               <form
@@ -340,85 +336,27 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                 onSubmit={step1Form.handleSubmit(handleStep1Submit)}
               >
                 <div className="flex flex-col gap-4 p-2">
-                  <div className=" mb-4">
-                    <p className="text-white/80 text-sm border-b border-white/20 pb-2 text-center">
-                      Indiquer si votre compte est pour un salon
-                      ou pour un tatoueur indépendant.
+                  <div>
+                    <p className={styles.profileHint}>
+                      Un salon ou un tatoueur indépendant ? Choisissez le profil qui correspond à votre activité.
                     </p>
-                    <div className="mt-3 rounded-2xl border border-white/15 bg-white/[0.06] px-3 py-3">
-                      <div className="flex items-start gap-2.5">
-                        <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-tertiary-500/20 text-tertiary-400">
-                          <svg
-                            className="h-3.5 w-3.5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                        </div>
-
-                        <div className="space-y-2">
-                          <p className="text-xs font-semibold text-tertiary-400 uppercase tracking-wide">
-                            Bon à savoir
-                          </p>
-                          {step1Form.watch("role") === "user_salon" ? (
-                            <>
-                              <p className="text-xs text-white/80 leading-relaxed">
-                                Un compte SALON permet de réunir les tatoueurs.es
-                                indépendants qui y travaillent en connectant
-                                leur profil au salon.
-                              </p>
-                              <p className="text-xs text-white/80 leading-relaxed">
-                                Un salon en compte Business
-                                pourra voir les rendez-vous de ses tatoueurs
-                                créés ou liés, et gérer aussi son équipe.
-                              </p>
-                            </>
-                          ) : (
-                            <>
-                              <p className="text-xs text-white/80 leading-relaxed">
-                                Un compte INDEPENDANT vous permet de gérer
-                                votre profil personnel et d'être relié au salon
-                                dans lequel vous travaillez.
-                              </p>
-                              <p className="text-xs text-white/80 leading-relaxed">
-                                Ce lien renforce votre visibilité et celle du
-                                salon, tout en restant maître de votre profil.
-                              </p>
-                              <p className="text-xs text-white/80 leading-relaxed">
-                                Le plan Pro est actuellement réservé aux
-                                tatoueurs indépendants.
-                              </p>
-                              <p className="text-xs text-white/80 font-bold tracking-wider leading-relaxed">
-                                3 mois offerts sans carte bancaire.
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
                   </div>
 
                   <div className="flex flex-col gap-2 font-one">
-                    <select
-                      id="role"
-                      required
-                      className="bg-white/30 py-3 px-4 rounded-2xl text-white text-sm"
-                      {...step1Form.register("role")}
-                    >
-                      <option value="user_salon" className="bg-white text-black">
-                        Salon
-                      </option>
-                      <option value="user_tatoueur" className="bg-white text-black">
-                        Indépendant
-                      </option>
-                    </select>
+                    <fieldset className={styles.profileOptions}>
+                      <legend>Votre activité</legend>
+                      {([
+                        { value: "user_salon", label: "Un salon", hint: "Un lieu, une équipe", icon: Building2 },
+                        { value: "user_tatoueur", label: "Indépendant", hint: "Votre propre activité", icon: UserRound },
+                      ] as const).map(({ value, label, hint, icon: Icon }) => (
+                        <label key={value} className={styles.profileOption}>
+                          <input type="radio" value={value} checked={step1Form.watch("role") === value} {...step1Form.register("role")} className="sr-only" />
+                          <Icon size={21} aria-hidden="true" />
+                          <span><strong>{label}</strong><small>{hint}</small></span>
+                          <span className={styles.choiceMark} aria-hidden="true"><Check size={11} /></span>
+                        </label>
+                      ))}
+                    </fieldset>
                     {step1Form.formState.errors.role && (
                       <p className="text-red-400 text-xs">
                         {step1Form.formState.errors.role.message}
@@ -426,9 +364,13 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                     )}
                   </div>
 
+                  <SignupProfileInfo role={step1Form.watch("role")} />
+
                   <div className="flex flex-col gap-2 font-one">
+                    <label htmlFor="salonName">{step1Form.watch("role") === "user_salon" ? "Nom du salon" : "Nom d’artiste"}</label>
                     <input
                       id="salonName"
+                        autoComplete="organization"
                       placeholder={
                         step1Form.watch("role") === "user_salon"
                           ? "Ex: Ink Studio, Black Rose Tattoo..."
@@ -448,12 +390,12 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                     )}
                   </div>
 
-                  <button
-                    className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-2xl transition-all duration-300 font-medium font-one text-sm mt-4"
+                  <DashboardButton
+                    className="!min-w-0 flex-1"
                     type="submit"
                   >
                     Continuer →
-                  </button>
+                  </DashboardButton>
                 </div>
               </form>
             )}
@@ -465,20 +407,6 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                 onSubmit={step2Form.handleSubmit(handleStep2Submit)}
               >
                 <div className="flex flex-col gap-4 p-2">
-                  {/* {formData.role === "user_tatoueur" &&
-                    isTatoueurProOfferActive && (
-                      <div className="rounded-2xl border border-tertiary-500/30 bg-tertiary-500/10 p-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-tertiary-400">
-                          Offre active pour les tatoueurs independants
-                        </p>
-                        <p className="mt-2 text-sm text-white/85 leading-relaxed">
-                          Le plan Pro est preselectionne avec 3 mois offerts et
-                          sans carte bancaire. Aucun passage par Stripe ne vous
-                          sera demande pendant cette offre.
-                        </p>
-                      </div>
-                    )} */}
-
                   <div className="text-center mb-4">
                     <p className="text-white/80 text-sm">
                       Sélectionnez le plan qui convient à vos besoins
@@ -505,7 +433,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                       )}
                       {formData.role === "user_salon" && (
                         <option value="BUSINESS" className="bg-white text-black">
-                          Business - 60 jours offerts puis 59,99€/mois
+                          Business - 2 mois offerts puis 59,99€/mois
                         </option>
                       )}
                     </select>
@@ -517,110 +445,23 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                     )}
 
                     {/* Détails du plan */}
-                    <div className="mt-2 p-3 bg-white/10 rounded-2xl border border-white/20">
-                      {step2Form.watch("saasPlan") === "FREE" && (
-                        <div className="text-xs text-white/80">
-                          <p className="font-semibold mb-2 text-tertiary-400">
-                            Plan Free :
-                          </p>
-                          <div className="text-xs space-y-1">
-                            <p>• Profil public professionnel</p>
-                            <p>• Portfolio d’images</p>
-                            <p>• Produits & services</p>
-                            <p>• Profil tatoueur principal</p>
-                            <p>• Lien direct de contact</p>
-                          </div>
-                        </div>
-                      )}
-                      {step2Form.watch("saasPlan") === "PRO" && (
-                        <div className="text-xs text-white/80">
-                          <p className="font-semibold mb-2 text-tertiary-400">
-                            {isTatoueurProOfferActive &&
-                            formData.role === "user_tatoueur"
-                              ? "Plan Pro - 3 mois offerts puis 29,99€/mois :"
-                              : "Plan Pro - 29,99€/mois :"}
-                          </p>
-                          <div className="text-xs space-y-1">
-                            {isTatoueurProOfferActive &&
-                              formData.role === "user_tatoueur" && (
-                                <>
-                                  <p>• 3 mois offerts des l'inscription</p>
-                                  <p>• Sans carte bancaire</p>
-                                  <p>• Aucun paiement immediat</p>
-                                </>
-                              )}
-                            <p>• 1 tatoueur</p>
-                            <p>• Gestion clients illimitée</p>
-                            <p>• Réservation en ligne</p>
-                            <p>• Profil public</p>
-                            <p>• Support email</p>
-                          </div>
-                        </div>
-                      )}
-                      {step2Form.watch("saasPlan") === "BUSINESS" && (
-                        <div className="text-xs text-white/80">
-                          <p className="font-semibold mb-2 text-tertiary-400">
-                            Plan Business - 60 jours offerts puis 59,99€/mois :
-                          </p>
-                          <div className="text-xs space-y-1">
-                            <p>• 60 jours offerts, sans carte bancaire</p>
-                            <p>• Tatoueurs illimités</p>
-                            <p>• Gestion du stock</p>
-                            <p>• Tout du plan Pro</p>
-                            <p>• Statistiques détaillées</p>
-                            <p>• Support prioritaire</p>
-                            <p>• Formations incluses</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Note sur les plans payants */}
-                    {step2Form.watch("saasPlan") === "PRO" && (
-                      <div className="bg-tertiary-500/10 border border-tertiary-500/30 rounded-2xl p-3 mt-2">
-                        <div className="flex items-start gap-2">
-                          <svg
-                            className="w-4 h-4 text-tertiary-400 mt-0.5 flex-shrink-0"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          <div>
-                            <p className="text-tertiary-400 text-xs font-semibold mb-1">
-                              Période offerte sans carte bancaire
-                            </p>
-                            <p className="text-tertiary-400/80 text-xs">
-                              {step2Form.watch("saasPlan") === "BUSINESS"
-                                ? "Votre compte Business sera créé avec 60 jours offerts, sans carte bancaire. Des rappels vous inviteront à souscrire avant la fin. Sans souscription, votre compte repassera en Free."
-                                : "Votre compte Pro sera créé avec 3 mois offerts, sans carte bancaire. Des rappels vous inviteront à souscrire avant la fin. Sans souscription, votre compte repassera en Free."}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    <SignupPlanDetails plan={step2Form.watch("saasPlan")} role={formData.role} />
                   </div>
 
                   <div className="flex gap-3 mt-4">
-                    <button
+                    <DashboardButton
                       type="button"
                       onClick={prevStep}
-                      className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-3xl border border-white/20 transition-colors font-medium font-one text-sm"
+                      variant="secondary" className="!min-w-0 shrink-0"
                     >
                       ← Retour
-                    </button>
-                    <button
-                      className="cursor-pointer flex-1 px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-3xl transition-all duration-300 font-medium font-one text-sm"
+                    </DashboardButton>
+                    <DashboardButton
+                      className="!min-w-0 flex-1"
                       type="submit"
                     >
                       Continuer →
-                    </button>
+                    </DashboardButton>
                   </div>
                 </div>
               </form>
@@ -633,294 +474,40 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                 onSubmit={step3Form.handleSubmit(handleStep3Submit)}
               >
                 <div className="flex flex-col gap-4 p-2">
-                  <div className="text-center mb-4">
-                    <p className="text-white/80 text-sm">
-                      Finalisez votre inscription avec vos informations
-                      personnelles
-                    </p>
-                  </div>
-
-                  {/* Nom et prénom */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-2 font-one">
-                      <label htmlFor="firstName" className="text-xs">
-                        Prénom *
-                      </label>
-                      <input
-                        id="firstName"
-                        placeholder="Votre prénom"
-                        type="text"
-                        required
-                        className="bg-white/30 py-2 px-4 rounded-lg text-sm w-full"
-                        {...step3Form.register("firstName")}
-                      />
-                      {step3Form.formState.errors.firstName && (
-                        <p className="text-red-400 text-xs">
-                          {step3Form.formState.errors.firstName.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col gap-2 font-one">
-                      <label htmlFor="lastName" className="text-xs">
-                        Nom *
-                      </label>
-                      <input
-                        id="lastName"
-                        placeholder="Votre nom"
-                        type="text"
-                        required
-                        className="bg-white/30 py-2 px-4 rounded-lg text-sm w-full"
-                        {...step3Form.register("lastName")}
-                      />
-                      {step3Form.formState.errors.lastName && (
-                        <p className="text-red-400 text-xs">
-                          {step3Form.formState.errors.lastName.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Email et téléphone */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-2 font-one">
-                      <label htmlFor="email" className="text-xs">
-                        Email *
-                      </label>
-                      <input
-                        id="email"
-                        placeholder="votre@email.com"
-                        type="email"
-                        required
-                        className="bg-white/30 py-2 px-4 rounded-lg text-sm w-full"
-                        {...step3Form.register("email")}
-                      />
-                      {step3Form.formState.errors.email && (
-                        <p className="text-red-400 text-xs">
-                          {step3Form.formState.errors.email.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col gap-2 font-one">
-                      <label htmlFor="phone" className="text-xs">
-                        Téléphone
-                      </label>
-                      <input
-                        id="phone"
-                        placeholder="06 12 34 56 78"
-                        type="tel"
-                        className="bg-white/30 py-2 px-4 rounded-lg text-sm w-full"
-                        {...step3Form.register("phone")}
-                      />
-                      {step3Form.formState.errors.phone && (
-                        <p className="text-red-400 text-xs">
-                          {step3Form.formState.errors.phone.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div
-                    className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden"
-                    aria-hidden="true"
-                  >
-                    <label htmlFor="website">Website</label>
-                    <input
-                      id="website"
-                      type="text"
-                      tabIndex={-1}
-                      autoComplete="off"
-                      {...step3Form.register("website")}
-                    />
-                  </div>
-
-                  {/* Mots de passe */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-2 font-one">
-                      <label htmlFor="password" className="text-xs">
-                        Mot de passe *
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="password"
-                          placeholder="*************"
-                          type={showPassword ? "text" : "password"}
-                          minLength={8}
-                          required
-                          className="bg-white/30 py-2 px-4 pr-10 rounded-lg text-sm w-full"
-                          {...step3Form.register("password")}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors"
-                        >
-                          {showPassword ? (
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                              />
-                            </svg>
-                          ) : (
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                              />
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                      {step3Form.formState.errors.password && (
-                        <p className="text-red-400 text-xs">
-                          {step3Form.formState.errors.password.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col gap-2 font-one">
-                      <label htmlFor="passwordConfirmation" className="text-xs">
-                        Confirmer le mot de passe *
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="passwordConfirmation"
-                          placeholder="*************"
-                          type={showPasswordConfirmation ? "text" : "password"}
-                          minLength={8}
-                          required
-                          className="bg-white/30 py-2 px-4 pr-10 rounded-lg text-sm w-full"
-                          {...step3Form.register("passwordConfirmation")}
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowPasswordConfirmation(!showPasswordConfirmation)
-                          }
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors"
-                        >
-                          {showPasswordConfirmation ? (
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                              />
-                            </svg>
-                          ) : (
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                              />
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                      {step3Form.formState.errors.passwordConfirmation && (
-                        <p className="text-red-400 text-xs">
-                          {
-                            step3Form.formState.errors.passwordConfirmation
-                              .message
-                          }
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="rounded-lg border border-white/15 bg-white/5 px-3 py-2">
-                    <p className="text-[11px] font-semibold text-white/90 mb-1">
-                      Critères de sécurité du mot de passe
-                    </p>
-                    <ul className="text-[11px] text-white/75 space-y-0.5">
-                      <li>• 8 caractères minimum</li>
-                      <li>• Au moins 1 chiffre</li>
-                      <li>• Au moins 1 caractère spécial (ex: ! @ # $ %)</li>
-                    </ul>
-                  </div>
+                  <SignupAccessFields form={step3Form} disabled={isPending} />
 
                   {/* Messages d'erreur et de succès */}
-                  {error && (
-                    <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg">
-                      <p className="text-red-300 text-xs">{error}</p>
-                    </div>
-                  )}
-
-                  {success && (
-                    <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-lg">
-                      <p className="text-green-300 text-xs">{success}</p>
-                    </div>
-                  )}
+                  <FormError message={error} />
+                  <FormSuccess title="Votre compte est créé" message={success} />
 
                   <div className="flex gap-3 mt-4">
-                    <button
+                    <DashboardButton
                       type="button"
                       onClick={prevStep}
                       disabled={isPending}
-                      className="cursor-pointer px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-3xl border border-white/20 transition-colors font-medium font-one text-sm disabled:opacity-50"
+                      variant="secondary" className="!min-w-0 shrink-0"
                     >
                       ← Retour
-                    </button>
-                    <button
-                      className="cursor-pointer flex-1 px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-3xl transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one text-sm"
+                    </DashboardButton>
+                    <DashboardButton
+                      className="!min-w-0 flex-1"
                       type="submit"
                       disabled={isPending}
                     >
                       {isPending
-                        ? "INSCRIPTION..."
-                        : "FINALISER L'INSCRIPTION →"}
-                    </button>
+                        ? "Création du compte…"
+                        : "Créer mon compte →"}
+                    </DashboardButton>
                   </div>
                 </div>
               </form>
             )}
           </div>
-        </CardWrapper>
+      </div>
 
         {/* Lien de connexion */}
-        <div className="relative flex flex-col gap-2 justify-center items-center mt-4">
-          <p className="text-white text-xs text-center font-two">
+        <div className={styles.footnote}>
+          <p>
             Vous avez déjà un compte ?{" "}
             <Link
               className="text-tertiary-400 hover:text-tertiary-500 transition-all ease-in-out duration-150"
@@ -930,7 +517,6 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
             </Link>
           </p>
         </div>
-      </div>
     </div>
   );
 };

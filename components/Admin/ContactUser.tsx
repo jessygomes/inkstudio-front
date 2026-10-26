@@ -1,7 +1,9 @@
 "use client";
 
 import { sendAdminEmailToClientAction } from "@/lib/queries/admin";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import { Mail, Send, X } from "lucide-react";
+import styles from "./AdminShell.module.css";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 
@@ -10,6 +12,7 @@ interface ContactUserProps {
 	clientId?: string;
 	userEmail?: string;
 	userLabel?: string;
+	className?: string;
 }
 
 interface MessageSuggestion {
@@ -50,14 +53,22 @@ export default function ContactUser({
 	clientId,
 	userEmail,
 	userLabel = "cet utilisateur",
+	className,
 }: ContactUserProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [mounted, setMounted] = useState(false);
+	const dialog = useRef<HTMLDialogElement>(null);
+	const titleId = useId();
+	const subjectId = useId();
+	const messageId = useId();
 
 	useEffect(() => {
 		setMounted(true);
 	}, []);
+	useEffect(() => {
+		if (mounted && isOpen) dialog.current?.showModal();
+	}, [mounted, isOpen]);
 
 	const defaultSuggestion = useMemo(() => suggestions[0], []);
 	const [subject, setSubject] = useState(defaultSuggestion.subject);
@@ -108,93 +119,17 @@ export default function ContactUser({
 		}
 	};
 
-	return (
-		<>
-			<button
-				type="button"
-				onClick={() => setIsOpen(true)}
-				className="cursor-pointer w-full whitespace-nowrap rounded-2xl border border-white/15 bg-white/8 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/15 font-one"
-			>
-				Contacter
-			</button>
-
-			{mounted &&
-				isOpen &&
-				createPortal(
-					<div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/65 p-3 backdrop-blur-sm">
-					<div className="w-full max-w-2xl rounded-2xl border border-white/15 bg-noir-500 p-4 shadow-2xl">
-						<h3 className="text-sm font-semibold text-white font-one">
-							Envoyer un email
-						</h3>
-						<p className="mt-1 text-xs text-white/70 font-one">
-							Destinataire: {userLabel}
-							{userEmail ? ` (${userEmail})` : ""}
-						</p>
-
-						<div className="mt-3 flex flex-wrap gap-1.5">
-							{suggestions.map((suggestion) => (
-								<button
-									key={suggestion.label}
-									type="button"
-									onClick={() => applySuggestion(suggestion)}
-									disabled={loading}
-											className="cursor-pointer whitespace-nowrap rounded-xl border border-white/15 bg-white/8 px-2.5 py-1 text-[11px] text-white/85 transition-colors hover:bg-white/12 font-one"
-								>
-									{suggestion.label}
-								</button>
-							))}
-						</div>
-
-						<div className="mt-3 space-y-2">
-							<div>
-								<label className="text-[11px] text-white/70 font-one">Sujet</label>
-								<input
-									value={subject}
-									onChange={(event) => setSubject(event.target.value)}
-									disabled={loading}
-									className="mt-1 w-full rounded-xl border border-white/15 bg-white/8 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
-									placeholder="Objet de l'email"
-								/>
-							</div>
-
-							<div>
-								<label className="text-[11px] text-white/70 font-one">Message</label>
-								<textarea
-									value={message}
-									onChange={(event) => setMessage(event.target.value)}
-									disabled={loading}
-									rows={8}
-									className="mt-1 w-full resize-none rounded-xl border border-white/15 bg-white/8 px-3 py-2 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400/40 focus:outline-none font-one"
-									placeholder="Votre message..."
-								/>
-							</div>
-						</div>
-
-						<div className="mt-4 flex items-center justify-end gap-2">
-							<button
-								type="button"
-								onClick={() => {
-									setIsOpen(false);
-									resetForm();
-								}}
-								disabled={loading}
-								className="cursor-pointer whitespace-nowrap rounded-xl border border-white/15 bg-white/8 px-3 py-1.5 text-xs text-white/85 transition-colors hover:bg-white/12 font-one disabled:opacity-50"
-							>
-								Annuler
-							</button>
-							<button
-								type="button"
-								onClick={handleSend}
-								disabled={loading}
-								className="cursor-pointer whitespace-nowrap rounded-xl border border-tertiary-400/35 bg-tertiary-500/20 px-3 py-1.5 text-xs text-white transition-colors hover:bg-tertiary-500/30 font-one disabled:opacity-50"
-							>
-								{loading ? "Envoi..." : "Envoyer"}
-							</button>
-						</div>
-					</div>
-					</div>,
-					document.body
-				)}
-		</>
-	);
+	return <>
+		<button type="button" onClick={() => setIsOpen(true)} className={className || "admin-button"}><Mail size={13} aria-hidden="true" />Contacter</button>
+		{mounted && isOpen && createPortal(
+			<dialog ref={dialog} className={`${styles.dialog} ${styles.contactDialog}`} aria-labelledby={titleId} onCancel={event => { event.preventDefault(); if (!loading) { setIsOpen(false); resetForm(); } }}>
+				<div className={styles.dialogHeader}><div><h2 id={titleId}>Contacter l’utilisateur</h2><p className="mt-2">{userLabel}{userEmail && <span className="block text-xs text-white/45">{userEmail}</span>}</p></div><button type="button" className="admin-button self-start" aria-label="Fermer" disabled={loading} onClick={() => { setIsOpen(false); resetForm(); }}><X size={15} /></button></div>
+				<form onSubmit={event => { event.preventDefault(); void handleSend(); }}>
+					<div><p className="mb-2 text-[11px] text-white/45">Partir d’un modèle</p><div className="flex flex-wrap gap-2">{suggestions.map(suggestion => <button type="button" key={suggestion.label} className="admin-button !min-h-8 !px-2.5 !py-1 !text-[11px]" disabled={loading} onClick={() => applySuggestion(suggestion)}>{suggestion.label}</button>)}</div></div>
+					<label className="admin-label" htmlFor={subjectId}>Objet<input id={subjectId} className="admin-field mt-2" value={subject} onChange={event => setSubject(event.target.value)} placeholder="Objet de votre message" required disabled={loading} /></label>
+					<label className="admin-label" htmlFor={messageId}>Message<textarea id={messageId} className="admin-field mt-2 resize-y" value={message} onChange={event => setMessage(event.target.value)} rows={8} placeholder="Votre message…" required disabled={loading} /></label>
+					<div className={styles.dialogActions}><button type="button" autoFocus className="admin-button" disabled={loading} onClick={() => { setIsOpen(false); resetForm(); }}>Annuler</button><button type="submit" className="admin-button admin-button-primary" disabled={loading || !subject.trim() || !message.trim()}><Send size={14} />{loading ? "Envoi…" : "Envoyer l’e-mail"}</button></div>
+				</form>
+			</dialog>, document.body)}
+	</>;
 }

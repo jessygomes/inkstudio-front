@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { ROUTES, PROTECTED_PATHS } from "@/lib/routes";
+import { isBackOfficePath } from "@/lib/back-office";
 import { NextResponse } from "next/server";
 
 /**
@@ -11,6 +12,12 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const hasExpiredToken = req.auth?.error === "AccessTokenExpired";
   const isAuthenticated = isLoggedIn && !hasExpiredToken;
+
+  const isBackOffice = isBackOfficePath(nextUrl.pathname);
+  const isLegacyAdmin = nextUrl.pathname === "/admin" || nextUrl.pathname.startsWith("/admin/");
+  if (isLegacyAdmin || (isBackOffice && (!isAuthenticated || req.auth?.user?.role !== "admin"))) {
+    return new NextResponse(null, { status: 404, headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } });
+  }
 
   // Pages qui nécessitent une authentification
   const protectedPaths = PROTECTED_PATHS;
@@ -47,6 +54,10 @@ export default auth((req) => {
     res.headers.set("Cache-Control", "no-store, must-revalidate");
   }
 
+  if (isBackOffice) {
+    res.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+    res.headers.set("Referrer-Policy", "no-referrer");
+  }
   return res;
 });
 

@@ -1,4 +1,5 @@
 "use client";
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 
 import { useEffect, useMemo, useState } from "react";
 import { getSalonsPendingVerification } from "@/lib/queries/admin";
@@ -210,7 +211,7 @@ export default function PendingVerificationList() {
                     {salon.verifiedSalon ? "Compte vérifié" : "À vérifier"}
                   </span>
                   <Link
-                    href={`/admin/users/${salon.id}`}
+                    href={`${BACK_OFFICE_PATH}/users/${salon.id}`}
                     className="inline-flex min-h-9 shrink-0 items-center gap-1 whitespace-nowrap rounded-lg px-2 text-xs text-white/65 transition-colors hover:bg-white/5 hover:text-white"
                   >
                     Voir la fiche <FiChevronRight aria-hidden size={14} />

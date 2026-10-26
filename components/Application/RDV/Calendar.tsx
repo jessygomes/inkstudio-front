@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { Calendar, dateFnsLocalizer, Event } from "react-big-calendar";
@@ -10,6 +9,8 @@ import { fr } from "date-fns/locale/fr";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useMemo } from "react";
 import { View } from "react-big-calendar";
+import CalendarTimeHeader from "./CalendarTimeHeader";
+import styles from "./CalendarTimeViews.module.css";
 
 const locales = {
   fr: fr,
@@ -200,23 +201,6 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     });
   }, [currentDate, currentView]);
 
-  const todayAppointments = useMemo(() => {
-    const today = new Date();
-    return styledEvents.filter((event) => {
-      const eventDate = new Date(event.start);
-      return (
-        eventDate.getDate() === today.getDate() &&
-        eventDate.getMonth() === today.getMonth() &&
-        eventDate.getFullYear() === today.getFullYear()
-      );
-    }).length;
-  }, [styledEvents]);
-
-  const pendingAppointments = useMemo(
-    () => styledEvents.filter((event) => event.status === "PENDING").length,
-    [styledEvents],
-  );
-
   const statusLegend = [
     { label: "En attente", color: "bg-amber-400" },
     { label: "Confirmé", color: "bg-emerald-400" },
@@ -224,18 +208,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     { label: "Annulé", color: "bg-red-400" },
   ];
 
-  const slotStep = currentView === "month" ? 30 : 60;
-  const slotGroups = currentView === "month" ? 2 : 1;
+  const slotStep = 30;
+  const slotGroups = 2;
 
   return (
     <div className="h-full w-full p-0">
-      <div className="dashboard-embedded-panel flex h-full min-h-0 w-full flex-col overflow-hidden !rounded-none !border-0 !p-0">
+      <div className="dashboard-embedded-panel flex h-full min-h-0 w-full flex-col overflow-hidden !rounded-none !border-0 !p-0 !shadow-none">
         <div className="dashboard-embedded-header border-b border-white/8 px-3 py-2 lg:px-3.5 lg:py-2.5">
           <div className="grid grid-cols-1 gap-1.5 lg:grid-cols-[1fr_auto] lg:items-center">
             <div className="col-span-1 flex flex-wrap items-center gap-1.5 lg:col-span-2 lg:justify-between">
-              <div className="flex flex-wrap items-center gap-1.5">
+              <div className="flex w-full flex-wrap items-center justify-between gap-2">
                  <div className="flex items-center gap-1.5">
-                  <p className="text-[11px] uppercase tracking-[0.12em] text-white/65 font-two whitespace-nowrap">
+                  <p className="text-[10px] uppercase tracking-[0.1em] text-white/65 font-two whitespace-nowrap">
                     {displayLabel}
                   </p>
                   <div className="inline-flex items-center gap-0.5 rounded-lg border border-white/10 bg-white/5 p-0.5">
@@ -280,7 +264,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-0.5 w-fit">
+                <div className="ml-auto flex shrink-0 items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-0.5 w-fit">
                   {(["month", "week", "day"] as View[]).map((view) => (
                     <button
                       key={view}
@@ -297,16 +281,6 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-start gap-1.5 lg:justify-end">
-              <div className="rounded-lg border border-white/10 bg-white/5 px-2 py-1">
-                <p className="text-[8px] uppercase tracking-wider text-white/35 font-one">Aujourd'hui</p>
-                <p className="text-xs text-white font-semibold font-one leading-none mt-0.5">{todayAppointments}</p>
-              </div>
-              <div className="rounded-lg border border-white/10 bg-white/5 px-2 py-1">
-                <p className="text-[8px] uppercase tracking-wider text-white/35 font-one">En attente</p>
-                <p className="text-xs text-amber-300 font-semibold font-one leading-none mt-0.5">{pendingAppointments}</p>
-              </div>
-            </div>
             </div>
 
             
@@ -327,12 +301,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 p-1.5 lg:p-2">
-          <div className="inkera-calendar h-full w-full overflow-hidden bg-white/[0.02]">
+        <div className="flex-1 min-h-0">
+          <div className={`inkera-calendar h-full w-full overflow-hidden bg-white/[0.02] ${currentView !== "month" ? styles.timeViews : ""}`}>
         <style jsx global>{`
+          .inkera-calendar .rbc-month-view,
+          .inkera-calendar .rbc-time-view {
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+          }
+
           .inkera-calendar .rbc-calendar {
             background: transparent !important;
-            color: white !important;
+            color: var(--app-ink) !important;
             font-family: inherit !important;
             font-size: 11px !important;
             border: none !important;
@@ -343,8 +324,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           }
 
           .inkera-calendar .rbc-header {
-            background: rgba(255, 255, 255, 0.06) !important;
-            color: rgba(255, 255, 255, 0.85) !important;
+            background: rgb(var(--app-ink-rgb) / 0.06) !important;
+            color: rgb(var(--app-ink-rgb) / max(85%, var(--app-muted-opacity))) !important;
             padding: 5px 4px !important;
             font-weight: 500 !important;
             font-size: 10px !important;
@@ -375,7 +356,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             padding: 4px 3px !important;
             background: transparent !important;
             font-size: 9px !important;
-            color: rgba(255, 255, 255, 0.65) !important;
+            color: rgb(var(--app-ink-rgb) / max(65%, var(--app-muted-opacity))) !important;
           }
 
           .inkera-calendar .rbc-day-bg {
@@ -384,7 +365,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           }
 
           .inkera-calendar .rbc-day-bg:hover {
-            background: rgba(255, 255, 255, 0.03) !important;
+            background: rgb(var(--app-ink-rgb) / 0.03) !important;
           }
 
           .inkera-calendar .rbc-off-range-bg {
@@ -401,7 +382,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           }
 
           .inkera-calendar .rbc-time-slot {
-            color: rgba(255, 255, 255, 0.52) !important;
+            color: rgb(var(--app-ink-rgb) / max(52%, var(--app-muted-opacity))) !important;
             border: none !important;
             margin: 0 !important;
             padding: 0 !important;
@@ -413,20 +394,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           }
 
           .inkera-calendar .rbc-time-gutter {
-            background: rgba(255, 255, 255, 0.03) !important;
+            background: rgb(var(--app-ink-rgb) / 0.03) !important;
             border: none !important;
           }
 
           .inkera-calendar .rbc-time-gutter .rbc-label {
             font-size: 10px !important;
-            color: rgba(255, 255, 255, 0.62) !important;
+            color: rgb(var(--app-ink-rgb) / max(62%, var(--app-muted-opacity))) !important;
             font-variant-numeric: tabular-nums;
             letter-spacing: 0.02em;
             font-weight: 500;
           }
 
           .inkera-calendar .rbc-time-content .rbc-timeslot-group:nth-child(even) {
-            background: rgba(255, 255, 255, 0.02) !important;
+            background: rgb(var(--app-ink-rgb) / 0.02) !important;
           }
 
           .inkera-calendar .rbc-time-content {
@@ -505,7 +486,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           }
 
           .inkera-calendar .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
-            border-color: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgb(var(--app-ink-rgb) / max(8%, var(--app-muted-opacity))) !important;
           }
 
           .inkera-calendar .rbc-addons-dnd .rbc-addons-dnd-drag-preview {
@@ -537,6 +518,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           startAccessor="start"
           endAccessor="end"
           eventPropGetter={eventStyleGetter}
+          components={{ week: { header: CalendarTimeHeader }, day: { header: CalendarTimeHeader } }}
           style={{ height: "100%", width: "100%", minHeight: 0 }}
           views={["month", "week", "day"]}
           date={currentDate}

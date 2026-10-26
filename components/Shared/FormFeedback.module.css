@@ -1,0 +1,9 @@
+.feedback { --feedback-accent: var(--color-tertiary-400); display: flex; align-items: flex-start; gap: 12px; min-width: 0; padding: 15px; border: 1px solid color-mix(in srgb, var(--feedback-accent) 20%, transparent); border-radius: 13px; background: color-mix(in srgb, var(--feedback-accent) 5%, transparent); font-family: var(--font-one), sans-serif; text-align: left; }
+.feedback[data-variant="error"] { --feedback-accent: var(--color-red-300); }
+.feedback[data-variant="success"] { --feedback-accent: var(--color-emerald-300); }
+.icon { display: grid; width: 30px; height: 30px; flex-shrink: 0; place-items: center; border: 1px solid color-mix(in srgb, var(--feedback-accent) 18%, transparent); border-radius: 9px; background: color-mix(in srgb, var(--feedback-accent) 8%, transparent); color: var(--feedback-accent); }
+.content { flex: 1; min-width: 0; padding-top: 1px; overflow-wrap: anywhere; }
+.title { margin: 0; color: var(--feedback-accent); font-size: 12px; font-weight: 500; line-height: 1.6; }
+.message, .details { margin-top: 4px; color: rgb(var(--app-ink-rgb) / max(70%, var(--app-muted-opacity))); font-size: 11px; line-height: 1.8; }
+.details { margin-top: 9px; padding-top: 9px; border-top: 1px solid color-mix(in srgb, var(--feedback-accent) 12%, transparent); }
+@media (max-width: 480px) { .feedback { gap: 10px; padding: 13px; } }

@@ -715,7 +715,7 @@ export default function ShowSuivis() {
           className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-[2px] p-0 sm:p-3 md:p-4 lg:flex lg:items-center lg:justify-center overflow-hidden"
           style={{ height: "100dvh", width: "100vw" }}
         >
-          <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none border-0 bg-[#1a1a1a] shadow-none sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)] md:max-h-[90vh]">
+          <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-none border-0 bg-noir-500 shadow-none sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)] md:max-h-[90vh]">
             <div className="dashboard-embedded-header px-4 py-3.5 sm:rounded-t-[28px]">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -870,7 +870,7 @@ export default function ShowSuivis() {
           className="fixed inset-0 z-[9999] bg-black/65 backdrop-blur-[2px] p-0 sm:p-3 md:p-4 lg:flex lg:items-center lg:justify-center overflow-hidden"
           style={{ height: "100dvh", width: "100vw" }}
         >
-          <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-lg flex-col overflow-hidden rounded-none border-0 bg-[#1a1a1a] shadow-none sm:h-auto sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)]">
+          <div className="dashboard-embedded-panel mx-auto flex h-full w-full max-w-lg flex-col overflow-hidden rounded-none border-0 bg-noir-500 shadow-none sm:h-auto sm:rounded-[28px] sm:border sm:border-white/12 sm:shadow-[0_32px_64px_rgba(0,0,0,0.45)]">
             <div className="dashboard-embedded-header px-4 py-3.5 sm:rounded-t-[28px]">
               <div className="flex items-start justify-between gap-3">
                 <div>

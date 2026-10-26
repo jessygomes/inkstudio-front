@@ -17,6 +17,7 @@ import VerificationDocumentsSection from "@/components/Application/Parametres/Ve
 import ColorProfile from "@/components/Application/MonCompte/ColorProfile";
 import NotifChatPreference from "@/components/Application/Parametres/NotifChatPreference";
 import InspirationSalonSetting from "@/components/Application/Parametres/InspirationSalonSetting";
+import AppearanceSetting from "@/components/Application/Parametres/AppearanceSetting";
 
 
 import { SettingsGroup, SettingsNavigation } from "@/components/Application/Parametres/SettingsLayout";
@@ -60,6 +61,7 @@ export default function ParamPage() {
               )}
             </SettingsGroup>
             <SettingsGroup id="preferences" title="Préférences" description="Adaptez les notifications, les couleurs et la visibilité de votre portfolio.">
+              <AppearanceSetting />
               <div className="grid min-w-0 items-start gap-3 2xl:grid-cols-2">
                 <NotifChatPreference />
                 <ColorProfile />

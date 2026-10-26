@@ -17,7 +17,7 @@ Backend voisin : `D:/CORPORATE/INKERA/Backend/TattooStudio-Backend/tattoo-studio
 | `/contact` | Page absente ; remplacé par `/contactez-nous`. |
 | `/reset-password?token=…&email=…` | Page présente ; paramètres désormais encodés à la génération. |
 | `/verifier-email?token=…&email=…` | Page présente ; paramètres encodés à la génération et lors de l'appel API. |
-| `/dashboard`, `/admin/users`, `/nouveau-creneau` | Pages présentes. |
+| `/dashboard`, `/bo-1d19161a0c34978a5a82009b634baadf/users`, `/nouveau-creneau` | Pages présentes. |
 | `/suivi/[token]`, `/meeting/[id]` | Pages présentes ; nécessitent un identifiant valide. Le repli `/suivi` seul ne correspond pas à une page et ne remplace pas un vrai lien de suivi. |
 
 Le générateur commun peut encore produire `#` si aucune URL frontend n'est configurée, et ses replis peuvent pointer vers localhost. La configuration déployée doit donc être contrôlée pour l'ensemble des mails, pas seulement ceux de sécurité.

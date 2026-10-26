@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: [
           "/api/",
-          "/admin/",
+          "/bo-",
           "/dashboard/",
           "/mes-rendez-vous/",
           "/mon-compte/",
@@ -27,7 +27,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: [
           "/api/",
-          "/admin/",
+          "/bo-",
           "/dashboard/",
           "/mes-rendez-vous/",
           "/mon-compte/",

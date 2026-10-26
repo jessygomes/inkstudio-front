@@ -160,6 +160,7 @@ export default function BatchPhotoUploader({
                 aria-label={`Retirer la photo ${index + 1}`}
                 disabled={busy}
                 onClick={() => removeAt(index)}
+                data-theme-contrast="dark"
                 className="absolute right-1 top-1 flex size-6 cursor-pointer items-center justify-center rounded-full bg-black/70 text-white hover:bg-black disabled:opacity-50"
               >
                 <X size={14} />

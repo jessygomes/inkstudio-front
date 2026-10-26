@@ -23,7 +23,7 @@ function PhotoViewer({ photo, onClose }: { photo: AppointmentPhoto; onClose: () 
     document.addEventListener("keydown", escape, true);
     return () => { document.removeEventListener("keydown", escape, true); previous?.focus(); };
   }, [onClose]);
-  return createPortal(<div role="dialog" aria-modal="true" aria-label="Photo du rendez-vous" className="fixed inset-0 z-[10010] flex items-center justify-center bg-black/95 p-4" onClick={onClose}>
+  return createPortal(<div role="dialog" aria-modal="true" aria-label="Photo du rendez-vous" data-theme-contrast="dark" className="fixed inset-0 z-[10010] flex items-center justify-center bg-black/95 p-4" onClick={onClose}>
     <button ref={close} type="button" aria-label="Fermer la photo" onClick={onClose} className="absolute right-4 top-4 z-10 cursor-pointer rounded-full bg-black/60 p-3 text-white"><X /></button>
     <div className="relative h-[85dvh] w-full" onClick={(event) => event.stopPropagation()}>
       <Image src={photo.url} alt={photo.caption || "Photo du rendez-vous"} fill sizes="100vw" unoptimized className="object-contain" />
@@ -172,7 +172,7 @@ export default function AppointmentPhotos({ appointmentId, clientId, readOnly = 
     {viewer && <PhotoViewer photo={viewer} onClose={() => setViewer(null)} />}
     {portfolio && createPortal(<CreateOrUpdatePhoto sourcePhoto={portfolio} tatoueurs={artists} onCreate={() => { setPortfolio(null); refreshPhotos(); }} setIsOpen={(open) => { if (!open) setPortfolio(null); }} />, document.body)}
     {deleting && createPortal(<div data-modal role="dialog" aria-modal="true" aria-label="Supprimer la photo" className="fixed inset-0 z-[10020] flex items-center justify-center bg-black/75 p-4">
-      <div ref={deleteDialog} className="w-full max-w-sm space-y-4 rounded-2xl border border-white/15 bg-[#1a1a1a] p-5 font-one text-white [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed">
+      <div ref={deleteDialog} className="w-full max-w-sm space-y-4 rounded-2xl border border-white/15 bg-noir-500 p-5 font-one text-white [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed">
         <h3 className="text-sm font-semibold">Supprimer cette photo ?</h3>
         <div className="relative h-32"><Image src={deleting.url} alt="Photo à supprimer" fill sizes="320px" unoptimized className="rounded-lg object-contain" /></div>
         <p className="text-xs text-white/65">{deleting.portfolios.length ? "Vous pouvez retirer la photo du rendez-vous en la conservant au portfolio." : "La photo sera retirée de ce rendez-vous."}</p>

@@ -10,8 +10,8 @@ Le backend ajoute `membership` aux utilisateurs renvoyés par les listes admin e
 
 ## Styles et catégories
 
-- Nouvelle page `/admin/styles` avec recherche, nombre de photos associées et création/modification/suppression.
-- Page `/admin/categories` reconstruite avec recherche, filtre de visibilité, ordre d'affichage, identifiant et activation/masquage.
+- Nouvelle page `/bo-1d19161a0c34978a5a82009b634baadf/styles` avec recherche, nombre de photos associées et création/modification/suppression.
+- Page `/bo-1d19161a0c34978a5a82009b634baadf/categories` reconstruite avec recherche, filtre de visibilité, ordre d'affichage, identifiant et activation/masquage.
 - Correction du contrat des actions frontend : l'API renvoie `{ categories }` et `{ styles }`, plutôt qu'un tableau à la racine. Les mutations utilisent les objets `{ category }` ou `{ style }`.
 - Confirmation explicite avant suppression. Les associations concernées sont indiquées, les photos conservées.
 - Validation des longueurs et de l'ordre côté backend, avec retour clair en cas de doublon concurrent sur les styles.
@@ -29,3 +29,7 @@ Les modifications d'interface couvrent également les comptes, les fiches, les d
 L'aperçu de test utilise les composants réels avec des données fictives et des appels API simulés. Il ne valide pas une session administrateur réelle, des envois, des uploads ou une connexion au backend déployé. Les captures contiennent uniquement des données de démonstration : [ordinateur](admin-preview/desktop.png), [mobile](admin-preview/mobile.png).
 
 Les changements se trouvent dans le frontend et le backend voisin `D:/CORPORATE/INKERA/Backend/TattooStudio-Backend/tattoo-studio-back`. Aucun compte, style, catégorie, photo ou article réel n'a été modifié pendant les contrôles ; aucun déploiement n'a été effectué.
+
+## Accès au back-office
+
+Le bouton **BO**, sous **Avis** dans la navigation ordinateur et mobile, est réservé aux administrateurs connectés. La route est définie dans `lib/back-office.ts` ; le dossier Next correspondant et la constante backend `src/config/back-office.ts` doivent rester synchronisés. Les anciennes routes `/admin` répondent 404 sans redirection. Les contrôles de rôle restent actifs dans le proxy, le layout et les API backend. Le préfixe générique `/bo-` est exclu de l’indexation sans publier le segment complet dans robots.txt.

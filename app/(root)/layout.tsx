@@ -1,3 +1,4 @@
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import HeaderApp from "@/components/Shared/HeaderApp";
@@ -41,7 +42,7 @@ export default async function DashboardLayout({
       <Providers>
         <ColorProvider>
           <MessagingProvider>
-            <HeaderApp>
+            <HeaderApp backOfficeHref={session.user.role === "admin" ? BACK_OFFICE_PATH : null}>
               <VerificationNotification />
               {children}
             </HeaderApp>

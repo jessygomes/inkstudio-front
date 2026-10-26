@@ -910,7 +910,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                 </div>
 
                 {(clientResults.length > 0 || userClientResults.length > 0) && (
-                  <div className="mt-2 max-h-56 overflow-auto rounded-xl border border-white/12 bg-[#111] shadow-2xl">
+                  <div className="mt-2 max-h-56 overflow-auto rounded-xl border border-white/12 bg-noir-700 shadow-2xl">
                     {/* Clients existants du salon */}
                     {clientResults.map((client) => (
                       <button type="button"

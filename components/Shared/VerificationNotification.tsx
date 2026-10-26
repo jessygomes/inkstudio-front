@@ -21,7 +21,7 @@ const getVerificationSessionStorageKey = (userId: string) =>
   `inkera:notification:verification:dismissed-date:${userId}`;
 
 export default function VerificationNotification() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const user = session?.user;
   const router = useRouter();
   const [isVerificationVisible, setIsVerificationVisible] = useState(false);
@@ -121,6 +121,10 @@ export default function VerificationNotification() {
           sessionStorage.removeItem(pastDueSessionStorageKey);
           setIsPastDueVisible(false);
         }
+        if ((user.role === "user_salon" || user.role === "user_tatoueur") && data.currentPlan && ["FREE", "PRO", "BUSINESS"].includes(data.currentPlan) && data.currentPlan !== user.saasPlan) {
+          await update({ user: { saasPlan: data.currentPlan } });
+          router.refresh();
+        }
       } catch (error) {
         console.error(
           "Erreur lors de la récupération du statut d'abonnement:",
@@ -138,7 +142,7 @@ export default function VerificationNotification() {
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", refreshOnReturn);
     };
-  }, [status, user?.id]);
+  }, [status, user?.id, user?.role, user?.saasPlan, update, router]);
 
   const showVerificationNotice =
     isVerificationVisible && user?.verifiedSalon === false;

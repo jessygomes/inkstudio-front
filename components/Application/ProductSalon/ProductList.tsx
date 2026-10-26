@@ -206,7 +206,7 @@ export default function ProductList() {
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden xl:flex items-center justify-center">
+                <div data-theme-contrast="dark" className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden xl:flex items-center justify-center">
                   <div className="flex gap-3">
                     <button
                       className="cursor-pointer p-2 bg-tertiary-400/10 backdrop-blur-sm rounded-full hover:bg-tertiary-400/15 transition-all duration-200"

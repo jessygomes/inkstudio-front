@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Didact_Gothic, Exo_2, Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
+import "./appearance.css";
 import { Toaster } from "@/components/Shared/Sonner";
 import ModalManager from "@/components/Shared/ModalManager";
 import { CookieConsentProvider } from "@/components/Cookies/CookieConsentContext";
@@ -8,6 +9,7 @@ import CookieBanner from "@/components/Cookies/CookieBanner";
 import GoogleAnalytics from "@/components/Cookies/GoogleAnalytics";
 import { NextAuthProvider } from "@/components/Providers/NextAuthProvider";
 import { SessionExpiredWatcher } from "@/components/Providers/SessionExpiredWatcher";
+import AppThemeProvider from "@/components/Providers/AppThemeProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -119,7 +121,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <meta
           name="viewport"
@@ -151,24 +153,26 @@ export default function RootLayout({
       <body
         className={`${didact_gothic.variable} ${exo_2.variable} ${montserrat_alternates.variable} antialiased relative`}
       >
-        <NextAuthProvider>
-          <SessionExpiredWatcher />
-          <CookieConsentProvider>
-            {/* Google Analytics avec consentement */}
-            <GoogleAnalytics measurementId="G-W3LKS9M53F" />
+        <AppThemeProvider>
+          <NextAuthProvider>
+            <SessionExpiredWatcher />
+            <CookieConsentProvider>
+              {/* Google Analytics avec consentement */}
+              <GoogleAnalytics measurementId="G-W3LKS9M53F" />
 
-            <Toaster />
-            <ModalManager />
+              <Toaster />
+              <ModalManager />
 
-            {/* Bannière de consentement des cookies */}
-            <CookieBanner />
+              {/* Bannière de consentement des cookies */}
+              <CookieBanner />
 
-            {/* <div className="absolute top-0 left-0 w-full h-screen">
-              <Header />
-            </div> */}
-            {children}
-          </CookieConsentProvider>
-        </NextAuthProvider>
+              {/* <div className="absolute top-0 left-0 w-full h-screen">
+                <Header />
+              </div> */}
+              {children}
+            </CookieConsentProvider>
+          </NextAuthProvider>
+        </AppThemeProvider>
       </body>
     </html>
   );

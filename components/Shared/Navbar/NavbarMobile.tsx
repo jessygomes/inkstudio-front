@@ -1,4 +1,5 @@
 "use client";
+import { useSession } from "next-auth/react";
 import NavbarAccountMenu from "./NavbarAccountMenu";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { LogoutBtn } from "@/components/Auth/LogoutBtn";
@@ -12,10 +13,11 @@ import { QRCodeSVG } from "qrcode.react";
 // import { CgProfile } from "react-icons/cg";
 import { CiSettings } from "react-icons/ci";
 import { FaDatabase } from "react-icons/fa";
-import { MdDashboard, MdEvent, MdPeople, MdPhotoLibrary, MdShoppingBag, MdAccountCircle, MdOutlineMessage, MdQrCode } from "react-icons/md";
+import { MdDashboard, MdEvent, MdPeople, MdPhotoLibrary, MdShoppingBag, MdAccountCircle, MdOutlineMessage, MdQrCode, MdAdminPanelSettings } from "react-icons/md";
 
 
-export default function NavbarMobile() {
+export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: string | null }) {
+  const { data: session } = useSession();
   const user = useUser();
   const pathname = usePathname();
   const isFreePlan =
@@ -120,6 +122,7 @@ export default function NavbarMobile() {
       label: "Avis",
       icon: <MdAccountCircle size={20} />,
     },
+    ...(backOfficeHref && session?.user?.role === "admin" && session.error !== "AccessTokenExpired" ? [{ href: backOfficeHref, label: "BO", icon: <MdAdminPanelSettings size={20} /> }] : []),
     // {
     //   href: "/factures",
     //   label: "Factures",
@@ -442,7 +445,7 @@ export default function NavbarMobile() {
               aria-hidden="true"
             />
 
-            <div className="relative w-full max-w-xs rounded-2xl border border-white/15 bg-[#151515] p-4 shadow-2xl">
+            <div className="relative w-full max-w-xs rounded-2xl border border-white/15 bg-noir-500 p-4 shadow-2xl">
               <div className="mb-3 flex items-center justify-between">
                 <p className="text-sm text-white font-one">Profil public</p>
                 <button
@@ -453,7 +456,7 @@ export default function NavbarMobile() {
                 </button>
               </div>
 
-              <div className="mx-auto w-fit rounded-xl bg-white p-3">
+              <div className="mx-auto w-fit rounded-xl bg-[#fff] p-3">
                 <QRCodeSVG
                   value={qrPublicHref}
                   size={220}

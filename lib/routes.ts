@@ -23,6 +23,6 @@ export const PROTECTED_PATHS = [
   "/explorer",
   "/review",
   "/suiviDessin",
-  "/admin",
+  "/bo-",
 ] as const;
 

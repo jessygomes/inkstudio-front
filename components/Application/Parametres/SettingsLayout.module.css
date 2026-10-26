@@ -1,9 +1,9 @@
 .sidebar { min-width: 0; }
-.navigation { min-width: 0; border: 1px solid rgb(255 255 255 / 10%); border-radius: 1rem; background: #1a1a1a; padding: .5rem; }
+.navigation { min-width: 0; border: 1px solid rgb(var(--app-ink-rgb) / 10%); border-radius: 1rem; background: var(--app-panel); padding: .5rem; }
 .navigation ul { display: flex; gap: .25rem; overflow-x: auto; scrollbar-width: none; }
 .navigation li { flex-shrink: 0; min-width: 0; }
-.link { display: flex; min-height: 2.75rem; align-items: center; gap: .625rem; border: 1px solid transparent; border-radius: .75rem; padding: .625rem; color: rgb(255 255 255 / 55%); transition: background .2s, color .2s, border-color .2s; cursor: pointer; }
-.link:hover { color: rgb(255 255 255 / 85%); background: rgb(255 255 255 / 3%); }
+.link { display: flex; min-height: 2.75rem; align-items: center; gap: .625rem; border: 1px solid transparent; border-radius: .75rem; padding: .625rem; color: rgb(var(--app-ink-rgb) / max(55%, var(--app-muted-opacity))); transition: background .2s, color .2s, border-color .2s; cursor: pointer; }
+.link:hover { color: rgb(var(--app-ink-rgb) / max(85%, var(--app-muted-opacity))); background: rgb(var(--app-ink-rgb) / 3%); }
 .link[aria-current] { border-color: color-mix(in srgb, var(--color-tertiary-400) 18%, transparent); background: color-mix(in srgb, var(--color-tertiary-400) 6%, transparent); color: var(--color-tertiary-400); }
 .link:focus-visible { outline: 2px solid var(--color-tertiary-400); outline-offset: 2px; }
 .icon { display: grid; width: 1.75rem; height: 1.75rem; flex-shrink: 0; place-items: center; border-radius: .5rem; border: 1px solid color-mix(in srgb, var(--color-tertiary-400) 12%, transparent); background: color-mix(in srgb, var(--color-tertiary-400) 6%, transparent); color: var(--color-tertiary-400); }

@@ -1,0 +1,143 @@
+/* Neutral palette shared by legacy utilities, CSS modules and portalled dialogs.
+   The light palette is scoped to the signed-in application, leaving public pages alone. */
+:root {
+  --app-ink-rgb: 255 255 255;
+  --app-ink: rgb(var(--app-ink-rgb));
+  --app-canvas: #131313;
+  --app-panel: #1a1a1a;
+  --app-panel-rgb: 26 26 26;
+  --app-canvas-rgb: 19 19 19;
+  --app-muted-opacity: 0%;
+}
+
+html:has(.app-colors-container) {
+  --color-tertiary-400: var(--app-accent-400, #ff9d00);
+  --color-tertiary-500: var(--app-accent-500, #ff5500);
+  --color-tertiary-400-rgb: var(--app-accent-400-rgb, 255, 157, 0);
+  --color-tertiary-500-rgb: var(--app-accent-500-rgb, 255, 85, 0);
+  color-scheme: dark;
+  background: var(--app-canvas);
+  color: var(--app-ink);
+}
+
+html[data-theme="light"]:has(.app-colors-container) {
+  color-scheme: light;
+  --app-ink-rgb: 41 39 36;
+  --app-canvas: #f6f3ed;
+  --app-panel: #fffdf9;
+  --app-panel-rgb: 255 253 249;
+  --app-canvas-rgb: 246 243 237;
+  --app-muted-opacity: 65%;
+  /* Existing neutral utilities use white for foregrounds and translucent borders. */
+  --color-white: #292724;
+  --color-noir-500: var(--app-panel);
+  --color-noir-600: #efebe4;
+  --color-noir-700: var(--app-canvas);
+  --color-gray-100: #34312c;
+  --color-gray-200: #45413b;
+  --color-gray-300: #555049;
+  --color-gray-400: #655f56;
+  --color-gray-500: #746d63;
+  --color-gray-600: #dfd9d0;
+  --color-gray-700: #e9e4dc;
+  --color-gray-800: #f0ece5;
+  --color-gray-900: #faf8f4;
+  --color-slate-300: #555d67;
+  --color-slate-400: #626b77;
+  --color-zinc-800: #ece7df;
+  --color-zinc-900: #f6f3ed;
+  --color-neutral-800: #ece7df;
+  --color-neutral-900: #f6f3ed;
+  --color-red-300: #b42330;
+  --color-red-400: #c5343d;
+  --color-amber-100: #78500d;
+  --color-amber-200: #86570b;
+  --color-amber-300: #92600b;
+  --color-orange-300: #a34413;
+  --color-orange-400: #b94d10;
+  --color-emerald-300: #087653;
+  --color-emerald-400: #09835e;
+  --color-green-300: #20743a;
+  --color-green-400: #248342;
+  --color-teal-300: #08766e;
+  --color-teal-400: #0a8178;
+  --color-blue-300: #285fa9;
+  --color-blue-400: #306cbb;
+  --color-purple-300: #7950ae;
+  --color-pink-300: #a83b78;
+}
+
+/* LogoProfil's symbol occupies 284/457 of its canvas; Logo15 fills its height. */
+.app-sidebar-logo-light { display: none; transform: scale(.622); transform-origin: center; }
+html[data-theme="light"] .app-colors-container .app-sidebar-logo-dark { display: none; }
+html[data-theme="light"] .app-colors-container .app-sidebar-logo-light { display: block; }
+
+/* Small secondary labels must remain readable on the warm light canvas. */
+html[data-theme="light"]:has(.app-colors-container) :is(
+  [class~="text-white/20"], [class~="text-white/25"], [class~="text-white/30"],
+  [class~="text-white/35"], [class~="text-white/40"], [class~="text-white/45"],
+  [class~="text-white/50"], [class~="text-white/55"]
+) { color: rgb(var(--app-ink-rgb) / 65%); }
+
+html[data-theme="light"]:has(.app-colors-container) :is(
+  [class~="placeholder:text-white/30"], [class~="placeholder:text-white/40"],
+  [class~="placeholder:text-white/50"]
+)::placeholder { color: rgb(var(--app-ink-rgb) / 58%); }
+
+/* Full colour actions and photo overlays keep a physical white foreground. */
+html[data-theme="light"]:has(.app-colors-container) :is(
+  [data-theme-contrast="dark"],
+  [class~="bg-tertiary-400"], [class~="bg-tertiary-500"],
+  [class~="from-tertiary-400"], [class~="from-tertiary-500"],
+  [class~="bg-red-500"], [class~="bg-red-600"],
+  [class~="bg-emerald-500"], [class~="bg-green-500"],
+  [class~="bg-blue-500"], [class~="bg-blue-600"]
+) {
+  --color-white: #fff;
+  --app-ink-rgb: 255 255 255;
+  --app-ink: rgb(var(--app-ink-rgb));
+  --app-muted-opacity: 0%;
+}
+
+html[data-theme="light"]:has(.app-colors-container) :is(
+  [class~="bg-black/5"], [class~="bg-black/10"], [class~="bg-black/15"], [class~="bg-black/20"]
+) { background-color: rgb(41 39 36 / 3%); }
+
+html[data-theme="light"]:has(.app-colors-container) :is(input, select, textarea) {
+  color-scheme: light;
+}
+
+html[data-theme="light"]:has(.app-colors-container) .create-rdv-form select,
+html[data-theme="light"]:has(.app-colors-container) .create-rdv-form select option {
+  color-scheme: light;
+  background-color: var(--app-panel);
+  color: var(--app-ink);
+}
+
+html[data-theme="light"]:has(.app-colors-container) :is(
+  .dashboard-panel, .dashboard-stat-card, .dashboard-embedded-panel,
+  .dashboard-welcome, .client-list-hero
+) { box-shadow: 0 8px 30px rgb(64 48 25 / 5%); }
+
+html[data-theme="light"]:has(.app-colors-container) [class*="text-tertiary-400"] {
+  color: color-mix(in srgb, var(--color-tertiary-400) 55%, #55300c);
+}
+
+html[data-theme="light"]:has(.app-colors-container) :is(
+  .inkera-calendar, .inkera-calendar-mobile
+) .rbc-event { color: #fff !important; }
+
+html[data-theme="light"]:has(.app-colors-container) [data-sonner-toast] {
+  background: var(--app-panel);
+  color: var(--app-ink);
+  box-shadow: 0 8px 30px rgb(64 48 25 / 10%);
+}
+
+html[data-theme="light"]:has(.app-colors-container) [data-sonner-toast][data-type="error"] {
+  border-color: rgb(180 35 48 / 30%);
+}
+
+html[data-theme="light"]:has(.app-colors-container) ::selection {
+  background: color-mix(in srgb, var(--color-tertiary-400) 25%, transparent);
+  color: var(--app-ink);
+}

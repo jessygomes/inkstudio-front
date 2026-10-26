@@ -8,9 +8,9 @@
   max-height: 100dvh;
   padding: 0;
   border: 0;
-  border-left: 1px solid rgb(255 255 255 / 10%);
-  background: #131313;
-  color: white;
+  border-left: 1px solid rgb(var(--app-ink-rgb) / 10%);
+  background: var(--app-canvas);
+  color: var(--app-ink);
   box-shadow: -24px 0 80px rgb(0 0 0 / 35%);
 }
 

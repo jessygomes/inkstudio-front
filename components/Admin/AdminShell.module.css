@@ -578,6 +578,13 @@
   background: #000a;
   backdrop-filter: blur(5px);
 }
+.contactDialog { width: min(650px, calc(100vw - 32px)); }
+.contactDialog :global(input), .contactDialog :global(textarea) { width: 100%; padding: 10px 12px; border: 1px solid #383e41; border-radius: 9px; background: #111416; color: #e3e8eb; font-size: 13px; outline: none; }
+.contactDialog :global(input:focus), .contactDialog :global(textarea:focus) { border-color: #c48c39; box-shadow: 0 0 0 3px #ff9d000d; }
+.contactDialog label { display: block; font-size: 11px; color: #a9b6be; }
+.contactDialog :global(.admin-button) { display: inline-flex; justify-content: center; align-items: center; gap: 7px; min-height: 36px; padding: 8px 12px; border: 1px solid #ffffff18; border-radius: 8px; color: #b7c8d2; background: #ffffff04; font-size: 11px; cursor: pointer; }
+.contactDialog :global(.admin-button-primary) { border-color: #ff9d0030; background: #ff9d0015; color: #ffb448; }
+.contactDialog :global(button:disabled) { opacity: .4; cursor: not-allowed; }
 .dialog h2 {
   font-family: var(--font-two), sans-serif;
   font-size: 23px;

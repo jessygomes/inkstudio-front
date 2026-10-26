@@ -32,6 +32,7 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
   // Fonction pour appliquer les couleurs au conteneur de l'application uniquement
   const applyColorsToDOM = React.useCallback(
     (primary: string, secondary: string) => {
+      if (!containerRef.current) return;
       const primaryRgb = hexToRgb(primary);
       const secondaryRgb = hexToRgb(secondary);
 
@@ -53,20 +54,30 @@ export function ColorProvider({ children }: { children: React.ReactNode }) {
         );
       }
 
-      // Appliquer aussi globalement pour les composants rendus via portal (ex: modales)
-      document.documentElement.style.setProperty("--color-tertiary-400", primary);
-      document.documentElement.style.setProperty("--color-tertiary-500", secondary);
+      // Les portails héritent de ces valeurs uniquement lorsque l'application est montée.
+      document.documentElement.style.setProperty("--app-accent-400", primary);
+      document.documentElement.style.setProperty("--app-accent-500", secondary);
       document.documentElement.style.setProperty(
-        "--color-tertiary-400-rgb",
+        "--app-accent-400-rgb",
         primaryRgb
       );
       document.documentElement.style.setProperty(
-        "--color-tertiary-500-rgb",
+        "--app-accent-500-rgb",
         secondaryRgb
       );
     },
     []
   );
+
+  useEffect(() => {
+    const root = document.documentElement;
+    // Nettoyer les anciennes couleurs globales, notamment après un rafraîchissement à chaud.
+    const legacyProperties = ["--color-tertiary-400", "--color-tertiary-500", "--color-tertiary-400-rgb", "--color-tertiary-500-rgb"];
+    legacyProperties.forEach((property) => root.style.removeProperty(property));
+    return () => {
+      ["--app-accent-400", "--app-accent-500", "--app-accent-400-rgb", "--app-accent-500-rgb"].forEach((property) => root.style.removeProperty(property));
+    };
+  }, []);
 
   // Récupérer les couleurs utilisateur au chargement
   useEffect(() => {

@@ -1,4 +1,5 @@
 "use client";
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -145,13 +146,13 @@ export default function AdminArticlesPage() {
       <section className="w-full space-y-3 pt-4">
         <PageHeader icon={<FiFileText size={18} />} title="Gestion des Articles">
           <Link
-            href="/admin"
+            href={BACK_OFFICE_PATH}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl border border-white/10 font-one text-xs transition-colors"
           >
             <FiChevronLeft size={14} /> Retour
           </Link>
           <Link
-            href="/admin/articles/nouveau"
+            href={`${BACK_OFFICE_PATH}/articles/nouveau`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-400 text-white rounded-2xl font-one text-xs transition-all"
           >
             <FiPlus size={14} /> Nouvel article

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 // import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ROUTES } from "@/lib/routes";
+import AuthShell from "@/components/Auth/AuthShell";
 
 export const metadata: Metadata = {
   title: "Créer un compte",
@@ -41,19 +42,10 @@ export default async function page({ searchParams }: AuthPageProps) {
   }
 
   return (
-    <section className="">
-      <div
-        className="flex min-h-screen w-full bg-cover bg-center items-center justify-center px-4"
-        style={{
-          backgroundImage: "url('/images/bv.png')",
-          backgroundSize: "cover",
-        }}
-      >
-        {/* Ajoutez ici d'autres éléments si nécessaire */}
-        <Suspense>
-          <Register isTatoueurProOfferActive={isTatoueurProOfferActive} />
-        </Suspense>
-      </div>
-    </section>
+    <AuthShell mode="register">
+      <Suspense>
+        <Register isTatoueurProOfferActive={isTatoueurProOfferActive} />
+      </Suspense>
+    </AuthShell>
   );
 }

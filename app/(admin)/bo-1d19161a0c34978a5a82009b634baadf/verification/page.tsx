@@ -1,3 +1,4 @@
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 import Link from "next/link";
 import { FiChevronLeft, FiFileText } from "react-icons/fi";
 import PendingVerificationList from "../../../../components/Admin/PendingVerificationList";
@@ -12,7 +13,7 @@ export default function VerificationPage() {
           title="Vérifications professionnelles" description="Salons et indépendants : distinguez le statut du compte des pièces restant à examiner. Retrouvez les dossiers déjà validés dans les fiches utilisateurs."
         >
           <Link
-            href="/admin"
+            href={BACK_OFFICE_PATH}
             className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/8 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/15 font-one"
           >
             <FiChevronLeft size={14} /> Retour

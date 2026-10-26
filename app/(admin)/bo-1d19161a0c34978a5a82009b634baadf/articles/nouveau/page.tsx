@@ -1,4 +1,5 @@
 "use client";
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -42,7 +43,7 @@ export default function NewAdminArticlePage() {
       }
 
       toast.success("Article cree avec succes");
-      router.push("/admin/articles");
+      router.push(`${BACK_OFFICE_PATH}/articles`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erreur inconnue");
     } finally {
@@ -55,7 +56,7 @@ export default function NewAdminArticlePage() {
       <section className="w-full space-y-3 pt-4">
         <PageHeader icon={<FiFileText size={18} />} title="Nouvel Article">
           <Link
-            href="/admin/articles"
+            href={`${BACK_OFFICE_PATH}/articles`}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl border border-white/10 font-one text-xs transition-colors"
           >
             <FiChevronLeft size={14} /> Retour aux articles

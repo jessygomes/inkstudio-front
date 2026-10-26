@@ -1,10 +1,12 @@
 "use client";
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ArrowUpRight,
   ChartNoAxesCombined,
+  Flag,
   LayoutDashboard,
   Newspaper,
   Palette,
@@ -15,14 +17,14 @@ import {
 import styles from "./AdminShell.module.css";
 
 export const adminNavigation = [
-  { href: "/admin/signalements", label: "Signalements", icon: ShieldCheck },
-  { href: "/admin", label: "Vue d’ensemble", icon: LayoutDashboard },
-  { href: "/admin/users", label: "Utilisateurs", icon: UsersRound },
-  { href: "/admin/verification", label: "Vérifications", icon: ShieldCheck },
-  { href: "/admin/styles", label: "Styles", icon: Palette },
-  { href: "/admin/categories", label: "Catégories", icon: Shapes },
-  { href: "/admin/articles", label: "Articles", icon: Newspaper },
-  { href: "/admin/stats", label: "Statistiques", icon: ChartNoAxesCombined },
+  { href: BACK_OFFICE_PATH, label: "Vue d’ensemble", icon: LayoutDashboard },
+  { href: `${BACK_OFFICE_PATH}/users`, label: "Utilisateurs", icon: UsersRound },
+  { href: `${BACK_OFFICE_PATH}/verification`, label: "Vérifications", icon: ShieldCheck },
+  { href: `${BACK_OFFICE_PATH}/styles`, label: "Styles", icon: Palette },
+  { href: `${BACK_OFFICE_PATH}/categories`, label: "Catégories", icon: Shapes },
+  { href: `${BACK_OFFICE_PATH}/articles`, label: "Articles", icon: Newspaper },
+  { href: `${BACK_OFFICE_PATH}/stats`, label: "Statistiques", icon: ChartNoAxesCombined },
+  { href: `${BACK_OFFICE_PATH}/signalements`, label: "Signalements", icon: Flag },
 ];
 
 export default function AdminShell({
@@ -36,7 +38,7 @@ export default function AdminShell({
   const current = [...adminNavigation]
     .reverse()
     .find((item) =>
-      item.href === "/admin" ? path === item.href : path.startsWith(item.href),
+      item.href === BACK_OFFICE_PATH ? path === item.href : path.startsWith(item.href),
     );
   return (
     <div className={styles.shell}>
@@ -44,7 +46,7 @@ export default function AdminShell({
         Aller au contenu
       </a>
       <aside className={styles.sidebar}>
-        <Link href="/admin" className={styles.brand}>
+        <Link href={BACK_OFFICE_PATH} className={styles.brand}>
           <span>✳</span>
           <div>
             inkera<small>Administration</small>

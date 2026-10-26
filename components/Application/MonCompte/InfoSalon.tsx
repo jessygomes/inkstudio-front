@@ -244,7 +244,7 @@ export default function InfoSalon({ salon }: { salon: UpdateSalonUserProps }) {
           </summary>
           <div className="pt-4 text-center">
             {publicBase && (
-              <div className="mx-auto w-fit rounded-2xl bg-white p-3">
+              <div className="mx-auto w-fit rounded-2xl bg-[#fff] p-3">
                 <QRCodeSVG
                   value={publicHref}
                   size={176}

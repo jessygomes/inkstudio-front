@@ -1,4 +1,5 @@
 "use client";
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 
 import { FiMail, FiPhone, FiMapPin, FiCalendar } from "react-icons/fi";
 import { LuShieldCheck } from "react-icons/lu";
@@ -155,7 +156,7 @@ export default function UserCard({ user, type, onDetails }: UserCardProps) {
 
         {type === "salon" ? (
           <Link
-            href={`/admin/users/${user.id}`}
+            href={`${BACK_OFFICE_PATH}/users/${user.id}`}
             className="rounded-2xl border border-tertiary-400/35 bg-tertiary-500/15 px-3 py-1 text-[11px] font-medium text-tertiary-400 transition-colors duration-300 hover:bg-tertiary-500/25 font-one"
           >
             Détails

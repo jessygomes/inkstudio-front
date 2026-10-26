@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 // import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ROUTES } from "@/lib/routes";
+import AuthShell from "@/components/Auth/AuthShell";
 
 export const metadata: Metadata = {
   title: "Se connecter",
@@ -40,19 +41,10 @@ export default async function page({ searchParams }: AuthPageProps) {
   }
 
   return (
-    <section className="">
-      <div
-        className="flex h-screen w-full bg-cover bg-center items-center justify-center px-4"
-        style={{
-          backgroundImage: "url('/images/bv.png')",
-          backgroundSize: "cover",
-        }}
-      >
-        {/* Ajoutez ici d'autres éléments si nécessaire */}
-        <Suspense>
-          <LoginForm />
-        </Suspense>
-      </div>
-    </section>
+    <AuthShell mode="login">
+      <Suspense>
+        <LoginForm />
+      </Suspense>
+    </AuthShell>
   );
 }

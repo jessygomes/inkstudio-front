@@ -49,6 +49,8 @@ export default function SubscriptionSection({
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [isChangingPlan, setIsChangingPlan] = useState(false);
   const [loading, setLoading] = useState(true);
+  const isInvitation = (subscription?.paymentMethod === "INVITATION" || subscription?.paymentMethod === "ADMIN_GIFT") && subscription.planStatus === "ACTIVE" && !subscription.hasStripeSubscription;
+  const isStripeGift = subscription?.paymentMethod === "STRIPE_GIFT" && subscription.planStatus === "TRIAL" && subscription.hasStripeSubscription;
   const isNativeTrial = subscription?.planStatus === "TRIAL" && !subscription.hasStripeSubscription;
 
   useEffect(() => {
@@ -179,7 +181,7 @@ export default function SubscriptionSection({
                         {currentPlanDetails.name}
                       </h3>
                       <p className="text-white/70 font-two text-xs mt-0.5">
-                        {subscription.planStatus === "TRIAL" ? "Période d’essai" : subscription.planStatus === "ACTIVE" ? "Actif" : "Inactif"}
+                  {isStripeGift ? (new Date(subscription.startDate) > new Date() ? "Offre programmée" : "Période offerte") : subscription.planStatus === "TRIAL" ? "Période d’essai" : subscription.planStatus === "ACTIVE" ? "Actif" : "Inactif"}
                         {" · "}
                         {subscription.nextPaymentDate
                           ? "Renouvellement automatique"
@@ -189,7 +191,7 @@ export default function SubscriptionSection({
 
                     <div className="text-right shrink-0">
                       <p className="text-white font-one text-3xl font-semibold leading-none">
-                        {subscription.monthlyPrice || 0}€
+                        {isStripeGift && new Date(subscription.startDate) <= new Date() ? 0 : subscription.monthlyPrice || 0}€
                       </p>
                       <p className="text-white/60 text-xs font-two mt-0.5">/mois</p>
                     </div>
@@ -198,7 +200,7 @@ export default function SubscriptionSection({
                   <div className="mt-4 grid grid-cols-1 gap-4 border-t border-white/10 pt-4 sm:grid-cols-2">
                     <div className="min-w-0">
                       <p className="text-white/55 font-one text-[11px] uppercase tracking-wider">
-                        <span className="inline-flex items-center gap-2"><CalendarDays className="h-3.5 w-3.5" /> Début de l’abonnement</span>
+                        <span className="inline-flex items-center gap-2"><CalendarDays className="h-3.5 w-3.5" /> {isStripeGift ? "Début de la période offerte" : "Début de l’abonnement"}</span>
                       </p>
                       <p className="text-white font-two text-xs mt-0.5">
                         {new Date(subscription.startDate).toLocaleDateString("fr-FR")}
@@ -219,7 +221,9 @@ export default function SubscriptionSection({
                     </div>
                   </div>
 
-                  {subscription.planStatus === "TRIAL" && subscription.trialEndDate && (
+                  {isInvitation && <div className="mt-3 rounded-xl border border-emerald-400/25 bg-emerald-400/10 p-3 text-sm text-emerald-200">{subscription.paymentMethod === "ADMIN_GIFT" ? "Abonnement offert par Inkera Studio." : "Abonnement offert sur invitation."} À la fin de l’offre, votre compte repassera en Free sans prélèvement automatique.</div>}
+                  {isStripeGift && subscription.trialEndDate && <div className="mt-3 rounded-xl border border-emerald-400/25 bg-emerald-400/10 p-3 text-sm text-emerald-200">Période offerte du {new Date(subscription.startDate).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" })} au {new Date(subscription.trialEndDate).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" })}. {subscription.nextPaymentDate ? "La facturation reprendra automatiquement à cette date au tarif de votre abonnement Stripe." : "La résiliation est programmée ; aucun renouvellement automatique n’est prévu."}</div>}
+                  {subscription.planStatus === "TRIAL" && !isStripeGift && subscription.trialEndDate && (
                     <div className="mt-3 rounded-[10px] border border-tertiary-500/25 bg-tertiary-500/10 px-2.5 py-2">
                       <p className="text-tertiary-300 font-one text-xs font-semibold">
                         Période d'essai active
@@ -236,14 +240,14 @@ export default function SubscriptionSection({
                   <ul className="grid gap-3 sm:grid-cols-2">{currentPlanDetails.features.map((feature) => <li key={feature} className="flex items-start gap-2 text-xs text-white/70"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />{feature}</li>)}</ul>
                 </div>}
                 <div className={styles.footer}>
-                  <DashboardButton
+                  {!isInvitation && <DashboardButton
                     onClick={() => isNativeTrial ? handlePlanChange(subscription.currentPlan) : setShowCancelModal(true)}
                     disabled={isChangingPlan || subscription.currentPlan === "FREE"}
                     variant="secondary"
                     className="min-w-0! min-h-11 px-4"
                   >
                     {isNativeTrial ? "Souscrire pour continuer après l’essai" : "Annuler l'abonnement"}
-                  </DashboardButton>
+                  </DashboardButton>}
 
                   <DashboardButton
                     onClick={() => { setSelectedPlan(isNativeTrial ? subscription.currentPlan : ""); setShowPlanModal(true); }}

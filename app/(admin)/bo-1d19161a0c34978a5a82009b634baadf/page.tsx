@@ -1,15 +1,16 @@
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 import Link from "next/link";
 import { ArrowUpRight, ChartNoAxesCombined, LayoutDashboard, Newspaper, Palette, ShieldCheck, Shapes, UsersRound } from "lucide-react";
 import DashboardStats from "@/components/Admin/DashboardStats";
 import AdminPageHeader from "@/components/Admin/AdminPageHeader";
 
 const shortcuts = [
-  { href: "/admin/users", title: "Utilisateurs", description: "Comptes, ancienneté et informations de contact.", icon: UsersRound },
-  { href: "/admin/verification", title: "Dossiers de vérification", description: "Consulter les pièces et traiter les demandes.", icon: ShieldCheck },
-  { href: "/admin/styles", title: "Styles de tatouage", description: "Un catalogue cohérent pour les portfolios.", icon: Palette },
-  { href: "/admin/categories", title: "Catégories", description: "Organiser les contenus et leur visibilité.", icon: Shapes },
-  { href: "/admin/articles", title: "Articles", description: "Rédiger et gérer les publications Inkera.", icon: Newspaper },
-  { href: "/admin/stats", title: "Statistiques", description: "Évolution des inscriptions et de l’activité.", icon: ChartNoAxesCombined },
+  { href: `${BACK_OFFICE_PATH}/users`, title: "Utilisateurs", description: "Comptes, ancienneté et informations de contact.", icon: UsersRound },
+  { href: `${BACK_OFFICE_PATH}/verification`, title: "Dossiers de vérification", description: "Consulter les pièces et traiter les demandes.", icon: ShieldCheck },
+  { href: `${BACK_OFFICE_PATH}/styles`, title: "Styles de tatouage", description: "Un catalogue cohérent pour les portfolios.", icon: Palette },
+  { href: `${BACK_OFFICE_PATH}/categories`, title: "Catégories", description: "Organiser les contenus et leur visibilité.", icon: Shapes },
+  { href: `${BACK_OFFICE_PATH}/articles`, title: "Articles", description: "Rédiger et gérer les publications Inkera.", icon: Newspaper },
+  { href: `${BACK_OFFICE_PATH}/stats`, title: "Statistiques", description: "Évolution des inscriptions et de l’activité.", icon: ChartNoAxesCombined },
 ];
 
 export default function AdminPage() {

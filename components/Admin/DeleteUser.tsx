@@ -1,30 +1,29 @@
 "use client";
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 
 import { deleteAdminUserAction } from "@/lib/queries/admin";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import AdminConfirmDialog from "./AdminConfirmDialog";
 import { toast } from "sonner";
 
 interface DeleteUserProps {
   userId: string;
   userLabel?: string;
   redirectTo?: string;
+  className?: string;
 }
 
 export default function DeleteUser({
   userId,
   userLabel = "cet utilisateur",
-  redirectTo = "/admin/users",
+  redirectTo = `${BACK_OFFICE_PATH}/users`,
+  className,
 }: DeleteUserProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleDelete = async () => {
     setLoading(true);
@@ -49,51 +48,10 @@ export default function DeleteUser({
     }
   };
 
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="cursor-pointer w-full whitespace-nowrap rounded-2xl border border-red-500/35 bg-red-500/12 px-3 py-1.5 text-xs text-red-200 transition-colors hover:bg-red-500/20 font-one"
-      >
-        Supprimer utilisateur
-      </button>
-
-      {mounted &&
-        isOpen &&
-        createPortal(
-          <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/15 bg-noir-500 p-4 shadow-2xl">
-            <h3 className="text-sm font-semibold text-white font-one">
-              Confirmer la suppression
-            </h3>
-            <p className="mt-2 text-xs text-white/75 font-one leading-relaxed">
-              Voulez-vous vraiment supprimer {userLabel} ? Cette action est
-              irréversible et supprimera aussi ses données associées.
-            </p>
-
-            <div className="mt-4 flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                disabled={loading}
-                className="cursor-pointer whitespace-nowrap rounded-xl border border-white/15 bg-white/8 px-3 py-1.5 text-xs text-white/85 transition-colors hover:bg-white/12 font-one disabled:opacity-50"
-              >
-                Annuler
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={loading}
-                className="cursor-pointer whitespace-nowrap rounded-xl border border-red-500/35 bg-red-500/20 px-3 py-1.5 text-xs text-red-100 transition-colors hover:bg-red-500/30 font-one disabled:opacity-50"
-              >
-                {loading ? "Suppression..." : "Confirmer"}
-              </button>
-            </div>
-          </div>
-          </div>,
-          document.body
-        )}
-    </>
-  );
+  return <>
+    <button type="button" onClick={() => setIsOpen(true)} className={className || "admin-button admin-button-danger"}><Trash2 size={13} aria-hidden="true" />Supprimer utilisateur</button>
+    <AdminConfirmDialog open={isOpen} title="Supprimer ce compte ?" busy={loading} onCancel={() => setIsOpen(false)} onConfirm={() => void handleDelete()}>
+      <p>La suppression de <strong>{userLabel}</strong> est irréversible et supprime aussi les données associées au compte.</p>
+    </AdminConfirmDialog>
+  </>;
 }

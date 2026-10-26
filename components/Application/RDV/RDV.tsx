@@ -24,7 +24,7 @@ import {
 } from "@/lib/queries/appointment";
 import { FaArrowLeft } from "react-icons/fa6";
 import { CiCalendar, CiCalendarDate } from "react-icons/ci";
-import { SlidersHorizontal } from "lucide-react";
+import { Clock3, SlidersHorizontal } from "lucide-react";
 import { Search } from "@/components/Shared/Search";
 import { toast } from "sonner";
 import { FaRegCalendarTimes } from "react-icons/fa";
@@ -381,12 +381,13 @@ export default function RDV() {
       ) : (
         <div className="flex w-full flex-col gap-4 xl:flex-row xl:gap-0">
           <div className="flex min-w-0 flex-1 flex-col gap-4 xl:mr-[calc(36vw-2.5rem)] xl:pr-6">
-          <ApplicationToolbar className="sm:!flex-col sm:!items-stretch [&_input:not([type=checkbox])]:!rounded-2xl sm:[&_input:not([type=checkbox])]:!rounded-2xl">
+          <ApplicationToolbar className="!overflow-visible !rounded-2xl border border-white/8 bg-noir-700 sm:!flex-col sm:!items-stretch [&_input:not([type=checkbox])]:!rounded-xl sm:[&_input:not([type=checkbox])]:!rounded-xl [&_select]:!rounded-xl">
             <div className="relative z-0 flex w-full min-w-0 flex-wrap items-center gap-2 md:flex-nowrap">
-              <div className="flex w-full shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-black/15 p-1 md:w-auto">
+              <div className="flex w-full shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/15 p-1 md:w-auto">
                 <button
                   onClick={() => handleViewModeChange("calendar")}
-                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-2xl px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
+                  aria-pressed={viewMode === "calendar"}
+                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
                     viewMode === "calendar"
                       ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
                       : "text-white/70 hover:text-white hover:bg-white/10"
@@ -397,7 +398,8 @@ export default function RDV() {
                 </button>
                 <button
                   onClick={() => handleViewModeChange("list")}
-                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
+                  aria-pressed={viewMode === "list"}
+                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
                     viewMode === "list"
                       ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
                       : "text-white/70 hover:text-white hover:bg-white/10"
@@ -417,7 +419,7 @@ export default function RDV() {
                   aria-label="Filtres"
                   aria-expanded={isFiltersOpen}
                   title="Filtres"
-                  className={`relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border transition-colors ${
+                  className={`relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border transition-colors ${
                     isFiltersOpen || activeFiltersCount > 0
                       ? "border-tertiary-400/50 bg-tertiary-400/15 text-white"
                       : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
@@ -514,16 +516,28 @@ export default function RDV() {
             </div>
 
             <div className="order-3 flex w-full shrink-0 gap-2 md:w-auto">
-            <div
-              title="Rendez-vous en attente"
-              className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-medium text-white font-one md:flex-none"
+            <button
+              type="button"
+              title="Afficher les rendez-vous à confirmer"
+              aria-pressed={viewMode === "list" && statusFilter === "PENDING"}
+              onClick={() => {
+                if (viewMode === "calendar") handleViewModeChange("list");
+                setStatusFilter(statusFilter === "PENDING" && viewMode === "list" ? "all" : "PENDING");
+                setCurrentPage(1);
+              }}
+              className={`group inline-flex min-h-10 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded-xl border px-3 py-2 font-one text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60 md:flex-none ${
+                viewMode === "list" && statusFilter === "PENDING"
+                  ? "border-amber-300/40 bg-amber-400/15 text-amber-200"
+                  : "border-amber-300/15 bg-amber-400/[0.06] text-amber-100/80 hover:border-amber-300/30 hover:bg-amber-400/10"
+              }`}
             >
-              <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[11px]">
+              <Clock3 size={15} className="shrink-0 text-amber-300" />
+              <span>En attente</span>
+              <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-amber-300/15 px-1 text-[10px] font-semibold tabular-nums text-amber-200">
                 {pendingAppointmentsCount > 99 ? "99+" : pendingAppointmentsCount}
               </span>
-              <span>En attente</span>
-            </div>
-            {!isFreeAccount && <DashboardButton href="/mes-rendez-vous/creer" className="!min-w-0 flex-1 whitespace-nowrap md:flex-none">
+            </button>
+            {!isFreeAccount && <DashboardButton href="/mes-rendez-vous/creer" className="!min-w-0 !rounded-xl flex-1 whitespace-nowrap md:flex-none">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
@@ -831,11 +845,11 @@ export default function RDV() {
           </div>
 
             {/* Section détails/Calendrier - fixe sur toute la hauteur de l'écran */}
-            <section className="relative w-full xl:fixed xl:top-0 xl:right-0 xl:z-30 xl:h-screen xl:w-[36vw] xl:border-l xl:border-white/10">
+            <section className={`relative w-full xl:fixed xl:top-0 xl:right-0 xl:z-30 xl:h-screen xl:w-[36vw] ${viewMode !== "calendar" || selectedEvent ? "xl:border-l xl:border-white/10" : ""}`}>
               {/* Affichage mobile : Calendrier */}
-              <div className="xl:hidden mb-4">
+              <div className="xl:hidden">
                 {viewMode === "calendar" ? (
-                  <div className="bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg rounded-3xl border border-white/20 shadow-2xl h-[60vh]">
+                  <div className="h-dvh w-full bg-noir-700">
                     <CalendarViewMobile
                       events={paginatedEvents}
                       currentDate={currentDate}

@@ -1,0 +1,164 @@
+.timeViews:global(.inkera-calendar),
+.timeViews:global(.inkera-calendar-mobile) {
+  background: var(--color-noir-700);
+  border-radius: 0;
+}
+
+.timeViews :global(.rbc-time-view) {
+  overflow: hidden;
+  border-radius: 0 !important;
+  background: var(--color-noir-700);
+}
+
+.timeViews :global(.rbc-time-view .rbc-header) {
+  padding: 12px 2px !important;
+  background: rgb(var(--app-ink-rgb) / 2%) !important;
+  border-left: 1px solid rgb(var(--app-ink-rgb) / 6%) !important;
+  text-transform: none;
+}
+
+.dateHeading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-one), sans-serif;
+}
+
+.weekday {
+  color: rgb(var(--app-ink-rgb) / max(45%, var(--app-muted-opacity)));
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.dayNumber {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 9px;
+  color: rgb(var(--app-ink-rgb) / max(90%, var(--app-muted-opacity)));
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeViews :global(.rbc-today) .dayNumber {
+  background: var(--color-tertiary-400);
+  color: #292724;
+  box-shadow: 0 3px 14px rgb(255 157 0 / 15%);
+}
+
+.timeViews :global(.rbc-time-header-cell-single-day) {
+  display: flex;
+}
+
+.timeViews :global(.rbc-time-view .rbc-time-content) {
+  border-top: 1px solid rgb(var(--app-ink-rgb) / 8%) !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--app-ink-rgb) / max(16%, var(--app-muted-opacity))) transparent;
+}
+
+.timeViews :global(.rbc-time-view .rbc-time-gutter) {
+  background: var(--color-noir-700) !important;
+  min-width: 48px;
+}
+
+.timeViews :global(.rbc-time-view .rbc-time-gutter .rbc-label) {
+  display: inline-block;
+  padding: 5px 7px !important;
+  font-size: 10px !important;
+  color: rgb(var(--app-ink-rgb) / max(40%, var(--app-muted-opacity))) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeViews :global(.rbc-time-view .rbc-day-slot) {
+  border-left: 1px solid rgb(var(--app-ink-rgb) / 7%) !important;
+}
+
+.timeViews :global(.rbc-time-view .rbc-timeslot-group) {
+  min-height: 64px;
+  border-radius: 0 !important;
+  border-bottom: 1px solid rgb(var(--app-ink-rgb) / 7%) !important;
+  background: transparent !important;
+}
+
+.timeViews :global(.rbc-time-view .rbc-time-content .rbc-timeslot-group:nth-child(even)) {
+  background: transparent !important;
+}
+
+.timeViews :global(.rbc-time-view .rbc-day-slot .rbc-time-slot) {
+  min-height: 32px !important;
+  background: transparent !important;
+  border-top: 1px dashed rgb(var(--app-ink-rgb) / 3%) !important;
+}
+
+.timeViews :global(.rbc-time-view .rbc-day-slot.rbc-today) {
+  background: rgb(255 157 0 / 3%) !important;
+}
+
+.timeViews :global(.rbc-time-view .rbc-current-time-indicator) {
+  display: block !important;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-tertiary-400), color-mix(in srgb, var(--color-tertiary-400) 35%, transparent));
+  box-shadow: 0 0 6px rgb(255 157 0 / 20%);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.timeViews :global(.rbc-current-time-indicator)::before {
+  content: "";
+  position: absolute;
+  top: -2.5px;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-tertiary-400);
+  box-shadow: 0 0 0 3px rgb(255 157 0 / 12%);
+}
+
+.timeViews :global(.rbc-time-view .rbc-event) {
+  border-radius: 8px !important;
+  padding: 5px !important;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 15%) !important;
+  font-size: 10px !important;
+  line-height: 1.4;
+}
+
+.timeViews :global(.rbc-time-view .rbc-event-label) {
+  font-size: 9px;
+  font-weight: 500;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeViews :global(.rbc-time-view .rbc-event:hover),
+.timeViews :global(.rbc-time-view .rbc-event:focus-visible) {
+  transform: none !important;
+  filter: brightness(1.15);
+  outline: 2px solid rgb(var(--app-ink-rgb) / 50%);
+  outline-offset: -2px;
+}
+
+@media (max-width: 480px) {
+  .timeViews :global(.rbc-time-view .rbc-header) {
+    padding: 9px 1px !important;
+  }
+
+  .dayNumber {
+    width: 23px;
+    height: 25px;
+    font-size: 13px;
+  }
+
+  .weekday {
+    font-size: 9px;
+  }
+
+  .timeViews :global(.rbc-time-view .rbc-event) {
+    padding: 3px !important;
+    font-size: 9px !important;
+  }
+}

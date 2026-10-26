@@ -1,4 +1,5 @@
 "use client";
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 
 import AccountAge from "./AccountAge";
 import Image from "next/image";
@@ -141,7 +142,7 @@ export default function SalonQuickViewModal({
           <div className="text-xs text-white/60 font-one">ID : {salon.id}</div>
           <div className="flex gap-2">
             <a
-              href={`/admin/users/${salon.id}`}
+              href={`${BACK_OFFICE_PATH}/users/${salon.id}`}
               className="px-4 py-2 text-sm bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-lg font-one font-medium"
             >
               Voir la fiche complète

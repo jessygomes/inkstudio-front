@@ -9,6 +9,8 @@ import { fr } from "date-fns/locale/fr";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useMemo } from "react";
 import { CalendarEvent } from "./Calendar";
+import CalendarTimeHeader from "./CalendarTimeHeader";
+import styles from "./CalendarTimeViews.module.css";
 
 const locales = {
   fr: fr,
@@ -134,11 +136,11 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
 
   return (
     <div className="h-full w-full flex flex-col">
-      <div className="dashboard-embedded-panel flex h-full min-h-0 w-full flex-col overflow-hidden !rounded-[16px] !p-0 md:!rounded-[20px]">
+      <div className="dashboard-embedded-panel flex h-full min-h-0 w-full flex-col overflow-hidden !rounded-none !border-0 !p-0 !shadow-none">
         {/* Header compact pour mobile */}
-        <div className="dashboard-embedded-header flex items-center justify-between gap-2 border-b border-white/8 px-3 py-3 md:px-4 md:py-3.5">
+        <div className="dashboard-embedded-header flex flex-wrap items-center justify-between gap-2 border-b border-white/8 px-3 py-3 md:px-4 md:py-3.5">
           <div className="flex items-center gap-2 md:gap-2.5">
-            <p className="whitespace-nowrap text-[10px] uppercase tracking-[0.1em] text-white/65 font-two md:text-xs">
+            <p className="whitespace-nowrap text-[9px] uppercase tracking-[0.1em] text-white/65 font-two md:text-[11px]">
               {displayLabel}
             </p>
             <div className="inline-flex items-center gap-0 rounded-lg border border-white/10 bg-white/5 p-0.5 md:rounded-xl">
@@ -201,7 +203,7 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5 md:rounded-xl md:p-1">
+          <div className="ml-auto flex shrink-0 items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5 md:rounded-xl md:p-1">
             {(["month", "week", "day"] as View[]).map((view) => (
               <button
                 key={view}
@@ -219,12 +221,19 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
         </div>
 
         {/* Calendrier avec CSS optimisé pour mobile */}
-        <div className="flex-1 min-h-0 overflow-hidden p-1.5 md:p-2">
-          <div className="inkera-calendar-mobile h-full w-full overflow-hidden rounded-lg bg-white/[0.02] md:rounded-xl">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <div className={`inkera-calendar-mobile h-full w-full overflow-hidden bg-white/[0.02] ${currentView !== "month" ? styles.timeViews : ""}`}>
             <style jsx global>{`
+              .inkera-calendar-mobile .rbc-month-view,
+              .inkera-calendar-mobile .rbc-time-view {
+                border: none !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+              }
+
               .inkera-calendar-mobile .rbc-calendar {
                 background: transparent !important;
-                color: white !important;
+                color: var(--app-ink) !important;
                 font-family: inherit !important;
                 font-size: 11px !important;
                 border: none !important;
@@ -236,8 +245,8 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
               }
 
               .inkera-calendar-mobile .rbc-header {
-                background: rgba(255, 255, 255, 0.06) !important;
-                color: rgba(255, 255, 255, 0.85) !important;
+                background: rgb(var(--app-ink-rgb) / 0.06) !important;
+                color: rgb(var(--app-ink-rgb) / max(85%, var(--app-muted-opacity))) !important;
                 padding: 5px 3px !important;
                 font-weight: 500 !important;
                 font-size: 10px !important;
@@ -275,7 +284,7 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
                 padding: 4px 2px !important;
                 background: transparent !important;
                 font-size: 10px !important;
-                color: rgba(255, 255, 255, 0.65) !important;
+                color: rgb(var(--app-ink-rgb) / max(65%, var(--app-muted-opacity))) !important;
               }
 
               @media (min-width: 768px) {
@@ -290,7 +299,7 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
               }
 
               .inkera-calendar-mobile .rbc-day-bg:hover {
-                background: rgba(255, 255, 255, 0.02) !important;
+                background: rgb(var(--app-ink-rgb) / 0.02) !important;
               }
 
               .inkera-calendar-mobile .rbc-off-range-bg {
@@ -307,7 +316,7 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
               }
 
               .inkera-calendar-mobile .rbc-time-slot {
-                color: rgba(255, 255, 255, 0.52) !important;
+                color: rgb(var(--app-ink-rgb) / max(52%, var(--app-muted-opacity))) !important;
                 border: none !important;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -319,14 +328,14 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
               }
 
               .inkera-calendar-mobile .rbc-time-gutter {
-                background: rgba(255, 255, 255, 0.02) !important;
+                background: rgb(var(--app-ink-rgb) / 0.02) !important;
                 border: none !important;
                 width: 42px !important;
               }
 
               .inkera-calendar-mobile .rbc-time-gutter .rbc-label {
                 font-size: 9px !important;
-                color: rgba(255, 255, 255, 0.55) !important;
+                color: rgb(var(--app-ink-rgb) / max(55%, var(--app-muted-opacity))) !important;
                 font-weight: 500;
               }
 
@@ -341,7 +350,7 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
               }
 
               .inkera-calendar-mobile .rbc-time-content .rbc-timeslot-group:nth-child(even) {
-                background: rgba(255, 255, 255, 0.01) !important;
+                background: rgb(var(--app-ink-rgb) / 0.01) !important;
               }
 
               .inkera-calendar-mobile .rbc-time-content {
@@ -431,7 +440,7 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
               }
 
               .inkera-calendar-mobile .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
-                border-color: rgba(255, 255, 255, 0.08) !important;
+                border-color: rgb(var(--app-ink-rgb) / max(8%, var(--app-muted-opacity))) !important;
               }
             `}</style>
 
@@ -442,6 +451,7 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
               startAccessor="start"
               endAccessor="end"
               eventPropGetter={eventStyleGetter}
+              components={{ week: { header: CalendarTimeHeader }, day: { header: CalendarTimeHeader } }}
               style={{ height: "100%", width: "100%", minHeight: 0 }}
               views={["month", "week", "day"]}
               date={currentDate}
@@ -452,8 +462,8 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
               max={new Date(1970, 1, 1, 19, 0)}
               onSelectEvent={onSelectEvent}
               selectable
-              step={60}
-              timeslots={1}
+              step={30}
+              timeslots={2}
               messages={{
                 next: "Suivant",
                 previous: "Précédent",
@@ -473,7 +483,7 @@ export const CalendarViewMobile: React.FC<CalendarViewMobileProps> = ({
                 dayFormat: (date, culture, localizer) =>
                   localizer?.format(date, "d", culture) ?? "",
                 timeGutterFormat: (date, culture, localizer) =>
-                  localizer?.format(date, "HH", culture) ?? "",
+                  localizer?.format(date, "HH:mm", culture) ?? "",
                 eventTimeRangeFormat: ({ start, end }, culture, localizer) =>
                   `${localizer?.format(start, "HH:mm", culture) ?? ""} - ${
                     localizer?.format(end, "HH:mm", culture) ?? ""

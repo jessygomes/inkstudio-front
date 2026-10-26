@@ -6,14 +6,17 @@ import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { userLoginSchema } from "@/lib/zod/validator.schema";
-import { CardWrapper } from "../CardWrapper";
+import styles from "../AuthForms.module.css";
+import { ArrowRight, Eye, EyeOff, LoaderCircle, LockKeyhole, Mail } from "lucide-react";
 import { FormError } from "@/components/Shared/FormError";
 import { FormSuccess } from "@/components/Shared/FormSuccess";
+import FormFeedback from "@/components/Shared/FormFeedback";
 import Link from "next/link";
-import Image from "next/image";
+
 import { getSession, signIn } from "next-auth/react";
 import { ROUTES } from "@/lib/routes";
 import { toast } from "sonner";
+import DashboardButton from "@/components/Shared/DashboardButton";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -136,169 +139,48 @@ export const LoginForm = () => {
 
   return (
     <div>
-      <div className="flex justify-center items-center">
-        <Image
-          src="/images/logo_white_color.png"
-          alt="Logo"
-          width={100}
-          height={100}
-          style={{ height: "auto" }}
-        />
-      </div>
-      <CardWrapper headerLabel="Connectez-vous et gérez votre salon">
-        <form
-          method="post"
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="relative text-white"
-        >
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-1 font-one">
-              <label htmlFor="mail" className="text-xs">
-                Email
-              </label>
-              <input
-                id="mail"
-                placeholder="johndoe@domaine.com"
-                type="text"
-                required
-                className="bg-white/30 py-2 px-4 rounded-2xl"
-                {...form.register("email")}
-              />
-              {form.formState.errors.email && (
-                <p className="text-red-500 text-sm">
-                  {form.formState.errors.email.message}
-                </p>
-              )}
+      <div className={styles.card}>
+        <header className={styles.heading}>
+          <span className={styles.kicker}><LockKeyhole size={13} />Votre espace Inkera</span>
+          <h1>Heureux de vous retrouver.</h1>
+          <p>Connectez-vous pour retrouver votre studio et vos projets.</p>
+        </header>
+        <form method="post" onSubmit={form.handleSubmit(onSubmit)} className={styles.form} aria-busy={isPending}>
+          <div className={styles.field}>
+            <label htmlFor="mail">Adresse e-mail</label>
+            <div className={styles.inputWrap}>
+              <Mail size={16} className={styles.inputIcon} aria-hidden="true" />
+              <input id="mail" type="email" placeholder="vous@votrestudio.fr" autoComplete="email" autoCapitalize="none" required disabled={isPending}
+                className={styles.withIcon} aria-invalid={!!form.formState.errors.email} aria-describedby={form.formState.errors.email ? "login-email-error" : undefined} {...form.register("email")} />
             </div>
-
-            <div className="flex flex-col gap-2 font-krub">
-              <label htmlFor="password" className="text-xs">
-                Mot de passe
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  placeholder="Mot de passe"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  className="bg-white/30 py-2 px-4 pr-10 rounded-2xl text-sm w-full"
-                  {...form.register("password")}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors"
-                >
-                  {showPassword ? (
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                  )}
-                </button>
-              </div>
-              {form.formState.errors.password && (
-                <p className="text-red-500 text-sm">
-                  {form.formState.errors.password.message}
-                </p>
-              )}
-            </div>
-
-            <FormError message={error} />
-            {signupNotice && (
-              <div className="rounded-2xl border border-emerald-400/35 bg-emerald-500/15 p-3 text-emerald-100">
-                <p className="text-sm font-semibold font-one mb-2">
-                  Compte créé avec succès
-                </p>
-                <div className="space-y-1.5 text-xs font-two leading-relaxed">
-                  <p>
-                    {signupNotice.email
-                      ? `Adresse liée au compte : ${signupNotice.email}`
-                      : "Votre compte a bien été créé."}
-                  </p>
-                  <p>
-                    Un email de vérification vous a été envoyé. Pensez à confirmer
-                    votre adresse avant votre première connexion complète.
-                  </p>
-                  {signupNotice.plan && signupNotice.plan !== "FREE" && (
-                    <p>
-                      Le plan {signupNotice.plan} sera activé après validation du
-                      paiement Stripe. En attendant, votre compte reste en version
-                      FREE.
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-            <FormSuccess message={success} />
-
-            <button
-              className="cursor-pointer px-8 py-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-2xl transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-one lg:text-xs"
-              type="submit"
-              disabled={isPending}
-            >
-              {isPending
-                ? success === "Redirection vers l'app..."
-                  ? "Redirection vers l'app..."
-                  : "Connexion..."
-                : "Se connecter"}
-            </button>
+            {form.formState.errors.email && <p id="login-email-error" className={styles.error}>{form.formState.errors.email.message}</p>}
           </div>
+          <div className={styles.field}>
+            <div className={styles.labelRow}><label htmlFor="password">Mot de passe</label><Link href="/motdepasseoublie">Mot de passe oublié ?</Link></div>
+            <div className={styles.inputWrap}>
+              <LockKeyhole size={16} className={styles.inputIcon} aria-hidden="true" />
+              <input id="password" type={showPassword ? "text" : "password"} placeholder="Votre mot de passe" autoComplete="current-password" required disabled={isPending}
+                className={styles.withIcon} aria-invalid={!!form.formState.errors.password} aria-describedby={form.formState.errors.password ? "login-password-error" : undefined} {...form.register("password")} />
+              <button type="button" className={styles.passwordToggle} onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"} aria-pressed={showPassword} aria-controls="password">
+                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </div>
+            {form.formState.errors.password && <p id="login-password-error" className={styles.error}>{form.formState.errors.password.message}</p>}
+          </div>
+          <div className="space-y-3">
+            {error === "Veuillez vous connecter pour continuer." ? <FormFeedback variant="info" title="Connexion requise" message={error} /> : <FormError title="Connexion impossible" message={error} />}
+            {signupNotice && <FormSuccess title="Compte créé avec succès" message={`${signupNotice.email ? `Un e-mail de vérification a été envoyé à ${signupNotice.email}.` : "Un e-mail de vérification vous a été envoyé."} Confirmez votre adresse avant de vous connecter.`}>
+              {signupNotice.plan && signupNotice.plan !== "FREE" && <p>Le plan {signupNotice.plan} sera activé après validation du paiement Stripe. En attendant, votre compte reste en version FREE.</p>}
+            </FormSuccess>}
+            <FormSuccess title="Connexion réussie" message={success} />
+          </div>
+          <DashboardButton type="submit" className="w-full" disabled={isPending}>
+            {isPending ? <><LoaderCircle size={16} className="animate-spin" />{success ? "Redirection…" : "Connexion…"}</> : <>Se connecter<ArrowRight size={16} /></>}
+          </DashboardButton>
         </form>
-      </CardWrapper>
-      <div className="relative flex flex-col gap-2 justify-center items-center">
-        <p className="text-white text-xs text-center font-two mt-2">
-          Pas encore de compte ?{" "}
-          <Link
-            className="text-tertiary-400 hover:text-tertiary-500 transition-all ease-in-out duration-150"
-            href={signupHref}
-          >
-            Créer un compte
-          </Link>
-        </p>
-        <div className="h-[1px] bg-white w-[300px]"></div>
-        <Link
-          className="relative text-center text-white text-xs hover:text-white/70 transition-all ease-in-out duration-150"
-          href="/motdepasseoublie"
-        >
-          Mot de passe oublié ?
-        </Link>
-        <Link
-          className="relative text-center text-white/70 text-xs hover:text-white transition-all ease-in-out duration-150"
-          href="/"
-        >
-          ← Retour à l&apos;accueil
-        </Link>
       </div>
+      <p className={styles.footnote}>Vous découvrez Inkera ? <Link href={signupHref}>Créer un compte</Link></p>
     </div>
   );
 };

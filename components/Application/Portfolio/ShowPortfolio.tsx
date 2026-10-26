@@ -481,7 +481,7 @@ export default function ShowPortfolio() {
                   />
 
                   {!isLinkedPortfolioPhoto(photo) && (
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden xl:flex">
+                    <div data-theme-contrast="dark" className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-center justify-center hidden xl:flex">
                       <div className="flex gap-3">
                         <button
                           className="cursor-pointer p-2 bg-tertiary-400/10 backdrop-blur-sm rounded-full hover:bg-tertiary-400/15 transition-all duration-200"

@@ -1,4 +1,5 @@
 "use client";
+import { BACK_OFFICE_PATH } from "@/lib/back-office";
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
@@ -72,7 +73,7 @@ export default function DashboardStats() {
       value: stats?.salonsWithPendingDocuments,
       note: "Au moins une pièce en attente",
       icon: Clock3,
-      href: "/admin/verification",
+      href: `${BACK_OFFICE_PATH}/verification`,
     },
     {
       label: "Comptes vérifiés",
