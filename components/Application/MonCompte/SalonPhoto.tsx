@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useId, useRef, type ReactNode } from "react";
 import Image from "next/image";
 import DashboardButton from "@/components/Shared/DashboardButton";
-import { ImagePlus, Images, Plus, Trash2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Images, LoaderCircle, Maximize2, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
+import styles from "./SalonGallery.module.css";
 import SalonGalleryUploader from "./SalonGalleryUploader";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { extractKeyFromUrl } from "@/lib/utils/uploadImg/extractKeyFromUrl";
@@ -20,6 +21,7 @@ export default function SalonPhoto() {
   const user = useUser();
   const salonId = user?.id;
 
+  const [viewedImageId, setViewedImageId] = useState<string | null>(null);
   const [showUploader, setShowUploader] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [loadError, setLoadError] = useState(false);
@@ -27,16 +29,6 @@ export default function SalonPhoto() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  // //! Fonction pour extraire la clé d'une URL UploadThing
-  // const extractKeyFromUrl = (url: string): string | null => {
-  //   try {
-  //     const match = url.match(/\/f\/([^\/\?]+)|\/([^\/\?]+)$/);
-  //     return match ? match[1] || match[2] : null;
-  //   } catch {
-  //     return null;
-  //   }
-  // };
 
   //! Fonction pour supprimer une image d'UploadThing
   const deleteFromUploadThing = async (imageUrl: string) => {
@@ -177,11 +169,24 @@ export default function SalonPhoto() {
     }
   };
 
+  const selectedImage = images.find(image => image.id === selectedImageId);
+  const viewedIndex = images.findIndex(image => image.id === viewedImageId);
+  const viewedImage = images[viewedIndex];
+  const closeDelete = () => {
+    if (isDeleting) return;
+    setIsDeleteModalOpen(false);
+    setSelectedImageId(null);
+  };
+  const navigateImage = (direction: number) => {
+    const next = (viewedIndex + direction + images.length) % images.length;
+    setViewedImageId(images[next].id);
+  };
+
   if (isLoading) {
     return (
       <div className="w-full flex flex-col gap-5 font-one">
         {/* Header skeleton */}
-        <div className="rounded-2xl bg-noir-700/6 p-3">
+        <div className="rounded-2xl bg-noir-700 p-3">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
@@ -193,11 +198,11 @@ export default function SalonPhoto() {
           </div>
         </div>
         {/* Grid skeleton */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="aspect-square rounded-xl bg-white/6 animate-pulse border border-white/8"
+              className="aspect-[4/3] rounded-xl bg-white/6 animate-pulse border border-white/8"
             />
           ))}
         </div>
@@ -209,10 +214,10 @@ export default function SalonPhoto() {
     <div className="w-full flex flex-col gap-3">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <span className="flex size-11 items-center justify-center rounded-2xl bg-tertiary-400/10 text-tertiary-400"><Images size={21} aria-hidden="true" /></span>
+          <span className="flex size-9 items-center justify-center rounded-xl bg-tertiary-400/10 text-tertiary-400"><Images size={17} aria-hidden="true" /></span>
           <div>
-            <h3 className="text-base font-semibold text-white">Votre sélection <span className="ml-2 text-sm font-normal text-white/50">{images.length} / 6</span></h3>
-            <p className="mt-1 text-sm text-white/55">{images.length === 6 ? "Votre galerie est complète." : `${6 - images.length} emplacement${images.length < 5 ? "s" : ""} disponible${images.length < 5 ? "s" : ""}`}</p>
+            <h3 className="text-sm font-semibold text-white">Votre sélection <span className="ml-2 text-sm font-normal text-white/50">{images.length} / 6</span></h3>
+            <p className="mt-1 text-[11px] text-white/45">{images.length === 6 ? "Votre galerie est complète." : `${6 - images.length} emplacement${images.length < 5 ? "s" : ""} disponible${images.length < 5 ? "s" : ""}`}</p>
           </div>
         </div>
         {!loadError && images.length < 6 && images.length > 0 && (
@@ -222,33 +227,29 @@ export default function SalonPhoto() {
         )}
       </div>
 
-      {loadError && <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4"><p className="text-sm text-amber-200">Impossible de charger la galerie.</p><DashboardButton className="!min-h-0" variant="secondary" onClick={fetchImages}>Réessayer</DashboardButton></div>}
+      {loadError && <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-400/20 bg-noir-700 p-4"><p className="text-sm text-amber-200">Impossible de charger la galerie.</p><DashboardButton className="!min-h-0" variant="secondary" onClick={fetchImages}>Réessayer</DashboardButton></div>}
 
       {!loadError && images.length < 6 && (showUploader || images.length === 0) && (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
-          <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-white"><ImagePlus size={17} className="text-tertiary-400" aria-hidden="true" />{images.length ? "Enrichissez votre galerie" : "Ajoutez vos premières photos"}</h4>
-          <p className="mb-4 text-sm leading-6 text-white/55">Montrez l’ambiance, les espaces et les détails qui rendent votre salon unique.</p>
+        <div>
           <SalonGalleryUploader onImagesUploaded={handleMultipleImagesUploaded} maxImages={6} currentImageCount={images.length} />
         </div>
       )}
 
       {/* Galerie */}
       {images.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
           {images.map((image, index) => (
             <div
               key={image.id}
-              className="relative rounded-2xl overflow-hidden border border-white/10 bg-white/[0.025] group"
+              className="relative rounded-xl overflow-hidden border border-white/10 bg-noir-700 group"
             >
               <div className="aspect-[4/3] relative">
-                <Image
-                  src={image.url}
-                  alt={`Photo du salon ${index + 1}`}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw" className="object-cover transition-transform duration-300 motion-safe:group-hover:scale-105"
-                />
+                <button type="button" className={styles.openPhoto} onClick={() => setViewedImageId(image.id)} aria-label={`Agrandir la photo ${index + 1} du salon`} aria-haspopup="dialog">
+                  <Image src={image.url} alt={`Photo du salon ${index + 1}`} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1536px) 25vw, 16vw" className="object-cover transition-transform duration-300 motion-safe:group-hover:scale-105" />
+                  <span className={styles.zoomIcon}><Maximize2 size={14} aria-hidden="true" /></span>
+                </button>
                 {/* Overlay suppression */}
-                <div className="absolute bottom-3 right-3">
+                <div className="absolute bottom-2 right-2">
                   <button
                     onClick={() => {
                       setSelectedImageId(image.id);
@@ -257,12 +258,12 @@ export default function SalonPhoto() {
                     aria-label={`Supprimer la photo ${index + 1}`}
                     className="inline-flex items-center gap-1.5 cursor-pointer rounded-lg border border-white/15 bg-black/55 backdrop-blur-sm text-white/80 hover:bg-red-500/80 px-3 py-1.5 text-xs transition-colors"
                   >
-                    <Trash2 size={13} aria-hidden="true" />Supprimer
+                    <Trash2 size={13} aria-hidden="true" /><span className="sr-only">Supprimer</span>
                   </button>
                 </div>
               </div>
               {/* Badge numéro */}
-              <div className="absolute top-3 left-3 rounded-lg bg-black/50 px-2 py-1 text-xs text-white/80 font-one">
+              <div className="pointer-events-none absolute top-2 left-2 rounded-lg bg-black/50 px-2 py-1 text-xs text-white/80 font-one">
                 {index + 1}
               </div>
             </div>
@@ -270,56 +271,41 @@ export default function SalonPhoto() {
         </div>
       ) : null}
 
-      {/* Modale de suppression */}
-      {isDeleteModalOpen && selectedImageId && (
-        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="dashboard-embedded-panel rounded-2xl w-full max-w-sm border border-white/20 shadow-2xl">
-            <div className="p-4 border-b border-white/10 bg-white/5">
-              <p className="text-white/50 font-one text-[10px] uppercase tracking-wider">
-                Confirmation
-              </p>
-              <h2 className="text-white font-one text-base font-semibold mt-1">
-                Supprimer cette photo
-              </h2>
-              <p className="text-white/60 font-two text-xs mt-1">
-                Cette action est définitive.
-              </p>
-            </div>
-
-            {/* Aperçu de la photo */}
-            <div className="p-4">
-              <div className="rounded-xl overflow-hidden border border-white/10 aspect-video relative">
-                <Image
-                  src={images.find((img) => img.id === selectedImageId)?.url ?? ""}
-                  alt="Photo à supprimer"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </div>
-
-            <div className="dashboard-embedded-footer p-4 border-t border-white/10 flex justify-end gap-2">
-              <DashboardButton className="!min-h-0"
-                variant="secondary"
-                disabled={isDeleting}
-                onClick={() => {
-                  setIsDeleteModalOpen(false);
-                  setSelectedImageId(null);
-                }}
-              >
-                Annuler
-              </DashboardButton>
-              <button
-                disabled={isDeleting}
-                onClick={() => handleImageDelete(selectedImageId)}
-                className="cursor-pointer rounded-[14px] bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 px-4 py-2 text-xs text-white transition-all duration-300 font-one"
-              >
-                {isDeleting ? "Suppression…" : "Supprimer"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {viewedImage && <GalleryDialog title={`Photo ${viewedIndex + 1} sur ${images.length}`} onClose={() => setViewedImageId(null)} wide onNavigate={navigateImage}>
+        <div className={styles.fullPhoto}><Image src={viewedImage.url} alt={`Photo du salon ${viewedIndex + 1}`} fill sizes="(max-width: 1024px) 95vw, 1000px" className="object-contain" /></div>
+        {images.length > 1 && <footer className={styles.viewerFooter}><button type="button" className={styles.cancel} onClick={() => navigateImage(-1)}><ChevronLeft size={16} aria-hidden="true" />Précédente</button><span>{viewedIndex + 1} / {images.length}</span><button type="button" className={styles.cancel} onClick={() => navigateImage(1)}>Suivante<ChevronRight size={16} aria-hidden="true" /></button></footer>}
+      </GalleryDialog>}
+      {isDeleteModalOpen && selectedImage && <GalleryDialog title="Supprimer cette photo ?" description="Cette photo sera retirée de votre galerie. Cette action est définitive." onClose={closeDelete} busy={isDeleting} destructive>
+        <div className={styles.deleteBody}><div className={styles.deletePreview}><Image src={selectedImage.url} alt="Photo à supprimer" fill sizes="400px" className="object-cover" /></div><p>Vous pourrez ajouter une nouvelle photo pour la remplacer.</p></div>
+        <footer className={styles.dialogFooter}><button type="button" autoFocus className={styles.cancel} onClick={closeDelete} disabled={isDeleting}>Conserver la photo</button><button type="button" className={styles.deleteConfirm} onClick={() => void handleImageDelete(selectedImage.id)} disabled={isDeleting}>{isDeleting ? <LoaderCircle size={14} className="animate-spin" aria-hidden="true" /> : <Trash2 size={14} aria-hidden="true" />}{isDeleting ? "Suppression…" : "Supprimer"}</button></footer>
+      </GalleryDialog>}
     </div>
   );
+}
+
+function GalleryDialog({ title, description, children, onClose, busy = false, wide = false, destructive = false, onNavigate }: {
+  title: string; description?: string; children: ReactNode; onClose: () => void; busy?: boolean; wide?: boolean; destructive?: boolean; onNavigate?: (direction: number) => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  useEffect(() => {
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    const element = dialog.current;
+    document.body.style.overflow = "hidden";
+    element?.showModal();
+    return () => { element?.close(); document.body.style.overflow = overflow; previousFocus?.focus(); };
+  }, []);
+  return <dialog ref={dialog} data-modal className={styles.galleryDialog} data-wide={wide} role={destructive ? "alertdialog" : "dialog"} aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined} aria-busy={busy}
+    onCancel={event => { event.preventDefault(); if (!busy) onClose(); }}
+    onClick={event => {
+      if (busy || event.target !== event.currentTarget) return;
+      const bounds = event.currentTarget.getBoundingClientRect();
+      if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) onClose();
+    }}
+    onKeyDown={event => { if (onNavigate && (event.key === "ArrowLeft" || event.key === "ArrowRight")) { event.preventDefault(); onNavigate(event.key === "ArrowLeft" ? -1 : 1); } }}>
+    <header className={styles.dialogHeader}>{destructive && <span className={styles.deleteIcon}><Trash2 size={19} aria-hidden="true" /></span>}<div><h2 id={titleId}>{title}</h2>{description && <p id={descriptionId}>{description}</p>}</div><button type="button" className={styles.clear} onClick={onClose} disabled={busy} aria-label="Fermer la modale"><X size={18} aria-hidden="true" /></button></header>
+    {children}
+  </dialog>;
 }

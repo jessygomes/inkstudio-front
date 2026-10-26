@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
+import { makeCitySlug, makeSlug } from "@/lib/utils/makeLink";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Building2, CalendarDays, Clock3, LoaderCircle, MapPin, Plus, Search, ShieldCheck } from "lucide-react";
 import { residencyRequest } from "@/lib/residencies-client";
+import { presenceDescription, type LocationPresence } from "@/lib/residency-presence";
+import SideFormDrawer from "@/components/Shared/SideFormDrawer";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import ResidencyEnd from "./ResidencyEnd";
 import ResidencySchedule from "./ResidencySchedule";
@@ -13,13 +16,20 @@ import ResidencyPermissionsDrawer from "./ResidencyPermissionsDrawer";
 import { artistPermissions, salonPermissions } from "./residency-permissions";
 import styles from "./Residencies.module.css";
 
-type Window = { day: number; start: string; end: string };
-type Profile = { id: string; salonName?: string; firstName?: string; lastName?: string; city?: string; address?: string; profileImage?: string | null; image?: string | null };
-export type Residency = { id: string; salonId: string; artistId: string; salon: Profile; artist: Profile; schedule: Window[]; pendingSchedule: Window[] | null; salonApproved: boolean; artistApproved: boolean; isCurrentSalon: boolean; nextPresenceAt?: string } & Record<string, unknown>;
+type Profile = { id: string; salonName?: string; firstName?: string; lastName?: string; city?: string; postalCode?: string; slug?: string; address?: string; profileImage?: string | null; image?: string | null };
+export type Residency = { id: string; salonId: string; artistId: string; salon: Profile; artist: Profile; presence: LocationPresence | null; currentSalonMode?: "automatic" | "manual"; currentSalonUntil?: string | null; isCurrentSalon: boolean; nextPresenceAt?: string } & Record<string, unknown>;
 type Invitation = { id: string; incoming: boolean; salon: Profile; tatoueurUser: Profile; message?: string };
-const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
 const name = (profile: Profile) => profile.salonName || [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "Salon";
 const compactButton = "!min-w-0 !px-3 !py-2 !text-[11px]";
+
+function publicProfileHref(profile: Profile) {
+  const slug = profile.slug || makeSlug(profile.salonName || [profile.firstName, profile.lastName].filter(Boolean).join(" "));
+  if (!slug) return undefined;
+  const path = profile.city && profile.postalCode
+    ? `/salon/${slug}/${makeCitySlug(profile.city)}-${profile.postalCode}`
+    : `/salon/${slug}`;
+  return (process.env.NEXT_PUBLIC_FRONTENDPUBLIC_URL?.replace(/\/$/, "") || "") + path;
+}
 
 function ProfilePhoto({ profile, compact = false }: { profile: Profile; compact?: boolean }) {
   const [failedSources, setFailedSources] = useState<string[]>([]);
@@ -84,14 +94,16 @@ export default function ResidenciesManager() {
   };
 
   return <section className={styles.section} aria-label={artist ? "Mes salons de résidence" : "Tatoueurs indépendants rattachés"}>
-    <header className={styles.heading}><div><h2>{artist ? "Mes salons de résidence" : "Tatoueurs indépendants rattachés"}</h2><p>Vos lieux de travail, vos présences et les droits partagés avec chaque salon. Le planning devient actif après validation des deux parties.</p></div>{!loading && <span className={styles.count}>{members.length} {artist ? `salon${members.length > 1 ? "s" : ""}` : `rattachement${members.length > 1 ? "s" : ""}`}</span>}</header>
+    <header className={styles.heading}><div><h2>{artist ? "Mes salons de résidence" : "Tatoueurs indépendants rattachés"}</h2><p>Vos lieux de travail, vos présences et les droits partagés avec chaque salon. Le tatoueur indique ses jours ou périodes de présence et conserve ses propres horaires.</p></div>{!loading && <span className={styles.count}>{members.length} {artist ? `salon${members.length > 1 ? "s" : ""}` : `rattachement${members.length > 1 ? "s" : ""}`}</span>}</header>
     {error && <div role="alert" className={styles.error}><p>{error}</p><DashboardButton variant="secondary" className={compactButton} onClick={() => void reload()}>Réessayer</DashboardButton></div>}
-    {loading ? <p role="status" className={styles.label}><LoaderCircle size={14} className="animate-spin" />Chargement de vos salons…</p> : !error && members.length === 0 ? <div className={styles.empty}><Building2 size={23} /><div><strong>Aucun rattachement actif</strong><p className={styles.note}>Recherchez un salon ci-dessous pour proposer de le rejoindre.</p></div></div> : null}
+    {loading ? <p role="status" className={styles.label}><LoaderCircle size={14} className="animate-spin" />{artist ? "Chargement de vos salons…" : "Chargement des demandes et rattachements…"}</p> : !error && members.length === 0 ? <div className={styles.empty}><Building2 size={23} /><div><strong>Aucun rattachement actif</strong><p className={styles.note}>{artist ? "Recherchez un salon ci-dessous pour proposer de le rejoindre." : "Les demandes des tatoueurs souhaitant rejoindre votre équipe apparaîtront ici."}</p></div></div> : null}
+    {artist && members.length > 0 && <div className={styles.search}><label className="block text-sm" htmlFor="current-residency">Mon salon actuel</label><select id="current-residency" className="mt-2 w-full rounded-lg border border-white/15 bg-noir-700 p-3 text-sm" disabled={busy} value={members.find(m => m.isCurrentSalon && m.currentSalonMode === "manual")?.id || ""} onChange={event => void run(() => residencyRequest("/current", "PATCH", { residencyId: event.target.value || null }))}><option value="">Automatique · selon mes présences</option>{members.map(m => <option key={m.id} value={m.id}>{name(m.salon)} · {m.salon.city}</option>)}</select><p className={styles.note}>Un choix manuel reste actif jusqu’au prochain changement de salon prévu. Les réservations suivent vos jours et périodes de présence.</p>{members.find(m => m.isCurrentSalon && m.currentSalonMode === "manual")?.currentSalonUntil && <p className={styles.note}>Retour automatique le {new Date(members.find(m => m.isCurrentSalon)!.currentSalonUntil!).toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}.</p>}</div>}
     {members.length > 0 && <div className={styles.grid}>{[...members].sort((a, b) => Number(b.isCurrentSalon) - Number(a.isCurrentSalon)).map(member => <ResidencyCard key={member.id} member={member} artist={artist} busy={busy} run={run} />)}</div>}
 
     {requests.length > 0 && <section className={styles.requests} aria-label="Demandes de rattachement"><h3>Demandes de rattachement <span className={styles.note}>· {requests.length}</span></h3><div className={styles.resultGrid}>{requests.map(request => {
       const profile = artist ? request.salon : request.tatoueurUser;
-      return <article className={styles.request} key={request.id}><div className={styles.identity}><ProfilePhoto profile={profile} compact /><div className={styles.identityText}><p className={styles.label}>{request.incoming ? "Invitation reçue" : "Demande envoyée"}</p><h4>{name(profile)}</h4><City city={profile.city} /></div></div>{request.message && <p className={styles.note}>{request.message}</p>}{request.incoming ? <div className={styles.actions}><DashboardButton disabled={busy} className={compactButton} onClick={() => void run(() => residencyRequest(`/requests/${request.id}/respond`, "PATCH", { action: "accept" }))}>Accepter</DashboardButton><DashboardButton variant="secondary" disabled={busy} className={compactButton} onClick={() => void run(() => residencyRequest(`/requests/${request.id}/respond`, "PATCH", { action: "refuse" }))}>Refuser</DashboardButton></div> : <p className={styles.label}><Clock3 size={12} />En attente de réponse</p>}</article>;
+      const profileHref = publicProfileHref(profile);
+      return <RequestCard key={request.id} request={request} profile={profile} profileHref={profileHref} busy={busy} run={run} />;
     })}</div></section>}
 
     {artist && <section className={styles.search} aria-labelledby="residency-search-heading"><h3 id="residency-search-heading">Trouver un salon</h3><p className={styles.note}>Recherchez par nom ou par ville, puis envoyez une demande de rattachement.</p><form className={styles.searchForm} onSubmit={search}><label className={styles.searchInput}><Search size={16} aria-hidden="true" /><span className="sr-only">Nom ou ville du salon</span><input value={query} onChange={event => { setQuery(event.target.value); setResults([]); setSearched(false); setSearchError(""); }} placeholder="Nom du salon ou ville…" minLength={2} required disabled={searching} /></label><DashboardButton type="submit" variant="secondary" className={compactButton} disabled={busy || searching || query.trim().length < 2}>{searching ? <LoaderCircle size={14} className="animate-spin" /> : <Search size={14} />}{searching ? "Recherche…" : "Rechercher"}</DashboardButton></form>
@@ -109,17 +121,52 @@ export default function ResidenciesManager() {
 
 function ResidencyCard({ member, artist, busy, run }: { member: Residency; artist: boolean; busy: boolean; run: (action: () => Promise<unknown>) => Promise<void> }) {
   const [permissionsOpen, setPermissionsOpen] = useState(false);
+  const [presenceOpen, setPresenceOpen] = useState(false);
   const profile = artist ? member.salon : member.artist;
   const ownRights = artist ? artistPermissions : salonPermissions;
   const allowedCount = ownRights.filter(item => member[item.key] === true).length;
-  return <article className={styles.card}>
+  return <article className={styles.card} data-current={member.isCurrentSalon}>
     <div className={styles.body}><div className={styles.identity}><ProfilePhoto profile={profile} /><div className={styles.identityText}><h3>{name(profile)}</h3><City city={member.salon.city} /><span className={styles.status} data-current={member.isCurrentSalon}>{member.isCurrentSalon ? "Présent actuellement" : "Salon de résidence"}</span></div></div>
       {member.salon.address && <p className={styles.address}>{member.salon.address}</p>}
-      <div className={styles.schedule}><p className={styles.label}><CalendarDays size={13} />Présences régulières · heure de Paris</p>{member.schedule.length > 0 ? <div className={styles.slots}>{member.schedule.map((slot, index) => <span key={index} className={styles.slot}>{days[slot.day - 1]} · {slot.start}–{slot.end}</span>)}</div> : <p className={styles.note}>Aucun planning actif. Les réservations dans ce salon sont fermées.</p>}
-      {!member.isCurrentSalon && member.nextPresenceAt && <p className={styles.note}>Prochaine présence : {new Date(member.nextPresenceAt).toLocaleString("fr-FR", { timeZone: "Europe/Paris", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>}</div>
-      {member.pendingSchedule !== null && <p className={styles.pending}><Clock3 size={12} />Planning proposé · {member.salonApproved && member.artistApproved ? "Validé par les deux parties" : "Validation en attente"}</p>}
+      <div className={styles.schedule}><p className={styles.label}><CalendarDays size={13} />Présence dans ce salon</p><p className={styles.note}>{presenceDescription(member.presence)}</p>{!member.presence && <p className={styles.note}>Le tatoueur doit renseigner sa présence pour ouvrir les réservations ici.</p>}{!member.isCurrentSalon && member.nextPresenceAt && <p className={styles.note}>Prochaine présence : {new Date(member.nextPresenceAt).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", day: "numeric", month: "long" })}</p>}</div>
     </div>
-    <footer className={styles.footer}><DashboardButton variant="secondary" disabled={busy} className={compactButton} onClick={() => setPermissionsOpen(true)} aria-haspopup="dialog"><ShieldCheck size={13} />Gérer les autorisations</DashboardButton><span>{allowedCount} / {ownRights.length} droits accordés</span></footer>
-    {permissionsOpen && <ResidencyPermissionsDrawer extra={<><ResidencySchedule member={member} artist={artist} busy={busy} run={run} /><ResidencyEnd name={name(profile)} busy={busy} onConfirm={() => run(() => residencyRequest(`/${member.id}`, "DELETE"))} /></>} permissions={member} artist={artist} profileName={name(profile)} salonName={name(member.salon)} busy={busy} onClose={() => setPermissionsOpen(false)} onChange={(key, checked) => run(() => residencyRequest(`/${member.id}/permissions`, "PATCH", { [key]: checked }))} />}
+    <footer className={styles.footer}>{artist && <DashboardButton variant="secondary" disabled={busy} className={compactButton} onClick={() => setPresenceOpen(true)} aria-haspopup="dialog"><CalendarDays size={13} />Modifier ma présence</DashboardButton>}<DashboardButton variant="secondary" disabled={busy} className={compactButton} onClick={() => setPermissionsOpen(true)} aria-haspopup="dialog"><ShieldCheck size={13} />Gérer les autorisations</DashboardButton><span>{allowedCount} / {ownRights.length} droits accordés</span></footer>
+    {presenceOpen && <SideFormDrawer title="Ma présence dans ce salon" category={name(member.salon)} description="Dates ou jours de présence, avec vos horaires personnels." busy={busy} onClose={() => setPresenceOpen(false)} footer={null}><ResidencySchedule member={member} artist={artist} busy={busy} run={run} /></SideFormDrawer>}
+    {permissionsOpen && <ResidencyPermissionsDrawer extra={<><ResidencyEnd name={name(profile)} busy={busy} onConfirm={() => run(() => residencyRequest(`/${member.id}`, "DELETE"))} /></>} permissions={member} artist={artist} profileName={name(profile)} salonName={name(member.salon)} busy={busy} onClose={() => setPermissionsOpen(false)} onChange={(key, checked) => run(() => residencyRequest(`/${member.id}/permissions`, "PATCH", { [key]: checked }))} />}
   </article>;
+}
+
+function RequestCard({ request, profile, profileHref, busy, run }: { request: Invitation; profile: Profile; profileHref?: string; busy: boolean; run: (action: () => Promise<unknown>) => Promise<void> }) {
+  return <article className={styles.request} key={request.id}><div className={styles.identity}><ProfilePhoto profile={profile} compact /><div className={styles.identityText}><p className={styles.label}>{request.incoming ? "Demande de liaison reçue" : "Demande envoyée"}</p><h4>{name(profile)}</h4><City city={profile.city || profile.address} />{profileHref && <a href={profileHref} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex text-xs text-tertiary-400 underline underline-offset-4">Voir le profil public<span className="sr-only"> (nouvel onglet)</span></a>}</div></div>{request.message && <p className={styles.note}>{request.message}</p>}{request.incoming ? <div className={styles.actions}><DashboardButton disabled={busy} className={compactButton} onClick={() => void run(() => residencyRequest(`/requests/${request.id}/respond`, "PATCH", { action: "accept" }))}>Accepter</DashboardButton><DashboardButton variant="secondary" disabled={busy} className={compactButton} onClick={() => void run(() => residencyRequest(`/requests/${request.id}/respond`, "PATCH", { action: "refuse" }))}>Refuser</DashboardButton></div> : <p className={styles.label}><Clock3 size={12} />En attente de réponse</p>}</article>;
+}
+
+export function SalonTeamRequestCards({ onCountChange, onAccepted }: { onCountChange: (count: number) => void; onAccepted: () => Promise<void> }) {
+  const [requests, setRequests] = useState<Invitation[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const reload = useCallback(async () => {
+    try {
+      const result = await residencyRequest("/requests");
+      const incoming = (result.requests as Invitation[]).filter(request => request.incoming);
+      setRequests(incoming);
+      onCountChange(incoming.length);
+      setError("");
+    } catch (e) { setError((e as Error).message); }
+  }, [onCountChange]);
+  useEffect(() => {
+    void reload();
+    const refresh = () => { void reload(); };
+    window.addEventListener("inkera:residencies-updated", refresh);
+    return () => window.removeEventListener("inkera:residencies-updated", refresh);
+  }, [reload]);
+  const run = async (action: () => Promise<unknown>) => {
+    setBusy(true);
+    try { await action(); await reload(); await onAccepted(); toast.success("Modification enregistrée."); }
+    catch (e) { toast.error((e as Error).message); }
+    finally { setBusy(false); }
+  };
+  return <>
+    {error && <div role="alert" className={styles.error}><p>{error}</p><DashboardButton variant="secondary" onClick={() => void reload()}>Réessayer</DashboardButton></div>}
+    {requests.map(request => <RequestCard key={request.id} request={request} profile={request.tatoueurUser} profileHref={publicProfileHref(request.tatoueurUser)} busy={busy} run={run} />)}
+  </>;
 }

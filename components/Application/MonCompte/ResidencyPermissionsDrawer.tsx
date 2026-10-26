@@ -51,7 +51,7 @@ export default function ResidencyPermissionsDrawer({ permissions, artist, profil
           return <div key={key} className={styles.permission}><span className={styles.permissionIcon}><Icon size={16} aria-hidden="true" /></span><div className={styles.permissionText}><h4>{receivedTitle}</h4><p>{receivedDescription}</p></div><span className={styles.receivedStatus} data-enabled={enabled}>{enabled ? <Check size={12} /> : <Minus size={12} />}{enabled ? "Accordé" : "Non accordé"}</span></div>;
         })}</div>
       </section>
-      <div className={styles.explanation}><Info size={15} /><p><strong>Les autorisations ne remplacent pas le planning.</strong> La réservation dans ce salon dépend aussi des plages de présence validées par les deux parties. Pour ouvrir la réservation publique, le salon et le tatoueur doivent tous deux donner leur accord.</p></div>
+      <div className={styles.explanation}><Info size={15} /><p><strong>Les autorisations complètent les présences.</strong> Les dates ou jours de présence déterminent le salon disponible, et les horaires personnels du tatoueur déterminent les créneaux. Pour ouvrir la réservation publique, le salon et le tatoueur doivent tous deux donner leur accord.</p></div>
       </>}
       {extra}
     </div>

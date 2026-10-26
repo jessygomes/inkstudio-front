@@ -97,7 +97,7 @@ export default function Horaire({ hours, salonId }: HoraireProps) {
           const dayHours = salonHoursState?.[day.key as keyof SalonHours];
           const isOpen = Boolean(dayHours?.start && dayHours?.end);
           return (
-            <div key={day.key} className={`min-w-0 rounded-xl border px-3 py-3 ${isOpen ? "border-white/10 bg-noir-600" : "border-white/[0.06] bg-black/10"}`}>
+            <div key={day.key} className={`min-w-0 rounded-xl border px-3 py-3 ${isOpen ? "border-white/10 bg-noir-700" : "border-white/[0.06] bg-noir-700"}`}>
               <div className="flex items-center justify-between gap-2">
                 <p className={`text-xs font-medium ${isOpen ? "text-white/80" : "text-white/35"}`}>{day.label}</p>
                 <span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${isOpen ? "bg-emerald-400" : "bg-white/20"}`} />

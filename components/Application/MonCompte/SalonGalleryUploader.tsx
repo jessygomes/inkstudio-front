@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
 import { useUploadThing } from "@/lib/utils/uploadthing";
-import { MdOutlineAddAPhoto } from "react-icons/md";
+import { Check, ImagePlus, LoaderCircle, UploadCloud, X } from "lucide-react";
+import { toast } from "sonner";
+import styles from "./SalonGallery.module.css";
 
 interface SalonGalleryUploaderProps {
   onImagesUploaded: (imageUrls: string[]) => void;
@@ -22,7 +24,16 @@ export default function SalonGalleryUploader({
   const [uploadingFiles, setUploadingFiles] = useState<string[]>([]);
   const [previewImages, setPreviewImages] = useState<File[]>([]);
 
-  const remainingSlots = maxImages - currentImageCount;
+  const input = useRef<HTMLInputElement>(null);
+  const inputId = useId();
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const busy = uploadingFiles.length > 0;
+  const remainingSlots = Math.max(0, maxImages - currentImageCount);
+  useEffect(() => {
+    const urls = previewImages.map(file => URL.createObjectURL(file));
+    setPreviewUrls(urls);
+    return () => urls.forEach(url => URL.revokeObjectURL(url));
+  }, [previewImages]);
 
   const { startUpload, isUploading } = useUploadThing("imageUploader", {
     onClientUploadComplete: (res: { ufsUrl: string; key: string }[]) => {
@@ -33,22 +44,21 @@ export default function SalonGalleryUploader({
         setPreviewImages([]);
       }
       setProgress(100);
-      setTimeout(() => setProgress(0), 1000);
     },
     onUploadProgress: (p: number) => setProgress(p),
     onUploadError: (error: Error) => {
       console.error("Upload error:", error);
-      alert("Erreur lors de l'upload des images");
+      toast.error("Erreur lors de l'upload des images");
       setUploadingFiles([]);
     },
   });
 
   async function handleFiles(files: FileList | null) {
-    if (!files?.length) return;
+    if (!files?.length || busy) return;
 
     // Vérifier la limite
     if (remainingSlots <= 0) {
-      alert(`Vous avez atteint la limite de ${maxImages} images maximum`);
+      toast.error(`Vous avez atteint la limite de ${maxImages} images maximum`);
       return;
     }
 
@@ -57,23 +67,24 @@ export default function SalonGalleryUploader({
     // Vérifier les types de fichiers
     for (const file of filesToUpload) {
       if (!file.type.startsWith("image/")) {
-        alert(`Le fichier ${file.name} n'est pas une image valide`);
+        toast.error(`Le fichier ${file.name} n'est pas une image valide`);
         return;
       }
 
       // Vérifier la taille (8MB max)
       if (file.size > 8 * 1024 * 1024) {
-        alert(`Le fichier ${file.name} est trop volumineux (max 8MB)`);
+        toast.error(`Le fichier ${file.name} est trop volumineux (max 8MB)`);
         return;
       }
     }
 
     // Créer l'aperçu
+    setProgress(0);
     setPreviewImages(filesToUpload);
   }
 
   const handleConfirmUpload = async () => {
-    if (previewImages.length === 0) return;
+    if (previewImages.length === 0 || busy || isUploading) return;
 
     // Afficher les noms des fichiers en cours d'upload
     setUploadingFiles(previewImages.map((file) => file.name));
@@ -95,9 +106,11 @@ export default function SalonGalleryUploader({
       await startUpload(compressedFiles);
     } catch (error) {
       console.error("Erreur lors de la compression:", error);
-      alert("Erreur lors du traitement des images");
+      toast.error("Erreur lors du traitement des images");
       setUploadingFiles([]);
       setPreviewImages([]);
+    } finally {
+      setUploadingFiles([]);
     }
   };
 
@@ -106,12 +119,13 @@ export default function SalonGalleryUploader({
   };
 
   const removePreviewImage = (index: number) => {
+    if (busy) return;
     setPreviewImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(true);
+    if (!busy) setIsDragOver(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -126,213 +140,23 @@ export default function SalonGalleryUploader({
     handleFiles(files);
   };
 
-  if (remainingSlots <= 0) {
-    return (
-      <div className="bg-yellow-500/10 backdrop-blur-sm rounded-lg p-3 border border-yellow-500/20">
-        <p className="text-yellow-300 text-xs font-one">
-          ⚠️ Limite atteinte : Vous avez ajouté le maximum de {maxImages}{" "}
-          images.
-        </p>
-      </div>
-    );
-  }
+  if (remainingSlots <= 0) return <p role="status" className={styles.limit}><Check size={15} aria-hidden="true" />Votre galerie est complète · {maxImages} photos</p>;
 
-  return (
-    <div className="space-y-3">
-      {/* Aperçu des images sélectionnées */}
-      {previewImages.length > 0 && (
-        <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="text-white font-medium font-one text-xs">
-              Aperçu ({previewImages.length} image
-              {previewImages.length > 1 ? "s" : ""})
-            </h4>
-            <button
-              onClick={handleCancelPreview}
-              className="cursor-pointer text-white/60 hover:text-white text-xs"
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* Grille d'aperçu compacte */}
-          <div className="grid grid-cols-6 gap-1.5 mb-3">
-            {previewImages.map((file, index) => (
-              <div key={index} className="relative group">
-                <div className="aspect-square bg-white/10 rounded-md overflow-hidden border border-white/20">
-                  <Image
-                    src={URL.createObjectURL(file)}
-                    alt={`Aperçu ${index + 1}`}
-                    width={60}
-                    height={60}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <button
-                  onClick={() => removePreviewImage(index)}
-                  className="absolute cursor-pointer -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Boutons d'action pour l'aperçu */}
-          <div className="flex gap-2">
-            <button
-              onClick={handleCancelPreview}
-              className="cursor-pointer flex-1 py-1.5 px-2 bg-white/10 hover:bg-white/20 text-white rounded-md border border-white/20 transition-colors font-one text-xs"
-            >
-              Annuler
-            </button>
-            <button
-              onClick={handleConfirmUpload}
-              disabled={isUploading}
-              className="cursor-pointer flex-1 py-1.5 px-2 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 disabled:from-tertiary-400/50 disabled:to-tertiary-500/50 text-white rounded-md transition-all duration-300 font-one text-xs disabled:cursor-not-allowed"
-            >
-              {isUploading ? "Envoi en cours…" : "Confirmer"}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Zone d'upload principale - cachée si aperçu actif */}
-      {previewImages.length === 0 && (
-        <>
-          <div
-            className={`relative border border-dashed rounded-2xl p-6 text-center transition-colors min-h-[180px] flex items-center justify-center ${
-              isDragOver
-                ? "border-tertiary-400 bg-tertiary-400/10"
-                : "border-white/30 bg-white/5"
-            } ${isUploading ? "opacity-70" : ""}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <input
-              aria-label="Ajouter des photos du salon"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => handleFiles(e.target.files)}
-              disabled={isUploading}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-            />
-
-            <div className="space-y-2">
-              <div className="text-white">
-                <MdOutlineAddAPhoto size={30} className="mx-auto" />
-              </div>
-              <div className="text-white/80">
-                {isUploading ? (
-                  <div className="space-y-1">
-                    <div className="text-xs font-medium">
-                      Envoi en cours… {progress}%
-                    </div>
-                    <div className="w-32 bg-white/20 rounded-full h-1 mx-auto">
-                      <div
-                        className="bg-tertiary-400 rounded-full transition-all duration-300 h-1"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-1">
-                    <div className="font-medium text-sm font-one">
-                      Ajoutez vos photos
-                    </div>
-                    <div className="text-xs text-white/70 font-one">
-                      Jusqu&apos;à {remainingSlots} image
-                      {remainingSlots > 1 ? "s" : ""}
-                    </div>
-                    <div className="text-[10px] text-white/60">
-                      JPG, PNG, WebP • Max 8MB
-                    </div>
-                    {isDragOver && (
-                      <div className="text-xs text-tertiary-400 font-medium">
-                        Relâchez pour uploader
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Informations sur les emplacements restants */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-md p-2 border border-white/10">
-            <div className="flex items-center justify-between text-xs">
-              <div className="text-white/70">
-                <span className="font-medium">{remainingSlots}</span> restant
-                {remainingSlots > 1 ? "s" : ""}
-              </div>
-              <div className="text-white/50 text-[10px]">
-                {currentImageCount}/{maxImages}
-              </div>
-            </div>
-
-            {/* Barre de progression des emplacements */}
-            <div className="w-full bg-white/10 rounded-full h-0.5 mt-1">
-              <div
-                className="bg-gradient-to-r from-tertiary-400 to-tertiary-500 rounded-full transition-all duration-300 h-0.5"
-                style={{ width: `${(currentImageCount / maxImages) * 100}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Bouton alternatif pour sélectionner */}
-          {!isUploading && (
-            <button
-              type="button"
-              onClick={() => {
-                const input = document.createElement("input");
-                input.type = "file";
-                input.accept = "image/*";
-                input.multiple = true;
-                input.onchange = (e) => {
-                  const target = e.target as HTMLInputElement;
-                  handleFiles(target.files);
-                };
-                input.click();
-              }}
-              className="cursor-pointer w-full py-2 px-3 bg-white/5 hover:bg-white/10 text-white rounded-lg border border-white/20 transition-colors font-one text-xs"
-            >
-              📁 Parcourir
-            </button>
-          )}
-        </>
-      )}
-
-      {/* État d'upload en cours */}
-      {isUploading && uploadingFiles.length > 0 && (
-        <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-          <div className="space-y-1">
-            <div className="text-xs font-medium text-white">
-              Envoi en cours… {progress}%
-            </div>
-            <div className="w-full bg-white/20 rounded-full h-1">
-              <div
-                className="bg-tertiary-400 rounded-full transition-all duration-300 h-1"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <div className="space-y-0.5">
-              <div className="text-[10px] text-white/60">Fichiers:</div>
-              {uploadingFiles.slice(0, 3).map((fileName, index) => (
-                <div key={index} className="text-[10px] text-white/70 truncate">
-                  • {fileName}
-                </div>
-              ))}
-              {uploadingFiles.length > 3 && (
-                <div className="text-[10px] text-white/60">
-                  +{uploadingFiles.length - 3} autres...
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <div className={styles.uploader} aria-busy={busy || isUploading}>
+    <input ref={input} id={inputId} type="file" accept="image/*" multiple disabled={busy || isUploading} className="sr-only" tabIndex={-1} aria-label="Sélectionner des photos du salon" onChange={event => { void handleFiles(event.target.files); event.target.value = ""; }} />
+    {previewImages.length === 0 ? <button type="button" className={styles.dropzone} data-dragging={isDragOver} disabled={busy || isUploading} onClick={() => input.current?.click()} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} aria-controls={inputId}>
+      <span className={styles.uploadIcon}><UploadCloud size={24} aria-hidden="true" /></span>
+      <span className={styles.dropText}><strong>{isDragOver ? "Déposez vos photos ici" : "Glissez vos photos ou choisissez un fichier"}</strong><small>JPG, PNG, WebP · 8 Mo maximum par photo</small></span>
+      <span className={styles.browse}><ImagePlus size={14} aria-hidden="true" />Choisir des photos</span>
+    </button> : <div className={styles.previewPanel}>
+      <div className={styles.previewHeader}><p>{previewImages.length} photo{previewImages.length > 1 ? "s" : ""} prête{previewImages.length > 1 ? "s" : ""} à ajouter</p><button type="button" onClick={handleCancelPreview} disabled={busy || isUploading} className={styles.clear} aria-label="Annuler la sélection"><X size={16} aria-hidden="true" /></button></div>
+      <div className={styles.previews}>{previewImages.map((file, index) => <div className={styles.preview} key={file.name + index}>
+        <div className={styles.thumbnail}>{previewUrls[index] && <Image src={previewUrls[index]} alt={file.name} fill unoptimized sizes="80px" className="object-cover" />}<button type="button" disabled={busy || isUploading} onClick={() => removePreviewImage(index)} aria-label={`Retirer ${file.name}`} className={styles.remove}><X size={12} aria-hidden="true" /></button></div>
+        <span title={file.name}>{file.name}</span>
+      </div>)}</div>
+      <div className={styles.previewActions}><button type="button" onClick={handleCancelPreview} disabled={busy || isUploading} className={styles.cancel}>Annuler</button><button type="button" disabled={busy || isUploading} onClick={() => void handleConfirmUpload()} className={styles.confirm}>{busy || isUploading ? <LoaderCircle size={14} className="animate-spin" aria-hidden="true" /> : <ImagePlus size={14} aria-hidden="true" />}{busy || isUploading ? "Ajout en cours…" : `Ajouter ${previewImages.length} photo${previewImages.length > 1 ? "s" : ""}`}</button></div>
+    </div>}
+    {busy && <div className={styles.uploadStatus} role="status"><span>{isUploading ? `Envoi des photos · ${progress}%` : "Préparation des photos…"}</span><div role="progressbar" aria-label="Envoi des photos" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress} className={styles.progressTrack}><div style={{ width: `${progress}%` }} /></div></div>}
+    <div className={styles.capacity}><span>{remainingSlots} emplacement{remainingSlots > 1 ? "s" : ""} disponible{remainingSlots > 1 ? "s" : ""}</span><div className={styles.slotIndicators} aria-hidden="true">{Array.from({length: maxImages}, (_, i) => <span key={i} data-filled={i < currentImageCount} />)}</div><span>{currentImageCount} / {maxImages}</span></div>
+  </div>;
 }

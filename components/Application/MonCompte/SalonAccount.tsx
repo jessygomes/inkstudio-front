@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { SalonUserProps } from "@/lib/type";
 import { useEffect, useState } from "react";
+import styles from "./AccountProfile.module.css";
 import Horaire from "./Horaire";
 import InfoSalon from "./InfoSalon";
 import TatoueurSalon from "./TatoueurSalon";
@@ -13,7 +14,6 @@ import { IoBusinessOutline } from "react-icons/io5";
 import { TbClockHour5 } from "react-icons/tb";
 import { PiUsersLight } from "react-icons/pi";
 import { HiOutlinePhotograph } from "react-icons/hi";
-import PageHeader from "@/components/Shared/PageHeader";
 import AccountSkeleton from "@/components/Skeleton/AccountSkeleton";
 import { getTatoueursByUserIdAction } from "@/lib/queries/tatoueur";
 import { TatoueurProps } from "@/lib/type";
@@ -23,6 +23,7 @@ export default function SalonAccount() {
   const salonId = session?.user?.id;
   const isIndependentAccount = session?.user?.role === "user_tatoueur";
 
+  const [activeSection, setActiveSection] = useState("profil");
   const [salon, setSalon] = useState<SalonUserProps>();
   const [teamTatoueurs, setTeamTatoueurs] = useState<TatoueurProps[]>([]);
 
@@ -69,13 +70,22 @@ export default function SalonAccount() {
     fetchTeamTatoueurs();
   }, [salonId, isIndependentAccount]);
 
+  useEffect(() => {
+    if (!salon) return;
+    const sections = ["profil", "horaires", "equipe", "galerie"].map(id => document.getElementById(id)).filter((element): element is HTMLElement => Boolean(element));
+    const updateActive = () => {
+      const current = sections.filter(section => section.getBoundingClientRect().top <= 180).at(-1);
+      setActiveSection(current?.id || "profil");
+    };
+    updateActive();
+    window.addEventListener("scroll", updateActive, { passive: true });
+    return () => window.removeEventListener("scroll", updateActive);
+  }, [salon]);
+
   if (!salon) {
     return (
       <section className="w-full space-y-3">
-        <PageHeader
-          icon={<IoBusinessOutline size={15} className="text-tertiary-400" />}
-          title="Mon Compte"
-        />
+        <AccountTitle />
         <AccountSkeleton />
       </section>
     );
@@ -93,49 +103,27 @@ export default function SalonAccount() {
   ];
 
   return (
-    <section className="mx-auto w-full space-y-6 pb-6 [&_button]:min-h-10 [&_a]:focus-visible:outline-2 [&_a]:focus-visible:outline-offset-4 [&_a]:focus-visible:outline-tertiary-400 [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-4 [&_button]:focus-visible:outline-tertiary-400">
-      <header className="lg:flex lg:items-end lg:justify-between lg:gap-8">
-        <div>
-          {/* <p className="mb-2 text-xs font-one uppercase tracking-[0.2em] text-tertiary-400">Mon espace professionnel</p> */}
-          <h1 className="text-2xl font-one font-semibold text-white sm:text-3xl">
-            Mon compte
-          </h1>
-          <p className="mt-2 text-sm text-white/60">
-            Votre identité, votre organisation et votre vitrine, au même
-            endroit.
-          </p>
-        </div>
-        <nav
-          aria-label="Rubriques du compte"
-          className="hidden shrink-0 gap-1 overflow-x-auto border-b border-white/10 sm:border-0 pb-2 lg:flex"
-        >
-          {accountSections.map(({ id, label, icon }) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-tertiary-400"
-            >
-              {icon}
-              {label}
-            </a>
-          ))}
-        </nav>
-      </header>
+    <section className="mx-auto w-full space-y-6 pb-6 font-one [&_button]:min-h-10 [&_a]:focus-visible:outline-2 [&_a]:focus-visible:outline-offset-4 [&_a]:focus-visible:outline-tertiary-400 [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-4 [&_button]:focus-visible:outline-tertiary-400">
+      <header className="flex flex-wrap items-center justify-between gap-4">
+        <AccountTitle />
+
       <nav
         aria-label="Rubriques du compte"
-        className="flex gap-1 overflow-x-auto border-b border-white/10 pb-2 lg:hidden"
+        className={styles.tabs}
       >
         {accountSections.map(({ id, label, icon }) => (
           <a
             key={id}
             href={`#${id}`}
-            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 text-sm text-white/70 transition-colors hover:bg-white/5 hover:text-tertiary-400"
+            className={styles.tab}
+            aria-current={activeSection === id ? "location" : undefined}
           >
             {icon}
             {label}
           </a>
         ))}
       </nav>
+      </header>
       <div id="profil" className="scroll-mt-6">
         <InfoSalon salon={salon} />
       </div>
@@ -192,9 +180,9 @@ function AccountSection({
     <section
       id={id}
       aria-labelledby={id + "-title"}
-      className="scroll-mt-6 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]"
+      className="scroll-mt-6 overflow-hidden rounded-3xl border border-white/10 bg-noir-700"
     >
-      <header className={compact ? "border-b border-white/[0.07] px-4 py-3 sm:px-5" : "border-b border-white/8 p-5 sm:px-6"}>
+      <header className={compact ? "border-b border-white/[0.07] bg-white/[0.025] px-4 py-3 sm:px-5" : "border-b border-white/8 bg-white/[0.025] p-5 sm:px-6"}>
         <h2
           id={id + "-title"}
           className={compact ? "text-base font-one font-semibold tracking-tight text-white" : "text-lg font-one font-semibold text-white"}
@@ -206,4 +194,12 @@ function AccountSection({
       <div className={compact ? "p-3 sm:p-4" : "p-4 sm:p-6"}>{children}</div>
     </section>
   );
+}
+
+function AccountTitle() {
+  return <div className="font-one">
+    <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-tertiary-400">Votre studio</p>
+    <h1 className="mt-1.5 text-xl font-semibold tracking-tight text-white">Mon compte</h1>
+    <p className="mt-1.5 text-xs text-white/45">Votre identité, votre organisation et votre vitrine, au même endroit.</p>
+  </div>;
 }
