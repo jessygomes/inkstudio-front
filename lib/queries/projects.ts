@@ -14,7 +14,7 @@ export type ExploredProject = {
   projectMobility?: string;
   projectRadiusKm?: number;
   images: { id: string; url: string; caption?: string }[];
-  proposals: { id: string; status: string; conversationId?: string }[];
+  proposals: { id: string; status: string; message?: string; conversationId?: string | null }[];
 };
 export type ExploreResult = {
   data: ExploredProject[];

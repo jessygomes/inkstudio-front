@@ -1,21 +1,21 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { toast } from "sonner";
 import {
   ArrowUpRight,
   Compass,
   ImageIcon,
+  Info,
   MessageSquare,
   RotateCcw,
   Search,
   SlidersHorizontal,
-  X,
 } from "lucide-react";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import styles from "./ProjectExplorer.module.css";
+import ProjectDetails from "./ProjectDetails";
 import {
   ExploredProject,
   ExploreResult,
@@ -24,8 +24,6 @@ import {
   getProjectFilterOptions,
 } from "@/lib/queries/projects";
 
-const field =
-  "mt-2 min-h-11 w-full rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-sm text-white placeholder:text-white/30 transition-colors hover:border-white/20 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 [color-scheme:dark]";
 const filterField =
   "h-10 w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3 text-xs text-white placeholder:text-white/40 transition-colors hover:border-white/20 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 [color-scheme:dark]";
 const sizes: Record<string, string> = {
@@ -45,6 +43,7 @@ function ProposalBadge({ status }: { status: string }) {
 export default function ProjectExplorer() {
   const [tab, setTab] = useState<"explore" | "proposals">("explore");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [conceptOpen, setConceptOpen] = useState(false);
   const [filters, setFilters] = useState<Record<string, string>>({ page: "1" });
   const [result, setResult] = useState<ExploreResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -138,7 +137,23 @@ export default function ProjectExplorer() {
       <header className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="shrink-0">
           <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-tertiary-400">Explorer</p>
-          <h1 className="mt-1.5 text-xl font-semibold tracking-tight text-white">Les projets clients</h1>
+          <div className="relative mt-1.5 flex w-fit items-center gap-2">
+            <h1 className="text-xl font-semibold tracking-tight text-white">Les projets clients</h1>
+            <div onMouseEnter={() => setConceptOpen(true)} onMouseLeave={() => setConceptOpen(false)}
+              onKeyDown={event => { if (event.key === "Escape") setConceptOpen(false); }}>
+              <button type="button" aria-label="Comprendre les projets clients" aria-describedby={conceptOpen ? "explorer-concept" : undefined}
+                onFocus={() => setConceptOpen(true)} onBlur={() => setConceptOpen(false)} onClick={() => setConceptOpen(true)}
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/5 hover:text-tertiary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400">
+                <Info size={16} aria-hidden="true" />
+              </button>
+              {conceptOpen && <div className="absolute left-0 top-full z-50 w-[min(22rem,calc(100vw-3rem))] pt-2">
+                <div id="explorer-concept" role="tooltip" className="rounded-2xl border border-white/10 bg-[#191918] p-4 text-xs leading-relaxed text-white/70 shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
+                  <p className="mb-1.5 font-semibold text-white">Des projets à réaliser ensemble</p>
+                  Les clients partagent leurs idées de tatouage et recherchent un professionnel pour les réaliser. Explorez les projets, puis envoyez une proposition personnalisée. Le client peut l’accepter ou la refuser. S’il accepte, vous pouvez échanger dans la messagerie. Retrouvez sa réponse dans « Mes propositions ».
+                </div>
+              </div>}
+            </div>
+          </div>
           <p className="mt-1.5 text-xs text-white/45">Trouvez votre prochain projet et suivez vos propositions.</p>
         </div>
       <div className="flex min-w-0 flex-col gap-3 xl:flex-1 xl:flex-row xl:items-center xl:justify-end">
@@ -433,215 +448,15 @@ export default function ProjectExplorer() {
         onClick={(event) => {
           if (event.target === event.currentTarget && !sending) {
             const bounds = event.currentTarget.getBoundingClientRect();
-            if (event.clientX < bounds.left || event.clientX > bounds.right)
+            if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)
               setSelected(null);
           }
         }}
         className={`${styles.drawer} font-one`}
         aria-labelledby="project-title"
       >
-        {selected && (
-          <>
-            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-white/10 bg-noir-500 px-5 py-5 sm:px-7">
-              <div className="min-w-0">
-                <p className="client-list-eyebrow mb-2 flex items-center gap-2">
-                  <Compass size={14} aria-hidden="true" /> Le projet du client
-                </p>
-                <h2
-                  id="project-title"
-                  className="break-words text-2xl font-semibold tracking-tight"
-                >
-                  {selected.name}
-                </h2>
-              </div>
-              <button
-                disabled={sending}
-                onClick={() => setSelected(null)}
-                aria-label="Fermer le projet"
-                className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-xl border border-white/10 text-white/60 hover:bg-white/10 disabled:opacity-50"
-              >
-                <X size={18} aria-hidden="true" />
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain px-5 py-6 sm:px-7">
-              <section className="space-y-4">
-                <h3 className="flex items-center gap-2 text-sm font-semibold">
-                  <Compass
-                    size={16}
-                    className="text-tertiary-400"
-                    aria-hidden="true"
-                  />{" "}
-                  Son envie, votre inspiration
-                </h3>
-                <p className="whitespace-pre-wrap break-words text-sm leading-7 text-white/65">
-                  {selected.description ||
-                    "Le client n’a pas encore ajouté de description."}
-                </p>
-                <dl className="grid grid-cols-2 gap-3">
-                  {[
-                    ["Ville", selected.projectCity],
-                    ["Taille", sizes[selected.projectSize || ""]],
-                    ["Catégorie", selected.projectCategory],
-                    ["Emplacement", selected.projectBodyPlacement],
-                  ].map(([label, value]) => (
-                    <div
-                      key={label}
-                      className="rounded-2xl border border-white/10 bg-white/[0.025] p-3"
-                    >
-                      <dt className="text-xs text-white/40">{label}</dt>
-                      <dd className="mt-1 break-words text-sm text-white/85">
-                        {value || "Non précisé"}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-                {selected.projectMobility && (
-                  <p className="mt-2 text-sm text-white/60">
-                    Mobilité :{" "}
-                    {selected.projectMobility === "RADIUS"
-                      ? `${selected.projectRadiusKm} km autour de la ville`
-                      : selected.projectMobility === "ANYWHERE"
-                        ? "Partout"
-                        : "Ne se déplace pas"}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    ...selected.projectStyles,
-                    ...selected.projectHashtags.map((t) => `#${t}`),
-                  ].map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-lg border border-tertiary-400/15 bg-tertiary-400/5 px-2.5 py-1 text-xs text-tertiary-400"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </section>
-              <section className="space-y-4 border-t border-white/10 pt-6">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="flex items-center gap-2 text-sm font-semibold">
-                    <ImageIcon
-                      size={16}
-                      className="text-tertiary-400"
-                      aria-hidden="true"
-                    />{" "}
-                    Inspirations et notes du client
-                  </h3>
-                  <span className="client-header-count">
-                    {selected.images.length} image
-                    {selected.images.length === 1 ? "" : "s"}
-                  </span>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {selected.images.map((img, index) => (
-                    <figure
-                      key={img.id}
-                      className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025]"
-                    >
-                      <a
-                        href={img.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`Agrandir l’inspiration ${index + 1} (nouvel onglet)`}
-                        className="relative block h-44 bg-black/20 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-tertiary-400 sm:h-40"
-                      >
-                        <Image
-                          src={img.url}
-                          alt={img.caption || selected.name}
-                          fill
-                          sizes="(max-width: 640px) 100vw, 350px"
-                          className="object-contain"
-                        />
-                      </a>
-                      <figcaption className="space-y-2 border-t border-white/10 p-3">
-                        <p className="flex items-center gap-2 text-[11px] font-semibold text-tertiary-400">
-                          <MessageSquare
-                            size={13}
-                            className="shrink-0"
-                            aria-hidden="true"
-                          />{" "}
-                          Note du client · Inspiration {index + 1}
-                        </p>
-                        <p className="whitespace-pre-wrap break-words text-xs leading-5 text-white/65">
-                          {img.caption?.trim() ||
-                            "Le client n’a pas ajouté de note pour cette image."}
-                        </p>
-                      </figcaption>
-                    </figure>
-                  ))}
-                  {!selected.images.length && (
-                    <div className="dashboard-empty-state p-6 text-center text-sm text-white/45 sm:col-span-2">
-                      Le client n’a pas encore ajouté d’image d’inspiration.
-                    </div>
-                  )}
-                </div>
-              </section>
-              <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.025] p-4 sm:p-5">
-                <div>
-                  <h3 className="flex items-center gap-2 text-sm font-semibold">
-                    <MessageSquare
-                      size={16}
-                      className="text-tertiary-400"
-                      aria-hidden="true"
-                    />{" "}
-                    Donnez vie à ce projet
-                  </h3>
-                  <p className="mt-2 text-xs leading-5 text-white/45">
-                    Présentez votre univers et votre approche au client.
-                  </p>
-                </div>
-                {selected.proposals.length ? (
-                  <div className="rounded-xl border border-white/15 p-3">
-                    <div className="mb-3"><ProposalBadge status={selected.proposals[0].status} /></div>
-                    <p className="text-sm text-white/65">{selected.proposals[0].status === "ACCEPTED" ? "Le client a accepté votre proposition. Poursuivez votre échange dans la messagerie." : selected.proposals[0].status === "REFUSED" ? "Le client n’a pas retenu votre proposition pour ce projet." : "Votre proposition a été envoyée. Vous retrouverez ici la réponse du client."}</p>
-                    {selected.proposals[0].status === "ACCEPTED" &&
-                      selected.proposals[0].conversationId && (
-                        <Link
-                          href={`/messagerie/${selected.proposals[0].conversationId}`}
-                          className="mt-2 inline-block min-h-11 py-2 underline"
-                        >
-                          Ouvrir la conversation
-                        </Link>
-                      )}
-                  </div>
-                ) : (
-                  <form onSubmit={send} className="space-y-3">
-                    <label className="block text-sm">
-                      Votre premier message
-                      <textarea
-                        required
-                        minLength={1}
-                        maxLength={3000}
-                        disabled={sending}
-                        rows={4}
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        className={field}
-                        placeholder="Présentez-vous et expliquez votre approche du projet…"
-                      />
-                    </label>
-                    <p className="text-xs text-white/60">
-                      Une seule demande par projet. Le client choisit d’accepter
-                      ou de refuser. Votre message sera ajouté à une
-                      conversation uniquement après son acceptation. Si une
-                      conversation existe déjà, elle sera réutilisée à ce
-                      moment-là.
-                    </p>
-                    <DashboardButton
-                      type="submit"
-                      disabled={sending || !message.trim()}
-                      className="min-h-11 w-full sm:w-auto"
-                    >
-                      {sending ? "Envoi…" : "Proposer mes services"}
-                    </DashboardButton>
-                  </form>
-                )}
-              </section>
-            </div>
-          </>
-        )}
+        {selected && <ProjectDetails key={selected.id} project={selected} sending={sending} message={message}
+          onMessageChange={setMessage} onSend={send} onClose={() => setSelected(null)} />}
       </dialog>
     </section>
   );
