@@ -10,6 +10,7 @@ import VerificationDocumentsSection from "@/components/Admin/VerificationDocumen
 import DeleteUser from "@/components/Admin/DeleteUser";
 import ContactUser from "@/components/Admin/ContactUser";
 import UserSubscriptionEditor from "@/components/Admin/UserSubscriptionEditor";
+import UserPublicVisibility from "@/components/Admin/UserPublicVisibility";
 import AccountAge from "@/components/Admin/AccountAge";
 
 
@@ -83,6 +84,8 @@ export default async function AdminUserDetail({
     firstName?: string;
     lastName?: string;
     salonName?: string;
+    nickname?: string | null;
+    publicVisibility?: "VISIBLE" | "SEARCH_HIDDEN" | "HIDDEN";
     salonHours?: string | HoursMap;
     phone?: string;
     address?: string;
@@ -126,7 +129,7 @@ export default async function AdminUserDetail({
   }
 
   const displayName =
-    salon.salonName ||
+    salon.nickname || salon.salonName ||
     `${salon.firstName || ""} ${salon.lastName || ""}`.trim() ||
     "Sans nom";
 
@@ -200,6 +203,7 @@ export default async function AdminUserDetail({
     <nav className={styles.sectionNav} aria-label="Sections de la fiche">{sectionLinks.map(({ href, label, icon: Icon }) => <a href={href} key={href}><Icon size={14} />{label}{href === "#documents" && <span>{verificationDocs.length}</span>}{href === "#equipe" && <span>{tattooers.length}</span>}</a>)}</nav>
     <div className={styles.layout}>
       <div className={styles.mainColumn}>
+        {professional && <UserPublicVisibility key={salon.id + (salon.publicVisibility || "VISIBLE")} userId={salon.id} initialValue={salon.publicVisibility || "VISIBLE"} />}
         <section id="informations" className={styles.section} aria-labelledby="information-title">
           <header className={styles.sectionHeading}><span className={styles.sectionIcon}><UserRound size={16} /></span><div><h2 id="information-title">Informations du compte</h2><p>Identité, coordonnées et localisation.</p></div></header>
           <dl className={styles.infoGrid}>
@@ -207,6 +211,7 @@ export default async function AdminUserDetail({
             <div><dt><Mail size={12} />Adresse e-mail</dt><dd>{salon.email ? <a href={`mailto:${salon.email}`}>{salon.email}</a> : "Non renseignée"}</dd></div>
             <div><dt><Phone size={12} />Téléphone</dt><dd>{salon.phone ? <a href={`tel:${salon.phone}`}>{salon.phone}</a> : "Non renseigné"}</dd></div>
             <div><dt><MapPin size={12} />Adresse</dt><dd>{[salon.address, profileLocation].filter(Boolean).join(", ") || "Non renseignée"}</dd></div>
+            {salon.nickname && <div><dt>Pseudo public</dt><dd>{salon.nickname}</dd></div>}
             {clientProfile?.pseudo && <div><dt>Pseudonyme</dt><dd>{clientProfile.pseudo}</dd></div>}
             {clientProfile?.birthDate && <div><dt>Date de naissance</dt><dd>{formatDate(clientProfile.birthDate)}</dd></div>}
           </dl>

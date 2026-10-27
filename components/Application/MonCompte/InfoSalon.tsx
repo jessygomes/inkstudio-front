@@ -14,7 +14,6 @@ import {
   Check,
   MapPin,
   Pencil,
-  Gem,
   Plus,
   QrCode,
   X,
@@ -99,7 +98,6 @@ export default function InfoSalon({ salon }: { salon: UpdateSalonUserProps }) {
                 <p className={styles.address}><MapPin size={15} aria-hidden="true" />{address || "Ajoutez l’adresse de votre salon"}</p>
                 <div className={styles.identityActions}>
                   <Link href={editHref} className={styles.editAction}><Pencil size={14} aria-hidden="true" />Modifier le profil</Link>
-                  <Link href="/mon-compte/piercing" className={styles.editAction}><Gem size={14} aria-hidden="true" />Piercings</Link>
                   <a href={publicHref} target="_blank" rel="noopener noreferrer" className={`${styles.editAction} ${styles.publicProfileAction}`}>Voir le profil<ArrowUpRight size={14} aria-hidden="true" /><span className="sr-only"> (nouvel onglet)</span></a>
                   <button type="button" className={styles.editAction} onClick={() => setQrOpen(true)} aria-haspopup="dialog"><QrCode size={14} aria-hidden="true" />QR code</button>
                 </div>

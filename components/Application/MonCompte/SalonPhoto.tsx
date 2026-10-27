@@ -1,4 +1,5 @@
 "use client";
+import { authenticatedFetch } from "@/lib/authenticated-fetch";
 
 import { useState, useEffect, useCallback, useId, useRef, type ReactNode } from "react";
 import Image from "next/image";
@@ -35,7 +36,7 @@ export default function SalonPhoto() {
     try {
       const key = extractKeyFromUrl(imageUrl);
       if (key) {
-        await fetch("/api/uploadthing/delete", {
+        await authenticatedFetch("/api/uploadthing/delete", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -116,7 +117,7 @@ export default function SalonPhoto() {
     if (!salonId) return;
 
     try {
-      const response = await fetch(
+      const response = await authenticatedFetch(
         `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}/photos`,
         {
           method: "PATCH",

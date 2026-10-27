@@ -17,6 +17,7 @@ export const PROTECTED_PATHS = [
   "/mes-flashs",
   "/mon-compte",
   "/parametres",
+  "/aide",
   "/stocks",
   "/factures",
   "/messagerie",

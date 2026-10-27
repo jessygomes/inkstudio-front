@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { authenticatedFetch } from "@/lib/authenticated-fetch";
 import React, { useEffect, useState } from "react";
 import { TatoueurProps, TimeSlotProps } from "@/lib/type";
 import { useForm } from "react-hook-form";
@@ -88,7 +89,7 @@ export default function ProposeCreneau({
   useEffect(() => {
     const fetchTatoueurs = async () => {
       try {
-        const response = await fetch(
+        const response = await authenticatedFetch(
           `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${userId}`
         );
         const data = await response.json();
@@ -109,7 +110,7 @@ export default function ProposeCreneau({
     setProposed: (v: any[]) => void
   ) {
     // 1) Disponibles
-    const slotsRes = await fetch(
+    const slotsRes = await authenticatedFetch(
       `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${dateStr}&tatoueurId=${tatoueurId}`
     );
     const slotsData = await slotsRes.json();
@@ -118,7 +119,7 @@ export default function ProposeCreneau({
     // 2) Occupés
     const startOfDay = new Date(`${dateStr}T00:00:00`);
     const endOfDay = new Date(`${dateStr}T23:59:59`);
-    const occRes = await fetch(
+    const occRes = await authenticatedFetch(
       `${
         process.env.NEXT_PUBLIC_BACK_URL
       }/appointments/tatoueur-range?tatoueurId=${tatoueurId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`
@@ -132,7 +133,7 @@ export default function ProposeCreneau({
     }/blocked-slots/propose-creneau?tatoueurId=${tatoueurId}&start=${encodeURIComponent(
       startOfDay.toISOString()
     )}&end=${encodeURIComponent(endOfDay.toISOString())}`;
-    const proposedRes = await fetch(proposeUrl);
+    const proposedRes = await authenticatedFetch(proposeUrl);
     const proposedData = await proposedRes.json();
     setProposed(Array.isArray(proposedData) ? proposedData : []);
   }
@@ -145,7 +146,7 @@ export default function ProposeCreneau({
     }
     const run = async () => {
       try {
-        const res = await fetch(
+        const res = await authenticatedFetch(
           `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${watchTatoueurId}`
         );
         const data = await res.json();

@@ -142,6 +142,7 @@ export const fetchSalonPhotosAction = async (salonId: string) => {
       `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}/photos`,
       {
         method: "GET",
+        headers: await getAuthHeaders(),
       },
     );
 

@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, ChevronsUpDown, LogOut, Settings2, UserRound } from "lucide-react";
+import { ArrowUpRight, BookOpen, ChevronsUpDown, LogOut, Settings2, UserRound } from "lucide-react";
 import { LogoutBtn } from "@/components/Auth/LogoutBtn";
 
 const itemClass = "flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-[11px] font-medium text-white/70 transition aria-[current=page]:bg-tertiary-400/5 aria-[current=page]:text-tertiary-400 hover:bg-tertiary-400/5 hover:text-white focus-visible:bg-tertiary-400/10 focus-visible:text-white focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50";
@@ -81,6 +81,7 @@ export default function NavbarAccountMenu({ collapsed = false, placement, salonN
       <div role="presentation" className="mb-1.5 flex items-center gap-2.5 border-b border-white/[0.07] px-2.5 pb-3 pt-2">{avatar}<div className="min-w-0 flex-1"><p className="truncate text-xs font-medium text-white/85">{name}</p><p className="mt-1 truncate text-[10px] text-white/35">{session?.user?.email || "Votre espace professionnel"}</p></div>{plan && <span className="shrink-0 rounded-md border border-tertiary-400/15 bg-tertiary-400/10 px-1.5 py-0.5 text-[8px] font-medium text-tertiary-400">{plan}</span>}</div>
       <Link href="/mon-compte" aria-current={pathname.startsWith("/mon-compte") ? "page" : undefined} role="menuitem" tabIndex={-1} onClick={navigate} className={itemClass}><span className={iconClass}><UserRound size={14} /></span><span className="flex-1">Mon profil</span><ArrowUpRight size={13} className="text-white/25" /></Link>
       <Link href="/parametres" aria-current={pathname.startsWith("/parametres") ? "page" : undefined} role="menuitem" tabIndex={-1} onClick={navigate} className={itemClass}><span className={iconClass}><Settings2 size={14} /></span><span className="flex-1">Paramètres du compte</span><ArrowUpRight size={13} className="text-white/25" /></Link>
+      <Link href="/aide" aria-current={pathname.startsWith("/aide") ? "page" : undefined} role="menuitem" tabIndex={-1} onClick={navigate} className={itemClass}><span className={iconClass}><BookOpen size={14} /></span><span className="flex-1">Aide</span><ArrowUpRight size={13} className="text-white/25" /></Link>
       <div role="separator" className="mx-2 my-1.5 border-t border-white/[0.07]" />
       <LogoutBtn role="menuitem" tabIndex={-1} className={itemClass + " hover:text-red-300"} icon={<span className={iconClass}><LogOut size={14} /></span>}><span>Se déconnecter</span></LogoutBtn>
     </div>, document.body)}

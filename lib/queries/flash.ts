@@ -51,6 +51,7 @@ export const getAvailableFlashsByUserAction = async (
 
     const res = await fetch(url.toString(), {
       method: "GET",
+      headers: await getAuthHeaders(),
       cache: "no-store",
     });
 

@@ -140,6 +140,7 @@ export interface SalonUserProps {
 }
 
 export interface UpdateSalonUserProps {
+  nickname?: string | null;
   id: string;
   firstName: string;
   lastName: string;

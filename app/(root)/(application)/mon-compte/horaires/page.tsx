@@ -1,4 +1,5 @@
 "use client";
+import { authenticatedFetch } from "@/lib/authenticated-fetch";
 
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -57,7 +58,7 @@ export default function HorairesPage() {
       }
 
       try {
-        const response = await fetch(
+        const response = await authenticatedFetch(
           `${process.env.NEXT_PUBLIC_BACK_URL}/users/${session.user.id}`,
           { method: "GET" },
         );
@@ -88,7 +89,7 @@ export default function HorairesPage() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch(
+      const res = await authenticatedFetch(
         `${process.env.NEXT_PUBLIC_BACK_URL}/users/${session.user.id}/hours`,
         {
           method: "PATCH",

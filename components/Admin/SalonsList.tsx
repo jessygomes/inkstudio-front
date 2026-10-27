@@ -19,6 +19,8 @@ interface Salon {
   firstName: string | null;
   lastName: string | null;
   salonName: string | null;
+  nickname?: string | null;
+  publicVisibility?: "VISIBLE" | "SEARCH_HIDDEN" | "HIDDEN";
   phone: string | null;
   city: string | null;
   postalCode: string | null;
@@ -236,7 +238,7 @@ export default function SalonsList() {
               <tbody className="divide-y divide-white/8">
                 {salons.map((salon) => {
                   const displayName =
-                    salon.salonName ||
+                    salon.nickname || salon.salonName ||
                     `${salon.firstName || ""} ${salon.lastName || ""}`.trim() ||
                     "Sans nom";
 

@@ -1,4 +1,5 @@
 "use client";
+import { authenticatedFetch } from "@/lib/authenticated-fetch";
 import React, { useState, useEffect } from "react";
 import { CalendarOff, Clock3, Pencil } from "lucide-react";
 import BlockedSlotsDrawer from "./BlockedSlotsDrawer";
@@ -44,7 +45,7 @@ export default function Horaire({ hours, salonId }: HoraireProps) {
   useEffect(() => {
     const fetchTatoueurs = async () => {
       try {
-        const response = await fetch(
+        const response = await authenticatedFetch(
           `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${salonId}`
         );
         if (response.ok) {

@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 import DashboardButton from "@/components/Shared/DashboardButton";
 
-type EmailFrequency = "IMMEDIATE" | "HOURLY" | "DAILY" | "NEVER";
+type EmailFrequency = "HOURLY" | "DAILY" | "NEVER";
 
 interface NotificationPreference {
   id: string;
@@ -25,14 +25,12 @@ interface NotificationPreference {
 }
 
 const frequencyLabel: Record<EmailFrequency, string> = {
-  IMMEDIATE: "Immédiat",
   HOURLY: "Toutes les heures",
   DAILY: "Une fois par jour",
   NEVER: "Jamais",
 };
 
 const frequencyDescription: Record<EmailFrequency, string> = {
-  IMMEDIATE: "Vous recevez une notification dès qu'un nouveau message arrive.",
   HOURLY: "Vous recevez un résumé des messages toutes les heures.",
   DAILY: "Vous recevez un résumé quotidien des messages.",
   NEVER: "Aucun email n'est envoyé.",
@@ -45,7 +43,7 @@ export default function NotifChatPreference() {
   const [emailNotificationsEnabled, setEmailNotificationsEnabled] =
     useState(false);
   const [emailFrequency, setEmailFrequency] = useState<EmailFrequency>(
-    "IMMEDIATE"
+    "HOURLY"
   );
 
   useEffect(() => {

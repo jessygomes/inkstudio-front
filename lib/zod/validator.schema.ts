@@ -150,6 +150,7 @@ export const skinToneEnum = z.enum([
 ]);
 
 export const updateSalonSchema = z.object({
+  nickname: z.string().trim().max(80, "Le pseudo doit contenir au maximum 80 caractères").optional(),
   salonName: z.string().min(2, "Nom requis"),
   firstName: z.string().min(1, "Prénom requis"),
   lastName: z.string().min(1, "Nom requis"),

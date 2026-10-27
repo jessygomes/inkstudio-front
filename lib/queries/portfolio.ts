@@ -69,6 +69,7 @@ export const getPortfolioPhotosAction = async (
 
     const res = await fetch(url.toString(), {
       method: "GET",
+      headers: await getAuthHeaders(),
       cache: "no-store",
     });
 
@@ -166,6 +167,7 @@ export const getPortfolioStylesAction = async (
     }
     const res = await fetch(url.toString(), {
       method: "GET",
+      headers: await getAuthHeaders(),
       cache: "no-store",
     });
     const data = await res.json().catch(() => []);

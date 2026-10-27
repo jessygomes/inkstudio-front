@@ -22,32 +22,32 @@ html:has(.app-colors-container) {
 
 html[data-theme="light"]:has(.app-colors-container) {
   color-scheme: light;
-  --app-ink-rgb: 41 39 36;
-  --app-canvas: #f6f3ed;
-  --app-panel: #fffdf9;
-  --app-panel-rgb: 255 253 249;
-  --app-canvas-rgb: 246 243 237;
+  --app-ink-rgb: 41 41 41;
+  --app-canvas: #ececec;
+  --app-panel: #f8f8f8;
+  --app-panel-rgb: 248 248 248;
+  --app-canvas-rgb: 236 236 236;
   --app-muted-opacity: 65%;
   /* Existing neutral utilities use white for foregrounds and translucent borders. */
-  --color-white: #292724;
+  --color-white: #292929;
   --color-noir-500: var(--app-panel);
-  --color-noir-600: #efebe4;
+  --color-noir-600: #e2e2e2;
   --color-noir-700: var(--app-canvas);
-  --color-gray-100: #34312c;
-  --color-gray-200: #45413b;
-  --color-gray-300: #555049;
-  --color-gray-400: #655f56;
-  --color-gray-500: #746d63;
-  --color-gray-600: #dfd9d0;
-  --color-gray-700: #e9e4dc;
-  --color-gray-800: #f0ece5;
-  --color-gray-900: #faf8f4;
+  --color-gray-100: #343434;
+  --color-gray-200: #454545;
+  --color-gray-300: #555555;
+  --color-gray-400: #656565;
+  --color-gray-500: #747474;
+  --color-gray-600: #d9d9d9;
+  --color-gray-700: #e2e2e2;
+  --color-gray-800: #ececec;
+  --color-gray-900: #f8f8f8;
   --color-slate-300: #555d67;
   --color-slate-400: #626b77;
-  --color-zinc-800: #ece7df;
-  --color-zinc-900: #f6f3ed;
-  --color-neutral-800: #ece7df;
-  --color-neutral-900: #f6f3ed;
+  --color-zinc-800: #e2e2e2;
+  --color-zinc-900: #ececec;
+  --color-neutral-800: #e2e2e2;
+  --color-neutral-900: #ececec;
   --color-red-300: #b42330;
   --color-red-400: #c5343d;
   --color-amber-100: #78500d;
@@ -72,7 +72,7 @@ html[data-theme="light"]:has(.app-colors-container) {
 html[data-theme="light"] .app-colors-container .app-sidebar-logo-dark { display: none; }
 html[data-theme="light"] .app-colors-container .app-sidebar-logo-light { display: block; }
 
-/* Small secondary labels must remain readable on the warm light canvas. */
+/* Small secondary labels must remain readable on the neutral light canvas. */
 html[data-theme="light"]:has(.app-colors-container) :is(
   [class~="text-white/20"], [class~="text-white/25"], [class~="text-white/30"],
   [class~="text-white/35"], [class~="text-white/40"], [class~="text-white/45"],
@@ -101,7 +101,7 @@ html[data-theme="light"]:has(.app-colors-container) :is(
 
 html[data-theme="light"]:has(.app-colors-container) :is(
   [class~="bg-black/5"], [class~="bg-black/10"], [class~="bg-black/15"], [class~="bg-black/20"]
-) { background-color: rgb(41 39 36 / 3%); }
+) { background-color: rgb(41 41 41 / 3%); }
 
 html[data-theme="light"]:has(.app-colors-container) :is(input, select, textarea) {
   color-scheme: light;

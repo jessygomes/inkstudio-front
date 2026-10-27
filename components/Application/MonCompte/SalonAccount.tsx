@@ -1,19 +1,17 @@
 "use client";
+import { authenticatedFetch } from "@/lib/authenticated-fetch";
 
 import { useSession } from "next-auth/react";
 import { SalonUserProps } from "@/lib/type";
 import { useEffect, useState } from "react";
-import styles from "./AccountProfile.module.css";
+import DashboardButton from "@/components/Shared/DashboardButton";
+import { CalendarClock, Gem } from "lucide-react";
 import Horaire from "./Horaire";
 import InfoSalon from "./InfoSalon";
 import TatoueurSalon from "./TatoueurSalon";
 import SalonPhoto from "./SalonPhoto";
 import IndependentTeamSection from "./IndependentTeamSection";
 
-import { IoBusinessOutline } from "react-icons/io5";
-import { TbClockHour5 } from "react-icons/tb";
-import { PiUsersLight } from "react-icons/pi";
-import { HiOutlinePhotograph } from "react-icons/hi";
 import AccountSkeleton from "@/components/Skeleton/AccountSkeleton";
 import { getTatoueursByUserIdAction } from "@/lib/queries/tatoueur";
 import { TatoueurProps } from "@/lib/type";
@@ -23,14 +21,13 @@ export default function SalonAccount() {
   const salonId = session?.user?.id;
   const isIndependentAccount = session?.user?.role === "user_tatoueur";
 
-  const [activeSection, setActiveSection] = useState("profil");
   const [salon, setSalon] = useState<SalonUserProps>();
   const [teamTatoueurs, setTeamTatoueurs] = useState<TatoueurProps[]>([]);
 
   useEffect(() => {
     const fetchSalon = async () => {
       try {
-        const response = await fetch(
+        const response = await authenticatedFetch(
           `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}`,
           {
             method: "GET",
@@ -70,17 +67,6 @@ export default function SalonAccount() {
     fetchTeamTatoueurs();
   }, [salonId, isIndependentAccount]);
 
-  useEffect(() => {
-    if (!salon) return;
-    const sections = ["profil", "horaires", "equipe", "galerie"].map(id => document.getElementById(id)).filter((element): element is HTMLElement => Boolean(element));
-    const updateActive = () => {
-      const current = sections.filter(section => section.getBoundingClientRect().top <= 180).at(-1);
-      setActiveSection(current?.id || "profil");
-    };
-    updateActive();
-    window.addEventListener("scroll", updateActive, { passive: true });
-    return () => window.removeEventListener("scroll", updateActive);
-  }, [salon]);
 
   if (!salon) {
     return (
@@ -91,38 +77,18 @@ export default function SalonAccount() {
     );
   }
 
-  const accountSections = [
-    { id: "profil", label: "Profil", icon: <IoBusinessOutline /> },
-    { id: "horaires", label: "Horaires", icon: <TbClockHour5 /> },
-    {
-      id: "equipe",
-      label: isIndependentAccount ? "Mes salons" : "Équipe",
-      icon: <PiUsersLight />,
-    },
-    { id: "galerie", label: "Galerie", icon: <HiOutlinePhotograph /> },
-  ];
+  const paidAccount = session?.user?.saasPlan === "PRO" || session?.user?.saasPlan === "BUSINESS";
 
   return (
     <section className="mx-auto w-full space-y-6 pb-6 font-one [&_button]:min-h-10 [&_a]:focus-visible:outline-2 [&_a]:focus-visible:outline-offset-4 [&_a]:focus-visible:outline-tertiary-400 [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-4 [&_button]:focus-visible:outline-tertiary-400">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <AccountTitle />
 
-      <nav
-        aria-label="Rubriques du compte"
-        className={styles.tabs}
-      >
-        {accountSections.map(({ id, label, icon }) => (
-          <a
-            key={id}
-            href={`#${id}`}
-            className={styles.tab}
-            aria-current={activeSection === id ? "location" : undefined}
-          >
-            {icon}
-            {label}
-          </a>
-        ))}
-      </nav>
+        {paidAccount && <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+          <DashboardButton href="/mon-compte/rendez-vous" variant="secondary" className="!min-w-0 !bg-noir-700 hover:!bg-noir-500 flex-1 sm:flex-none"><CalendarClock size={15} aria-hidden="true" />Rendez-vous</DashboardButton>
+          {salon.prestations?.includes("PIERCING") && <DashboardButton href="/mon-compte/piercing" variant="secondary" className="!min-w-0 !bg-noir-700 hover:!bg-noir-500 flex-1 sm:flex-none"><Gem size={15} aria-hidden="true" />Piercing</DashboardButton>}
+        </div>}
+
       </header>
       <div id="profil" className="scroll-mt-6">
         <InfoSalon salon={salon} />

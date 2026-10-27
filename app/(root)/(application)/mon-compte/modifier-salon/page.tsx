@@ -15,10 +15,9 @@ import { useRouter } from "next/navigation";
 import {
   updateUserInfoAction,
   getUserInfoAction,
-  updateProjectAppointmentBookingAction,
 } from "@/lib/queries/user";
 import { toast } from "sonner";
-import { ImagePlus, UserRound, MapPin, Globe, FileText, Sparkles, Palette, Save, LoaderCircle, CalendarClock, Mail, Gem, ArrowRight } from "lucide-react";
+import { ImagePlus, UserRound, MapPin, Globe, FileText, Sparkles, Palette, Save, LoaderCircle, CalendarClock, Gem } from "lucide-react";
 import { IoClose } from "react-icons/io5";
 import FrenchCitySelect from "@/components/Shared/FrenchCitySelect";
 
@@ -35,9 +34,8 @@ export default function UpdateAccountPage() {
     defaultValues: {
       prestations: [],
       style: [],
-      projectAppointmentIsFree: false,
-      followUpEmailDelayDays: 3,
-      retouchEmailDelayDays: 30,
+
+
     },
   });
 
@@ -58,6 +56,7 @@ export default function UpdateAccountPage() {
           // Mettre à jour les valeurs du formulaire
           form.reset({
             ...result.data,
+            nickname: result.data.nickname ?? "",
             instagram: result.data.instagram ?? undefined,
             facebook: result.data.facebook ?? undefined,
             tiktok: result.data.tiktok ?? undefined,
@@ -67,11 +66,11 @@ export default function UpdateAccountPage() {
             profileImage: result.data.profileImage ?? undefined,
             prestations: result.data.prestations ?? [],
             style: result.data.style ?? [],
-            projectAppointmentDurationMinutes: result.data.projectAppointmentDurationMinutes ?? undefined,
-            projectAppointmentIsFree: result.data.projectAppointmentIsFree ?? undefined,
-            projectAppointmentPrice: result.data.projectAppointmentPrice ?? undefined,
-            followUpEmailDelayDays: result.data.followUpEmailDelayDays ?? undefined,
-            retouchEmailDelayDays: result.data.retouchEmailDelayDays ?? undefined,
+            projectAppointmentDurationMinutes: undefined,
+            projectAppointmentIsFree: undefined,
+            projectAppointmentPrice: undefined,
+            followUpEmailDelayDays: undefined,
+            retouchEmailDelayDays: undefined,
           });
           setStyleBadges(result.data.style ?? []);
         } else {
@@ -90,40 +89,6 @@ export default function UpdateAccountPage() {
 
     setIsSubmitting(true);
     try {
-      const selectedPrestations = data.prestations ?? [];
-      const hasProjectService = selectedPrestations.includes("PROJET");
-      const projectDuration = data.projectAppointmentDurationMinutes;
-      const projectIsFree = data.projectAppointmentIsFree ?? false;
-      const projectPrice = data.projectAppointmentPrice;
-      const requiresFollowUpSettings = selectedPrestations.some((prestation) =>
-        ["TATTOO", "RETOUCHE", "PIERCING"].includes(prestation),
-      );
-      const requiresRetouchDelay = selectedPrestations.includes("RETOUCHE");
-      const followUpDelay = data.followUpEmailDelayDays;
-      const retouchDelay = data.retouchEmailDelayDays;
-
-      if (hasProjectService) {
-        if (!projectDuration || projectDuration <= 0) {
-          toast.error("Veuillez renseigner la duree d'une prestation projet.");
-          return;
-        }
-
-        if (!projectIsFree && (!projectPrice || projectPrice <= 0)) {
-          toast.error("Veuillez renseigner un prix projet valide.");
-          return;
-        }
-      }
-
-      if (requiresFollowUpSettings && (!followUpDelay || followUpDelay <= 0)) {
-        toast.error("Veuillez renseigner le delai d'email de suivi.");
-        return;
-      }
-
-      if (requiresRetouchDelay && (!retouchDelay || retouchDelay <= 0)) {
-        toast.error("Veuillez renseigner le delai d'email de retouche.");
-        return;
-      }
-
       const payload = {
         ...data,
         style: styleBadges,
@@ -140,32 +105,6 @@ export default function UpdateAccountPage() {
         console.error("Erreur lors de la mise à jour:", result.message);
         toast.error(result.message || "Erreur lors de la mise à jour du salon.");
         return;
-      }
-
-      if (hasProjectService || requiresFollowUpSettings) {
-        const appointmentResult = await updateProjectAppointmentBookingAction({
-          projectAppointmentDurationMinutes: hasProjectService
-            ? projectDuration
-            : undefined,
-          projectAppointmentIsFree: hasProjectService ? projectIsFree : undefined,
-          projectAppointmentPrice: hasProjectService
-            ? projectIsFree
-              ? undefined
-              : projectPrice
-            : undefined,
-          followUpEmailDelayDays: requiresFollowUpSettings
-            ? followUpDelay
-            : undefined,
-          retouchEmailDelayDays: requiresRetouchDelay ? retouchDelay : undefined,
-        });
-
-        if (!appointmentResult.ok) {
-          toast.error(
-            appointmentResult.message ||
-              "Salon mis a jour, mais la configuration PROJET a echoue.",
-          );
-          return;
-        }
       }
 
       toast.success("Salon mis à jour avec succès !");
@@ -223,22 +162,6 @@ export default function UpdateAccountPage() {
   const badgeClass =
     "inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/75 font-one";
   const selectedPrestations = form.watch("prestations") ?? [];
-  const showProjectConfig = selectedPrestations.includes("PROJET");
-  const showFollowUpEmailConfig = selectedPrestations.some((prestation) =>
-    ["TATTOO", "RETOUCHE", "PIERCING"].includes(prestation),
-  );
-  const showRetouchEmailDelay = selectedPrestations.includes("RETOUCHE");
-  const projectIsFree = form.watch("projectAppointmentIsFree") ?? false;
-  const projectDuration = form.watch("projectAppointmentDurationMinutes");
-
-  const projectDurationOptions = [30, 60, 90, 120, 150, 180, 210, 240];
-  const formatDurationLabel = (minutes: number) => {
-    if (minutes < 60) return `${minutes} min`;
-    const hours = Math.floor(minutes / 60);
-    const rem = minutes % 60;
-    return rem === 0 ? `${hours} h` : `${hours} h ${rem}`;
-  };
-
   const handleAddStyle = () => {
     const val = styleInput.trim();
     if (val && !styleBadges.includes(val)) {
@@ -271,8 +194,7 @@ export default function UpdateAccountPage() {
           { id: "salon-online", label: "Présence en ligne", hint: "Réseaux sociaux et site web" },
           { id: "salon-services", label: "Prestations", hint: "Votre offre" },
           { id: "salon-specialties", label: "Spécialités", hint: "Vos styles de tatouage" },
-          ...(showProjectConfig ? [{ id: "salon-booking", label: "Rendez-vous projet", hint: "Durée et tarif" }] : []),
-          ...(showFollowUpEmailConfig ? [{ id: "salon-followup", label: "Suivi client", hint: "Les emails après la séance" }] : []),
+          { id: "salon-followup", label: "Réglages des rendez-vous", hint: "Confirmation et rappels" },
           ...(selectedPrestations.includes("PIERCING") ? [{ id: "salon-piercing", label: "Catalogue piercing", hint: "Zones, services et tarifs" }] : []),
         ]} summary={<div className="space-y-4"><div><p className="break-words text-sm font-medium text-white/85">{form.watch("salonName") || "Votre salon"}</p><p className="mt-1 text-[11px] text-white/40">{[form.watch("postalCode"), form.watch("city")].filter(Boolean).join(" ") || "Localisation à compléter"}</p></div><div className="flex flex-wrap gap-1.5">{selectedPrestations.map((service) => <span key={service} className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-white/55">{{ TATTOO: "Tatouage", PROJET: "Projet", RETOUCHE: "Retouche", PIERCING: "Piercing" }[service]}</span>)}</div><p className="text-[11px] leading-5 text-white/35">Complétez chaque rubrique pour aider vos clients à découvrir le salon et préparer leur visite.</p></div>}>
           <form
@@ -325,6 +247,12 @@ export default function UpdateAccountPage() {
             <div id="salon-identity" className="scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5 2xl:col-span-6">
               <FormSectionHeader eyebrow="02 · Identité" title="Votre salon et son propriétaire" description="Les informations essentielles de votre compte professionnel." icon={<UserRound size={18} />} />
               <div className="space-y-4">
+                {salon?.role === "user_tatoueur" && <div className="space-y-1">
+                  <label htmlFor="salon-nickname" className={labelClass}>Pseudo / surnom public (facultatif)</label>
+                  <input id="salon-nickname" maxLength={80} {...form.register("nickname")} className={inputClass} aria-describedby="salon-nickname-hint" />
+                  <p id="salon-nickname-hint" className="text-xs leading-5 text-white/50">Si renseigné, ce pseudo sera affiché au public. Votre nom et votre prénom restent obligatoires pour vos informations personnelles et le paiement.</p>
+                  {form.formState.errors.nickname && <p role="alert" className="text-xs text-red-300">{form.formState.errors.nickname.message}</p>}
+                </div>}
                 <div className="space-y-1">
                   <label htmlFor="salon-salonName" className={labelClass}>Nom du salon</label>
                   <input id="salon-salonName" aria-invalid={Boolean(form.formState.errors.salonName)} aria-describedby={form.formState.errors.salonName ? "salon-salonName-error" : undefined}
@@ -554,117 +482,11 @@ export default function UpdateAccountPage() {
               </div>
             </div>
 
-            {showProjectConfig ? (
-              <div id="salon-booking" className={`scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5 ${showFollowUpEmailConfig ? "2xl:col-span-6" : ""}`}>
-                <FormSectionHeader eyebrow="Réservation · Projet" title="Préparez le premier échange" description="Définissez la durée et le tarif du rendez-vous consacré au projet de votre client." icon={<CalendarClock size={18} />} />
-                <div className="mb-5 flex flex-wrap gap-2">
-                  <span className={badgeClass}>{projectDuration ? formatDurationLabel(projectDuration) : "Durée à définir"}</span>
-                  <span className={badgeClass}>{projectIsFree ? "Rendez-vous gratuit" : "Rendez-vous payant"}</span>
-                </div>
-                <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <label htmlFor="salon-projectAppointmentDurationMinutes" className={labelClass}>Durée (minutes)</label>
-                    <select id="salon-projectAppointmentDurationMinutes" aria-invalid={Boolean(form.formState.errors.projectAppointmentDurationMinutes)} aria-describedby={form.formState.errors.projectAppointmentDurationMinutes ? "salon-projectAppointmentDurationMinutes-error" : undefined}
-                      {...form.register("projectAppointmentDurationMinutes", {
-                        setValueAs: (val) =>
-                          val === "" ? undefined : Number(val),
-                      })}
-                      className={inputClass}
-                    >
-                      <option value="" className="bg-noir-500">Choisir</option>
-                      {projectDurationOptions.map((minutes) => (
-                        <option key={minutes} value={minutes} className="bg-noir-500">
-                          {formatDurationLabel(minutes)} ({minutes} min)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className={labelClass}>Tarification</label>
-                    <label className="inline-flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-xl border border-tertiary-400/20 bg-tertiary-500/5 px-3.5 py-2.5 text-sm text-white font-one focus-within:ring-2 focus-within:ring-tertiary-400/40">
-                      <input
-                        type="checkbox"
-                        className="size-4 accent-tertiary-500" checked={projectIsFree}
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          form.setValue("projectAppointmentIsFree", checked, {
-                            shouldDirty: true,
-                            shouldTouch: true,
-                          });
-
-                          if (checked) {
-                            form.setValue("projectAppointmentPrice", undefined, {
-                              shouldDirty: true,
-                              shouldTouch: true,
-                            });
-                          }
-                        }}
-                      />
-                      Prestation gratuite
-                    </label>
-                  </div>
-
-                  {!projectIsFree ? (
-                    <div className="space-y-1">
-                    <label htmlFor="salon-projectAppointmentPrice" className={labelClass}>Prix (EUR)</label>
-                    <input id="salon-projectAppointmentPrice" aria-invalid={Boolean(form.formState.errors.projectAppointmentPrice)} aria-describedby={form.formState.errors.projectAppointmentPrice ? "salon-projectAppointmentPrice-error" : undefined}
-                      type="number"
-                      min={0}
-                      step={1}
-                      placeholder="Ex: 50"
-                      {...form.register("projectAppointmentPrice", {
-                        valueAsNumber: true,
-                      })}
-                      className={inputClass}
-                    />
-                    {form.formState.errors.projectAppointmentPrice && <p id="salon-projectAppointmentPrice-error" role="alert" className="mt-1 text-xs text-red-300">{form.formState.errors.projectAppointmentPrice?.message}</p>}
-                  </div>
-                  ) : (
-                    <div className="flex justify-center items-center rounded-xl border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-100 font-one">
-                      <p>Le client ne paie pas la prestation projet.</p>
-                    </div>
-                  )}
-                </div>
+            <div id="salon-followup" className="col-span-12 min-w-0 scroll-mt-5 rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <FormSectionHeader eyebrow="Réglages des rendez-vous" title="Vos réservations, du premier échange au suivi" description="Après avoir enregistré votre profil, revenez à Mon compte et utilisez le bouton Rendez-vous en haut de la page pour configurer la confirmation, le premier échange et les rappels après séance. Ce bouton est disponible avec Pro ou Business." icon={<CalendarClock size={18} />} />
               </div>
-            ) : null}
-
-            {showFollowUpEmailConfig ? (
-              <div id="salon-followup" className={`scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5 ${showProjectConfig ? "2xl:col-span-6" : ""}`}>
-                <FormSectionHeader eyebrow="Relation client · Suivi" title="Gardez le contact après la séance" description="Personnalisez le délai d’envoi de vos emails de suivi, en jours après le rendez-vous." icon={<Mail size={18} />} />
-                <div className={`grid grid-cols-1 gap-4 ${showRetouchEmailDelay ? "sm:grid-cols-2" : "sm:max-w-lg"}`}>
-                  <div className="rounded-2xl border border-white/10 bg-black/10 p-4"><p className="mb-3 text-xs leading-5 text-white/50 font-two">Prenez des nouvelles de votre client après sa séance.</p><label htmlFor="salon-followUpEmailDelayDays" className={labelClass}>Suivi général (jours)</label>
-                    <input id="salon-followUpEmailDelayDays" aria-invalid={Boolean(form.formState.errors.followUpEmailDelayDays)} aria-describedby={form.formState.errors.followUpEmailDelayDays ? "salon-followUpEmailDelayDays-error" : undefined}
-                      type="number"
-                      min={1}
-                      step={1}
-                      placeholder="Ex: 3"
-                      {...form.register("followUpEmailDelayDays", {
-                        valueAsNumber: true,
-                      })}
-                      className={inputClass}
-                    />
-                    {form.formState.errors.followUpEmailDelayDays && <p id="salon-followUpEmailDelayDays-error" role="alert" className="mt-1 text-xs text-red-300">{form.formState.errors.followUpEmailDelayDays?.message}</p>}
-                  </div>
-
-                  {showRetouchEmailDelay ? (
-                    <div className="rounded-2xl border border-white/10 bg-black/10 p-4"><p className="mb-3 text-xs leading-5 text-white/50 font-two">Programmez un suivi dédié aux retouches.</p><label htmlFor="salon-retouchEmailDelayDays" className={labelClass}>Suivi retouche (jours)</label>
-                      <input id="salon-retouchEmailDelayDays" aria-invalid={Boolean(form.formState.errors.retouchEmailDelayDays)} aria-describedby={form.formState.errors.retouchEmailDelayDays ? "salon-retouchEmailDelayDays-error" : undefined}
-                        type="number"
-                        min={1}
-                        step={1}
-                        placeholder="Ex: 30"
-                        {...form.register("retouchEmailDelayDays", {
-                          valueAsNumber: true,
-                        })}
-                        className={inputClass}
-                      />
-                    {form.formState.errors.retouchEmailDelayDays && <p id="salon-retouchEmailDelayDays-error" role="alert" className="mt-1 text-xs text-red-300">{form.formState.errors.retouchEmailDelayDays?.message}</p>}
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            ) : null}
+            </div>
 
           {(() => {
             const showPiercing = selectedPrestations.includes("PIERCING");
@@ -674,13 +496,7 @@ export default function UpdateAccountPage() {
             return (
               <div className="scroll-mt-5 border border-white/10 bg-noir-600 col-span-12 min-w-0 rounded-2xl p-4 sm:p-5">
                 <div id="salon-piercing" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <FormSectionHeader eyebrow="Catalogue · Piercing" title="Vos zones, services et tarifs" description="Composez votre offre de piercing et ajustez les prestations disponibles pour vos clients." icon={<Gem size={18} />} />
-                  <DashboardButton
-                    href="/mon-compte/piercing"
-                    className="!min-w-0 !rounded-xl !shadow-none"
-                  >
-                    Configurer les piercings <ArrowRight size={15} aria-hidden="true" />
-                  </DashboardButton>
+                  <FormSectionHeader eyebrow="Catalogue · Piercing" title="Vos zones, services et tarifs" description="Enregistrez la prestation Piercing sur votre profil, puis revenez à Mon compte. Avec Pro ou Business, le bouton Piercing en haut de la page permet de configurer vos zones, vos prestations et leurs tarifs." icon={<Gem size={18} />} />
                 </div>
               </div>
             );

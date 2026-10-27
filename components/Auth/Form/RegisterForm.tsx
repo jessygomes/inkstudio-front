@@ -184,6 +184,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
       const finalData = {
         ...formData,
         role: formData.role,
+        nickname: formData.role === "user_tatoueur" ? formData.salonName : undefined,
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,

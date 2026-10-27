@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { authenticatedFetch } from "@/lib/authenticated-fetch";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
@@ -154,7 +155,7 @@ export default function UpdateRdv({
       }
 
       try {
-        const response = await fetch(
+        const response = await authenticatedFetch(
           `${process.env.NEXT_PUBLIC_BACK_URL}/tatoueurs/user/${userId}`
         );
         const data = await response.json();
@@ -179,7 +180,7 @@ export default function UpdateRdv({
           ? `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/salon/${userId}`
           : `${process.env.NEXT_PUBLIC_BACK_URL}/blocked-slots/tatoueur/${tatoueurScopeId}`;
 
-        const res = await fetch(
+        const res = await authenticatedFetch(
           blockedUrl
         );
         const data = await res.json();
@@ -215,7 +216,7 @@ export default function UpdateRdv({
         const tatoueurScopeId = isUserTatoueur ? userId : selectedTatoueur;
 
         // 1) créneaux dispos
-        const slotsRes = await fetch(
+        const slotsRes = await authenticatedFetch(
           rdv.venueSalonId && (isUserTatoueur || (rdv as any).performerUserId) ? `${process.env.NEXT_PUBLIC_BACK_URL}/residencies/my-availability?date=${selectedDate}&artistId=${isUserTatoueur ? userId : (rdv as any).performerUserId}&salonId=${rdv.venueSalonId}&appointmentId=${rdv.id}` : isUserTatoueur ? `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/salon/${userId}?date=${selectedDate}&includeUnavailable=true` : `${process.env.NEXT_PUBLIC_BACK_URL}/timeslots/tatoueur?date=${selectedDate}&tatoueurId=${tatoueurScopeId}&includeUnavailable=true`,
           { headers: { Authorization: `Bearer ${session?.accessToken}` } }
         );
@@ -238,7 +239,7 @@ export default function UpdateRdv({
               process.env.NEXT_PUBLIC_BACK_URL
             }/appointments/tatoueur-range?tatoueurId=${tatoueurScopeId}&start=${startOfDay.toISOString()}&end=${endOfDay.toISOString()}`;
 
-        const occupiedRes = await fetch(occupiedUrl);
+        const occupiedRes = await authenticatedFetch(occupiedUrl);
         if (!occupiedRes.ok) throw new Error("Agenda indisponible");
         const occupiedData = await occupiedRes.json();
         if (active) setOccupiedSlots(Array.isArray(occupiedData) ? occupiedData : occupiedData?.appointments || []);
@@ -250,7 +251,7 @@ export default function UpdateRdv({
           startOfDay.toISOString()
         )}&end=${encodeURIComponent(endOfDay.toISOString())}`;
 
-        const proposedRes = await fetch(proposeUrl);
+        const proposedRes = await authenticatedFetch(proposeUrl);
         if (!proposedRes.ok) throw new Error("Créneaux proposés indisponibles");
         const proposedData = await proposedRes.json();
         if (active) setProposedSlots(Array.isArray(proposedData) ? proposedData : []);

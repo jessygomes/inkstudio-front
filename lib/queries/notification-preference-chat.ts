@@ -34,7 +34,7 @@ export async function getNotificationPreferenceChat() {
 //! ----------------------------------------------------------------------------
 export async function updateNotificationPreferenceChat(
   emailNotificationsEnabled: boolean,
-  emailFrequency: "IMMEDIATE" | "HOURLY" | "DAILY" | "NEVER",
+  emailFrequency: "HOURLY" | "DAILY" | "NEVER",
 ) {
   const headers = await getAuthHeaders();
   const body = {
