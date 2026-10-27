@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 import { ImagePlus, UserRound, MapPin, Globe, FileText, Sparkles, Palette, Save, LoaderCircle, CalendarClock, Mail, Gem, ArrowRight } from "lucide-react";
 import { IoClose } from "react-icons/io5";
+import FrenchCitySelect from "@/components/Shared/FrenchCitySelect";
 
 export default function UpdateAccountPage() {
   const { data: session } = useSession();
@@ -277,7 +278,6 @@ export default function UpdateAccountPage() {
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="grid min-w-0 grid-cols-12 gap-4"
-            noValidate
           >
             <div id="salon-visual" className="col-span-12 min-w-0 scroll-mt-5 rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-5">
               <FormSectionHeader eyebrow="01 · Identité visuelle" title="L’image de votre salon" description="Votre photo de profil et votre couverture donnent le premier aperçu de votre univers." icon={<ImagePlus size={18} />} />
@@ -384,9 +384,12 @@ export default function UpdateAccountPage() {
 
                 <div className="space-y-1">
                   <label htmlFor="salon-city" className={labelClass}>Ville</label>
-                  <input id="salon-city" aria-invalid={Boolean(form.formState.errors.city)} aria-describedby={form.formState.errors.city ? "salon-city-error" : undefined}
-                    placeholder="Ville"
-                    {...form.register("city")}
+                  <FrenchCitySelect id="salon-city" city={form.watch("city")} postalCode={form.watch("postalCode")}
+                    disabled={isSubmitting}
+                    onChange={(city, postalCode) => {
+                      form.setValue("city", city, { shouldDirty: true, shouldValidate: true });
+                      form.setValue("postalCode", postalCode, { shouldDirty: true, shouldValidate: true });
+                    }}
                     className={inputClass}
                   />
                     {form.formState.errors.city && <p id="salon-city-error" role="alert" className="mt-1 text-xs text-red-300">{form.formState.errors.city?.message}</p>}
@@ -396,6 +399,7 @@ export default function UpdateAccountPage() {
                   <label htmlFor="salon-postalCode" className={labelClass}>Code postal</label>
                   <input id="salon-postalCode" aria-invalid={Boolean(form.formState.errors.postalCode)} aria-describedby={form.formState.errors.postalCode ? "salon-postalCode-error" : undefined}
                     placeholder="Code postal"
+                    readOnly
                     {...form.register("postalCode")}
                     className={inputClass}
                   />

@@ -160,15 +160,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
     nextStep();
   };
 
-  const handleStep3Submit = async (data: {
-    firstName: string;
-    lastName: string;
-    phone?: string;
-    website?: string;
-    email: string;
-    password: string;
-    passwordConfirmation: string;
-  }) => {
+  const handleStep3Submit = async (data: SignupAccessValues) => {
     setError("");
     setSuccess("");
     setIsPending(true);
