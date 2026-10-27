@@ -16,7 +16,8 @@ export const fileRouter = {
       return { uploadedBy: metadata.userId };
     }),
   salonDocuments: f({
-    pdf: { maxFileSize: "16MB", maxFileCount: 1 },
+    pdf: { maxFileSize: "32MB", maxFileCount: 1 },
+    image: { maxFileSize: "32MB", maxFileCount: 1 },
   })
     .middleware(async () => {
       // Pour l'instant, on autorise tout le monde

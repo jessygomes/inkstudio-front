@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+import imageCompression from "browser-image-compression";
 import SettingsSectionHeader from "./SettingsSectionHeader";
 import { BadgeCheck } from "lucide-react";
 
@@ -129,15 +130,35 @@ export default function VerificationDocumentsSection() {
       setError(null);
 
       const file = files[0];
+      if (!["application/pdf", "image/jpeg", "image/png"].includes(file.type)) {
+        throw new Error("Format non accepté. Choisissez un fichier PDF, JPG ou PNG.");
+      }
+      if (file.size > 32 * 1024 * 1024) {
+        throw new Error("Le fichier est trop volumineux. La taille maximale est de 32 Mo.");
+      }
+
+      let uploadFile = file;
+      if (file.type.startsWith("image/")) {
+        const compressed = await imageCompression(file, {
+          maxSizeMB: 4,
+          maxWidthOrHeight: 2560,
+          useWebWorker: true,
+          initialQuality: 0.85,
+          preserveExif: false,
+        });
+        if (compressed.size < file.size) {
+          uploadFile = compressed;
+        }
+      }
 
       // Upload vers uploadthing
-      const uploadResult = await startUpload([file]);
+      const uploadResult = await startUpload([uploadFile]);
 
       if (!uploadResult || uploadResult.length === 0) {
         throw new Error("Erreur lors de l'upload du fichier");
       }
 
-      const fileUrl = uploadResult[0].url;
+      const fileUrl = uploadResult[0].ufsUrl;
 
       // Soumettre le document
       const submitResult = await submitSalonDocument(type, fileUrl);
@@ -194,5 +215,5 @@ export default function VerificationDocumentsSection() {
 <span className={styles.icon}>{docType.icon}</span><div><div className="flex flex-wrap items-center gap-2"><h3 className={styles.label}>{docType.label}</h3><span className={"rounded-md border px-2 py-0.5 text-[10px] " + (doc ? getStatusColor(doc.status) : "border-white/10 text-white/40")}>{doc ? getStatusLabel(doc.status) : "À fournir"}</span></div><p className={styles.note}>{docType.description}</p>{doc && <p className={styles.note}>Déposé le {new Date(doc.uploadedAt).toLocaleDateString("fr-FR")}</p>}{doc?.rejectionReason && <p className="mt-2 text-xs text-red-300">{doc.rejectionReason}</p>}{doc?.status==="PENDING" && <p className={styles.note}>En cours de vérification par notre équipe.</p>}</div>
 {(!doc || doc.status==="REJECTED") && <div className={styles.documentActions}><input id={"document-"+docType.id} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" disabled={uploading[docType.id]} onChange={event=>{void handleFileUpload(docType.id,event.target.files);event.target.value="";}}/><DashboardButton variant="secondary" className="min-w-0! h-9 px-3" disabled={uploading[docType.id]} onClick={()=>document.getElementById("document-"+docType.id)?.click()}><FiUploadCloud className="h-3.5 w-3.5"/>{uploading[docType.id] ? "Envoi…" : doc ? "Renvoyer" : "Ajouter"}</DashboardButton></div>}
 </div>})}</div>}
-<div className={styles.notice}><p className={styles.label}>Hygiène &amp; Salubrité : le justificatif obligatoire</p><p>Ce document permet de vérifier votre salon. Les autres justificatifs complètent votre dossier.</p><p className={styles.note}>Formats acceptés : PDF, JPG ou PNG.</p></div></div></div>);
+<div className={styles.notice}><p className={styles.label}>Hygiène &amp; Salubrité : le justificatif obligatoire</p><p>Ce document permet de vérifier votre salon. Les autres justificatifs complètent votre dossier.</p><p className={styles.note}>Formats acceptés : PDF, JPG ou PNG. Maximum 32 Mo par fichier. Les images sont compressées automatiquement avant l'envoi ; les PDF sont conservés tels quels.</p></div></div></div>);
 }

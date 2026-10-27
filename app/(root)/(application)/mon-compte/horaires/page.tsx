@@ -81,6 +81,10 @@ export default function HorairesPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!session?.user?.id || isSubmitting) return;
+    if (!session.accessToken) {
+      toast.error("Votre session a expiré. Veuillez vous reconnecter.");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -88,7 +92,10 @@ export default function HorairesPage() {
         `${process.env.NEXT_PUBLIC_BACK_URL}/users/${session.user.id}/hours`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`,
+          },
           body: JSON.stringify(editingHours),
         },
       );
