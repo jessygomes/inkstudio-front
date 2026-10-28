@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import NotificationBadge from "@/components/Shared/NotificationBadge";
+import { useActivityNotifications } from "@/components/Providers/ActivityNotificationsProvider";
 import {
   CalendarEvent,
   CalendarView,
@@ -48,6 +50,7 @@ const STATUS_BADGES: Record<string, { label: string; className: string }> = {
 
 export default function RDV() {
   const { data: session } = useSession();
+  const { isNew, markRead } = useActivityNotifications();
   const searchParams = useSearchParams();
   const query = searchParams.get("query")?.toLowerCase() || "";
   const queryClient = useQueryClient();
@@ -81,6 +84,7 @@ export default function RDV() {
   useScrollLock(isMobileDetailOpen);
 
   const openEventDetails = (event: CalendarEvent) => {
+    markRead("appointments", event.id);
     setSelectedEvent(event);
     setIsMobileDetailOpen(true); // Pour mobile
   };
@@ -533,9 +537,7 @@ export default function RDV() {
             >
               <Clock3 size={15} className="shrink-0 text-amber-300" />
               <span>En attente</span>
-              <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-amber-300/15 px-1 text-[10px] font-semibold tabular-nums text-amber-200">
-                {pendingAppointmentsCount > 99 ? "99+" : pendingAppointmentsCount}
-              </span>
+              <NotificationBadge count={pendingAppointmentsCount} label="rendez-vous en attente" showZero />
             </button>
             {!isFreeAccount && <DashboardButton href="/mes-rendez-vous/creer" className="!min-w-0 !rounded-xl flex-1 whitespace-nowrap md:flex-none">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -614,10 +616,11 @@ export default function RDV() {
 
                           return (
                             <div key={event.id}>
+                              {isNew("appointments", event.id) && <span className="text-xs font-semibold text-tertiary-400">Nouveau rendez-vous</span>}
                               <div
                                 onClick={() => openEventDetails(event)}
                                 className={`group flex cursor-pointer items-center gap-3 rounded-2xl border bg-white/[0.03] p-2.5 transition-all duration-200 hover:bg-white/[0.06] sm:gap-4 sm:p-3 ${
-                                  selectedEvent?.id === event.id
+                                  (selectedEvent?.id === event.id || isNew("appointments", event.id))
                                     ? "border-tertiary-400/50 bg-tertiary-400/10"
                                     : "border-white/8 hover:border-white/20"
                                 }`}

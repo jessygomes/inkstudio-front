@@ -11,6 +11,7 @@ import Image from "next/image";
 import AccountAge from "./AccountAge";
 import Link from "next/link";
 import { LuShieldCheck } from "react-icons/lu";
+import PublicVisibilityBadge from "./PublicVisibilityBadge";
 
 interface Salon {
   id: string;
@@ -231,6 +232,7 @@ export default function SalonsList() {
                   <th scope="col" className="px-4 py-3">Rôle</th>
                   <th scope="col" className="px-4 py-3">Plan</th>
                   <th scope="col" className="px-4 py-3">Statut</th>
+                  <th scope="col" className="px-4 py-3">Visibilité sur le site</th>
                   <th scope="col" className="px-4 py-3">Ancienneté</th>
                   <th scope="col" className="px-4 py-3 text-right">Actions</th>
                 </tr>
@@ -315,6 +317,10 @@ export default function SalonsList() {
                         <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium font-one ${salon.verifiedSalon ? "border-emerald-400/35 bg-emerald-500/15 text-emerald-200" : "border-white/15 bg-white/8 text-white/60"}`}>
                           {salon.verifiedSalon ? "Vérifié" : "Non vérifié"}
                         </span>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <PublicVisibilityBadge value={salon.publicVisibility} profile={salon} />
                       </td>
 
                       <td className="px-4 py-4 text-xs text-white/70 font-one">

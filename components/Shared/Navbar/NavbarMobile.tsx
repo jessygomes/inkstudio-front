@@ -1,6 +1,9 @@
 "use client";
+import { ActivityBadge, activityKindForHref } from "@/components/Providers/ActivityNotificationsProvider";
+import { useMessagingContext } from "@/components/Providers/MessagingProvider";
 import { useSession } from "next-auth/react";
 import NavbarAccountMenu from "./NavbarAccountMenu";
+import NotificationBadge from "@/components/Shared/NotificationBadge";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { LogoutBtn } from "@/components/Auth/LogoutBtn";
 import { makeSlug } from "@/lib/utils/makeLink";
@@ -19,6 +22,7 @@ import { MdDashboard, MdEvent, MdPeople, MdPhotoLibrary, MdShoppingBag, MdAccoun
 export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: string | null }) {
   const { data: session } = useSession();
   const user = useUser();
+  const { unreadCount } = useMessagingContext();
   const pathname = usePathname();
   const isFreePlan =
     String(user?.saasPlan || "")
@@ -243,6 +247,8 @@ export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: stri
                     >
                       {link.icon}
                       <span className="font-one text-sm">{link.label}</span>
+                      {activityKindForHref(link.href) && <ActivityBadge kind={activityKindForHref(link.href)!} />}
+                      {link.href === "/messagerie" && <NotificationBadge count={unreadCount} label="messages non lus" />}
                     </Link>
                   </li>
                 );

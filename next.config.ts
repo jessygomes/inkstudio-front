@@ -60,6 +60,14 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: "/suivi/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      },
       // Headers spécifiques pour les pages landing
       {
         source: "/(solutions|tarification|a-propos-de-inkera)",

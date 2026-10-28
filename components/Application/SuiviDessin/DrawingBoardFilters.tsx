@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import {
@@ -24,6 +24,7 @@ interface DrawingBoardFiltersProps {
   onFromChange: (value: string) => void;
   onToChange: (value: string) => void;
   onClear: () => void;
+  onCreate: () => void;
 }
 
 export default function DrawingBoardFilters({
@@ -40,6 +41,7 @@ export default function DrawingBoardFilters({
   onFromChange,
   onToChange,
   onClear,
+  onCreate,
 }: DrawingBoardFiltersProps) {
   const hasActiveFilters = Boolean(search || status || artist || from || to);
   const selectClassName =
@@ -47,8 +49,9 @@ export default function DrawingBoardFilters({
 
   return (
     <ApplicationToolbar>
-      <div className="flex w-full flex-nowrap items-center gap-2 overflow-x-auto scrollbar-hidden">
-      <label className="relative min-w-[190px] flex-1">
+      <div className="flex w-full min-w-0 items-center gap-3">
+      <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-x-auto scrollbar-hidden">
+      <label className="relative min-w-36 max-w-56 flex-1">
         <Search
           className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/35"
           size={13}
@@ -131,6 +134,11 @@ export default function DrawingBoardFilters({
           Effacer
         </DashboardButton>
       )}
+      </div>
+      <DashboardButton variant="primary" onClick={onCreate} className="!h-10 !min-w-0 shrink-0 whitespace-nowrap">
+        <Plus size={14} />
+        Créer une card
+      </DashboardButton>
       </div>
     </ApplicationToolbar>
   );

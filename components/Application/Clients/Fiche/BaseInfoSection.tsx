@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { formatPhoneNumber } from "@/lib/utils/formatPhoneNumber";
 import type { LucideIcon } from "lucide-react";
 import {
   CalendarDays, Check, CircleAlert, ExternalLink, FileText, Mail, MapPin,
@@ -20,7 +21,7 @@ export default function BaseInfoSection({ client, onOpenConsent }: BaseInfoSecti
         <InfoItem icon={UserRound} label="Prénom">{client.firstName || emptyValue}</InfoItem>
         <InfoItem icon={UserRound} label="Nom">{client.lastName || emptyValue}</InfoItem>
         <InfoItem icon={Mail} label="Email">{client.email ? <a className="cursor-pointer hover:text-white" href={"mailto:" + client.email}>{client.email}</a> : emptyValue}</InfoItem>
-        <InfoItem icon={Phone} label="Téléphone">{client.phone ? <a className="cursor-pointer hover:text-white" href={"tel:" + client.phone}>{client.phone}</a> : emptyValue}</InfoItem>
+        <InfoItem icon={Phone} label="Téléphone">{client.phone ? <a className="cursor-pointer hover:text-white" href={"tel:" + client.phone}>{formatPhoneNumber(client.phone)}</a> : emptyValue}</InfoItem>
         <InfoItem icon={CalendarDays} label="Date de naissance">{formatDate(client.birthDate)}</InfoItem>
         <InfoItem icon={MapPin} label="Adresse">{client.address || emptyValue}</InfoItem>
       </dl>
@@ -38,7 +39,7 @@ export default function BaseInfoSection({ client, onOpenConsent }: BaseInfoSecti
       <article className="rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-5">
         <SectionHeading icon={ShieldCheck} title="Dossier administratif" />
         <dl className="mt-4 divide-y divide-white/[0.07]"><StatusRow icon={UsersRound} label="Statut" positive={!client.isMinor} positiveLabel="Majeur" negativeLabel="Mineur" warning /><StatusRow icon={Megaphone} label="Communications marketing" positive={!!client.marketingConsent} positiveLabel="Autorisées" negativeLabel="Non autorisées" /></dl>
-        {(client.isMinor || client.guardianName || client.guardianPhone) && <div className="mt-4 border-t border-white/[0.07] pt-4"><p className="text-[10px] font-medium text-white/40">Représentant légal</p><p className="mt-1.5 text-xs text-white/75">{client.guardianName || emptyValue}</p>{client.guardianPhone ? <a href={"tel:" + client.guardianPhone} className="mt-2 inline-flex cursor-pointer items-center gap-1.5 text-[11px] text-white/45 hover:text-white"><Phone size={12} />{client.guardianPhone}</a> : <p className="mt-1 text-[11px] text-white/30">Téléphone non renseigné</p>}</div>}
+        {(client.isMinor || client.guardianName || client.guardianPhone) && <div className="mt-4 border-t border-white/[0.07] pt-4"><p className="text-[10px] font-medium text-white/40">Représentant légal</p><p className="mt-1.5 text-xs text-white/75">{client.guardianName || emptyValue}</p>{client.guardianPhone ? <a href={"tel:" + client.guardianPhone} className="mt-2 inline-flex cursor-pointer items-center gap-1.5 text-[11px] text-white/45 hover:text-white"><Phone size={12} />{formatPhoneNumber(client.guardianPhone)}</a> : <p className="mt-1 text-[11px] text-white/30">Téléphone non renseigné</p>}</div>}
       </article>
     </div>
   </section>;

@@ -169,15 +169,9 @@ export default function RdvDetailsPanelDesktop({
       </div>
 
       {/* ── FOOTER ───────────────────────────────────────── */}
-      {(selectedAppointment.prestation === "PROJET" ||
-        selectedAppointment.prestation === "TATTOO") && (
-        <div className="px-3 pb-3">
-          <AppointmentDrawingCardAction
-            appointmentId={selectedAppointment.id}
-            allowCreate={selectedAppointment.prestation === "PROJET"}
-          />
-        </div>
-      )}
+      <div className="px-3 pb-3">
+        <AppointmentDrawingCardAction appointmentId={selectedAppointment.id} />
+      </div>
 
       <div className="shrink-0 border-t border-white/10 bg-noir-700 flex items-center justify-between rounded-b-[28px] px-4 py-2.5">
         <p className="text-[10px] text-white/30 font-one leading-none">

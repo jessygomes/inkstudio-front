@@ -1,4 +1,5 @@
 "use client";
+import { formatPhoneNumber } from "@/lib/utils/formatPhoneNumber";
 
 import { CalendarDays, Check, ChevronRight, FileSignature, Mail, Pencil, Phone, Trash2 } from "lucide-react";
 import ClientAvatar from "./ClientAvatar";
@@ -33,7 +34,7 @@ export default function ClientCard({ client, onOpen, onEdit, onDelete, onConsent
 
       <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-[11px] text-white/50">
         {client.email ? <a href={`mailto:${client.email}`} title={client.email} className="pointer-events-auto relative z-10 inline-flex max-w-full cursor-pointer items-center gap-2 rounded py-0.5 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><Mail size={12} className="shrink-0 text-white/30" aria-hidden="true" /><span className="truncate">{client.email}</span></a> : <span className="inline-flex items-center gap-2 text-white/25"><Mail size={12} aria-hidden="true" />Email non renseigné</span>}
-        {client.phone ? <a href={`tel:${client.phone}`} className="pointer-events-auto relative z-10 inline-flex max-w-full cursor-pointer items-center gap-2 rounded py-0.5 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><Phone size={12} className="shrink-0 text-white/30" aria-hidden="true" /><span className="truncate">{client.phone}</span></a> : <span className="inline-flex items-center gap-2 text-white/25"><Phone size={12} aria-hidden="true" />Téléphone non renseigné</span>}
+        {client.phone ? <a href={`tel:${client.phone}`} className="pointer-events-auto relative z-10 inline-flex max-w-full cursor-pointer items-center gap-2 rounded py-0.5 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><Phone size={12} className="shrink-0 text-white/30" aria-hidden="true" /><span className="truncate">{formatPhoneNumber(client.phone)}</span></a> : <span className="inline-flex items-center gap-2 text-white/25"><Phone size={12} aria-hidden="true" />Téléphone non renseigné</span>}
       </div>
       </div>
 

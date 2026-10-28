@@ -1,3 +1,4 @@
+import NotificationBadge from "@/components/Shared/NotificationBadge";
 import type { ReactNode } from "react";
 import { ArrowUpRight, ChevronLeft, ChevronRight, LoaderCircle, type LucideIcon } from "lucide-react";
 import Link from "next/link";
@@ -5,7 +6,7 @@ import Link from "next/link";
 export const dashboardControl = "dashboard-control inline-flex min-h-8 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-tertiary-400/10 px-2.5 py-1.5 text-[11px] text-white/60 transition hover:border-white/20 hover:bg-tertiary-400/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed disabled:opacity-30";
 
 export function DashboardHeading({ title, description, icon: Icon, count, href, action }: { title: string; description?: string; icon: LucideIcon; count?: number; href?: string; action?: ReactNode }) {
-  return <header className="flex items-start gap-3"><span className="dashboard-accent-icon grid size-9 shrink-0 place-items-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400"><Icon size={16} /></span><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><h3 className="text-sm font-semibold tracking-tight text-white/90">{title}</h3>{count !== undefined && <span className="dashboard-accent-count rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] tabular-nums text-white/50">{count}</span>}</div>{description && <p className="mt-1 text-[11px] leading-5 text-white/40">{description}</p>}</div>{action}{href && <Link href={href} aria-label={`Voir : ${title}`} title={`Voir : ${title}`} className={dashboardControl + " size-8 shrink-0 !p-0"}><ArrowUpRight size={15} /></Link>}</header>;
+  return <header className="flex items-start gap-3"><span className="dashboard-accent-icon grid size-9 shrink-0 place-items-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400"><Icon size={16} /></span><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><h3 className="text-sm font-semibold tracking-tight text-white/90">{title}</h3>{count !== undefined && <NotificationBadge count={count} label={title} showZero />}</div>{description && <p className="mt-1 text-[11px] leading-5 text-white/40">{description}</p>}</div>{action}{href && <Link href={href} aria-label={`Voir : ${title}`} title={`Voir : ${title}`} className={dashboardControl + " size-8 shrink-0 !p-0"}><ArrowUpRight size={15} /></Link>}</header>;
 }
 
 export function DashboardState({ loading, error, message = "Aucune donnée pour le moment.", retry }: { loading?: boolean; error?: string | null; message?: string; retry?: () => void }) {

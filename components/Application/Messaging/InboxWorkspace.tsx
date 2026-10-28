@@ -1,4 +1,5 @@
 "use client";
+import NotificationBadge from "@/components/Shared/NotificationBadge";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
@@ -12,6 +13,7 @@ import {
 import { toast } from "sonner";
 import ConversationRDVDetails from "./ConversationRDVDetails";
 import styles from "./InboxWorkspace.module.css";
+import { sortInboxThreads } from "@/lib/utils/sort-inbox-threads";
 import { getTatoueursByUserIdAction } from "@/lib/queries/tatoueur";
 import { searchClientsAction } from "@/lib/queries/client";
 import { getUnreadMessagesCountAction } from "@/lib/queries/conversation.action";
@@ -121,6 +123,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   const activeFilters = [status, unreadOnly, assignedFilter].filter(Boolean).length;
   const [page, setPage] = useState(1);
   const [threads, setThreads] = useState<InboxThread[]>([]);
+  const sortedThreads = useMemo(() => sortInboxThreads(threads), [threads]);
   const [totalPages, setTotalPages] = useState(1);
   const [, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -643,13 +646,13 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                 <p className="mt-2 text-xs leading-relaxed text-white/45">{channel === "INSTAGRAM" ? "Les conversations apparaîtront après réception d’un premier message Instagram et activation des Webhooks Meta." : channel !== "ALL" && channel !== "INKERA" ? "Ce canal n’est pas encore connecté. L’intégration des comptes externes sera la prochaine étape." : "Les nouveaux échanges Inkera apparaîtront ici. Vous pouvez aussi les lancer depuis un profil public."}</p>
               </div>
             )}
-            {!loading && threads.map((item) => (
+            {!loading && sortedThreads.map((item) => (
               <button key={item.id} type="button" onClick={() => { listScrollRef.current = window.scrollY; setSelectedId(item.id); setAppointmentPage(1); setDetailLoading(true); }}
                 className={`w-full border-l-2 px-3 py-2 text-left transition ${selectedId === item.id ? "border-tertiary-400/50 bg-tertiary-400/15" : (item.unreadCount || 0) > 0 ? "border-tertiary-400 bg-tertiary-400/10 hover:bg-tertiary-400/15" : "border-transparent hover:border-white/10 hover:bg-white/5"}`}>
                 <div className="flex items-start gap-3">
                   <ThreadAvatar thread={item} />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2"><strong className={`truncate text-sm ${(item.unreadCount || 0) > 0 ? 'font-bold text-white' : 'font-medium'}`}>{threadName(item)}</strong><span className="shrink-0 text-[10px] text-white/40">{displayDate(item.lastMessageAt)}</span>{(item.unreadCount || 0) > 0 && <span aria-label={`${item.unreadCount} messages non lus`} className="rounded-full bg-tertiary-400 px-1.5 py-0.5 text-[10px] font-bold text-white">{item.unreadCount}</span>}</div>
+                    <div className="flex items-center justify-between gap-2"><strong className={`truncate text-sm ${(item.unreadCount || 0) > 0 ? 'font-bold text-white' : 'font-medium'}`}>{threadName(item)}</strong><span className="shrink-0 text-[10px] text-white/40">{displayDate(item.lastMessageAt)}</span><NotificationBadge count={item.unreadCount || 0} label="messages non lus" /></div>
                     <p className="mt-1 truncate text-xs text-white/50">{threadTitle(item)}</p>
                     <div className="mt-1 flex flex-wrap gap-1">
                       <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[10px] text-white/60">{CHANNELS.find((entry) => entry.value === item.channel)?.label}</span>

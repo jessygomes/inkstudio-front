@@ -39,6 +39,8 @@ export interface DrawingCardImage {
   isApproved: boolean;
   createdAt: string;
   uploadedById: string;
+  clientEmailSentAt?: string | null;
+  clientMessageSentAt?: string | null;
 }
 
 export interface DrawingCardNote {
@@ -53,7 +55,7 @@ export interface DrawingCardNote {
 export interface DrawingCard {
   id: string;
   salonId: string;
-  sourceAppointmentId: string;
+  sourceAppointmentId?: string | null;
   tattooAppointmentId?: string | null;
   clientId?: string | null;
   clientUserId?: string | null;
@@ -67,7 +69,7 @@ export interface DrawingCard {
   completedAt?: string | null;
   createdAt: string;
   updatedAt: string;
-  sourceAppointment: DrawingAppointment;
+  sourceAppointment?: DrawingAppointment | null;
   tattooAppointment?: DrawingAppointment | null;
   client?: DrawingPerson | null;
   clientUser?: DrawingPerson | null;
@@ -92,4 +94,34 @@ export interface AppointmentCardStatus {
   cardExists: boolean;
   cardId: string | null;
   cardStatus: DrawingCardStatus | null;
+  latestImage?: DrawingCardImage | null;
+}
+
+export interface DrawingVersionDelivery {
+  emailSent: boolean;
+  messageSent: boolean;
+  conversationExists: boolean;
+  emailError: string | null;
+  messageError: string | null;
+}
+
+export interface DrawingAppointmentOption extends Pick<DrawingAppointment, "id" | "title" | "start"> {
+  end?: string;
+  prestation?: string;
+  drawingCardSource?: { id: string; title: string } | null;
+  drawingCardTattoo?: { id: string; title: string } | null;
+  clientId?: string | null;
+  clientUserId?: string | null;
+  client?: Pick<DrawingPerson, "firstName" | "lastName"> | null;
+  clientUser?: Pick<DrawingPerson, "firstName" | "lastName"> | null;
+}
+
+export interface DrawingAssociationsInput {
+  replaceSourceCardId?: string;
+  replaceTattooCardId?: string;
+  clientId?: string | null;
+  clientUserId?: string | null;
+  sourceAppointmentId?: string | null;
+  tattooAppointmentId?: string | null;
+  expectedUpdatedAt?: string;
 }

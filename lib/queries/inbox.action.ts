@@ -1,6 +1,7 @@
 "use server";
 
 import { getAuthHeaders } from "../session";
+import { sortInboxThreads } from "../utils/sort-inbox-threads";
 import type {
   InboxAppointmentResponse, InboxChannel, InboxFilters, InboxListResponse, InboxMessage,
   InboxMessagesResponse, InboxNote, InboxSavedReply, InboxStatus, InboxThread,
@@ -59,11 +60,35 @@ function body(value: object): RequestInit {
 }
 
 export async function getInboxThreadsAction(filters: InboxFilters = {}): Promise<InboxListResponse> {
-  const query = new URLSearchParams();
-  for (const [key, value] of Object.entries(filters)) {
-    if (value !== undefined && value !== "") query.set(key, String(value));
+  const fetchPage = (values: InboxFilters) => {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(values)) {
+      if (value !== undefined && value !== "") query.set(key, String(value));
+    }
+    return inboxRequest<InboxListResponse>(`?${query.toString()}`);
+  };
+  const page = Math.max(1, Math.floor(filters.page || 1));
+  const limit = Math.max(1, Math.min(100, Math.floor(filters.limit || 20)));
+  if (filters.unreadOnly) {
+    const result = await fetchPage({ ...filters, page, limit });
+    return { ...result, data: sortInboxThreads(result.data) };
   }
-  return inboxRequest<InboxListResponse>(`?${query.toString()}`);
+
+  // Sort before pagination: an older unread thread can be beyond the first API page.
+  // The API already orders each page by lastMessageAt, including sent replies.
+  const [recent, unread] = await Promise.all([
+    fetchPage({ ...filters, page: 1, limit: 100 }),
+    fetchPage({ ...filters, unreadOnly: true, page: 1, limit: 100 }),
+  ]);
+  const end = page * limit;
+  const recentPages = Math.min(recent.totalPages, Math.ceil(end / 100));
+  const extraRecent = await Promise.all(Array.from({ length: Math.max(0, recentPages - 1) }, (_, i) => fetchPage({ ...filters, page: i + 2, limit: 100 })));
+  const extraUnread = await Promise.all(Array.from({ length: Math.max(0, unread.totalPages - 1) }, (_, i) => fetchPage({ ...filters, unreadOnly: true, page: i + 2, limit: 100 })));
+  const unique = new Map([recent, ...extraRecent, unread, ...extraUnread].flatMap(result => result.data).map(item => [item.id, item]));
+  return {
+    data: sortInboxThreads([...unique.values()]).slice((page - 1) * limit, end),
+    total: recent.total, page, limit, totalPages: Math.ceil(recent.total / limit),
+  };
 }
 
 export async function getInboxThreadAction(id: string): Promise<InboxThread> {

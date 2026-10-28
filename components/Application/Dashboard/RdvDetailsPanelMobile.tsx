@@ -145,15 +145,9 @@ export default function RdvDetailsPanelMobile({
             <RdvPrestationCard appointment={selectedAppointment} piercingZoneName={piercingZoneName} />
           </div>
 
-          {(selectedAppointment.prestation === "PROJET" ||
-            selectedAppointment.prestation === "TATTOO") && (
-            <div className="px-3 pb-3">
-              <AppointmentDrawingCardAction
-                appointmentId={selectedAppointment.id}
-                allowCreate={selectedAppointment.prestation === "PROJET"}
-              />
-            </div>
-          )}
+          <div className="px-3 pb-3">
+            <AppointmentDrawingCardAction appointmentId={selectedAppointment.id} />
+          </div>
 
           <div className="shrink-0 border-t border-white/10 bg-noir-700 px-3 py-2.5">
             <div className="flex items-center justify-between gap-2 rounded-[18px] border border-white/8 bg-black/12 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">

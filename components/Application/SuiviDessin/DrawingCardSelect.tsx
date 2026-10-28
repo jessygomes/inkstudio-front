@@ -51,13 +51,13 @@ export default function DrawingCardSelect({
         value={value || ""}
         onChange={(event) => onChange(event.target.value || undefined)}
         disabled={loading}
-        className="w-full cursor-pointer rounded-lg border border-white/20 bg-noir-700 p-3 text-sm text-white outline-none transition-colors focus:border-tertiary-400 disabled:cursor-not-allowed sm:p-2 sm:text-xs"
+        className="w-full cursor-pointer rounded-lg border border-white/20 bg-noir-700 p-3 text-sm text-white outline-none transition-colors [color-scheme:dark] focus:border-tertiary-400 disabled:cursor-not-allowed sm:p-2 sm:text-xs [&_option]:bg-[#171717] [&_option]:text-white"
       >
         <option value="">Aucun dessin associé</option>
         {compatibleCards.map((card) => (
           <option key={card.id} value={card.id}>
             {card.title} ·{" "}
-            {new Date(card.sourceAppointment.start).toLocaleDateString("fr-FR")}
+            {card.sourceAppointment ? new Date(card.sourceAppointment.start).toLocaleDateString("fr-FR") : "Sans RDV"}
           </option>
         ))}
       </select>

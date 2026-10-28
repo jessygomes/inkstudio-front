@@ -1,3 +1,4 @@
+import NotificationBadge from "@/components/Shared/NotificationBadge";
 import Image from "next/image";
 import {
   ConversationDto,
@@ -126,9 +127,7 @@ export default function ConversationCard({
             <div className="flex flex-shrink-0 items-center gap-1.5 ml-2">
               <span className="text-[10px] text-white/35 whitespace-nowrap">{timeString}</span>
               {hasUnread && (
-                <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gradient-to-r from-tertiary-400 to-tertiary-500 px-1 text-[9px] font-bold text-white">
-                  {conversation.unreadCount! > 99 ? "99+" : conversation.unreadCount}
-                </span>
+                <NotificationBadge count={conversation.unreadCount || 0} label="messages non lus" />
               )}
             </div>
           </div>

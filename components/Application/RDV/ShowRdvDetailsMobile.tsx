@@ -301,13 +301,7 @@ export default function ShowRdvDetailsMobile({
                 <span>Voir le moodboard</span>
               </button></RdvPrestationCard>
 
-            {(selectedEvent.prestation === "PROJET" ||
-              selectedEvent.prestation === "TATTOO") && (
-              <AppointmentDrawingCardAction
-                appointmentId={selectedEvent.id}
-                allowCreate={selectedEvent.prestation === "PROJET"}
-              />
-            )}
+            <AppointmentDrawingCardAction appointmentId={selectedEvent.id} />
 
             {/* Section Consommables mobiles */}
             {(selectedEvent.prestation === "TATTOO" ||

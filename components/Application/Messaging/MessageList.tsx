@@ -1,4 +1,5 @@
 "use client";
+import NotificationBadge from "@/components/Shared/NotificationBadge";
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
@@ -162,15 +163,7 @@ function LegacyMessageList() {
               title="Messages non lus"
               className="order-2 inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-2xl border border-white/12 bg-white/6 px-3 text-xs font-medium text-white font-one"
             >
-              <span
-                className={`flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[11px] ${
-                  unreadCount > 0
-                    ? "bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white"
-                    : "bg-white/10 text-white/60"
-                }`}
-              >
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
+              <NotificationBadge count={unreadCount} label="messages non lus" showZero />
               Non lus
             </div>
           </div>

@@ -1,4 +1,5 @@
 "use client";
+import { useActivityNotifications } from "@/components/Providers/ActivityNotificationsProvider";
 
 import { Calendar, dateFnsLocalizer, Event } from "react-big-calendar";
 import { format } from "date-fns";
@@ -163,6 +164,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   setCurrentView,
   onSelectEvent,
 }) => {
+  const { isNew } = useActivityNotifications();
   const styledEvents = useMemo(() => {
     if (!Array.isArray(events) || events.length === 0) {
       return [];
@@ -523,7 +525,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           events={styledEvents}
           startAccessor="start"
           endAccessor="end"
-          eventPropGetter={eventStyleGetter}
+          eventPropGetter={(event) => { const result = eventStyleGetter(event); return isNew("appointments", event.id) ? { ...result, style: { ...result.style, outline: "2px solid var(--color-tertiary-400)", outlineOffset: "2px", fontWeight: 700 } } : result; }}
           components={{ week: { header: CalendarTimeHeader }, day: { header: CalendarTimeHeader } }}
           style={{ height: "100%", width: "100%", minHeight: 0 }}
           views={["month", "week", "day"]}

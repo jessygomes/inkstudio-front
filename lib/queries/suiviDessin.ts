@@ -7,6 +7,9 @@ import type {
   DrawingCardFilters,
   DrawingCardNoteType,
   DrawingCardStatus,
+  DrawingVersionDelivery,
+  DrawingAppointmentOption,
+  DrawingAssociationsInput,
 } from "../types/suiviDessin";
 
 const baseUrl = () => `${process.env.NEXT_PUBLIC_BACK_URL}/suiviDessin`;
@@ -44,7 +47,9 @@ export async function getAppointmentDrawingCardStatus(appointmentId: string) {
 }
 
 export async function createDrawingCard(payload: {
-  sourceAppointmentId: string;
+  sourceAppointmentId?: string;
+  clientId?: string;
+  clientUserId?: string;
   title?: string;
   description?: string;
   additionalInfo?: string;
@@ -53,6 +58,24 @@ export async function createDrawingCard(payload: {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export async function getDrawingAppointmentOptions(options: { clientId?: string; clientUserId?: string; cardId?: string } = {}) {
+  const query = new URLSearchParams();
+  Object.entries(options).forEach(([key, value]) => { if (value) query.set(key, value); });
+  return api<DrawingAppointmentOption[]>(`/appointment-options?${query.toString()}`);
+}
+
+export async function getLinkableDrawingCards(appointmentId: string) {
+  return api<DrawingCard[]>(`/appointments/${appointmentId}/linkable-cards`);
+}
+
+export async function linkDrawingCardToAppointment(cardId: string, appointmentId: string) {
+  return api<DrawingCard>(`/cards/${cardId}/appointment/${appointmentId}`, { method: "POST" });
+}
+
+export async function updateDrawingCardAssociations(cardId: string, input: DrawingAssociationsInput) {
+  return api<DrawingCard>(`/cards/${cardId}/associations`, { method: "PATCH", body: JSON.stringify(input) });
 }
 
 export async function updateDrawingCard(
@@ -106,6 +129,12 @@ export async function updateDrawingCardImage(
 
 export async function approveDrawingCardImage(id: string, imageId: string) {
   return api(`/cards/${id}/images/${imageId}/approve`, { method: "PATCH" });
+}
+
+export async function sendDrawingCardImage(id: string, imageId: string) {
+  return api<DrawingVersionDelivery>(`/cards/${id}/images/${imageId}/send`, {
+    method: "POST",
+  });
 }
 
 export async function deleteDrawingCardImage(id: string, imageId: string) {

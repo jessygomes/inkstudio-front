@@ -6,6 +6,7 @@ import { UserProvider } from "@/components/Auth/Context/UserContext";
 import Providers from "@/components/Providers/ReactQueryProvider";
 import { ColorProvider } from "@/components/ColorContext/ColorProvider";
 import VerificationNotification from "@/components/Shared/VerificationNotification";
+import { ActivityNotificationsProvider } from "@/components/Providers/ActivityNotificationsProvider";
 import { MessagingProvider } from "@/components/Providers/MessagingProvider";
 
 export default async function DashboardLayout({
@@ -42,10 +43,12 @@ export default async function DashboardLayout({
       <Providers>
         <ColorProvider>
           <MessagingProvider>
-            <HeaderApp backOfficeHref={session.user.role === "admin" ? BACK_OFFICE_PATH : null}>
-              <VerificationNotification />
-              {children}
-            </HeaderApp>
+            <ActivityNotificationsProvider>
+              <HeaderApp backOfficeHref={session.user.role === "admin" ? BACK_OFFICE_PATH : null}>
+                <VerificationNotification />
+                {children}
+              </HeaderApp>
+            </ActivityNotificationsProvider>
           </MessagingProvider>
         </ColorProvider>
       </Providers>

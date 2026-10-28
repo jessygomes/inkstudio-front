@@ -8,6 +8,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   Check,
+  CalendarDays,
+  ArrowUpRight,
   ChevronLeft,
   ChevronRight,
   FileImage,
@@ -17,10 +19,15 @@ import {
   Pencil,
   Trash2,
   Upload,
+  Send,
   X,
 } from "lucide-react";
 import DrawingBoardFilters from "./DrawingBoardFilters";
+import DrawingCardEditor from "./DrawingCardEditor";
 import DashboardButton from "@/components/Shared/DashboardButton";
+import ShowRdvDetails from "@/components/Application/RDV/ShowRdvDetails";
+import type { CalendarEvent } from "@/components/Application/RDV/Calendar";
+import { fetchAppointmentById, paidAppointmentsAction } from "@/lib/queries/appointment";
 import { useUploadThing } from "@/lib/utils/uploadthing";
 import { fetchAllAppointments } from "@/lib/queries/appointment";
 import {
@@ -37,6 +44,7 @@ import {
   linkDrawingCardToTattooAppointment,
   updateDrawingCard,
   updateDrawingCardImage,
+  sendDrawingCardImage,
 } from "@/lib/queries/suiviDessin";
 import {
   DRAWING_CARD_STATUSES,
@@ -88,6 +96,7 @@ export default function DrawingBoard() {
   // Liste des cards et card actuellement ouverte dans le panneau latéral.
   const [cards, setCards] = useState<DrawingCard[]>([]);
   const [selected, setSelected] = useState<DrawingCard | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Valeurs contrôlées de la barre de filtres.
@@ -171,9 +180,11 @@ export default function DrawingBoard() {
   };
 
   return (
-    <div className="mt-3 flex flex-1 flex-col gap-3 [&_button:not(:disabled)]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_select:not(:disabled)]:cursor-pointer [&_select:disabled]:cursor-not-allowed">
+    <div className="mt-3 flex flex-1 flex-col gap-3 [&_button:not(:disabled)]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_select:not(:disabled)]:cursor-pointer [&_select:disabled]:cursor-not-allowed [&_select]:[color-scheme:dark] [&_option]:bg-[#171717] [&_option]:text-white">
+      {createOpen && <DrawingCardEditor onClose={() => setCreateOpen(false)} onSaved={async card => { await reload(); setSelected(card); toast.success("Card de dessin créée"); }} />}
       {/* Recherche et filtres du Kanban. */}
       <DrawingBoardFilters
+        onCreate={() => setCreateOpen(true)}
         search={search}
         status={statusFilter}
         artist={artist}
@@ -263,6 +274,7 @@ export default function DrawingBoard() {
       {/* Détails de la card sélectionnée dans un panneau latéral. */}
       {selected && (
         <CardPanel
+          key={selected.id}
           card={selected}
           userId={session?.user?.id}
           onClose={() => {
@@ -293,6 +305,7 @@ function CardItem({
     (a, b) =>
       Number(b.isApproved) - Number(a.isApproved) || b.version - a.version,
   )[0];
+  const appointment = card.sourceAppointment ?? card.tattooAppointment;
   return (
     <article
       draggable
@@ -326,7 +339,7 @@ function CardItem({
         <div className="mt-2 flex items-center justify-between text-[10px] text-white/35">
           <span>{artistName(card)}</span>
           <span>
-            {new Date(card.sourceAppointment.start).toLocaleDateString("fr-FR")}
+            {appointment ? new Date(appointment.start).toLocaleDateString("fr-FR") : "Sans RDV"}
           </span>
         </div>
         <div className="mt-2 flex gap-3 text-[10px] text-white/45">
@@ -379,6 +392,39 @@ function CardPanel({
     "details" | "images" | "notes" | "moodboard"
   >("details");
   const [saving, setSaving] = useState(false);
+  const [sourceOpen, setSourceOpen] = useState(false);
+  const [associationsOpen, setAssociationsOpen] = useState(false);
+  const [sourceLoading, setSourceLoading] = useState(false);
+  const [sourceError, setSourceError] = useState(false);
+  const [sourceEvent, setSourceEvent] = useState<CalendarEvent | null>(null);
+  const sourceRequest = useRef(0);
+
+  const loadSource = async () => {
+    if (!card.sourceAppointmentId) return;
+    const request = ++sourceRequest.current;
+    setSourceLoading(true);
+    setSourceError(false);
+    try {
+      const appointment = await fetchAppointmentById(card.sourceAppointmentId);
+      if (request !== sourceRequest.current) return;
+      if (!appointment) throw new Error("Rendez-vous introuvable");
+      setSourceEvent({
+        ...appointment,
+        client: appointment.client ?? appointment.clientUser ?? {
+          firstName: "", lastName: "", email: "",
+        },
+      });
+    } catch {
+      if (request === sourceRequest.current) setSourceError(true);
+    } finally {
+      if (request === sourceRequest.current) setSourceLoading(false);
+    }
+  };
+
+  const refreshSource = async () => {
+    await loadSource();
+    await onChanged();
+  };
   const [moodboard, setMoodboard] = useState<MoodboardDto | null>(null);
   const [moodboardLoading, setMoodboardLoading] = useState(true);
 
@@ -406,6 +452,11 @@ function CardPanel({
   useEffect(() => {
     let cancelled = false;
 
+    setMoodboard(null);
+    if (!card.sourceAppointmentId) {
+      setMoodboardLoading(false);
+      return;
+    }
     setMoodboardLoading(true);
     getMoodboardByAppointmentAction(card.sourceAppointmentId)
       .then((result) => {
@@ -492,17 +543,19 @@ function CardPanel({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex justify-end bg-black/70"
+      className="fixed inset-0 z-[9999] flex justify-end bg-black/70 backdrop-blur-sm"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      <aside className="flex h-full w-full max-w-2xl flex-col border-l border-white/10 bg-noir-700 shadow-2xl">
+      <aside role="dialog" aria-modal="true" aria-labelledby="drawing-panel-title" className="relative flex h-dvh w-full max-w-2xl flex-col border-l border-white/10 bg-noir-700 font-one shadow-2xl">
+        <div inert={sourceOpen} className="flex min-h-0 flex-1 flex-col">
         {/* En-tête et identité de la card. */}
-        <header className="flex items-start justify-between border-b border-white/10 p-4">
+        <header className="flex items-start justify-between gap-4 border-b border-white/10 bg-gradient-to-br from-tertiary-400/10 to-transparent px-5 py-6 sm:px-7">
           <div>
-            <span className="text-[10px] uppercase tracking-widest text-tertiary-400">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-widest text-white/80">
+              <span className={`h-1.5 w-1.5 rounded-full ${columns[card.status].color}`} />
               {columns[card.status].label}
             </span>
-            <h2 className="mt-1 text-lg font-semibold text-white">
+            <h2 id="drawing-panel-title" className="mt-3 text-xl font-semibold tracking-tight text-white sm:text-2xl">
               {card.title}
             </h2>
             <p className="text-xs text-white/50">
@@ -511,14 +564,15 @@ function CardPanel({
           </div>
           <button
             onClick={onClose}
-            className="rounded-xl p-2 text-white/60 hover:bg-tertiary-400/15"
+            aria-label="Fermer le suivi du dessin"
+            className="rounded-xl border border-white/10 bg-white/5 p-2 text-white/60 transition hover:bg-white/10 hover:text-white"
           >
             <X size={18} />
           </button>
         </header>
 
         {/* Navigation entre les différentes parties du panneau. */}
-        <nav className="grid grid-cols-4 border-b border-white/10">
+        <nav aria-label="Sections du suivi" className="mx-5 mt-5 grid grid-cols-4 gap-1 rounded-2xl border border-white/8 bg-black/20 p-1 sm:mx-7">
           {(
             [
               ["details", "Informations"],
@@ -530,24 +584,37 @@ function CardPanel({
             <button
               key={id}
               onClick={() => setTab(id)}
-              className={`py-3 text-xs ${tab === id ? "border-b-2 border-tertiary-400 text-white" : "text-white/45"}`}
+              aria-current={tab === id ? "page" : undefined}
+              className={`rounded-xl px-1 py-2.5 text-[11px] font-medium transition sm:text-xs ${tab === id ? "bg-white/10 text-white shadow-sm" : "text-white/45 hover:bg-white/5 hover:text-white/80"}`}
             >
               {label}
             </button>
           ))}
         </nav>
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-6 sm:px-7">
           {/* Informations générales, édition et association à un RDV Tattoo. */}
           {tab === "details" && (
             <div className="space-y-4">
+              <div className="flex items-center justify-between gap-3"><h3 className="text-xs font-medium text-white/65">Client et rendez-vous</h3><button type="button" disabled={saving} onClick={() => setAssociationsOpen(true)} className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-[11px] text-white/65 transition hover:bg-white/5"><Link2 size={13} />Modifier les liaisons</button></div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <Info
-                  label="RDV source"
-                  value={`${card.sourceAppointment.title} · ${new Date(card.sourceAppointment.start).toLocaleDateString("fr-FR")}`}
-                />
+                <button
+                  type="button"
+                  onClick={() => { if (card.sourceAppointmentId) { setSourceOpen(true); void loadSource(); } else { setAssociationsOpen(true); } }}
+                  className="group rounded-2xl border border-tertiary-400/25 bg-tertiary-400/5 p-4 text-left transition hover:border-tertiary-400/50 hover:bg-tertiary-400/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 sm:col-span-2"
+                >
+                  <span className="flex items-center justify-between text-[10px] font-medium uppercase tracking-wider text-tertiary-400">
+                    <span className="flex items-center gap-2"><CalendarDays size={14} />RDV source</span>
+                    <ArrowUpRight size={16} />
+                  </span>
+                  <span className="mt-2 block text-sm font-semibold text-white">{card.sourceAppointment?.title || "Aucun rendez-vous associé"}</span>
+                  <span className="mt-1 block text-xs text-white/55">
+                    {card.sourceAppointment ? new Date(card.sourceAppointment.start).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short" }) : "Cette card peut être préparée sans rendez-vous."}
+                  </span>
+                  <span className="mt-3 block text-[11px] text-tertiary-400">{card.sourceAppointment ? "Voir tous les détails du rendez-vous" : "Associer un rendez-vous"}</span>
+                </button>
                 <Info
                   label="Statut RDV"
-                  value={card.sourceAppointment.status}
+                  value={card.sourceAppointment?.status || "Sans rendez-vous"}
                 />
                 <Info label="Client" value={personName(card)} />
                 <Info label="Tatoueur" value={artistName(card)} />
@@ -579,7 +646,7 @@ function CardPanel({
                 />
               </label>
 
-              {card.status === "APPROUVE" && (
+              {(card.status === "APPROUVE" || card.tattooAppointment) && (
                   <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-3">
                     <p className="mb-2 text-xs font-semibold text-emerald-300">
                       Lier à un RDV Tattoo
@@ -700,6 +767,8 @@ function CardPanel({
                       cardId={card.id}
                       image={image}
                       execute={execute}
+                      onChanged={onChanged}
+                      saving={saving}
                     />
                   ))}
                 {!card.images.length && (
@@ -861,6 +930,42 @@ function CardPanel({
             </div>
           )}
         </div>
+        </div>
+        {associationsOpen && <DrawingCardEditor card={card} onClose={() => setAssociationsOpen(false)} onSaved={async () => { sourceRequest.current++; setSourceOpen(false); setSourceEvent(null); setSourceLoading(false); setSourceError(false); await onChanged(); toast.success("Liaisons mises à jour"); }} />}
+        {sourceOpen && (
+          <div className="absolute inset-0 z-10 flex flex-col bg-noir-700" role="dialog" aria-modal="true" aria-label="Détails du rendez-vous source">
+            <div className="shrink-0 border-b border-white/10 px-4 py-3">
+              <button type="button" onClick={() => setSourceOpen(false)} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-white/70 transition hover:bg-white/5 hover:text-white">
+                <ChevronLeft size={15} />Retour au dessin
+              </button>
+            </div>
+            <div className="min-h-0 flex-1">
+              {sourceLoading ? (
+                <div role="status" className="flex h-full items-center justify-center gap-2 text-sm text-white/60"><Loader2 size={18} className="animate-spin" />Chargement du rendez-vous…</div>
+              ) : sourceError ? (
+                <div role="alert" className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center text-sm text-white/60">
+                  <p>Impossible de charger le rendez-vous.</p>
+                  <button type="button" onClick={() => void loadSource()} className="rounded-xl border border-white/15 px-4 py-2 text-white hover:bg-white/5">Réessayer</button>
+                </div>
+              ) : sourceEvent && (
+                <ShowRdvDetails
+                  selectedEvent={sourceEvent}
+                  onClose={() => setSourceOpen(false)}
+                  userId={userId ?? null}
+                  price={sourceEvent.tattooDetail?.price ?? sourceEvent.tattooDetail?.estimatedPrice}
+                  handleRdvUpdated={() => { void refreshSource(); }}
+                  handleStatusChange={() => { void refreshSource(); }}
+                  handlePaymentStatusChange={async (id, isPayed) => {
+                    try {
+                      await paidAppointmentsAction(id, isPayed);
+                      await refreshSource();
+                    } catch { toast.error("Impossible de mettre à jour le paiement"); }
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        )}
       </aside>
     </div>
   );
@@ -883,13 +988,40 @@ function ImageItem({
   cardId,
   image,
   execute,
+  onChanged,
+  saving,
 }: {
   cardId: string;
   image: DrawingCard["images"][number];
   execute: (action: () => Promise<unknown>, message: string) => Promise<void>;
+  onChanged: () => Promise<void>;
+  saving: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [caption, setCaption] = useState(image.caption || "");
+  const [sending, setSending] = useState(false);
+  const [delivery, setDelivery] = useState<Awaited<ReturnType<typeof sendDrawingCardImage>> | null>(null);
+  const emailSent = Boolean(image.clientEmailSentAt) || Boolean(delivery?.emailSent);
+  const messageSent = Boolean(image.clientMessageSentAt) || Boolean(delivery?.messageSent);
+  const delivered = emailSent && (messageSent || delivery?.conversationExists === false);
+  const sendToClient = async () => {
+    if (sending) return;
+    setSending(true);
+    try {
+      const result = await sendDrawingCardImage(cardId, image.id);
+      setDelivery(result);
+      if (result.emailError || result.messageError) {
+        toast.warning([result.emailError, result.messageError].filter(Boolean).join(" "));
+      } else {
+        toast.success(result.messageSent ? "Dessin envoyé par email et dans la messagerie Inkera" : "Dessin envoyé par email");
+      }
+      await onChanged();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Envoi impossible");
+    } finally {
+      setSending(false);
+    }
+  };
   return (
     <div
       className={`overflow-hidden rounded-xl border ${image.isApproved ? "border-emerald-400/50" : "border-white/10"}`}
@@ -941,9 +1073,23 @@ function ImageItem({
             {image.caption || "Sans légende"}
           </p>
         )}
+        <div className="mt-3 space-y-2 border-t border-white/10 pt-3">
+          <button
+            type="button"
+            disabled={sending || saving || delivered}
+            onClick={() => void sendToClient()}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-tertiary-400/25 bg-tertiary-400/10 px-3 py-2.5 text-xs font-medium text-tertiary-400 transition hover:bg-tertiary-400/20 disabled:opacity-50"
+          >
+            {sending ? <Loader2 size={14} className="animate-spin" /> : delivered ? <Check size={14} /> : <Send size={14} />}
+            {sending ? "Envoi en cours…" : delivered ? "Envoyé au client" : emailSent || messageSent ? "Compléter l’envoi au client" : "Envoyer au client"}
+          </button>
+          <p className="text-[10px] leading-relaxed text-white/40">
+            {emailSent || messageSent ? `${emailSent ? "Email envoyé" : "Email non envoyé"} · ${messageSent ? "Message Inkera envoyé" : delivery?.conversationExists === false ? "Aucune conversation Inkera" : "Message Inkera non envoyé"}. Retour client attendu.` : "Par email et dans la messagerie Inkera si une conversation existe. Le client sera invité à donner son avis."}
+          </p>
+        </div>
         <div className="mt-3 flex gap-2">
           <button
-            disabled={image.isApproved}
+            disabled={image.isApproved || sending || saving}
             onClick={() =>
               execute(
                 () => approveDrawingCardImage(cardId, image.id),
@@ -955,12 +1101,14 @@ function ImageItem({
             Approuver
           </button>
           <button
+            disabled={sending || saving}
             onClick={() => setEditing(!editing)}
             className="rounded-lg bg-tertiary-400/10 px-2 text-white/60"
           >
             <Pencil size={12} />
           </button>
           <button
+            disabled={sending || saving}
             onClick={() => {
               if (window.confirm("Supprimer cette image ?"))
                 execute(

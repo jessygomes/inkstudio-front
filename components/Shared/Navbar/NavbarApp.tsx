@@ -1,5 +1,7 @@
 "use client";
+import { ActivityBadge, activityKindForHref } from "@/components/Providers/ActivityNotificationsProvider";
 import NavbarAccountMenu from "./NavbarAccountMenu";
+import NotificationBadge from "@/components/Shared/NotificationBadge";
 
 import { useSession } from "next-auth/react";
 
@@ -129,6 +131,7 @@ export default function NavbarApp({ collapsed, onToggle, backOfficeHref }: Navba
           const isActive =
             pathname === link.href || pathname.startsWith(`${link.href}/`);
           const Icon = link.icon;
+          const activityKind = activityKindForHref(link.href);
           return (
             <li key={link.href}>
               <Link
@@ -149,14 +152,9 @@ export default function NavbarApp({ collapsed, onToggle, backOfficeHref }: Navba
                 >
                   {link.label}
                 </span>
+                {activityKind && <span className={collapsed ? "absolute right-0.5 top-0.5" : ""}><ActivityBadge kind={activityKind} /></span>}
                 {link.label === "Messagerie" && unreadCount > 0 && (
-                  <span
-                    className={`flex h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-br from-tertiary-400 to-tertiary-500 px-1 text-[10px] font-bold text-white ${
-                      collapsed ? "absolute right-0 top-0" : ""
-                    }`}
-                  >
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
+                  <NotificationBadge count={unreadCount} label="messages non lus" className={collapsed ? "absolute right-0.5 top-0.5" : ""} />
                 )}
               </Link>
             </li>

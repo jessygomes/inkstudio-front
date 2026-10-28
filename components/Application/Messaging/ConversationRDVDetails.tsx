@@ -78,13 +78,7 @@ export default function ConversationRDVDetails({
         <RdvPaymentCard appointment={appointment} />
         <RdvPrestationCard appointment={appointment} />
 
-        {(appointment.prestation === "PROJET" ||
-          appointment.prestation === "TATTOO") && (
-          <AppointmentDrawingCardAction
-            appointmentId={appointment.id}
-            allowCreate={appointment.prestation === "PROJET"}
-          />
-        )}
+        <AppointmentDrawingCardAction appointmentId={appointment.id} />
 
 
       </div>

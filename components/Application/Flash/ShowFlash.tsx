@@ -2,13 +2,12 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { IoCreateOutline } from "react-icons/io5";
-import { AiOutlineDelete } from "react-icons/ai";
 import { FaBolt } from "react-icons/fa6";
 import { FlashProps } from "@/lib/type";
 import CreateOrUpdateFlash from "./CreateOrUpdateFlash";
 import DeleteFlash from "./DeleteFlash";
+import FlashCard from "./FlashCard";
+import cardStyles from "./FlashCards.module.css";
 import PageHeader from "@/components/Shared/PageHeader";
 import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
@@ -268,17 +267,11 @@ export default function ShowFlash() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
-          {[...Array(10)].map((_, i) => (
-            <div
-              key={i}
-              className="overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg sm:rounded-2xl"
-            >
-              <div className="aspect-square bg-white/10 animate-pulse"></div>
-              <div className="space-y-2 p-3 sm:p-3.5">
-                <div className="h-4 bg-white/10 rounded-lg w-24 animate-pulse"></div>
-                <div className="h-3 bg-white/10 rounded-lg w-16 animate-pulse"></div>
-              </div>
+        <div className={cardStyles.grid} role="status" aria-label="Chargement des flashs">
+          {Array.from({ length: 10 }, (_, index) => (
+            <div key={index} className={cardStyles.skeleton} aria-hidden="true">
+              <div className={cardStyles.skeletonImage} />
+              <div className={cardStyles.skeletonBody}><div /><div /><div /></div>
             </div>
           ))}
         </div>
@@ -298,95 +291,17 @@ export default function ShowFlash() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
+        <div className={cardStyles.grid}>
           {flashs.map((flash) => (
-            <div
+            <FlashCard
               key={flash.id}
-              className="overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-noir-500/10 to-noir-500/5 shadow-xl transition-all duration-300 hover:border-tertiary-400/50 backdrop-blur-lg sm:rounded-2xl"
-            >
-              <div className="aspect-square relative overflow-hidden">
-                <Image
-                  width={500}
-                  height={500}
-                  src={flash.imageUrl}
-                  alt={flash.title}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-
-              <div className="space-y-2 p-3 sm:p-3.5">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="truncate text-[13px] font-bold tracking-wide text-white font-one sm:text-sm">
-                    {flash.title}
-                  </h3>
-                  <span
-                    className={`rounded-full border px-1.5 py-0.5 text-[9px] ${
-                      flash.isAvailable
-                        ? "text-green-300 border-green-500/40 bg-green-500/10"
-                        : "text-red-300 border-red-500/40 bg-red-500/10"
-                    }`}
-                  >
-                    {flash.isAvailable ? "Disponible" : "Indisponible"}
-                  </span>
-                </div>
-
-                <p className="text-xs font-semibold text-white font-one">
-                  {flash.price} €
-                </p>
-
-                <p className="text-[11px] text-white/75 font-one sm:text-xs">
-                  Durée : {formatDuration(flash.appointmentDurationMinutes)}
-                </p>
-
-                {flash.dimension && (
-                  <p className="text-[11px] text-white/80 font-one sm:text-xs">
-                    Dimensions : {flash.dimension}
-                  </p>
-                )}
-
-                <p className="min-h-8 line-clamp-2 text-[11px] leading-relaxed text-white/70 font-one sm:text-xs">
-                  {flash.description || "Aucune description"}
-                </p>
-
-                {flash.style && flash.style.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {flash.style.map((styleItem) => (
-                      <span
-                        key={`${flash.id}-${styleItem}`}
-                        className="rounded-full border border-tertiary-400/35 bg-tertiary-500/10 px-2 py-0.5 text-[10px] text-tertiary-400 font-one"
-                      >
-                        {styleItem}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {session?.user?.role?.toLowerCase() === "user_salon" &&
-                  getFlashTatoueurName(flash) && (
-                  <p className="text-[10px] text-white/50 font-one">
-                    Tatoueur : {getFlashTatoueurName(flash)}
-                    {isLinkedFlash(flash) ? " (lecture seule)" : ""}
-                  </p>
-                )}
-
-                {!isLinkedFlash(flash) && (
-                  <div className="flex gap-2 justify-end pt-2">
-                    <button
-                      className="cursor-pointer rounded-lg bg-tertiary-400/10 p-1.5 transition-all duration-200 hover:bg-tertiary-400/15"
-                      onClick={() => handleEdit(flash)}
-                    >
-                      <IoCreateOutline size={16} className="text-white" />
-                    </button>
-                    <button
-                      className="cursor-pointer rounded-lg bg-tertiary-400/10 p-1.5 transition-all duration-200 hover:bg-red-500/20"
-                      onClick={() => handleDelete(flash)}
-                    >
-                      <AiOutlineDelete size={16} className="text-white" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+              flash={flash}
+              artistName={session?.user?.role?.toLowerCase() === "user_salon" ? getFlashTatoueurName(flash) : ""}
+              durationLabel={formatDuration(flash.appointmentDurationMinutes)}
+              readOnly={isLinkedFlash(flash)}
+              onEdit={() => handleEdit(flash)}
+              onDelete={() => handleDelete(flash)}
+            />
           ))}
         </div>
       )}

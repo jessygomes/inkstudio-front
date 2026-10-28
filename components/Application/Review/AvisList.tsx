@@ -1,4 +1,5 @@
 "use client";
+import { useActivityNotifications } from "@/components/Providers/ActivityNotificationsProvider";
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import DashboardButton from "@/components/Shared/DashboardButton";
@@ -58,6 +59,7 @@ interface ReviewStatistics {
 
 export default function AvisList() {
   const { data: session } = useSession();
+  const { isNew, markRead } = useActivityNotifications();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -301,7 +303,8 @@ export default function AvisList() {
             const busy = Boolean(submittingId || removingId);
             const draft = responseValues[review.id] ?? review.salonResponse ?? "";
             return (
-              <article key={review.id} className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03] p-3.5 transition-colors hover:border-white/15 sm:p-4">
+              <article key={review.id} className={`overflow-hidden rounded-2xl border p-3.5 transition-colors sm:p-4 ${isNew("reviews", review.id) ? "border-tertiary-400/50 bg-tertiary-400/10" : "border-white/8 bg-white/[0.03] hover:border-white/15"}`}>
+                {isNew("reviews", review.id) && <div className="mb-3 flex items-center justify-between gap-2"><span className="text-xs font-semibold text-tertiary-400">Nouvel avis</span><button type="button" className="cursor-pointer text-xs text-white/70 underline" onClick={() => markRead("reviews", review.id)}>Marquer comme lu</button></div>}
                 <header className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
                     {review.author?.image ? <Image src={review.author.image} alt="" width={36} height={36} className="size-9 shrink-0 rounded-xl object-cover" /> : <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-500/10 text-sm font-semibold text-tertiary-400">{review.author?.name?.charAt(0).toUpperCase() || "?"}</span>}

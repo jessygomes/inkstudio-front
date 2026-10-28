@@ -1,4 +1,5 @@
 "use client";
+import { ActivityBadge } from "@/components/Providers/ActivityNotificationsProvider";
 import { ClientProps, PaginationInfo } from "@/lib/type";
 import React, { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
@@ -53,9 +54,6 @@ export default function ClientList() {
   const [clientForInfos, setClientForInfos] = useState<ClientProps | null>(
     null,
   );
-
-  //! Nouveau state pour les suivis non répondus
-  const [unansweredFollowUpsCount, setUnansweredFollowUpsCount] = useState(0);
 
   //! State pour la modale consentement
   const [consentClient, setConsentClient] = useState<ClientProps | null>(null);
@@ -122,33 +120,11 @@ export default function ClientList() {
     [currentPage, searchTerm],
   );
 
-  //! Nouvelle fonction pour récupérer le nombre de suivis non répondus
-  const fetchUnansweredFollowUpsCount = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_URL}/follow-up/unanswered/${session?.user?.id}/number`,
-        {
-          cache: "no-store",
-        },
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setUnansweredFollowUpsCount(data.count || 0);
-      }
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération du nombre de suivis non répondus:",
-        error,
-      );
-    }
-  }, [session?.user?.id]);
-
   // Effet pour charger les clients au changement de page ou de recherche
   useEffect(() => {
     if (session?.user?.id) {
       fetchClients(currentPage, searchTerm);
-      fetchUnansweredFollowUpsCount();
+
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user?.id, currentPage]);
@@ -159,7 +135,7 @@ export default function ClientList() {
       if (session?.user?.id) {
         setCurrentPage(1); // Reset à la page 1 lors d'une nouvelle recherche
         fetchClients(1, searchTerm);
-        fetchUnansweredFollowUpsCount();
+
       }
     }, 300);
 
@@ -255,11 +231,7 @@ export default function ClientList() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                     Suivi cicatrisation
-                    {unansweredFollowUpsCount > 0 && (
-                      <span className="bg-gradient-to-br from-tertiary-400 to-tertiary-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
-                        {unansweredFollowUpsCount > 99 ? "99+" : unansweredFollowUpsCount}
-                      </span>
-                    )}
+                    <ActivityBadge kind="followUps" />
                   </DashboardButton>
                 </>
             }

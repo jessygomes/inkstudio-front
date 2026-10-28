@@ -203,7 +203,7 @@ export default async function AdminUserDetail({
     <nav className={styles.sectionNav} aria-label="Sections de la fiche">{sectionLinks.map(({ href, label, icon: Icon }) => <a href={href} key={href}><Icon size={14} />{label}{href === "#documents" && <span>{verificationDocs.length}</span>}{href === "#equipe" && <span>{tattooers.length}</span>}</a>)}</nav>
     <div className={styles.layout}>
       <div className={styles.mainColumn}>
-        {professional && <UserPublicVisibility key={salon.id + (salon.publicVisibility || "VISIBLE")} userId={salon.id} initialValue={salon.publicVisibility || "VISIBLE"} />}
+        {professional && <UserPublicVisibility key={salon.id + (salon.publicVisibility || "VISIBLE")} userId={salon.id} initialValue={salon.publicVisibility || "VISIBLE"} profile={{ salonName: salon.salonName, city: salon.city, postalCode: salon.postalCode }} />}
         <section id="informations" className={styles.section} aria-labelledby="information-title">
           <header className={styles.sectionHeading}><span className={styles.sectionIcon}><UserRound size={16} /></span><div><h2 id="information-title">Informations du compte</h2><p>Identité, coordonnées et localisation.</p></div></header>
           <dl className={styles.infoGrid}>

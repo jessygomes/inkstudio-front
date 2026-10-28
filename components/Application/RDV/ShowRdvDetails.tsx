@@ -289,13 +289,7 @@ export default function ShowRdvDetails({
             </button>
         </RdvPrestationCard>
 
-        {(selectedEvent.prestation === "PROJET" ||
-          selectedEvent.prestation === "TATTOO") && (
-          <AppointmentDrawingCardAction
-            appointmentId={selectedEvent.id}
-            allowCreate={selectedEvent.prestation === "PROJET"}
-          />
-        )}
+        <AppointmentDrawingCardAction appointmentId={selectedEvent.id} />
 
         {/* Consommables */}
         {(selectedEvent.prestation === "TATTOO" ||

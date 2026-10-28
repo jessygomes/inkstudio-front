@@ -1,0 +1,21 @@
+.badge {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  min-width: 20px;
+  padding: 0 6px;
+  border: 1px solid color-mix(in srgb, var(--color-tertiary-400) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-tertiary-400) 14%, var(--app-canvas));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-tertiary-400) 12%, transparent);
+  color: color-mix(in srgb, var(--color-tertiary-400) 80%, var(--app-ink));
+  font-family: var(--font-two), sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  vertical-align: middle;
+}
