@@ -135,7 +135,7 @@ export default function AppointmentPhotos({ appointmentId, clientId, readOnly = 
         fileType: "image/webp",
         initialQuality: 0.8,
       })));
-      const result = await startUpload(compressed);
+      const result = await startUpload(compressed, {});
       if (!result?.length) throw new Error("L'envoi des photos a échoué.");
       await addAppointmentPhotos(appointmentId, result.map((file) => ({ url: file.ufsUrl })));
       refreshPhotos();

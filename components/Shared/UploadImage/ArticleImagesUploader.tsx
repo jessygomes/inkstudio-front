@@ -55,7 +55,7 @@ export default function ArticleImagesUploader({
         ),
       );
 
-      const result = (await startUpload(compressedFiles)) as
+      const result = (await startUpload(compressedFiles, {})) as
         | UploadedFile[]
         | undefined;
 

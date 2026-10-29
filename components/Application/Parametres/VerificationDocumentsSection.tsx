@@ -152,7 +152,7 @@ export default function VerificationDocumentsSection() {
       }
 
       // Upload vers uploadthing
-      const uploadResult = await startUpload([uploadFile]);
+      const uploadResult = await startUpload([uploadFile], {});
 
       if (!uploadResult || uploadResult.length === 0) {
         throw new Error("Erreur lors de l'upload du fichier");

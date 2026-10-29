@@ -6,12 +6,16 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:security-images": "node --test tests/image-pipeline.test.cjs",
+    "test:security-auth": "node --test tests/auth-security.test.cjs",
+    "test:security-pdf": "node --test tests/pdf-security.test.cjs",
+    "test:security-uploads": "node --test tests/upload-security.test.cjs tests/upload-permits.test.cjs",
+    "test:security-profiles": "node --test tests/profile-privacy.test.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
     "@tanstack/react-query": "^5.74.4",
-    "@types/jspdf": "^2.0.0",
     "@types/react-signature-canvas": "^1.0.7",
     "@uploadthing/react": "^7.3.2",
     "bcryptjs": "^3.0.3",
@@ -21,11 +25,11 @@
     "framer-motion": "^12.6.2",
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
-    "jspdf": "^3.0.4",
+    "jspdf": "4.2.1",
     "lucide-react": "^0.525.0",
     "motion": "^12.7.2",
-    "next": "16.3.4",
-    "next-auth": "^5.0.0-beta.30",
+    "next": "16.4.3",
+    "next-auth": "5.0.0-beta.32",
     "next-themes": "^0.4.6",
     "qrcode.react": "^4.2.0",
     "query-string": "^9.1.1",
@@ -54,7 +58,7 @@
     "@types/react-big-calendar": "^1.16.1",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9",
-    "eslint-config-next": "16.3.4",
+    "eslint-config-next": "16.4.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

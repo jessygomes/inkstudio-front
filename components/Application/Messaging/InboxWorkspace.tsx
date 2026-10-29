@@ -541,7 +541,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
             fileType: "image/webp", initialQuality: 0.8,
           });
           if (compressed.size > 3 * 1024 * 1024) throw new Error("L'image reste trop volumineuse après compression.");
-          const uploaded = await startUpload([compressed]);
+          const uploaded = await startUpload([compressed], {});
           if (!uploaded?.[0]) throw new Error("Impossible d'envoyer la photo. Réessayez.");
           attachments = [{
             fileName: compressed.name, fileUrl: uploaded[0].url,

@@ -84,7 +84,7 @@ export default function FollowUpResponse({ token }: { token: string }) {
       if (!url) {
         setStage("uploading");
         const compressed = await imageCompression(photo, { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: true, fileType: "image/webp", initialQuality: 0.85 });
-        const result = await startUpload([compressed]);
+        const result = await startUpload([compressed], { followUpToken: token });
         url = result?.[0]?.ufsUrl ?? result?.[0]?.url ?? "";
         if (!url) throw new Error("La photo n’a pas pu être transférée. Réessayez : votre formulaire est conservé.");
         uploaded.current = { file: photo, url };

@@ -13,10 +13,11 @@ export const getUserInfoAction = async (salonId: string) => {
     const headers = await getAuthHeaders();
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}`,
+      `${process.env.NEXT_PUBLIC_BACK_URL}/users/${encodeURIComponent(salonId)}/private`,
       {
         method: "GET",
         headers,
+        cache: "no-store",
       },
     );
 
@@ -45,10 +46,11 @@ export const getUserParamAction = async (salonId: string) => {
     const headers = await getAuthHeaders();
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACK_URL}/users/${salonId}/param`,
+      `${process.env.NEXT_PUBLIC_BACK_URL}/users/${encodeURIComponent(salonId)}/param`,
       {
         method: "GET",
         headers,
+        cache: "no-store",
       },
     );
 

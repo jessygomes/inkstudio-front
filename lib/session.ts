@@ -1,5 +1,6 @@
 "use server";
 import { auth } from "@/auth";
+import { hasUsableSession } from "./auth-security";
 
 /**
  * Récupère les headers d'authentification avec le token NextAuth
@@ -13,7 +14,7 @@ export const getAuthHeaders = async (): Promise<Record<string, string>> => {
     "Content-Type": "application/json",
   };
 
-  if (session?.accessToken) {
+  if (hasUsableSession(session)) {
     headers.Authorization = `Bearer ${session.accessToken}`;
   }
 

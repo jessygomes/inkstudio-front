@@ -62,7 +62,7 @@ export default function SubscriptionSection({
   }, [showPlanModal]);
 
   const fetchUserPlan = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || !session?.accessToken) return;
 
     try {
       const response = await fetch(
@@ -71,6 +71,7 @@ export default function SubscriptionSection({
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`,
           },
           credentials: "include",
         }
@@ -85,7 +86,7 @@ export default function SubscriptionSection({
     } catch (error) {
       console.error("Erreur lors de la recuperation du plan utilisateur:", error);
     }
-  }, [userId]);
+  }, [userId, session?.accessToken]);
 
   useEffect(() => {
     const fetchAccountData = async () => {

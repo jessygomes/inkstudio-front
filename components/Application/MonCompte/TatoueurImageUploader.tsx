@@ -53,7 +53,7 @@ const TatoueurImageUploader = forwardRef<
         if (pendingFile) {
           setIsUploading(true);
           try {
-            await startUpload([pendingFile]);
+            await startUpload([pendingFile], {});
           } catch (error) {
             console.error("Erreur lors de l'upload:", error);
             throw error;

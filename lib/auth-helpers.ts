@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { hasUsableSession } from "./auth-security";
 
 /**
  * Récupère l'utilisateur authentifié via NextAuth
@@ -6,7 +7,7 @@ import { auth } from "@/auth";
  */
 export const getCurrentUser = async () => {
   const session = await auth();
-  return session?.user;
+  return hasUsableSession(session) ? session.user : undefined;
 };
 
 /**
@@ -14,7 +15,8 @@ export const getCurrentUser = async () => {
  * À utiliser quand vous avez besoin du token pour les appels API
  */
 export const getSession = async () => {
-  return await auth();
+  const session = await auth();
+  return hasUsableSession(session) ? session : null;
 };
 
 /**
@@ -22,7 +24,7 @@ export const getSession = async () => {
  */
 export const isAuthenticated = async () => {
   const session = await auth();
-  return !!session?.user;
+  return hasUsableSession(session);
 };
 
 /**
@@ -30,7 +32,7 @@ export const isAuthenticated = async () => {
  */
 export const getAccessToken = async () => {
   const session = await auth();
-  return session?.accessToken;
+  return hasUsableSession(session) ? session.accessToken : undefined;
 };
 
 /**

@@ -524,7 +524,7 @@ function CardPanel({
         fileType: "image/webp",
         initialQuality: 0.85,
       });
-      const result = await startUpload([compressed]);
+      const result = await startUpload([compressed], {});
       const url = result?.[0]?.ufsUrl ?? result?.[0]?.url;
       if (!url) throw new Error("URL d’image introuvable");
       await execute(

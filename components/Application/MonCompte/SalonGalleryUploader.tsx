@@ -103,7 +103,7 @@ export default function SalonGalleryUploader({
         }),
       );
 
-      await startUpload(compressedFiles);
+      await startUpload(compressedFiles, {});
     } catch (error) {
       console.error("Erreur lors de la compression:", error);
       toast.error("Erreur lors du traitement des images");

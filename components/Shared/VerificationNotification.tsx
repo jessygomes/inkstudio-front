@@ -76,7 +76,7 @@ export default function VerificationNotification() {
   useEffect(() => {
     let cancelled = false;
     const fetchPlanStatus = async () => {
-      if (status !== "authenticated" || !user?.id) {
+      if (status !== "authenticated" || !user?.id || !session?.accessToken) {
         return;
       }
 
@@ -87,6 +87,7 @@ export default function VerificationNotification() {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${session.accessToken}`,
             },
             credentials: "include",
           },
@@ -142,7 +143,7 @@ export default function VerificationNotification() {
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", refreshOnReturn);
     };
-  }, [status, user?.id, user?.role, user?.saasPlan, update, router]);
+  }, [status, user?.id, user?.role, user?.saasPlan, session?.accessToken, update, router]);
 
   const showVerificationNotice =
     isVerificationVisible && user?.verifiedSalon === false;

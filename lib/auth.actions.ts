@@ -4,6 +4,8 @@ import { signOut as authSignOut } from "@/auth";
 import { cookies } from "next/headers";
 
 const SESSION_COOKIE_PREFIXES = [
+  "inkera_pro_session_v2",
+  "__Secure-inkera_pro_session_v2",
   "authjs.session-token",
   "__Secure-authjs.session-token",
   "authjs.callback-url",

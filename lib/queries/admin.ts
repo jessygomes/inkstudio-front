@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
+import { authorizeUploadDeletion } from "@/lib/upload-security";
+
 import { getAuthHeaders } from "../session";
 import { UTApi } from "uploadthing/server";
 
@@ -12,11 +14,15 @@ function extractUploadThingKeysFromPayload(payload: unknown): string[] {
     if (!value) return;
 
     if (typeof value === "string") {
-      if (value.includes("utfs.io") || value.includes("uploadthing")) {
-        const match = value.match(/\/f\/([^\/\?]+)/);
-        if (match?.[1]) {
-          foundKeys.add(match[1]);
+      try {
+        const url = new URL(value);
+        const host = url.hostname;
+        if (url.protocol === "https:" && (host === "utfs.io" || host.endsWith(".ufs.sh") || host === "uploadthing.com")) {
+          const match = url.pathname.match(/^\/f\/([a-zA-Z0-9_.-]+)$/);
+          if (match?.[1]) foundKeys.add(match[1]);
         }
+      } catch {
+        // Other profile strings are not storage URLs.
       }
       return;
     }
@@ -539,7 +545,21 @@ export async function deleteAdminUserAction(id: string) {
 
       if (uploadThingKeys.length > 0) {
         try {
-          await utapi.deleteFiles(uploadThingKeys);
+          const token = headers.Authorization?.replace(/^Bearer /, "");
+          if (!token) throw new Error("File deletion not authorized");
+          const batches = [];
+          for (let offset = 0; offset < uploadThingKeys.length; offset += 20) {
+            batches.push(uploadThingKeys.slice(offset, offset + 20));
+          }
+          // Authorize every batch before deleting any file.
+          for (const keys of batches) {
+            if (await authorizeUploadDeletion(keys, token, id) !== 200) {
+              throw new Error("File deletion not authorized");
+            }
+          }
+          for (const keys of batches) {
+            await utapi.deleteFiles(keys, { keyType: "fileKey" });
+          }
         } catch (uploadThingError) {
           console.error(
             "Erreur lors de la suppression des fichiers UploadThing:",

@@ -212,7 +212,7 @@ export default function ConsentFormModal({
         { type: "application/pdf" }
       );
 
-      const uploadResult = await startUpload([pdfFile]);
+      const uploadResult = await startUpload([pdfFile], { consentClientId: client.id });
       if (!uploadResult || uploadResult.length === 0) {
         throw new Error("Échec de l'upload du PDF");
       }

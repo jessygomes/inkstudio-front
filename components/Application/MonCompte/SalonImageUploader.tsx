@@ -184,7 +184,7 @@ SalonImageUploaderProps) {
       initialQuality: 0.8,
     });
 
-    await startUpload([compressed]);
+    await startUpload([compressed], {});
   };
 
   async function handleFiles(files: FileList | null) {

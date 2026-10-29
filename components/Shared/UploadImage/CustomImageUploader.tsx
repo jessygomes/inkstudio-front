@@ -28,7 +28,7 @@ export default function CustomImageUploader() {
       initialQuality: 0.8,
     });
 
-    await startUpload([compressed]); // on envoie la version compressée
+    await startUpload([compressed], {}); // on envoie la version compressée
   }
 
   return (

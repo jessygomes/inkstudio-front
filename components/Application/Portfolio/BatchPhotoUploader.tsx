@@ -74,7 +74,7 @@ export default function BatchPhotoUploader({
             })
           )
         );
-        const res = await startUpload(chunk);
+        const res = await startUpload(chunk, {});
         (res ?? []).forEach((r) => {
           const url = r.ufsUrl ?? r.url;
           if (url) uploaded.push(url);

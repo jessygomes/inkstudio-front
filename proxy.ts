@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { hasUsableSession } from "@/lib/auth-security";
 import { ROUTES, PROTECTED_PATHS } from "@/lib/routes";
 import { isBackOfficePath } from "@/lib/back-office";
 import { NextResponse } from "next/server";
@@ -9,9 +10,7 @@ import { NextResponse } from "next/server";
  */
 export default auth((req) => {
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-  const hasExpiredToken = req.auth?.error === "AccessTokenExpired";
-  const isAuthenticated = isLoggedIn && !hasExpiredToken;
+  const isAuthenticated = hasUsableSession(req.auth);
 
   const isBackOffice = isBackOfficePath(nextUrl.pathname);
   const isLegacyAdmin = nextUrl.pathname === "/admin" || nextUrl.pathname.startsWith("/admin/");

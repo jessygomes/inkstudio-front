@@ -157,7 +157,7 @@ export default function MessageInput({
       // Upload l'image si présente
       if (selectedFile) {
         setUploadProgress(0);
-        const uploadRes = await startUpload([selectedFile]);
+        const uploadRes = await startUpload([selectedFile], {});
 
         if (!uploadRes?.[0]) throw new Error("Image non envoyée");
         if (uploadRes && uploadRes[0]) {

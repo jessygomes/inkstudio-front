@@ -1,21 +1,6 @@
 import NextAuth from "next-auth";
 import authConfig from "./auth.config";
-
-/**
- * Décode un JWT sans vérification de signature pour extraire l'expiry (exp)
- */
-function decodeJwtExpiry(token: string): number | null {
-  try {
-    const base64Payload = token.split(".")[1];
-    if (!base64Payload) return null;
-    const payload = JSON.parse(
-      Buffer.from(base64Payload, "base64url").toString("utf-8"),
-    );
-    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
-  } catch {
-    return null;
-  }
-}
+import { refreshSessionProfile, withBackendTokenStatus } from "./lib/auth-security";
 
 /**
  * Configuration principale de NextAuth
@@ -36,7 +21,7 @@ export const {
      * Callback JWT - Ajoute les données personnalisées au token JWT
      * Appelé quand le token est créé ou mis à jour
      */
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger }) {
       // Lors de la connexion initiale, ajouter les données utilisateur au token
       if (user) {
         token.accessToken = user.accessToken;
@@ -64,25 +49,14 @@ export const {
               ? JSON.stringify(rawHoursUnknown)
               : null;
         // Stocker l'expiry du backend token
-        token.accessTokenExpiry = decodeJwtExpiry(user.accessToken);
         token.error = undefined;
       }
 
       // Vérifier si le backend access token est expiré
-      const accessTokenExpiry =
-        typeof token.accessTokenExpiry === "number"
-          ? token.accessTokenExpiry
-          : null;
-
-      if (accessTokenExpiry && Date.now() > accessTokenExpiry) {
-        console.warn("⚠️ [JWT Callback] Backend access token expiré");
-        return { ...token, error: "AccessTokenExpired" as const };
-      }
-
-      // Support pour la mise à jour de session
-      if (trigger === "update" && session) {
-        console.log("🔄 [JWT Callback] Mise à jour du token JWT via trigger");
-        token = { ...token, ...session.user };
+      token = withBackendTokenStatus(token);
+      if (token.error === "AccessTokenExpired") return token;
+      if (trigger === "update") {
+        token = await refreshSessionProfile(token, "professional");
       }
 
       return token;
@@ -132,6 +106,12 @@ export const {
   session: {
     strategy: "jwt",
     maxAge: 7 * 24 * 60 * 60, // 7 jours
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production" ? "__Secure-inkera_pro_session_v2" : "inkera_pro_session_v2",
+      options: { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/" },
+    },
   },
   secret: process.env.AUTH_SECRET,
   ...authConfig,

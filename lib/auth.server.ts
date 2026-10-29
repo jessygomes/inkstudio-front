@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { hasUsableSession } from "./auth-security";
 import { getAuthenticatedUserSchema } from "./zod/validator.schema";
 
 /**
@@ -11,7 +12,7 @@ import { getAuthenticatedUserSchema } from "./zod/validator.schema";
 export const getAuthenticatedUser = async () => {
   const session = await auth();
 
-  if (!session || !session.user || session.error === "AccessTokenExpired") {
+  if (!hasUsableSession(session)) {
     throw new Error(
       "Aucun token d'accès trouvé. L'utilisateur n'est pas authentifié.",
     );
@@ -56,6 +57,5 @@ export const getAuthenticatedUser = async () => {
  */
 export const currentUser = async () => {
   const session = await auth();
-  if (session?.error === "AccessTokenExpired") return null;
-  return session?.user ?? null;
+  return hasUsableSession(session) ? session.user : null;
 };

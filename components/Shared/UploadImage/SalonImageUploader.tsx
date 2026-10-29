@@ -53,7 +53,7 @@ export default function SalonImageUploader({
         initialQuality: 0.8,
       });
 
-      await startUpload([compressed]);
+      await startUpload([compressed], {});
     } catch (error) {
       console.error("Erreur lors de la compression:", error);
       alert("Erreur lors du traitement de l'image");
