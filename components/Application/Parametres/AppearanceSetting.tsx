@@ -25,7 +25,7 @@ export default function AppearanceSetting() {
           <legend className="sr-only">Thème de l’application</legend>
           {([
             { value: "dark", label: "Sombre", description: "Fond noir et contrastes doux", icon: Moon },
-            { value: "light", label: "Clair", description: "Fond blanc cassé et tons chaleureux", icon: Sun },
+            { value: "light", label: "Clair", description: "Gris clairs et nuances contrastées", icon: Sun },
           ] as const).map(({ value, label, description, icon: Icon }) => (
             <label key={value} className={appearance.option}>
               <input

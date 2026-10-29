@@ -5,7 +5,9 @@
 .option:focus-within { outline: 2px solid var(--color-tertiary-400); outline-offset: 3px; }
 .options:disabled .option { cursor: wait; }
 .preview { display: flex; height: 100px; overflow: hidden; border: 1px solid rgb(255 255 255 / 8%); border-radius: .5rem; background: #131313; --preview-ink: 255 255 255; }
-.preview[data-preview-theme="light"] { background: #ececec; border-color: #d7d7d7; --preview-ink: 41 41 41; }
+.preview[data-preview-theme="light"] { background: #dcdcdc; border-color: #c8c8c8; --preview-ink: 41 41 41; }
+.preview[data-preview-theme="light"] .previewSidebar { background: #d2d2d2; }
+.preview[data-preview-theme="light"] .previewContent > span i { background: #e8e8e8; }
 .previewSidebar { display: flex; width: 23%; flex-direction: column; gap: 7px; padding: 14px 8px; border-right: 1px solid rgb(var(--preview-ink) / 10%); }
 .preview i { display: block; height: 5px; border-radius: 3px; background: rgb(var(--preview-ink) / 13%); }
 .previewSidebar i:first-child { background: #ff9d00; }
