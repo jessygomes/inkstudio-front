@@ -6,10 +6,13 @@ export interface ActivityFilters {
   status: string;
 }
 
-export interface ActivityStats {
-  totals: { appointments: number; clientRecords: number; moodboards: number; sharedMoodboards: number };
-  filtered: { appointments: number; clientRecords: number; moodboards: number; sharedMoodboards: number };
-  sharedByStatus: { status: string; count: number }[];
+export type ActivityMetric = "appointments" | "clientRecords" | "moodboards" | "sharedMoodboards";
+
+export interface ActivityChartData {
+  total: number;
+  selected: number;
+  grouping: "year" | "month" | "day";
+  series: { period: string; count: number }[];
 }
 
 export const projectStatusLabels: Record<string, string> = {
