@@ -5,10 +5,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowUpRight, ArrowRight, Home, Layers3, CreditCard, Heart, Sparkles } from "lucide-react";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import { ROUTES } from "@/lib/routes";
-import { useNavbarScrolled } from "./useNavbarScrolled";
+import s from "./PublicNavbar.module.css";
+
+const linkDetails: Record<string, { Icon: typeof Home; description: string }> = {
+  "/": { Icon: Home, description: "Votre studio, autrement" },
+  "/solutions": { Icon: Layers3, description: "Les outils de votre quotidien" },
+  "/tarification": { Icon: CreditCard, description: "Une formule pour votre activité" },
+  "/a-propos-de-inkera": { Icon: Heart, description: "L’histoire et la vision INKERA" },
+};
 
 interface NavMobileClientProps {
   initialAuthStatus: boolean;
@@ -17,7 +24,6 @@ interface NavMobileClientProps {
 
 export function NavMobileClient({ initialAuthStatus, links }: NavMobileClientProps) {
   const pathname = usePathname();
-  const isScrolled = useNavbarScrolled();
   const { data: session, status } = useSession();
   const isLoggedIn = status === "loading" ? initialAuthStatus : status === "authenticated" && !!session?.user && !session?.error;
   const [isOpen, setIsOpen] = useState(false);
@@ -40,20 +46,47 @@ export function NavMobileClient({ initialAuthStatus, links }: NavMobileClientPro
       }
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => { document.body.style.overflow = previousOverflow; document.removeEventListener("keydown", onKeyDown); };
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const onResize = () => { if (desktop.matches) setIsOpen(false); };
+    desktop.addEventListener("change", onResize);
+    return () => { document.body.style.overflow = previousOverflow; document.removeEventListener("keydown", onKeyDown); desktop.removeEventListener("change", onResize); };
   }, [isOpen]);
 
   return <nav aria-label="Navigation mobile">
-    <div className={`flex items-center justify-between rounded-xl border p-3 text-white transition-colors duration-300 ${isScrolled ? "border-white/10 bg-noir-800/95 backdrop-blur-xl" : "border-transparent bg-transparent"}`}>
-      <Link href={ROUTES.home}><Image src="/logo/logo_inline_studio_white_2.png" alt="INKERA Studio · Accueil" width={120} height={40} className="h-auto w-[120px]" /></Link>
-      <button ref={trigger} type="button" onClick={() => setIsOpen(true)} aria-label="Ouvrir le menu" aria-expanded={isOpen} aria-controls="mobile-navigation" className="rounded-lg p-2 hover:bg-white/10"><Menu size={26} /></button>
+    <div className={s.mobileBar}>
+      <Link href={ROUTES.home}><Image src="/logo/logo_inline_white.png" alt="INKERA Studio · Accueil" width={120} height={40} className="h-auto w-[120px]" /></Link>
+      <button ref={trigger} type="button" onClick={() => setIsOpen(true)} aria-label="Ouvrir le menu" aria-expanded={isOpen} aria-controls="mobile-navigation" className={s.menuButton}><Menu size={21} /></button>
     </div>
     {isOpen && <>
-      <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" onClick={close} aria-hidden="true" />
-      <div id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Menu de navigation" className="fixed inset-y-0 right-0 z-50 flex h-dvh w-[min(360px,100vw)] flex-col overflow-y-auto border-l border-white/10 bg-noir-800 text-white">
-        <div className="flex items-center justify-between border-b border-white/10 p-6"><span className="font-two text-sm tracking-widest">INKERA STUDIO</span><button ref={closeButton} type="button" onClick={close} aria-label="Fermer le menu" className="rounded-lg p-2 hover:bg-white/10"><X /></button></div>
-        <ul className="flex-1 space-y-3 p-6">{links.map(link => <li key={link.href} onClick={close}>{link.href.startsWith('https://') ? <DashboardButton href={link.href} variant="secondary" target="_blank" rel="noopener noreferrer" className="w-full border-cuatro-500/40 bg-cuatro-500/10">{link.label}<ArrowUpRight size={16} /></DashboardButton> : <Link href={link.href} aria-current={pathname === link.href ? "page" : undefined} className={`block rounded-xl px-4 py-3 font-two text-sm ${pathname === link.href ? "bg-tertiary-400/10 text-tertiary-400" : "text-white/75 hover:bg-white/5"}`}>{link.label}</Link>}</li>)}</ul>
-        <div className="border-t border-white/10 p-6" onClick={close}><DashboardButton href={isLoggedIn ? ROUTES.dashboard : ROUTES.connexion} className="w-full">{isLoggedIn ? "Dashboard" : "Connexion"}</DashboardButton></div>
+      <div className={s.backdrop} onClick={close} aria-hidden="true" />
+      <div id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Menu de navigation" className={s.panel}>
+        <div className={s.panelHeader}>
+          <Image src="/logo/logo_inline_white.png" alt="INKERA Studio" width={130} height={44} className="h-auto w-[130px]" />
+          <button ref={closeButton} type="button" onClick={close} aria-label="Fermer le menu" className={s.menuButton}><X size={20} /></button>
+        </div>
+        <div className={s.panelContent}>
+          <p className={s.eyebrow}>Votre univers professionnel</p>
+          <ul className={s.menuLinks}>{links.filter(link => !link.href.startsWith("https://")).map(link => {
+            const { Icon, description } = linkDetails[link.href] || { Icon: Layers3, description: "Découvrir INKERA Studio" };
+            return <li key={link.href}>
+              <Link href={link.href} onClick={close} aria-current={pathname === link.href ? "page" : undefined} className={s.menuLink}>
+                <span className={s.menuIcon}><Icon size={19} aria-hidden="true" /></span>
+                <span className={s.menuCopy}><span className={s.menuTitle}>{link.label}</span><span className={s.menuDescription}>{description}</span></span>
+                <ArrowRight size={16} aria-hidden="true" className={s.menuArrow} />
+              </Link>
+            </li>;
+          })}</ul>
+          {links.filter(link => link.href.startsWith("https://")).map(link => <Link key={link.href} href={link.href} onClick={close} target="_blank" rel="noopener noreferrer" className={s.discovery}>
+            <Sparkles size={21} aria-hidden="true" />
+            <span className={s.menuCopy}><span className={s.menuTitle}>{link.label}</span><span className={s.menuDescription}>Trouvez l’artiste pour votre projet</span></span>
+            <ArrowUpRight size={18} aria-hidden="true" /><span className="sr-only"> (nouvel onglet)</span>
+          </Link>)}
+        </div>
+        <div className={s.panelFooter}>
+          <p>{isLoggedIn ? "Votre studio vous attend." : "Un espace pour votre art et votre quotidien."}</p>
+          <div onClick={close}><DashboardButton href={isLoggedIn ? ROUTES.dashboard : ROUTES.connexion} className={s.footerAction}>{isLoggedIn ? "Accéder à mon espace" : "Se connecter"}<ArrowUpRight size={16} aria-hidden="true" /></DashboardButton></div>
+          {!isLoggedIn && <Link href="/inscription" onClick={close} className={s.signup}>Créer mon compte gratuitement</Link>}
+        </div>
       </div>
     </>}
   </nav>;

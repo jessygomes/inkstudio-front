@@ -9,7 +9,7 @@ export default function Header() {
         <Navbar />
       </div>
 
-      <div className="lg:hidden px-4 pt-4 rounded-2xl w-full z-[9999]">
+      <div className="lg:hidden px-5 sm:px-8 pt-4 rounded-2xl w-full z-[9999]">
         <NavMobile />
       </div>
     </>
