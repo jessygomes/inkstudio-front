@@ -3,11 +3,17 @@ import Image from "next/image";
 import { ArrowUpRight, Check, MessageCircle } from "lucide-react";
 import s from "./Marketing.module.css";
 export function ProductVisual({ src, alt, caption, priority = false }: { src: string; alt: string; caption: string; priority?: boolean }) {
-  return <div className={s.visual}>
-    <div className={s.windowBar} aria-hidden="true">● ● ● · INKERA / STUDIO</div>
-    <Image src={src} alt={alt} width={1100} height={760} sizes="(max-width: 900px) 100vw, 550px" priority={priority} />
-    <p className={s.caption}>{caption}</p>
-  </div>;
+  return <figure className={s.visual}>
+    <div className={s.windowBar} aria-hidden="true">
+      <span className={s.windowDots}><span /><span /><span /></span>
+      <span className={s.windowBrand}>INKERA <span>STUDIO</span></span>
+      <span className={s.windowIndicator} />
+    </div>
+    <div className={s.visualScreen}>
+      <Image src={src} alt={alt} width={1100} height={760} sizes="(max-width: 900px) 100vw, 550px" priority={priority} />
+    </div>
+    <figcaption className={s.caption}><span aria-hidden="true" />{caption}</figcaption>
+  </figure>;
 }
 export function Closing() {
   return <section className={`${s.wrap} ${s.closing}`} aria-label="Rejoindre INKERA Studio">

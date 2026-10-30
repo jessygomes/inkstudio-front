@@ -54,6 +54,16 @@
   outline:2px solid var(--accent);
   outline-offset:5px
 }
+.heroCentered {
+  text-align:center
+}
+.heroCentered .intro {
+  max-width:640px;
+  margin-inline:auto
+}
+.heroCentered .actions {
+  justify-content:center
+}
 .heroGrid {
   display:grid;
   grid-template-columns:1.05fr 1fr;
@@ -61,27 +71,93 @@
   gap:64px
 }
 .visual {
-  background:var(--color-noir-500);
-  border:1px solid #ffffff18;
-  border-radius:16px;
-  padding:14px;
-  box-shadow:0 35px 100px #0005
+  min-width:0;
+  margin:0;
+  background:transparent;
+  border:1px solid #ffffff20;
+  border-radius:24px;
+  padding:0 12px;
+  overflow:hidden;
+  box-shadow:0 24px 64px -20px #0009,inset 0 1px 0 #ffffff0a;
+  transition:transform .35s ease,border-color .35s ease,box-shadow .35s ease
+}
+.visualScreen {
+  overflow:hidden;
+  border:1px solid #ffffff14;
+  border-radius:12px;
+  background:transparent;
+  box-shadow:0 8px 24px #0003
 }
 .visual img {
+  display:block;
   width:100%;
-  height:auto;
-  border-radius:8px
+  height:auto
 }
 .windowBar {
-  padding:3px 3px 15px;
-  color:#b4b4b4;
-  font-size:11px;
-  letter-spacing:.14em
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:18px 8px;
+  color:#efefef;
+  font-size:10px;
+  letter-spacing:.18em
+}
+.windowDots {
+  display:flex;
+  gap:5px
+}
+.windowDots span {
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#ffffff30
+}
+.windowDots span:first-child {
+  background:var(--accent)
+}
+.windowBrand {
+  font-weight:600
+}
+.windowBrand span {
+  color:#ffffff60;
+  margin-left:5px;
+  font-weight:400
+}
+.windowIndicator {
+  width:28px;
+  height:3px;
+  border-radius:4px;
+  background:linear-gradient(90deg,var(--accent),var(--color-cuatro-500))
 }
 .caption {
+  display:flex;
+  align-items:center;
+  gap:9px;
   font-size:12px;
+  line-height:1.6;
   color:#b4b4b4;
-  margin:14px 4px 2px
+  margin:0;
+  padding:17px 8px
+}
+.caption > span {
+  flex-shrink:0;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--accent)
+}
+@media (hover:hover) and (prefers-reduced-motion:no-preference) {
+  .visual:hover {
+    transform:translateY(-5px);
+    border-color:color-mix(in srgb,var(--accent) 35%,transparent);
+    box-shadow:0 32px 72px -20px #000b,inset 0 1px 0 #ffffff12
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .visual {
+    transition:none
+  }
 }
 .strip {
   border-block:1px solid #ffffff20;
@@ -439,6 +515,18 @@
 .channelInkera>svg,.channelInkera .channelStatus { color:var(--color-tertiary-400); }
 .plan>a,.plan>button { margin-top:auto; }
 .contactCard { display:grid; justify-items:start; gap:20px; background:radial-gradient(ellipse at top right,color-mix(in srgb,var(--color-cuatro-500) 12%,transparent),transparent 70%),var(--color-noir-500); border:1px solid #ffffff20; border-radius:20px; padding:40px; }
+.explorerSection { border-top:1px solid #ffffff20; }
+.explorerHeading { display:grid; grid-template-columns:1.1fr 1fr; gap:64px; align-items:center; }
+.explorerHeading h2 { margin-bottom:0; }
+.explorerLabel { display:inline-flex; align-items:center; gap:9px; color:var(--accent); font-size:12px; margin-bottom:16px; }
+.explorerSteps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; list-style:none; margin:40px 0 0; padding:0; }
+.explorerStep { padding:28px; border:1px solid #ffffff1c; border-radius:20px; background:transparent; }
+.explorerStepTop { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:28px; }
+.explorerStepIcon { display:grid; place-items:center; width:44px; height:44px; border:1px solid color-mix(in srgb,var(--accent) 25%,transparent); border-radius:14px; color:var(--accent); }
+.explorerStepNumber { color:#ffffff40; font-size:12px; letter-spacing:.12em; }
+.explorerStep h3 { font-size:20px; line-height:1.35; margin:0 0 14px; }
+.explorerStep p { font-size:14px; line-height:1.8; color:#b4b4b4; margin:0; }
+@media(max-width:900px) { .explorerHeading { grid-template-columns:1fr; gap:24px; } .explorerSteps { grid-template-columns:1fr; } .explorerStep { padding:24px; } .explorerStepTop { margin-bottom:20px; } }
 .contactCard .eyebrow { margin-bottom:0; }
 .contactCard h2 { font-size:clamp(28px,3vw,38px); line-height:1.2; }
 .contactCard p { color:#ffffff99; font-size:15px; line-height:1.8; }

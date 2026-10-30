@@ -1,7 +1,7 @@
 import DashboardButton from "@/components/Shared/DashboardButton";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, CalendarDays, Check, Users, Globe, Boxes, MessageSquare, ChartNoAxesCombined } from "lucide-react";
+import { ArrowUpRight, CalendarDays, Check, Users, Globe, Boxes, MessageSquare, ChartNoAxesCombined, Compass, Search, Send } from "lucide-react";
 import Header from "@/components/Shared/Header";
 import { Closing, ProductVisual } from "@/components/Marketing/MarketingShared";
 import s from "@/components/Marketing/Marketing.module.css";
@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   },
 };
 const features = [
-  { id: "planning", number: "01 / ORGANISER", title: "Un planning clair. L’esprit libre.", description: "Du premier contact à la prochaine séance, retrouvez vos rendez-vous au même endroit. Organisez vos journées et celles de votre studio avec un agenda commun ou par artiste.", points: ["Prise de rendez-vous en ligne", "Agenda du salon et planning par tatoueur", "Disponibilités et créneaux centralisés"], image: "/images/Rdv_app.png", alt: "Interface de gestion des rendez-vous INKERA Studio", caption: "Le planning · Une vue d’ensemble sur vos séances" },
-  { id: "clients", number: "02 / ACCOMPAGNER", title: "Chaque projet commence par une relation.", description: "Gardez le fil de chaque histoire. Rassemblez les informations de vos clients et leur historique pour préparer les séances et assurer un suivi attentif.", points: ["Fiches clients et historique des rendez-vous", "Informations utiles à la préparation des séances", "Génération des fiches de consentement"], image: "/images/Client_app.png", alt: "Interface des fiches clients INKERA Studio", caption: "Les clients · Les bonnes informations, au bon endroit" },
-  { id: "vitrine", number: "03 / RAYONNER", title: "Votre univers, au premier regard.", description: "Faites découvrir votre style avant même le premier échange. Votre profil public réunit votre portfolio, vos flashs et les informations de votre activité.", points: ["Profil public professionnel", "Portfolio, flashs, produits et services", "Un lien direct pour vous contacter"], image: "/images/Profil_public.png", alt: "Profil public et portfolio sur INKERA Studio", caption: "La vitrine · Un espace pour faire découvrir votre travail" },
+  { id: "planning", number: "01 / ORGANISER", title: "Un planning clair. L’esprit libre.", description: "Du premier contact à la prochaine séance, retrouvez vos rendez-vous au même endroit. Organisez vos journées et celles de votre studio avec un agenda commun ou par artiste.", points: ["Prise de rendez-vous en ligne", "Agenda du salon et planning par tatoueur", "Disponibilités et créneaux centralisés"], image: "/images/rdv.png", alt: "Interface de gestion des rendez-vous INKERA Studio", caption: "Le planning · Une vue d’ensemble sur vos séances" },
+  { id: "clients", number: "02 / ACCOMPAGNER", title: "Chaque projet commence par une relation.", description: "Gardez le fil de chaque histoire. Rassemblez les informations de vos clients et leur historique pour préparer les séances et assurer un suivi attentif.", points: ["Fiches clients et historique des rendez-vous", "Informations utiles à la préparation des séances", "Génération des fiches de consentement"], image: "/images/client.png", alt: "Interface des fiches clients INKERA Studio", caption: "Les clients · Les bonnes informations, au bon endroit" },
+  { id: "vitrine", number: "03 / RAYONNER", title: "Votre univers, au premier regard.", description: "Faites découvrir votre style avant même le premier échange. Votre profil public réunit votre portfolio, vos flashs et les informations de votre activité.", points: ["Profil public professionnel", "Portfolio, flashs, produits et services", "Un lien direct pour vous contacter"], image: "/images/public.png", alt: "Profil public et portfolio sur INKERA Studio", caption: "La vitrine · Un espace pour faire découvrir votre travail" },
 ];
 export default function SolutionsPage() {
   return <div className={s.page}>
@@ -30,7 +30,7 @@ export default function SolutionsPage() {
     </div>
     <main>
       <section className={s.hero}>
-        <div className={`${s.wrap} ${s.heroGrid}`}>
+        <div className={`${s.wrap} ${s.heroCentered}`}>
           <div>
             <span className={s.eyebrow}>La solution INKERA Studio</span>
             <h1>Plus de place<br />pour <em>votre art.</em>
@@ -42,7 +42,6 @@ export default function SolutionsPage() {
               <DashboardButton href="#fonctionnalites" variant="secondary">Explorer les outils ↓</DashboardButton>
             </div>
           </div>
-          <ProductVisual src="/images/dash.png" alt="Vue de l’application INKERA Studio sur ordinateur" caption="Votre studio. Une vue d’ensemble. Un seul espace." priority />
         </div>
       </section>
       <div className={s.wrap}>
@@ -65,6 +64,7 @@ export default function SolutionsPage() {
           <Link href="#planning">01 · Rendez-vous</Link>
           <Link href="#clients">02 · Clients</Link>
           <Link href="#vitrine">03 · Vitrine</Link>
+          <Link href="#explorer">04 · Explorer</Link>
         </nav>
       </section>
       <div className={s.wrap}>{features.map(f => <section id={f.id} key={f.id} className={s.feature}>
@@ -77,6 +77,32 @@ export default function SolutionsPage() {
         </div>
         <ProductVisual src={f.image} alt={f.alt} caption={f.caption} />
       </section>)}</div>
+      <section id="explorer" className={`${s.wrap} ${s.section} ${s.explorerSection}`} aria-labelledby="explorer-title">
+        <div className={s.explorerHeading}>
+          <div>
+            <span className={s.number}>04 / RENCONTRER</span>
+            <h2 id="explorer-title">Des projets qui attendent<br /><em>votre signature.</em></h2>
+          </div>
+          <div>
+            <span className={s.explorerLabel}><Compass size={16} aria-hidden="true" />Explorer les projets clients</span>
+            <p className={s.sectionLead}>Des clients partagent leurs idées de tatouage et cherchent un professionnel pour les réaliser. Découvrez leurs envies, trouvez les projets qui vous correspondent et proposez votre approche.</p>
+          </div>
+        </div>
+        <ol className={s.explorerSteps}>
+          {[
+            { Icon: Search, title: "Trouvez votre prochain projet", text: "Affinez votre recherche par ville, style ou catégorie. Consultez le brief et les inspirations pour comprendre les envies du client." },
+            { Icon: Send, title: "Proposez votre regard", text: "Envoyez une proposition personnalisée pour présenter votre approche. Suivez la réponse du client dans « Mes propositions »." },
+            { Icon: MessageSquare, title: "Faites connaissance", text: "Si le client accepte votre proposition, la messagerie devient accessible. Échangez pour préciser le projet et préparer la suite ensemble." },
+          ].map(({ Icon, title, text }, index) => <li key={title} className={s.explorerStep}>
+            <div className={s.explorerStepTop}><span className={s.explorerStepIcon}><Icon size={21} aria-hidden="true" /></span><span className={s.explorerStepNumber} aria-hidden="true">0{index + 1}</span></div>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </li>)}
+        </ol>
+        <div className={s.actions}>
+          <DashboardButton href="/explorer" variant="secondary">Découvrir les projets clients <ArrowUpRight size={17} aria-hidden="true" /></DashboardButton>
+        </div>
+      </section>
       <section className={`${s.wrap} ${s.section}`}>
         <span className={s.eyebrow}>Et derrière les séances</span>
         <h2>Le studio tourne.<br />Vous gardez le cap.</h2>
