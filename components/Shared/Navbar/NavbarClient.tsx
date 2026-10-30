@@ -1,10 +1,13 @@
-"use client";
+﻿"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
+import { ArrowUpRight } from "lucide-react";
+import DashboardButton from "@/components/Shared/DashboardButton";
 import { ROUTES } from "@/lib/routes";
+import { useNavbarScrolled } from "./useNavbarScrolled";
 
 interface NavbarClientProps {
   links: Array<{ href: string; label: string; highlight?: boolean }>;
@@ -12,83 +15,27 @@ interface NavbarClientProps {
 
 export function NavbarClient({ links }: NavbarClientProps) {
   const { data: session, status } = useSession();
-  const isLoggedIn =
-    status === "authenticated" && !!session?.user && !session?.error;
+  const isLoggedIn = status === "authenticated" && !!session?.user && !session?.error;
   const pathname = usePathname();
-  const navRef = useRef<HTMLUListElement>(null);
-
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 50); // Activer le blur après 50px de scroll
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  const isScrolled = useNavbarScrolled();
 
   return (
-    <nav
-      className={`flex justify-between items-center py-6 px-20  ${
-        isScrolled ? "backdrop-blur-md" : "backdrop-blur-none"
-      }`}
-    >
-      <Link href={ROUTES.home} className="flex items-center gap-2">
-        <Image
-          src="/logo/logo_inline_studio_white_2.png"
-          alt="Logo"
-          width={150}
-          height={50}
-          className="h-auto w-[150px]"
-          style={{ height: "auto" }}
-        />
-      </Link>
-      <ul ref={navRef} className="flex gap-8">
-        {links.map((link, index) => {
-          const isActive = pathname === link.href;
-
-          if (link.highlight) {
-            return (
-              <li key={index}>
-                <Link
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-2xl border border-tertiary-400/40 bg-tertiary-400/10 px-4 py-1.5 text-xs font-two font-medium text-tertiary-500 tracking-widest transition-all duration-300 hover:bg-tertiary-400/20 hover:text-white hover:border-tertiary-400/70"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            );
-          }
-
-          return (
-            <li
-              key={index}
-              className={`${
-                isActive ? "active font-two text-white font-bold" : "font-thin"
-              } pb-1 text-white text-sm font-two pt-1 px-2 tracking-widest hover:text-white/70 transition-all duration-300`}
-            >
-              <Link
-                href={link.href}
-                {...(link.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              >
-                {link.label}
-              </Link>
-            </li>
-          );
-        })}
-        <Link href={isLoggedIn ? ROUTES.dashboard : ROUTES.connexion}>
-          <div className="cursor-pointer px-8 py-1.5 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 text-white rounded-2xl transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed font-two text-xs">
-            {isLoggedIn ? "Dashboard" : "Connexion"}
-          </div>
+    <nav aria-label="Navigation principale" className={`border-b px-6 py-5 text-white transition-colors duration-300 xl:px-12 ${isScrolled ? "border-white/10 bg-noir-800/95 backdrop-blur-xl" : "border-transparent bg-transparent"}`}>
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-5">
+        <Link href={ROUTES.home} className="shrink-0">
+          <Image src="/logo/logo_inline_studio_white_2.png" alt="INKERA Studio · Accueil" width={150} height={50} className="h-auto w-[120px] xl:w-[150px]" />
         </Link>
-      </ul>
+        <ul className="flex items-center gap-4 xl:gap-7">
+          {links.map(link => <li key={link.href}>{link.highlight ? (
+            <DashboardButton href={link.href} target="_blank" rel="noopener noreferrer" variant="secondary" className="min-w-0 border-cuatro-500/40 bg-cuatro-500/10">
+              {link.label}<ArrowUpRight size={14} aria-hidden="true" />
+            </DashboardButton>
+          ) : (
+            <Link href={link.href} aria-current={pathname === link.href ? "page" : undefined} className={`font-two text-xs transition-colors xl:text-sm ${pathname === link.href ? "text-tertiary-400" : "text-white/70 hover:text-white"}`}>{link.label}</Link>
+          )}</li>)}
+          <li><DashboardButton href={isLoggedIn ? ROUTES.dashboard : ROUTES.connexion} className="min-w-0">{isLoggedIn ? "Dashboard" : "Connexion"}</DashboardButton></li>
+        </ul>
+      </div>
     </nav>
   );
 }

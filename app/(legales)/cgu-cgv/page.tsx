@@ -1,3 +1,5 @@
+import LegalPage from "@/components/Legal/LegalPage";
+import s from "@/components/Legal/LegalPage.module.css";
 import React from "react";
 import {
   FaFileContract,
@@ -8,8 +10,6 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import type { Metadata } from "next";
-import Footer from "@/components/Shared/Footer/Footer";
-import Header from "@/components/Shared/Header";
 
 export const metadata: Metadata = {
   title: "CGU & CGV",
@@ -26,58 +26,11 @@ export const metadata: Metadata = {
 };
 
 export default function CguCgv() {
-  return (
-    <>
-      <div className="fixed backdrop-blur-2xl top-0 left-0 w-full z-50">
-        <Header />
-      </div>
-      <div className="min-h-screen bg-gradient-to-b from-noir-700 to-noir-700">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-noir-700 to-noir-800 py-20 sm:pt-28 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-tertiary-400/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-tertiary-500/3 rounded-full blur-3xl"></div>
+  return <LegalPage kind="terms" title="Conditions générales" accent="d’utilisation & de vente." description="Les conditions qui encadrent l’utilisation de la plateforme et les services INKERA Studio." sections={[{"id":"article-01","title":"Préambule"},{"id":"article-02","title":"Définitions"},{"id":"article-03","title":"Objet et champ d'application"},{"id":"article-04","title":"Accès et inscription"},{"id":"article-05","title":"Obligations des utilisateurs"},{"id":"article-06","title":"Tarifs et modalités de paiement"},{"id":"article-07","title":"Résiliation et suspension"},{"id":"article-08","title":"Responsabilité et garanties"},{"id":"article-09","title":"Propriété intellectuelle"},{"id":"article-10","title":"Droit applicable et règlement des litiges"},{"id":"article-11","title":"Modification des CGU/CGV"}]}>
 
-          <div className="container mx-auto px-4 sm:px-8 max-w-4xl relative z-10">
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 bg-tertiary-500/10 border border-tertiary-400/20 rounded-full px-4 py-2 mb-6">
-                <FaFileContract size={16} className="text-tertiary-400" />
-                <span className="text-tertiary-400 font-one text-sm font-semibold">
-                  Conditions Générales
-                </span>
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-two uppercase text-white font-bold leading-tight mb-6">
-                <span
-                  style={{
-                    background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  CGU & CGV
-                </span>
-              </h1>
-
-              <div className="w-24 h-1 bg-gradient-to-r from-tertiary-400 to-tertiary-500 rounded-full mx-auto mb-8"></div>
-
-              <p className="text-xl text-white/70 font-one leading-relaxed max-w-3xl mx-auto">
-                Conditions générales d&apos;utilisation et de vente de la
-                plateforme{" "}
-                <span className="text-tertiary-400 font-semibold">
-                  Inkera Studio
-                </span>
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Contenu principal */}
-        <section className="py-16">
-          <div className="container mx-auto px-4 sm:px-8 max-w-5xl">
-            <div className="space-y-12">
               {/* Préambule */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-01" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Préambule
                 </h2>
 
@@ -97,7 +50,7 @@ export default function CguCgv() {
                     présentation en ligne.
                   </p>
 
-                  <div className="bg-white/5 rounded-2xl p-6 mt-6">
+                  <div className="bg-white/5 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Acceptation des conditions
                     </h3>
@@ -109,17 +62,17 @@ export default function CguCgv() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Définitions */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-02" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Définitions
                 </h2>
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Plateforme
                       </h3>
@@ -130,7 +83,7 @@ export default function CguCgv() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Utilisateur
                       </h3>
@@ -141,7 +94,7 @@ export default function CguCgv() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Professionnel
                       </h3>
@@ -151,7 +104,7 @@ export default function CguCgv() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Client
                       </h3>
@@ -161,7 +114,7 @@ export default function CguCgv() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Services
                       </h3>
@@ -171,7 +124,7 @@ export default function CguCgv() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Contenu
                       </h3>
@@ -182,15 +135,15 @@ export default function CguCgv() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Objet et champ d'application */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-03" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaHandshake size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Objet et champ d&apos;application
                   </h2>
                 </div>
@@ -204,7 +157,7 @@ export default function CguCgv() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Services professionnels
                       </h3>
@@ -217,7 +170,7 @@ export default function CguCgv() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Services clients
                       </h3>
@@ -231,15 +184,15 @@ export default function CguCgv() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Accès et inscription */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-04" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaUserTie size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Accès et inscription
                   </h2>
                 </div>
@@ -256,7 +209,7 @@ export default function CguCgv() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Inscription professionnelle
                       </h3>
@@ -269,7 +222,7 @@ export default function CguCgv() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Inscription client
                       </h3>
@@ -283,7 +236,7 @@ export default function CguCgv() {
                     </div>
                   </div>
 
-                  <div className="bg-tertiary-500/10 border border-tertiary-400/20 rounded-2xl p-6 mt-6">
+                  <div className="bg-tertiary-500/10 border border-tertiary-400/20 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Vérification des comptes
                     </h3>
@@ -295,17 +248,17 @@ export default function CguCgv() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Obligations des utilisateurs */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-05" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Obligations des utilisateurs
                 </h2>
 
                 <div className="space-y-6 text-white/80 font-one leading-relaxed">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Professionnels
                       </h3>
@@ -319,7 +272,7 @@ export default function CguCgv() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">Clients</h3>
                       <ul className="space-y-2 text-sm">
                         <li>• Fournir des informations exactes</li>
@@ -332,7 +285,7 @@ export default function CguCgv() {
                     </div>
                   </div>
 
-                  <div className="bg-white/5 rounded-2xl p-6">
+                  <div className="bg-white/5 rounded-xl p-5">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Interdictions générales
                     </h3>
@@ -352,15 +305,15 @@ export default function CguCgv() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Tarifs et paiement */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-06" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaEuroSign size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Tarifs et modalités de paiement
                   </h2>
                 </div>
@@ -374,7 +327,7 @@ export default function CguCgv() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Abonnements professionnels
                       </h3>
@@ -387,7 +340,7 @@ export default function CguCgv() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Commissions sur réservations
                       </h3>
@@ -401,7 +354,7 @@ export default function CguCgv() {
                     </div>
                   </div>
 
-                  <div className="bg-tertiary-500/10 border border-tertiary-400/20 rounded-2xl p-6 mt-6">
+                  <div className="bg-tertiary-500/10 border border-tertiary-400/20 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Moyens de paiement acceptés
                     </h3>
@@ -413,11 +366,11 @@ export default function CguCgv() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Résiliation */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-07" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Résiliation et suspension
                 </h2>
 
@@ -434,7 +387,7 @@ export default function CguCgv() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Conséquences de la résiliation
                       </h3>
@@ -447,7 +400,7 @@ export default function CguCgv() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Suspension par Inkera Studio
                       </h3>
@@ -461,25 +414,25 @@ export default function CguCgv() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Responsabilité */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-08" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaExclamationTriangle
                       size={24}
                       className="text-tertiary-400"
                     />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Responsabilité et garanties
                   </h2>
                 </div>
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Responsabilité d&apos;Inkera Studio
                       </h3>
@@ -492,7 +445,7 @@ export default function CguCgv() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Limitations de responsabilité
                       </h3>
@@ -506,7 +459,7 @@ export default function CguCgv() {
                     </div>
                   </div>
 
-                  <div className="bg-tertiary-500/10 border border-tertiary-400/20 rounded-2xl p-6 mt-6">
+                  <div className="bg-tertiary-500/10 border border-tertiary-400/20 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Garanties utilisateurs
                     </h3>
@@ -519,11 +472,11 @@ export default function CguCgv() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Propriété intellectuelle */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-09" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Propriété intellectuelle
                 </h2>
 
@@ -536,7 +489,7 @@ export default function CguCgv() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Droits d&apos;Inkera Studio
                       </h3>
@@ -549,7 +502,7 @@ export default function CguCgv() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Droits des utilisateurs
                       </h3>
@@ -563,7 +516,7 @@ export default function CguCgv() {
                     </div>
                   </div>
 
-                  <div className="bg-white/5 rounded-2xl p-6 mt-6">
+                  <div className="bg-white/5 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Utilisation des contenus
                     </h3>
@@ -576,15 +529,15 @@ export default function CguCgv() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Droit applicable */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-10" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaGavel size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Droit applicable et règlement des litiges
                   </h2>
                 </div>
@@ -597,7 +550,7 @@ export default function CguCgv() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Médiation préalable
                       </h3>
@@ -609,7 +562,7 @@ export default function CguCgv() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Compétence judiciaire
                       </h3>
@@ -621,11 +574,11 @@ export default function CguCgv() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Modifications */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-11" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Modification des CGU/CGV
                 </h2>
 
@@ -637,7 +590,7 @@ export default function CguCgv() {
                     notification sur la plateforme.
                   </p>
 
-                  <div className="bg-white/5 rounded-2xl p-6 mt-6">
+                  <div className="bg-white/5 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Entrée en vigueur
                     </h3>
@@ -650,7 +603,7 @@ export default function CguCgv() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Contact */}
               {/* <div className="text-center py-8">
@@ -690,11 +643,6 @@ export default function CguCgv() {
                 </div>
               </div>
             </div> */}
-            </div>
-          </div>
-        </section>
-      </div>
-      <Footer />
-    </>
-  );
+
+  </LegalPage>;
 }

@@ -9,7 +9,7 @@ export default function Section3() {
         <div className="flex flex-col items-center justify-center">
           <div className="group relative w-3/4 overflow-hidden rounded-[20px] border border-white/15 p-8 shadow-2xl">
             <Image
-              src="/images/Macbook-dash.webp"
+              src="/images/dash.png"
               alt="sec3"
               width={1000}
               height={1000}

@@ -37,7 +37,7 @@ export default function Section4() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 py-8 lg:py-16 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           {/* Carte 1 */}
-          <div className="group bg-gradient-to-br from-noir-500/20 to-noir-700/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-tertiary-400/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl">
+          <div className="group bg-gradient-to-br from-noir-800/20 to-noir-800/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-tertiary-400/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400 to-tertiary-500 rounded-2xl flex items-center justify-center shadow-lg">
                 <FaClock size={20} className="text-white" />
@@ -54,7 +54,7 @@ export default function Section4() {
           </div>
 
           {/* Carte 2 */}
-          <div className="group bg-gradient-to-br from-noir-500/20 to-noir-700/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-tertiary-400/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl">
+          <div className="group bg-gradient-to-br from-noir-800/20 to-noir-800/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-tertiary-400/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400 to-tertiary-500 rounded-2xl flex items-center justify-center shadow-lg">
                 <FaBlackTie size={20} className="text-white" />
@@ -70,7 +70,7 @@ export default function Section4() {
           </div>
 
           {/* Carte 3 */}
-          <div className="group bg-gradient-to-br from-noir-500/20 to-noir-700/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-tertiary-400/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl">
+          <div className="group bg-gradient-to-br from-noir-800/20 to-noir-800/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-tertiary-400/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400 to-tertiary-500 rounded-2xl flex items-center justify-center shadow-lg">
                 <FaDatabase size={20} className="text-white" />
@@ -86,7 +86,7 @@ export default function Section4() {
           </div>
 
           {/* Carte 4 */}
-          <div className="group bg-gradient-to-br from-noir-500/20 to-noir-700/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-tertiary-400/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl">
+          <div className="group bg-gradient-to-br from-noir-800/20 to-noir-800/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-tertiary-400/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400 to-tertiary-500 rounded-2xl flex items-center justify-center shadow-lg">
                 <FaUserClock size={20} className="text-white" />

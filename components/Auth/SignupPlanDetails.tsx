@@ -16,7 +16,7 @@ const plans = {
   BUSINESS: {
     name: "Business", price: "59,99 €", audience: "Réservé aux salons", icon: Building2,
     description: "Un espace commun pour organiser votre salon et accompagner toute votre équipe.",
-    features: ["Toutes les fonctionnalités Pro", "Nombre de tatoueurs illimité", "Gestion du stock", "Statistiques détaillées", "Assistance prioritaire", "Formations incluses"],
+    features: ["Toutes les fonctionnalités Pro", "4 tatoueurs ou plus", "Gestion du stock", "Statistiques détaillées", "Assistance prioritaire", "Formations incluses"],
   },
 } as const;
 

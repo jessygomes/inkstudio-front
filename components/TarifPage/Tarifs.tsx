@@ -1,300 +1,36 @@
-/* eslint-disable react/no-unescaped-entities */
-"use client";
+﻿"use client";
 
-import Link from "next/link";
+import DashboardButton from "@/components/Shared/DashboardButton";
 import { useSession } from "next-auth/react";
-import { FaCheck, FaCrown, FaRocket, FaUsers } from "react-icons/fa";
+import { ArrowUpRight, Building2, Check, Gift, Globe, PenTool, Users, CreditCard } from "lucide-react";
+import s from "./PricingCards.module.css";
 
-type DisplayPlan = {
-  id: "FREE" | "PRO" | "BUSINESS";
-  name: string;
-  subtitle: string;
-  price: string;
-  period: string;
-  description: string;
-  highlight?: string;
-  icon: React.ReactNode;
-  features: string[];
-  popular: boolean;
-  cta: string;
-  color: "blue" | "tertiary" | "purple";
-};
+const plans = [
+  { id: "FREE", name: "Free", audience: "Votre présence en ligne", badge: "Pour démarrer", price: "0", description: "Faites découvrir votre univers et donnez à votre activité sa place en ligne.", trial: "Gratuit, tout simplement.", seats: "Votre vitrine professionnelle", inheritance: "L’essentiel pour être visible", Icon: Globe, features: ["Profil public professionnel", "Portfolio d’images", "Flashs", "Produits & services", "Lien direct de contact"], cta: "Commencer gratuitement" },
+  { id: "PRO", name: "Pro", audience: "Tatoueur indépendant", badge: "Le choix des indépendants", price: "29,99", description: "Un espace pour organiser vos journées et accompagner chacun de vos clients.", trial: "3 mois offerts à l’inscription", seats: "1 tatoueur", inheritance: "Tout Free, et vos outils de gestion", Icon: PenTool, features: ["Réservation en ligne", "Gestion clients illimitée", "Gestion du stock", "Traçabilité produit par rendez-vous", "Statistiques de performance"], cta: "Choisir Pro" },
+  { id: "BUSINESS", name: "Business", audience: "Salon & collectif d’artistes", badge: "La force du collectif", price: "59,99", description: "Réunissez vos artistes et coordonnez la vie du salon dans un même espace.", trial: "60 jours offerts à l’inscription", seats: "4 tatoueurs ou plus", inheritance: "Tout Pro, et la gestion du collectif", Icon: Building2, features: ["Gestion d’équipe", "Statistiques détaillées", "Support prioritaire", "Formations incluses"], cta: "Choisir Business" },
+] as const;
 
 export default function Tarifs() {
   const { status, data: session } = useSession();
-
-  const plans: DisplayPlan[] = [
-    {
-      id: "FREE",
-      name: "Free",
-      subtitle: "Parfait pour débuter",
-      price: "0",
-      period: "mois",
-      description:
-        "Idéal pour les salons qui souhaitent simplement être visibles en ligne.",
-      icon: <FaUsers size={24} className="text-blue-400" />,
-      features: [
-        "Profil public professionnel",
-        "Portfolio d’images",
-        "Flashs",
-        "Produits & services",
-        "Lien direct de contact",
-      ],
-      popular: false,
-      cta: "Commencer gratuitement",
-      color: "blue",
-    },
-    {
-      id: "PRO",
-      name: "Pro",
-      subtitle: "Le plus populaire",
-      price: "29,99",
-      period: "mois",
-      description:
-        "Idéal pour les tatoueurs indépendants qui démarrent leur activité et veulent se professionnaliser.",
-      highlight: "3 mois offerts dès l’inscription, sans carte bancaire.",
-      icon: <FaCrown size={24} className="text-tertiary-400" />,
-      features: [
-        "3 mois offerts dès l’inscription",
-        "1 tatoueur",
-        "Réservation en ligne",
-        "Gestion clients illimitée",
-        "Gestion du stock",
-        "Traçabilité produit par RDV",
-        "Profil public professionnel",
-        "Statistiques de performance",
-      ],
-      popular: true,
-      cta: "Souscrire au plan Pro",
-      color: "tertiary",
-    },
-    {
-      id: "BUSINESS",
-      name: "Business",
-      subtitle: "Pour les grandes structures",
-      price: "59,99",
-      period: "mois",
-      description:
-        "Solution complète pour les salons avec plusieurs artistes et une gestion avancée.",
-      highlight: "Réservé aux salons · 60 jours offerts, sans carte bancaire",
-      icon: <FaRocket size={24} className="text-purple-400" />,
-      features: [
-        "Tatoueurs illimités",
-        "Gestion d'équipe",
-        "Tout du plan Pro",
-        "Statistiques détaillées",
-        "Support prioritaire",
-        "Formations incluses",
-      ],
-      popular: false,
-      cta: "Choisir Business",
-      color: "purple",
-    },
-  ];
-
-  return (
-    <section className="py-20 sm:py-28 relative overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-8 max-w-7xl relative z-10">
-        {/* Header moderne */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-two font-bold text-white mb-6">
-            Nos formules d'abonnement
-          </h2>
-          <p className="text-xl text-white/70 font-one max-w-3xl mx-auto leading-relaxed">
-            Choisissez la solution qui correspond à votre salon et faites
-            évoluer votre abonnement selon vos besoins
-          </p>
-        </div>
-
-        {/* Grille des tarifs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {plans.map((plan, index) => {
-            const isFreePlan = plan.id === "FREE";
-            const canChoosePlan = isFreePlan || status !== "authenticated" ||
-              (plan.id === "BUSINESS" ? session?.user?.role === "user_salon" : session?.user?.role === "user_tatoueur");
-            const isActionEnabled = canChoosePlan;
-            const ctaLabel = status === "authenticated" ? "Gérer mon abonnement" : plan.cta;
-            const ctaClasses = `block w-full py-2 px-6 rounded-3xl text-center font-one font-semibold transition-all duration-300 ${
-              isActionEnabled
-                ? "hover:scale-105"
-                : "cursor-not-allowed opacity-70"
-            } ${
-              plan.popular
-                ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white shadow-lg"
-                : "border border-white/20 text-white"
-            } ${
-              isActionEnabled
-                ? plan.popular
-                  ? "hover:from-tertiary-500 hover:to-tertiary-600"
-                  : "hover:bg-white/10"
-                : ""
-            }`;
-
-            return (
-              <div
-                key={index}
-                className={`relative group ${
-                  plan.popular
-                    ? "bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/10 border-2 border-tertiary-400/30"
-                    : "bg-gradient-to-br from-noir-600/30 to-noir-800/30 border border-white/10"
-                } backdrop-blur-xl rounded-3xl p-8 transition-all duration-500 hover:transform hover:scale-[1.02] hover:border-tertiary-400/40`}
-              >
-                {/* Badge populaire */}
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white px-6 py-2 rounded-full text-sm font-bold">
-                      ⭐ Recommandé
-                    </div>
-                  </div>
-                )}
-
-                {/* Header du plan */}
-                <div className="text-center mb-8">
-                  <div className="flex justify-center mb-4">
-                    <div
-                      className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
-                        plan.color === "tertiary"
-                          ? "bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20"
-                          : plan.color === "purple"
-                            ? "bg-gradient-to-br from-purple-500/20 to-purple-600/20"
-                            : "bg-gradient-to-br from-blue-500/20 to-blue-600/20"
-                      }`}
-                    >
-                      {plan.icon}
-                    </div>
-                  </div>
-
-                  <h3 className="text-2xl font-bold text-white font-two mb-2">
-                    {plan.name}
-                  </h3>
-                  <p
-                    className={`text-sm font-semibold mb-4 ${
-                      plan.popular ? "text-tertiary-400" : "text-white/60"
-                    }`}
-                  >
-                    {plan.subtitle}
-                  </p>
-
-                  {plan.highlight && (
-                    <p className="mb-4 rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10 px-4 py-3 text-sm font-semibold text-tertiary-400 uppercase">
-                      {plan.highlight}
-                    </p>
-                  )}
-
-                  <div className="mb-4">
-                    {plan.price === "Sur mesure" ? (
-                      <div className="text-3xl font-bold text-white font-two">
-                        Sur mesure
-                      </div>
-                    ) : (
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-4xl font-bold text-white font-two">
-                          {plan.price}€
-                        </span>
-                        <span className="text-white/60 font-one">
-                          /{plan.period}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  <p className="text-white/70 font-one text-sm leading-relaxed">
-                    {plan.description}
-                  </p>
-                </div>
-
-                {/* Liste des fonctionnalités */}
-                <div className="space-y-4 mb-8">
-                  {plan.features.map((feature, featureIndex) => (
-                    <div key={featureIndex} className="flex items-start gap-3">
-                      <div
-                        className={`w-5 h-5 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0 ${
-                          plan.popular ? "bg-tertiary-400/20" : "bg-white/10"
-                        }`}
-                      >
-                        <FaCheck
-                          size={12}
-                          className={
-                            plan.popular ? "text-tertiary-400" : "text-white/70"
-                          }
-                        />
-                      </div>
-                      <span className="text-white/90 font-one text-sm">
-                        {feature}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {canChoosePlan ? (
-                  <Link
-                    href={status === "authenticated" ? (isFreePlan ? "/dashboard" : "/parametres#facturation") : isFreePlan ? "/inscription" : "/inscription?callbackUrl=" + encodeURIComponent("/tarification?checkout=" + plan.id)}
-                    className={ctaClasses}
-                  >{ctaLabel}</Link>
-                ) : (
-                  <button type="button" className={ctaClasses} disabled>{plan.id === "BUSINESS" ? "Réservé aux comptes salon" : "Réservé aux indépendants"}</button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Section FAQ/Informations */}
-        <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl rounded-3xl p-8 sm:p-12 border border-white/10">
-          <div className="max-w-4xl mx-auto">
-            <h3 className="text-2xl sm:text-3xl font-bold text-white font-two text-center mb-8">
-              Questions fréquentes
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h4 className="text-lg font-bold text-white font-two mb-3">
-                  Puis-je changer de formule ?
-                </h4>
-                <p className="text-white/70 font-one text-sm leading-relaxed">
-                  Oui, vous pouvez upgrader ou downgrader votre abonnement à
-                  tout moment depuis votre espace client.
-                </p>
-              </div>
-
-              <div>
-                <h4 className="text-lg font-bold text-white font-two mb-3">
-                  Y a-t-il un engagement ?
-                </h4>
-                <p className="text-white/70 font-one text-sm leading-relaxed">
-                  Aucun engagement requis. Vous pouvez annuler votre abonnement
-                  à tout moment sans frais.
-                </p>
-              </div>
-
-              <div>
-                <h4 className="text-lg font-bold text-white font-two mb-3">
-                  Le support est-il inclus ?
-                </h4>
-                <p className="text-white/70 font-one text-sm leading-relaxed">
-                  Oui, tous nos plans incluent un support technique.
-                </p>
-              </div>
-
-              <div>
-                <h4 className="text-lg font-bold text-white font-two mb-3">
-                  Mes données sont-elles sécurisées ?
-                </h4>
-                <p className="text-white/70 font-one text-sm leading-relaxed">
-                  Toutes vos données sont chiffrées et sauvegardées
-                  quotidiennement sur des serveurs sécurisés.
-                </p>
-              </div>
-            </div>
-
-            <div className="text-center mt-8 p-6 bg-white/5 rounded-2xl">
-              <p className="text-white tracking-widest font-one font-semibold">
-                Pro indépendant : 3 mois offerts. Business salon : 60 jours offerts. Sans carte bancaire.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+  return <section id="formules" className={s.wrap} aria-label="Formules d’abonnement">
+    <div className={s.plans}>{plans.map(plan => {
+      const isFree = plan.id === "FREE";
+      const allowed = isFree || status !== "authenticated" || (plan.id === "BUSINESS" ? session?.user?.role === "user_salon" : session?.user?.role === "user_tatoueur");
+      const href = status === "authenticated" ? (isFree ? "/dashboard" : "/parametres#facturation") : isFree ? "/inscription" : "/inscription?callbackUrl=" + encodeURIComponent("/tarification?checkout=" + plan.id);
+      const variant = plan.id === "PRO" ? "primary" : "secondary";
+      const [whole, decimals] = plan.price.split(",");
+      const Icon = plan.Icon;
+      return <article key={plan.id} className={`${s.plan} ${plan.id === "PRO" ? s.pro : plan.id === "BUSINESS" ? s.business : s.free}`}>
+        <div className={s.topline}><span className={s.planIcon}><Icon size={21} strokeWidth={1.5} aria-hidden="true" /></span><span className={s.badge}>{plan.badge}</span></div>
+        <header className={s.heading}><span>{plan.audience}</span><h2>{plan.name}</h2><p>{plan.description}</p></header>
+        <div className={s.priceBlock}><p className={s.price} aria-label={`${plan.price} euros par mois`}><strong>{whole}</strong>{decimals && <span className={s.decimals}>,{decimals}</span>}<span className={s.currency}>€</span><span className={s.period}>/ mois</span></p><p className={s.priceCaption}>{isFree ? "Pour présenter votre activité" : "Après la période offerte"}</p></div>
+        <div className={s.trial}><Gift size={16} aria-hidden="true" /><span>{plan.trial}</span></div>
+        <div className={s.cta}>{allowed ? <DashboardButton href={href} variant={variant} className="w-full py-3">{status === "authenticated" ? "Gérer mon abonnement" : plan.cta}<ArrowUpRight size={16} aria-hidden="true" /></DashboardButton> : <DashboardButton disabled variant={variant} className="w-full py-3">{plan.id === "BUSINESS" ? "Réservé aux comptes salon" : "Réservé aux indépendants"}</DashboardButton>}</div>
+        <p className={s.paymentNote}>{isFree ? "Sans abonnement payant" : <><CreditCard size={12} aria-hidden="true" />Sans carte bancaire pour démarrer</>}</p>
+        <div className={s.includes}><p className={s.seats}><Users size={16} aria-hidden="true" />{plan.seats}</p><h3>{plan.inheritance}</h3><ul>{plan.features.map(feature => <li key={feature}><Check size={15} aria-hidden="true" /><span>{feature}</span></li>)}</ul></div>
+      </article>;
+    })}</div>
+    <p className={s.billingNote}>Abonnements mensuels · Sans engagement · Support inclus</p>
+  </section>;
 }

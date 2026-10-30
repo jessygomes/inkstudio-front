@@ -19,6 +19,14 @@ export default function GoogleAnalytics({
   const { analyticsConsent } = useCookieConsent();
 
   useEffect(() => {
+    if (!measurementId) return;
+    const analyticsWindow = window as unknown as Record<string, unknown>;
+    analyticsWindow[`ga-disable-${measurementId}`] = !analyticsConsent;
+    if (window.gtag) {
+      window.gtag("consent", "update", {
+        analytics_storage: analyticsConsent ? "granted" : "denied",
+      });
+    }
     if (analyticsConsent && measurementId && typeof window !== "undefined") {
       // Vérifier si GA4 n'est pas déjà chargé
       if (document.querySelector(`script[src*="${measurementId}"]`)) {

@@ -17,7 +17,7 @@ export default function Section5() {
           <div className="absolute -inset-3 rounded-[34px] bg-gradient-to-br from-white/15 via-white/5 to-transparent opacity-80 blur-xl" />
 
           <div className="relative rounded-[30px] border border-white/20 bg-gradient-to-br from-white/12 to-white/4 p-2.5 shadow-[0_24px_60px_rgba(0,0,0,0.5)] backdrop-blur-md">
-            <div className="overflow-hidden rounded-[24px] border border-white/15 bg-noir-700/30">
+            <div className="overflow-hidden rounded-[24px] border border-white/15 bg-noir-800/30">
               <Image
                 src="/images/iphone_profil.webp"
                 alt="Application INKERA sur mobile"
@@ -60,7 +60,7 @@ export default function Section5() {
 
         {/* Contenu avec design moderne en gardant la structure Section3 */}
         <div className="px-4 sm:px-20 relative z-10">
-          <div className="bg-gradient-to-br from-noir-500/20 to-noir-700/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/10 mb-4 sm:mb-6">
+          <div className="bg-gradient-to-br from-noir-800/20 to-noir-800/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/10 mb-4 sm:mb-6">
             <p className="text-white/90 font-one text-sm sm:text-base leading-relaxed">
               INKERA Studio propose une plateforme publique accessible à tous,
               où les utilisateurs peuvent{" "}
@@ -71,7 +71,7 @@ export default function Section5() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-noir-500/20 to-noir-700/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/10">
+          <div className="bg-gradient-to-br from-noir-800/20 to-noir-800/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/10">
             <p className="text-white/90 font-one text-sm sm:text-base leading-relaxed">
               Chaque salon dispose d'un{" "}
               <span className="font-bold text-tertiary-400">

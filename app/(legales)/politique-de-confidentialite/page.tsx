@@ -1,3 +1,5 @@
+import LegalPage from "@/components/Legal/LegalPage";
+import s from "@/components/Legal/LegalPage.module.css";
 import React from "react";
 import {
   FaShieldAlt,
@@ -8,8 +10,6 @@ import {
   FaLock,
 } from "react-icons/fa";
 import type { Metadata } from "next";
-import Header from "@/components/Shared/Header";
-import Footer from "@/components/Shared/Footer/Footer";
 import CookiePreferences from "@/components/Cookies/CookiePreferences";
 
 export const metadata: Metadata = {
@@ -30,59 +30,11 @@ export const metadata: Metadata = {
 const POLICY_UPDATED_AT = "23 octobre 2026";
 
 export default function PolitiqueDeConfidentialite() {
-  return (
-    <>
-      <div className="fixed backdrop-blur-2xl top-0 left-0 w-full z-50">
-        <Header />
-      </div>
-      <div className="min-h-screen bg-gradient-to-b from-noir-700 to-noir-700">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-noir-700 to-noir-800 py-20 sm:pt-28 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-tertiary-400/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-tertiary-500/3 rounded-full blur-3xl"></div>
+  return <LegalPage kind="privacy" title="Votre vie privée." accent="Notre cadre de confiance." description="Données personnelles, droits et cookies : retrouvez les informations sur leur traitement par INKERA Studio." sections={[{"id":"article-01","title":"Introduction"},{"id":"article-02","title":"Responsable de traitement"},{"id":"article-03","title":"Données collectées"},{"id":"article-04","title":"Connexion Instagram et messagerie unifiée"},{"id":"article-05","title":"Finalités du traitement"},{"id":"article-06","title":"Bases légales du traitement"},{"id":"article-07","title":"Destinataires et prestataires"},{"id":"article-08","title":"Gestion des cookies"},{"id":"article-09","title":"Vos droits"},{"id":"article-10","title":"Sécurité des données"},{"id":"article-11","title":"Durée de conservation"},{"id":"article-12","title":"Contact et réclamations"}]}>
 
-          <div className="container mx-auto px-4 sm:px-8 max-w-4xl relative z-10">
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 bg-tertiary-500/10 border border-tertiary-400/20 rounded-full px-4 py-2 mb-6">
-                <FaShieldAlt size={16} className="text-tertiary-400" />
-                <span className="text-tertiary-400 font-one text-sm font-semibold">
-                  Protection des Données
-                </span>
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-two uppercase text-white font-bold leading-tight mb-6">
-                Politique de{" "}
-                <span
-                  style={{
-                    background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  Confidentialité
-                </span>
-              </h1>
-
-              <div className="w-24 h-1 bg-gradient-to-r from-tertiary-400 to-tertiary-500 rounded-full mx-auto mb-8"></div>
-
-              <p className="text-xl text-white/70 font-one leading-relaxed max-w-3xl mx-auto">
-                Votre vie privée est notre priorité. Découvrez comment{" "}
-                <span className="text-tertiary-400 font-semibold">
-                  Inkera Studio
-                </span>{" "}
-                protège et traite vos données personnelles
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Contenu principal */}
-        <section className="py-16">
-          <div className="container mx-auto px-4 sm:px-8 max-w-5xl">
-            <div className="space-y-12">
               {/* Introduction */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-01" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Introduction
                 </h2>
 
@@ -104,22 +56,22 @@ export default function PolitiqueDeConfidentialite() {
                     des salons ou artistes qui utilisent ses outils de gestion.
                   </p>
 
-                  <div className="bg-white/5 rounded-2xl p-6 mt-6">
+                  <div className="bg-white/5 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Dernière mise à jour
                     </h3>
                     <p>{POLICY_UPDATED_AT}</p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Responsable de traitement */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-02" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaUserShield size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Responsable de traitement
                   </h2>
                 </div>
@@ -154,22 +106,22 @@ export default function PolitiqueDeConfidentialite() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Données collectées */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-03" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaDatabase size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Données collectées
                   </h2>
                 </div>
 
                 <div className="space-y-6 text-white/80 font-one leading-relaxed">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Données d&apos;identification
                       </h3>
@@ -182,7 +134,7 @@ export default function PolitiqueDeConfidentialite() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Données professionnelles
                       </h3>
@@ -195,7 +147,7 @@ export default function PolitiqueDeConfidentialite() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Données de connexion
                       </h3>
@@ -208,7 +160,7 @@ export default function PolitiqueDeConfidentialite() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Informations sensibles (si renseignées)
                       </h3>
@@ -229,15 +181,15 @@ export default function PolitiqueDeConfidentialite() {
                     dossiers de ses clients.
                   </p>
                 </div>
-              </div>
+              </section>
 
               {/* Messagerie Instagram */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-04" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaDatabase size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Connexion Instagram et messagerie unifiée
                   </h2>
                 </div>
@@ -251,7 +203,7 @@ export default function PolitiqueDeConfidentialite() {
                     messagerie Inkera, ainsi qu&apos;à répondre aux messages.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Données du compte connecté
                       </h3>
@@ -262,7 +214,7 @@ export default function PolitiqueDeConfidentialite() {
                         chiffrée.
                       </p>
                     </div>
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Données des conversations
                       </h3>
@@ -294,15 +246,15 @@ export default function PolitiqueDeConfidentialite() {
                     Meta.
                   </p>
                 </div>
-              </div>
+              </section>
 
               {/* Finalités du traitement */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
+              <section id="article-05" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaEye size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Finalités du traitement
                   </h2>
                 </div>
@@ -314,7 +266,7 @@ export default function PolitiqueDeConfidentialite() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Gestion de compte
                       </h3>
@@ -324,7 +276,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Réservations
                       </h3>
@@ -334,7 +286,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Communication
                       </h3>
@@ -346,7 +298,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Amélioration du service
                       </h3>
@@ -356,7 +308,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Obligations légales
                       </h3>
@@ -366,7 +318,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Sécurité
                       </h3>
@@ -377,17 +329,17 @@ export default function PolitiqueDeConfidentialite() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Bases légales */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-06" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Bases légales du traitement
                 </h2>
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Exécution du contrat
                       </h3>
@@ -398,7 +350,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Consentement
                       </h3>
@@ -411,7 +363,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Intérêt légitime
                       </h3>
@@ -421,7 +373,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Obligation légale
                       </h3>
@@ -432,11 +384,11 @@ export default function PolitiqueDeConfidentialite() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Destinataires et prestataires */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-07" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Destinataires et prestataires
                 </h2>
 
@@ -463,15 +415,15 @@ export default function PolitiqueDeConfidentialite() {
                     d&apos;adéquation ou des clauses contractuelles types.
                   </p>
                 </div>
-              </div>
+              </section>
 
               {/* Cookies */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-08" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaCookieBite size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Gestion des cookies
                   </h2>
                 </div>
@@ -484,7 +436,7 @@ export default function PolitiqueDeConfidentialite() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Cookies essentiels
                       </h3>
@@ -494,7 +446,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Cookies analytiques
                       </h3>
@@ -506,7 +458,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Cookies marketing
                       </h3>
@@ -517,7 +469,7 @@ export default function PolitiqueDeConfidentialite() {
                     </div>
                   </div>
 
-                  <div className="bg-tertiary-500/10 border border-tertiary-400/20 rounded-2xl p-6 mt-6">
+                  <div className="bg-tertiary-500/10 border border-tertiary-400/20 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Gestion de vos préférences
                     </h3>
@@ -533,15 +485,15 @@ export default function PolitiqueDeConfidentialite() {
                     <CookiePreferences />
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Vos droits */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
+              <section id="article-09" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaLock size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Vos droits
                   </h2>
                 </div>
@@ -553,7 +505,7 @@ export default function PolitiqueDeConfidentialite() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Droit d&apos;accès
                       </h3>
@@ -563,7 +515,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Droit de rectification
                       </h3>
@@ -573,7 +525,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Droit à l&apos;effacement
                       </h3>
@@ -583,7 +535,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Droit à la portabilité
                       </h3>
@@ -593,7 +545,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Droit d&apos;opposition
                       </h3>
@@ -603,7 +555,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
                         Droit de limitation
                       </h3>
@@ -614,7 +566,7 @@ export default function PolitiqueDeConfidentialite() {
                     </div>
                   </div>
 
-                  <div className="bg-white/5 rounded-2xl p-6 mt-6">
+                  <div className="bg-white/5 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Comment exercer vos droits ?
                     </h3>
@@ -628,11 +580,11 @@ export default function PolitiqueDeConfidentialite() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Sécurité */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-10" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Sécurité des données
                 </h2>
 
@@ -645,7 +597,7 @@ export default function PolitiqueDeConfidentialite() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Chiffrement
                       </h3>
@@ -656,7 +608,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Authentification
                       </h3>
@@ -666,7 +618,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Surveillance
                       </h3>
@@ -676,7 +628,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Accès limité
                       </h3>
@@ -687,11 +639,11 @@ export default function PolitiqueDeConfidentialite() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Conservation */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-11" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Durée de conservation
                 </h2>
 
@@ -704,7 +656,7 @@ export default function PolitiqueDeConfidentialite() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Comptes actifs
                       </h3>
@@ -715,7 +667,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Données de facturation
                       </h3>
@@ -725,7 +677,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Données sensibles des dossiers clients
                       </h3>
@@ -736,7 +688,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Logs de connexion
                       </h3>
@@ -747,7 +699,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6 md:col-span-2">
+                    <div className="bg-white/5 rounded-xl p-5 md:col-span-2">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Messages et contacts Instagram
                       </h3>
@@ -762,11 +714,11 @@ export default function PolitiqueDeConfidentialite() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Contact */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-12" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Contact et réclamations
                 </h2>
 
@@ -777,7 +729,7 @@ export default function PolitiqueDeConfidentialite() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Contact pour la protection des données
                       </h3>
@@ -786,7 +738,7 @@ export default function PolitiqueDeConfidentialite() {
                       </p>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Autorité de contrôle
                       </h3>
@@ -802,10 +754,10 @@ export default function PolitiqueDeConfidentialite() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Modifications */}
-              <div className="text-center py-8">
+              <div className={s.updated}>
                 <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10 max-w-3xl mx-auto">
                   <h3 className="text-lg font-bold text-white font-two mb-4">
                     Modifications de cette politique
@@ -824,11 +776,6 @@ export default function PolitiqueDeConfidentialite() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-      </div>
-      <Footer />
-    </>
-  );
+
+  </LegalPage>;
 }

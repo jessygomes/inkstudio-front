@@ -1,10 +1,13 @@
-"use client";
+﻿"use client";
+
 import { createContext, useContext, useEffect, useState } from "react";
 
+type CookiePreferences = { analytics: boolean; marketing: boolean };
 interface CookieConsentContextType {
   hasConsent: boolean;
   analyticsConsent: boolean;
   marketingConsent: boolean;
+  savePreferences: (preferences: CookiePreferences) => void;
   acceptAll: () => void;
   acceptAnalytics: () => void;
   acceptMarketing: () => void;
@@ -12,139 +15,44 @@ interface CookieConsentContextType {
   showBanner: boolean;
   hideBanner: () => void;
 }
-
-const CookieConsentContext = createContext<
-  CookieConsentContextType | undefined
->(undefined);
+const CookieConsentContext = createContext<CookieConsentContextType | undefined>(undefined);
 
 export function useCookieConsent() {
   const context = useContext(CookieConsentContext);
-  if (!context) {
-    throw new Error(
-      "useCookieConsent must be used within CookieConsentProvider"
-    );
-  }
+  if (!context) throw new Error("useCookieConsent must be used within CookieConsentProvider");
   return context;
 }
 
-interface CookieConsentProviderProps {
-  children: React.ReactNode;
-}
-
-export function CookieConsentProvider({
-  children,
-}: CookieConsentProviderProps) {
+export function CookieConsentProvider({ children }: { children: React.ReactNode }) {
   const [hasConsent, setHasConsent] = useState(false);
   const [analyticsConsent, setAnalyticsConsent] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Vérifier le consentement existant au chargement
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const consent = localStorage.getItem("inkera_cookie_consent");
-      const analyticsConsentStored =
-        localStorage.getItem("inkera_analytics_consent") === "true";
-      const marketingConsentStored =
-        localStorage.getItem("inkera_marketing_consent") === "true";
-
-      if (consent) {
-        setHasConsent(true);
-        setAnalyticsConsent(analyticsConsentStored);
-        setMarketingConsent(marketingConsentStored);
-        setShowBanner(false);
-      } else {
-        // Afficher la bannière si aucun consentement n'a été donné
-        setShowBanner(true);
-      }
-
-      setIsLoaded(true);
-    }
+    const consent = localStorage.getItem("inkera_cookie_consent");
+    setHasConsent(Boolean(consent));
+    setAnalyticsConsent(Boolean(consent) && localStorage.getItem("inkera_analytics_consent") === "true");
+    setMarketingConsent(Boolean(consent) && localStorage.getItem("inkera_marketing_consent") === "true");
+    setShowBanner(!consent);
+    setIsLoaded(true);
   }, []);
 
-  // Injecter GA4 si consentement analytics donné
-  useEffect(() => {
-    if (analyticsConsent && typeof window !== "undefined") {
-      // Inject Google Analytics
-      const gtagScript = document.createElement("script");
-      gtagScript.async = true;
-      gtagScript.src =
-        "https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID";
-      document.head.appendChild(gtagScript);
-
-      const gtagConfigScript = document.createElement("script");
-      gtagConfigScript.innerHTML = `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'GA_MEASUREMENT_ID', {
-          cookie_flags: 'SameSite=None;Secure'
-        });
-      `;
-      document.head.appendChild(gtagConfigScript);
-    }
-  }, [analyticsConsent]);
-
-  const acceptAll = () => {
-    setHasConsent(true);
-    setAnalyticsConsent(true);
-    setMarketingConsent(true);
-    setShowBanner(false);
-
+  const savePreferences = ({ analytics, marketing }: CookiePreferences) => {
+    localStorage.setItem("inkera_analytics_consent", String(analytics));
+    localStorage.setItem("inkera_marketing_consent", String(marketing));
     localStorage.setItem("inkera_cookie_consent", "true");
-    localStorage.setItem("inkera_analytics_consent", "true");
-    localStorage.setItem("inkera_marketing_consent", "true");
-  };
-
-  const acceptAnalytics = () => {
     setHasConsent(true);
-    setAnalyticsConsent(true);
-    setShowBanner(false);
-
-    localStorage.setItem("inkera_cookie_consent", "true");
-    localStorage.setItem("inkera_analytics_consent", "true");
-    localStorage.setItem("inkera_marketing_consent", "false");
-  };
-
-  const acceptMarketing = () => {
-    setHasConsent(true);
-    setMarketingConsent(true);
-
-    localStorage.setItem("inkera_cookie_consent", "true");
-    localStorage.setItem("inkera_marketing_consent", "true");
-  };
-
-  const rejectAll = () => {
-    setHasConsent(true);
-    setAnalyticsConsent(false);
-    setMarketingConsent(false);
-    setShowBanner(false);
-
-    localStorage.setItem("inkera_cookie_consent", "true");
-    localStorage.setItem("inkera_analytics_consent", "false");
-    localStorage.setItem("inkera_marketing_consent", "false");
-  };
-
-  const hideBanner = () => {
+    setAnalyticsConsent(analytics);
+    setMarketingConsent(marketing);
     setShowBanner(false);
   };
+  const acceptAll = () => savePreferences({ analytics: true, marketing: true });
+  const rejectAll = () => savePreferences({ analytics: false, marketing: false });
+  const acceptAnalytics = () => savePreferences({ analytics: true, marketing: marketingConsent });
+  const acceptMarketing = () => savePreferences({ analytics: analyticsConsent, marketing: true });
+  const hideBanner = () => setShowBanner(false);
 
-  return (
-    <CookieConsentContext.Provider
-      value={{
-        hasConsent,
-        analyticsConsent,
-        marketingConsent,
-        acceptAll,
-        acceptAnalytics,
-        acceptMarketing,
-        rejectAll,
-        showBanner: showBanner && isLoaded,
-        hideBanner,
-      }}
-    >
-      {children}
-    </CookieConsentContext.Provider>
-  );
+  return <CookieConsentContext.Provider value={{ hasConsent, analyticsConsent, marketingConsent, savePreferences, acceptAll, acceptAnalytics, acceptMarketing, rejectAll, showBanner: showBanner && isLoaded, hideBanner }}>{children}</CookieConsentContext.Provider>;
 }

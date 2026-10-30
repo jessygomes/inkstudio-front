@@ -21,7 +21,7 @@ export default function SectionMobileAppsComingSoon() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2">
-          <article className="rounded-2xl border border-white/50 bg-gradient-to-br from-noir-500/40 to-noir-700/45 p-5 backdrop-blur-sm sm:p-6">
+          <article className="rounded-2xl border border-white/50 bg-gradient-to-br from-noir-800/40 to-noir-800/45 p-5 backdrop-blur-sm sm:p-6">
             <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-tertiary-500/20 text-xl text-tertiary-300">
               🎨
             </div>
@@ -35,7 +35,7 @@ export default function SectionMobileAppsComingSoon() {
             </p>
           </article>
 
-          <article className="rounded-2xl border border-white/50 bg-gradient-to-br from-noir-500/40 to-noir-700/45 p-5 backdrop-blur-sm sm:p-6">
+          <article className="rounded-2xl border border-white/50 bg-gradient-to-br from-noir-800/40 to-noir-800/45 p-5 backdrop-blur-sm sm:p-6">
             <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-tertiary-500/20 text-xl text-tertiary-300">
               📱
             </div>

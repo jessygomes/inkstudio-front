@@ -1,9 +1,9 @@
+import LegalPage from "@/components/Legal/LegalPage";
+import s from "@/components/Legal/LegalPage.module.css";
 /* eslint-disable react/no-unescaped-entities */
 import React from "react";
 import { FaBuilding, FaGavel, FaServer, FaShieldAlt } from "react-icons/fa";
 import type { Metadata } from "next";
-import Header from "@/components/Shared/Header";
-import Footer from "@/components/Shared/Footer/Footer";
 
 export const metadata: Metadata = {
   title: "Mentions Légales",
@@ -19,63 +19,15 @@ export const metadata: Metadata = {
 };
 
 export default function MentionsLegales() {
-  return (
-    <>
-      <div className="fixed backdrop-blur-2xl top-0 left-0 w-full z-50">
-        <Header />
-      </div>
-      <div className="min-h-screen bg-gradient-to-b from-noir-700 via-noir-600 to-noir-700">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-noir-700 to-noir-800 py-20 sm:pt-28 relative overflow-hidden">
-          {/* <div className="absolute top-0 right-0 w-80 h-80 bg-tertiary-400/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-tertiary-500/3 rounded-full blur-3xl"></div> */}
+  return <LegalPage kind="notices" title="Mentions" accent="légales." description="Les informations sur l’éditeur, l’hébergement et les responsabilités liées à INKERA Studio." sections={[{"id":"article-01","title":"Identité de l'entreprise"},{"id":"article-02","title":"Direction et responsabilité"},{"id":"article-03","title":"Hébergement et infrastructure"},{"id":"article-04","title":"Propriété intellectuelle"},{"id":"article-05","title":"Limitation de responsabilité"},{"id":"article-06","title":"Protection des données personnelles"},{"id":"article-07","title":"Droit applicable et juridiction"}]}>
 
-          <div className="container mx-auto px-4 sm:px-8 max-w-4xl relative z-10">
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 bg-tertiary-500/10 border border-tertiary-400/20 rounded-full px-4 py-2 mb-6">
-                <FaGavel size={16} className="text-tertiary-400" />
-                <span className="text-tertiary-400 font-one text-sm font-semibold">
-                  Informations Légales
-                </span>
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-two uppercase text-white font-bold leading-tight mb-6">
-                Mentions{" "}
-                <span
-                  style={{
-                    background: "linear-gradient(90deg, #ff9d00, #ff4d41)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  Légales
-                </span>
-              </h1>
-
-              <div className="w-24 h-1 bg-gradient-to-r from-tertiary-400 to-tertiary-500 rounded-full mx-auto mb-8"></div>
-
-              <p className="text-xl text-white/70 font-one leading-relaxed max-w-3xl mx-auto">
-                Informations légales et conditions d&apos;utilisation de la
-                plateforme{" "}
-                <span className="text-tertiary-400 font-semibold">
-                  Inkera Studio
-                </span>
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Contenu principal */}
-        <section className="py-16 sm:py-16">
-          <div className="container mx-auto px-4 sm:px-8 max-w-5xl">
-            <div className="space-y-12">
               {/* Identité de l'entreprise */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-01" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaBuilding size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Identité de l&apos;entreprise
                   </h2>
                 </div>
@@ -136,15 +88,15 @@ export default function MentionsLegales() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Directeur de publication */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-02" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaShieldAlt size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Direction et responsabilité
                   </h2>
                 </div>
@@ -163,15 +115,15 @@ export default function MentionsLegales() {
                     <p>Équipe Inkera Studio</p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Hébergement */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+              <section id="article-03" className={s.articleSection}>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-tertiary-500/20 to-tertiary-600/20 rounded-2xl flex items-center justify-center">
                     <FaServer size={24} className="text-tertiary-400" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white font-two">
+                  <h2 className={s.articleTitle}>
                     Hébergement et infrastructure
                   </h2>
                 </div>
@@ -203,11 +155,11 @@ export default function MentionsLegales() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Propriété intellectuelle */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-04" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Propriété intellectuelle
                 </h2>
 
@@ -228,7 +180,7 @@ export default function MentionsLegales() {
                     d&apos;Inkera Studio SAS.
                   </p>
 
-                  <div className="bg-white/5 rounded-2xl p-6 mt-6">
+                  <div className="bg-white/5 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Marques et logos
                     </h3>
@@ -240,11 +192,11 @@ export default function MentionsLegales() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Responsabilité */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-05" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Limitation de responsabilité
                 </h2>
 
@@ -265,7 +217,7 @@ export default function MentionsLegales() {
                     d&apos;y accéder.
                   </p>
 
-                  <div className="bg-white/5 rounded-2xl p-6 mt-6">
+                  <div className="bg-white/5 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Disponibilité du service
                     </h3>
@@ -278,11 +230,11 @@ export default function MentionsLegales() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Données personnelles */}
-              <div className="bg-gradient-to-br from-tertiary-500/10 to-tertiary-600/15 backdrop-blur-xl rounded-3xl p-8 border border-tertiary-400/20">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-06" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Protection des données personnelles
                 </h2>
 
@@ -295,13 +247,13 @@ export default function MentionsLegales() {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Responsable de traitement
                       </h3>
                       <p>Inkera Studio SAS</p>
                     </div>
-                    <div className="bg-white/5 rounded-2xl p-6">
+                    <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Contact DPO
                       </h3>
@@ -315,11 +267,11 @@ export default function MentionsLegales() {
                     pouvez nous contacter à l'adresse : contact@Inkera Studio.fr
                   </p>
                 </div>
-              </div>
+              </section>
 
               {/* Droit applicable */}
-              <div className="bg-gradient-to-br from-noir-600/40 to-noir-800/40 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
-                <h2 className="text-2xl font-bold text-white font-two mb-6">
+              <section id="article-07" className={s.articleSection}>
+                <h2 className={s.articleTitle}>
                   Droit applicable et juridiction
                 </h2>
 
@@ -331,7 +283,7 @@ export default function MentionsLegales() {
                     français seront seuls compétents.
                   </p>
 
-                  <div className="bg-white/5 rounded-2xl p-6 mt-6">
+                  <div className="bg-white/5 rounded-xl p-5 mt-6">
                     <h3 className="font-semibold text-tertiary-400 mb-3">
                       Médiation
                     </h3>
@@ -343,10 +295,10 @@ export default function MentionsLegales() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Dernière mise à jour */}
-              <div className="text-center py-8">
+              <div className={s.updated}>
                 <div className="inline-flex items-center gap-2 bg-tertiary-500/10 border border-tertiary-400/20 rounded-full px-6 py-3">
                   <span className="text-white/70 font-one text-sm">
                     Dernière mise à jour :{" "}
@@ -354,11 +306,6 @@ export default function MentionsLegales() {
                   </span>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-      </div>
-      <Footer />
-    </>
-  );
+
+  </LegalPage>;
 }

@@ -1,200 +1,60 @@
-"use client";
+﻿"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
-import { MdMenu, MdClose } from "react-icons/md";
+import { Menu, X, ArrowUpRight } from "lucide-react";
+import DashboardButton from "@/components/Shared/DashboardButton";
 import { ROUTES } from "@/lib/routes";
+import { useNavbarScrolled } from "./useNavbarScrolled";
 
 interface NavMobileClientProps {
   initialAuthStatus: boolean;
   links: Array<{ href: string; label: string; icon?: string }>;
 }
 
-export function NavMobileClient({
-  initialAuthStatus,
-  links,
-}: NavMobileClientProps) {
+export function NavMobileClient({ initialAuthStatus, links }: NavMobileClientProps) {
   const pathname = usePathname();
+  const isScrolled = useNavbarScrolled();
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "loading" ? initialAuthStatus : status === "authenticated" && !!session?.user && !session?.error;
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn] = useState(initialAuthStatus);
-  const navRef = useRef<HTMLDivElement>(null);
-
-  const handleOpen = () => setIsOpen(true);
-  const handleClose = () => setIsOpen(false);
-
-  const handleClickOutside = (event: MouseEvent) => {
-    if (navRef.current && !navRef.current.contains(event.target as Node)) {
-      setIsOpen(false);
-    }
-  };
+  const trigger = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const close = () => { setIsOpen(false); trigger.current?.focus(); };
 
   useEffect(() => {
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+    if (!isOpen) return;
+    closeButton.current?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setIsOpen(false); trigger.current?.focus(); }
+      if (event.key === "Tab") {
+        const controls = document.querySelectorAll<HTMLElement>('#mobile-navigation button, #mobile-navigation a');
+        const first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
     };
+    document.addEventListener("keydown", onKeyDown);
+    return () => { document.body.style.overflow = previousOverflow; document.removeEventListener("keydown", onKeyDown); };
   }, [isOpen]);
 
-  // Optionnel: écouter les changements côté client
-  useEffect(() => {
-    const handleStorageChange = () => {
-      window.location.reload();
-    };
-
-    window.addEventListener("logout", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("logout", handleStorageChange);
-    };
-  }, []);
-
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 50); // Activer le blur après 50px de scroll
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  return (
-    <nav>
-      <div
-        className={`flex items-center justify-between text-white w-full p-2 ${
-          isScrolled ? "backdrop-blur-lg rounded-2xl shadow-2xl" : "backdrop-blur-none"
-        }`}
-      >
-        <Link href={ROUTES.home} className="flex items-center gap-1">
-          <Image
-            src="/logo/logo_inline_studio_white_2.png"
-            alt="Logo"
-            width={110}
-            height={50}
-            className="w-[100px] md:w-[140px] h-auto"
-            style={{ height: "auto" }}
-          />
-        </Link>
-        <button
-          onClick={handleOpen}
-          className="text-2xl p-2 rounded-xl hover:bg-tertiary-400/15 transition-all duration-300"
-        >
-          <MdMenu size={32} className="" />
-        </button>
+  return <nav aria-label="Navigation mobile">
+    <div className={`flex items-center justify-between rounded-xl border p-3 text-white transition-colors duration-300 ${isScrolled ? "border-white/10 bg-noir-800/95 backdrop-blur-xl" : "border-transparent bg-transparent"}`}>
+      <Link href={ROUTES.home}><Image src="/logo/logo_inline_studio_white_2.png" alt="INKERA Studio · Accueil" width={120} height={40} className="h-auto w-[120px]" /></Link>
+      <button ref={trigger} type="button" onClick={() => setIsOpen(true)} aria-label="Ouvrir le menu" aria-expanded={isOpen} aria-controls="mobile-navigation" className="rounded-lg p-2 hover:bg-white/10"><Menu size={26} /></button>
+    </div>
+    {isOpen && <>
+      <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" onClick={close} aria-hidden="true" />
+      <div id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Menu de navigation" className="fixed inset-y-0 right-0 z-50 flex h-dvh w-[min(360px,100vw)] flex-col overflow-y-auto border-l border-white/10 bg-noir-800 text-white">
+        <div className="flex items-center justify-between border-b border-white/10 p-6"><span className="font-two text-sm tracking-widest">INKERA STUDIO</span><button ref={closeButton} type="button" onClick={close} aria-label="Fermer le menu" className="rounded-lg p-2 hover:bg-white/10"><X /></button></div>
+        <ul className="flex-1 space-y-3 p-6">{links.map(link => <li key={link.href} onClick={close}>{link.href.startsWith('https://') ? <DashboardButton href={link.href} variant="secondary" target="_blank" rel="noopener noreferrer" className="w-full border-cuatro-500/40 bg-cuatro-500/10">{link.label}<ArrowUpRight size={16} /></DashboardButton> : <Link href={link.href} aria-current={pathname === link.href ? "page" : undefined} className={`block rounded-xl px-4 py-3 font-two text-sm ${pathname === link.href ? "bg-tertiary-400/10 text-tertiary-400" : "text-white/75 hover:bg-white/5"}`}>{link.label}</Link>}</li>)}</ul>
+        <div className="border-t border-white/10 p-6" onClick={close}><DashboardButton href={isLoggedIn ? ROUTES.dashboard : ROUTES.connexion} className="w-full">{isLoggedIn ? "Dashboard" : "Connexion"}</DashboardButton></div>
       </div>
-
-      {/* Overlay avec blur */}
-      {isOpen && (
-        <div className="fixed inset-0 bg-noir-700/90 backdrop-blur-sm z-50 transition-opacity duration-300" />
-      )}
-
-      <div
-        ref={navRef}
-        className={`fixed top-0 right-0 z-50 w-80 h-screen bg-noir-700 backdrop-blur-xl text-white transform transition-all duration-500 ease-out ${
-          isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-        } border-l border-white/10 shadow-2xl`}
-      >
-        {/* Header moderne */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
-          <div className="flex items-center gap-3">
-          <Image
-            src="/logo/logo_inline_studio_white_2.png"
-            alt="Logo"
-            width={110}
-            height={50}
-            className="w-[170px] md:w-[140px] h-auto"
-            style={{ height: "auto" }}
-          />
-          </div>
-          <button
-            onClick={handleClose}
-            className="text-2xl p-2 rounded-xl hover:bg-tertiary-400/15 transition-all duration-300"
-          >
-            <MdClose />
-          </button>
-        </div>
-
-        {/* Navigation links modernisés */}
-        <div className="flex-1 px-6 py-8">
-          <ul className="space-y-2 font-two">
-            {links.map((link, index) => {
-              const isActive =
-                pathname === link.href ||
-                (link.href === "#cestquoi" && pathname === "/");
-
-              return (
-                <li key={index}>
-                  <Link
-                    href={
-                      link.href === "#cestquoi" && pathname !== "/"
-                        ? `/#cestquoi`
-                        : link.href
-                    }
-                    onClick={handleClose}
-                    className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 group ${
-                      isActive
-                        ? "bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/20 border border-tertiary-400/30 text-white"
-                        : "hover:bg-white/5 text-white/80 hover:text-white"
-                    }`}
-                  >
-                    <div className="flex-1">
-                      <span className="text-lg font-medium font-two tracking-wide">
-                        {link.label}
-                      </span>
-                    </div>
-                    <div
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        isActive
-                          ? "bg-tertiary-400"
-                          : "bg-transparent group-hover:bg-white/30"
-                      }`}
-                    />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        {/* Footer avec bouton connexion/dashboard modernisé */}
-        <div className="p-6 border-t border-white/10">
-          <Link
-            href={isLoggedIn ? ROUTES.dashboard : ROUTES.connexion}
-            onClick={handleClose}
-            className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-tertiary-400 to-tertiary-500 hover:from-tertiary-500 hover:to-tertiary-600 px-6 py-4 rounded-2xl transition-all duration-300 font-two font-semibold text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={
-                  isLoggedIn
-                    ? "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    : "M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                }
-              />
-            </svg>
-            {isLoggedIn ? "Dashboard" : "Connexion"}
-          </Link>
-        </div>
-      </div>
-    </nav>
-  );
+    </>}
+  </nav>;
 }

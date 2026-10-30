@@ -47,7 +47,7 @@ export const availablePlans = [
     borderColor: "border-purple-500/30",
     features: [
       "Tout du plan Studio",
-      "Tatoueurs illimités",
+      "4 tatoueurs ou plus",
       "Support prioritaire",
       "Formations incluses",
     ],

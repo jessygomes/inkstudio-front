@@ -41,7 +41,7 @@ export default function Section6() {
   };
 
   return (
-    <section className="bg-noir-700 flex flex-col py-12 sm:py-16 px-4 sm:px-8 lg:px-20">
+    <section className="bg-noir-800 flex flex-col py-12 sm:py-16 px-4 sm:px-8 lg:px-20">
       {/* Titre modernisé */}
       <div className="mb-8 sm:mb-12">
         <h2 className="text-white text-2xl sm:text-3xl font-two font-bold mb-4 text-center">
@@ -55,7 +55,7 @@ export default function Section6() {
         {faqs.map((faq, index) => (
           <div
             key={index}
-            className="bg-gradient-to-br from-noir-500/20 to-noir-700/30 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-tertiary-400/30 transition-all duration-300 overflow-hidden"
+            className="bg-gradient-to-br from-noir-800/20 to-noir-800/30 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-tertiary-400/30 transition-all duration-300 overflow-hidden"
           >
             <button
               onClick={() => toggleFAQ(index)}
