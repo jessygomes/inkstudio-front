@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MdMenu, MdClose } from "react-icons/md";
 import { QRCodeSVG } from "qrcode.react";
+import styles from "./NavbarMobile.module.css";
 // import { CgProfile } from "react-icons/cg";
 import { CiSettings } from "react-icons/ci";
 import { FaDatabase } from "react-icons/fa";
@@ -149,17 +150,18 @@ export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: stri
     : links;
 
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
     }
 
-    document.body.style.overflow = isOpen || isQrModalOpen ? "hidden" : "unset";
+    if (isOpen || isQrModalOpen) document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = previousOverflow;
     };
   }, [isOpen, isQrModalOpen]);
 
@@ -169,11 +171,12 @@ export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: stri
   }, []);
 
   useEffect(() => {
-    if (!isQrModalOpen) return;
+    if (!isQrModalOpen && !isOpen) return;
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         closeQrModal();
+        setIsOpen(false);
       }
     };
 
@@ -181,23 +184,23 @@ export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: stri
     return () => {
       window.removeEventListener("keydown", handleEscape);
     };
-  }, [isQrModalOpen]);
+  }, [isQrModalOpen, isOpen]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 50); // Activer le blur après 50px de scroll
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  const bottomLinks = [
+    { href: "/dashboard", label: "Dashboard", Icon: MdDashboard },
+    ...(!isFreePlan ? [
+      { href: "/mes-rendez-vous", label: "RDV", Icon: MdEvent },
+      { href: "/clients", label: "Clients", Icon: MdPeople },
+      { href: "/messagerie", label: "Messages", Icon: MdOutlineMessage },
+      { href: "/stocks", label: "Stocks", Icon: FaDatabase, visibility: styles.fromSmall },
+    ] : []),
+    { href: "/mon-portfolio", label: "Portfolio", Icon: MdPhotoLibrary, visibility: styles.fromMedium },
+    { href: "/mes-produits", label: "Produits", Icon: MdShoppingBag, visibility: styles.fromLarge },
+    { href: "/review", label: "Avis", Icon: MdAccountCircle, visibility: styles.fromLarge },
+  ];
+  const isRouteActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+  const isMoreActive = isOpen || isRouteActive("/parametres") || isRouteActive("/mon-compte") ||
+    filteredLinks.some(link => isRouteActive(link.href) && !bottomLinks.some(bottom => bottom.href === link.href));
 
   return (
     <>
@@ -209,7 +212,10 @@ export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: stri
       {/* Mobile Navigation Menu */}
       <div
         ref={navRef}
-        className={`fixed top-0 right-0 w-80 h-screen bg-noir-700 text-white transform transition-transform duration-300 ease-in-out ${
+        id="app-mobile-menu"
+        aria-label="Tous les accès du studio"
+        inert={!isOpen}
+        className={`${styles.drawer} transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0 z-50" : "translate-x-full -z-10"
         }`}
         style={{
@@ -217,22 +223,22 @@ export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: stri
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/20 bg-noir-600">
+        <div className={styles.drawerHeader}>
           <div className="min-w-0 flex-1"><NavbarAccountMenu placement="below" salonName={user?.salonName} onNavigate={handleClose} /></div>
           <button
             onClick={handleClose}
-            className="text-2xl hover:text-white/70 transition-colors"
+            type="button" aria-label="Fermer le menu" className={styles.closeButton}
           >
             <MdClose />
           </button>
         </div>
 
         {/* Navigation Links - Prend l'espace restant */}
-        <div className="flex flex-col h-full pb-16 bg-noir-700">
+        <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex-1 overflow-y-auto p-4">
             <ul className="flex flex-col space-y-2">
               {filteredLinks.map((link, index) => {
-                const isActive = pathname === link.href;
+                const isActive = isRouteActive(link.href);
 
                 return (
                   <li key={index}>
@@ -286,7 +292,7 @@ export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: stri
           </div>
 
           {/* Footer - Fixé en bas */}
-          <div className="p-4 text-center border-t border-white/20 bg-noir-600">
+          <div className={styles.drawerFooter}>
             <p className="text-white/50 text-xs font-one">
               Version mobile • Inkera Studio
             </p>
@@ -294,157 +300,47 @@ export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: stri
         </div>
       </div>
 
-      {/* Bottom Navigation Bar - Style App Mobile */}
-      <div data-app-mobile-nav className="fixed bottom-0 left-0 right-0 z-40 bg-noir-700/95 backdrop-blur-md border-t border-white/20">
-        <div className="flex items-center justify-around py-2 px-2 sm:px-4">
-          {/* Dashboard */}
-          <Link
-            href="/dashboard"
-            className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-              pathname === "/dashboard"
-                ? "text-tertiary-400"
-                : "text-white/70 hover:text-white active:scale-95"
-            }`}
-          >
-            <MdDashboard size={20} />
-            <span className="text-[10px] sm:text-xs font-one mt-1">
-              Dashboard
-            </span>
-          </Link>
-
-          {!isFreePlan && (
-            <>
-              {/* RDV */}
-              <Link
-                href="/mes-rendez-vous"
-                className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-                  pathname === "/mes-rendez-vous"
-                    ? "text-tertiary-400"
-                    : "text-white/70 hover:text-white active:scale-95"
-                }`}
-              >
-                <MdEvent size={20} />
-                <span className="text-[10px] sm:text-xs font-one mt-1">RDV</span>
-              </Link>
-
-              {/* Clients */}
-              <Link
-                href="/clients"
-                className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-                  pathname === "/clients"
-                    ? "text-tertiary-400"
-                    : "text-white/70 hover:text-white active:scale-95"
-                }`}
-              >
-                <MdPeople size={20} />
-                <span className="text-[10px] sm:text-xs font-one mt-1">
-                  Clients
+      <nav data-app-mobile-nav aria-label="Navigation principale mobile" className={styles.bar}>
+        <div className={styles.items}>
+          {bottomLinks.map(({ href, label, Icon, visibility }) => {
+            const isActive = !isOpen && !isQrModalOpen && isRouteActive(href);
+            const activityKind = activityKindForHref(href);
+            return (
+              <Link key={href} href={href} onClick={handleClose}
+                aria-current={isRouteActive(href) ? "page" : undefined}
+                className={[styles.item, visibility, isActive && styles.active].filter(Boolean).join(" ")}>
+                <span className={styles.icon}>
+                  <Icon size={21} aria-hidden="true" />
+                  <span className={styles.badge}>
+                    {activityKind && <ActivityBadge kind={activityKind} />}
+                    {href === "/messagerie" && <NotificationBadge count={unreadCount} label="messages non lus" />}
+                  </span>
                 </span>
+                <span className={styles.label}>{label}</span>
               </Link>
-
-              {/* Messagerie */}
-              <Link
-                href="/messagerie"
-                className={`flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-                  pathname === "/messagerie"
-                    ? "text-tertiary-400"
-                    : "text-white/70 hover:text-white active:scale-95"
-                }`}
-              >
-                <MdOutlineMessage size={20} />
-                <span className="text-[10px] sm:text-xs font-one mt-1">
-                  Messages
-                </span>
-              </Link>
-
-              {/* Stocks - visible à partir de sm (640px) */}
-              <Link
-                href="/stocks"
-                className={`hidden sm:flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-                  pathname === "/stocks"
-                    ? "text-tertiary-400"
-                    : "text-white/70 hover:text-white active:scale-95"
-                }`}
-              >
-                <FaDatabase size={18} />
-                <span className="text-[10px] sm:text-xs font-one mt-1">Stocks</span>
-              </Link>
-            </>
-          )}
-
-          {/* Portfolio - visible à partir de md (768px) */}
-          <Link
-            href="/mon-portfolio"
-            className={`hidden md:flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-              pathname === "/mon-portfolio"
-                ? "text-tertiary-400"
-                : "text-white/70 hover:text-white active:scale-95"
-            }`}
-          >
-            <MdPhotoLibrary size={20} />
-            <span className="text-[10px] sm:text-xs font-one mt-1">
-              Portfolio
-            </span>
-          </Link>
-
-          {/* Produits - visible à partir de lg (1024px) */}
-          <Link
-            href="/mes-produits"
-            className={`hidden lg:flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-              pathname === "/mes-produits"
-                ? "text-tertiary-400"
-                : "text-white/70 hover:text-white active:scale-95"
-            }`}
-          >
-            <MdShoppingBag size={20} />
-            <span className="text-[10px] sm:text-xs font-one mt-1">
-              Produits
-            </span>
-          </Link>
-
-          {/* Avis - visible à partir de lg (1024px) */}
-          <Link
-            href="/review"
-            className={`hidden lg:flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 ${
-              pathname === "/review"
-                ? "text-tertiary-400"
-                : "text-white/70 hover:text-white active:scale-95"
-            }`}
-          >
-            <MdAccountCircle size={20} />
-            <span className="text-[10px] sm:text-xs font-one mt-1">Avis</span>
-          </Link>
-
-          {/* Menu Plus */}
-          <button
-            onClick={openQrModal}
-            disabled={!qrPublicHref}
-            className="flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 text-white/70 hover:text-white active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-            title="Afficher le QR code du salon"
-          >
-            <MdQrCode size={20} />
-            <span className="text-[10px] sm:text-xs font-one mt-1">QR code</span>
+            );
+          })}
+          <button type="button" onClick={openQrModal} disabled={!qrPublicHref}
+            aria-label="Afficher le QR code du salon" aria-haspopup="dialog"
+            className={[styles.item, isQrModalOpen && styles.active].filter(Boolean).join(" ")}>
+            <span className={styles.icon}><MdQrCode size={21} aria-hidden="true" /></span>
+            <span className={styles.label}>QR code</span>
           </button>
-
-          {/* Menu Plus */}
-          <button
-            onClick={handleOpen}
-            className="flex flex-col items-center py-2 px-2 sm:px-3 rounded-lg transition-all duration-200 text-white/70 hover:text-white active:scale-95"
-          >
-            <MdMenu size={20} />
-            <span className="text-[10px] sm:text-xs font-one mt-1">Plus</span>
+          <button type="button" onClick={isOpen ? handleClose : handleOpen}
+            aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={isOpen} aria-controls="app-mobile-menu"
+            className={[styles.item, styles.more, isMoreActive && !isQrModalOpen && styles.active].filter(Boolean).join(" ")}>
+            <span className={styles.icon}>{isOpen ? <MdClose size={21} aria-hidden="true" /> : <MdMenu size={21} aria-hidden="true" />}</span>
+            <span className={styles.label}>Plus</span>
           </button>
         </div>
-
-        {/* Indicateur de page active */}
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-tertiary-500 to-tertiary-400"></div>
-      </div>
+      </nav>
 
       {isClient &&
         isQrModalOpen &&
         qrPublicHref &&
         createPortal(
-          <div className="fixed inset-0 z-[9999] flex h-[100svh] items-center justify-center bg-black/70 p-4 xl:hidden">
+          <div className="fixed inset-0 z-[9999] flex h-[100svh] items-center justify-center bg-black/70 p-4">
             <div
               className="absolute inset-0"
               onClick={closeQrModal}

@@ -1,0 +1,152 @@
+.bar {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 40;
+  border: 1px solid rgb(var(--app-ink-rgb) / 0.1);
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  background: linear-gradient(180deg, rgb(var(--app-ink-rgb) / 0.035), transparent), rgb(var(--app-panel-rgb) / 0.96);
+  box-shadow: 0 -8px 36px rgb(0 0 0 / 0.12), inset 0 1px 0 rgb(var(--app-ink-rgb) / 0.04);
+  padding: 7px max(6px, env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  backdrop-filter: blur(20px);
+}
+
+.items {
+  display: flex;
+  align-items: stretch;
+  gap: 3px;
+  max-width: 1000px;
+  margin-inline: auto;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 60px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid transparent;
+  border-radius: 17px;
+  padding: 6px 2px;
+  color: rgb(var(--app-ink-rgb) / max(58%, var(--app-muted-opacity)));
+  cursor: pointer;
+  transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 25px;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  left: 18px;
+  display: flex;
+  gap: 2px;
+}
+
+.label {
+  max-width: 100%;
+  font-family: var(--font-one);
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.more .icon {
+  border-radius: 8px;
+  background: rgb(var(--app-ink-rgb) / 0.06);
+}
+
+.active {
+  border-color: color-mix(in srgb, var(--color-tertiary-400) 22%, transparent);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--color-tertiary-400) 15%, transparent), color-mix(in srgb, var(--color-tertiary-400) 5%, transparent));
+  color: var(--app-ink);
+}
+
+.active .icon { color: color-mix(in srgb, var(--color-tertiary-400) 60%, var(--app-ink)); }
+.active .label { font-weight: 700; }
+.item:active:not(:disabled) { transform: scale(0.95); }
+.item:focus-visible, .closeButton:focus-visible { outline: 2px solid var(--color-tertiary-400); outline-offset: 2px; }
+.item:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (hover: hover) {
+  .item:hover:not(:disabled) { background-color: rgb(var(--app-ink-rgb) / 0.05); color: var(--app-ink); }
+}
+
+.fromSmall, .fromMedium, .fromLarge { display: none; }
+@media (min-width: 640px) {
+  .fromSmall { display: flex; }
+  .items { gap: 6px; }
+  .label { font-size: 11px; }
+}
+@media (min-width: 768px) { .fromMedium { display: flex; } }
+@media (min-width: 1024px) { .fromLarge { display: flex; } }
+@media (min-width: 768px) {
+  .bar { padding-top: 9px; padding-bottom: calc(9px + env(safe-area-inset-bottom)); }
+  .items { max-width: 1120px; gap: 8px; }
+  .item { min-height: 64px; gap: 6px; padding-inline: 6px; }
+  .label { font-size: 12px; }
+  .drawer { width: min(420px, 100vw); }
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(360px, 100vw);
+  height: 100dvh;
+  border-left: 1px solid rgb(var(--app-ink-rgb) / 0.1);
+  border-radius: 24px 0 0 24px;
+  background: var(--app-panel);
+  color: var(--app-ink);
+  box-shadow: -20px 0 70px rgb(0 0 0 / 0.2);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgb(var(--app-ink-rgb) / 0.08);
+  padding: 20px 16px;
+}
+
+.closeButton {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid rgb(var(--app-ink-rgb) / 0.1);
+  border-radius: 13px;
+  background: rgb(var(--app-ink-rgb) / 0.04);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.drawerFooter {
+  flex-shrink: 0;
+  border-top: 1px solid rgb(var(--app-ink-rgb) / 0.08);
+  padding: 16px;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item, .drawer { transition: none; }
+}
