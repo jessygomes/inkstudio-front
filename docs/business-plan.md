@@ -11,7 +11,7 @@
 
 Le checkout Stripe utilise actuellement `trial_period_days: 60` et demande un moyen de paiement. Cela s'applique à Business. La durée n'a pas été modifiée.
 
-L'offre de trois mois est distincte : elle concerne les indépendants en Pro. Elle ne s'applique pas automatiquement à Business. L'interface Business indique donc 60 jours d'essai, puis le tarif affiché de 89,99 €/mois. `STRIPE_PRICE_BUSINESS` est renseigné dans la configuration locale ; la configuration déployée et le prix Stripe réel n'ont pas été modifiés ni contrôlés à distance.
+L'offre de trois mois est distincte : elle concerne les indépendants en Pro. Elle ne s'applique pas automatiquement à Business. L'interface Business indique donc 60 jours d'essai, puis le tarif affiché de 95,99 €/mois. `STRIPE_PRICE_BUSINESS` est renseigné dans la configuration locale ; la configuration déployée et le prix Stripe réel n'ont pas été modifiés ni contrôlés à distance.
 
 ## Validation
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { priceFr } from "@/lib/pricing";
 import { useState, useEffect } from "react";
 import { getAdminDashboardStats } from "@/lib/queries/admin";
 import { FiTrendingUp, FiPercent } from "react-icons/fi";
@@ -158,7 +159,7 @@ export default function ConversionRates() {
                 <p className="text-sm font-bold text-white font-one">
                   Plan PRO
                 </p>
-                <p className="text-xs text-white/60">35,99€/mois</p>
+                <p className="text-xs text-white/60">{priceFr("PRO")}€/mois</p>
               </div>
             </div>
             <div className="text-right">
@@ -187,7 +188,7 @@ export default function ConversionRates() {
                 <p className="text-sm font-bold text-white font-one">
                   Plan BUSINESS
                 </p>
-                <p className="text-xs text-white/60">89,99€/mois</p>
+                <p className="text-xs text-white/60">{priceFr("BUSINESS")}€/mois</p>
               </div>
             </div>
             <div className="text-right">

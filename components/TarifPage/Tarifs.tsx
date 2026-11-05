@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { priceFr } from "@/lib/pricing";
 import DashboardButton from "@/components/Shared/DashboardButton";
 import { useSession } from "next-auth/react";
 import { ArrowUpRight, Building2, Check, Gift, Globe, PenTool, Users, CreditCard } from "lucide-react";
@@ -7,8 +8,8 @@ import s from "./PricingCards.module.css";
 
 const plans = [
   { id: "FREE", name: "Free", audience: "Votre présence en ligne", badge: "Pour démarrer", price: "0", description: "Faites découvrir votre univers et donnez à votre activité sa place en ligne.", trial: "Gratuit, tout simplement.", seats: "Votre vitrine professionnelle", inheritance: "L’essentiel pour être visible", Icon: Globe, features: ["Profil public professionnel", "Portfolio d’images", "Flashs", "Produits & services", "Lien direct de contact"], cta: "Commencer gratuitement" },
-  { id: "PRO", name: "Pro", audience: "Tatoueur indépendant", badge: "Le choix des indépendants", price: "35,99", description: "Un espace pour organiser vos journées et accompagner chacun de vos clients.", trial: "3 mois offerts à l’inscription", seats: "1 tatoueur", inheritance: "Tout Free, et vos outils de gestion", Icon: PenTool, features: ["Réservation en ligne", "Gestion clients illimitée", "Gestion du stock", "Traçabilité produit par rendez-vous", "Statistiques de performance"], cta: "Choisir Pro" },
-  { id: "BUSINESS", name: "Business", audience: "Salon & collectif d’artistes", badge: "La force du collectif", price: "89,99", description: "Réunissez vos artistes et coordonnez la vie du salon dans un même espace.", trial: "60 jours offerts à l’inscription", seats: "4 tatoueurs ou plus", inheritance: "Tout Pro, et la gestion du collectif", Icon: Building2, features: ["Gestion d’équipe", "Statistiques détaillées", "Support prioritaire", "Formations incluses"], cta: "Choisir Business" },
+  { id: "PRO", name: "Pro", audience: "Tatoueur indépendant", badge: "Le choix des indépendants", price: priceFr("PRO"), description: "Un espace pour organiser vos journées et accompagner chacun de vos clients.", trial: "3 mois offerts à l’inscription", seats: "1 tatoueur", inheritance: "Tout Free, et vos outils de gestion", Icon: PenTool, features: ["Réservation en ligne", "Gestion clients illimitée", "Gestion du stock", "Traçabilité produit par rendez-vous", "Statistiques de performance"], cta: "Choisir Pro" },
+  { id: "BUSINESS", name: "Business", audience: "Salon & collectif d’artistes", badge: "La force du collectif", price: priceFr("BUSINESS"), description: "Conçu pour gérer un salon et plusieurs artistes dans un même espace. Vous travaillez seul ? L’offre Pro est plus adaptée.", trial: "60 jours offerts à l’inscription", seats: "Plusieurs artistes, sans limite", inheritance: "Tout Pro, et la gestion du collectif", Icon: Building2, features: ["Gestion d’équipe", "Statistiques détaillées", "Support prioritaire", "Formations incluses"], cta: "Choisir Business" },
 ] as const;
 
 export default function Tarifs() {

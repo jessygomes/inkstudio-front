@@ -1,6 +1,7 @@
 // Ce fichier peut être supprimé car il n'est plus utilisé
 // La fonctionnalité a été déplacée vers la page AddOrUpdateTatoueurPage
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { priceFr } from "@/lib/pricing";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createTatoueurSchema } from "@/lib/zod/validator.schema";
@@ -336,7 +337,7 @@ export default function CreateTatoueurModal({
                           </div>
                           <div className="text-white/90">
                             <span className="font-semibold text-tertiary-400">
-                              Plan PRO (35,99€/mois)
+                              Plan PRO ({priceFr("PRO")}€/mois)
                             </span>
                             <br />
                             <span className="text-white/70">
@@ -353,7 +354,7 @@ export default function CreateTatoueurModal({
                           </div>
                           <div className="text-white/90">
                             <span className="font-semibold text-purple-400">
-                              Plan BUSINESS (89,99€/mois)
+                              Plan BUSINESS ({priceFr("BUSINESS")}€/mois)
                             </span>
                             <br />
                             <span className="text-white/70">

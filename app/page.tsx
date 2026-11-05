@@ -1,3 +1,4 @@
+import { priceDot } from "@/lib/pricing";
 import HeroSection from "@/components/Home/HeroSection";
 import HomeSections from "@/components/Home/HomeSections";
 import s from "@/components/Home/Home.module.css";
@@ -200,14 +201,14 @@ export default function Home() {
             {
               "@type": "Offer",
               name: "Plan Pro",
-              price: "35.99",
+              price: priceDot("PRO"),
               priceCurrency: "EUR",
               description: "Fonctionnalités avancées pour professionnels",
             },
             {
               "@type": "Offer",
               name: "Plan Business",
-              price: "89.99",
+              price: priceDot("BUSINESS"),
               priceCurrency: "EUR",
               description: "Solution complète pour studios",
             },

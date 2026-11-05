@@ -1,3 +1,4 @@
+import { PLAN_PRICES } from "@/lib/pricing";
 import { Subscription } from "./type";
 
 // Données des plans disponibles
@@ -22,7 +23,7 @@ export const availablePlans = [
   {
     id: "PRO",
     name: "Pro",
-    price: 35.99,
+    price: PLAN_PRICES.PRO,
     color: "text-tertiary-400",
     bgColor: "bg-tertiary-500/20",
     borderColor: "border-tertiary-500/30",
@@ -41,13 +42,13 @@ export const availablePlans = [
   {
     id: "BUSINESS",
     name: "Business",
-    price: 89.99,
+    price: PLAN_PRICES.BUSINESS,
     color: "text-purple-400",
     bgColor: "bg-purple-500/20",
     borderColor: "border-purple-500/30",
     features: [
       "Tout du plan Studio",
-      "4 tatoueurs ou plus",
+      "Plusieurs artistes, sans limite",
       "Support prioritaire",
       "Formations incluses",
     ],

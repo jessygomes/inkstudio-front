@@ -1,3 +1,4 @@
+import { priceFr } from "@/lib/pricing";
 import { Metadata } from "next";
 
 interface SEOProps {
@@ -107,7 +108,7 @@ export const seoTemplates = {
     tarification: {
       title: "Tarifs INKERA Studio | Plans Abonnement Salon Tatouage",
       description:
-        "Découvrez nos tarifs transparents pour la gestion de votre salon de tatouage. Plan Gratuit, Pro à 35,99€/mois, Business à 89,99€/mois.",
+        `Découvrez nos tarifs transparents pour la gestion de votre salon de tatouage. Plan Gratuit, Pro à ${priceFr("PRO")}€/mois, Business à ${priceFr("BUSINESS")}€/mois.`,
       keywords: ["prix logiciel tatouage", "tarif gestion salon", "abonnement"],
     },
     about: {

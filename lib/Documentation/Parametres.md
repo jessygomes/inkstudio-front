@@ -139,7 +139,7 @@ const handleConfirmationSettingChange = async (value: boolean) => {
 - Support dédié
 - Branding personnalisé
 - Intégrations avancées
-- Prix : 89,99€/mois
+- Prix : 95,99€/mois
 
 #### Affichage du plan actuel
 

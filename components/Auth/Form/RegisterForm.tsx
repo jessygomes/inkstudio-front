@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+import { priceFr } from "@/lib/pricing";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -421,19 +422,20 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                       </option>
                       {formData.role === "user_tatoueur" && (
                         <option value="PRO" className="bg-white text-black">
-                          Pro - 3 mois offerts puis 35,99€/mois
+                          Pro - 3 mois offerts puis {priceFr("PRO")}€/mois
                         </option>
                       )}
                       {formData.role === "user_salon" && (
                         <option value="BUSINESS" className="bg-white text-black">
-                          Business - 2 mois offerts puis 89,99€/mois
+                          Business - 2 mois offerts puis {priceFr("BUSINESS")}€/mois
                         </option>
                       )}
                     </select>
 
                     {formData.role !== "user_tatoueur" && (
                       <p className="text-xs text-white/70">
-                        Le plan Pro est actuellement réservé aux tatoueurs indépendants.
+                        Business est conçu pour gérer un salon et plusieurs artistes. Vous travaillez seul ?
+                        Créez plutôt un compte tatoueur indépendant avec l’offre Pro ({priceFr("PRO")}€/mois) : elle est plus adaptée.
                       </p>
                     )}
 
