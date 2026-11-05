@@ -9,12 +9,12 @@ const plans = {
     features: ["Profil public professionnel", "Portfolio d’images", "Produits et services", "Profil tatoueur principal", "Lien direct de contact"],
   },
   PRO: {
-    name: "Pro", price: "29,99 €", audience: "Réservé aux indépendants", icon: UserRound,
+    name: "Pro", price: "35,99 €", audience: "Réservé aux indépendants", icon: UserRound,
     description: "Votre activité en solo, des premiers échanges à la prise de rendez-vous.",
     features: ["Un espace pour 1 tatoueur", "Gestion de clients illimitée", "Réservation en ligne", "Profil public professionnel", "Assistance par e-mail"],
   },
   BUSINESS: {
-    name: "Business", price: "59,99 €", audience: "Réservé aux salons", icon: Building2,
+    name: "Business", price: "89,99 €", audience: "Réservé aux salons", icon: Building2,
     description: "Un espace commun pour organiser votre salon et accompagner toute votre équipe.",
     features: ["Toutes les fonctionnalités Pro", "4 tatoueurs ou plus", "Gestion du stock", "Statistiques détaillées", "Assistance prioritaire", "Formations incluses"],
   },

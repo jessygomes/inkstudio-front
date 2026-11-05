@@ -336,7 +336,7 @@ export default function CreateTatoueurModal({
                           </div>
                           <div className="text-white/90">
                             <span className="font-semibold text-tertiary-400">
-                              Plan PRO (29€/mois)
+                              Plan PRO (35,99€/mois)
                             </span>
                             <br />
                             <span className="text-white/70">
@@ -353,7 +353,7 @@ export default function CreateTatoueurModal({
                           </div>
                           <div className="text-white/90">
                             <span className="font-semibold text-purple-400">
-                              Plan BUSINESS (69€/mois)
+                              Plan BUSINESS (89,99€/mois)
                             </span>
                             <br />
                             <span className="text-white/70">

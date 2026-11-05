@@ -22,7 +22,7 @@ export const availablePlans = [
   {
     id: "PRO",
     name: "Pro",
-    price: 29.99,
+    price: 35.99,
     color: "text-tertiary-400",
     bgColor: "bg-tertiary-500/20",
     borderColor: "border-tertiary-500/30",
@@ -41,7 +41,7 @@ export const availablePlans = [
   {
     id: "BUSINESS",
     name: "Business",
-    price: 59.99,
+    price: 89.99,
     color: "text-purple-400",
     bgColor: "bg-purple-500/20",
     borderColor: "border-purple-500/30",

@@ -130,7 +130,7 @@ const handleConfirmationSettingChange = async (value: boolean) => {
 - Support prioritaire
 - Analytics avancées
 - Rappels automatiques
-- Prix : 29€/mois
+- Prix : 35,99€/mois
 
 **🏢 Plan Business (BUSINESS) :**
 
@@ -139,7 +139,7 @@ const handleConfirmationSettingChange = async (value: boolean) => {
 - Support dédié
 - Branding personnalisé
 - Intégrations avancées
-- Prix : 69€/mois
+- Prix : 89,99€/mois
 
 #### Affichage du plan actuel
 

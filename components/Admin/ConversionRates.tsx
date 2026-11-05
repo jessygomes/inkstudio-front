@@ -158,7 +158,7 @@ export default function ConversionRates() {
                 <p className="text-sm font-bold text-white font-one">
                   Plan PRO
                 </p>
-                <p className="text-xs text-white/60">29€/mois</p>
+                <p className="text-xs text-white/60">35,99€/mois</p>
               </div>
             </div>
             <div className="text-right">
@@ -187,7 +187,7 @@ export default function ConversionRates() {
                 <p className="text-sm font-bold text-white font-one">
                   Plan BUSINESS
                 </p>
-                <p className="text-xs text-white/60">79€/mois</p>
+                <p className="text-xs text-white/60">89,99€/mois</p>
               </div>
             </div>
             <div className="text-right">

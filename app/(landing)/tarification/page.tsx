@@ -7,11 +7,11 @@ import { Closing } from "@/components/Marketing/MarketingShared";
 import s from "@/components/Marketing/Marketing.module.css";
 export const metadata: Metadata = {
   title: "Tarifs et abonnements | INKERA Studio",
-  description: "Choisissez votre formule INKERA Studio : Free à 0 €, Pro à 29,99 €/mois ou Business à 59,99 €/mois. Des outils adaptés à votre activité, sans engagement.",
+  description: "Choisissez votre formule INKERA Studio : Free à 0 €, Pro à 35,99 €/mois ou Business à 89,99 €/mois. Des outils adaptés à votre activité, sans engagement.",
   alternates: { canonical: "/tarification" },
   openGraph: {
     title: "Votre activité. Votre formule. | INKERA Studio",
-    description: "Free à 0 €, Pro à 29,99 €/mois et Business à 59,99 €/mois. Comparez les formules sans engagement.",
+    description: "Free à 0 €, Pro à 35,99 €/mois et Business à 89,99 €/mois. Comparez les formules sans engagement.",
     url: "https://inkera-studio.com/tarification",
     locale: "fr_FR",
     type: "website",
@@ -37,7 +37,7 @@ const faqs = [
 ];
 export default function TarificationPage() {
   return <div className={s.page}>
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "SoftwareApplication", name: "INKERA Studio", applicationCategory: "BusinessApplication", operatingSystem: "Web", offers: [{ name: "Free", price: "0" }, { name: "Pro", price: "29.99" }, { name: "Business", price: "59.99" }].map(offer => ({ "@type": "Offer", ...offer, priceCurrency: "EUR" })) }) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "SoftwareApplication", name: "INKERA Studio", applicationCategory: "BusinessApplication", operatingSystem: "Web", offers: [{ name: "Free", price: "0" }, { name: "Pro", price: "35.99" }, { name: "Business", price: "89.99" }].map(offer => ({ "@type": "Offer", ...offer, priceCurrency: "EUR" })) }) }} />
     <div className="fixed top-0 left-0 w-full z-50">
       <Header />
     </div>

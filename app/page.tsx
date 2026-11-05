@@ -200,14 +200,14 @@ export default function Home() {
             {
               "@type": "Offer",
               name: "Plan Pro",
-              price: "29.99",
+              price: "35.99",
               priceCurrency: "EUR",
               description: "Fonctionnalités avancées pour professionnels",
             },
             {
               "@type": "Offer",
               name: "Plan Business",
-              price: "59.99",
+              price: "89.99",
               priceCurrency: "EUR",
               description: "Solution complète pour studios",
             },

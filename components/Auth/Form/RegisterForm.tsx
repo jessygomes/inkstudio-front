@@ -421,12 +421,12 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
                       </option>
                       {formData.role === "user_tatoueur" && (
                         <option value="PRO" className="bg-white text-black">
-                          Pro - 3 mois offerts puis 29,99€/mois
+                          Pro - 3 mois offerts puis 35,99€/mois
                         </option>
                       )}
                       {formData.role === "user_salon" && (
                         <option value="BUSINESS" className="bg-white text-black">
-                          Business - 2 mois offerts puis 59,99€/mois
+                          Business - 2 mois offerts puis 89,99€/mois
                         </option>
                       )}
                     </select>
