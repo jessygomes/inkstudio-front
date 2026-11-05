@@ -139,6 +139,11 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   const [listError, setListError] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const liveSocketRef = useRef<ReturnType<typeof io> | null>(null);
+  // « Le client écrit… » : affichage (user-typing reçu) et émission de notre propre frappe.
+  const [peerTyping, setPeerTyping] = useState(false);
+  const peerTypingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const conversationIdRef = useRef<string | null>(null);
+  const typingState = useRef<{ active: boolean; timer: ReturnType<typeof setTimeout> | null }>({ active: false, timer: null });
   const selectedIdRef = useRef<string | null>(null);
   selectedIdRef.current = selectedId;
   const lastSeenRef = useRef<string | null>(null);
@@ -473,7 +478,8 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
     const base = process.env.NEXT_PUBLIC_BACK_URL || process.env.NEXT_PUBLIC_API_URL;
     if (!base) return;
     const socket = io(`${base}/messaging`, {
-      auth: { token: session.accessToken }, transports: ['websocket', 'polling'],
+      // Sans tryAllTransports, un échec du websocket (proxy, réseau d'entreprise…) n'essaie jamais le polling HTTP.
+      auth: { token: session.accessToken }, transports: ['websocket', 'polling'], tryAllTransports: true,
     });
     liveSocketRef.current = socket;
     const refresh = () => {
@@ -481,22 +487,68 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
       if (selectedIdRef.current) void refreshDetail(selectedIdRef.current);
       void syncNavbarUnread();
     };
-    socket.on('new-message', refresh);
+    socket.on('new-message', (message: { conversationId?: string; sender?: { id?: string } }) => {
+      // Son auteur vient d'envoyer : il n'est plus « en train d'écrire ».
+      if (message?.conversationId === conversationIdRef.current && message.sender?.id !== userId) setPeerTyping(false);
+      refresh();
+    });
     socket.on('inbox-message-updated', refresh);
     socket.on('unread-count-updated', refresh);
+    socket.on('user-typing', (event: { conversationId?: string; userId?: string }) => {
+      if (event?.conversationId !== conversationIdRef.current || event.userId === userId) return;
+      setPeerTyping(true);
+      if (peerTypingTimer.current) clearTimeout(peerTypingTimer.current);
+      peerTypingTimer.current = setTimeout(() => setPeerTyping(false), 4000);
+    });
+    socket.on('user-stopped-typing', (event: { conversationId?: string }) => {
+      if (event?.conversationId === conversationIdRef.current) setPeerTyping(false);
+    });
     socket.on('connect', () => {
       if (selectedIdRef.current) void refreshDetail(selectedIdRef.current);
       refresh();
     });
     return () => { if (liveSocketRef.current === socket) liveSocketRef.current = null; socket.disconnect(); };
-  }, [session?.accessToken, isFree, refreshList, refreshDetail, syncNavbarUnread]);
+  }, [session?.accessToken, isFree, userId, refreshList, refreshDetail, syncNavbarUnread]);
 
   useEffect(() => {
     if (!thread?.conversationId || !isOwner) return;
     const socket = liveSocketRef.current;
-    socket?.emit('join-conversation', { conversationId: thread.conversationId });
-    return () => { socket?.emit('leave-conversation', { conversationId: thread.conversationId }); };
+    const conversationId = thread.conversationId;
+    const state = typingState.current; // même objet pendant toute la vie du composant
+    socket?.emit('join-conversation', { conversationId });
+    return () => {
+      socket?.emit('leave-conversation', { conversationId });
+      // On arrête notre indicateur et on masque celui du client pour la conversation quittée.
+      if (state.timer) clearTimeout(state.timer);
+      state.timer = null;
+      if (state.active) socket?.emit('user-stopped-typing', { conversationId });
+      state.active = false;
+      setPeerTyping(false);
+    };
   }, [thread?.conversationId, isOwner]);
+
+  useEffect(() => { conversationIdRef.current = thread?.conversationId ?? null; }, [thread?.conversationId]);
+
+  // Notre frappe : un signal au début, un arrêt après 2 s d'inactivité (comme la messagerie du site People).
+  const endTyping = useCallback(() => {
+    const state = typingState.current;
+    if (state.timer) clearTimeout(state.timer);
+    state.timer = null;
+    const conversationId = conversationIdRef.current;
+    if (state.active && conversationId) liveSocketRef.current?.emit('user-stopped-typing', { conversationId });
+    state.active = false;
+  }, []);
+
+  const handleDraftChange = (value: string) => {
+    setDraft(value);
+    const conversationId = conversationIdRef.current;
+    if (!conversationId || !isOwner || thread?.channel !== 'INKERA') return;
+    if (!value) { endTyping(); return; }
+    const state = typingState.current;
+    if (!state.active) { liveSocketRef.current?.emit('user-typing', { conversationId }); state.active = true; }
+    if (state.timer) clearTimeout(state.timer);
+    state.timer = setTimeout(endTyping, 2000);
+  };
 
   const selectedName = useMemo(() => thread && threadName(thread), [thread]);
 
@@ -527,6 +579,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
     const content = draft.trim();
     const image = selectedImage;
     const threadId = thread.id;
+    endTyping();
     void (async () => {
       setPending(true);
       try {
@@ -709,6 +762,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                         {message.attachments?.map((file) => { const link = file.fileUrl || file.url; const image = imageUrl(link, file.fileType || file.mimeType); return image ? <a className="mt-2 block" key={file.id} href={image} target="_blank" rel="noopener noreferrer"><img src={image} alt={file.fileName || 'Image jointe'} loading="lazy" className="max-h-80 w-auto max-w-full rounded-lg object-contain" /></a> : link ? <a className="mt-2 block truncate text-xs text-tertiary-400 underline" key={file.id} href={link} target="_blank" rel="noopener noreferrer">{file.fileName || "Pièce jointe"}</a> : null; })}
                       </div></article>;
                     })}
+                    {peerTyping && <p className="text-xs italic text-white/40">Le client est en train d’écrire…</p>}
                   </div>
                   {(thread.contactBlocked || thread.conversation?.projectContactPending) ? <p className="border-t border-white/10 p-4 text-sm text-white/60">{thread.contactBlocked ? "Ce contact est bloqué." : "La demande de contact doit être acceptée par le client avant de poursuivre la conversation."}</p> : isFree ? (
                     <div className="flex items-start gap-2 border-t border-white/10 bg-tertiary-400/5 p-4 text-xs leading-relaxed text-white/70"><Lock size={16} className="shrink-0 text-tertiary-400" /><span>Conversation en lecture seule : l&apos;envoi et la réception de messages sont réservés aux comptes PRO ou BUSINESS.</span></div>
@@ -721,7 +775,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                         {selectedImage && <div className="flex items-center justify-between gap-2 rounded-lg border border-tertiary-400/20 bg-tertiary-400/5 px-3 py-2 text-xs"><span className="truncate">Image : {selectedImage.name}</span><button type="button" aria-label="Retirer l'image" onClick={() => setSelectedImage(null)}><X size={14} /></button></div>}
                         <div className="flex items-end gap-2">
                           <label className={`${subtleButton} h-11 shrink-0`} title="Joindre une image"><ImagePlus size={17} /><span className="sr-only">Joindre une image</span><input type="file" className="sr-only" accept="image/*" disabled={pending || processingImage || isUploading} onChange={(event) => { setSelectedImage(event.target.files?.[0] || null); event.target.value = ""; }} /></label>
-                          <textarea ref={composerRef} aria-label="Votre réponse" value={draft} onChange={(event) => setDraft(event.target.value)} rows={1} maxLength={thread.channel === "INSTAGRAM" ? 1000 : 20000} placeholder={thread.channel === "INSTAGRAM" ? "Répondre sur Instagram…" : "Écrire un message au client…"} className={`${field} min-h-10 resize-none leading-5`} />
+                          <textarea ref={composerRef} aria-label="Votre réponse" value={draft} onChange={(event) => handleDraftChange(event.target.value)} rows={1} maxLength={thread.channel === "INSTAGRAM" ? 1000 : 20000} placeholder={thread.channel === "INSTAGRAM" ? "Répondre sur Instagram…" : "Écrire un message au client…"} className={`${field} min-h-10 resize-none leading-5`} />
                           <button type="submit" aria-label={processingImage || isUploading ? "Envoi en cours" : "Envoyer le message"} className={`${primaryButton} shrink-0`} disabled={pending || processingImage || isUploading || (!draft.trim() && !selectedImage)}><Send size={16} /><span className="hidden sm:inline">{processingImage || isUploading ? "Envoi…" : "Envoyer"}</span></button>
                         </div>
                       </form>
