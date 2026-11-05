@@ -50,13 +50,12 @@ export default function UpdateRdv({
     rdv.tatoueurId
   );
 
-  // SLOTS DISPONIBLES / PRIS / BLOQUÉS / PROPOSÉS
+  // SLOTS DISPONIBLES / PRIS / BLOQUÉS
   const [timeSlots, setTimeSlots] = useState<{ start: string; end: string }[]>(
     []
   );
   const [occupiedSlots, setOccupiedSlots] = useState<TimeSlotProps[]>([]);
   const [blockedSlots, setBlockedSlots] = useState<any[]>([]);
-  const [proposedSlots, setProposedSlots] = useState<any[]>([]);
 
   // SÉLECTION COURANTE (édition) + SÉLECTION INITIALE (celle du RDV en base)
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
@@ -193,7 +192,7 @@ export default function UpdateRdv({
     fetchBlockedSlots();
   }, [selectedTatoueur, isUserTatoueur, shouldUseGlobalAgenda, userId]);
 
-  //! FETCH timeSlots (dispos), occupiedSlots, proposedSlots (pour la journée)
+  //! FETCH timeSlots (dispos) et occupiedSlots (pour la journée)
   useEffect(() => {
     if (!showModal) return;
     const selectedDate = watchStart
@@ -204,7 +203,6 @@ export default function UpdateRdv({
       setSlotsError(null);
       setTimeSlots([]);
       setOccupiedSlots([]);
-      setProposedSlots([]);
       return;
     }
 
@@ -244,23 +242,11 @@ export default function UpdateRdv({
         const occupiedData = await occupiedRes.json();
         if (active) setOccupiedSlots(Array.isArray(occupiedData) ? occupiedData : occupiedData?.appointments || []);
 
-        // 3) créneaux déjà proposés
-        const proposeUrl = `${
-          process.env.NEXT_PUBLIC_BACK_URL
-        }/blocked-slots/propose-creneau?tatoueurId=${tatoueurScopeId}&start=${encodeURIComponent(
-          startOfDay.toISOString()
-        )}&end=${encodeURIComponent(endOfDay.toISOString())}`;
-
-        const proposedRes = await authenticatedFetch(proposeUrl);
-        if (!proposedRes.ok) throw new Error("Créneaux proposés indisponibles");
-        const proposedData = await proposedRes.json();
-        if (active) setProposedSlots(Array.isArray(proposedData) ? proposedData : []);
       } catch (err) {
         if (active) setSlotsError("Impossible de charger les disponibilités. Réessayez en sélectionnant la date.");
         console.error("Erreur fetch slots UpdateRdv:", err);
         if (active) setTimeSlots([]);
         if (active) setOccupiedSlots([]);
-        if (active) setProposedSlots([]);
       } finally {
         if (active) setSlotsLoading(false);
       }
@@ -326,16 +312,6 @@ export default function UpdateRdv({
         ? b.tatoueurId == null
         : b.tatoueurId === selectedTatoueur || b.tatoueurId === null;
       return overlaps && concernsTatoueur;
-    });
-  };
-
-  const getProposedSlot = (slotStart: string, slotEnd: string) => {
-    const s = new Date(slotStart).getTime();
-    const e = new Date(slotEnd).getTime();
-    return proposedSlots.find((p: any) => {
-      const from = new Date(p.from).getTime();
-      const to = new Date(p.to).getTime();
-      return s < to && e > from;
     });
   };
 
@@ -654,10 +630,6 @@ export default function UpdateRdv({
                       // bloqué ?
                       const blocked = isSlotBlocked(slot.start, slot.end);
 
-                      // déjà proposé ?
-                      const proposed = getProposedSlot(slot.start, slot.end);
-                      const isProposed = !!proposed;
-
                       // sélection de l'utilisateur (édition)
                       const isSelected = selectedSlots.some(
                         (s) => toTs(s) === toTs(slot.start)
@@ -665,24 +637,14 @@ export default function UpdateRdv({
 
                       // désactivation (sauf si slot "current" pour pouvoir le retirer)
                       const disabled =
-                        (isTaken || blocked || isProposed) && !isCurrent;
+                        (isTaken || blocked) && !isCurrent;
 
                       const buttonClass = "min-h-14 cursor-pointer rounded-xl border px-2 py-2 text-center text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed " + (disabled ? "border-white/[0.06] bg-white/[0.015] text-white/25" : isSelected ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/15" : isCurrent ? "border-amber-400/20 bg-amber-400/5 text-amber-200 hover:bg-amber-400/10" : "border-white/10 bg-noir-700 text-white/65 hover:border-white/25 hover:bg-white/5");
                       const buttonText = format(new Date(slot.start), "HH:mm", { locale: fr }) + " – " + format(new Date(slot.end), "HH:mm", { locale: fr });
 
                       // tooltip
                       let title = "";
-                      if (isProposed) {
-                        title = `Déjà proposé à ${
-                          proposed.appointmentRequest?.clientFirstname || ""
-                        } ${
-                          proposed.appointmentRequest?.clientLastname || ""
-                        } (${
-                          proposed.appointmentRequest?.clientEmail || ""
-                        })\nPrestation: ${
-                          proposed.appointmentRequest?.prestation || ""
-                        }`;
-                      } else if (blocked) {
+                      if (blocked) {
                         title = "Créneau bloqué - indisponible";
                       } else if (isTaken && !isCurrent) {
                         title = "Créneau déjà réservé";
