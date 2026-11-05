@@ -13,9 +13,9 @@ import type { Metadata } from "next";
 import CookiePreferences from "@/components/Cookies/CookiePreferences";
 
 export const metadata: Metadata = {
-  title: "Politique de confidentialité & cookies | Inkera Studio",
+  title: "Politique de confidentialité & cookies | Inkera",
   description:
-    "Découvrez comment Inkera Studio traite les données personnelles, les messages Instagram et les préférences de cookies.",
+    "Découvrez comment Inkera traite les données personnelles, les messages Instagram et les préférences de cookies.",
   keywords: [
     "politique confidentialité",
     "cookies INKERA",
@@ -23,14 +23,14 @@ export const metadata: Metadata = {
     "RGPD tatouage",
     "protection données salon",
     "vie privée studio tattoo",
-    "sécurité INKERA Studio",
+    "sécurité INKERA",
   ],
 };
 
 const POLICY_UPDATED_AT = "23 octobre 2026";
 
 export default function PolitiqueDeConfidentialite() {
-  return <LegalPage kind="privacy" title="Votre vie privée." accent="Notre cadre de confiance." description="Données personnelles, droits et cookies : retrouvez les informations sur leur traitement par INKERA Studio." sections={[{"id":"article-01","title":"Introduction"},{"id":"article-02","title":"Responsable de traitement"},{"id":"article-03","title":"Données collectées"},{"id":"article-04","title":"Connexion Instagram et messagerie unifiée"},{"id":"article-05","title":"Finalités du traitement"},{"id":"article-06","title":"Bases légales du traitement"},{"id":"article-07","title":"Destinataires et prestataires"},{"id":"article-08","title":"Gestion des cookies"},{"id":"article-09","title":"Vos droits"},{"id":"article-10","title":"Sécurité des données"},{"id":"article-11","title":"Durée de conservation"},{"id":"article-12","title":"Contact et réclamations"}]}>
+  return <LegalPage kind="privacy" title="Votre vie privée." accent="Notre cadre de confiance." description="Données personnelles, droits et cookies : retrouvez les informations sur leur traitement par INKERA." sections={[{"id":"article-01","title":"Introduction"},{"id":"article-02","title":"Responsable de traitement"},{"id":"article-03","title":"Données collectées"},{"id":"article-04","title":"Connexion Instagram et messagerie unifiée"},{"id":"article-05","title":"Finalités du traitement"},{"id":"article-06","title":"Bases légales du traitement"},{"id":"article-07","title":"Destinataires et prestataires"},{"id":"article-08","title":"Gestion des cookies"},{"id":"article-09","title":"Vos droits"},{"id":"article-10","title":"Sécurité des données"},{"id":"article-11","title":"Durée de conservation"},{"id":"article-12","title":"Contact et réclamations"}]}>
 
               {/* Introduction */}
               <section id="article-01" className={s.articleSection}>
@@ -40,7 +40,7 @@ export default function PolitiqueDeConfidentialite() {
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
-                    Inkera Studio est une plateforme en cours de développement,
+                    Inkera est une plateforme en cours de développement,
                     actuellement portée à titre personnel par son créateur,
                     dans l&apos;attente de la création de sa structure juridique.
                     Cette politique explique quelles données sont traitées dans
@@ -85,7 +85,7 @@ export default function PolitiqueDeConfidentialite() {
                       <p>
                         Pinto Barreto Jessy
                         <br />
-                        Projet Inkera Studio — structure juridique en cours de création
+                        Projet Inkera — structure juridique en cours de création
                       </p>
                     </div>
                     <div>
@@ -272,7 +272,7 @@ export default function PolitiqueDeConfidentialite() {
                       </h3>
                       <p className="text-sm">
                         Création, authentification et gestion de votre compte
-                        utilisateur sur la plateforme Inkera Studio.
+                        utilisateur sur la plateforme Inkera.
                       </p>
                     </div>
 
@@ -345,7 +345,7 @@ export default function PolitiqueDeConfidentialite() {
                       </h3>
                       <p className="text-sm">
                         Traitement nécessaire à l&apos;exécution des services
-                        Inkera Studio, à la gestion des rendez-vous et des
+                        Inkera, à la gestion des rendez-vous et des
                         fonctions de messagerie demandées.
                       </p>
                     </div>

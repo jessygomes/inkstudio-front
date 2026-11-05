@@ -14,19 +14,19 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "CGU & CGV",
   description:
-    "Consultez les conditions générales d'utilisation et de vente d'Inkera Studio. Termes du service, obligations des parties et modalités d'utilisation de la plateforme pour salons de tatouage.",
+    "Consultez les conditions générales d'utilisation et de vente d'Inkera. Termes du service, obligations des parties et modalités d'utilisation de la plateforme pour salons de tatouage.",
   keywords: [
     "CGU",
     "CGV",
     "conditions générales",
     "termes service",
-    "Inkera Studio",
+    "Inkera",
     "contrat",
   ],
 };
 
 export default function CguCgv() {
-  return <LegalPage kind="terms" title="Conditions générales" accent="d’utilisation & de vente." description="Les conditions qui encadrent l’utilisation de la plateforme et les services INKERA Studio." sections={[{"id":"article-01","title":"Préambule"},{"id":"article-02","title":"Définitions"},{"id":"article-03","title":"Objet et champ d'application"},{"id":"article-04","title":"Accès et inscription"},{"id":"article-05","title":"Obligations des utilisateurs"},{"id":"article-06","title":"Tarifs et modalités de paiement"},{"id":"article-07","title":"Résiliation et suspension"},{"id":"article-08","title":"Responsabilité et garanties"},{"id":"article-09","title":"Propriété intellectuelle"},{"id":"article-10","title":"Droit applicable et règlement des litiges"},{"id":"article-11","title":"Modification des CGU/CGV"}]}>
+  return <LegalPage kind="terms" title="Conditions générales" accent="d’utilisation & de vente." description="Les conditions qui encadrent l’utilisation de la plateforme et les services INKERA." sections={[{"id":"article-01","title":"Préambule"},{"id":"article-02","title":"Définitions"},{"id":"article-03","title":"Objet et champ d'application"},{"id":"article-04","title":"Accès et inscription"},{"id":"article-05","title":"Obligations des utilisateurs"},{"id":"article-06","title":"Tarifs et modalités de paiement"},{"id":"article-07","title":"Résiliation et suspension"},{"id":"article-08","title":"Responsabilité et garanties"},{"id":"article-09","title":"Propriété intellectuelle"},{"id":"article-10","title":"Droit applicable et règlement des litiges"},{"id":"article-11","title":"Modification des CGU/CGV"}]}>
 
               {/* Préambule */}
               <section id="article-01" className={s.articleSection}>
@@ -38,13 +38,13 @@ export default function CguCgv() {
                   <p>
                     Les présentes conditions générales d&apos;utilisation et de
                     vente (ci-après &quot;CGU/CGV&quot;) régissent
-                    l&apos;utilisation de la plateforme Inkera Studio, éditée
-                    par Inkera Studio SAS, société par actions simplifiée au
+                    l&apos;utilisation de la plateforme Inkera, éditée
+                    par Inkera SAS, société par actions simplifiée au
                     capital de 50 000 euros.
                   </p>
 
                   <p>
-                    Inkera Studio est une plateforme numérique dédiée à la
+                    Inkera est une plateforme numérique dédiée à la
                     gestion professionnelle des salons de tatouage, proposant
                     des outils de réservation, de gestion client et de
                     présentation en ligne.
@@ -55,7 +55,7 @@ export default function CguCgv() {
                       Acceptation des conditions
                     </h3>
                     <p>
-                      L&apos;utilisation de la plateforme Inkera Studio implique
+                      L&apos;utilisation de la plateforme Inkera implique
                       l&apos;acceptation pleine et entière des présentes
                       CGU/CGV. Si vous n&apos;acceptez pas ces conditions,
                       veuillez ne pas utiliser nos services.
@@ -77,7 +77,7 @@ export default function CguCgv() {
                         Plateforme
                       </h3>
                       <p className="text-sm">
-                        Site web et application Inkera Studio accessible à
+                        Site web et application Inkera accessible à
                         l&apos;adresse www.Inkera Studio.fr et ses
                         sous-domaines.
                       </p>
@@ -89,7 +89,7 @@ export default function CguCgv() {
                       </h3>
                       <p className="text-sm">
                         Toute personne physique ou morale utilisant la
-                        plateforme Inkera Studio, qu&apos;elle soit client ou
+                        plateforme Inkera, qu&apos;elle soit client ou
                         professionnel.
                       </p>
                     </div>
@@ -100,7 +100,7 @@ export default function CguCgv() {
                       </h3>
                       <p className="text-sm">
                         Tatoueur, salon de tatouage ou entreprise du secteur
-                        utilisant les services Inkera Studio pour sa gestion.
+                        utilisant les services Inkera pour sa gestion.
                       </p>
                     </div>
 
@@ -119,7 +119,7 @@ export default function CguCgv() {
                         Services
                       </h3>
                       <p className="text-sm">
-                        Ensemble des fonctionnalités proposées par Inkera Studio
+                        Ensemble des fonctionnalités proposées par Inkera
                         : gestion, réservation, profil public, etc.
                       </p>
                     </div>
@@ -152,7 +152,7 @@ export default function CguCgv() {
                   <p>
                     Les présentes CGU/CGV ont pour objet de définir les
                     modalités et conditions d&apos;utilisation des services
-                    proposés sur la plateforme Inkera Studio, ainsi que de
+                    proposés sur la plateforme Inkera, ainsi que de
                     définir les droits et obligations des parties dans ce cadre.
                   </p>
 
@@ -202,7 +202,7 @@ export default function CguCgv() {
                     Conditions d&apos;accès
                   </h3>
                   <p>
-                    L&apos;accès à la plateforme Inkera Studio est réservé aux
+                    L&apos;accès à la plateforme Inkera est réservé aux
                     personnes majeures disposant de la capacité juridique pour
                     contracter. Les professionnels doivent justifier de leur
                     activité légale dans le secteur du tatouage.
@@ -241,7 +241,7 @@ export default function CguCgv() {
                       Vérification des comptes
                     </h3>
                     <p className="text-sm">
-                      Inkera Studio se réserve le droit de vérifier
+                      Inkera se réserve le droit de vérifier
                       l&apos;identité et les qualifications des utilisateurs.
                       Les comptes professionnels peuvent faire l&apos;objet
                       d&apos;une validation avant activation complète.
@@ -320,7 +320,7 @@ export default function CguCgv() {
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
-                    Les tarifs des services Inkera Studio sont indiqués en euros
+                    Les tarifs des services Inkera sont indiqués en euros
                     toutes taxes comprises. Ils sont susceptibles d&apos;être
                     modifiés à tout moment, mais les tarifs applicables sont
                     ceux en vigueur au moment de la commande.
@@ -402,7 +402,7 @@ export default function CguCgv() {
 
                     <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
-                        Suspension par Inkera Studio
+                        Suspension par Inkera
                       </h3>
                       <ul className="space-y-2 text-sm">
                         <li>• Non-respect des CGU/CGV</li>
@@ -434,7 +434,7 @@ export default function CguCgv() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
-                        Responsabilité d&apos;Inkera Studio
+                        Responsabilité d&apos;Inkera
                       </h3>
                       <ul className="space-y-2 text-sm">
                         <li>• Fourniture des services décrits</li>
@@ -467,7 +467,7 @@ export default function CguCgv() {
                       Les utilisateurs garantissent la véracité des informations
                       fournies, le respect des lois en vigueur et l&apos;absence
                       de violation des droits de tiers. Ils s&apos;engagent à
-                      indemniser Inkera Studio de tout préjudice résultant de
+                      indemniser Inkera de tout préjudice résultant de
                       leurs actions.
                     </p>
                   </div>
@@ -482,7 +482,7 @@ export default function CguCgv() {
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
-                    La plateforme Inkera Studio, son code source, sa structure,
+                    La plateforme Inkera, son code source, sa structure,
                     ses bases de données, ainsi que tous les éléments qui la
                     composent (textes, images, sons, vidéos, etc.) sont protégés
                     par le droit de la propriété intellectuelle.
@@ -491,10 +491,10 @@ export default function CguCgv() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-white mb-3">
-                        Droits d&apos;Inkera Studio
+                        Droits d&apos;Inkera
                       </h3>
                       <ul className="space-y-2 text-sm">
-                        <li>• Marques et logos Inkera Studio</li>
+                        <li>• Marques et logos Inkera</li>
                         <li>• Code source et architecture</li>
                         <li>• Design et interface utilisateur</li>
                         <li>• Documentation et contenus éditoriaux</li>
@@ -510,7 +510,7 @@ export default function CguCgv() {
                         <li>• Portfolio et réalisations artistiques</li>
                         <li>• Photos et contenus personnels</li>
                         <li>• Textes de présentation</li>
-                        <li>• Licence d&apos;utilisation à Inkera Studio</li>
+                        <li>• Licence d&apos;utilisation à Inkera</li>
                         <li>• Droit de retrait à tout moment</li>
                       </ul>
                     </div>
@@ -521,7 +521,7 @@ export default function CguCgv() {
                       Utilisation des contenus
                     </h3>
                     <p className="text-sm">
-                      En publiant du contenu sur Inkera Studio, vous accordez
+                      En publiant du contenu sur Inkera, vous accordez
                       une licence d&apos;utilisation non-exclusive pour
                       l&apos;affichage, la promotion et l&apos;amélioration des
                       services. Vous conservez tous vos droits de propriété
@@ -584,7 +584,7 @@ export default function CguCgv() {
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
-                    Inkera Studio se réserve le droit de modifier les présentes
+                    Inkera se réserve le droit de modifier les présentes
                     CGU/CGV à tout moment. Les utilisateurs seront informés de
                     toute modification substantielle par email et/ou
                     notification sur la plateforme.
@@ -623,7 +623,7 @@ export default function CguCgv() {
                   </div>
                   <div>
                     <strong className="text-tertiary-400">Courrier :</strong>{" "}
-                    Inkera Studio SAS - Service Juridique
+                    Inkera SAS - Service Juridique
                   </div>
                   <div>
                     <strong className="text-tertiary-400">Adresse :</strong> 123

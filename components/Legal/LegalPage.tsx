@@ -26,7 +26,7 @@ export default function LegalPage({ kind, title, accent, description, sections, 
     <main id="document-top">
       <header className={s.hero}>
         <div className={s.wrap}>
-          <Link href="/" className={s.breadcrumb}>INKERA Studio <span aria-hidden="true">/</span> Informations légales</Link>
+          <Link href="/" className={s.breadcrumb}>INKERA <span aria-hidden="true">/</span> Informations légales</Link>
           <span className={s.eyebrow}>Un cadre clair pour avancer ensemble</span>
           <h1>{title}<br /><span className={s.gradient}>{accent}</span></h1>
           <p>{description}</p>

@@ -8,10 +8,10 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Mentions Légales",
   description:
-    "Consultez les mentions légales d'Inkera Studio, plateforme de gestion pour salons de tatouage. Informations légales, conditions d'utilisation et données de l'entreprise.",
+    "Consultez les mentions légales d'Inkera, plateforme de gestion pour salons de tatouage. Informations légales, conditions d'utilisation et données de l'entreprise.",
   keywords: [
     "mentions légales",
-    "Inkera Studio",
+    "Inkera",
     "informations légales",
     "conditions utilisation",
     "RGPD",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default function MentionsLegales() {
-  return <LegalPage kind="notices" title="Mentions" accent="légales." description="Les informations sur l’éditeur, l’hébergement et les responsabilités liées à INKERA Studio." sections={[{"id":"article-01","title":"Identité de l'entreprise"},{"id":"article-02","title":"Direction et responsabilité"},{"id":"article-03","title":"Hébergement et infrastructure"},{"id":"article-04","title":"Propriété intellectuelle"},{"id":"article-05","title":"Limitation de responsabilité"},{"id":"article-06","title":"Protection des données personnelles"},{"id":"article-07","title":"Droit applicable et juridiction"}]}>
+  return <LegalPage kind="notices" title="Mentions" accent="légales." description="Les informations sur l’éditeur, l’hébergement et les responsabilités liées à INKERA." sections={[{"id":"article-01","title":"Identité de l'entreprise"},{"id":"article-02","title":"Direction et responsabilité"},{"id":"article-03","title":"Hébergement et infrastructure"},{"id":"article-04","title":"Propriété intellectuelle"},{"id":"article-05","title":"Limitation de responsabilité"},{"id":"article-06","title":"Protection des données personnelles"},{"id":"article-07","title":"Droit applicable et juridiction"}]}>
 
               {/* Identité de l'entreprise */}
               <section id="article-01" className={s.articleSection}>
@@ -38,7 +38,7 @@ export default function MentionsLegales() {
                       <h3 className="font-semibold text-white mb-2">
                         Dénomination sociale
                       </h3>
-                      <p>Inkera Studio</p>
+                      <p>Inkera</p>
                     </div>
                     <div>
                       <h3 className="font-semibold text-white mb-2">
@@ -47,24 +47,18 @@ export default function MentionsLegales() {
                       <p>Société par Actions Simplifiée (SAS)</p>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-white mb-2">
-                        Capital social
-                      </h3>
-                      <p>50 000 €</p>
-                    </div>
-                    <div>
                       <h3 className="font-semibold text-white mb-2">RCS</h3>
-                      <p>Paris B 123 456 789</p>
+                      <p>En cours de création</p>
                     </div>
                     <div>
                       <h3 className="font-semibold text-white mb-2">SIRET</h3>
-                      <p>123 456 789 00012</p>
+                      <p>En cours de création</p>
                     </div>
                     <div>
                       <h3 className="font-semibold text-white mb-2">
                         TVA Intracommunautaire
                       </h3>
-                      <p>FR12 123456789</p>
+                      <p>En cours d&apos;attribution</p>
                     </div>
                   </div>
 
@@ -72,11 +66,7 @@ export default function MentionsLegales() {
                     <h3 className="font-semibold text-white mb-2">
                       Siège social
                     </h3>
-                    <p>
-                      123 Rue de l&apos;Innovation
-                      <br />
-                      75001 Paris, France
-                    </p>
+                    <p>En cours de création</p>
                   </div>
 
                   <div className="mt-6">
@@ -106,13 +96,13 @@ export default function MentionsLegales() {
                     <h3 className="font-semibold text-white mb-2">
                       Directeur de la publication
                     </h3>
-                    <p>Jessy Gomes, Fondateur de Inkera Studio</p>
+                    <p>Jessy Gomes, Fondateur de Inkera</p>
                   </div>
                   <div>
                     <h3 className="font-semibold text-white mb-2">
                       Responsable de la rédaction
                     </h3>
-                    <p>Équipe Inkera Studio</p>
+                    <p>Équipe Inkera</p>
                   </div>
                 </div>
               </section>
@@ -167,7 +157,7 @@ export default function MentionsLegales() {
                   <p>
                     L&apos;ensemble du contenu de ce site web (textes, images,
                     vidéos, logos, icônes, sons, logiciels, etc.) est la
-                    propriété exclusive d&apos;Inkera Studio SAS ou de ses
+                    propriété exclusive d&apos;Inkera SAS ou de ses
                     partenaires et est protégé par les lois françaises et
                     internationales relatives à la propriété intellectuelle.
                   </p>
@@ -177,7 +167,7 @@ export default function MentionsLegales() {
                     publication, adaptation, ou exploitation totale ou partielle
                     du contenu, par quelque procédé que ce soit, est strictement
                     interdite sans l&apos;autorisation écrite préalable
-                    d&apos;Inkera Studio SAS.
+                    d&apos;Inkera SAS.
                   </p>
 
                   <div className="bg-white/5 rounded-xl p-5 mt-6">
@@ -185,9 +175,9 @@ export default function MentionsLegales() {
                       Marques et logos
                     </h3>
                     <p>
-                      La marque &quot;Inkera Studio&quot; ainsi que tous les
+                      La marque &quot;Inkera&quot; ainsi que tous les
                       logos et éléments graphiques associés sont des marques
-                      déposées d&apos;Inkera Studio SAS. Leur utilisation est
+                      déposées d&apos;Inkera SAS. Leur utilisation est
                       strictement réglementée.
                     </p>
                   </div>
@@ -202,7 +192,7 @@ export default function MentionsLegales() {
 
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
-                    Inkera Studio SAS met tout en œuvre pour fournir des
+                    Inkera SAS met tout en œuvre pour fournir des
                     informations exactes et à jour sur son site web. Cependant,
                     nous ne pouvons garantir l&apos;exactitude, la précision ou
                     l&apos;exhaustivité des informations mises à disposition.
@@ -211,7 +201,7 @@ export default function MentionsLegales() {
                   <p>
                     L&apos;utilisation des informations et services proposés sur
                     ce site se fait sous l&apos;entière responsabilité de
-                    l&apos;utilisateur. Inkera Studio SAS ne saurait être tenue
+                    l&apos;utilisateur. Inkera SAS ne saurait être tenue
                     responsable des dommages directs ou indirects résultant de
                     l&apos;utilisation du site ou de l&apos;impossibilité
                     d&apos;y accéder.
@@ -251,7 +241,7 @@ export default function MentionsLegales() {
                       <h3 className="font-semibold text-tertiary-400 mb-3">
                         Responsable de traitement
                       </h3>
-                      <p>Inkera Studio SAS</p>
+                      <p>Inkera SAS</p>
                     </div>
                     <div className="bg-white/5 rounded-xl p-5">
                       <h3 className="font-semibold text-tertiary-400 mb-3">
@@ -278,7 +268,7 @@ export default function MentionsLegales() {
                 <div className="space-y-4 text-white/80 font-one leading-relaxed">
                   <p>
                     Les présentes mentions légales et l'utilisation du site
-                    Inkera Studio sont régies par le droit français. En cas de
+                    Inkera sont régies par le droit français. En cas de
                     litige, et à défaut de résolution amiable, les tribunaux
                     français seront seuls compétents.
                   </p>
