@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import authConfig from "./auth.config";
-import { refreshSessionProfile, withBackendTokenStatus } from "./lib/auth-security";
+import { refreshSessionProfile, renewBackendToken, revokeBackendSession, withBackendTokenStatus } from "./lib/auth-security";
 
 /**
  * Configuration principale de NextAuth
@@ -25,6 +25,7 @@ export const {
       // Lors de la connexion initiale, ajouter les données utilisateur au token
       if (user) {
         token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
         token.id = user.id as string;
         token.role = user.role;
         token.email = user.email as string;
@@ -51,6 +52,9 @@ export const {
         // Stocker l'expiry du backend token
         token.error = undefined;
       }
+
+      // Jeton d'accès bientôt expiré : renouvelé avec le jeton de rafraîchissement (la session reste ouverte).
+      token = await renewBackendToken(token);
 
       // Vérifier si le backend access token est expiré
       token = withBackendTokenStatus(token);
@@ -103,9 +107,16 @@ export const {
       return session;
     },
   },
+  // Déconnexion : le backend ferme aussi la session (jeton de rafraîchissement).
+  events: {
+    async signOut(message) {
+      const token = "token" in message ? message.token : null;
+      await revokeBackendSession(token?.refreshToken);
+    },
+  },
   session: {
     strategy: "jwt",
-    maxAge: 7 * 24 * 60 * 60, // 7 jours
+    maxAge: 30 * 24 * 60 * 60, // 30 jours, renouvelés tant que le jeton de rafraîchissement l'est (backend : 60 jours)
   },
   cookies: {
     sessionToken: {

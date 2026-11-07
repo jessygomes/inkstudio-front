@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState, type ReactNode } from "react";
-import { CalendarDays, ChevronRight, CreditCard, Info, Palette, ShieldCheck, UserRound } from "lucide-react";
+import { ChevronRight, CreditCard, Info, Palette, ShieldCheck, UserRound } from "lucide-react";
 import styles from "./SettingsLayout.module.css";
 const sections = [
  { id: "compte", label: "Compte et documents", hint: "Profil et vérification", icon: UserRound },
- { id: "rendez-vous", label: "Rendez-vous", hint: "Confirmation et autorisations", icon: CalendarDays },
  { id: "preferences", label: "Préférences", hint: "Notifications et apparence", icon: Palette },
  { id: "facturation", label: "Abonnement et factures", hint: "Offre et paiements", icon: CreditCard },
  { id: "securite", label: "Sécurité", hint: "Accès à votre compte", icon: ShieldCheck },

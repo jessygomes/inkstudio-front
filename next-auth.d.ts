@@ -24,6 +24,7 @@ declare module "next-auth" {
     id: string;
     role: string;
     accessToken: string;
+    refreshToken?: string;
     salonName: string;
     saasPlan: string;
     phone: string;

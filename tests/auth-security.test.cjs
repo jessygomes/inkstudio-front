@@ -22,7 +22,7 @@ function load(file, imports = {}) {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true,
   } }).outputText;
   vm.runInNewContext(output, {
-    module: testModule, exports: testModule.exports, process, Buffer, URL, URLSearchParams, Date, AbortSignal,
+    module: testModule, exports: testModule.exports, process, Buffer, URL, URLSearchParams, Date, AbortSignal, setTimeout,
     console: { log() {}, warn() {}, error() {} },
     fetch: async (...args) => {
       fetchCalls.push(args);
@@ -308,3 +308,84 @@ if (!professional) {
     assert.equal(fetchCalls.length, 0);
   });
 }
+
+// ---- Jeton de rafraîchissement : le jeton d'accès est renouvelé sans que l'utilisateur ne se reconnecte ----
+let refreshSeq = 0;
+const refreshToken = () => `refresh-${++refreshSeq}`;
+const nearExpiry = () => backendToken({ exp: Math.floor(Date.now() / 1000) + 30 });
+
+test("an access token about to expire is renewed with the refresh token", async () => {
+  const fresh = backendToken({ exp: Math.floor(Date.now() / 1000) + 1800 });
+  profileResponse = response({ access_token: fresh, refresh_token: "rotated" });
+  const old = refreshToken();
+  const result = await security.renewBackendToken({ ...token(), accessToken: nearExpiry(), refreshToken: old });
+  assert.equal(result.accessToken, fresh);
+  assert.equal(result.refreshToken, "rotated");
+  assert.equal(result.error, undefined);
+  assert.equal(fetchCalls.length, 1);
+  assert.equal(fetchCalls[0][0], "https://backend.example.test/auth/refresh");
+  assert.equal(fetchCalls[0][1].method, "POST");
+  assert.deepEqual(JSON.parse(fetchCalls[0][1].body), { refreshToken: old });
+  assert.equal(security.withBackendTokenStatus(result).error, undefined);
+});
+
+test("a valid access token is left alone, and so is a session without refresh token", async () => {
+  const withRefresh = { ...token(), refreshToken: refreshToken() };
+  assert.equal((await security.renewBackendToken(withRefresh)).accessToken, withRefresh.accessToken);
+  const legacy = { ...token(), accessToken: nearExpiry() };
+  assert.equal((await security.renewBackendToken(legacy)).accessToken, legacy.accessToken);
+  assert.equal(fetchCalls.length, 0);
+});
+
+test("a backend refusal ends the session and drops the refresh token", async () => {
+  profileResponse = response({ message: "Session expirée." }, 401);
+  const result = await security.renewBackendToken({ ...token(), accessToken: nearExpiry(), refreshToken: refreshToken() });
+  assert.equal(result.error, "AccessTokenExpired");
+  assert.equal(result.refreshToken, undefined);
+});
+
+test("a network failure keeps the current credentials so the renewal is retried", async () => {
+  fetchError = new Error("offline");
+  const input = { ...token(), accessToken: nearExpiry(), refreshToken: refreshToken() };
+  const result = await security.renewBackendToken(input);
+  assert.equal(result.accessToken, input.accessToken);
+  assert.equal(result.refreshToken, input.refreshToken);
+  assert.equal(result.error, undefined);
+});
+
+test("simultaneous session reads share one renewal", async () => {
+  profileResponse = response({ access_token: backendToken(), refresh_token: "rotated-once" });
+  const input = { ...token(), accessToken: nearExpiry(), refreshToken: refreshToken() };
+  const [a, b] = await Promise.all([security.renewBackendToken(input), security.renewBackendToken(input)]);
+  assert.equal(fetchCalls.length, 1);
+  assert.equal(a.refreshToken, "rotated-once");
+  assert.equal(b.refreshToken, "rotated-once");
+});
+
+test("a session in error is never renewed", async () => {
+  const input = { ...token(), accessToken: nearExpiry(), refreshToken: refreshToken(), error: "AccessTokenExpired" };
+  const result = await security.renewBackendToken(input);
+  assert.equal(result.error, "AccessTokenExpired");
+  assert.equal(fetchCalls.length, 0);
+});
+
+test("the jwt callback renews the backend token and never exposes the refresh token to the browser session", async () => {
+  const fresh = backendToken({ exp: Math.floor(Date.now() / 1000) + 1800 });
+  profileResponse = response({ access_token: fresh, refresh_token: "rotated-cb" });
+  const result = await authOptions().callbacks.jwt({ token: { ...token(), accessToken: nearExpiry(), refreshToken: refreshToken() } });
+  assert.equal(result.accessToken, fresh);
+  assert.equal(result.error, undefined);
+  const sessionResult = await authOptions().callbacks.session({ session: { user: {} }, token: result });
+  assert.equal(JSON.stringify(sessionResult).includes("rotated-cb"), false);
+  assert.equal(sessionResult.accessToken, fresh);
+});
+
+test("signing out revokes the backend session", async () => {
+  profileResponse = response({ success: true });
+  await security.revokeBackendSession("to-revoke");
+  assert.equal(fetchCalls[0][0], "https://backend.example.test/auth/logout");
+  assert.deepEqual(JSON.parse(fetchCalls[0][1].body), { refreshToken: "to-revoke" });
+  fetchCalls = [];
+  await security.revokeBackendSession(undefined);
+  assert.equal(fetchCalls.length, 0);
+});

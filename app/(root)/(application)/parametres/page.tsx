@@ -8,7 +8,6 @@ import { Settings2 } from "lucide-react";
 import Link from "next/link";
 import styles from "./settings.module.css";
 import AccountInfoSection from "@/components/Application/Parametres/AccountInfoSection";
-import DashboardButton from "@/components/Shared/DashboardButton";
 import BillingHistorySection from "@/components/Application/Parametres/BillingHistorySection";
 import SubscriptionSection from "@/components/Application/Parametres/SubscriptionSection";
 import SecuritySection from "@/components/Application/Parametres/SecuritySection";
@@ -52,9 +51,6 @@ export default function ParamPage() {
             <SettingsGroup id="compte" title="Compte et documents" description="Vos informations professionnelles et les documents de vérification de votre compte.">
               <AccountInfoSection userId={session?.user?.id || null} openSections={openSections} toggleSection={toggleSection} />
               <VerificationDocumentsSection />
-            </SettingsGroup>
-            <SettingsGroup id="rendez-vous" title="Rendez-vous" description="Confirmation des réservations, rappels après séance et autorisations de votre agenda.">
-              <div className="rounded-2xl border border-white/10 bg-noir-700 p-5"><p className="text-xs leading-6 text-white/55">La confirmation, le premier échange et les rappels après séance sont regroupés dans une page dédiée de votre compte.</p><DashboardButton href="/mon-compte/rendez-vous" className="mt-4 !min-w-0">Configurer mes rendez-vous</DashboardButton></div>
             </SettingsGroup>
             <SettingsGroup id="preferences" title="Préférences" description="Adaptez les notifications, les couleurs et la visibilité de votre portfolio.">
               <AppearanceSetting />

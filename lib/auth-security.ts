@@ -26,6 +26,78 @@ export function withBackendTokenStatus(token: JWT): JWT {
   return { ...token, accessTokenExpiry: expiry };
 }
 
+// ---------- Renouvellement du jeton d'accès (jeton de rafraîchissement) ----------
+
+/** Le jeton d'accès est renouvelé quand il lui reste moins que cela. */
+const RENEW_MARGIN_MS = 2 * 60 * 1000;
+type RenewResult = { accessToken: string; refreshToken: string } | "rejected" | null;
+// Appels en cours (et récents) par jeton de rafraîchissement : plusieurs lectures de session simultanées partagent un seul renouvellement.
+const renewals = new Map<string, Promise<RenewResult>>();
+
+async function requestRenewal(refreshToken: string): Promise<RenewResult> {
+  const base = process.env.NEXT_PUBLIC_BACK_URL?.trim();
+  if (!base) return null;
+  try {
+    const response = await fetch(`${base.replace(/\/+$/, "")}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(10000),
+    });
+    // Refus explicite du backend : la session est terminée (jeton révoqué, expiré ou compte supprimé).
+    if (response.status === 401 || response.status === 403) return "rejected";
+    if (!response.ok) return null;
+    const data: unknown = await response.json();
+    if (!data || typeof data !== "object") return null;
+    const next = data as Record<string, unknown>;
+    return typeof next.access_token === "string" && typeof next.refresh_token === "string"
+      ? { accessToken: next.access_token, refreshToken: next.refresh_token } : null;
+  } catch {
+    // Erreur réseau passagère : on garde le jeton actuel et on réessaiera.
+    return null;
+  }
+}
+
+/**
+ * Renouvelle le jeton d'accès avec le jeton de rafraîchissement quand il arrive à expiration. Sans jeton de rafraîchissement
+ * (session ouverte avant cette fonction), le jeton est laissé tel quel. Un refus du backend termine la session.
+ */
+export async function renewBackendToken(token: JWT): Promise<JWT> {
+  const refreshToken = token.refreshToken;
+  if (typeof refreshToken !== "string" || !refreshToken || token.error === "AccessTokenExpired") return token;
+  const expiry = backendTokenExpiry(token.accessToken);
+  if (expiry && expiry - Date.now() > RENEW_MARGIN_MS) return token;
+  let pending = renewals.get(refreshToken);
+  if (!pending) {
+    pending = requestRenewal(refreshToken);
+    renewals.set(refreshToken, pending);
+    const forget = setTimeout(() => renewals.delete(refreshToken), 15000);
+    (forget as { unref?: () => void }).unref?.();
+  }
+  const result = await pending;
+  if (result === "rejected") return { ...token, refreshToken: undefined, error: "AccessTokenExpired" };
+  if (!result) return token;
+  return { ...token, accessToken: result.accessToken, refreshToken: result.refreshToken, error: undefined };
+}
+
+/** Déconnexion : le backend révoque la session (jeton de rafraîchissement). Échec silencieux, la déconnexion locale a lieu de toute façon. */
+export async function revokeBackendSession(refreshToken: unknown): Promise<void> {
+  const base = process.env.NEXT_PUBLIC_BACK_URL?.trim();
+  if (!base || typeof refreshToken !== "string" || !refreshToken) return;
+  try {
+    await fetch(`${base.replace(/\/+$/, "")}/auth/logout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(5000),
+    });
+  } catch {
+    // Le jeton restera valide jusqu'à son expiration si le backend est injoignable.
+  }
+}
+
 /** Reject absent sessions, Auth.js error objects and expired backend credentials. */
 export function hasUsableSession(value: unknown): value is Session {
   if (!value || typeof value !== "object") return false;

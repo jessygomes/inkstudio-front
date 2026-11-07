@@ -26,6 +26,7 @@ declare module "next-auth" {
   interface User extends DefaultUser {
     role: string;
     accessToken: string;
+    refreshToken?: string;
     salonName: string;
     saasPlan: string;
     phone: string;
@@ -42,6 +43,7 @@ declare module "next-auth/jwt" {
     id: string;
     role: string;
     accessToken: string;
+    refreshToken?: string;
     salonName: string;
     saasPlan: string;
     phone: string;

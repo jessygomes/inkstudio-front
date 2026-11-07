@@ -18,6 +18,7 @@ type BackendLoginResponse = {
   profileImage?: string | null;
   role?: string;
   access_token?: string;
+  refresh_token?: string;
   saasPlan?: string;
   phone?: string;
   address?: string;
@@ -145,6 +146,7 @@ export default {
             profileImage: data.profileImage || null,
             role: data.role || "user",
             accessToken: data.access_token,
+            refreshToken: data.refresh_token,
             salonName: data.salonName || "",
             saasPlan: data.saasPlan || "FREE",
             phone: data.phone || "",
