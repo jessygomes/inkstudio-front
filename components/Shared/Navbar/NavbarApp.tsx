@@ -2,6 +2,7 @@
 import { ActivityBadge, activityKindForHref } from "@/components/Providers/ActivityNotificationsProvider";
 import NavbarAccountMenu from "./NavbarAccountMenu";
 import NotificationBadge from "@/components/Shared/NotificationBadge";
+import NotificationBell from "@/components/Shared/NotificationCenter/NotificationBell";
 
 import { useSession } from "next-auth/react";
 
@@ -185,6 +186,7 @@ export default function NavbarApp({ collapsed, onToggle, backOfficeHref }: Navba
         );
       })()}
 
+      <div className="mt-3 shrink-0 border-t border-white/10 pt-3"><NotificationBell collapsed={collapsed} /></div>
       <div className="mt-3 shrink-0 border-t border-white/10 pt-3"><NavbarAccountMenu collapsed={collapsed} /></div>
     </nav>
   );

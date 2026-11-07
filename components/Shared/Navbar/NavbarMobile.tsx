@@ -4,6 +4,7 @@ import { useMessagingContext } from "@/components/Providers/MessagingProvider";
 import { useSession } from "next-auth/react";
 import NavbarAccountMenu from "./NavbarAccountMenu";
 import NotificationBadge from "@/components/Shared/NotificationBadge";
+import NotificationBell from "@/components/Shared/NotificationCenter/NotificationBell";
 import { useUser } from "@/components/Auth/Context/UserContext";
 import { LogoutBtn } from "@/components/Auth/LogoutBtn";
 import { makeSlug } from "@/lib/utils/makeLink";
@@ -259,6 +260,7 @@ export default function NavbarMobile({ backOfficeHref }: { backOfficeHref?: stri
                   </li>
                 );
               })}
+              <li><NotificationBell className="min-h-12 text-white hover:text-tertiary-400" onOpen={handleClose} /></li>
             </ul>
 
             {/* Separator */}

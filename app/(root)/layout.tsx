@@ -8,6 +8,7 @@ import { ColorProvider } from "@/components/ColorContext/ColorProvider";
 import VerificationNotification from "@/components/Shared/VerificationNotification";
 import { ActivityNotificationsProvider } from "@/components/Providers/ActivityNotificationsProvider";
 import { MessagingProvider } from "@/components/Providers/MessagingProvider";
+import { NotificationCenterProvider } from "@/components/Providers/NotificationCenterProvider";
 
 export default async function DashboardLayout({
   children,
@@ -43,12 +44,14 @@ export default async function DashboardLayout({
       <Providers>
         <ColorProvider>
           <MessagingProvider>
+            <NotificationCenterProvider>
             <ActivityNotificationsProvider>
               <HeaderApp backOfficeHref={session.user.role === "admin" ? BACK_OFFICE_PATH : null}>
                 <VerificationNotification />
                 {children}
               </HeaderApp>
             </ActivityNotificationsProvider>
+            </NotificationCenterProvider>
           </MessagingProvider>
         </ColorProvider>
       </Providers>
