@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { TatoueurProps } from "@/lib/type";
 import { createOrUpdateTatoueur } from "@/lib/queries/tatoueur";
+import TattooPracticesField from "@/components/Shared/TattooPracticesField";
+import { normalizeTattooPractices, toTattooPracticesPayload, validateTattooPractices, type TattooPracticesValue } from "@/lib/types/project-client-info";
 
 type Horaire = {
   [key: string]: { start: string; end: string } | null;
@@ -54,6 +56,8 @@ export default function CreateTatoueurModal({
     };
 
   const [editingHours, setEditingHours] = useState<Horaire>(initialHours);
+  const [practices, setPractices] = useState<TattooPracticesValue>(() => normalizeTattooPractices(existingTatoueur as { tattooPractices?: unknown; tattooPracticeDetails?: unknown } | null));
+  const [practicesError, setPracticesError] = useState<string | null>(null);
 
   //! FORMULAIRE
   const form = useForm<z.infer<typeof createTatoueurSchema>>({
@@ -73,9 +77,14 @@ export default function CreateTatoueurModal({
   });
 
   const onSubmit = async (values: z.infer<typeof createTatoueurSchema>) => {
+    const practicesProblem = validateTattooPractices(practices);
+    setPracticesError(practicesProblem);
+    if (practicesProblem) return;
+
     const payload = {
       ...values,
       hours: JSON.stringify(editingHours), // très important !
+      ...toTattooPracticesPayload(practices),
     };
 
     setLoading(true);
@@ -201,6 +210,14 @@ export default function CreateTatoueurModal({
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Section: Pratiques */}
+            <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <h3 className="text-sm font-semibold text-tertiary-400 mb-3 font-one uppercase tracking-wide">
+                Pratiques de tatouage
+              </h3>
+              <TattooPracticesField value={practices} disabled={loading} error={practicesError} onChange={(value) => { setPractices(value); if (practicesError) setPracticesError(validateTattooPractices(value)); }} />
             </div>
 
             {/* Section: Horaires */}

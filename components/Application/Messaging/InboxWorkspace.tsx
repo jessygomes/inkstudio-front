@@ -7,11 +7,12 @@ import Image from "next/image";
 import { io } from "socket.io-client";
 import {
   ArrowLeft, AtSign, CheckCheck, ChevronLeft, ChevronRight, CircleAlert,
-  Clock3, Eye, Facebook, ImagePlus, Instagram, Lock, Mail, MessageCircle, NotebookPen,
+  CalendarPlus, Clock3, Eye, Facebook, ImagePlus, Instagram, Lock, Mail, MessageCircle, NotebookPen,
   PanelLeftClose, PanelLeftOpen, Plus, RefreshCw, Search, Send, SlidersHorizontal, Unplug, UserRound, Users, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import ConversationRDVDetails from "./ConversationRDVDetails";
+import BookingLinkCreator, { type BookingLinkCreatorContext } from "@/components/Application/BookingLinks/BookingLinkCreator";
 import styles from "./InboxWorkspace.module.css";
 import { sortInboxThreads } from "@/lib/utils/sort-inbox-threads";
 import { getTatoueursByUserIdAction } from "@/lib/queries/tatoueur";
@@ -179,6 +180,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   const [appointmentLoading, setAppointmentLoading] = useState(false);
   const [activeAppointment, setActiveAppointment] = useState<InboxAppointment | null>(null);
   const [showDetailsMobile, setShowDetailsMobile] = useState(false);
+  const [bookingLinkOpen, setBookingLinkOpen] = useState(false);
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const lastRenderedMessageRef = useRef<string | null>(null);
@@ -552,6 +554,34 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
 
   const selectedName = useMemo(() => thread && threadName(thread), [thread]);
 
+  // Proposer un RDV : l'envoi direct n'est possible que si le composer existant l'est aussi.
+  const canReplyInThread = Boolean(thread) && !thread?.contactBlocked && !thread?.conversation?.projectContactPending && !isFree
+    && (thread?.channel === "INKERA" || (thread?.channel === "INSTAGRAM" && ["ACTIVE", "ERROR"].includes(thread?.externalConversation?.connection?.status || "")));
+  const bookingLinkContext = useMemo<BookingLinkCreatorContext | null>(() => {
+    if (!thread) return null;
+    const fullName = (person?: { firstName?: string | null; lastName?: string | null } | null) => [person?.firstName, person?.lastName].filter(Boolean).join(" ");
+    const channelLabel = CHANNELS.find(({ value }) => value === thread.channel)?.label;
+    const isArtistAccount = session?.user?.role === "user_tatoueur";
+    return {
+      origin: "conversation",
+      originLabel: `Conversation avec ${selectedName || "le client"}${channelLabel ? ` · ${channelLabel}` : ""}`,
+      inboxThreadId: thread.id,
+      ownerUserId: thread.ownerUserId,
+      initialTatoueurId: thread.assignedTatoueurId ?? (thread.assignedUserId ? `linked_${thread.assignedUserId}` : undefined),
+      initialTatoueurLabel: thread.assignedTatoueur?.name || fullName(thread.assignedUser) || undefined,
+      initialVenueSalonId: isArtistAccount && thread.ownerUserId !== userId ? thread.ownerUserId : undefined,
+      // Seules les associations confirmées sont reprises : jamais de rapprochement automatique d'un contact externe.
+      client: thread.linkedClient
+        ? { label: fullName(thread.linkedClient) || "Fiche client", detail: thread.linkedClient.email }
+        : thread.channel === "INKERA" && thread.conversation?.clientUser
+          ? { label: fullName(thread.conversation.clientUser) || selectedName || "Client Inkera", detail: "Compte client Inkera" }
+          : undefined,
+      clientNotice: thread.channel !== "INKERA" && !thread.linkedClientId
+        ? "Ce contact n’est relié à aucune fiche client : le lien ne sera associé à aucune fiche. Pour l’associer, utilisez « Associer / créer une fiche » dans le panneau de la conversation avant de générer le lien."
+        : undefined,
+    };
+  }, [thread, selectedName, session?.user?.role, userId]);
+
   const changeFilter = (next: () => void) => { next(); };
 
   const mutate = async (action: () => Promise<unknown>, success: string, closeClientForm = false): Promise<boolean> => {
@@ -741,6 +771,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                   <div className="min-w-0"><h2 className="truncate text-sm font-semibold">{selectedName}</h2><p className="mt-1 truncate text-xs text-white/50">{threadTitle(thread)} · {CHANNELS.find(({ value }) => value === thread.channel)?.label}{thread.ownerUserId !== userId ? " · Salon lié" : ""}</p></div>
                 </div>
                 <div className="flex shrink-0 gap-1">
+                  {!isFree && <button type="button" aria-label="Proposer un rendez-vous" title="Proposer un RDV (lien de réservation)" className={`${subtleButton} h-10 w-10 !px-0 sm:w-auto sm:!px-3`} onClick={() => setBookingLinkOpen(true)}><CalendarPlus size={15} aria-hidden="true" /><span className="hidden sm:inline">Proposer un RDV</span></button>}
                   <button type="button" aria-label={showDetailsMobile ? "Afficher les messages" : "Afficher les détails"} title={showDetailsMobile ? "Afficher les messages" : "Afficher les détails"} aria-expanded={showDetailsMobile} className={`${subtleButton} h-10 w-10 !px-0 xl:hidden`} onClick={() => { setActiveAppointment(null); setShowDetailsMobile((open) => !open); }}><Eye size={16} aria-hidden="true" /></button>
                   <button type="button" aria-label="Marquer comme lue" title="Marquer comme lue" disabled={pending} className={`${subtleButton} h-10 w-9 !px-0 xl:w-auto xl:!px-3`} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, false), "Conversation marquée lue")}><CheckCheck size={15} aria-hidden="true" /><span className="hidden xl:inline">Lue</span></button>
                   <button type="button" aria-label="Marquer comme non lue" title="Marquer comme non lue" disabled={pending} className={`${subtleButton} h-10 w-9 !px-0 xl:w-auto xl:!px-3`} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, true), "Conversation marquée non lue")}><AtSign size={15} aria-hidden="true" /><span className="hidden xl:inline">Non lue</span></button>
@@ -844,6 +875,25 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
           ) : null}
         </div>
       </div>
+      {bookingLinkOpen && thread && bookingLinkContext && (
+        <BookingLinkCreator
+          context={bookingLinkContext}
+          onClose={() => setBookingLinkOpen(false)}
+          delivery={canReplyInThread ? {
+            sendLabel: thread.channel === "INSTAGRAM" ? "Envoyer sur Instagram" : "Envoyer dans la conversation",
+            send: async (message) => {
+              const threadId = thread.id;
+              await sendInboxReplyAction(threadId, message);
+              forceScrollRef.current = true;
+              await Promise.all([refreshDetail(threadId), refreshList()]);
+            },
+            insert: (message) => {
+              setDraft((current) => (current.trim() ? `${current.trimEnd()}\n${message}` : message));
+              setTimeout(() => composerRef.current?.focus(), 0);
+            },
+          } : undefined}
+        />
+      )}
     </section>
   );
 }

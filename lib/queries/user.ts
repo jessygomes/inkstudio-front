@@ -392,6 +392,7 @@ export const updateAppointmentParamAction = async (value: boolean) => {
 };
 
 type UpdateProjectAppointmentBookingPayload = {
+  allowSameDayBooking?: boolean;
   agendaMode?: "PAR_TATOUEUR" | "GLOBAL";
   projectAppointmentDurationMinutes?: number;
   projectAppointmentIsFree?: boolean;

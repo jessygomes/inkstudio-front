@@ -18,7 +18,9 @@ import {
   QrCode,
   X,
   ShieldCheck,
+  PenTool,
 } from "lucide-react";
+import { TATTOO_PRACTICE_OPTIONS, normalizeTattooPractices } from "@/lib/types/project-client-info";
 import { CiInstagram, CiFacebook } from "react-icons/ci";
 import { PiTiktokLogoThin } from "react-icons/pi";
 import { TfiWorld } from "react-icons/tfi";
@@ -58,6 +60,8 @@ export default function InfoSalon({ salon }: { salon: UpdateSalonUserProps }) {
     },
   ];
   const completed = essentials.filter((item) => item.complete).length;
+  const practices = normalizeTattooPractices(salon as UpdateSalonUserProps & { tattooPractices?: unknown; tattooPracticeDetails?: unknown });
+  const practiceLabels = practices.tattooPractices.map((value) => TATTOO_PRACTICE_OPTIONS.find((option) => option.value === value)?.label ?? value);
   const socials = [
     {
       href: salon.instagram,
@@ -107,11 +111,12 @@ export default function InfoSalon({ salon }: { salon: UpdateSalonUserProps }) {
         </div>
       {completed < essentials.length && <section className={styles.completion} aria-label="Compléter le profil"><span>Complétez votre vitrine <small>{completed}/{essentials.length}</small></span><div>{essentials.filter(item => !item.complete).map(item => <Link key={item.label} href={editHref}><Plus size={13} aria-hidden="true" />{item.label}</Link>)}</div></section>}
       </section>
-      <section className={styles.specialtiesCard} aria-label="Prestations et styles de tatouage">
+      <section className={styles.specialtiesCard} aria-label="Prestations, styles et pratiques de tatouage">
           <div className={styles.specialties}>
-            {[{ title: "Prestations", values: salon.prestations, icon: Layers3, kind: "service" }, { title: "Styles de tatouage", values: salon.style, icon: Palette, kind: "style" }].map(({ title, values, icon: Icon, kind }) => <div className={styles.specialty} key={title}>
+            {[{ title: "Prestations", values: salon.prestations, icon: Layers3, kind: "service" }, { title: "Styles de tatouage", values: salon.style, icon: Palette, kind: "style" }, { title: "Pratiques", values: practiceLabels, icon: PenTool, kind: "style" }].map(({ title, values, icon: Icon, kind }) => <div className={styles.specialty} key={title}>
               <h4><span className={styles.specialtyIcon}><Icon size={15} aria-hidden="true" /></span>{title}<span className={styles.specialtyCount}>{values?.length || 0}</span></h4>
               {values?.length ? <ul className={styles.tags}>{values.map(value => <li key={value} className={styles.tag} data-kind={kind}>{kind === "service" && <Check size={11} aria-hidden="true" />}{value}</li>)}</ul> : <Link href={editHref} className={styles.add}><Plus size={13} aria-hidden="true" />Ajouter</Link>}
+              {title === "Pratiques" && practices.tattooPracticeDetails.trim() && <p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-white/55">{practices.tattooPracticeDetails.trim()}</p>}
             </div>)}
           </div>
       </section>

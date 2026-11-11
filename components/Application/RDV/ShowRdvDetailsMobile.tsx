@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { CalendarEvent } from "./Calendar";
 
 import ConsumablesList from "./Consumables/ConsumablesList";
+import ProjectBookingSection from "./ProjectBookingSection";
 import AppointmentDrawingCardAction from "@/components/Application/SuiviDessin/AppointmentDrawingCardAction";
 
 import Link from "next/link";
@@ -248,6 +249,8 @@ export default function ShowRdvDetailsMobile({
 
             {/* Informations principales */}
             <RdvPlanningCard appointment={selectedEvent} />
+
+            <ProjectBookingSection appointment={selectedEvent} onUpdated={handleRdvUpdated} />
 
             {/* Section Visio si applicable */}
             {selectedEvent.visio && (

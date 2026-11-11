@@ -16,6 +16,7 @@ import Link from "next/link";
 import { getPiercingServiceByIdAction } from "@/lib/queries/piercing";
 import { getMoodboardByAppointmentAction, MoodboardDto } from "@/lib/queries/moodboard";
 import ConsumablesList from "./Consumables/ConsumablesList";
+import ProjectBookingSection from "./ProjectBookingSection";
 import AppointmentDrawingCardAction from "@/components/Application/SuiviDessin/AppointmentDrawingCardAction";
 import { ExternalLink, Palette } from "lucide-react";
 
@@ -242,6 +243,8 @@ export default function ShowRdvDetails({
 
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
         <RdvPlanningCard appointment={selectedEvent} />
+
+        <ProjectBookingSection appointment={selectedEvent} onUpdated={handleRdvUpdated} />
 
         <RdvActions appointment={selectedEvent} userId={userId} onUpdated={handleRdvUpdated} onStatusChange={handleStatusChange} />
 

@@ -12,6 +12,8 @@ import { useMemo } from "react";
 import { View } from "react-big-calendar";
 import CalendarTimeHeader from "./CalendarTimeHeader";
 import styles from "./CalendarTimeViews.module.css";
+import type { DesiredTattooPeriodFields } from "@/lib/types/booking-links";
+import type { ProjectClientInfoFields } from "@/lib/types/project-client-info";
 
 const locales = {
   fr: fr,
@@ -25,7 +27,7 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-export type CalendarEvent = Event & {
+export type CalendarEvent = Event & DesiredTattooPeriodFields & ProjectClientInfoFields & {
   venueSalonId?: string | null;
   venueName?: string | null;
   venueAddress?: string | null;

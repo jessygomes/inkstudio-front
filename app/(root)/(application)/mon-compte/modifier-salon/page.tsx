@@ -17,9 +17,11 @@ import {
   getUserInfoAction,
 } from "@/lib/queries/user";
 import { toast } from "sonner";
-import { ImagePlus, UserRound, MapPin, Globe, FileText, Sparkles, Palette, Save, LoaderCircle, CalendarClock, Gem } from "lucide-react";
+import { ImagePlus, UserRound, MapPin, Globe, FileText, Sparkles, Palette, Save, LoaderCircle, CalendarClock, Gem, PenTool } from "lucide-react";
 import { IoClose } from "react-icons/io5";
 import FrenchCitySelect from "@/components/Shared/FrenchCitySelect";
+import TattooPracticesField from "@/components/Shared/TattooPracticesField";
+import { normalizeTattooPractices, toTattooPracticesPayload, validateTattooPractices, type TattooPracticesValue } from "@/lib/types/project-client-info";
 
 export default function UpdateAccountPage() {
   const { data: session } = useSession();
@@ -28,6 +30,8 @@ export default function UpdateAccountPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [styleInput, setStyleInput] = useState("");
   const [styleBadges, setStyleBadges] = useState<string[]>([]);
+  const [practices, setPractices] = useState<TattooPracticesValue>({ tattooPractices: [], tattooPracticeDetails: "" });
+  const [practicesError, setPracticesError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof updateSalonSchema>>({
     resolver: zodResolver(updateSalonSchema),
@@ -73,6 +77,7 @@ export default function UpdateAccountPage() {
             retouchEmailDelayDays: undefined,
           });
           setStyleBadges(result.data.style ?? []);
+          setPractices(normalizeTattooPractices(result.data));
         } else {
           console.error("Error fetching salon data:", result.message);
         }
@@ -87,11 +92,20 @@ export default function UpdateAccountPage() {
   const onSubmit = async (data: z.infer<typeof updateSalonSchema>) => {
     if (!salon || isSubmitting) return;
 
+    const practicesProblem = validateTattooPractices(practices);
+    setPracticesError(practicesProblem);
+    if (practicesProblem) {
+      toast.error(practicesProblem);
+      document.getElementById("salon-practices")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const payload = {
         ...data,
         style: styleBadges,
+        ...toTattooPracticesPayload(practices),
       };
       delete payload.projectAppointmentDurationMinutes;
       delete payload.projectAppointmentIsFree;
@@ -194,6 +208,7 @@ export default function UpdateAccountPage() {
           { id: "salon-online", label: "Présence en ligne", hint: "Réseaux sociaux et site web" },
           { id: "salon-services", label: "Prestations", hint: "Votre offre" },
           { id: "salon-specialties", label: "Spécialités", hint: "Vos styles de tatouage" },
+          { id: "salon-practices", label: "Pratiques", hint: "Machine, handpoke, traditionnel…" },
           { id: "salon-followup", label: "Réglages des rendez-vous", hint: "Confirmation et rappels" },
           ...(selectedPrestations.includes("PIERCING") ? [{ id: "salon-piercing", label: "Catalogue piercing", hint: "Zones, services et tarifs" }] : []),
         ]} summary={<div className="space-y-4"><div><p className="break-words text-sm font-medium text-white/85">{form.watch("salonName") || "Votre salon"}</p><p className="mt-1 text-[11px] text-white/40">{[form.watch("postalCode"), form.watch("city")].filter(Boolean).join(" ") || "Localisation à compléter"}</p></div><div className="flex flex-wrap gap-1.5">{selectedPrestations.map((service) => <span key={service} className="rounded-md bg-white/5 px-2 py-1 text-[10px] text-white/55">{{ TATTOO: "Tatouage", PROJET: "Projet", RETOUCHE: "Retouche", PIERCING: "Piercing" }[service]}</span>)}</div><p className="text-[11px] leading-5 text-white/35">Complétez chaque rubrique pour aider vos clients à découvrir le salon et préparer leur visite.</p></div>}>
@@ -480,6 +495,11 @@ export default function UpdateAccountPage() {
                   </span>
                 ))}
               </div>
+            </div>
+
+            <div id="salon-practices" className="col-span-12 scroll-mt-5 border border-white/10 bg-noir-600 min-w-0 rounded-2xl p-4 sm:p-5">
+              <FormSectionHeader eyebrow="08 · Pratiques" title="Vos techniques de tatouage" description="Indiquez comment vous tatouez : plusieurs choix possibles." icon={<PenTool size={18} />} />
+              <TattooPracticesField value={practices} disabled={isSubmitting} error={practicesError} onChange={(value) => { setPractices(value); if (practicesError) setPracticesError(validateTattooPractices(value)); }} />
             </div>
 
             <div id="salon-followup" className="col-span-12 min-w-0 scroll-mt-5 rounded-2xl border border-white/10 bg-noir-600 p-4 sm:p-5">

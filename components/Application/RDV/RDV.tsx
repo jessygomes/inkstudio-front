@@ -21,12 +21,16 @@ import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   fetchAllAppointments,
+  fetchAppointmentById,
   fetchAppointments,
   paidAppointmentsAction,
 } from "@/lib/queries/appointment";
+import BookingLinksPanel, { BookingLinkDetails } from "@/components/Application/BookingLinks/BookingLinksPanel";
+import type { BookingLink } from "@/lib/types/booking-links";
+import BookingLinkCreator from "@/components/Application/BookingLinks/BookingLinkCreator";
 import { FaArrowLeft } from "react-icons/fa6";
 import { CiCalendar, CiCalendarDate } from "react-icons/ci";
-import { Clock3, SlidersHorizontal } from "lucide-react";
+import { Clock3, Link2, SlidersHorizontal } from "lucide-react";
 import { Search } from "@/components/Shared/Search";
 import { toast } from "sonner";
 import { FaRegCalendarTimes } from "react-icons/fa";
@@ -63,7 +67,19 @@ export default function RDV() {
   const [currentView, setCurrentView] = useState<View>("month");
 
   //! Définir le mode par défaut selon la taille d'écran
-  const [viewMode, setViewMode] = useState<"calendar" | "list">("list"); // Changé à "list" par défaut
+  const [viewMode, setViewMode] = useState<"calendar" | "list" | "links">("list"); // Changé à "list" par défaut
+  const [bookingLinkCreatorOpen, setBookingLinkCreatorOpen] = useState(false);
+  const [openingAppointment, setOpeningAppointment] = useState(false);
+  const [selectedLink, setSelectedLink] = useState<BookingLink | null>(null);
+  //! Écran large : détails dans la colonne de droite ; sinon panneau plein écran
+  const [isWideScreen, setIsWideScreen] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1280px)");
+    const update = () => setIsWideScreen(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const ITEMS_PER_PAGE = 10;
@@ -266,15 +282,38 @@ export default function RDV() {
   const paginatedEvents = filteredEvents;
 
   // Reset de la pagination quand on change de vue, query ou filtres
-  const handleViewModeChange = (mode: "calendar" | "list") => {
+  const handleViewModeChange = (mode: "calendar" | "list" | "links") => {
     setViewMode(mode);
     setCurrentPage(1);
     setStatusFilter("all");
     setDateFilter("all");
     setPrestationFilter("all");
     setTatoueurFilter("all");
-    if (mode === "calendar") {
+    setIsFiltersOpen(false);
+    setSelectedLink(null);
+    if (mode !== "list") {
       setSelectedEvent(null);
+    }
+  };
+
+  //! Ouvrir le RDV créé via un lien de réservation (même fiche que l'agenda)
+  const openAppointmentById = async (appointmentId: string) => {
+    if (openingAppointment) return;
+    setOpeningAppointment(true);
+    try {
+      const result = await fetchAppointmentById(appointmentId);
+      const appointment = (result?.appointment ?? result) as CalendarEvent | null;
+      if (!appointment?.id || !appointment.client) {
+        toast.error("Rendez-vous introuvable ou inaccessible.");
+        return;
+      }
+      // Sur petit écran, le panneau du lien recouvrirait la fiche du RDV : on le ferme.
+      if (!isWideScreen) setSelectedLink(null);
+      openEventDetails(appointment);
+    } catch {
+      toast.error("Impossible d'ouvrir ce rendez-vous.");
+    } finally {
+      setOpeningAppointment(false);
     }
   };
 
@@ -412,10 +451,22 @@ export default function RDV() {
                   <CiCalendar size={18} />
                   Tous les RDV
                 </button>
+                <button
+                  onClick={() => handleViewModeChange("links")}
+                  aria-pressed={viewMode === "links"}
+                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-200 font-one md:flex-none md:py-1.5 ${
+                    viewMode === "links"
+                      ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white"
+                      : "text-white/70 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  <Link2 size={15} />
+                  Liens de résa
+                </button>
               </div>
 
               <div
-                className={`${viewMode === "calendar" ? "hidden" : "block"} relative order-2 shrink-0 font-one`}
+                className={`${viewMode !== "list" ? "hidden" : "block"} relative order-2 shrink-0 font-one`}
               >
                 <button
                   type="button"
@@ -430,17 +481,21 @@ export default function RDV() {
                   }`}
                 >
                   <SlidersHorizontal size={16} />
-                  {activeFiltersCount > 0 && (
+                  {activeFiltersCount + (query ? 1 : 0) > 0 && (
                     <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-tertiary-400 text-[10px] text-white">
-                      {activeFiltersCount}
+                      {activeFiltersCount + (query ? 1 : 0)}
                     </span>
                   )}
                 </button>
 
                 {isFiltersOpen && (
               <div
-                className="absolute right-0 top-full z-30 mt-2 flex w-56 flex-col gap-2 rounded-2xl border border-white/10 bg-noir-500 p-3 shadow-xl"
+                className="absolute left-0 top-full z-30 mt-2 flex w-64 max-w-[calc(100vw-2rem)] flex-col gap-2 rounded-2xl border border-white/10 bg-noir-500 p-3 shadow-xl"
               >
+                <div className="min-w-0">
+                  <Search />
+                </div>
+
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -513,30 +568,24 @@ export default function RDV() {
                 )}
               </div>
 
-            <div
-              className={`${viewMode === "calendar" ? "hidden sm:block" : "block"} order-1 min-w-0 flex-1 md:min-w-[120px]`}
-            >
-              <Search />
-            </div>
-
-            <div className="order-3 flex w-full shrink-0 gap-2 md:w-auto">
+            <div className="order-3 flex w-full shrink-0 gap-2 md:ml-auto md:w-auto">
             <button
               type="button"
-              title="Afficher les rendez-vous à confirmer"
+              title="Afficher les rendez-vous en attente"
+              aria-label="Afficher les rendez-vous en attente"
               aria-pressed={viewMode === "list" && statusFilter === "PENDING"}
               onClick={() => {
-                if (viewMode === "calendar") handleViewModeChange("list");
+                if (viewMode !== "list") handleViewModeChange("list");
                 setStatusFilter(statusFilter === "PENDING" && viewMode === "list" ? "all" : "PENDING");
                 setCurrentPage(1);
               }}
-              className={`group inline-flex min-h-10 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded-xl border px-3 py-2 font-one text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60 md:flex-none ${
+              className={`group inline-flex min-h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border px-2.5 py-2 font-one text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60 ${
                 viewMode === "list" && statusFilter === "PENDING"
                   ? "border-amber-300/40 bg-amber-400/15 text-amber-200"
                   : "border-amber-300/15 bg-amber-400/[0.06] text-amber-100/80 hover:border-amber-300/30 hover:bg-amber-400/10"
               }`}
             >
               <Clock3 size={15} className="shrink-0 text-amber-300" />
-              <span>En attente</span>
               <NotificationBadge count={pendingAppointmentsCount} label="rendez-vous en attente" showZero />
             </button>
             {!isFreeAccount && <DashboardButton href="/mes-rendez-vous/creer" className="!min-w-0 !rounded-xl flex-1 whitespace-nowrap md:flex-none">
@@ -553,7 +602,17 @@ export default function RDV() {
             <section
               className={`${viewMode === "calendar" ? "hidden xl:block" : "block"} dashboard-rdv-list w-full p-3 sm:p-0`}
             >
-              {isLoading ? (
+              {viewMode === "links" ? (
+                <div className="relative">
+                  {openingAppointment && <p role="status" className="mb-2 text-xs text-white/50 font-one">Ouverture du rendez-vous…</p>}
+                  <BookingLinksPanel
+                    onOpenAppointment={(id) => void openAppointmentById(id)}
+                    onCreate={isFreeAccount ? undefined : () => setBookingLinkCreatorOpen(true)}
+                    selectedId={selectedEvent ? null : selectedLink?.id}
+                    onSelect={(link) => { setSelectedEvent(null); setIsMobileDetailOpen(false); setSelectedLink(link); }}
+                  />
+                </div>
+              ) : isLoading ? (
                 /* Skeleton loader - localisé dans la section */
                 <RdvListSkeleton />
               ) : (
@@ -877,6 +936,14 @@ export default function RDV() {
                   userId={userId ?? null}
                   price={price}
                 />
+              ) : viewMode === "links" && selectedLink ? (
+                <BookingLinkDetails
+                  key={selectedLink.id}
+                  link={selectedLink}
+                  variant="pane"
+                  onClose={() => setSelectedLink(null)}
+                  onOpenAppointment={(id) => void openAppointmentById(id)}
+                />
               ) : viewMode === "calendar" ? (
                 <div className="bg-noir-500 h-full">
                   <CalendarView
@@ -897,10 +964,12 @@ export default function RDV() {
                       </span>
                     </div>
                     <p className="font-two text-xl text-white">
-                      Sélectionnez un rendez-vous
+                      {viewMode === "links" ? "Liens de réservation" : "Sélectionnez un rendez-vous"}
                     </p>
                     <p className="font-two text-sm text-white/60">
-                      Cliquez sur un rendez-vous pour voir ses détails
+                      {viewMode === "links"
+                        ? "Les rendez-vous réservés via un lien s’ouvriront ici"
+                        : "Cliquez sur un rendez-vous pour voir ses détails"}
                     </p>
                   </div>
                 </div>
@@ -919,6 +988,24 @@ export default function RDV() {
           handlePaymentStatusChange={handlePaymentStatusChange}
           userId={userId ?? null}
           price={price}
+        />
+      )}
+
+      {/* Petit écran : détails du lien en panneau plein écran */}
+      {viewMode === "links" && selectedLink && !isWideScreen && (
+        <BookingLinkDetails
+          key={selectedLink.id}
+          link={selectedLink}
+          variant="drawer"
+          onClose={() => setSelectedLink(null)}
+          onOpenAppointment={(id) => void openAppointmentById(id)}
+        />
+      )}
+
+      {bookingLinkCreatorOpen && (
+        <BookingLinkCreator
+          context={{ origin: "standalone" }}
+          onClose={() => setBookingLinkCreatorOpen(false)}
         />
       )}
     </div>
