@@ -229,6 +229,8 @@ export interface ClientProps {
   linkedUserId?: string | null;
   image?: string | null;
   linkedUser?: { id?: string; image?: string | null } | null;
+  /** Photo du compte Inkera People (liée ou de même e-mail), calculée par la liste du salon ; null = aucune. Absente ailleurs. */
+  accountImage?: string | null;
   firstName: string;
   lastName: string;
   email: string;

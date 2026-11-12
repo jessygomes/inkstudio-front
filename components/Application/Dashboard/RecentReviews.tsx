@@ -1,16 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState, type ComponentProps } from "react";
 import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BadgeCheck, ChevronRight, Star } from "lucide-react";
-import { getRecentReviewsBySalon } from "@/lib/queries/review";
+import { loadDashboardBlock } from "@/lib/dashboard-summary";
 import ReviewDetailsPanel from "./ReviewDetailsPanel";
 import DashboardDetailOverlay from "./DashboardDetailOverlay";
 import { DashboardHeading, DashboardState } from "./DashboardPrimitives";
 type Review = ComponentProps<typeof ReviewDetailsPanel>["selectedReview"];
 export default function RecentReviews({ userId }: { userId: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const query = useQuery({ queryKey: ["dashboard-reviews", userId], queryFn: async () => { const result = await getRecentReviewsBySalon(); if (!result.ok || !result.data) throw new Error(result.message || "Impossible de charger les avis."); const payload = Array.isArray(result.data) && result.data[0]?.reviews ? result.data[0] : result.data; return (Array.isArray(payload) ? payload : Array.isArray(payload.reviews) ? payload.reviews : []) as Review[]; } });
+  const queryClient = useQueryClient();
+  const query = useQuery({ queryKey: ["dashboard-reviews", userId], queryFn: async () => { const result = { ok: true, message: "", data: await loadDashboardBlock<any>(queryClient, userId, "recentReviews") }; if (!result.ok || !result.data) throw new Error(result.message || "Impossible de charger les avis."); const payload = Array.isArray(result.data) && result.data[0]?.reviews ? result.data[0] : result.data; return (Array.isArray(payload) ? payload : Array.isArray(payload.reviews) ? payload.reviews : []) as Review[]; } });
   const reviews = query.data || [];
   const selected = reviews.find(item => item.id === selectedId);
   const average = reviews.length ? reviews.reduce((sum,item) => sum + item.rating, 0) / reviews.length : null;

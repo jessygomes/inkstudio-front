@@ -203,7 +203,7 @@ export default function SalonPhoto() {
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="aspect-[4/3] rounded-xl bg-white/6 animate-pulse border border-white/8"
+              className="aspect-[4/3] rounded-xl bg-white/[0.06] animate-pulse"
             />
           ))}
         </div>
@@ -242,7 +242,7 @@ export default function SalonPhoto() {
           {images.map((image, index) => (
             <div
               key={image.id}
-              className="relative rounded-xl overflow-hidden border border-white/10 bg-noir-700 group"
+              className="relative rounded-xl overflow-hidden bg-noir-700 group"
             >
               <div className="aspect-[4/3] relative">
                 <button type="button" className={styles.openPhoto} onClick={() => setViewedImageId(image.id)} aria-label={`Agrandir la photo ${index + 1} du salon`} aria-haspopup="dialog">

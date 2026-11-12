@@ -18,6 +18,8 @@
   --color-cuatro-500: #ba01d3;
 
   --color-noir-500: #1a1a1a;
+  /* Surfaces (cartes, panneaux) : plus claires que le fond de l'app (noir-700 dans l'application = noir-800, le plus foncé). */
+  --color-noir-600: #1a1a1a;
   --color-noir-700: #131313;
   --color-noir-800: #0d0d0d;
 

@@ -12,7 +12,6 @@ import {
   updateLinkedTatoueurAppointmentBookingAction,
 } from "@/lib/queries/tatoueur";
 import { TatoueurProps } from "@/lib/type"; // Utiliser le type centralisé
-import DashboardButton from "@/components/Shared/DashboardButton";
 import { SalonTeamRequestCards } from "./ResidenciesManager";
 import TeamMemberCard, { teamMemberName } from "./TeamMemberCard";
 
@@ -256,27 +255,26 @@ export default function TatoueurSalon({
           <span className="inline-flex items-center gap-2"><Users size={15} className="text-white/35" /><strong className="text-base font-semibold text-white">{teamTatoueurs.length}</strong> artiste{teamTatoueurs.length > 1 ? "s" : ""}</span>
           <span className="inline-flex items-center gap-2"><CalendarCheck size={15} className="text-emerald-400/65" /><strong className="font-medium text-white/80">{rdvEnabledCount}</strong> avec réservation active</span>
         </div>
-        <DashboardButton href="/mon-compte/ajouter-tatoueur" className="!min-w-0 !rounded-xl !shadow-none"><Plus size={15} />Ajouter un tatoueur</DashboardButton>
+        {teamTatoueurs.length > 0 && <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto">
+          <label className="relative block min-w-0 flex-1 lg:w-72 lg:flex-none"><Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/35" /><span className="sr-only">Rechercher un artiste ou une spécialité</span><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Un artiste, un style, une compétence…" className="h-10 w-full rounded-xl border border-transparent bg-white/[0.06] py-2 pl-9 pr-3 text-xs text-white outline-none transition placeholder:text-white/35 hover:bg-white/[0.09] focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/15" /></label>
+          <div role="group" aria-label="Filtrer les artistes" className="inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-white/[0.05] p-1">
+            {([{ id: "all", label: "Toute l’équipe", count: teamTatoueurs.length }, { id: "bookable", label: "Réservation active", count: rdvEnabledCount }, { id: "linked", label: "Comptes liés", count: linkedCount }] as const).map((item) => <button key={item.id} type="button" aria-pressed={filter === item.id} onClick={() => setFilter(item.id)} className={"inline-flex h-8 shrink-0 items-center gap-2 rounded-lg px-3 text-[11px] font-medium transition " + (filter === item.id ? "bg-tertiary-400/15 text-tertiary-400" : "text-white/50 hover:bg-white/5 hover:text-white")}>{item.label}<span className={"rounded-md px-1.5 py-0.5 text-[10px] " + (filter === item.id ? "bg-tertiary-400/20 text-tertiary-400" : "bg-white/[0.07] text-white/45")}>{item.count}</span></button>)}
+          </div>
+        </div>}
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
       <SalonTeamRequestCards onCountChange={setRequestCount} onAccepted={refreshTeam} />
       {teamTatoueurs.length > 0 ? <>
-        <div className="col-span-full flex flex-col gap-3 rounded-2xl border border-white/10 bg-noir-700 p-2.5 lg:flex-row lg:items-center lg:justify-between">
-          <label className="relative block min-w-0 lg:w-72 xl:w-80"><Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/35" /><span className="sr-only">Rechercher un artiste ou une spécialité</span><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Un artiste, un style, une compétence…" className="h-10 w-full rounded-xl border border-white/10 bg-noir-700 py-2 pl-9 pr-3 text-xs text-white outline-none transition placeholder:text-white/30 focus:border-tertiary-400/60 focus:ring-2 focus:ring-tertiary-400/10" /></label>
-          <div role="group" aria-label="Filtrer les artistes" className="flex flex-wrap gap-1">
-            {([{ id: "all", label: "Toute l’équipe", count: teamTatoueurs.length }, { id: "bookable", label: "Réservation active", count: rdvEnabledCount }, { id: "linked", label: "Comptes liés", count: linkedCount }] as const).map((item) => <button key={item.id} type="button" aria-pressed={filter === item.id} onClick={() => setFilter(item.id)} className={"inline-flex min-h-9 items-center gap-2 rounded-lg px-3 py-2 text-[11px] transition " + (filter === item.id ? "bg-white/[0.08] text-white" : "text-white/45 hover:bg-white/[0.04] hover:text-white/80")}>{item.label}<span className={"rounded-md px-1.5 py-0.5 text-[10px] " + (filter === item.id ? "bg-white/10 text-white/75" : "bg-white/5 text-white/35")}>{item.count}</span></button>)}
-          </div>
-        </div>
         <p role="status" className="sr-only">{filteredTeam.length} artiste{filteredTeam.length > 1 ? "s" : ""} affiché{filteredTeam.length > 1 ? "s" : ""}</p>
         {filteredTeam.length ? <div className="contents">
           {filteredTeam.map((member) => <TeamMemberCard onDetached={() => setTeamTatoueurs(previous => previous.filter(item => item.id !== member.id))} salonId={salonId} key={member.id} member={member} linked={isReadOnlyLinkedTatoueur(member)} bookingEnabled={isAppointmentBookingEnabled(member)} updating={!!isUpdatingRdvById[member.id]} removing={!!isUnlinkingById[member.id]} onToggleBooking={() => void handleToggleLinkedTatoueurRdv(member)} onRemove={() => {
             if (isReadOnlyLinkedTatoueur(member)) { void handleUnlinkLinkedTatoueur(member); }
             else { setSelectedTatoueur(member); setIsDeleteModalOpen(true); }
           }} />)}
-        </div> : <div className="col-span-full rounded-2xl border border-white/10 bg-noir-700 px-5 py-12 text-center"><Search size={25} className="mx-auto mb-4 text-white/25" /><h3 className="text-sm font-medium text-white">Aucun artiste ne correspond</h3><p className="mt-2 text-xs text-white/40">Essayez un autre nom, une spécialité ou un autre filtre.</p><button type="button" onClick={() => { setSearch(""); setFilter("all"); }} className="mx-auto mt-5 inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-xs text-white/65 transition hover:bg-white/5"><X size={13} />Effacer les filtres</button></div>}
-      </> : requestCount === 0 ? <div className="col-span-full flex flex-col items-center rounded-2xl border border-dashed border-white/15 bg-noir-700 px-5 py-12 text-center sm:py-16">
-        <div className="mb-5 flex size-14 items-center justify-center rounded-2xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400"><Users size={24} /></div>
+        </div> : <div className="col-span-full rounded-2xl bg-noir-700 px-5 py-12 text-center"><Search size={25} className="mx-auto mb-4 text-white/25" /><h3 className="text-sm font-medium text-white">Aucun artiste ne correspond</h3><p className="mt-2 text-xs text-white/40">Essayez un autre nom, une spécialité ou un autre filtre.</p><button type="button" onClick={() => { setSearch(""); setFilter("all"); }} className="mx-auto mt-5 inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-xs text-white/65 transition hover:bg-white/5"><X size={13} />Effacer les filtres</button></div>}
+      </> : requestCount === 0 ? <div className="col-span-full flex flex-col items-center rounded-2xl bg-noir-700 px-5 py-12 text-center sm:py-16">
+        <div className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-tertiary-400/10 text-tertiary-400"><Users size={24} /></div>
         <h3 className="text-lg font-semibold tracking-tight text-white">Votre équipe commence ici</h3>
         <p className="mt-2 max-w-sm text-xs leading-6 text-white/45">Ajoutez votre premier artiste ou invitez un tatoueur déjà inscrit sur Inkera pour construire votre équipe.</p>
         <Link href="/mon-compte/ajouter-tatoueur" className="mt-6 inline-flex min-h-10 items-center gap-2 rounded-xl bg-tertiary-400 px-4 py-2.5 text-xs font-medium text-white transition hover:bg-tertiary-500"><Plus size={15} />Ajouter le premier tatoueur</Link>

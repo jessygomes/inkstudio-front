@@ -4,8 +4,8 @@ import { authenticatedFetch } from "@/lib/authenticated-fetch";
 import { useSession } from "next-auth/react";
 import { SalonUserProps } from "@/lib/type";
 import { useEffect, useState } from "react";
-import DashboardButton from "@/components/Shared/DashboardButton";
-import { CalendarClock, Gem } from "lucide-react";
+import RdvActionButton from "@/components/Application/RDV/RdvActionButton";
+import { CalendarClock, Gem, Plus } from "lucide-react";
 import Horaire from "./Horaire";
 import InfoSalon from "./InfoSalon";
 import TatoueurSalon from "./TatoueurSalon";
@@ -85,8 +85,8 @@ export default function SalonAccount() {
         <AccountTitle />
 
         {paidAccount && <div className="flex w-full flex-wrap gap-2 sm:w-auto">
-          <DashboardButton href="/mon-compte/rendez-vous" variant="secondary" className="!min-w-0 !bg-noir-700 hover:!bg-noir-500 flex-1 sm:flex-none"><CalendarClock size={15} aria-hidden="true" />Rendez-vous</DashboardButton>
-          {salon.prestations?.includes("PIERCING") && <DashboardButton href="/mon-compte/piercing" variant="secondary" className="!min-w-0 !bg-noir-700 hover:!bg-noir-500 flex-1 sm:flex-none"><Gem size={15} aria-hidden="true" />Piercing</DashboardButton>}
+          <RdvActionButton href="/mon-compte/rendez-vous" tone="neutral" icon={CalendarClock} className="flex-1 sm:!w-auto sm:flex-none">Rendez-vous</RdvActionButton>
+          {salon.prestations?.includes("PIERCING") && <RdvActionButton href="/mon-compte/piercing" tone="neutral" icon={Gem} className="flex-1 sm:!w-auto sm:flex-none">Piercing</RdvActionButton>}
         </div>}
 
       </header>
@@ -98,6 +98,7 @@ export default function SalonAccount() {
         title="Horaires & disponibilités"
         description="Organisez votre semaine et gérez vos absences."
         compact
+        raised
       >
         <Horaire hours={salon.salonHours} salonId={salonId || ""} />
       </AccountSection>
@@ -110,6 +111,8 @@ export default function SalonAccount() {
           id="equipe"
           title="Votre équipe"
           description="Retrouvez vos artistes et gérez leurs réservations."
+          raised
+          action={<RdvActionButton href="/mon-compte/ajouter-tatoueur" tone="primary" icon={Plus} className="!w-auto shrink-0">Ajouter un tatoueur</RdvActionButton>}
         >
           <TatoueurSalon
             tatoueurs={teamTatoueurs}
@@ -135,29 +138,40 @@ function AccountSection({
   description,
   children,
   compact = false,
+  raised = false,
+  action,
 }: {
   id: string;
   title: string;
   description: string;
   children: React.ReactNode;
   compact?: boolean;
+  /** Fond un cran plus foncé que les autres sections (le deuxième noir le plus foncé). */
+  raised?: boolean;
+  /** Bouton affiché à droite du titre de la section. */
+  action?: React.ReactNode;
 }) {
   return (
     <section
       id={id}
       aria-labelledby={id + "-title"}
-      className="scroll-mt-6 overflow-hidden rounded-3xl border border-white/10 bg-noir-700"
+      className={"scroll-mt-6 overflow-hidden rounded-3xl " + (raised ? "bg-[var(--app-surface-raised)]" : "bg-noir-600")}
     >
-      <header className={compact ? "border-b border-white/[0.07] bg-white/[0.025] px-4 py-3 sm:px-5" : "border-b border-white/8 bg-white/[0.025] p-5 sm:px-6"}>
-        <h2
-          id={id + "-title"}
-          className={compact ? "text-base font-one font-semibold tracking-tight text-white" : "text-lg font-one font-semibold text-white"}
-        >
-          {title}
-        </h2>
-        <p className={compact ? "mt-1 text-xs text-white/40" : "mt-1 text-sm text-white/60"}>{description}</p>
+      <header className={compact ? "px-4 pt-4 sm:px-5" : "px-5 pt-5 sm:px-6"}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2
+              id={id + "-title"}
+              className={compact ? "text-base font-one font-medium tracking-tight text-white" : "text-lg font-one font-medium tracking-tight text-white"}
+            >
+              {title}
+            </h2>
+            <p className={compact ? "mt-1 text-xs text-white/40" : "mt-1 text-sm text-white/60"}>{description}</p>
+          </div>
+          {action}
+        </div>
       </header>
-      <div className={compact ? "p-3 sm:p-4" : "p-4 sm:p-6"}>{children}</div>
+      <div className={compact ? "p-3 pt-4 sm:p-4 sm:pt-4" : "p-4 pt-5 sm:p-6 sm:pt-5"}>{children}</div>
     </section>
   );
 }

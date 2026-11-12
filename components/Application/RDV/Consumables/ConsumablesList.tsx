@@ -9,6 +9,7 @@ import {
   deleteAppointmentConsumableAction,
 } from "@/lib/queries/consumables";
 import ConsumableRow from "./ConsumableRow";
+import RdvActionButton from "../RdvActionButton";
 import ConsumableForm from "./ConsumableForm";
 import { z } from "zod";
 import { consumableSchema } from "@/lib/zod/validator.schema";
@@ -100,16 +101,9 @@ export default function ConsumablesList({ appointmentId }: ConsumablesListProps)
   return (
     <div className="space-y-3 font-one">
       <div className="flex items-center justify-between">
-        <div className="flex min-w-0 items-center gap-2"><Package size={14} className="shrink-0 text-white/40" /><h3 className="text-xs font-semibold text-white/85">Consommables utilisés</h3><span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] tabular-nums text-white/45">{consumables.length}</span></div>
+        <div className="flex min-w-0 items-center gap-2"><span className="grid size-7 shrink-0 place-items-center rounded-lg bg-tertiary-400/10 text-tertiary-400"><Package size={14} /></span><h3 className="text-[13px] font-medium text-white/90">Consommables utilisés</h3><span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] tabular-nums text-white/45">{consumables.length}</span></div>
         {uiState === "idle" && (
-          <button
-            type="button"
-            onClick={() => setUiState("adding")}
-            className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.025] px-2.5 py-2 text-[11px] font-medium text-white/75 transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"
-          >
-            <Plus size={14} />
-            Ajouter
-          </button>
+          <RdvActionButton tone="neutral" icon={Plus} size="sm" iconOnly onClick={() => setUiState("adding")}>Ajouter un consommable</RdvActionButton>
         )}
       </div>
 
@@ -124,7 +118,7 @@ export default function ConsumablesList({ appointmentId }: ConsumablesListProps)
       ) : (
         <>
           {consumables.length === 0 && uiState === "idle" && (
-            <p className="rounded-xl border border-dashed border-white/10 px-4 py-5 text-center text-[11px] leading-5 text-white/40">
+            <p className="rounded-xl bg-white/[0.03] px-4 py-5 text-center text-[11px] leading-5 text-white/40">
               Aucun consommable enregistré pour ce rendez-vous.
             </p>
           )}

@@ -3,8 +3,9 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useMutation } from "@tanstack/react-query";
-import { AlertTriangle, CalendarDays, LoaderCircle, Mail, X } from "lucide-react";
+import { AlertTriangle, CalendarDays, CalendarX, LoaderCircle, Mail, X } from "lucide-react";
 import { toast } from "sonner";
+import RdvActionButton from "./RdvActionButton";
 import { confirmAppointmentAction } from "@/lib/queries/appointment";
 
 type CancellationDetails = {
@@ -43,7 +44,7 @@ function CancelConfirmation({ appointment, busy, error, reason, setReason, onClo
   </dialog>, document.body);
 }
 
-export default function CancelRdv({ rdvId, appointment, onCancel }: { rdvId: string; appointment?: CancellationDetails; onCancel: () => void }) {
+export default function CancelRdv({ rdvId, appointment, onCancel, iconOnly }: { rdvId: string; appointment?: CancellationDetails; onCancel: () => void; iconOnly?: boolean }) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -56,5 +57,5 @@ export default function CancelRdv({ rdvId, appointment, onCancel }: { rdvId: str
     onSuccess: () => { setOpen(false); setReason(""); toast.success("Rendez-vous annulé. Le client va recevoir un email."); onCancel(); },
     onError: (cause: Error) => setError(cause.message || "Impossible d’annuler ce rendez-vous."),
   });
-  return <><button type="button" onClick={() => { setError(null); setOpen(true); }} title="Annuler ce rendez-vous" className={buttonClass + " w-full border-red-400/15 bg-red-400/[0.025] text-red-300 hover:bg-red-400/10 font-one"}><X size={14} />Annuler</button>{open && <CancelConfirmation appointment={appointment} busy={mutation.isPending} error={error} reason={reason} setReason={setReason} onClose={() => { if (!mutation.isPending) setOpen(false); }} onConfirm={() => { if (!mutation.isPending) mutation.mutate(); }} />}</>;
+  return <><RdvActionButton tone="danger" icon={iconOnly ? CalendarX : X} iconOnly={iconOnly} onClick={() => { setError(null); setOpen(true); }} title="Annuler ce rendez-vous">Annuler</RdvActionButton>{open && <CancelConfirmation appointment={appointment} busy={mutation.isPending} error={error} reason={reason} setReason={setReason} onClose={() => { if (!mutation.isPending) setOpen(false); }} onConfirm={() => { if (!mutation.isPending) mutation.mutate(); }} />}</>;
 }

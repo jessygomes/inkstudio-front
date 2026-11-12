@@ -99,8 +99,8 @@ export default function SecuritySection({
         <SettingsSectionHeader icon={ShieldCheck} title="Connexion et sécurité" description="Protégez l’accès à votre compte." expanded={openSections.security} controls="settings-security-content" onToggle={() => toggleSection("security")} />
 
         {openSections.security && (
-          <div id="settings-security-content" className="mt-4 space-y-4 border-t border-white/[0.07] pt-4">
-            <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div id="settings-security-content" className="mt-4 space-y-4 pt-4">
+            <div className="bg-white/[0.05] rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div><h3 className="text-sm font-semibold text-white font-one">Mot de passe de connexion</h3><p className="mt-1 text-xs leading-relaxed text-white/55">Choisissez un mot de passe unique pour votre compte.</p></div>
               <DashboardButton
                 onClick={() => { setShowPasswords(false); setShowPasswordModal(true); }}
@@ -114,7 +114,7 @@ export default function SecuritySection({
             </div>
 
             {/* SESSIONS ACTIVE */}
-            {/* <div className="bg-white/5 rounded-xl p-3 sm:p-4 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            {/* <div className="bg-white/[0.05] rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-white font-one mb-2 text-xs sm:text-sm">
                   <span className="hidden sm:inline">Sessions actives</span>
@@ -142,7 +142,7 @@ export default function SecuritySection({
       {showPasswordModal && (
         <dialog ref={dialogRef} aria-label="Changer le mot de passe" onCancel={(event) => { event.preventDefault(); if (!isChangingPassword) { setShowPasswordModal(false); passwordForm.reset(); } }} className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 text-white backdrop:bg-black/70 backdrop:backdrop-blur-sm">
           <div className="flex h-full items-center justify-center p-3 sm:p-6">
-          <div className="flex max-h-[calc(100dvh-3rem)] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-noir-500 shadow-2xl">
+          <div className="flex max-h-[calc(100dvh-3rem)] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-noir-500 shadow-2xl">
             {/* Header */}
             <div className="shrink-0 p-5 sm:p-6 border-b border-white/10 bg-linear-to-r from-tertiary-500/10 to-transparent">
               <div className="flex items-center justify-between">
@@ -189,7 +189,7 @@ export default function SecuritySection({
                     autoComplete="current-password"
                     {...passwordForm.register("currentPassword")}
                     disabled={isChangingPassword}
-                    className="w-full min-h-10 px-3 py-2.5 bg-black/15 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
+                    className="w-full min-h-10 px-3 py-2.5 bg-white/[0.06] border border-transparent rounded-xl text-white text-sm focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
                     placeholder="Votre mot de passe actuel"
                   />
                   {passwordForm.formState.errors.currentPassword && (
@@ -212,7 +212,7 @@ export default function SecuritySection({
                     autoComplete="new-password"
                     {...passwordForm.register("newPassword")}
                     disabled={isChangingPassword}
-                    className="w-full min-h-10 px-3 py-2.5 bg-black/15 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
+                    className="w-full min-h-10 px-3 py-2.5 bg-white/[0.06] border border-transparent rounded-xl text-white text-sm focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
                     placeholder="Votre nouveau mot de passe"
                   />
                   {passwordForm.formState.errors.newPassword && (
@@ -235,7 +235,7 @@ export default function SecuritySection({
                     autoComplete="new-password"
                     {...passwordForm.register("confirmPassword")}
                     disabled={isChangingPassword}
-                    className="w-full min-h-10 px-3 py-2.5 bg-black/15 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
+                    className="w-full min-h-10 px-3 py-2.5 bg-white/[0.06] border border-transparent rounded-xl text-white text-sm focus:outline-none focus:border-tertiary-400 focus:ring-2 focus:ring-tertiary-400/15 transition-colors disabled:opacity-50"
                     placeholder="Confirmez votre nouveau mot de passe"
                   />
                   {passwordForm.formState.errors.confirmPassword && (
@@ -246,7 +246,7 @@ export default function SecuritySection({
                 </div>
 
                 {/* Règles de sécurité */}
-                <div className="bg-tertiary-500/10 border border-tertiary-500/20 rounded-xl p-4 lg:p-3 mt-6 lg:mt-4 font-one">
+                <div className="bg-tertiary-500/10 rounded-xl p-4 lg:p-3 mt-6 lg:mt-4 font-one">
                   <div className="flex items-start gap-3 lg:gap-2">
                     <svg
                       className="w-5 h-5 lg:w-4 lg:h-4 text-tertiary-400 mt-0.5 flex-shrink-0"

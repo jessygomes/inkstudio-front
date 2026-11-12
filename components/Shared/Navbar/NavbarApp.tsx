@@ -50,7 +50,7 @@ export default function NavbarApp({ collapsed, onToggle, backOfficeHref }: Navba
 
     void initializeUnreadCount();
     // Garde le badge cohérent même si un message arrive depuis un autre appareil.
-    const timer = window.setInterval(() => void initializeUnreadCount(), 10000);
+    const timer = window.setInterval(() => { if (!document.hidden) void initializeUnreadCount(); }, 30000);
     return () => window.clearInterval(timer);
   }, [setUnreadCount, session]);
 

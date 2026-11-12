@@ -235,7 +235,7 @@ export default function DrawingBoard() {
                   );
                   if (card && card.status !== status) move(card, status);
                 }}
-                className="min-h-[420px] min-w-0 rounded-2xl border border-white/10 bg-white/[0.025] p-2.5"
+                className="min-h-[420px] min-w-0 rounded-2xl bg-white/[0.04] p-2.5"
               >
                 <header className="mb-3 flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">

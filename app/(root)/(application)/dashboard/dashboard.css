@@ -5,9 +5,9 @@
 .studio-dashboard .bg-noir-600 { background-color: var(--app-panel); }
 .studio-dashboard .dashboard-panel,
 .studio-dashboard .dashboard-stat-card {
-  border: 1px solid var(--dashboard-border);
+  border: 0; /* sections sans contour : seul le fond les distingue du fond de l application */
   border-radius: 16px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--color-tertiary-400) 4.5%, transparent), transparent 45%), var(--color-noir-600, var(--app-panel));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-tertiary-400) 4.5%, transparent), transparent 45%), color-mix(in srgb, var(--color-noir-600, var(--app-panel)) 55%, var(--app-canvas));
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-tertiary-400) 7%, transparent);
   backdrop-filter: none;
   min-width: 0;

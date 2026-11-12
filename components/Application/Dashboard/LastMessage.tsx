@@ -4,20 +4,23 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MessageSquare } from "lucide-react";
-import { getRecentUnreadConversationsAction, type UnreadConversationResponseDto } from "@/lib/queries/conversation.action";
+import { useQueryClient } from "@tanstack/react-query";
+import type { UnreadConversationResponseDto } from "@/lib/queries/conversation.action";
+import { loadDashboardBlock } from "@/lib/dashboard-summary";
 import { DashboardHeading, DashboardState } from "./DashboardPrimitives";
 
 export default function LastMessage({ userId }: { userId: string }) {
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
   const [conversations, setConversations] = useState<UnreadConversationResponseDto[]>([]);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => {
     if (!userId) { setLoading(false); return; }
     setLoading(true); setError(null);
-    try { setConversations(await getRecentUnreadConversationsAction() || []); }
+    try { setConversations(await loadDashboardBlock<UnreadConversationResponseDto[]>(queryClient, userId, "conversations") || []); }
     catch { setError("Impossible de charger les messages."); }
     finally { setLoading(false); }
-  }, [userId]);
+  }, [userId, queryClient]);
   useEffect(() => { void load(); }, [load]);
   return <section className="dashboard-panel flex h-full min-w-0 flex-col overflow-hidden p-4">
     <DashboardHeading title="Messages non lus" description="Les conversations à reprendre." icon={MessageSquare} count={conversations.reduce((sum, item) => sum + item.unreadCount, 0)} href="/messagerie" />

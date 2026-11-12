@@ -18,7 +18,7 @@ import { getMoodboardByAppointmentAction, MoodboardDto } from "@/lib/queries/moo
 import ConsumablesList from "./Consumables/ConsumablesList";
 import ProjectBookingSection from "./ProjectBookingSection";
 import AppointmentDrawingCardAction from "@/components/Application/SuiviDessin/AppointmentDrawingCardAction";
-import { ExternalLink, Palette } from "lucide-react";
+import { ExternalLink, Palette, Star, Video } from "lucide-react";
 
 interface ShowRdvDetailsProps {
   selectedEvent: CalendarEvent;
@@ -229,7 +229,7 @@ export default function ShowRdvDetails({
 
   return (
     <>
-      <div className="bg-noir-700 font-one [&_button]:cursor-pointer [&_a]:cursor-pointer [&_button]:disabled:cursor-not-allowed !rounded-none !border-0 flex h-full flex-col">
+      <div className="bg-[var(--app-surface-raised)] font-one [&_button]:cursor-pointer [&_a]:cursor-pointer [&_button]:disabled:cursor-not-allowed !rounded-none !border-0 flex h-full flex-col">
       <RdvDetailsHeader client={selectedEvent.client} status={selectedEvent.status} title={selectedEvent.title} onClose={onClose} error={clientError}><button
                   type="button"
                   onClick={openClientFile}
@@ -241,19 +241,17 @@ export default function ShowRdvDetails({
                   <UserRound size={13} aria-hidden="true" />
                 </button></RdvDetailsHeader>
 
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+      <div className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
         <RdvPlanningCard appointment={selectedEvent} />
 
         <ProjectBookingSection appointment={selectedEvent} onUpdated={handleRdvUpdated} />
-
-        <RdvActions appointment={selectedEvent} userId={userId} onUpdated={handleRdvUpdated} onStatusChange={handleStatusChange} />
 
         {/* Section Visio */}
         {selectedEvent.visio && (
           <div className="rounded-2xl border border-white/10 bg-noir-600 p-3">
             <div className="flex items-center justify-between mb-2.5">
-              <p className="text-[9px] font-medium uppercase tracking-[0.14em] text-white/35 font-one">Visioconférence</p>
-              <span className="inline-flex items-center gap-1 border border-blue-400/25 bg-blue-500/12 rounded-full px-2 py-0.5 text-[10px] font-medium font-one text-blue-300">
+              <h3 className="flex items-center gap-2.5 text-[13px] font-medium text-white/90"><span className="grid size-7 shrink-0 place-items-center rounded-lg bg-tertiary-400/10 text-tertiary-400"><Video size={14} /></span>Visioconférence</h3>
+              <span className="inline-flex items-center gap-1 bg-blue-500/15 rounded-md px-2 py-1 text-[10px] font-medium font-one text-blue-300">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
                 En ligne
               </span>
@@ -265,7 +263,7 @@ export default function ShowRdvDetails({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-2 px-3 py-2 bg-blue-500/15 hover:bg-blue-500/25 border border-blue-400/25 rounded-xl text-blue-300 hover:text-blue-200 transition-colors text-xs font-one font-medium"
+                className="inline-flex items-center gap-2 px-3 py-2 bg-blue-500/15 hover:bg-blue-500/25 rounded-xl text-blue-300 hover:text-blue-200 transition-colors text-xs font-one font-medium"
               >
                 <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -283,7 +281,7 @@ export default function ShowRdvDetails({
               <button
               type="button"
               onClick={openMoodboard}
-              className="mt-1 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-indigo-400/20 bg-indigo-500/10 px-3 py-2 text-xs font-medium text-indigo-200 transition-colors duration-200 hover:bg-indigo-500/20 font-one"
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-indigo-500/15 px-3 py-2 text-xs font-medium text-indigo-200 transition-colors duration-200 hover:bg-indigo-500/20 font-one"
               title="Voir le moodboard du client"
             >
                 <Palette size={14} className="shrink-0" />
@@ -298,7 +296,7 @@ export default function ShowRdvDetails({
         {(selectedEvent.prestation === "TATTOO" ||
           selectedEvent.prestation === "PIERCING" ||
           selectedEvent.prestation === "RETOUCHE") && (
-          <div className="rounded-2xl border border-white/10 bg-noir-600 p-3">
+          <div className="rounded-2xl bg-noir-600 p-3">
             <ConsumablesList key={selectedEvent.id} appointmentId={selectedEvent.id} />
           </div>
         )}
@@ -308,10 +306,10 @@ export default function ShowRdvDetails({
           <div className="rounded-2xl border border-white/10 bg-noir-600 p-3">
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex-1 min-w-0">
-                <p className="text-[9px] uppercase tracking-[0.14em] text-white/35 font-one">Avis client</p>
+                <h3 className="flex items-center gap-2.5 text-[13px] font-medium text-white/90"><span className="grid size-7 shrink-0 place-items-center rounded-lg bg-tertiary-400/10 text-tertiary-400"><Star size={14} /></span>Avis client</h3>
                 <p className="text-white font-one font-semibold text-sm truncate mt-1">{selectedEvent.salonReview.title}</p>
               </div>
-              <div className="inline-flex items-center gap-1 bg-yellow-500/20 px-2 py-1 rounded-md border border-yellow-500/30">
+              <div className="inline-flex items-center gap-1 bg-amber-400/15 px-2 py-1 rounded-md">
                 <span className="text-yellow-400 font-one font-bold text-xs">{selectedEvent.salonReview.rating}</span>
                 <span className="text-yellow-400 text-xs">★</span>
               </div>
@@ -328,24 +326,25 @@ export default function ShowRdvDetails({
                 })}
               </div>
               {selectedEvent.salonReview.isVerified && (
-                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full border border-green-500/30 font-one">✓ Vérifié</span>
+                <span className="text-xs bg-emerald-400/15 text-emerald-300 px-2 py-1 rounded-md font-one">✓ Vérifié</span>
               )}
             </div>
           </div>
         )}
       </div>
 
-      <div className="shrink-0 border-t border-white/10 bg-noir-700 flex items-center justify-between px-4 py-2.5">
-        <p className="text-[10px] text-white/30 font-one leading-none">
-          RDV {new Date(selectedEvent.start).toLocaleDateString("fr-FR")}
-        </p>
+      {/* Pied : actions du rendez-vous en icônes (à gauche, Annuler en dernier), puis Fermer à droite. */}
+      <div className="shrink-0 flex items-center gap-2 px-3 py-2.5">
+        <RdvActions variant="footer" appointment={selectedEvent} userId={userId} onUpdated={handleRdvUpdated} onStatusChange={handleStatusChange} />
+        <div className="ml-auto flex items-center gap-2">
         <button
           onClick={onClose}
           aria-label="Fermer le rendez-vous"
-          className="cursor-pointer inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/6 px-4 py-1 text-[11px] font-medium text-white/70 hover:text-white hover:bg-white/12 transition-all duration-200 font-one"
+          className="cursor-pointer inline-flex items-center justify-center min-h-8 shrink-0 rounded-xl border border-white/10 bg-white/6 px-3 py-1 text-[11px] font-medium text-white/70 hover:text-white hover:bg-white/12 transition-all duration-200 font-one"
         >
           Fermer
         </button>
+        </div>
       </div>
       </div>
       {moodboardModal}

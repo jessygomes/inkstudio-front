@@ -15,6 +15,12 @@ html:has(.app-colors-container) {
   --color-tertiary-500: var(--app-accent-500, #ff5500);
   --color-tertiary-400-rgb: var(--app-accent-400-rgb, 255, 157, 0);
   --color-tertiary-500-rgb: var(--app-accent-500-rgb, 255, 85, 0);
+  /* Fond de l'application : le noir le plus foncé (noir-800). Les cartes et panneaux (noir-500 / noir-600, #1a1a1a) ressortent dessus. */
+  --app-canvas: #0d0d0d;
+  --app-canvas-rgb: 13 13 13;
+  --color-noir-700: #0d0d0d;
+  /* Fenêtres et panneaux (ex. détail d'un rendez-vous) : le deuxième noir le plus foncé, un cran au-dessus du fond. */
+  --app-surface-raised: #131313;
   color-scheme: dark;
   background: var(--app-canvas);
   color: var(--app-ink);
@@ -23,31 +29,32 @@ html:has(.app-colors-container) {
 html[data-theme="light"]:has(.app-colors-container) {
   color-scheme: light;
   --app-ink-rgb: 41 41 41;
-  /* Layer light grey surfaces: canvas, raised panels and recessed controls. */
-  --app-canvas: #dcdcdc;
-  --app-panel: #e8e8e8;
-  --app-panel-rgb: 232 232 232;
-  --app-canvas-rgb: 220 220 220;
+  /* Layer light grey surfaces: canvas, raised panels and recessed controls. Nuances de gris clair, sans blanc trop blanc. */
+  --app-canvas: #d0d0d0;
+  --app-panel: #dedede;
+  --app-panel-rgb: 222 222 222;
+  --app-canvas-rgb: 208 208 208;
+  --app-surface-raised: var(--app-canvas);
   --app-muted-opacity: 65%;
   /* Existing neutral utilities use white for foregrounds and translucent borders. */
   --color-white: #292929;
   --color-noir-500: var(--app-panel);
-  --color-noir-600: #d2d2d2;
+  --color-noir-600: #c5c5c5;
   --color-noir-700: var(--app-canvas);
   --color-gray-100: #343434;
   --color-gray-200: #454545;
   --color-gray-300: #555555;
   --color-gray-400: #656565;
   --color-gray-500: #747474;
-  --color-gray-600: #c8c8c8;
-  --color-gray-700: #d2d2d2;
+  --color-gray-600: #bcbcbc;
+  --color-gray-700: #c5c5c5;
   --color-gray-800: var(--app-canvas);
   --color-gray-900: var(--app-panel);
   --color-slate-300: #555d67;
   --color-slate-400: #626b77;
-  --color-zinc-800: #d2d2d2;
+  --color-zinc-800: #c5c5c5;
   --color-zinc-900: var(--app-canvas);
-  --color-neutral-800: #d2d2d2;
+  --color-neutral-800: #c5c5c5;
   --color-neutral-900: var(--app-canvas);
   --color-red-300: #b42330;
   --color-red-400: #c5343d;
@@ -66,6 +73,16 @@ html[data-theme="light"]:has(.app-colors-container) {
   --color-blue-400: #306cbb;
   --color-purple-300: #7950ae;
   --color-pink-300: #a83b78;
+  /* Variantes -100 / -200 (textes clairs sur fond teinté) : sans elles, elles restent pastel et illisibles sur le gris clair. */
+  --color-emerald-200: #066a4a;
+  --color-green-200: #1d6b36;
+  --color-teal-200: #076a62;
+  --color-red-100: #8f1c28;
+  --color-red-200: #a01f2b;
+  --color-blue-200: #234f94;
+  --color-orange-200: #8f3a0f;
+  --color-yellow-200: #78560a;
+  --color-yellow-300: #86600a;
 }
 
 /* LogoProfil's symbol occupies 284/457 of its canvas; Logo15 fills its height. */

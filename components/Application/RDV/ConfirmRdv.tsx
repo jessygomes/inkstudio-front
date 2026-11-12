@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
+import RdvActionButton from "./RdvActionButton";
 import {
   calculateDurationForModal,
 } from "@/lib/utils/date-format/format-date-for-modal";
@@ -12,10 +14,12 @@ export default function ConfirmRdv({
   rdvId,
   appointment,
   onConfirm,
+  iconOnly,
 }: {
   rdvId: string;
   appointment?: any; // Pour passer les détails du RDV
   onConfirm: () => void;
+  iconOnly?: boolean;
 }) {
   const [showModal, setShowModal] = useState(false);
   const [actionMessage, setActionMessage] = useState("");
@@ -45,26 +49,7 @@ export default function ConfirmRdv({
 
   return (
     <>
-      <button
-        className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium font-one transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed disabled:opacity-50 border-emerald-400/20 bg-emerald-400/5 text-emerald-300 hover:bg-emerald-400/10"
-        onClick={() => setShowModal(true)}
-        title="Confirmer ce rendez-vous"
-      >
-        <svg
-          className="w-3.5 h-3.5 flex-shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2.5}
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <span>Confirmer</span>
-      </button>
+      <RdvActionButton tone="success" icon={Check} iconOnly={iconOnly} onClick={() => setShowModal(true)} title="Confirmer ce rendez-vous">Confirmer</RdvActionButton>
 
       {/* Modale d'action */}
       {showModal && (

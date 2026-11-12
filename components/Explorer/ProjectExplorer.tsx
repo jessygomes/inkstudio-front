@@ -10,10 +10,16 @@ import {
   MessageSquare,
   RotateCcw,
   Search,
+  Hash,
+  ListFilter,
+  Palette,
+  Ruler,
   SlidersHorizontal,
+  X,
 } from "lucide-react";
 import DashboardButton from "@/components/Shared/DashboardButton";
-import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
+import RdvActionButton from "@/components/Application/RDV/RdvActionButton";
+import FilterSelect from "@/components/Shared/FilterSelect";
 import styles from "./ProjectExplorer.module.css";
 import ProjectDetails from "./ProjectDetails";
 import {
@@ -24,8 +30,6 @@ import {
   getProjectFilterOptions,
 } from "@/lib/queries/projects";
 
-const filterField =
-  "h-10 w-full min-w-0 rounded-xl border border-white/10 bg-black/15 px-3 text-xs text-white placeholder:text-white/40 transition-colors hover:border-white/20 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 [color-scheme:dark]";
 const sizes: Record<string, string> = {
   SMALL: "Petite",
   MEDIUM: "Moyenne",
@@ -42,7 +46,10 @@ function ProposalBadge({ status }: { status: string }) {
 }
 export default function ProjectExplorer() {
   const [tab, setTab] = useState<"explore" | "proposals">("explore");
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [cityInput, setCityInput] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false); // panneau « Filtres » (taille, style, hashtag)
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const [hashtagInput, setHashtagInput] = useState("");
   const [conceptOpen, setConceptOpen] = useState(false);
   const [filters, setFilters] = useState<Record<string, string>>({ page: "1" });
   const [result, setResult] = useState<ExploreResult | null>(null);
@@ -62,7 +69,15 @@ export default function ProjectExplorer() {
   }, []);
   const sequence = useRef(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (!filtersOpen) return;
+    const outside = (event: PointerEvent) => { if (!filtersRef.current?.contains(event.target as Node)) setFiltersOpen(false); };
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") setFiltersOpen(false); };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
+  }, [filtersOpen]);
+  const panelFilterCount = ["size", "style", "hashtag"].filter((key) => filters[key]).length;
   const activeFilterCount = Object.entries(filters).filter(
     ([key, value]) => !["page", "scope", "proposalStatus"].includes(key) && value,
   ).length;
@@ -95,17 +110,14 @@ export default function ProjectExplorer() {
       document.body.style.overflow = previousOverflow;
     };
   }, [selected]);
-  function search(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFilters({
-      ...Object.fromEntries(
-        [...new FormData(event.currentTarget)].map(([key, value]) => [
-          key,
-          String(value).trim(),
-        ]),
-      ),
-      page: "1",
-    });
+  // Un filtre s'applique dès qu'il change (listes) ou à la validation / à la sortie du champ (ville, hashtag).
+  function setFilter(key: string, value: string) {
+    setFilters((current) => ({ ...current, [key]: value.trim(), page: "1" }));
+  }
+  function clearFilters() {
+    setCityInput("");
+    setHashtagInput("");
+    setFilters({ page: "1" });
   }
   function changeTab(next: "explore" | "proposals") {
     if (next === tab) return;
@@ -113,8 +125,7 @@ export default function ProjectExplorer() {
     setLoading(true);
     setError("");
     setTab(next);
-    setFilters({ page: "1" });
-    formRef.current?.reset();
+    clearFilters();
   }
   async function send(event: React.FormEvent) {
     event.preventDefault();
@@ -156,98 +167,42 @@ export default function ProjectExplorer() {
           </div>
           <p className="mt-1.5 text-xs text-white/45">Trouvez votre prochain projet et suivez vos propositions.</p>
         </div>
-      <div className="flex min-w-0 flex-col gap-3 xl:flex-1 xl:flex-row xl:items-center xl:justify-end">
-      <div role="group" aria-label="Vue des projets" className="flex w-full shrink-0 gap-1 rounded-2xl border border-white/10 bg-black/15 p-1 xl:w-auto">
-        {([ ["explore", "Explorer", Compass], ["proposals", "Mes propositions", MessageSquare] ] as const).map(([value, label, Icon]) => <button key={value} type="button" aria-pressed={tab === value} onClick={() => changeTab(value)} className={`inline-flex min-h-10 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3 text-xs font-medium transition-all focus-visible:outline-2 focus-visible:outline-tertiary-400 xl:flex-none ${tab === value ? "bg-gradient-to-r from-tertiary-400 to-tertiary-500 text-white" : "text-white/70 hover:bg-white/10 hover:text-white"}`}><Icon size={14} aria-hidden="true" />{label}</button>)}
-      </div>
-      <form
-        key={tab}
-        ref={formRef}
-        onSubmit={search}
-        onReset={() => setFilters({ page: "1" })}
-        aria-label="Filtres des projets"
-        className="min-w-0 xl:flex-none"
-      >
-        <ApplicationToolbar className="!overflow-visible sm:!flex-row">
-          <div className="relative flex w-full min-w-0 flex-wrap items-center gap-2 md:flex-nowrap">
-            <div className="relative order-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => setFiltersOpen((open) => !open)}
-                aria-label="Filtres"
-                aria-expanded={filtersOpen}
-                title="Filtres"
-                className={`relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border transition-colors ${filtersOpen || activeFilterCount > 0 ? "border-tertiary-400/50 bg-tertiary-400/15 text-white" : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"}`}
-              >
-                <SlidersHorizontal size={16} aria-hidden="true" />
-                {activeFilterCount > 0 && <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-tertiary-400 text-[10px] text-white">{activeFilterCount}</span>}
-              </button>
-              <div className={`${filtersOpen ? "flex" : "hidden"} absolute left-0 top-full z-30 mt-2 w-56 flex-col gap-2 rounded-2xl border border-white/10 bg-noir-500 p-3 shadow-xl`}>
-          {tab === "proposals" && <label className="min-w-0"><span className="sr-only">Statut de la proposition</span><select name="proposalStatus" className={filterField}><option value="" className="bg-noir-500">Tous les statuts</option>{Object.entries(proposalStates).map(([value, state]) => <option key={value} value={value} className="bg-noir-500">{state.label}</option>)}</select></label>}
-          {[
-            ["size", "Taille", "Toutes les tailles"],
-            ["category", "Catégorie", "Catégorie"],
-            ["style", "Style", "Style"],
-            ["hashtag", "Hashtag", "#Hashtag"],
-          ].map(([name, label, placeholder]) => (
-            <label key={name} className="min-w-0">
-              <span className="sr-only">{label}</span>
-              {name === "size" ? (
-                <select name="size" className={filterField}>
-                  <option value="" className="bg-noir-500">Toutes les tailles</option>
-                  {Object.entries(sizes).map(([value, sizeLabel]) => (
-                    <option key={value} value={value} className="bg-noir-500">
-                      {sizeLabel}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  name={name}
-                  list={
-                    name === "category" || name === "style"
-                      ? `project-filter-${name}`
-                      : undefined
-                  }
-                  maxLength={
-                    name === "city" ? 120 : name === "category" ? 100 : 60
-                  }
-                  placeholder={placeholder}
-                  className={filterField}
-                />
-              )}
+      <div className="flex min-w-0 xl:flex-1 xl:justify-end">
+      <div role="search" aria-label="Filtres des projets" className="relative z-10 flex w-full flex-wrap items-center gap-2 font-one xl:justify-end">
+        <div role="tablist" aria-label="Vue des projets" className="inline-flex w-full shrink-0 gap-1 rounded-xl bg-white/[0.05] p-1 sm:w-auto">
+          {([ ["explore", "Explorer", Compass], ["proposals", "Mes propositions", MessageSquare] ] as const).map(([value, label, Icon]) => <button key={value} type="button" role="tab" aria-selected={tab === value} onClick={() => changeTab(value)} className={"inline-flex h-9 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 text-xs font-medium transition focus-visible:outline-2 focus-visible:outline-tertiary-400 xl:flex-none " + (tab === value ? "bg-tertiary-400/15 text-tertiary-400" : "text-white/50 hover:bg-white/5 hover:text-white")}><Icon size={14} aria-hidden="true" />{label}</button>)}
+        </div>
+        <label className={"relative flex h-10 w-full shrink-0 items-center rounded-xl text-xs transition focus-within:ring-2 focus-within:ring-tertiary-400/40 sm:w-56 " + (cityInput ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]")}>
+          <Search size={14} className="pointer-events-none absolute left-3 opacity-60" aria-hidden="true" />
+          <input name="city" aria-label="Ville" maxLength={120} value={cityInput} onChange={(event) => setCityInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") setFilter("city", cityInput); }} onBlur={() => setFilter("city", cityInput)} placeholder="Rechercher une ville" className="h-full w-full bg-transparent pl-9 pr-3 text-xs text-inherit outline-none placeholder:text-white/40" />
+        </label>
+        {tab === "proposals" && <div className="w-full sm:w-44">
+          <FilterSelect buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${filters.proposalStatus ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`} label="Statut de la proposition" placeholder="Tous les statuts" unit="statut" icon={<ListFilter size={14} aria-hidden="true" />} multiple={false} align="right"
+            selected={filters.proposalStatus ? [filters.proposalStatus] : []}
+            options={Object.entries(proposalStates).map(([value, state]) => ({ value, label: state.label }))}
+            onApply={(values) => setFilter("proposalStatus", values[0] || "")} />
+        </div>}
+        <div ref={filtersRef} className="relative shrink-0">
+          <button type="button" aria-expanded={filtersOpen} onClick={() => setFiltersOpen((open) => !open)} className={`flex h-10 w-full items-center gap-2 rounded-xl px-3 text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 sm:w-auto ${panelFilterCount > 0 || filtersOpen ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`}>
+            <SlidersHorizontal size={14} aria-hidden="true" />Filtres{panelFilterCount > 0 && <span className="grid h-5 min-w-5 place-items-center rounded-md bg-tertiary-400/20 px-1 text-[10px] font-semibold">{panelFilterCount}</span>}
+          </button>
+          {filtersOpen && <div className="absolute right-0 top-full z-30 mt-2 w-80 max-w-[calc(100vw-2rem)] space-y-2 rounded-2xl bg-noir-700 p-3 shadow-xl shadow-black/40">
+            <FilterSelect buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${filters.size ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`} label="Taille" placeholder="Toutes les tailles" unit="taille" icon={<Ruler size={14} aria-hidden="true" />} multiple={false} align="left"
+              selected={filters.size ? [filters.size] : []}
+              options={Object.entries(sizes).map(([value, label]) => ({ value, label }))}
+              onApply={(values) => setFilter("size", values[0] || "")} />
+            <FilterSelect buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${filters.style ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`} label="Style" placeholder="Tous les styles" unit="style" icon={<Palette size={14} aria-hidden="true" />} multiple={false} align="left"
+              selected={filters.style ? [filters.style] : []}
+              options={options.styles.map((name) => ({ value: name, label: name }))}
+              onApply={(values) => setFilter("style", values[0] || "")} />
+            <label className={"relative flex h-10 w-full items-center rounded-xl text-xs transition focus-within:ring-2 focus-within:ring-tertiary-400/40 " + (hashtagInput ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]")}>
+              <Hash size={14} className="pointer-events-none absolute left-3 opacity-60" aria-hidden="true" />
+              <input name="hashtag" aria-label="Hashtag" maxLength={60} value={hashtagInput} onChange={(event) => setHashtagInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") setFilter("hashtag", hashtagInput); }} onBlur={() => setFilter("hashtag", hashtagInput)} placeholder="Hashtag" className="h-full w-full bg-transparent pl-9 pr-3 text-xs text-inherit outline-none placeholder:text-white/40" />
             </label>
-          ))}
-              </div>
-            </div>
-            <div className="order-1 min-w-0 flex-1 md:w-56 md:flex-none">
-              <label className="relative block">
-                <span className="sr-only">Ville</span>
-                <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/40" aria-hidden="true" />
-                <input name="city" maxLength={120} placeholder="Rechercher une ville" className={`${filterField} !h-10 !rounded-2xl pl-9`} />
-              </label>
-            </div>
-            <div className="order-3 flex w-full shrink-0 gap-2 md:w-auto">
-              <DashboardButton type="reset" variant="secondary" disabled={loading} className="h-10 !min-w-0 flex-1 px-3 md:flex-none" aria-label="Réinitialiser les filtres">
-                <RotateCcw size={15} aria-hidden="true" />
-              </DashboardButton>
-              <DashboardButton type="submit" disabled={loading} className="h-10 !min-w-0 flex-1 whitespace-nowrap px-3 md:flex-none">
-                <Search size={15} aria-hidden="true" /> Rechercher
-              </DashboardButton>
-            </div>
-          </div>
-        </ApplicationToolbar>
-        <datalist id="project-filter-category">
-          {options.categories.map((name) => (
-            <option key={name} value={name} />
-          ))}
-        </datalist>
-        <datalist id="project-filter-style">
-          {options.styles.map((name) => (
-            <option key={name} value={name} />
-          ))}
-        </datalist>
-      </form>
+          </div>}
+        </div>
+        {(activeFilterCount > 0 || filters.proposalStatus) && <RdvActionButton tone="danger" icon={X} onClick={clearFilters} disabled={loading} className="!w-auto shrink-0">Effacer</RdvActionButton>}
+      </div>
       </div>
       </header>
       {error ? (
@@ -270,7 +225,7 @@ export default function ProjectExplorer() {
             <div
               key={i}
               aria-hidden="true"
-              className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] motion-safe:animate-pulse"
+              className="overflow-hidden rounded-2xl bg-white/[0.04] motion-safe:animate-pulse"
             >
               <div className="aspect-[16/9] bg-white/5" />
               <div className="space-y-3 p-3.5">
@@ -307,7 +262,7 @@ export default function ProjectExplorer() {
               {(activeFilterCount > 0 || filters.proposalStatus) && (
                 <DashboardButton
                   variant="secondary"
-                  onClick={() => formRef.current?.reset()}
+                  onClick={clearFilters}
                   className="mt-5 min-h-11"
                 >
                   Effacer les filtres
@@ -319,7 +274,7 @@ export default function ProjectExplorer() {
             {result?.data.map((project) => (
               <article
                 key={project.id}
-                className="client-card group overflow-hidden rounded-2xl transition-all duration-200 hover:border-tertiary-400/30 hover:shadow-lg hover:shadow-black/20"
+                className="client-card group overflow-hidden rounded-2xl !border-0 transition-all duration-200 hover:shadow-lg hover:shadow-black/20"
               >
                 <button
                   onClick={() => {
@@ -395,7 +350,7 @@ export default function ProjectExplorer() {
                     {project.proposals.length > 0 && (
                       <div><ProposalBadge status={project.proposals[0].status} /></div>
                     )}
-                    <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-2.5 text-[11px] text-white/65">
+                    <div className="mt-auto flex items-center justify-between pt-2.5 text-[11px] text-white/65">
                       <span>Voir le projet</span>
                       <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/5 text-tertiary-400 transition-colors group-hover:bg-tertiary-400/10">
                         <ArrowUpRight size={14} aria-hidden="true" />

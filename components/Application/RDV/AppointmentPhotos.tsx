@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
 import { Camera, ImagePlus, Trash2, X } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { loadAppointmentBlock } from "@/lib/appointment-details";
 import { useUploadThing } from "@/lib/utils/uploadthing";
-import { addAppointmentPhotos, deleteAppointmentPhoto, getAppointmentPhotos, getClientPhotos, type AppointmentPhoto } from "@/lib/queries/appointment-photos";
+import { addAppointmentPhotos, deleteAppointmentPhoto, getClientPhotos, type AppointmentPhoto } from "@/lib/queries/appointment-photos";
 import { deletePortfolioImageAction, getSalonTatoueursForPortfolioAction, type PortfolioTatoueurDto } from "@/lib/queries/portfolio";
 import CreateOrUpdatePhoto from "../Portfolio/CreateOrUpdatePhoto";
 
@@ -31,8 +33,9 @@ function PhotoViewer({ photo, onClose }: { photo: AppointmentPhoto; onClose: () 
   </div>, document.body);
 }
 
-export default function AppointmentPhotos({ appointmentId, clientId, readOnly = false }: { appointmentId?: string; clientId?: string; readOnly?: boolean }) {
+export default function AppointmentPhotos({ appointmentId, clientId, readOnly = false, actions }: { appointmentId?: string; clientId?: string; readOnly?: boolean; /** Boutons supplémentaires, affichés à droite des boutons d'ajout (ex. « Voir le moodboard »). */ actions?: ReactNode }) {
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
   const [artists, setArtists] = useState<PortfolioTatoueurDto[]>([]);
   const [photos, setPhotos] = useState<AppointmentPhoto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,21 +106,29 @@ export default function AppointmentPhotos({ appointmentId, clientId, readOnly = 
     setLoading(true);
     setError("");
     setPhotos([]);
-    const request = clientId ? getClientPhotos(clientId) : getAppointmentPhotos(appointmentId!);
+    const request = clientId ? getClientPhotos(clientId) : loadAppointmentBlock(queryClient, appointmentId!, "photos", { fresh: revision > 0 });
     request.then((result) => { if (active) setPhotos(result); })
       .catch((reason) => { if (active) setError(reason instanceof Error ? reason.message : "Chargement impossible."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [appointmentId, clientId, revision]);
+  }, [appointmentId, clientId, revision, queryClient]);
 
   useEffect(() => {
     if (!canAdd || !session?.user?.id) return;
     let active = true;
-    getSalonTatoueursForPortfolioAction(session.user.id).then((result) => {
-      if (active && result.ok && Array.isArray(result.data)) setArtists(result.data);
-    }).catch(() => { /* Artist assignment is optional; the photo can still be published. */ });
+    const salonId = session.user.id;
+    // L'équipe change rarement : gardée 5 minutes, donc partagée entre les fiches ouvertes à la suite.
+    queryClient.fetchQuery({
+      queryKey: ["salon-tatoueurs", salonId],
+      staleTime: 5 * 60_000,
+      queryFn: async () => {
+        const result = await getSalonTatoueursForPortfolioAction(salonId);
+        return result.ok && Array.isArray(result.data) ? result.data : [];
+      },
+    }).then((list) => { if (active) setArtists(list); })
+      .catch(() => { /* Artist assignment is optional; the photo can still be published. */ });
     return () => { active = false; };
-  }, [canAdd, session?.user?.id]);
+  }, [canAdd, session?.user?.id, queryClient]);
 
   const upload = async (input: HTMLInputElement) => {
     const selected = Array.from(input.files || []);
@@ -147,10 +158,11 @@ export default function AppointmentPhotos({ appointmentId, clientId, readOnly = 
     <div className="flex flex-wrap items-center justify-between gap-2">
       <p className="text-xs font-semibold text-white/80">Photos {photos.length > 0 && `(${photos.length})`}</p>
       {canAdd && <div className="flex flex-wrap gap-2">
-        <button type="button" disabled={saving || loading} onClick={() => files.current?.click()} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs text-white disabled:opacity-40"><ImagePlus size={14} />{saving ? "Envoi en cours…" : "Ajouter une photo"}</button>
-        <button type="button" disabled={saving || loading} onClick={() => camera.current?.click()} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs text-white disabled:opacity-40"><Camera size={14} />Prendre une photo</button>
+        <button type="button" disabled={saving || loading} onClick={() => files.current?.click()} className="inline-flex items-center gap-2 rounded-xl bg-white/[0.06] px-3 py-2 text-xs font-medium text-white transition hover:bg-white/10 disabled:opacity-40"><ImagePlus size={14} />{saving ? "Envoi en cours…" : "Ajouter une photo"}</button>
+        <button type="button" disabled={saving || loading} onClick={() => camera.current?.click()} className="inline-flex items-center gap-2 rounded-xl bg-white/[0.06] px-3 py-2 text-xs font-medium text-white transition hover:bg-white/10 disabled:opacity-40 [@media(pointer:fine)]:hidden"><Camera size={14} />Prendre une photo</button>
         <input ref={files} type="file" accept="image/*" multiple className="hidden" aria-label="Choisir des photos" onChange={(event) => void upload(event.currentTarget)} />
         <input ref={camera} type="file" accept="image/*" capture="environment" className="hidden" aria-label="Prendre une photo" onChange={(event) => void upload(event.currentTarget)} />
+        {actions}
       </div>}
     </div>
     {error && <p role="alert" className="text-xs text-red-300">{error} <button type="button" className="underline" onClick={() => setRevision((value) => value + 1)}>Réessayer</button></p>}
@@ -158,7 +170,7 @@ export default function AppointmentPhotos({ appointmentId, clientId, readOnly = 
     <div className="grid grid-cols-[repeat(auto-fill,minmax(96px,128px))] gap-2">
       {photos.map((photo) => <div key={photo.id} className="min-w-0 space-y-2">
         <div className="relative overflow-hidden rounded-xl">
-        <button type="button" onClick={() => setViewer(photo)} aria-label="Voir la photo en grand" className="relative block aspect-square w-full overflow-hidden rounded-xl border border-white/10 focus-visible:ring-2 focus-visible:ring-tertiary-400">
+        <button type="button" onClick={() => setViewer(photo)} aria-label="Voir la photo en grand" className="relative block aspect-square w-full overflow-hidden rounded-xl focus-visible:ring-2 focus-visible:ring-tertiary-400">
           <Image src={photo.url} alt={photo.caption || "Photo du rendez-vous"} fill sizes="128px" unoptimized className="rounded-xl object-cover" />
         </button>
         {canAdd && <div className="absolute inset-x-0 bottom-0 flex h-7 items-center justify-end overflow-hidden rounded-b-xl bg-black/60 text-white backdrop-blur-sm">

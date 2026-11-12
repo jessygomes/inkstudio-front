@@ -13,9 +13,10 @@ import CreateOrUpdateItem from "./CreateOrUpdateItem";
 import DeleteItemStock from "./DeleteItemStock";
 import StockTable from "./StockTable";
 import PageHeader from "@/components/Shared/PageHeader";
-import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
-import DashboardButton from "@/components/Shared/DashboardButton";
+import RdvActionButton from "@/components/Application/RDV/RdvActionButton";
 import { toast } from "sonner";
+import { ListFilter, Plus, Search } from "lucide-react";
+import FilterSelect from "@/components/Shared/FilterSelect";
 import LockedFeatureCard from "@/components/Shared/LockedFeatureCard";
 
 export default function StockList() {
@@ -259,6 +260,34 @@ export default function StockList() {
     <section className="w-full space-y-3">
       <PageHeader icon={<FaDatabase size={15} className="text-tertiary-400" />} title="Stocks" />
 
+      {/* Recherche, filtre et création : au-dessus des indicateurs. */}
+      {!isFreeAccount && (
+      <div className="relative z-10 flex w-full flex-col gap-2.5 font-one sm:flex-row sm:items-center sm:justify-end">
+        <label className={"relative flex h-10 w-full shrink-0 items-center rounded-xl text-xs transition focus-within:ring-2 focus-within:ring-tertiary-400/40 sm:w-64 " + (searchTerm ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]")}>
+          <Search className="pointer-events-none absolute left-3 opacity-60" size={14} />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Rechercher un article"
+            aria-label="Rechercher un article"
+            className="h-full w-full bg-transparent pl-9 pr-3 text-xs text-inherit outline-none placeholder:text-white/40"
+          />
+        </label>
+        <div className="w-full sm:w-52">
+          <FilterSelect
+            buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${categoryFilter ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`}
+            label="Catégorie" placeholder="Toutes les catégories" unit="catégorie" icon={<ListFilter size={14} aria-hidden="true" />}
+            multiple={false} align="right"
+            selected={categoryFilter ? [categoryFilter] : []}
+            options={categories.map((category) => ({ value: category, label: category }))}
+            onApply={(values) => setCategoryFilter(values[0] || "")}
+          />
+        </div>
+        <RdvActionButton tone="primary" icon={Plus} onClick={handleCreate} className="!w-auto shrink-0">Nouveau</RdvActionButton>
+      </div>
+      )}
+
       {!isFreeAccount && !loading && !error && (
         <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-6">
           {[
@@ -269,7 +298,7 @@ export default function StockList() {
             { label: "Catégories", value: String(statistics.totalCategories), tone: "text-white" },
             { label: "Valeur moyenne", value: `${statistics.averageValue.toFixed(2)} €`, tone: "text-white" },
           ].map((stat) => (
-            <div key={stat.label} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+            <div key={stat.label} className="rounded-2xl bg-noir-600 px-4 py-3">
               <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/45 font-one">{stat.label}</p>
               <p className={`mt-1.5 text-xl font-semibold font-one ${stat.tone}`}>{stat.value}</p>
             </div>
@@ -309,46 +338,6 @@ export default function StockList() {
         />
       ) : (
         <div className=" space-y-3">
-          <ApplicationToolbar>
-            <div className="flex w-full flex-col gap-2.5 sm:flex-row sm:items-center">
-              <div className="relative w-full sm:flex-1 lg:max-w-xl">
-                <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Rechercher un article"
-                  className="h-10 w-full rounded-2xl border border-white/10 bg-white/[0.04] pl-9 pr-4 text-xs text-white placeholder:text-white/35 focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 font-one"
-                />
-              </div>
-
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="h-10 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-xs text-white focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 font-one sm:w-56"
-              >
-                <option value="" className="text-black">Toutes les catégories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category} className="text-black">
-                    {category}
-                  </option>
-                ))}
-              </select>
-              <DashboardButton onClick={handleCreate} className="!min-w-0 sm:ml-auto">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                Nouveau
-              </DashboardButton>
-            </div>
-          </ApplicationToolbar>
-
-          {!loading && !error && (
-            <p className="text-right text-xs text-white/55 font-one">
-              {filteredItems.length} article{filteredItems.length > 1 ? "s" : ""} · Page {currentPage}/{pagination.totalPages}
-            </p>
-          )}
-
           {loading ? (
             <div className="space-y-2.5">
               {[...Array(5)].map((_, index) => (
@@ -410,6 +399,10 @@ export default function StockList() {
                 sortByType={sortByType}
                 setSortByType={setSortByType}
               />
+
+              <p className="text-right text-xs text-white/55 font-one">
+                {filteredItems.length} article{filteredItems.length > 1 ? "s" : ""} · Page {currentPage}/{pagination.totalPages}
+              </p>
 
               {pagination.totalPages > 1 && (
                 <div className="flex flex-col items-center justify-center gap-3 pt-1 sm:flex-row">

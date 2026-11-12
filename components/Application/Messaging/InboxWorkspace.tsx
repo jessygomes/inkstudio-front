@@ -7,8 +7,8 @@ import Image from "next/image";
 import { io } from "socket.io-client";
 import {
   ArrowLeft, AtSign, CheckCheck, ChevronLeft, ChevronRight, CircleAlert,
-  CalendarPlus, Clock3, Eye, Facebook, ImagePlus, Instagram, Lock, Mail, MessageCircle, NotebookPen,
-  PanelLeftClose, PanelLeftOpen, Plus, RefreshCw, Search, Send, SlidersHorizontal, Unplug, UserRound, Users, X,
+  CalendarDays, CalendarPlus, Clock3, Eye, Facebook, ImagePlus, Instagram, Lock, Mail, MessageCircle, NotebookPen,
+  PanelLeftClose, PanelLeftOpen, Plus, RefreshCw, Search, Send, SlidersHorizontal, Unplug, UserPlus, UserRound, Users, X, type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import ConversationRDVDetails from "./ConversationRDVDetails";
@@ -16,17 +16,21 @@ import BookingLinkCreator, { type BookingLinkCreatorContext } from "@/components
 import styles from "./InboxWorkspace.module.css";
 import { sortInboxThreads } from "@/lib/utils/sort-inbox-threads";
 import { getTatoueursByUserIdAction } from "@/lib/queries/tatoueur";
-import { searchClientsAction } from "@/lib/queries/client";
+import { getSalonClientsAction, searchClientsAction } from "@/lib/queries/client";
+import InfoClient from "@/components/Application/Clients/InfoClient";
+import type { ClientProps } from "@/lib/type";
 import { getUnreadMessagesCountAction } from "@/lib/queries/conversation.action";
 import type { InboxImageAttachment } from "@/lib/queries/inbox.action";
 import { useUploadThing } from "@/lib/utils/uploadthing";
 import imageCompression from "browser-image-compression";
+import RdvActionButton from "@/components/Application/RDV/RdvActionButton";
+import FilterSelect from "@/components/Shared/FilterSelect";
 import {
   addInboxNoteAction, createInboxClientAction, createInboxSavedReplyAction,
   connectInstagramAction, disconnectInstagramAction, getInstagramConnectionsAction,
   getInboxMessagesAction, getInboxNotesAction, getInboxSavedRepliesAction,
   getInboxThreadAction, getInboxThreadsAction, getInboxAppointmentsAction,
-  linkInboxClientAction, unlinkInboxClientAction, sendInboxReplyAction, setInboxAssignmentAction,
+  linkInboxClientAction, sendInboxReplyAction, setInboxAssignmentAction,
   setInboxMemberPermissionAction, setInboxReadStateAction, setInboxStatusAction,
 } from "@/lib/queries/inbox.action";
 import type {
@@ -41,6 +45,15 @@ const CHANNELS: Array<{ value: "ALL" | InboxChannel; label: string; Icon: typeof
   { value: "FACEBOOK", label: "Facebook", Icon: Facebook, comingSoon: true },
   { value: "EMAIL", label: "Emails", Icon: Mail, comingSoon: true },
 ];
+
+type SearchClient = { id: string; firstName?: string; lastName?: string; email?: string };
+
+const STATUS_TONES: Record<InboxStatus, string> = {
+  NEW: "bg-blue-400/15 text-blue-300",
+  IN_PROGRESS: "bg-amber-400/15 text-amber-300",
+  WAITING_CLIENT: "bg-orange-400/15 text-orange-300",
+  DONE: "bg-emerald-400/15 text-emerald-300",
+};
 
 const STATUS: Array<{ value: InboxStatus; label: string }> = [
   { value: "NEW", label: "Nouveau" },
@@ -59,7 +72,6 @@ type TeamMember = {
   isLinkedAccount?: boolean;
 };
 
-type SearchClient = { id: string; firstName?: string; lastName?: string; email?: string };
 
 const memberLabel = (member: TeamMember) =>
   member.name || [member.firstName, member.lastName].filter(Boolean).join(" ") || "Tatoueur";
@@ -75,20 +87,26 @@ const threadName = (thread: InboxThread) => {
   return contact?.displayName || contact?.username || contact?.email || "Contact externe";
 };
 
-const threadTitle = (thread: InboxThread) =>
-  thread.conversation?.subject || thread.externalConversation?.subject || "Conversation";
-
-function ThreadAvatar({ thread }: { thread: InboxThread }) {
+function ThreadAvatar({ thread, large = false }: { thread: InboxThread; large?: boolean }) {
   const [failedSource, setFailedSource] = useState<string | null>(null);
   const source = thread.conversation?.clientUser?.image?.trim() || thread.linkedClient?.image?.trim();
   return (
-    <span aria-hidden="true" className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10 text-xs font-bold text-white/75 ring-1 ring-white/10">
+    <span aria-hidden="true" className={`relative ${large ? "h-11 w-11 text-sm" : "h-9 w-9 text-xs"} flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/10 font-bold text-white/75`}>
       {source && source !== failedSource ? (
-        <Image src={source} alt="" width={32} height={32} sizes="32px" className="h-full w-full object-cover" onError={() => setFailedSource(source)} />
+        <Image src={source} alt="" width={44} height={44} sizes="44px" className="h-full w-full object-cover" onError={() => setFailedSource(source)} />
       ) : threadName(thread).charAt(0).toUpperCase()}
     </span>
   );
 }
+
+const lastMessagePreview = (thread: InboxThread, userId?: string) => {
+  const message = thread.lastMessage;
+  if (!message) return "Aucun message";
+  const text = message.content?.trim();
+  const mine = message.direction === "OUTBOUND" || (!!userId && message.senderId === userId);
+  const body = text ? text : /image|photo/i.test(message.type || "") ? "📷 Photo" : "Message";
+  return (mine ? "Vous : " : "") + body;
+};
 
 const displayDate = (raw?: string | null) => raw
   ? new Date(raw).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })
@@ -104,9 +122,21 @@ const imageUrl = (raw?: string | null, mime?: string | null) => {
   return null;
 };
 
-const field = "w-full rounded-xl border border-white/10 bg-noir-700/80 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-tertiary-400";
+const field = "[&>option]:bg-noir-700 [&>option]:text-white w-full rounded-xl border border-white/10 bg-noir-700/80 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-tertiary-400";
 const subtleButton = "inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 bg-tertiary-400/10 px-3 py-2 text-xs text-white/80 transition hover:bg-tertiary-400/15 disabled:cursor-not-allowed disabled:opacity-40";
 const primaryButton = "inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-tertiary-400 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-tertiary-500 disabled:cursor-not-allowed disabled:opacity-40";
+// Champs du panneau de droite : fond translucide sans contour, anneau d'accent au focus.
+const panelField = "[&>option]:bg-noir-700 [&>option]:text-white h-10 w-full rounded-xl border border-transparent bg-white/[0.06] px-3 text-xs text-white outline-none transition placeholder:text-white/35 hover:bg-white/[0.09] focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/15 disabled:opacity-50";
+
+// Section du panneau de droite : carte avec titre (icône dans une tuile d'accent), aide facultative et contenu.
+function PanelSection({ icon: Icon, title, hint, right, children }: { icon: LucideIcon; title: string; hint?: string; right?: ReactNode; children: ReactNode }) {
+  return <section className="rounded-2xl bg-noir-600 p-4">
+    <div className="mb-3 flex items-center justify-between gap-2"><h3 className="flex min-w-0 items-center gap-2.5 text-[13px] font-medium text-white/90"><span className="grid size-7 shrink-0 place-items-center rounded-lg bg-tertiary-400/10 text-tertiary-400"><Icon size={14} aria-hidden="true" /></span><span className="truncate">{title}</span></h3>{right}</div>
+    {hint && <p className="mb-3 -mt-1 text-[11px] leading-relaxed text-white/40">{hint}</p>}
+    {children}
+  </section>;
+}
+
 const MAX_COMPOSER_LINES = 6;
 
 export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactNode }) {
@@ -170,7 +200,9 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
   const [clientQuery, setClientQuery] = useState("");
   const [clientResults, setClientResults] = useState<SearchClient[]>([]);
   const [newClient, setNewClient] = useState({ firstName: "", lastName: "", email: "", phone: "" });
-  const [clientFormOpen, setClientFormOpen] = useState(false);
+  const [clientFormOpen, setClientFormOpen] = useState(false); // panneau « Relier un client »
+  const [clientFile, setClientFile] = useState<ClientProps | null>(null); // fiche client ouverte depuis la conversation
+  const [clientFileLoading, setClientFileLoading] = useState(false);
   const [replyTitle, setReplyTitle] = useState("");
   const [replyFormOpen, setReplyFormOpen] = useState(false);
   const [appointments, setAppointments] = useState<InboxAppointment[]>([]);
@@ -646,29 +678,70 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
     })();
   };
 
+  // Ouvre la fiche client complète (la même que sur la page Clients) pour la personne de cette conversation.
+  const openClientFile = async () => {
+    if (clientFileLoading || !thread) return;
+    const email = thread.linkedClient?.email || thread.conversation?.clientUser?.email || "";
+    setClientFileLoading(true);
+    try {
+      const data = await getSalonClientsAction(1, email || selectedName || "");
+      const list: ClientProps[] = Array.isArray(data?.clients) ? data.clients : [];
+      const found = list.find((candidate) => (thread.linkedClientId && candidate.id === thread.linkedClientId) || (email && candidate.email === email));
+      if (found) setClientFile(found);
+      else toast.error("Aucune fiche client associée à cette conversation.");
+    } catch {
+      toast.error("Impossible de charger la fiche client.");
+    } finally {
+      setClientFileLoading(false);
+    }
+  };
+
   if (sessionStatus === "loading") return <p className="p-6 text-sm text-white/60">Chargement de votre espace…</p>;
   return (
-    <section ref={workspaceRef} data-conversation-open={Boolean(selectedId)} className={`${styles.workspace} flex min-h-0 flex-col font-one text-white`}>
-      <div className={`${selectedId ? "hidden lg:flex" : "flex"} shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-white/10 bg-noir-700 px-3 py-2 lg:px-4`}>
-        <nav className="flex w-full items-center justify-between gap-1 lg:w-auto lg:justify-start" aria-label="Canaux">
-          {CHANNELS.map(({ value, label, Icon, comingSoon }) => (
-            <button type="button" key={value} aria-pressed={channel === value} aria-label={comingSoon ? `${label} — bientôt disponible` : label}
-              disabled={comingSoon} aria-disabled={comingSoon} title={comingSoon ? `${label} — bientôt disponible` : label}
-              onClick={() => changeFilter(() => { setChannel(value); setSelectedId(null); setThread(null); })}
-              className={`flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-medium transition lg:rounded-none lg:border-x-0 lg:border-t-0 lg:border-b-2 lg:px-4 ${comingSoon ? "cursor-not-allowed border-transparent text-white/25" : channel === value ? "border-tertiary-400/30 bg-tertiary-400/10 text-tertiary-400 lg:border-tertiary-400 lg:bg-transparent lg:text-white" : "border-transparent text-white/50 hover:text-white"}`}>
-              <Icon size={17} aria-hidden="true" /> <span className="sr-only lg:not-sr-only">{label}</span>
+    <section ref={workspaceRef} data-conversation-open={Boolean(selectedId)} className={`${styles.workspace} flex min-h-0 flex-col font-one text-white lg:grid lg:grid-cols-[auto_minmax(0,1fr)] lg:grid-rows-[auto_auto_minmax(0,1fr)]`}>
+      <div className={`${selectedId ? "hidden lg:flex" : "flex"} shrink-0 flex-nowrap items-center justify-between gap-x-4 gap-y-2 bg-[var(--app-surface-raised)] px-3 py-2 lg:col-start-2 lg:row-start-1 lg:px-4`}>
+        <div className="relative flex min-w-0 flex-1 items-center gap-2">
+          <button type="button" aria-label={listCollapsed ? "Afficher la liste des conversations" : "Masquer la liste des conversations"} title={listCollapsed ? "Afficher la liste" : "Masquer la liste"} aria-pressed={listCollapsed} className={`${subtleButton} hidden h-10 w-10 shrink-0 !border-transparent !bg-white/[0.04] !px-0 hover:!bg-white/[0.09] lg:inline-flex`} onClick={() => { setFiltersOpen(false); setListCollapsed((collapsed) => !collapsed); }}>{listCollapsed ? <PanelLeftOpen size={15} aria-hidden="true" /> : <PanelLeftClose size={15} aria-hidden="true" />}</button>
+          <label className="relative block min-w-0 flex-1 lg:w-64 lg:flex-none">
+          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+          <input aria-label="Rechercher un client ou un sujet" value={search} onChange={(event) => changeFilter(() => setSearch(event.target.value))} placeholder="Rechercher…" className="h-10 w-full rounded-xl bg-white/[0.04] pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-white/35 hover:bg-white/[0.09] focus:ring-2 focus:ring-tertiary-400/30" />
+        </label>
+          <div className="w-36 shrink-0 sm:w-52">
+          <FilterSelect buttonClassName="flex h-10 w-full min-w-0 items-center gap-2 rounded-xl bg-white/[0.04] px-3 text-left text-xs text-white/80 outline-none transition hover:bg-white/[0.09] focus-visible:ring-2 focus-visible:ring-tertiary-400/30" label="Canal de conversation" placeholder="Tous les canaux" unit="canal" icon={<MessageCircle size={14} aria-hidden="true" />} multiple={false} align="left"
+            selected={channel === "ALL" ? [] : [channel]}
+            options={CHANNELS.filter(({ value }) => value !== "ALL").map(({ value, label, comingSoon }) => ({ value, label, disabled: comingSoon }))}
+            onApply={(values) => changeFilter(() => { setChannel((values[0] as InboxChannel | undefined) || "ALL"); setSelectedId(null); setThread(null); })} />
+          </div>
+          {/* Le panneau des filtres s'ouvre juste sous le bouton Filtres. */}
+          <div className="relative shrink-0">
+            <button type="button" aria-label="Filtres" aria-expanded={filtersOpen} onClick={() => setFiltersOpen((open) => !open)} className={`${subtleButton} relative h-10 w-10 shrink-0 !border-transparent !bg-white/[0.04] !px-0 hover:!bg-white/[0.09] ${filtersOpen || activeFilters > 0 ? "!border-tertiary-400 !text-tertiary-400" : ""}`}>
+              <SlidersHorizontal size={15} />
+              {activeFilters > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-tertiary-400 px-1 text-[10px] text-white">{activeFilters}</span>}
             </button>
-          ))}
-        </nav>
-        {toolbarRight && <div className="flex items-center gap-2">{toolbarRight}</div>}
-        <div className="flex w-full items-start gap-2 rounded-xl border border-white/5 bg-white/[0.025] px-3 py-2 text-[11px] leading-4 text-white/45 lg:w-auto lg:flex-1 lg:border-0 lg:bg-transparent lg:px-0">
-          <Clock3 size={13} className="mt-0.5 shrink-0 text-tertiary-400/65" aria-hidden="true" />
-          <p><span className="font-semibold text-white/65">Bientôt disponible</span><span className="mx-1.5 hidden lg:inline">·</span><span className="block lg:inline">Instagram, Facebook et les emails réunis ici.</span></p>
+            {filtersOpen && (
+              <div className="absolute right-0 top-full z-30 mt-2 w-80 max-w-[calc(100vw-2rem)] space-y-2 rounded-xl border border-white/10 bg-noir-700 p-3 shadow-xl">
+                <select aria-label="Filtrer par statut" className={`${field} text-xs`} value={status} onChange={(event) => changeFilter(() => setStatus(event.target.value as "" | InboxStatus))}>
+                  <option value="">Tous les statuts</option>
+                  {STATUS.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
+                </select>
+                <RdvActionButton tone={unreadOnly ? "primary" : "neutral"} icon={AtSign} aria-pressed={unreadOnly} onClick={() => changeFilter(() => setUnreadOnly(!unreadOnly))}>Non lus uniquement</RdvActionButton>
+                {isSalon && team.length > 0 && (
+                  <select aria-label="Filtrer par tatoueur" className={`${field} text-xs`} value={assignedFilter} onChange={(event) => changeFilter(() => setAssignedFilter(event.target.value))}>
+                    <option value="">Tous les tatoueurs</option>
+                    {team.map((member) => { const linked = member.linkedUserId || member.tatoueurUserId; return <option key={member.id} value={linked ? `user:${linked}` : `artist:${member.id}`}>{memberLabel(member)}{linked ? " (compte Inkera)" : " (équipe interne)"}</option>; })}
+                  </select>
+                )}
+              {activeFilters > 0 && <button type="button" className="text-xs text-white/50 underline hover:text-white" onClick={() => changeFilter(() => { setStatus(""); setUnreadOnly(false); setAssignedFilter(""); })}>Réinitialiser</button>}
+            </div>
+            )}
+          </div>
         </div>
+        {toolbarRight && <div className="flex items-center gap-2">{toolbarRight}</div>}
+        <button type="button" aria-label="Actualiser les conversations" title="Actualiser" disabled={loading || loadingMore} className={`${subtleButton} h-10 w-10 shrink-0 ml-auto !border-transparent !bg-white/[0.04] !px-0 hover:!bg-white/[0.09]`} onClick={() => { void refreshList(); if (selectedId) void refreshDetail(selectedId); }}><RefreshCw size={15} className={loading || loadingMore ? "motion-safe:animate-spin" : ""} aria-hidden="true" /></button>
       </div>
 
       {channel === "INSTAGRAM" && (
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-noir-600 px-4 py-3 text-xs">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 bg-noir-600 px-4 py-3 text-xs lg:col-start-2 lg:row-start-2">
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-2 font-semibold"><Instagram size={16} className="text-tertiary-400" /> Comptes Instagram professionnels</p>
             {instagramLoading ? <p className="mt-1 text-white/45">Vérification des connexions…</p>
@@ -687,39 +760,10 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
         </div>
       )}
 
-      <div className={`${styles.columns} flex min-h-0 flex-1 gap-px bg-white/5`}>
-        <aside aria-hidden={!listCollapsed} className={`hidden shrink-0 justify-center overflow-hidden bg-noir-500 pt-3 transition-[width,opacity] duration-300 ease-in-out lg:flex ${listCollapsed ? "w-9 opacity-100" : "pointer-events-none w-0 opacity-0"}`}><button type="button" tabIndex={listCollapsed ? 0 : -1} aria-label="Afficher la liste des conversations" title="Afficher la liste" className={`${subtleButton} h-7 w-7 shrink-0 !rounded-md !px-0`} onClick={() => setListCollapsed(false)}><PanelLeftOpen size={14} /></button></aside>
-        <aside className={`${listCollapsed ? "lg:invisible lg:pointer-events-none lg:-ml-[290px] lg:opacity-0 xl:-ml-[320px]" : "lg:ml-0 lg:opacity-100"} ${selectedId ? "hidden lg:flex" : "flex"} w-full min-w-0 flex-col bg-noir-500 transition-[margin,opacity] duration-300 ease-in-out lg:w-[290px] lg:shrink-0 xl:w-[320px]`}>
-          <div className="relative flex items-center gap-2 p-3">
-            <label className="relative block min-w-0 flex-1">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
-              <input aria-label="Rechercher un client ou un sujet" value={search} onChange={(event) => changeFilter(() => setSearch(event.target.value))} placeholder="Rechercher…" className={`${field} pl-9`} />
-            </label>
-            <button type="button" aria-label="Filtres" aria-expanded={filtersOpen} onClick={() => setFiltersOpen((open) => !open)} className={`${subtleButton} relative h-[38px] w-[38px] shrink-0 !px-0 ${filtersOpen || activeFilters > 0 ? "!border-tertiary-400 !text-tertiary-400" : ""}`}>
-              <SlidersHorizontal size={15} />
-              {activeFilters > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-tertiary-400 px-1 text-[10px] text-white">{activeFilters}</span>}
-            </button>
-            <button type="button" aria-label="Actualiser les conversations" title="Actualiser" disabled={loading || loadingMore} className={`${subtleButton} h-[38px] w-[38px] shrink-0 !px-0`} onClick={() => { void refreshList(); if (selectedId) void refreshDetail(selectedId); }}><RefreshCw size={15} className={loading || loadingMore ? "motion-safe:animate-spin" : ""} aria-hidden="true" /></button>
-            <div className="hidden lg:block"><button type="button" aria-label="Masquer la liste des conversations" title="Masquer la liste" className={`${subtleButton} h-[38px] w-[38px] shrink-0 !px-0`} onClick={() => { setFiltersOpen(false); setListCollapsed(true); }}><PanelLeftClose size={15} /></button></div>
-            {filtersOpen && (
-              <div className="absolute inset-x-3 top-full z-20 -mt-1 space-y-2 border border-white/10 bg-noir-700 p-3 shadow-xl">
-                <select aria-label="Filtrer par statut" className={`${field} text-xs`} value={status} onChange={(event) => changeFilter(() => setStatus(event.target.value as "" | InboxStatus))}>
-                  <option value="">Tous les statuts</option>
-                  {STATUS.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
-                </select>
-                <button type="button" aria-pressed={unreadOnly} onClick={() => changeFilter(() => setUnreadOnly(!unreadOnly))} className={`${subtleButton} w-full ${unreadOnly ? "!border-tertiary-400 !text-tertiary-400" : ""}`}><AtSign size={13} /> Non lus uniquement</button>
-                {isSalon && team.length > 0 && (
-                  <select aria-label="Filtrer par tatoueur" className={`${field} text-xs`} value={assignedFilter} onChange={(event) => changeFilter(() => setAssignedFilter(event.target.value))}>
-                    <option value="">Tous les tatoueurs</option>
-                    {team.map((member) => { const linked = member.linkedUserId || member.tatoueurUserId; return <option key={member.id} value={linked ? `user:${linked}` : `artist:${member.id}`}>{memberLabel(member)}{linked ? " (compte Inkera)" : " (équipe interne)"}</option>; })}
-                  </select>
-                )}
-                {activeFilters > 0 && <button type="button" className="text-xs text-white/50 underline hover:text-white" onClick={() => changeFilter(() => { setStatus(""); setUnreadOnly(false); setAssignedFilter(""); })}>Réinitialiser</button>}
-              </div>
-            )}
-          </div>
+      <div className={`${styles.columns} flex min-h-0 flex-1 gap-px bg-white/5 lg:contents`}>
+        <aside className={`${listCollapsed ? "lg:invisible lg:pointer-events-none lg:-ml-[290px] lg:opacity-0 xl:-ml-[320px]" : "lg:ml-0 lg:opacity-100"} ${selectedId ? "hidden lg:flex" : "flex"} w-full min-w-0 flex-col bg-noir-700 transition-[margin,opacity] duration-300 ease-in-out lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:min-h-0 lg:w-[290px] lg:shrink-0 lg:overflow-hidden xl:w-[320px]`}>
 
-          <div ref={threadListRef} className={`${styles.threadList} min-h-0 flex-1 p-2`} aria-label="Conversations" aria-busy={loading || loadingMore}>
+          <div ref={threadListRef} className={`${styles.threadList} scrollbar-hidden min-h-0 flex-1 p-2`} aria-label="Conversations" aria-busy={loading || loadingMore}>
             {loading && <p className="px-3 py-8 text-center text-xs text-white/50">Chargement des conversations…</p>}
             {listError && <div className="space-y-2 p-4 text-sm text-red-300"><p>{listError}</p><button className={subtleButton} onClick={() => void refreshList()}>Réessayer</button></div>}
             {!loading && !listError && threads.length === 0 && (
@@ -729,25 +773,35 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                 <p className="mt-2 text-xs leading-relaxed text-white/45">{channel === "INSTAGRAM" ? "Les conversations apparaîtront après réception d’un premier message Instagram et activation des Webhooks Meta." : channel !== "ALL" && channel !== "INKERA" ? "Ce canal n’est pas encore connecté. L’intégration des comptes externes sera la prochaine étape." : "Les nouveaux échanges Inkera apparaîtront ici. Vous pouvez aussi les lancer depuis un profil public."}</p>
               </div>
             )}
-            {!loading && sortedThreads.map((item) => (
+            {!loading && sortedThreads.map((item) => {
+              const unread = item.unreadCount || 0;
+              const selected = selectedId === item.id;
+              const channelLabel = CHANNELS.find((entry) => entry.value === item.channel)?.label;
+              const assignee = item.assignedUser?.firstName || item.assignedTatoueur?.name;
+              return (
               <button key={item.id} type="button" onClick={() => { listScrollRef.current = window.scrollY; setSelectedId(item.id); setAppointmentPage(1); setDetailLoading(true); }}
-                className={`w-full border-l-2 px-3 py-2 text-left transition ${selectedId === item.id ? "border-tertiary-400/50 bg-tertiary-400/15" : (item.unreadCount || 0) > 0 ? "border-tertiary-400 bg-tertiary-400/10 hover:bg-tertiary-400/15" : "border-transparent hover:border-white/10 hover:bg-white/5"}`}>
+                className={`group mb-1 w-full rounded-2xl px-3 py-3 text-left transition ${selected ? "bg-tertiary-400/15" : unread > 0 ? "bg-white/[0.05] hover:bg-white/[0.08]" : "hover:bg-white/[0.05]"}`}>
                 <div className="flex items-start gap-3">
                   <ThreadAvatar thread={item} />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2"><strong className={`truncate text-sm ${(item.unreadCount || 0) > 0 ? 'font-bold text-white' : 'font-medium'}`}>{threadName(item)}</strong><span className="shrink-0 text-[10px] text-white/40">{displayDate(item.lastMessageAt)}</span><NotificationBadge count={item.unreadCount || 0} label="messages non lus" /></div>
-                    <p className="mt-1 truncate text-xs text-white/50">{threadTitle(item)}</p>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[10px] text-white/60">{CHANNELS.find((entry) => entry.value === item.channel)?.label}</span>
-                      {item.ownerUserId !== userId && <span className="rounded-md bg-tertiary-400/15 px-1.5 py-0.5 text-[10px] text-tertiary-400">Salon lié</span>}
-                      {item.assignedUser && <span className="rounded-md bg-blue-400/10 px-1.5 py-0.5 text-[10px] text-blue-200">{item.assignedUser.firstName}</span>}
-                      {item.assignedTatoueur && <span className="rounded-md bg-blue-400/10 px-1.5 py-0.5 text-[10px] text-blue-200">{item.assignedTatoueur.name}</span>}
-                      <span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-white/40">{STATUS.find((s) => s.value === item.status)?.label}</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <strong className={`truncate text-sm ${unread > 0 ? "font-semibold text-white" : "font-medium text-white/85"}`}>{threadName(item)}</strong>
+                      <span className={`shrink-0 text-[10px] ${unread > 0 ? "text-tertiary-400" : "text-white/35"}`}>{displayDate(item.lastMessageAt)}</span>
                     </div>
+                    <div className="mt-0.5 flex items-center gap-2">
+                      <p className={`min-w-0 flex-1 truncate text-xs ${unread > 0 ? "text-white/80" : "text-white/45"}`}>{lastMessagePreview(item, userId)}</p>
+                      <NotificationBadge count={unread} label="messages non lus" />
+                    </div>
+                    {(item.channel !== "INKERA" || item.ownerUserId !== userId || assignee) && <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                      {item.channel !== "INKERA" && <span className="rounded-md bg-white/[0.07] px-1.5 py-0.5 text-[10px] text-white/55">{channelLabel}</span>}
+                      {item.ownerUserId !== userId && <span className="rounded-md bg-tertiary-400/10 px-1.5 py-0.5 text-[10px] text-tertiary-400">Salon lié</span>}
+                      {assignee && <span className="inline-flex items-center gap-1 rounded-md bg-blue-400/10 px-1.5 py-0.5 text-[10px] text-blue-300"><UserRound size={9} aria-hidden="true" />{assignee}</span>}
+                    </div>}
                   </div>
                 </div>
               </button>
-            ))}
+              );
+            })}
             <div ref={loadMoreRef} className="h-px" aria-hidden="true" />
             {loadingMore && <p role="status" className="flex items-center justify-center gap-2 py-5 text-xs text-white/45"><RefreshCw size={14} className="motion-safe:animate-spin" aria-hidden="true" /> Chargement des conversations…</p>}
             {loadMoreError && <div role="alert" className="space-y-2 p-3 text-center text-xs text-red-300"><p>{loadMoreError}</p><button type="button" className={subtleButton} onClick={() => void loadMore()}>Réessayer</button></div>}
@@ -755,7 +809,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
           </div>
         </aside>
 
-        <div className={`${selectedId ? "flex" : "hidden lg:flex"} min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-noir-700`}>
+        <div className={`${selectedId ? "flex" : "hidden lg:flex"} min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[var(--app-surface-raised)] lg:col-start-2 lg:row-start-3`}>
           {!selectedId ? (
             <div className="m-auto max-w-xs px-6 text-center text-white/40"><MessageCircle size={36} className="mx-auto mb-4 text-tertiary-400/40"/><p className="text-base text-white/75">Sélectionnez une conversation</p><p className="mt-2 text-xs leading-relaxed">Les messages, rendez-vous, notes et informations client seront affichés ici.</p></div>
           ) : detailLoading ? (
@@ -764,24 +818,31 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
             <div className="m-auto space-y-3 px-5 text-center"><CircleAlert className="mx-auto text-red-300"/><p className="text-sm text-red-300">{detailError}</p><button className={subtleButton} onClick={() => selectedId && void refreshDetail(selectedId)}>Réessayer</button></div>
           ) : thread ? (
             <>
-              <header className="flex shrink-0 items-center justify-between gap-2 border-b border-white/10 px-3 py-2.5 lg:px-4 lg:py-3">
-                <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <button type="button" aria-label="Retour aux conversations" className={`${subtleButton} h-10 w-9 shrink-0 !px-0 lg:hidden`} onClick={() => setSelectedId(null)}><ArrowLeft size={15} /></button>
-                  <ThreadAvatar thread={thread} />
-                  <div className="min-w-0"><h2 className="truncate text-sm font-semibold">{selectedName}</h2><p className="mt-1 truncate text-xs text-white/50">{threadTitle(thread)} · {CHANNELS.find(({ value }) => value === thread.channel)?.label}{thread.ownerUserId !== userId ? " · Salon lié" : ""}</p></div>
+              <header className="flex shrink-0 items-center justify-between gap-3 px-4 py-3.5 xl:hidden">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <RdvActionButton tone="neutral" iconOnly icon={ArrowLeft} className="lg:!hidden" onClick={() => setSelectedId(null)}>Retour aux conversations</RdvActionButton>
+                  <ThreadAvatar thread={thread} large />
+                  <div className="min-w-0">
+                    <h2 className="truncate text-base font-semibold leading-tight">{selectedName}</h2>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      <span className={`inline-flex h-5 items-center gap-1.5 rounded-md px-2 text-[10px] font-semibold ${STATUS_TONES[thread.status]}`}><span className="size-1.5 rounded-full bg-current" />{STATUS.find((entry) => entry.value === thread.status)?.label}</span>
+                      <span className="inline-flex h-5 items-center rounded-md bg-white/[0.07] px-2 text-[10px] text-white/55">{CHANNELS.find(({ value }) => value === thread.channel)?.label}</span>
+                      {thread.ownerUserId !== userId && <span className="inline-flex h-5 items-center rounded-md bg-tertiary-400/10 px-2 text-[10px] text-tertiary-400">Salon lié</span>}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex shrink-0 gap-1">
-                  {!isFree && <button type="button" aria-label="Proposer un rendez-vous" title="Proposer un RDV (lien de réservation)" className={`${subtleButton} h-10 w-10 !px-0 sm:w-auto sm:!px-3`} onClick={() => setBookingLinkOpen(true)}><CalendarPlus size={15} aria-hidden="true" /><span className="hidden sm:inline">Proposer un RDV</span></button>}
-                  <button type="button" aria-label={showDetailsMobile ? "Afficher les messages" : "Afficher les détails"} title={showDetailsMobile ? "Afficher les messages" : "Afficher les détails"} aria-expanded={showDetailsMobile} className={`${subtleButton} h-10 w-10 !px-0 xl:hidden`} onClick={() => { setActiveAppointment(null); setShowDetailsMobile((open) => !open); }}><Eye size={16} aria-hidden="true" /></button>
-                  <button type="button" aria-label="Marquer comme lue" title="Marquer comme lue" disabled={pending} className={`${subtleButton} h-10 w-9 !px-0 xl:w-auto xl:!px-3`} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, false), "Conversation marquée lue")}><CheckCheck size={15} aria-hidden="true" /><span className="hidden xl:inline">Lue</span></button>
-                  <button type="button" aria-label="Marquer comme non lue" title="Marquer comme non lue" disabled={pending} className={`${subtleButton} h-10 w-9 !px-0 xl:w-auto xl:!px-3`} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, true), "Conversation marquée non lue")}><AtSign size={15} aria-hidden="true" /><span className="hidden xl:inline">Non lue</span></button>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  {!isFree && <RdvActionButton tone="primary" icon={CalendarPlus} className="!w-auto" title="Proposer un RDV (lien de réservation)" onClick={() => setBookingLinkOpen(true)}>Proposer un RDV</RdvActionButton>}
+                  <RdvActionButton tone="neutral" size="sm" iconOnly icon={Eye} className="xl:!hidden" aria-expanded={showDetailsMobile} onClick={() => { setActiveAppointment(null); setShowDetailsMobile((open) => !open); }}>{showDetailsMobile ? "Afficher les messages" : "Afficher les détails"}</RdvActionButton>
+                  <RdvActionButton tone="neutral" size="sm" iconOnly icon={CheckCheck} disabled={pending} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, false), "Conversation marquée lue")}>Marquer comme lue</RdvActionButton>
+                  <RdvActionButton tone="neutral" size="sm" iconOnly icon={AtSign} disabled={pending} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, true), "Conversation marquée non lue")}>Marquer comme non lue</RdvActionButton>
                   
                 </div>
               </header>
 
-              <div className={`grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)] gap-0 overflow-hidden transition-[grid-template-columns] duration-300 ease-in-out ${listCollapsed || activeAppointment ? "xl:grid-cols-[minmax(0,1fr)_540px]" : "xl:grid-cols-[minmax(0,1fr)_340px]"}`}>
+              <div className={`grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)] gap-0 overflow-hidden transition-[grid-template-columns] duration-300 ease-in-out ${activeAppointment ? "xl:grid-cols-[minmax(0,1fr)_540px]" : listCollapsed ? "xl:grid-cols-[minmax(0,1fr)_420px]" : "xl:grid-cols-[minmax(0,1fr)_340px]"}`}>
                 <div className={`${showDetailsMobile || activeAppointment ? "hidden xl:flex" : "flex"} min-h-0 min-w-0 flex-col xl:h-full`}>
-                  <div ref={messagesScrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+                  <div ref={messagesScrollRef} className="scrollbar-hidden min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
                     {messages.length === 0 && <p className="py-10 text-center text-sm text-white/40">Pas encore de message dans cette conversation.</p>}
                     {messages.map((message) => {
                       const mine = message.sender?.id === userId || (thread.channel !== "INKERA" && message.direction === "OUTBOUND");
@@ -799,13 +860,12 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                     <div className="flex items-start gap-2 border-t border-white/10 bg-tertiary-400/5 p-4 text-xs leading-relaxed text-white/70"><Lock size={16} className="shrink-0 text-tertiary-400" /><span>Conversation en lecture seule : l&apos;envoi et la réception de messages sont réservés aux comptes PRO ou BUSINESS.</span></div>
                   ) : (thread.channel === "INKERA" || (thread.channel === "INSTAGRAM" && ["ACTIVE", "ERROR"].includes(thread.externalConversation?.connection?.status || ""))) ? (
                     <div className="space-y-2 p-3">
-                      <div className="flex gap-2"><select aria-label="Insérer une réponse enregistrée" className={`${field} min-w-0 flex-1 !py-1.5 text-[11px]`} defaultValue="" onChange={(event) => { const reply = savedReplies.find((item) => item.id === event.target.value); if (reply) setDraft(reply.content); event.target.value = ""; }}><option value="">Insérer une réponse enregistrée…</option>{savedReplies.filter((item) => !item.channel || item.channel === thread.channel).map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select>
-                        <button type="button" className={`${subtleButton} shrink-0 !px-2.5 !py-1.5 text-[11px]`} aria-label={replyFormOpen ? "Fermer la nouvelle réponse enregistrée" : "Créer une réponse enregistrée"} title="Nouvelle réponse enregistrée" aria-expanded={replyFormOpen} onClick={() => setReplyFormOpen((open) => !open)}>{replyFormOpen ? <X size={14} /> : <Plus size={14} />}<span className="hidden sm:inline">Nouvelle réponse</span></button></div>
                       {replyFormOpen && <div className="flex gap-2"><input aria-label="Titre de la réponse enregistrée" value={replyTitle} onChange={(event) => setReplyTitle(event.target.value)} placeholder="Titre (le texte saisi ci-dessous sera enregistré)" className={`${field} !py-1.5 text-[11px]`} /><button className={`${subtleButton} shrink-0 !py-1.5 text-[11px]`} type="button" disabled={pending || !replyTitle.trim() || !draft.trim()} onClick={() => void mutate(() => createInboxSavedReplyAction(replyTitle, draft, thread.channel), "Réponse enregistrée").then(async (ok) => { if (ok) { setReplyTitle(""); setReplyFormOpen(false); setSavedReplies(await getInboxSavedRepliesAction()); } })}>Enregistrer</button></div>}
                       <form onSubmit={sendMessage} className="space-y-2">
                         {selectedImage && <div className="flex items-center justify-between gap-2 rounded-lg border border-tertiary-400/20 bg-tertiary-400/5 px-3 py-2 text-xs"><span className="truncate">Image : {selectedImage.name}</span><button type="button" aria-label="Retirer l'image" onClick={() => setSelectedImage(null)}><X size={14} /></button></div>}
                         <div className="flex items-end gap-2">
-                          <label className={`${subtleButton} h-11 shrink-0`} title="Joindre une image"><ImagePlus size={17} /><span className="sr-only">Joindre une image</span><input type="file" className="sr-only" accept="image/*" disabled={pending || processingImage || isUploading} onChange={(event) => { setSelectedImage(event.target.files?.[0] || null); event.target.value = ""; }} /></label>
+                          <label className={`${subtleButton} h-11 shrink-0 !border-transparent !bg-white/[0.04] hover:!bg-white/[0.09]`} title="Joindre une image"><ImagePlus size={17} /><span className="sr-only">Joindre une image</span><input type="file" className="sr-only" accept="image/*" disabled={pending || processingImage || isUploading} onChange={(event) => { setSelectedImage(event.target.files?.[0] || null); event.target.value = ""; }} /></label>
+                          <button type="button" aria-label={replyFormOpen ? "Fermer la nouvelle réponse enregistrée" : "Créer une réponse enregistrée"} title="Nouvelle réponse enregistrée" aria-expanded={replyFormOpen} className={`${subtleButton} h-11 w-11 shrink-0 !border-transparent !bg-white/[0.04] !px-0 hover:!bg-white/[0.09]`} onClick={() => setReplyFormOpen((open) => !open)}>{replyFormOpen ? <X size={17} aria-hidden="true" /> : <Plus size={17} aria-hidden="true" />}</button>
                           <textarea ref={composerRef} aria-label="Votre réponse" value={draft} onChange={(event) => handleDraftChange(event.target.value)} rows={1} maxLength={thread.channel === "INSTAGRAM" ? 1000 : 20000} placeholder={thread.channel === "INSTAGRAM" ? "Répondre sur Instagram…" : "Écrire un message au client…"} className={`${field} min-h-10 resize-none leading-5`} />
                           <button type="submit" aria-label={processingImage || isUploading ? "Envoi en cours" : "Envoyer le message"} className={`${primaryButton} shrink-0`} disabled={pending || processingImage || isUploading || (!draft.trim() && !selectedImage)}><Send size={16} /><span className="hidden sm:inline">{processingImage || isUploading ? "Envoi…" : "Envoyer"}</span></button>
                         </div>
@@ -816,57 +876,77 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                   )}
                 </div>
 
-                <aside className={`${showDetailsMobile || activeAppointment ? "flex" : "hidden xl:flex"} min-h-0 flex-col overflow-y-auto space-y-3 border-l border-white/10 p-3 text-[11px] xl:h-full [&_button]:!px-2.5 [&_button]:!py-1.5 [&_button]:!text-[11px] [&_input]:!px-2.5 [&_input]:!py-1.5 [&_input]:!text-xs [&_select]:!px-2.5 [&_select]:!py-1.5 [&_select]:!text-xs [&_textarea]:!px-2.5 [&_textarea]:!py-1.5 [&_textarea]:!text-xs`}>
+                <aside className={`${showDetailsMobile || activeAppointment ? "flex" : "hidden xl:flex"} scrollbar-hidden min-h-0 flex-col gap-3 overflow-y-auto p-4 text-xs xl:h-full`}>
                   {activeAppointment ? (
                     <div className="flex min-h-0 flex-1 flex-col">
-                      <button type="button" className={`${subtleButton} mb-3 w-fit shrink-0`} onClick={() => setActiveAppointment(null)}><ArrowLeft size={13} /> Retour au suivi</button>
+                      <RdvActionButton tone="neutral" icon={ArrowLeft} className="mb-3 !w-auto shrink-0 self-start" onClick={() => setActiveAppointment(null)}>Retour à la conversation</RdvActionButton>
                       <ConversationRDVDetails conversation={{ appointmentId: activeAppointment.id, subject: activeAppointment.title, client: { firstName: activeAppointment.client?.firstName || activeAppointment.clientUser?.firstName || selectedName || 'Client', lastName: activeAppointment.client?.lastName || activeAppointment.clientUser?.lastName || '' } }} />
                     </div>
                   ) : (
                     <>
-                  <button type="button" className={`${subtleButton} mb-2 w-fit xl:hidden`} onClick={() => setShowDetailsMobile(false)}><ArrowLeft size={13} /> Retour aux messages</button>
-                  <div><h3 className="mb-1.5 flex items-center gap-2 font-semibold text-white"><Clock3 size={14} className="text-tertiary-400" /> Suivi</h3>
-                    <select aria-label="Statut de la conversation" className={field} value={thread.status} disabled={pending} onChange={(event) => void mutate(() => setInboxStatusAction(thread.id, event.target.value as InboxStatus), "Statut mis à jour")}>
-                      {STATUS.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
-                    </select>
-                  </div>
+                  <RdvActionButton tone="neutral" icon={ArrowLeft} className="!w-auto shrink-0 self-start xl:!hidden" onClick={() => setShowDetailsMobile(false)}>Retour aux messages</RdvActionButton>
 
-                  <div className="border-t border-white/10 pt-3"><h3 className="mb-1.5 flex items-center gap-2 font-semibold"><Users size={14} className="text-tertiary-400" /> Affectation</h3>
-                    <p className="mb-2 text-white/50">{thread.assignedUser ? `Responsable : ${[thread.assignedUser.firstName, thread.assignedUser.lastName].filter(Boolean).join(" ")}` : thread.assignedTatoueur ? `Responsable : ${thread.assignedTatoueur.name}` : "Aucun tatoueur attribué"}</p>
-                    {isOwner && isSalon && <div className="space-y-2"><select aria-label="Tatoueur responsable" value={assignment} className={field} onChange={(event) => setAssignment(event.target.value)}>
-                      <option value="">Non attribuée</option>
-                      {team.map((member) => { const linked = member.linkedUserId || member.tatoueurUserId; return <option key={member.id} value={linked ? `user:${linked}` : `artist:${member.id}`}>{memberLabel(member)}{linked ? " (compte Inkera)" : " (équipe interne)"}</option>; })}
-                    </select>
-                      <button type="button" disabled={pending} className={`${primaryButton} w-full`} onClick={() => void mutate(() => setInboxAssignmentAction(thread.id, assignment.startsWith("user:") ? { assignedUserId: assignment.slice(5) } : assignment.startsWith("artist:") ? { assignedTatoueurId: assignment.slice(7) } : {}), "Attribution mise à jour")}>Attribuer / réattribuer</button>
-                      {assignment.startsWith("user:") && <button type="button" disabled={pending} className={`${subtleButton} w-full`} onClick={() => void mutate(() => setInboxMemberPermissionAction(assignment.slice(5)), "Accès autorisé à ce tatoueur")}>Autoriser à consulter et répondre</button>}
-                      <p className="text-[11px] leading-relaxed text-white/40">Pour un indépendant lié au salon, autorisez d’abord l’accès, puis attribuez la conversation. Il ne verra que les conversations qui lui sont assignées.</p>
+                  <section className="rounded-2xl bg-noir-600 p-4">
+                    <div className="flex items-center gap-3">
+                      <ThreadAvatar thread={thread} large />
+                      <div className="min-w-0 flex-1">
+                        <h2 className="truncate text-base font-semibold leading-tight">{selectedName}</h2>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                          <span className={`inline-flex h-5 items-center gap-1.5 rounded-md px-2 text-[10px] font-semibold ${STATUS_TONES[thread.status]}`}><span className="size-1.5 rounded-full bg-current" />{STATUS.find((entry) => entry.value === thread.status)?.label}</span>
+                          <span className="inline-flex h-5 items-center rounded-md bg-white/[0.07] px-2 text-[10px] text-white/55">{CHANNELS.find(({ value }) => value === thread.channel)?.label}</span>
+                          {thread.ownerUserId !== userId && <span className="inline-flex h-5 items-center rounded-md bg-tertiary-400/10 px-2 text-[10px] text-tertiary-400">Salon lié</span>}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                      <RdvActionButton tone="neutral" icon={thread.linkedClient ? UserRound : UserPlus} iconOnly loading={clientFileLoading} aria-expanded={thread.linkedClient ? undefined : clientFormOpen} onClick={() => { if (thread.linkedClient) void openClientFile(); else setClientFormOpen((open) => !open); }}>{thread.linkedClient ? "Fiche client" : "Relier un client"}</RdvActionButton>
+                      {!isFree && <RdvActionButton tone="neutral" icon={CalendarPlus} className="!w-auto flex-1" title="Proposer un RDV (lien de réservation)" onClick={() => setBookingLinkOpen(true)}>Proposer un RDV</RdvActionButton>}
+                      <RdvActionButton tone="neutral" size="sm" iconOnly icon={CheckCheck} disabled={pending} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, false), "Conversation marquée lue")}>Marquer comme lue</RdvActionButton>
+                      <RdvActionButton tone="neutral" size="sm" iconOnly icon={AtSign} disabled={pending} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, true), "Conversation marquée non lue")}>Marquer comme non lue</RdvActionButton>
+                    </div>
+                  </section>
+
+                  {clientFormOpen && !thread.linkedClient && <PanelSection icon={UserPlus} title="Relier un client" hint="Choisissez une fiche existante ou créez-en une nouvelle.">
+                    <div className="space-y-2">
+                      <input className={panelField} aria-label="Rechercher une fiche client" placeholder="Rechercher un client (nom ou e-mail)…" value={clientQuery} onChange={(event) => setClientQuery(event.target.value)} />
+                      {clientResults.map((client) => <button type="button" key={client.id} className="block w-full rounded-xl bg-white/[0.04] p-2.5 text-left transition hover:bg-white/[0.08]" disabled={pending} onClick={() => void mutate(() => linkInboxClientAction(thread.id, client.id), "Fiche client associée", true)}><span className="text-xs font-medium text-white/90">{client.firstName} {client.lastName}</span> <span className="block text-[11px] text-white/40">{client.email}</span></button>)}
+                      <p className="pt-2 text-[10px] font-medium uppercase tracking-wider text-white/40">Ou créer une nouvelle fiche</p>
+                      {(["firstName", "lastName", "email", "phone"] as const).map((key) => <input key={key} type={key === "email" ? "email" : "text"} className={panelField} aria-label={key} placeholder={({ firstName: "Prénom", lastName: "Nom", email: "E-mail", phone: "Téléphone" })[key]} value={newClient[key]} onChange={(event) => setNewClient((old) => ({ ...old, [key]: event.target.value }))} />)}
+                      <RdvActionButton tone="primary" icon={Plus} disabled={pending || isFree || Object.values(newClient).some((value) => !value.trim())} onClick={() => void mutate(() => createInboxClientAction(thread.id, newClient), "Fiche client créée et associée", true)}>Créer et associer</RdvActionButton>
+                    </div>
+                  </PanelSection>}
+
+                  <PanelSection icon={Clock3} title="Statut" hint="Où en est cette conversation ?">
+                    <FilterSelect buttonClassName="flex h-10 w-full min-w-0 items-center gap-2 rounded-xl bg-white/[0.04] px-3 text-left text-xs text-white/80 outline-none transition hover:bg-white/[0.09] focus-visible:ring-2 focus-visible:ring-tertiary-400/30 disabled:opacity-50" label="Statut de la conversation" placeholder="Statut" unit="statut" icon={<Clock3 size={14} aria-hidden="true" />} multiple={false} clearable={false} disabled={pending}
+                      selected={[thread.status]}
+                      options={STATUS.map(({ value, label }) => ({ value, label }))}
+                      onApply={(values) => { const next = values[0] as InboxStatus | undefined; if (next && next !== thread.status) void mutate(() => setInboxStatusAction(thread.id, next), "Statut mis à jour"); }} />
+                  </PanelSection>
+
+                  <PanelSection icon={Users} title="Responsable" hint={thread.assignedUser ? undefined : thread.assignedTatoueur ? undefined : "Personne n’est encore chargé de cette conversation."}>
+                    {(thread.assignedUser || thread.assignedTatoueur) && <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.04] px-3 py-2.5"><span className="grid size-8 shrink-0 place-items-center rounded-xl bg-tertiary-400/10 text-[11px] font-semibold text-tertiary-400">{(thread.assignedUser ? thread.assignedUser.firstName : thread.assignedTatoueur?.name)?.charAt(0).toUpperCase() || "?"}</span><div className="min-w-0"><p className="text-[10px] text-white/40">Attribuée à</p><p className="truncate text-xs font-medium text-white/90">{thread.assignedUser ? [thread.assignedUser.firstName, thread.assignedUser.lastName].filter(Boolean).join(" ") : thread.assignedTatoueur?.name}</p></div></div>}
+                    {isOwner && isSalon && <div className="mt-3 space-y-2"><FilterSelect buttonClassName="flex h-10 w-full min-w-0 items-center gap-2 rounded-xl bg-white/[0.04] px-3 text-left text-xs text-white/80 outline-none transition hover:bg-white/[0.09] focus-visible:ring-2 focus-visible:ring-tertiary-400/30 disabled:opacity-50" label="Tatoueur responsable" placeholder="Non attribuée" unit="tatoueur" icon={<Users size={14} aria-hidden="true" />} multiple={false}
+                      selected={assignment ? [assignment] : []}
+                      options={team.map((member) => { const linked = member.linkedUserId || member.tatoueurUserId; return { value: linked ? `user:${linked}` : `artist:${member.id}`, label: memberLabel(member) + (linked ? " (compte Inkera)" : " (équipe interne)") }; })}
+                      onApply={(values) => setAssignment(values[0] || "")} />
+                      <RdvActionButton tone="primary" icon={Users} disabled={pending} onClick={() => void mutate(() => setInboxAssignmentAction(thread.id, assignment.startsWith("user:") ? { assignedUserId: assignment.slice(5) } : assignment.startsWith("artist:") ? { assignedTatoueurId: assignment.slice(7) } : {}), "Attribution mise à jour")}>Attribuer la conversation</RdvActionButton>
+                      {assignment.startsWith("user:") && <RdvActionButton tone="neutral" icon={CheckCheck} disabled={pending} onClick={() => void mutate(() => setInboxMemberPermissionAction(assignment.slice(5)), "Accès autorisé à ce tatoueur")}>Autoriser à répondre</RdvActionButton>}
+                      <p className="text-[11px] leading-relaxed text-white/40">Un tatoueur indépendant lié au salon doit d’abord être autorisé, puis la conversation peut lui être attribuée. Il ne verra que les conversations qui lui sont attribuées.</p>
                     </div>}
-                  </div>
+                  </PanelSection>
 
-                  <div className="border-t border-white/10 pt-3"><h3 className="mb-1.5 flex items-center gap-2 font-semibold"><UserRound size={14} className="text-tertiary-400" /> Fiche client</h3>
-                    {thread.linkedClient ? <div className="relative rounded-xl bg-white/5 p-3 pr-9"><button aria-label="Dissocier la fiche client" title="Dissocier la fiche client" type="button" disabled={pending} onClick={() => void mutate(() => unlinkInboxClientAction(thread.id), "Fiche client dissociée")} className="absolute right-2 top-2 rounded-md text-white/60 hover:text-white"><X size={15} /></button><p className="font-semibold">{thread.linkedClient.firstName} {thread.linkedClient.lastName}</p><p className="mt-1 break-all text-white/50">{thread.linkedClient.email}</p><p className="mt-1 text-white/50">{thread.linkedClient.phone}</p></div> : <p className="mb-2 text-white/50">Aucune fiche client rattachée.</p>}
-                    {!thread.linkedClient && <button type="button" className={`${subtleButton} mt-2 w-full`} onClick={() => setClientFormOpen(!clientFormOpen)}>{clientFormOpen ? <X size={13} /> : <Plus size={13} />}{clientFormOpen ? "Masquer" : "Associer / créer une fiche"}</button>}
-                    {clientFormOpen && !thread.linkedClient && <div className="mt-3 space-y-2"><input className={field} aria-label="Rechercher une fiche client" placeholder="Nom ou email…" value={clientQuery} onChange={(event) => setClientQuery(event.target.value)} />
-                      {clientResults.map((client) => <button type="button" key={client.id} className="block w-full rounded-lg border border-white/10 p-2 text-left hover:bg-white/5" disabled={pending} onClick={() => void mutate(() => linkInboxClientAction(thread.id, client.id), "Fiche client associée", true)}>{client.firstName} {client.lastName} <span className="block text-white/40">{client.email}</span></button>)}
-                      <p className="pt-2 text-[11px] font-semibold uppercase tracking-widest text-white/50">Nouvelle fiche</p>
-                      {(["firstName", "lastName", "email", "phone"] as const).map((key) => <input key={key} type={key === "email" ? "email" : "text"} className={field} aria-label={key} placeholder={({ firstName: "Prénom", lastName: "Nom", email: "Email", phone: "Téléphone" })[key]} value={newClient[key]} onChange={(event) => setNewClient((old) => ({ ...old, [key]: event.target.value }))} />)}
-                      <button type="button" className={`${primaryButton} w-full`} disabled={pending || isFree || Object.values(newClient).some((value) => !value.trim())} onClick={() => void mutate(() => createInboxClientAction(thread.id, newClient), "Fiche client créée et associée", true)}>Créer et associer</button>
-                    </div>}
-                  </div>
+                  <PanelSection icon={CalendarDays} title="Rendez-vous" right={<span className="rounded-md bg-white/[0.07] px-1.5 py-0.5 text-[10px] tabular-nums text-white/55">{appointmentTotal}</span>}>
+                    {appointmentLoading && <p className="py-1 text-white/40">Chargement…</p>}
+                    {!appointmentLoading && appointments.length === 0 && <p className="text-white/45">Aucun rendez-vous pour ce client.</p>}
+                    <div className="space-y-1.5">{appointments.map((item) => <button type="button" key={item.id} onClick={() => setActiveAppointment(item)} className="flex w-full items-center gap-2.5 rounded-xl bg-white/[0.04] p-2.5 text-left transition hover:bg-white/[0.08]"><span className="min-w-0 flex-1"><span className="block truncate text-xs font-medium text-white/90">{item.prestation || item.title}</span><span className="mt-0.5 block truncate text-[11px] text-white/50">{displayDate(item.start)}</span></span><ChevronRight size={14} className="shrink-0 text-white/30" aria-hidden="true" /></button>)}</div>
+                    {appointmentPages > 1 && <div className="mt-3 flex items-center justify-between gap-2"><RdvActionButton tone="neutral" size="sm" iconOnly icon={ChevronLeft} disabled={appointmentPage === 1} onClick={() => setAppointmentPage((v) => v - 1)}>Page précédente</RdvActionButton><span className="text-[11px] text-white/50">{appointmentPage} / {appointmentPages}</span><RdvActionButton tone="neutral" size="sm" iconOnly icon={ChevronRight} disabled={appointmentPage >= appointmentPages} onClick={() => setAppointmentPage((v) => v + 1)}>Page suivante</RdvActionButton></div>}
+                  </PanelSection>
 
-                  <div className="border-t border-white/10 pt-3"><h3 className="mb-1.5 flex items-center gap-2 font-semibold"><CheckCheck size={14} className="text-tertiary-400" /> Rendez-vous liés ({appointmentTotal})</h3>
-                    {appointmentLoading && <p className="py-2 text-white/40">Chargement…</p>}
-                    {!appointmentLoading && appointments.length === 0 && <p className="py-2 text-white/40">Aucun rendez-vous pour ce client.</p>}
-                    {appointments.map((item) => <button type="button" key={item.id} onClick={() => setActiveAppointment(item)} className="mb-1 block w-full rounded-lg bg-white/5 p-2 text-left transition hover:bg-white/10"><span className="block truncate font-semibold text-white/90">{[item.client?.firstName || item.clientUser?.firstName, item.client?.lastName || item.clientUser?.lastName].filter(Boolean).join(' ') || selectedName}</span><span className="mt-0.5 block truncate text-white/60">{item.prestation || item.title} · {displayDate(item.start)}</span></button>)}
-                    {appointmentPages > 1 && <div className="flex items-center justify-between gap-2 pt-1"><button type="button" className={subtleButton} disabled={appointmentPage === 1} onClick={() => setAppointmentPage((v) => v - 1)}><ChevronLeft size={13} /> Précédent</button><span className="text-white/50">{appointmentPage}/{appointmentPages}</span><button type="button" className={subtleButton} disabled={appointmentPage >= appointmentPages} onClick={() => setAppointmentPage((v) => v + 1)}>Suivant <ChevronRight size={13} /></button></div>}
-                  </div>
-
-                  <div className="border-t border-white/10 pt-3"><h3 className="mb-1.5 flex items-center gap-2 font-semibold"><NotebookPen size={14} className="text-tertiary-400" /> Notes internes</h3>
-                    <p className="mb-2 text-[11px] text-white/40">Notes privées de l’équipe, jamais envoyées au client.</p>
-                    <div className="max-h-44 space-y-2 overflow-y-auto">{notes.map((note) => <div key={note.id} className="rounded-lg border border-amber-200/10 bg-amber-200/5 p-2.5"><p className="whitespace-pre-wrap wrap-break-word text-white/80">{note.content}</p><p className="mt-2 text-[10px] text-white/40">{note.author?.firstName || "Équipe"} · {displayDate(note.createdAt)}</p></div>)}</div>
-                    <textarea aria-label="Note interne" rows={3} className={`${field} mt-2`} maxLength={5000} value={noteDraft} onChange={(event) => setNoteDraft(event.target.value)} placeholder="Ajouter une note interne…" />
-                    <button type="button" className={`${subtleButton} mt-2 w-full`} disabled={pending || !noteDraft.trim()} onClick={() => void mutate(() => addInboxNoteAction(thread.id, noteDraft), "Note interne ajoutée").then((ok) => { if (ok) setNoteDraft(""); })}><Plus size={13} /> Ajouter la note</button>
-                  </div>
+                  <PanelSection icon={NotebookPen} title="Notes internes" hint="Visibles par l’équipe uniquement, jamais envoyées au client.">
+                    {notes.length > 0 && <div className="mb-3 max-h-52 space-y-2 overflow-y-auto scrollbar-hidden">{notes.map((note) => <div key={note.id} className="rounded-xl bg-amber-400/[0.07] p-3"><p className="whitespace-pre-wrap wrap-break-word text-xs leading-5 text-white/85">{note.content}</p><p className="mt-2 text-[10px] text-white/40">{note.author?.firstName || "Équipe"} · {displayDate(note.createdAt)}</p></div>)}</div>}
+                    <textarea aria-label="Note interne" rows={3} className={panelField + " h-auto resize-none py-2.5 leading-5"} maxLength={5000} value={noteDraft} onChange={(event) => setNoteDraft(event.target.value)} placeholder="Ajouter une note pour l’équipe…" />
+                    <RdvActionButton tone="neutral" icon={Plus} className="mt-2" disabled={pending || !noteDraft.trim()} onClick={() => void mutate(() => addInboxNoteAction(thread.id, noteDraft), "Note interne ajoutée").then((ok) => { if (ok) setNoteDraft(""); })}>Ajouter la note</RdvActionButton>
+                  </PanelSection>
                     </>
                   )}
                 </aside>
@@ -875,6 +955,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
           ) : null}
         </div>
       </div>
+      {clientFile && <InfoClient client={clientFile} isOpen onClose={() => setClientFile(null)} salonName={session?.user?.salonName ?? "Mon Salon"} />}
       {bookingLinkOpen && thread && bookingLinkContext && (
         <BookingLinkCreator
           context={bookingLinkContext}

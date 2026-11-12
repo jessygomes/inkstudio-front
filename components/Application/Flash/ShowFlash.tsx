@@ -9,8 +9,9 @@ import DeleteFlash from "./DeleteFlash";
 import FlashCard from "./FlashCard";
 import cardStyles from "./FlashCards.module.css";
 import PageHeader from "@/components/Shared/PageHeader";
-import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
-import DashboardButton from "@/components/Shared/DashboardButton";
+import RdvActionButton from "@/components/Application/RDV/RdvActionButton";
+import FilterSelect from "@/components/Shared/FilterSelect";
+import { ListFilter, Plus } from "lucide-react";
 import { getAvailableFlashsByUserAction } from "@/lib/queries/flash";
 import {
   getSalonTatoueursForPortfolioAction,
@@ -221,30 +222,19 @@ export default function ShowFlash() {
   return (
     <section className="w-full space-y-3">
       <PageHeader icon={<FaBolt size={15} className="text-tertiary-400" />} title="Flashs" />
-      <ApplicationToolbar filters={<div className="flex items-center gap-2">
-          <label htmlFor="availability-filter" className="text-xs text-white/60 font-one">
-            Disponibilité
-          </label>
-          <select
-            id="availability-filter"
-            value={availabilityFilter}
-            onChange={(event) => {
-              setAvailabilityFilter(event.target.value as AvailabilityFilter);
-              setCurrentPage(1);
-              setHasNextPage(false);
-            }}
-            className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
-          >
-            <option value="all" className="bg-noir-500">Tous</option>
-            <option value="available" className="bg-noir-500">Disponibles</option>
-            <option value="unavailable" className="bg-noir-500">Indisponibles</option>
-          </select>
-        </div>} actions={<DashboardButton onClick={handleCreate}>
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Nouveau flash
-        </DashboardButton>} />
+      <div className="relative z-10 flex w-full flex-wrap items-center gap-2 font-one sm:justify-end">
+        <div className="w-full sm:w-52">
+          <FilterSelect
+            buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${availabilityFilter !== "all" ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`}
+            label="Disponibilité" placeholder="Toutes les disponibilités" unit="disponibilité" icon={<ListFilter size={14} aria-hidden="true" />}
+            multiple={false} align="right"
+            selected={availabilityFilter === "all" ? [] : [availabilityFilter]}
+            options={[{ value: "available", label: "Disponibles" }, { value: "unavailable", label: "Indisponibles" }]}
+            onApply={(values) => { setAvailabilityFilter((values[0] || "all") as AvailabilityFilter); setCurrentPage(1); setHasNextPage(false); }}
+          />
+        </div>
+        <RdvActionButton tone="primary" icon={Plus} onClick={handleCreate} className="!w-auto shrink-0">Nouveau flash</RdvActionButton>
+      </div>
 
       <div className="hidden">
         <label htmlFor="availability-filter-mobile" className="text-xs text-white/60 font-one">

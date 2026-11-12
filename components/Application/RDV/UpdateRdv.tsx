@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { authenticatedFetch } from "@/lib/authenticated-fetch";
+import { Pencil } from "lucide-react";
+import RdvActionButton from "./RdvActionButton";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
@@ -22,10 +24,12 @@ export default function UpdateRdv({
   rdv,
   userId,
   onUpdate,
+  iconOnly,
 }: {
   rdv: UpdateRdvFormProps;
   userId: string;
   onUpdate?: () => void;
+  iconOnly?: boolean;
 }) {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
@@ -455,8 +459,7 @@ export default function UpdateRdv({
   // UI
   return (
     <>
-      <button
-        onClick={() => {
+      <RdvActionButton tone="neutral" icon={Pencil} iconOnly={iconOnly} onClick={() => {
           setError(null);
           setLoading(false);
           setShowModal(true);
@@ -465,25 +468,7 @@ export default function UpdateRdv({
               ? rdv.start
               : new Date(rdv.start).toISOString();
           form.setValue("start", startStr);
-        }}
-        className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium font-one transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed disabled:opacity-50 border-white/10 bg-white/[0.025] text-white/70 hover:border-white/20 hover:bg-white/5 hover:text-white"
-        title="Modifier ce rendez-vous"
-      >
-        <svg
-          className="w-3.5 h-3.5 flex-shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2.5}
-            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-          />
-        </svg>
-        <span>Modifier</span>
-      </button>
+        }} title="Modifier ce rendez-vous">Modifier</RdvActionButton>
 
       {showModal && <SideFormDrawer title="Modifier le rendez-vous" category="Rendez-vous" description="Ajustez la prestation, l’artiste et les horaires, puis enregistrez vos modifications." onClose={() => setShowModal(false)} busy={loading || mutation.isPending} footer={<><button type="button" onClick={() => setShowModal(false)} disabled={loading || mutation.isPending} className="min-h-10 cursor-pointer rounded-xl border border-white/10 px-3 py-2 text-xs text-white/65 transition hover:bg-white/5 disabled:opacity-50">Fermer</button><button type="submit" form={formId} disabled={loading || mutation.isPending || slotsLoading || !!slotsError} className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-white/90 px-4 py-2 text-xs font-medium text-noir-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50">{(loading || mutation.isPending) && <LoaderCircle size={14} className="animate-spin" />}{loading || mutation.isPending ? "Enregistrement…" : "Enregistrer les modifications"}</button></>}><form id={formId}
                 onSubmit={form.handleSubmit(onSubmit, () => setError("Merci de vérifier les champs du formulaire."))}

@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Mail } from "lucide-react";
+import RdvActionButton from "./RdvActionButton";
 import {
   calculateDurationForModal,
 } from "@/lib/utils/date-format/format-date-for-modal";
@@ -13,7 +15,9 @@ export default function SendMessageRdv({
   appointment,
   onMessageSent,
   buttonLabel = "Message",
+  iconOnly,
 }: {
+  iconOnly?: boolean;
   rdvId: string;
   appointment?: any; // Pour passer les détails du RDV
   onMessageSent?: () => void;
@@ -59,26 +63,7 @@ export default function SendMessageRdv({
 
   return (
     <>
-      <button
-        className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium font-one transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed disabled:opacity-50 border-white/10 bg-white/[0.025] text-white/70 hover:border-white/20 hover:bg-white/5 hover:text-white"
-        onClick={() => setShowModal(true)}
-        title={buttonLabel}
-      >
-        <svg
-          className="w-3.5 h-3.5 flex-shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2.5}
-            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-          />
-        </svg>
-        <span>{buttonLabel}</span>
-      </button>
+      <RdvActionButton tone="neutral" icon={Mail} iconOnly={iconOnly} onClick={() => setShowModal(true)} title={buttonLabel}>{buttonLabel}</RdvActionButton>
 
       {/* Modale d'envoi de message */}
       {showModal && (

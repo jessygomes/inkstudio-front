@@ -11,6 +11,7 @@ import {
 } from "@/lib/types/booking-links";
 import BookingLinkCreator from "@/components/Application/BookingLinks/BookingLinkCreator";
 import ProjectClientInfoCard from "./ProjectClientInfoCard";
+import RdvActionButton from "./RdvActionButton";
 import type { CalendarEvent } from "./Calendar";
 
 const field = "w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3 py-2 text-xs text-white outline-none transition focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 [color-scheme:dark]";
@@ -93,10 +94,13 @@ export default function ProjectBookingSection({ appointment, onUpdated }: {
   return <>
     <ProjectClientInfoCard appointmentId={appointment.id} info={appointment} onUpdated={onUpdated} />
 
-    <section aria-label="Période souhaitée pour le tatouage" className="rounded-2xl border border-white/10 bg-noir-600 p-4 font-one">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h3 className="flex items-center gap-2 text-xs font-semibold text-white/85"><CalendarHeart size={14} className="text-white/35" />Période souhaitée pour le tatouage</h3>
-        {!editing && <button type="button" onClick={() => { setDraft(saved); setEditing(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-white/60 transition hover:bg-white/5 hover:text-white"><Pencil size={11} />Modifier</button>}
+    <section aria-label="Période souhaitée pour le tatouage" className="rounded-2xl bg-noir-600 p-4 font-one">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="flex min-w-0 items-center gap-2.5 text-[13px] font-medium text-white/90"><span className="grid size-7 shrink-0 place-items-center rounded-lg bg-tertiary-400/10 text-tertiary-400"><CalendarHeart size={14} /></span>Période souhaitée pour le tatouage</h3>
+        {!editing && <div className="flex items-center gap-2">
+          <RdvActionButton tone="neutral" icon={Pencil} size="sm" iconOnly onClick={() => { setDraft(saved); setEditing(true); }}>Modifier</RdvActionButton>
+          {canCreateLink && <RdvActionButton tone="primary" icon={Link2} size="sm" title="Générez un lien pour que le client réserve sa séance lui-même." onClick={() => setCreatorOpen(true)}>Proposer un RDV</RdvActionButton>}
+        </div>}
       </div>
 
       {!editing ? <>
@@ -126,12 +130,6 @@ export default function ProjectBookingSection({ appointment, onUpdated }: {
         </div>
       </form>}
 
-      {canCreateLink && <div className="mt-4 border-t border-white/[0.07] pt-3">
-        <button type="button" onClick={() => setCreatorOpen(true)} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-tertiary-400/30 bg-tertiary-400/10 px-3 py-2 text-xs font-medium text-white transition hover:bg-tertiary-400/20">
-          <Link2 size={14} className="text-tertiary-400" />Proposer un RDV tatouage
-        </button>
-        <p className="mt-1.5 text-center text-[10px] text-white/35">Générez un lien pour que le client réserve sa séance lui-même.</p>
-      </div>}
     </section>
 
     {creatorOpen && <BookingLinkCreator onClose={() => setCreatorOpen(false)} context={{

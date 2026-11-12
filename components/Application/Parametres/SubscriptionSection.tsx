@@ -171,7 +171,7 @@ export default function SubscriptionSection({
             ) : subscription && currentPlanDetails ? (
               <>
                 <div
-                  className="rounded-xl border border-tertiary-400/20 bg-tertiary-400/5 p-4"
+                  className="rounded-xl bg-tertiary-400/10 p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -198,7 +198,7 @@ export default function SubscriptionSection({
                     </div>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-1 gap-4 border-t border-white/10 pt-4 sm:grid-cols-2">
+                  <div className="mt-4 grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
                     <div className="min-w-0">
                       <p className="text-white/55 font-one text-[11px] uppercase tracking-wider">
                         <span className="inline-flex items-center gap-2"><CalendarDays className="h-3.5 w-3.5" /> {isStripeGift ? "Début de la période offerte" : "Début de l’abonnement"}</span>
@@ -222,10 +222,10 @@ export default function SubscriptionSection({
                     </div>
                   </div>
 
-                  {isInvitation && <div className="mt-3 rounded-xl border border-emerald-400/25 bg-emerald-400/10 p-3 text-sm text-emerald-200">{subscription.paymentMethod === "ADMIN_GIFT" ? "Abonnement offert par Inkera Studio." : "Abonnement offert sur invitation."} À la fin de l’offre, votre compte repassera en Free sans prélèvement automatique.</div>}
-                  {isStripeGift && subscription.trialEndDate && <div className="mt-3 rounded-xl border border-emerald-400/25 bg-emerald-400/10 p-3 text-sm text-emerald-200">Période offerte du {new Date(subscription.startDate).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" })} au {new Date(subscription.trialEndDate).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" })}. {subscription.nextPaymentDate ? "La facturation reprendra automatiquement à cette date au tarif de votre abonnement Stripe." : "La résiliation est programmée ; aucun renouvellement automatique n’est prévu."}</div>}
+                  {isInvitation && <div className="mt-3 rounded-xl bg-emerald-400/10 p-3 text-sm text-emerald-200">{subscription.paymentMethod === "ADMIN_GIFT" ? "Abonnement offert par Inkera Studio." : "Abonnement offert sur invitation."} À la fin de l’offre, votre compte repassera en Free sans prélèvement automatique.</div>}
+                  {isStripeGift && subscription.trialEndDate && <div className="mt-3 rounded-xl bg-emerald-400/10 p-3 text-sm text-emerald-200">Période offerte du {new Date(subscription.startDate).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" })} au {new Date(subscription.trialEndDate).toLocaleDateString("fr-FR", { timeZone: "Europe/Paris" })}. {subscription.nextPaymentDate ? "La facturation reprendra automatiquement à cette date au tarif de votre abonnement Stripe." : "La résiliation est programmée ; aucun renouvellement automatique n’est prévu."}</div>}
                   {subscription.planStatus === "TRIAL" && !isStripeGift && subscription.trialEndDate && (
-                    <div className="mt-3 rounded-[10px] border border-tertiary-500/25 bg-tertiary-500/10 px-2.5 py-2">
+                    <div className="mt-3 rounded-xl bg-tertiary-500/10 px-2.5 py-2">
                       <p className="text-tertiary-300 font-one text-xs font-semibold">
                         Période d'essai active
                       </p>
@@ -259,7 +259,7 @@ export default function SubscriptionSection({
                 </div>
               </>
             ) : (
-              <div className="rounded-xl border border-white/10 bg-white/[0.015] p-4 text-center">
+              <div className="rounded-xl bg-white/[0.04] p-4 text-center">
                 <p className="text-white/65 font-two text-xs">
                   Aucune information d'abonnement disponible
                 </p>
@@ -360,7 +360,7 @@ export default function SubscriptionSection({
                       )}
 
                       {plan.id === "FREE" && subscription.currentPlan !== "FREE" && (
-                        <div className="mt-2.5 rounded-[10px] border border-yellow-500/30 bg-yellow-500/10 px-2.5 py-2">
+                        <div className="mt-2.5 rounded-xl bg-yellow-500/10 px-2.5 py-2">
                           <p className="text-yellow-300 text-[11px] font-two leading-snug">
                             Le passage au plan gratuit limite certaines fonctionnalités premium.
                           </p>
@@ -371,7 +371,7 @@ export default function SubscriptionSection({
                 })}
               </div>
 
-              <div className="rounded-xl border border-tertiary-500/25 bg-tertiary-500/10 px-3 py-2.5">
+              <div className="rounded-xl bg-tertiary-500/10 px-3 py-2.5">
                 <p className="text-white font-one text-xs font-semibold">À savoir</p>
                 <ul className="text-white/70 text-xs font-two mt-1.5 space-y-1">
                   <li>Le changement prend effet immédiatement.</li>
@@ -437,7 +437,7 @@ export default function SubscriptionSection({
             </div>
 
             <div className="p-4 space-y-3">
-              <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3">
+              <div className="rounded-xl bg-yellow-500/10 p-3">
                 <p className="text-yellow-300 text-xs font-one font-semibold">
                   Impact immédiat
                 </p>
@@ -454,7 +454,7 @@ export default function SubscriptionSection({
                 <DashboardButton variant="secondary"
                   onClick={() => setShowCancelModal(false)}
                   disabled={isChangingPlan}
-                  className="min-w-0! cursor-pointer h-9 px-4 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white text-xs font-one disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="min-w-0! cursor-pointer h-9 px-4 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white text-xs font-one disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Garder mon abonnement
                 </DashboardButton>
@@ -462,7 +462,7 @@ export default function SubscriptionSection({
                 <DashboardButton variant="secondary"
                   onClick={() => handlePlanChange("FREE")}
                   disabled={isChangingPlan}
-                  className="min-w-0! cursor-pointer h-9 px-4 rounded-[14px] border border-red-400/25 bg-red-400/10 hover:bg-red-400/20 text-white text-xs font-one disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="min-w-0! cursor-pointer h-9 px-4 rounded-xl bg-red-400/10 hover:bg-red-400/20 text-red-300 text-xs font-one disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isChangingPlan ? (
                     <>

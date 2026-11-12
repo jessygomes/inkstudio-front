@@ -4,11 +4,12 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, FilePenLine, Link2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { loadAppointmentBlock } from "@/lib/appointment-details";
 import {
   createDrawingCard,
   getLinkableDrawingCards,
   linkDrawingCardToAppointment,
-  getAppointmentDrawingCardStatus,
 } from "@/lib/queries/suiviDessin";
 import type { AppointmentCardStatus, DrawingCard } from "@/lib/types/suiviDessin";
 import Link from "next/link";
@@ -27,6 +28,7 @@ export default function AppointmentDrawingCardAction({
 }: {
   appointmentId: string;
 }) {
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<AppointmentCardStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -45,7 +47,7 @@ export default function AppointmentDrawingCardAction({
     setStatus(null);
     setLinkOpen(false);
     setStatusUnavailable(false);
-    const statusRequest = getAppointmentDrawingCardStatus(appointmentId);
+    const statusRequest = loadAppointmentBlock(queryClient, appointmentId, "drawingStatus");
 
     statusRequest
       .then(result => { if (active) setStatus(result); })
@@ -56,7 +58,7 @@ export default function AppointmentDrawingCardAction({
       })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [appointmentId]);
+  }, [appointmentId, queryClient]);
 
   const applyCard = (card: DrawingCard) => {
     setStatus(current => ({ appointmentId, appointmentCompleted: current?.appointmentCompleted ?? false, canCreate: true, cardExists: true, cardId: card.id, cardStatus: card.status, latestImage: [...card.images].sort((a, b) => b.version - a.version)[0] ?? null }));
@@ -106,9 +108,9 @@ export default function AppointmentDrawingCardAction({
 
   const badge = status?.cardStatus ? drawingStatuses[status.cardStatus] : status?.cardExists ? { label: "Statut indisponible", style: "border-white/10 bg-white/5 text-white/45" } : null;
   const visibleCards = linkCards.filter(card => `${card.title} ${card.client?.firstName ?? card.clientUser?.firstName ?? ""} ${card.client?.lastName ?? card.clientUser?.lastName ?? ""}`.toLocaleLowerCase("fr").includes(linkSearch.toLocaleLowerCase("fr")));
-  const actionClass = "inline-flex min-h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.025] px-3 py-2 text-[11px] font-medium text-white/75 transition hover:border-white/20 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed disabled:opacity-50";
-  return <section aria-label="Suivi de dessin" className="rounded-2xl border border-white/10 bg-noir-600 p-3 font-one">
-    <div className="flex items-center justify-between gap-2"><h3 className="flex items-center gap-2 text-xs font-semibold text-white/85"><FilePenLine size={14} className="text-white/40" />Suivi de dessin</h3>{badge && <span className={"inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[10px] font-medium " + badge.style}><span className="size-1.5 rounded-full bg-current" />{badge.label}</span>}</div>
+  const actionClass = "inline-flex min-h-9 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-white/[0.06] px-3 py-2 text-[11px] font-medium text-white/80 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400 disabled:cursor-not-allowed disabled:opacity-50";
+  return <section aria-label="Suivi de dessin" className="rounded-2xl bg-noir-600 p-3 font-one">
+    <div className="flex items-center justify-between gap-2"><h3 className="flex min-w-0 items-center gap-2.5 text-[13px] font-medium text-white/90"><span className="grid size-7 shrink-0 place-items-center rounded-lg bg-tertiary-400/10 text-tertiary-400"><FilePenLine size={14} /></span>Suivi de dessin</h3>{badge && <span className={"inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[10px] font-medium " + badge.style}><span className="size-1.5 rounded-full bg-current" />{badge.label}</span>}</div>
     {status?.latestImage && <Link href={"/suiviDessin?cardId=" + encodeURIComponent(status.cardId!)} className="mt-3 block overflow-hidden rounded-xl border border-white/10 transition hover:border-tertiary-400/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400">
       <img src={status.latestImage.url} alt={status.latestImage.caption || `Dernière version du dessin : version ${status.latestImage.version}`} className="max-h-60 w-full bg-black/20 object-contain" />
       <div className="flex flex-wrap items-center justify-between gap-2 bg-white/[0.025] px-3 py-2 text-[10px]">

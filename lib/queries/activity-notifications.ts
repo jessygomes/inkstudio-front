@@ -1,39 +1,29 @@
 "use server";
 
 import { auth } from "@/auth";
-import { fetchAllAppointments } from "./appointment";
-import { getFollowUpAction } from "./followUp";
-import { getAllReviewsBySalon } from "./review";
+import { getAuthHeaders } from "../session";
 
 export type ActivityKind = "appointments" | "followUps" | "reviews";
 export interface ActivityItem { id: string; createdAt: string }
 
-// Read every page: appointments are sorted by appointment date, not creation date.
-export async function getActivityNotifications(kind: ActivityKind): Promise<ActivityItem[]> {
+//! ----------------------------------------------------------------------------
+
+//! PASTILLES « NOUVEAU » : RDV pris par un client, suivis et avis arrivés depuis `since`
+//! Une seule requête légère (GET /activity/recent : id et date de création seulement, 30 jours maximum),
+//! au lieu de relire tout l'historique page par page.
+
+//! ----------------------------------------------------------------------------
+export async function getRecentActivity(since: number): Promise<Record<ActivityKind, ActivityItem[]>> {
   const session = await auth();
   if (!session?.user?.id || session.error) throw new Error("Session expirée");
-  if (kind !== "reviews" && session.user.saasPlan === "FREE") return [];
-  const items: ActivityItem[] = [];
-  let pages = 1;
-  for (let page = 1; page <= pages; page++) {
-    if (kind === "appointments") {
-      const result = await fetchAllAppointments(session.user.id, page, 100);
-      if (result.error) throw new Error("Chargement des rendez-vous impossible");
-      items.push(...(result.appointments || []).filter((item: ActivityItem & { clientUserId?: string; status: string }) =>
-        item.clientUserId && ["PENDING", "CONFIRMED"].includes(item.status)));
-      pages = result.pagination?.totalPages || 1;
-    } else if (kind === "followUps") {
-      const result = await getFollowUpAction(page, 100, "all", "all", "");
-      if (!result.ok) throw new Error("Chargement des suivis impossible");
-      items.push(...(result.data?.followUps || []));
-      pages = result.data?.pagination?.totalPages || 1;
-    } else {
-      const result = await getAllReviewsBySalon(session.user.id, { page, limit: 100 });
-      if (!result.ok) throw new Error("Chargement des avis impossible");
-      const data = result.data;
-      items.push(...(Array.isArray(data) ? data : data.reviews || data.items || data.data || []));
-      pages = data.pagination?.totalPages || data.totalPages || 1;
-    }
-  }
-  return items.map(({ id, createdAt }) => ({ id, createdAt }));
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/activity/recent?since=${encodeURIComponent(String(since))}`, {
+    method: "GET",
+    headers: await getAuthHeaders(),
+    cache: "no-store",
+  });
+  const payload = await response.json().catch(() => null);
+  if (!response.ok || !payload) throw new Error("Chargement des nouveautés impossible");
+  const list = (value: unknown): ActivityItem[] =>
+    Array.isArray(value) ? value.map((item: ActivityItem) => ({ id: item.id, createdAt: item.createdAt })) : [];
+  return { appointments: list(payload.appointments), followUps: list(payload.followUps), reviews: list(payload.reviews) };
 }

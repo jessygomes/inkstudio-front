@@ -17,6 +17,8 @@ export type InboxThread = {
   channel: InboxChannel;
   status: InboxStatus;
   lastMessageAt?: string | null;
+  /** Aperçu du dernier message du fil (Inkera ou canal externe). */
+  lastMessage?: { content?: string | null; senderId?: string | null; direction?: string | null; type?: string | null; createdAt?: string } | null;
   unreadCount?: number;
   conversationId?: string | null;
   linkedClientId?: string | null;

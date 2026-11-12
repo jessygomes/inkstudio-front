@@ -79,14 +79,14 @@ export default function Horaire({ hours, salonId }: HoraireProps) {
     <div className="space-y-4 font-one [&_button]:cursor-pointer [&_button:disabled]:cursor-not-allowed [&_a]:cursor-pointer [&_select]:cursor-pointer [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-2 [&_button:focus-visible]:ring-tertiary-400">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex size-9 items-center justify-center rounded-xl border border-tertiary-400/20 bg-tertiary-400/10 text-tertiary-400"><Clock3 size={17} aria-hidden="true" /></span>
+          <span className="flex size-9 items-center justify-center rounded-xl bg-tertiary-400/10 text-tertiary-400"><Clock3 size={17} aria-hidden="true" /></span>
           <div>
             <h3 className="text-sm font-medium text-white">Votre semaine type</h3>
             <p className="mt-1 text-[11px] text-white/40">{hasHours ? `${openDays} jour${openDays > 1 ? "s" : ""} d’ouverture par semaine` : "Définissez vos horaires pour informer vos clients."}</p>
           </div>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <button type="button" aria-haspopup="dialog" onClick={() => setIsBlockedSlotsVisible(true)} className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/70 transition hover:bg-white/10 hover:text-white"><CalendarOff size={14} aria-hidden="true" />Absences & créneaux bloqués</button>
+          <button type="button" aria-haspopup="dialog" onClick={() => setIsBlockedSlotsVisible(true)} className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-xl bg-white/[0.07] px-3 py-2 text-[11px] text-white/70 transition hover:bg-white/10 hover:text-white"><CalendarOff size={14} aria-hidden="true" />Absences & créneaux bloqués</button>
           <DashboardButton href="/mon-compte/horaires" variant="secondary" aria-label={hasHours ? "Modifier les horaires" : "Configurer les horaires"} className="!size-9 !min-w-0 !rounded-xl !p-0">
             <Pencil size={15} aria-hidden="true" />
           </DashboardButton>
@@ -98,7 +98,7 @@ export default function Horaire({ hours, salonId }: HoraireProps) {
           const dayHours = salonHoursState?.[day.key as keyof SalonHours];
           const isOpen = Boolean(dayHours?.start && dayHours?.end);
           return (
-            <div key={day.key} className={`min-w-0 rounded-xl border px-3 py-3 ${isOpen ? "border-white/10 bg-noir-700" : "border-white/[0.06] bg-noir-700"}`}>
+            <div key={day.key} className={`min-w-0 rounded-xl px-3 py-3 ${isOpen ? "bg-noir-700" : "bg-noir-700/60"}`}>
               <div className="flex items-center justify-between gap-2">
                 <p className={`text-xs font-medium ${isOpen ? "text-white/80" : "text-white/35"}`}>{day.label}</p>
                 <span aria-hidden="true" className={`size-1.5 shrink-0 rounded-full ${isOpen ? "bg-emerald-400" : "bg-white/20"}`} />

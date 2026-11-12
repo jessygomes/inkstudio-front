@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
+import RdvActionButton from "./RdvActionButton";
 import { LoaderCircle, Pencil, Wallet, X } from "lucide-react";
 import { updateDesiredTattooPeriodAction } from "@/lib/queries/booking-links";
 import { describeApiError } from "@/lib/types/booking-links";
@@ -86,10 +87,10 @@ export default function ProjectClientInfoCard({ appointmentId, info, onUpdated }
   };
 
   const budget = describeBudget(saved.min, saved.max);
-  return <section aria-label="Budget et expérience du client" className="rounded-2xl border border-white/10 bg-noir-600 p-4 font-one">
+  return <section aria-label="Budget et expérience du client" className="rounded-2xl bg-noir-600 p-4 font-one">
     <div className="mb-3 flex items-center justify-between gap-2">
       <h3 className="flex items-center gap-2 text-xs font-semibold text-white/85"><Wallet size={14} className="text-white/35" />Budget et expérience</h3>
-      {!editing && <button type="button" onClick={startEditing} className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2 py-1 text-[10px] text-white/60 transition hover:bg-white/5 hover:text-white"><Pencil size={11} />Modifier</button>}
+      {!editing && <RdvActionButton tone="neutral" icon={Pencil} size="sm" iconOnly onClick={startEditing}>Modifier</RdvActionButton>}
     </div>
 
     {!editing ? <dl className="grid grid-cols-2 gap-x-4 gap-y-3">

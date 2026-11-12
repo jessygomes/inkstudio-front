@@ -1,7 +1,7 @@
 "use client";
 import { ActivityBadge } from "@/components/Providers/ActivityNotificationsProvider";
 import { ClientProps, PaginationInfo } from "@/lib/type";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 
 import ClientCard from "./ClientCard";
@@ -120,28 +120,20 @@ export default function ClientList() {
     [currentPage, searchTerm],
   );
 
-  // Effet pour charger les clients au changement de page ou de recherche
+  // Un seul effet : chargement immédiat au premier affichage et au changement de page, avec 300 ms de délai quand c'est la recherche qui change
+  // (avant, deux effets se chevauchaient et la liste était demandée 2 à 3 fois à l'ouverture).
+  const lastSearch = useRef(searchTerm);
   useEffect(() => {
-    if (session?.user?.id) {
-      fetchClients(currentPage, searchTerm);
-
-    }
+    if (!session?.user?.id) return;
+    const searching = lastSearch.current !== searchTerm;
+    lastSearch.current = searchTerm;
+    const timer = setTimeout(() => {
+      if (searching && currentPage !== 1) { setCurrentPage(1); return; } // nouvelle recherche : retour page 1, l'effet recharge
+      void fetchClients(currentPage, searchTerm);
+    }, searching ? 300 : 0);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user?.id, currentPage]);
-
-  // Effet pour la recherche avec debounce
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      if (session?.user?.id) {
-        setCurrentPage(1); // Reset à la page 1 lors d'une nouvelle recherche
-        fetchClients(1, searchTerm);
-
-      }
-    }, 300);
-
-    return () => clearTimeout(debounceTimer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, session?.user?.id]);
+  }, [session?.user?.id, currentPage, searchTerm]);
 
   //! Handler pour afficher les réservations
   const handleShowReservations = (client: ClientProps) => {
@@ -207,7 +199,7 @@ export default function ClientList() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Rechercher un client (nom, email, téléphone)"
-                  className="h-10 w-full rounded-2xl border border-white/10 bg-black/15 py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/35 font-one focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 transition-colors"
+                  className="h-10 w-full !rounded-xl border border-white/10 bg-black/15 py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/35 font-one focus:border-tertiary-400 focus:outline-none focus:ring-2 focus:ring-tertiary-400/20 transition-colors"
                 />
               </div>
               {!loading && !error && (

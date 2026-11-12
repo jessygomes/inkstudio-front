@@ -23,6 +23,8 @@ import { residencyRequest } from "@/lib/residencies-client";
 import { createAppointment } from "@/lib/queries/appointment";
 import { getPiercingPrice } from "@/lib/queries/piercing";
 import DrawingCardSelect from "@/components/Application/SuiviDessin/DrawingCardSelect";
+import FlashSelect from "./FlashSelect";
+import type { FlashItemDto } from "@/lib/queries/flash";
 import { searchClientsAction } from "@/lib/queries/client";
 import { getAppointmentMoodboardOptions } from "@/lib/queries/moodboard";
 
@@ -635,6 +637,20 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
 
   const isSkinRequired = SKIN_REQUIRED_PRESTATIONS.has(selectedPrestation);
   const [selectedMoodboardId, setSelectedMoodboardId] = useState("");
+  // Flash choisi (prestation Tatouage seulement) : son prix et son visuel sont repris par le serveur.
+  const [selectedFlash, setSelectedFlash] = useState<FlashItemDto | null>(null);
+  useEffect(() => { if (selectedPrestation !== "TATTOO") setSelectedFlash(null); }, [selectedPrestation]);
+  const chooseFlash = (flash: FlashItemDto | null) => {
+    setSelectedFlash(flash);
+    if (!flash) return;
+    // Un flash remplace le dessin approuvé et la description du tatouage : ces champs sont masqués et vidés.
+    form.setValue("drawingCardId", undefined);
+    form.setValue("description", "");
+    form.setValue("price", flash.price, { shouldValidate: true });
+    form.setValue("estimatedPrice", flash.price, { shouldValidate: true });
+    if (flash.dimension) form.setValue("size", flash.dimension);
+    if (flash.style?.length) form.setValue("colorStyle", flash.style.join(", "));
+  };
   const [moodboardOptions, setMoodboardOptions] = useState<{ id: string; name: string }[]>([]);
   const [moodboardError, setMoodboardError] = useState("");
   const clientMoodboardEmail = form.watch("clientEmail");
@@ -693,6 +709,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
       ...data,
       venueSalonId: isUserTatoueur ? venueSalonId || undefined : userId,
       ...(selectedMoodboardId && { moodboardId: selectedMoodboardId }),
+      ...(selectedFlash && selectedPrestation === "TATTOO" && { flashId: selectedFlash.id }),
       start,
       end,
     };
@@ -1341,6 +1358,8 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                   description="Associez éventuellement un dessin approuvé puis précisez la séance."
                 />
                 <div className="space-y-4">
+                  <FlashSelect userId={userId} value={selectedFlash} onChange={chooseFlash} />
+                  {!selectedFlash && <>
                   <DrawingCardSelect
                     value={form.watch("drawingCardId")}
                     clientEmail={form.watch("clientEmail")}
@@ -1356,6 +1375,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                       className="w-full min-w-0 rounded-xl border border-white/10 bg-noir-700/70 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-tertiary-400/50 focus:ring-2 focus:ring-tertiary-400/10 disabled:opacity-50 [color-scheme:dark]"
                     />
                   </div>
+                  </>}
                   <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4">
                     <div className="space-y-1">
                       <label htmlFor="rdv-field-15" className="text-xs text-white/70 font-one">
@@ -1392,6 +1412,7 @@ export default function CreateRdvForm({ userId }: { userId: string }) {
                         Prix (€)
                       </label>
                       <input id="rdv-field-18" aria-invalid={!!form.formState.errors.price}
+                        readOnly={!!selectedFlash}
                         type="number"
                         min={0}
                         placeholder="Prix"

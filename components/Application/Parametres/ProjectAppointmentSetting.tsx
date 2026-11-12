@@ -10,7 +10,7 @@ import SettingsSwitch from "./SettingsSwitch";
 import styles from "./SettingsCard.module.css";
 
 type ProjectSettings = { duration: number; free: boolean; price: string };
-const inputClass = "mt-2 w-full rounded-xl border border-white/10 bg-noir-700 px-3 py-2.5 text-xs text-white outline-none focus:border-tertiary-400 [color-scheme:dark]";
+const inputClass = "mt-2 w-full rounded-xl border border-transparent bg-white/[0.06] px-3 py-2.5 text-xs text-white outline-none focus:border-tertiary-400 [color-scheme:dark]";
 
 export default function ProjectAppointmentSetting() {
   const [draft, setDraft] = useState<ProjectSettings | null>(null);

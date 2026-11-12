@@ -1,7 +1,7 @@
 .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .875rem; }
-.option { display: block; min-width: 0; padding: .625rem; border: 1px solid rgb(var(--app-ink-rgb) / 12%); border-radius: .875rem; cursor: pointer; transition: border-color .15s, background .15s; }
+.option { display: block; min-width: 0; padding: .625rem; border: 0; background: rgb(var(--app-ink-rgb) / 5%); border-radius: 1rem; cursor: pointer; transition: border-color .15s, background .15s; }
 .option:hover { background: rgb(var(--app-ink-rgb) / 3%); }
-.option:has(input:checked) { border-color: var(--color-tertiary-400); background: color-mix(in srgb, var(--color-tertiary-400) 5%, transparent); }
+.option:has(input:checked) { background: color-mix(in srgb, var(--color-tertiary-400) 14%, transparent); }
 .option:focus-within { outline: 2px solid var(--color-tertiary-400); outline-offset: 3px; }
 .options:disabled .option { cursor: wait; }
 .preview { display: flex; height: 100px; overflow: hidden; border: 1px solid rgb(255 255 255 / 8%); border-radius: .5rem; background: #131313; --preview-ink: 255 255 255; }

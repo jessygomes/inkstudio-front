@@ -8,8 +8,10 @@ const str = (n: AppNotification, key: string): string | null => {
 /** Page du site à ouvrir en cliquant sur une notification (null = rien à ouvrir). */
 export function notificationHref(n: AppNotification): string | null {
   const conversationId = str(n, "conversationId");
+  const appointmentId = str(n, "appointmentId");
   switch (n.type) {
     case "message.new":
+    case "message.unread_threshold":
     case "message.unanswered":
     case "contact.new":
     case "thread.assigned":
@@ -32,7 +34,8 @@ export function notificationHref(n: AppNotification): string | null {
     default:
       break;
   }
-  if (n.category === "appointments") return "/mes-rendez-vous";
+  // La page des rendez-vous ouvre la fiche indiquée par ?rdv=<id>.
+  if (n.category === "appointments") return appointmentId ? `/mes-rendez-vous?rdv=${encodeURIComponent(appointmentId)}` : "/mes-rendez-vous";
   if (n.category === "account") return "/parametres";
   return null;
 }

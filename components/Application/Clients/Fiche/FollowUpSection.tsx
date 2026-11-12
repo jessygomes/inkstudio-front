@@ -129,11 +129,11 @@ export default function FollowUpSection({
             return (
               <div
                 key={followUp.id}
-                className="overflow-hidden rounded-xl border border-white/10 bg-noir-600 p-3 transition-colors hover:border-white/20 sm:p-4"
+                className="overflow-hidden rounded-2xl bg-noir-600 p-3.5 sm:p-4"
               >
                 <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <div className="h-12 w-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0">
+                    <div className="h-12 w-12 rounded-xl overflow-hidden bg-white/[0.06] flex-shrink-0">
                       {followUp.photoUrl ? (
                         <Image
                           width={48}
@@ -157,21 +157,21 @@ export default function FollowUpSection({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <h4 className="text-white/85 font-one font-semibold text-xs">
+                        <h4 className="text-white/90 font-one font-medium text-[13px]">
                           Suivi #{index + 1}
                         </h4>
                         <span
-                          className={`rounded-lg border px-2 py-0.5 text-[10px] font-medium ${
-                            followUp.isAnswered ? "border-emerald-400/25 bg-emerald-400/10 text-emerald-300" : "border-amber-400/25 bg-amber-400/10 text-amber-300"
+                          className={`rounded-lg px-2 py-0.5 text-[10px] font-medium ${
+                            followUp.isAnswered ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300"
                           }`}
                         >
                           {followUp.isAnswered ? "Répondu" : "En attente"}
                         </span>
                         <span
-                          className={`rounded-lg border px-2 py-0.5 text-[10px] font-medium ${
+                          className={`rounded-lg px-2 py-0.5 text-[10px] font-medium ${
                             followUp.isPhotoPublic
-                              ? "border-blue-400/30 bg-blue-500/15 text-blue-300"
-                              : "border-white/15 bg-white/8 text-white/70"
+                              ? "bg-blue-400/15 text-blue-300"
+                              : "bg-white/[0.08] text-white/65"
                           }`}
                         >
                           {followUp.isPhotoPublic ? "Photo publique" : "Photo privée"}
@@ -193,7 +193,7 @@ export default function FollowUpSection({
                             year: "numeric",
                           })}
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[11px] text-amber-200">
+                        <span className="inline-flex items-center gap-1 rounded-lg bg-amber-400/10 px-2 py-0.5 text-[11px] text-amber-300">
                           <Star size={11} fill="currentColor" /> {followUp.rating}/5
                         </span>
                         <span className="text-xs text-white/55">{getRatingLabel(followUp.rating)}</span>
@@ -204,7 +204,7 @@ export default function FollowUpSection({
                   <div className="flex shrink-0 flex-wrap items-center gap-2">
                     {followUp.photoUrl && (
                       <a href={followUp.photoUrl} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-white/65 transition-colors hover:border-white/20 hover:text-white font-one"
+                        className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-xl bg-white/[0.07] px-3 text-[11px] font-medium text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white font-one"
                       >
                         <ImageIcon size={13} /> Voir la photo<span className="sr-only"> (nouvel onglet)</span>
                       </a>
@@ -213,7 +213,7 @@ export default function FollowUpSection({
                       onClick={() => toggleRelatedAppointment(followUp.id, appointmentId!)}
                       disabled={!appointmentId}
                       aria-expanded={isExpanded}
-                      className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-white/65 transition-colors hover:border-white/20 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40 font-one"
+                      className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-xl bg-white/[0.07] px-3 text-[11px] font-medium text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white disabled:cursor-not-allowed disabled:opacity-40 font-one"
                     >
                       {isExpanded ? "Masquer le rendez-vous" : "Voir le rendez-vous"}<ChevronDown size={13} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                     </button>
@@ -221,7 +221,7 @@ export default function FollowUpSection({
                 </div>
 
                 {followUp.review && (
-                  <div className="mt-3 border-l-2 border-tertiary-400/30 bg-white/[0.02] px-3 py-2.5">
+                  <div className="mt-3 rounded-xl bg-white/[0.04] px-3 py-2.5">
                     <p className="mb-1 text-[11px] font-medium text-white/55 font-one">Avis client</p>
                     <p className="text-xs leading-5 text-white/75 font-two">
                       &quot;{followUp.review}&quot;
@@ -230,8 +230,8 @@ export default function FollowUpSection({
                 )}
 
                 {appointmentId && isExpanded && (
-                  <div className="mt-3 border-t border-white/10 pt-3">
-                    <div className="rounded-xl bg-black/15 p-3 space-y-2.5">
+                  <div className="mt-3 pt-1">
+                    <div className="rounded-xl bg-white/[0.04] p-3 space-y-2.5">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-one uppercase tracking-wide text-white/45">RDV associé</p>
                         {isAppointmentLoading && <span className="text-[10px] text-white/60 font-one">Chargement...</span>}
@@ -243,25 +243,25 @@ export default function FollowUpSection({
                         <>
                           <div className="flex items-center justify-between gap-2">
                             <p className="text-sm font-semibold text-white font-one break-words">{linkedAppointment.title}</p>
-                            <span className="rounded-2xl border border-tertiary-400/30 bg-tertiary-500/15 px-2 py-0.5 text-[10px] font-semibold text-white">
+                            <span className="rounded-lg bg-tertiary-400/15 px-2 py-0.5 text-[10px] font-semibold text-tertiary-400">
                               {linkedAppointment.prestation}
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-1 gap-x-5 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
-                            <div className="min-w-0 border-b border-white/[0.07] py-2.5 sm:col-span-2">
+                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="min-w-0 rounded-xl bg-white/[0.04] px-3 py-2.5 sm:col-span-2">
                               <p className="text-[11px] font-medium text-white/55 font-one">Description</p>
                               <p className="mt-1 break-words text-xs text-white/75 font-two leading-relaxed">{projectDescription}</p>
                             </div>
 
-                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <div className="min-w-0 rounded-xl bg-white/[0.04] px-3 py-2.5">
                               <p className="text-[11px] font-medium text-white/55 font-one">Prix</p>
                               <p className="mt-1 break-words text-xs text-white/75 font-two">
                                 {projectPrice != null ? `${projectPrice} EUR` : "Non renseigné"}
                               </p>
                             </div>
 
-                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <div className="min-w-0 rounded-xl bg-white/[0.04] px-3 py-2.5">
                               <p className="text-[11px] font-medium text-white/55 font-one">Date</p>
                               <p className="mt-1 break-words text-xs text-white/75 font-two">
                                 {new Date(linkedAppointment.start).toLocaleDateString("fr-FR", {
@@ -272,7 +272,7 @@ export default function FollowUpSection({
                               </p>
                             </div>
 
-                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <div className="min-w-0 rounded-xl bg-white/[0.04] px-3 py-2.5">
                               <p className="text-[11px] font-medium text-white/55 font-one">Horaire</p>
                               <p className="mt-1 break-words text-xs text-white/75 font-two">
                                 {new Date(linkedAppointment.start).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -281,24 +281,24 @@ export default function FollowUpSection({
                               </p>
                             </div>
 
-                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <div className="min-w-0 rounded-xl bg-white/[0.04] px-3 py-2.5">
                               <p className="text-[11px] font-medium text-white/55 font-one">
                                 {linkedAppointment.prestation === "PIERCING" ? "Zone de piercing" : "Zone"}
                               </p>
                               <p className="mt-1 break-words text-xs text-white/75 font-two">{projectZone || "Non renseignée"}</p>
                             </div>
 
-                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <div className="min-w-0 rounded-xl bg-white/[0.04] px-3 py-2.5">
                               <p className="text-[11px] font-medium text-white/55 font-one">Taille</p>
                               <p className="mt-1 break-words text-xs text-white/75 font-two">{projectSize}</p>
                             </div>
 
-                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <div className="min-w-0 rounded-xl bg-white/[0.04] px-3 py-2.5">
                               <p className="text-[11px] font-medium text-white/55 font-one">Tatoueur</p>
                               <p className="mt-1 break-words text-xs text-white/75 font-two">{linkedAppointment.tatoueur?.name || "Non renseigné"}</p>
                             </div>
 
-                            <div className="min-w-0 border-b border-white/[0.07] py-2.5">
+                            <div className="min-w-0 rounded-xl bg-white/[0.04] px-3 py-2.5">
                               <p className="text-[11px] font-medium text-white/55 font-one">Statut</p>
                               <p className="mt-1 break-words text-xs text-white/75 font-two">{linkedAppointment.status}</p>
                             </div>
@@ -314,7 +314,7 @@ export default function FollowUpSection({
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-8 text-center">
-          <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-tertiary-400/20">
+          <div className="w-12 h-12 bg-gradient-to-br from-tertiary-400/20 to-tertiary-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <MessageSquareHeart className="h-6 w-6 text-tertiary-400" />
           </div>
           <p className="text-white/60 text-sm font-one">Aucun suivi de cicatrisation</p>

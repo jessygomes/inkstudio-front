@@ -1,15 +1,16 @@
 "use client";
 import Link from "next/link";
 import { PenTool } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { getDrawingCards } from "@/lib/queries/suiviDessin";
-import type { DrawingCardStatus } from "@/lib/types/suiviDessin";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { loadDashboardBlock } from "@/lib/dashboard-summary";
+import type { DrawingCard, DrawingCardStatus } from "@/lib/types/suiviDessin";
 import { DashboardHeading, DashboardState } from "./DashboardPrimitives";
 const meta: Record<DrawingCardStatus, { label: string; color: string }> = {
  A_DESSINER: { label: "À dessiner", color: "text-white/65" }, EN_COURS: { label: "En cours", color: "text-blue-300" }, A_MODIFIER: { label: "À modifier", color: "text-amber-300" }, TERMINE: { label: "Terminés", color: "text-teal-300" }, APPROUVE: { label: "Approuvés", color: "text-emerald-300" },
 };
 export default function DrawingFollowUpSummary({ userId }: { userId: string }) {
-  const query = useQuery({ queryKey: ["dashboard-drawings", userId], queryFn: () => getDrawingCards() });
+  const queryClient = useQueryClient();
+  const query = useQuery({ queryKey: ["dashboard-drawings", userId], queryFn: () => loadDashboardBlock<DrawingCard[]>(queryClient, userId, "drawingCards") });
   const cards = query.data || [];
   const counts = Object.fromEntries((Object.keys(meta) as DrawingCardStatus[]).map(status => [status, cards.filter(card => card.status === status).length])) as Record<DrawingCardStatus, number>;
   const recent = cards.slice().sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0,3);

@@ -186,13 +186,13 @@ export default function VerificationDocumentsSection() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "APPROVED":
-        return "bg-green-500/20 border-green-500/50 text-green-400";
+        return "bg-green-500/15 border-transparent text-green-300";
       case "REJECTED":
-        return "bg-red-500/20 border-red-500/50 text-red-400";
+        return "bg-red-500/15 border-transparent text-red-300";
       case "PENDING":
-        return "bg-amber-500/20 border-amber-500/50 text-amber-400";
+        return "bg-amber-500/15 border-transparent text-amber-300";
       default:
-        return "bg-gray-500/20 border-gray-500/50 text-gray-400";
+        return "bg-white/10 border-transparent text-white/60";
     }
   };
 
@@ -210,7 +210,7 @@ export default function VerificationDocumentsSection() {
   };
 
   return (<div className={styles.card}><SettingsSectionHeader icon={BadgeCheck} title="Vérification du salon" description="Vos justificatifs professionnels et leur état de validation."/>
-<div className={styles.body}>{error && <p role="alert" className="rounded-xl border border-red-400/20 bg-red-400/5 p-3 text-xs text-red-300">{error}</p>}
+<div className={styles.body}>{error && <p role="alert" className="rounded-xl bg-red-400/10 p-3 text-xs text-red-300">{error}</p>}
 {loading ? <p role="status" className={styles.empty}>Chargement des documents…</p> : <div>{DOCUMENT_TYPES.map(docType=>{const doc=getDocumentStatus(docType.id);return <div key={docType.id} className={styles.document}>
 <span className={styles.icon}>{docType.icon}</span><div><div className="flex flex-wrap items-center gap-2"><h3 className={styles.label}>{docType.label}</h3><span className={"rounded-md border px-2 py-0.5 text-[10px] " + (doc ? getStatusColor(doc.status) : "border-white/10 text-white/40")}>{doc ? getStatusLabel(doc.status) : "À fournir"}</span></div><p className={styles.note}>{docType.description}</p>{doc && <p className={styles.note}>Déposé le {new Date(doc.uploadedAt).toLocaleDateString("fr-FR")}</p>}{doc?.rejectionReason && <p className="mt-2 text-xs text-red-300">{doc.rejectionReason}</p>}{doc?.status==="PENDING" && <p className={styles.note}>En cours de vérification par notre équipe.</p>}</div>
 {(!doc || doc.status==="REJECTED") && <div className={styles.documentActions}><input id={"document-"+docType.id} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" disabled={uploading[docType.id]} onChange={event=>{void handleFileUpload(docType.id,event.target.files);event.target.value="";}}/><DashboardButton variant="secondary" className="min-w-0! h-9 px-3" disabled={uploading[docType.id]} onClick={()=>document.getElementById("document-"+docType.id)?.click()}><FiUploadCloud className="h-3.5 w-3.5"/>{uploading[docType.id] ? "Envoi…" : doc ? "Renvoyer" : "Ajouter"}</DashboardButton></div>}

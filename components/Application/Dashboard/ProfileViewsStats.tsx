@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Activity, ArrowDownRight, ArrowUpRight, Eye, Globe2, Users } from "lucide-react";
 import { getSalonComparativeStatsAction, getSalonRealtimeStatsAction, getSalonStatsAction } from "@/lib/queries/salon-analytics.actions";
@@ -14,19 +14,30 @@ function Breakdown({ title, values }: { title: string; values?: Record<string, n
 export default function ProfileViewsStats({ userId }: { userId: string }) {
   const [days, setDays] = useState<7 | 30 | 90>(30);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  // Les statistiques (4 appels) ne se chargent que lorsque la section approche de l'écran.
+  const sectionRef = useRef<HTMLElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const element = sectionRef.current;
+    if (seen || !element) return;
+    if (typeof IntersectionObserver === "undefined") { setSeen(true); return; }
+    const observer = new IntersectionObserver(([entry]) => { if (entry?.isIntersecting) { setSeen(true); observer.disconnect(); } }, { rootMargin: "300px" });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [seen]);
   const query = useQuery({ queryKey: ["dashboard-audience", userId, days], queryFn: async () => {
     const [stats, realtime, comparative] = await Promise.all([getSalonStatsAction(userId, days), getSalonRealtimeStatsAction(userId), getSalonComparativeStatsAction(userId)]);
     if (!stats.ok || !stats.data) throw new Error(stats.message || "Impossible de charger les statistiques.");
     return { stats: stats.data, realtime: realtime.ok ? realtime.data : undefined, comparative: comparative.ok ? comparative.data : undefined };
-  } });
-  const global = useQuery({ queryKey: ["dashboard-audience-global", userId], queryFn: async () => { const result = await getSalonStatsAction(userId, 36500); return result.ok ? result.data?.totalViews : null; } });
+  }, enabled: seen });
+  const global = useQuery({ queryKey: ["dashboard-audience-global", userId], queryFn: async () => { const result = await getSalonStatsAction(userId, 36500); return result.ok ? result.data?.totalViews : null; }, enabled: seen });
   const stats = query.data?.stats;
   const comparison = query.data?.comparative;
   const daily = Object.entries(stats?.viewsByDay || {}).sort(([a],[b]) => a.localeCompare(b));
   const max = Math.max(1, ...daily.map(([,value]) => value));
   const selected = daily.find(([day]) => day === selectedDay) || daily.at(-1);
   const date = (value: string) => new Date(value).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
-  return <section className="dashboard-panel p-4 lg:p-5"><div className="flex flex-wrap items-start justify-between gap-4"><DashboardHeading title="Visibilité du profil" description="Comment les visiteurs découvrent votre studio." icon={Eye} /><div role="group" aria-label="Période des statistiques" className="flex gap-1 rounded-xl border border-white/10 bg-noir-700 p-1">{([7,30,90] as const).map(period => <button key={period} type="button" aria-pressed={days === period} onClick={() => { setDays(period); setSelectedDay(null); }} className={"min-h-8 cursor-pointer rounded-lg px-3 py-1.5 text-[11px] font-medium transition " + (days === period ? "bg-tertiary-400/10 text-tertiary-400" : "text-white/40 hover:text-white/75")}>{period} jours</button>)}</div></div>
+  return <section ref={sectionRef} className="dashboard-panel p-4 lg:p-5"><div className="flex flex-wrap items-start justify-between gap-4"><DashboardHeading title="Visibilité du profil" description="Comment les visiteurs découvrent votre studio." icon={Eye} /><div role="group" aria-label="Période des statistiques" className="flex gap-1 rounded-xl border border-white/10 bg-noir-700 p-1">{([7,30,90] as const).map(period => <button key={period} type="button" aria-pressed={days === period} onClick={() => { setDays(period); setSelectedDay(null); }} className={"min-h-8 cursor-pointer rounded-lg px-3 py-1.5 text-[11px] font-medium transition " + (days === period ? "bg-tertiary-400/10 text-tertiary-400" : "text-white/40 hover:text-white/75")}>{period} jours</button>)}</div></div>
     <div className="mt-5">{query.isPending || query.error ? <DashboardState loading={query.isPending} error={query.error?.message} retry={() => { void query.refetch(); }} /> : <>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">{[{ label: "Vues du profil", value: number(stats?.totalViews || 0), icon: Eye, detail: "sur " + days + " jours" }, { label: "Visiteurs uniques", value: number(stats?.uniqueVisitors || 0), icon: Users, detail: "sur la période" }, { label: "Dernières 24 h", value: query.data?.realtime ? number(query.data.realtime.views24h) : "—", icon: Activity, detail: "vues récentes" }, { label: "Depuis le début", value: global.data == null ? "—" : number(global.data), icon: Globe2, detail: "vues cumulées" }].map(item => <div key={item.label} className="min-w-0 rounded-xl border border-white/[0.07] bg-white/[0.015] p-3.5"><div className="flex items-center justify-between gap-2"><p className="text-[10px] text-white/45">{item.label}</p><item.icon size={13} className="shrink-0 text-tertiary-400/70" /></div><p className="mt-3 text-2xl font-semibold tracking-tight tabular-nums text-white/85">{item.value}</p><p className="mt-1 text-[9px] text-white/30">{item.detail}</p></div>)}<div className="rounded-xl border border-white/[0.07] bg-white/[0.015] p-3.5"><p className="text-[10px] text-white/45">Évolution sur 30 jours</p><p className={"mt-3 flex items-center gap-1.5 text-xl font-semibold tabular-nums " + (comparison?.trend === "UP" ? "text-emerald-300" : comparison?.trend === "DOWN" ? "text-red-300" : "text-white/70")}>{comparison ? <>{comparison.trend === "DOWN" ? <ArrowDownRight size={17} /> : comparison.trend === "UP" ? <ArrowUpRight size={17} /> : <Activity size={17} />}{comparison.percentageChange > 0 ? "+" : ""}{comparison.percentageChange.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} %</> : "—"}</p><p className="mt-1 text-[9px] text-white/30">par rapport aux 30 jours précédents</p></div></div>
       <figure className="mt-4 rounded-xl border border-white/[0.07] p-4"><figcaption className="flex flex-wrap items-center justify-between gap-2"><span className="text-[11px] font-medium text-white/65">Fréquentation quotidienne</span><span className="text-[10px] tabular-nums text-white/45">{selected ? date(selected[0]) + " · " + number(selected[1]) + " vue" + (selected[1] > 1 ? "s" : "") : "Aucune donnée"}</span></figcaption>{daily.length ? <><div className="mt-4 flex h-32 items-end gap-1 border-b border-white/10" role="group" aria-label="Vues par jour">{daily.map(([day,value]) => <button type="button" key={day} aria-label={date(day) + " : " + value + " vues"} aria-pressed={selected?.[0] === day} title={date(day) + " : " + value + " vues"} onClick={() => setSelectedDay(day)} onFocus={() => setSelectedDay(day)} className="relative h-full min-w-0 flex-1 cursor-pointer rounded-t focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400"><span className={"absolute inset-x-0 bottom-0 min-h-px rounded-t transition-colors " + (selected?.[0] === day ? "bg-tertiary-400/85" : "bg-tertiary-400/35 hover:bg-tertiary-400/55")} style={{ height: value / max * 100 + "%" }} /></button>)}</div><div className="mt-2 flex justify-between text-[9px] text-white/30"><span>{date(daily[0][0])}</span><span>{date(daily[daily.length - 1][0])}</span></div></> : <DashboardState message="Les vues quotidiennes apparaîtront ici." />}</figure>

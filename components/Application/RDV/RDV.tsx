@@ -17,11 +17,10 @@ import {
   endOfWeek,
 } from "date-fns";
 import { View } from "react-big-calendar";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   fetchAllAppointments,
-  fetchAppointmentById,
   fetchAppointments,
   paidAppointmentsAction,
 } from "@/lib/queries/appointment";
@@ -33,6 +32,7 @@ import { CiCalendar, CiCalendarDate } from "react-icons/ci";
 import { Clock3, Link2, SlidersHorizontal } from "lucide-react";
 import { Search } from "@/components/Shared/Search";
 import { toast } from "sonner";
+import { loadAppointmentDetails } from "@/lib/appointment-details";
 import { FaRegCalendarTimes } from "react-icons/fa";
 import ShowRdvDetails from "./ShowRdvDetails";
 import ShowRdvDetailsMobile from "./ShowRdvDetailsMobile";
@@ -42,20 +42,14 @@ import RdvListSkeleton from "@/components/Skeleton/RdvListSkeleton";
 import PageHeader from "@/components/Shared/PageHeader";
 import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
 import DashboardButton from "@/components/Shared/DashboardButton";
-
-const STATUS_BADGES: Record<string, { label: string; className: string }> = {
-  CANCELED: { label: "Annulé", className: "border-red-500/30 bg-red-500/10 text-red-300" },
-  RESCHEDULING: { label: "Reprogrammation", className: "border-blue-500/30 bg-blue-500/10 text-blue-300" },
-  COMPLETED: { label: "Complété", className: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" },
-  NO_SHOW: { label: "Pas présenté", className: "border-amber-500/30 bg-amber-500/10 text-amber-300" },
-  PENDING: { label: "En attente", className: "border-orange-500/30 bg-orange-500/10 text-orange-300" },
-  CONFIRMED: { label: "Confirmé", className: "border-green-500/30 bg-green-500/10 text-green-300" },
-};
+import RdvStatusBadge from "./RdvStatusBadge";
 
 export default function RDV() {
   const { data: session } = useSession();
   const { isNew, markRead } = useActivityNotifications();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const query = searchParams.get("query")?.toLowerCase() || "";
   const queryClient = useQueryClient();
 
@@ -97,7 +91,7 @@ export default function RDV() {
   const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
 
   //! Bloquer le scroll du body quand la modal mobile est ouverte
-  useScrollLock(isMobileDetailOpen);
+  useScrollLock(isMobileDetailOpen && !isWideScreen);
 
   const openEventDetails = (event: CalendarEvent) => {
     markRead("appointments", event.id);
@@ -301,8 +295,9 @@ export default function RDV() {
     if (openingAppointment) return;
     setOpeningAppointment(true);
     try {
-      const result = await fetchAppointmentById(appointmentId);
-      const appointment = (result?.appointment ?? result) as CalendarEvent | null;
+      // Une seule requête : le rendez-vous (avec son client) et, déjà en réserve, ses photos et son suivi de dessin.
+      const details = await loadAppointmentDetails(queryClient, appointmentId);
+      const appointment = (details.appointment.ok ? details.appointment.data : null) as CalendarEvent | null;
       if (!appointment?.id || !appointment.client) {
         toast.error("Rendez-vous introuvable ou inaccessible.");
         return;
@@ -316,6 +311,18 @@ export default function RDV() {
       setOpeningAppointment(false);
     }
   };
+
+  //! Arrivée depuis une notification : /mes-rendez-vous?rdv=<id> ouvre la fiche, puis le paramètre est retiré de l'URL
+  const rdvParam = searchParams.get("rdv");
+  useEffect(() => {
+    if (!rdvParam || !userId) return; // la session doit être chargée (la fiche est retrouvée par salon)
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("rdv");
+    const rest = params.toString();
+    setViewMode((mode) => (mode === "links" ? "list" : mode));
+    void openAppointmentById(rdvParam).finally(() => router.replace(rest ? `${pathname}?${rest}` : pathname, { scroll: false }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rdvParam, userId]);
 
   // Reset pagination when query or filters change
   useEffect(() => {
@@ -586,7 +593,7 @@ export default function RDV() {
               }`}
             >
               <Clock3 size={15} className="shrink-0 text-amber-300" />
-              <NotificationBadge count={pendingAppointmentsCount} label="rendez-vous en attente" showZero />
+              <NotificationBadge count={pendingAppointmentsCount} label="rendez-vous en attente" showZero className="!h-auto !min-w-0 !border-0 !bg-transparent !p-0 !text-sm !text-amber-300 !shadow-none" />
             </button>
             {!isFreeAccount && <DashboardButton href="/mes-rendez-vous/creer" className="!min-w-0 !rounded-xl flex-1 whitespace-nowrap md:flex-none">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -678,10 +685,12 @@ export default function RDV() {
                               {isNew("appointments", event.id) && <span className="text-xs font-semibold text-tertiary-400">Nouveau rendez-vous</span>}
                               <div
                                 onClick={() => openEventDetails(event)}
-                                className={`group flex cursor-pointer items-center gap-3 rounded-2xl border bg-white/[0.03] p-2.5 transition-all duration-200 hover:bg-white/[0.06] sm:gap-4 sm:p-3 ${
-                                  (selectedEvent?.id === event.id || isNew("appointments", event.id))
-                                    ? "border-tertiary-400/50 bg-tertiary-400/10"
-                                    : "border-white/8 hover:border-white/20"
+                                className={`group flex cursor-pointer items-center gap-3 rounded-2xl bg-white/[0.03] p-2.5 transition-all duration-200 hover:bg-white/[0.06] sm:gap-4 sm:p-3 ${
+                                  selectedEvent?.id === event.id
+                                    ? "!bg-gradient-to-r from-tertiary-400/20 to-tertiary-500/10 hover:!from-tertiary-400/25 hover:!to-tertiary-500/15"
+                                    : isNew("appointments", event.id)
+                                      ? "bg-tertiary-400/10"
+                                      : ""
                                 }`}
                               >
                                 <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-white/[0.06] font-one text-white sm:h-14 sm:w-14">
@@ -723,17 +732,7 @@ export default function RDV() {
                                   </p>
                                 </div>
 
-                                {(() => {
-                                  const status = STATUS_BADGES[event.status ?? ""] ?? STATUS_BADGES.CONFIRMED;
-                                  return (
-                                    <span
-                                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-1 text-[11px] font-medium whitespace-nowrap font-one sm:px-2.5 sm:text-xs ${status.className}`}
-                                    >
-                                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                                      {status.label}
-                                    </span>
-                                  );
-                                })()}
+                                <RdvStatusBadge status={event.status ?? "CONFIRMED"} />
                               </div>
                             </div>
                           );
@@ -926,7 +925,7 @@ export default function RDV() {
 
               {/* Affichage desktop : Détails du RDV ou Calendrier */}
               <div className="hidden xl:block h-full">
-              {selectedEvent ? (
+              {selectedEvent && isWideScreen ? (
                 <ShowRdvDetails
                   selectedEvent={selectedEvent}
                   onClose={closeEventDetails}
@@ -980,7 +979,7 @@ export default function RDV() {
       )}
 
       {/* Modale mobile pour les détails du RDV */}
-      {selectedEvent && isMobileDetailOpen && (
+      {selectedEvent && isMobileDetailOpen && !isWideScreen && (
         <ShowRdvDetailsMobile
           selectedEvent={selectedEvent}
           onClose={closeEventDetails}

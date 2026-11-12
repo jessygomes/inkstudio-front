@@ -2,9 +2,13 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNotificationCenter } from "@/components/Providers/NotificationCenterProvider";
 import NotificationBadge from "@/components/Shared/NotificationBadge";
-import { getActivityNotifications, type ActivityKind, type ActivityItem } from "@/lib/queries/activity-notifications";
+import { getRecentActivity, type ActivityKind, type ActivityItem } from "@/lib/queries/activity-notifications";
+
+// Événements qui changent les pastilles « nouveau » (rendez-vous pris ou annulé par un client, avis, suivi de cicatrisation).
+const ACTIVITY_EVENTS = new Set(["appointment.created", "appointment.cancelled_by_client", "review.new", "followup.reply"]);
 
 type ReadState = { since: number; read: Record<string, true> };
 const Context = createContext<{
@@ -26,6 +30,8 @@ export function ActivityNotificationsProvider({ children }: { children: React.Re
 
 function AccountNotifications({ children, userId, enabled }: { children: React.ReactNode; userId?: string; enabled: boolean }) {
   const key = `inkera:activity:v1:${userId}`;
+  const queryClient = useQueryClient();
+  const { live, subscribe } = useNotificationCenter();
   const [state, setState] = useState<ReadState | null>(null);
   useEffect(() => {
     const read = () => {
@@ -43,10 +49,15 @@ function AccountNotifications({ children, userId, enabled }: { children: React.R
     return () => window.removeEventListener("storage", sync);
   }, [key]);
 
-  const appointments = useQuery({ queryKey: ["activity", userId, "appointments"], queryFn: () => getActivityNotifications("appointments"), enabled, refetchInterval: 60000, refetchOnWindowFocus: true });
-  const followUps = useQuery({ queryKey: ["activity", userId, "followUps"], queryFn: () => getActivityNotifications("followUps"), enabled, refetchInterval: 60000, refetchOnWindowFocus: true });
-  const reviews = useQuery({ queryKey: ["activity", userId, "reviews"], queryFn: () => getActivityNotifications("reviews"), enabled, refetchInterval: 60000, refetchOnWindowFocus: true });
-  const data: Record<ActivityKind, ActivityItem[]> = { appointments: appointments.data || [], followUps: followUps.data || [], reviews: reviews.data || [] };
+  // Une seule requête légère (id et date des nouveautés depuis `since`, 30 jours au plus) pour les trois types de pastilles.
+  const since = state?.since;
+  const activity = useQuery({ queryKey: ["activity", userId, since], queryFn: () => getRecentActivity(since!), enabled: enabled && since !== undefined, refetchInterval: live ? 300000 : 60000, refetchOnWindowFocus: true });
+  // Temps réel : un nouveau rendez-vous client, une annulation par le client, un avis ou un suivi relit tout de suite les pastilles ;
+  // le polling n'est plus qu'un filet de sécurité (5 min tant que la socket est connectée, 1 min sinon).
+  useEffect(() => subscribe((notification) => {
+    if (notification.type && ACTIVITY_EVENTS.has(notification.type)) void queryClient.invalidateQueries({ queryKey: ["activity", userId] });
+  }), [subscribe, queryClient, userId]);
+  const data: Record<ActivityKind, ActivityItem[]> = { appointments: activity.data?.appointments || [], followUps: activity.data?.followUps || [], reviews: activity.data?.reviews || [] };
   const unread = Object.fromEntries(Object.entries(data).map(([kind, items]) => [kind,
     new Set(items.filter(item => state && !state.read[`${kind}:${item.id}`] && Date.parse(item.createdAt) >= state.since).map(item => item.id)),
   ])) as Record<ActivityKind, Set<string>>;

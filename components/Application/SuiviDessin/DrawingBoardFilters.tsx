@@ -1,8 +1,8 @@
 "use client";
 
-import { Plus, Search, X } from "lucide-react";
-import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
-import DashboardButton from "@/components/Shared/DashboardButton";
+import { ArrowRight, CalendarDays, ListFilter, Plus, Search, UserRound, X } from "lucide-react";
+import FilterSelect from "@/components/Shared/FilterSelect";
+import RdvActionButton from "@/components/Application/RDV/RdvActionButton";
 import {
   DRAWING_CARD_STATUSES,
   type DrawingCardStatus,
@@ -27,6 +27,11 @@ interface DrawingBoardFiltersProps {
   onCreate: () => void;
 }
 
+// Un champ de filtre : fond translucide sans contour, anneau d'accent au focus, teinté d'accent quand un filtre est actif.
+const field = (active: boolean) =>
+  "relative flex h-10 shrink-0 items-center rounded-xl text-xs transition focus-within:ring-2 focus-within:ring-tertiary-400/40 " +
+  (active ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]");
+
 export default function DrawingBoardFilters({
   search,
   status,
@@ -44,102 +49,66 @@ export default function DrawingBoardFilters({
   onCreate,
 }: DrawingBoardFiltersProps) {
   const hasActiveFilters = Boolean(search || status || artist || from || to);
-  const selectClassName =
-    "h-8 shrink-0 cursor-pointer rounded-xl border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white outline-none transition-colors focus:border-tertiary-400";
+  const dateClassName =
+    "h-full w-[112px] cursor-pointer bg-transparent px-1.5 text-[11px] outline-none";
 
   return (
-    <ApplicationToolbar>
-      <div className="flex w-full min-w-0 items-center gap-3">
-      <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-x-auto scrollbar-hidden">
-      <label className="relative min-w-36 max-w-56 flex-1">
-        <Search
-          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/35"
-          size={13}
-        />
-        <input
-          value={search}
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Client ou projet…"
-          className="h-8 w-full rounded-xl border border-white/20 bg-white/10 py-1 pl-8 pr-2.5 text-xs text-white outline-none transition-colors placeholder:text-white/35 focus:border-tertiary-400"
-        />
-      </label>
+    <div className="relative z-10 flex w-full flex-col gap-2.5 font-one lg:flex-row lg:items-center lg:justify-end">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 lg:justify-end">
+        <label className={field(Boolean(search)) + " w-full lg:w-64 lg:flex-none"}>
+          <Search className="pointer-events-none absolute left-3 opacity-60" size={14} />
+          <input
+            value={search}
+            onChange={(event) => onSearchChange(event.target.value)}
+            placeholder="Rechercher un client ou un projet…"
+            aria-label="Rechercher un client ou un projet"
+            className="h-full w-full bg-transparent pl-9 pr-3 text-xs text-inherit outline-none placeholder:text-white/40"
+          />
+        </label>
 
-      <select
-        aria-label="Filtrer par statut"
-        value={status}
-        onChange={(event) =>
-          onStatusChange(event.target.value as DrawingCardStatus | "")
-        }
-        className={`${selectClassName} min-w-[112px]`}
-      >
-        <option value="" className="bg-noir-500">
-          Statut
-        </option>
-        {DRAWING_CARD_STATUSES.map((drawingStatus) => (
-          <option
-            className="bg-noir-500"
-            key={drawingStatus}
-            value={drawingStatus}
-          >
-            {statusLabels[drawingStatus]}
-          </option>
-        ))}
-      </select>
+        <div className="w-full sm:w-44">
+          <FilterSelect buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${status ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`} label="Statut" placeholder="Tous les statuts" unit="statut" icon={<ListFilter size={14} aria-hidden="true" />} multiple={false} align="right"
+            selected={status ? [status] : []}
+            options={DRAWING_CARD_STATUSES.map((drawingStatus) => ({ value: drawingStatus, label: statusLabels[drawingStatus] }))}
+            onApply={(values) => onStatusChange((values[0] || "") as DrawingCardStatus | "")} />
+        </div>
 
-      <select
-        aria-label="Filtrer par tatoueur"
-        value={artist}
-        onChange={(event) => onArtistChange(event.target.value)}
-        className={`${selectClassName} min-w-[125px]`}
-      >
-        <option value="" className="bg-noir-500">
-          Tatoueur
-        </option>
-        {artists.map(([id, name]) => (
-          <option className="bg-noir-500" key={id} value={id}>
-            {name}
-          </option>
-        ))}
-      </select>
+        <div className="w-full sm:w-48">
+          <FilterSelect buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${artist ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`} label="Tatoueur" placeholder="Tous les tatoueurs" unit="tatoueur" icon={<UserRound size={14} aria-hidden="true" />} multiple={false} align="right"
+            selected={artist ? [artist] : []}
+            options={artists.map(([id, name]) => ({ value: id, label: name }))}
+            onApply={(values) => onArtistChange(values[0] || "")} />
+        </div>
 
-      <div className="flex h-8 shrink-0 items-center overflow-hidden rounded-xl border border-white/20 bg-white/10">
-        <span className="pl-2 text-[10px] text-white/35">Du</span>
-        <input
-          type="date"
-          aria-label="Date de début"
-          value={from}
-          onChange={(event) => onFromChange(event.target.value)}
-          className="h-full w-[118px] cursor-pointer bg-transparent px-2 text-[11px] text-white outline-none"
-        />
-        <span className="border-l border-white/10 pl-2 text-[10px] text-white/35">
-          au
-        </span>
-        <input
-          type="date"
-          aria-label="Date de fin"
-          value={to}
-          onChange={(event) => onToChange(event.target.value)}
-          className="h-full w-[118px] cursor-pointer bg-transparent px-2 text-[11px] text-white outline-none"
-        />
+        <div className={field(Boolean(from || to)) + " gap-0.5 pl-9 pr-1"}>
+          <CalendarDays className="pointer-events-none absolute left-3 opacity-60" size={14} />
+          <input
+            type="date"
+            aria-label="Date de début"
+            value={from}
+            onChange={(event) => onFromChange(event.target.value)}
+            className={dateClassName}
+          />
+          <ArrowRight className="shrink-0 opacity-40" size={12} />
+          <input
+            type="date"
+            aria-label="Date de fin"
+            value={to}
+            onChange={(event) => onToChange(event.target.value)}
+            className={dateClassName}
+          />
+        </div>
+
+        {hasActiveFilters && (
+          <RdvActionButton tone="danger" icon={X} onClick={onClear} className="!w-auto shrink-0">
+            Effacer
+          </RdvActionButton>
+        )}
       </div>
 
-      {hasActiveFilters && (
-        <DashboardButton
-          type="button"
-          onClick={onClear}
-          variant="secondary"
-          className="!h-10 !min-w-0 shrink-0 !border-red-400/25 !text-red-300"
-        >
-          <X size={12} />
-          Effacer
-        </DashboardButton>
-      )}
-      </div>
-      <DashboardButton variant="primary" onClick={onCreate} className="!h-10 !min-w-0 shrink-0 whitespace-nowrap">
-        <Plus size={14} />
+      <RdvActionButton tone="primary" icon={Plus} onClick={onCreate} className="!w-auto shrink-0 lg:ml-auto">
         Créer une card
-      </DashboardButton>
-      </div>
-    </ApplicationToolbar>
+      </RdvActionButton>
+    </div>
   );
 }

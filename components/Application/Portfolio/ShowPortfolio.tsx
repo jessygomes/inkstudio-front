@@ -9,8 +9,9 @@ import { AiOutlineDelete } from "react-icons/ai";
 import DeletePhoto from "./DeletePhoto";
 import { FaIdCardClip } from "react-icons/fa6";
 import PageHeader from "@/components/Shared/PageHeader";
-import ApplicationToolbar from "@/components/Shared/ApplicationToolbar";
-import DashboardButton from "@/components/Shared/DashboardButton";
+import RdvActionButton from "@/components/Application/RDV/RdvActionButton";
+import FilterSelect from "@/components/Shared/FilterSelect";
+import { Hash, ListFilter, Palette, Plus, Ruler, UserRound, X } from "lucide-react";
 import {
   getPortfolioCategoriesAction,
   getPortfolioPhotosAction,
@@ -303,114 +304,51 @@ export default function ShowPortfolio() {
   return (
     <section className="w-full space-y-3">
       <PageHeader icon={<FaIdCardClip size={15} className="text-tertiary-400" />} title="Portfolio" />
-      <ApplicationToolbar filters={<div className="flex flex-wrap items-center gap-x-4 gap-y-2"><div className="flex items-center gap-2">
-          <label htmlFor="tatoueur-filter" className="text-xs text-white/60 font-one">
-            Tatoueur
-          </label>
-          <select
-            id="tatoueur-filter"
-            value={tatoueurFilter}
-            onChange={(event) => {
-              setTatoueurFilter(event.target.value);
-              setCurrentPage(1);
-              setHasNextPage(false);
-            }}
-            className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
-          >
-            <option value="all" className="bg-noir-500">Tous</option>
-            {tatoueurs.map((tatoueur) => (
-              <option key={tatoueur.id} value={tatoueur.id} className="bg-noir-500">
-                {getTatoueurDisplayName(tatoueur)}
-              </option>
-            ))}
-          </select>
+      <div className="relative z-10 flex w-full flex-wrap items-center gap-2 font-one sm:justify-end">
+        <div className="w-full sm:w-44">
+          <FilterSelect buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${tatoueurFilter !== "all" ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`} label="Tatoueur" placeholder="Tous les tatoueurs" unit="tatoueur" icon={<UserRound size={14} aria-hidden="true" />} multiple={false} align="right"
+            selected={tatoueurFilter === "all" ? [] : [tatoueurFilter]}
+            options={tatoueurs.map((tatoueur) => ({ value: tatoueur.id, label: getTatoueurDisplayName(tatoueur) }))}
+            onApply={(values) => { setTatoueurFilter(values[0] || "all"); setCurrentPage(1); setHasNextPage(false); }} />
         </div>
-        <div className="flex items-center gap-2">
-          <label htmlFor="piece-size-filter" className="text-xs text-white/60 font-one">
-            Taille
-          </label>
-          <select
-            id="piece-size-filter"
-            value={pieceSizeFilter}
-            onChange={(event) => setPieceSizeFilter(event.target.value)}
-            className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
-          >
-            <option value="" className="bg-noir-500">Toutes</option>
-            <option value="SMALL" className="bg-noir-500">Petite pièce</option>
-            <option value="MEDIUM" className="bg-noir-500">Moyenne pièce</option>
-            <option value="LARGE" className="bg-noir-500">Grosse pièce</option>
-          </select>
+        <div className="w-full sm:w-44">
+          <FilterSelect buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${pieceSizeFilter ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`} label="Taille de la pièce" placeholder="Toutes les tailles" unit="taille" icon={<Ruler size={14} aria-hidden="true" />} multiple={false} align="right"
+            selected={pieceSizeFilter ? [pieceSizeFilter] : []}
+            options={[{ value: "SMALL", label: "Petite pièce" }, { value: "MEDIUM", label: "Moyenne pièce" }, { value: "LARGE", label: "Grosse pièce" }]}
+            onApply={(values) => setPieceSizeFilter(values[0] || "")} />
         </div>
         {categories.length > 0 && (
-          <div className="flex items-center gap-2">
-            <label htmlFor="category-filter" className="text-xs text-white/60 font-one">
-              Catégorie
-            </label>
-            <select
-              id="category-filter"
-              value={categoryFilter}
-              onChange={(event) => toggleCategoryFilter(event.target.value)}
-              className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
-            >
-              <option value="" className="bg-noir-500">Toutes</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.slug} className="bg-noir-500">
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+          <div className="w-full sm:w-44">
+            <FilterSelect buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${categoryFilter ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`} label="Catégorie" placeholder="Toutes les catégories" unit="catégorie" icon={<ListFilter size={14} aria-hidden="true" />} multiple={false} align="right"
+              selected={categoryFilter ? [categoryFilter] : []}
+              options={categories.map((cat) => ({ value: cat.slug, label: cat.name }))}
+              onApply={(values) => toggleCategoryFilter(values[0] || "")} />
           </div>
         )}
-        <div className="flex items-center gap-2">
-          <label htmlFor="style-filter" className="text-xs text-white/60 font-one">
-            Style
-          </label>
-          <select
-            id="style-filter"
-            value={styleFilter}
-            onChange={(event) => setStyleFilter(event.target.value)}
-            className="cursor-pointer rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white focus:border-tertiary-400 focus:outline-none"
-          >
-            <option value="" className="bg-noir-500">Tous</option>
-            {styles.map((style) => (
-              <option key={style.id ?? style.name} value={style.name} className="bg-noir-500">
-                {style.name}
-                {typeof style.count === "number" ? ` (${style.count})` : ""}
-              </option>
-            ))}
-          </select>
+        <div className="w-full sm:w-44">
+          <FilterSelect buttonClassName={`flex h-10 w-full min-w-0 items-center gap-2 rounded-xl px-3 text-left text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-tertiary-400/40 ${styleFilter ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]"}`} label="Style" placeholder="Tous les styles" unit="style" icon={<Palette size={14} aria-hidden="true" />} multiple={false} align="right"
+            selected={styleFilter ? [styleFilter] : []}
+            options={styles.map((style) => ({ value: style.name, label: style.name + (typeof style.count === "number" ? " (" + style.count + ")" : "") }))}
+            onApply={(values) => setStyleFilter(values[0] || "")} />
         </div>
-        <div className="flex items-center gap-2">
-          <label htmlFor="hashtag-filter" className="text-xs text-white/60 font-one">
-            Hashtag
-          </label>
+        <label className={"relative flex h-10 w-full shrink-0 items-center rounded-xl text-xs transition focus-within:ring-2 focus-within:ring-tertiary-400/40 sm:w-40 " + (hashtagInput ? "bg-tertiary-400/15 text-tertiary-400" : "bg-white/[0.06] text-white hover:bg-white/[0.09]")}>
+          <Hash className="pointer-events-none absolute left-3 opacity-60" size={14} />
           <input
             id="hashtag-filter"
+            aria-label="Filtrer par hashtag"
             value={hashtagInput}
             onChange={(event) => setHashtagInput(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") setHashtagFilter(hashtagInput.trim());
             }}
             onBlur={() => setHashtagFilter(hashtagInput.trim())}
-            placeholder="#hashtag"
-            className="w-28 rounded-2xl border border-white/15 bg-white/8 px-3 py-1 text-xs font-one text-white placeholder:text-white/35 focus:border-tertiary-400 focus:outline-none"
+            placeholder="Hashtag"
+            className="h-full w-full bg-transparent pl-9 pr-3 text-xs text-inherit outline-none placeholder:text-white/40"
           />
-        </div>
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={resetFilters}
-            className="cursor-pointer text-[11px] text-tertiary-400 underline font-one"
-          >
-            Réinitialiser
-          </button>
-        )}
-        </div>} actions={<DashboardButton onClick={handleCreate}>
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Nouvelle photo
-        </DashboardButton>} />
+        </label>
+        {hasActiveFilters && <RdvActionButton tone="danger" icon={X} onClick={resetFilters} className="!w-auto shrink-0">Effacer</RdvActionButton>}
+        <RdvActionButton tone="primary" icon={Plus} onClick={handleCreate} className="!w-auto shrink-0">Nouvelle photo</RdvActionButton>
+      </div>
 
       <div className="w-full h-full">
         {loading ? (

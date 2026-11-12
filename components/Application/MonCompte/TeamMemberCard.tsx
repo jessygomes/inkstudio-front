@@ -32,12 +32,12 @@ export default function TeamMemberCard({ member, salonId, linked, bookingEnabled
       : /^(www\.)?instagram\.com\//i.test(instagram) ? `https://${instagram}`
         : `https://www.instagram.com/${instagram.replace(/^@/, "")}`
     : undefined;
-  const actionClass = "inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] text-white/70 transition hover:bg-white/[0.07] hover:text-white disabled:opacity-40";
+  const actionClass = "inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl bg-white/[0.06] px-3 py-2 text-[11px] text-white/75 transition hover:bg-white/[0.11] hover:text-white disabled:opacity-40";
 
-  return <article className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-noir-600 transition-colors hover:border-white/20">
+  return <article className="group flex min-w-0 flex-col overflow-hidden rounded-2xl bg-noir-600">
     <div className="flex-1 p-4 sm:p-5">
       <div className="flex items-start gap-3.5">
-        <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 sm:size-16">
+        <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white/[0.07] sm:size-16">
           {image ? <Image src={image} alt={name} fill sizes="64px" className="object-cover" /> : <span className="text-xl font-medium text-white/50">{name.charAt(0).toUpperCase()}</span>}
         </div>
         <div className="min-w-0 flex-1">
@@ -54,13 +54,13 @@ export default function TeamMemberCard({ member, salonId, linked, bookingEnabled
         {!member.skills?.length && !member.style?.length && <p className="text-[11px] text-white/30">Spécialités à compléter</p>}
       </div>
 
-      {(member.phone || instagramUrl) && <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/[0.06] pt-3 text-[11px] text-white/50">
+      {(member.phone || instagramUrl) && <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-[11px] text-white/50">
         {member.phone && <a href={`tel:${member.phone}`} className="inline-flex min-w-0 items-center gap-1.5 py-1 transition hover:text-white"><Phone size={12} className="shrink-0" /><span className="break-all">{member.phone}</span></a>}
         {instagramUrl && <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 py-1 transition hover:text-white"><Instagram size={12} />Instagram<span className="sr-only"> (nouvel onglet)</span></a>}
       </div>}
     </div>
 
-    <footer className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.07] bg-black/10 px-4 py-3 sm:px-5">
+    <footer className="mt-auto flex flex-wrap items-center justify-between gap-2 bg-white/[0.05] px-4 py-3 sm:px-5">
       {linked ? <DashboardButton variant="secondary" disabled={updating || removing} aria-haspopup="dialog" onClick={() => setManagementOpen(true)} className="!min-w-0 !px-3 !py-2 !text-[11px]"><ShieldCheck size={13} />Gérer les autorisations</DashboardButton>
         : <Link href={`/mon-compte/ajouter-tatoueur?id=${member.id}`} className={actionClass}><Pencil size={12} />Modifier le profil</Link>}
       {!linked && <button type="button" disabled={removing || updating} onClick={onRemove} aria-label={`Supprimer ${name}`} className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-[11px] text-white/35 transition hover:bg-red-400/10 hover:text-red-300 disabled:opacity-40">{removing ? <LoaderCircle size={13} className="animate-spin" /> : <Trash2 size={13} />}{removing ? "Retrait…" : "Supprimer"}</button>}

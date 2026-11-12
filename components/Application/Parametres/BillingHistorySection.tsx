@@ -73,16 +73,16 @@ const getInvoiceStatusLabel = (status: string | null) => {
 const getInvoiceStatusClassName = (status: string | null) => {
   switch (status?.toUpperCase()) {
     case "PAID":
-      return "bg-green-500/10 text-green-300 border border-green-500/30";
+      return "bg-green-500/15 text-green-300";
     case "OPEN":
-      return "bg-blue-500/10 text-blue-300 border border-blue-500/30";
+      return "bg-blue-500/15 text-blue-300";
     case "DRAFT":
-      return "bg-white/10 text-white/70 border border-white/20";
+      return "bg-white/10 text-white/70";
     case "VOID":
     case "UNCOLLECTIBLE":
-      return "bg-red-500/10 text-red-300 border border-red-500/30";
+      return "bg-red-500/15 text-red-300";
     default:
-      return "bg-white/10 text-white/70 border border-white/20";
+      return "bg-white/10 text-white/70";
   }
 };
 
@@ -194,7 +194,7 @@ export default function BillingHistorySection({
         <SettingsSectionHeader icon={ReceiptText} title="Historique de facturation" description="Vos factures et moyens de paiement, au même endroit." action={<DashboardButton variant="secondary"
             onClick={handleOpenPortal}
             disabled={isOpeningPortal || !userId}
-            className="min-w-0! cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-2xl border border-white/20 transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+            className="min-w-0! cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors font-medium font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <CreditCard className="h-4 w-4" />
             {isOpeningPortal ? "Ouverture..." : "Gérer mes paiements"}
@@ -208,11 +208,11 @@ export default function BillingHistorySection({
             </span>
           </div>
         ) : invoicesError ? (
-          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 space-y-3">
+          <div className="rounded-xl bg-red-500/10 p-4 space-y-3">
             <p className="text-red-300 text-xs font-one">{invoicesError}</p>
             <DashboardButton variant="secondary"
               onClick={() => fetchInvoices(currentPage)}
-              className="min-w-0! cursor-pointer px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-200 rounded-xl border border-red-500/20 transition-colors font-medium font-one text-xs"
+              className="min-w-0! cursor-pointer px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-200 rounded-xl transition-colors font-medium font-one text-xs"
             >
               Réessayer
             </DashboardButton>
@@ -221,7 +221,7 @@ export default function BillingHistorySection({
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-4">
               <h3 className="text-xs font-semibold text-white">Vos factures</h3>
-              <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/60">{pagination.total} facture{pagination.total > 1 ? "s" : ""}</span>
+              <span className="rounded-lg bg-white/[0.07] px-3 py-1 text-xs text-white/60">{pagination.total} facture{pagination.total > 1 ? "s" : ""}</span>
             </div>
             <ul className="divide-y divide-white/10">
               {invoices.map((invoice) => (
@@ -263,7 +263,7 @@ export default function BillingHistorySection({
                     setCurrentPage((page) => Math.max(1, page - 1))
                   }
                   disabled={!pagination.hasPreviousPage || isInvoicesLoading}
-                  className="min-w-0! cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="min-w-0! cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Précédent
                 </DashboardButton>
@@ -276,7 +276,7 @@ export default function BillingHistorySection({
                 <DashboardButton variant="secondary"
                   onClick={() => setCurrentPage((page) => page + 1)}
                   disabled={!pagination.hasNextPage || isInvoicesLoading}
-                  className="min-w-0! cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20 transition-colors font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="min-w-0! cursor-pointer px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors font-one text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Suivant
                 </DashboardButton>
@@ -284,7 +284,7 @@ export default function BillingHistorySection({
             </div>
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-white/15 bg-noir-700 px-5 py-10 text-center">
+          <div className="rounded-xl bg-noir-700 px-5 py-10 text-center">
             <p className="text-white/70 text-xs font-one">
               Vous n’avez pas encore de facture.
             </p>
