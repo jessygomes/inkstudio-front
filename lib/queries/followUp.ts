@@ -88,18 +88,17 @@ export const getFollowUpAction = async (
 //! REPONDRE A UN SUIVI
 
 //! ----------------------------------------------------------------------------
-export const replySuiviAction = async (suiviId: string, reply: string) => {
+/** `channel` : EMAIL (défaut) ou EMAIL_AND_INKERA (aussi dans la conversation Inkera du client, s’il en a une). */
+export const replySuiviAction = async (suiviId: string, reply: string, channel: "EMAIL" | "EMAIL_AND_INKERA" = "EMAIL") => {
   try {
     const headers = await getAuthHeaders();
-
-    console.log("REPLY: ", reply);
 
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACK_URL}/follow-up/reply/${suiviId}`,
       {
         method: "POST",
         headers,
-        body: JSON.stringify({ reply }),
+        body: JSON.stringify({ reply, channel }),
       }
     );
 

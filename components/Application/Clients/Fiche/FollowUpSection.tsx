@@ -1,5 +1,7 @@
 "use client";
 import React, { useState } from "react";
+import { FollowUpHealing, FollowUpPhotos } from "../FollowUpExtras";
+import { followUpPhotos } from "@/lib/types/followUp";
 import { ChevronDown, ImageIcon, MessageSquareHeart, Star } from "lucide-react";
 import Image from "next/image";
 import { AppointmentProps, ClientProps } from "@/lib/type";
@@ -197,6 +199,7 @@ export default function FollowUpSection({
                           <Star size={11} fill="currentColor" /> {followUp.rating}/5
                         </span>
                         <span className="text-xs text-white/55">{getRatingLabel(followUp.rating)}</span>
+                        <FollowUpHealing status={followUp.healingStatus} />
                       </div>
                     </div>
                   </div>
@@ -219,6 +222,8 @@ export default function FollowUpSection({
                     </button>
                   </div>
                 </div>
+
+                {followUpPhotos(followUp).length > 1 && <div className="mt-3"><FollowUpPhotos urls={followUpPhotos(followUp)} clientName="le client" /></div>}
 
                 {followUp.review && (
                   <div className="mt-3 rounded-xl bg-white/[0.04] px-3 py-2.5">

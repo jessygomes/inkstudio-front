@@ -262,6 +262,8 @@ export interface ClientProps {
     isPhotoPublic: boolean;
     rating: number; // Note de 1 à 5
     photoUrl: string; // URL de la photo de suivi
+    photoUrls?: string[] | null; // 1 à 3 photos
+    healingStatus?: "GOOD" | "NORMAL" | "REDNESS" | "WORRIED" | null; // état de la cicatrisation
     review: string | null; // Commentaire du client
     createdAt: string; // Date de création au format ISO
   }[];

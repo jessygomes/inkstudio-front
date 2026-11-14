@@ -22,6 +22,7 @@ export function notificationHref(n: AppNotification): string | null {
     case "drawing.client_feedback":
       return "/suiviDessin";
     case "followup.reply":
+    case "followup.concern":
       return "/dashboard";
     case "client.account_linked":
     case "client.booking_name_mismatch": {
