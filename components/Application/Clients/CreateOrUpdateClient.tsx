@@ -11,6 +11,7 @@ import {
   FileCheck2,
   HeartPulse,
   Mail,
+  MailPlus,
   MapPin,
   Phone,
   Save,
@@ -23,6 +24,7 @@ import {
 import DashboardButton from "@/components/Shared/DashboardButton";
 import type { ClientProps } from "@/lib/type";
 import { createOrUpdateClient } from "@/lib/queries/client";
+import { createClientInvitationAction } from "@/lib/queries/client-invitation";
 import ClientInvitationCard from "./ClientInvitationCard";
 import { clientSchema } from "@/lib/zod/validator.schema";
 
@@ -42,7 +44,9 @@ export default function CreateOrUpdateClient({ onCreate, existingClient, setIsOp
   const [loading, setLoading] = useState(false);
   const [showMedicalHistory, setShowMedicalHistory] = useState(Boolean(existingClient?.medicalHistory));
   const isEditing = Boolean(existingClient);
-  const [created, setCreated] = useState<{ id: string; firstName?: string; email?: string } | null>(null);
+  const [created, setCreated] = useState<{ id: string; firstName?: string; email?: string; invited?: boolean } | null>(null);
+  // Création : invitation Inkera envoyée au client avec la fiche (cochée par défaut).
+  const [sendInvitation, setSendInvitation] = useState(true);
   const close = () => (created ? onCreate() : setIsOpen(false));
 
   const form = useForm<ClientFormData>({
@@ -102,7 +106,15 @@ export default function CreateOrUpdateClient({ onCreate, existingClient, setIsOp
       // Nouvelle fiche : on propose tout de suite d'inviter le client sur Inkera (la liste est rafraîchie à la fermeture).
       const createdClient = result.data?.client;
       if (!isEditing && createdClient?.id) {
-        setCreated({ id: createdClient.id, firstName: createdClient.firstName, email: createdClient.email });
+        // Invitation cochée : envoyée par e-mail tout de suite (la carte affichera « Envoyée le … »).
+        let invitedNow = false;
+        if (sendInvitation && createdClient.email) {
+          const invited = await createClientInvitationAction(createdClient.id, true);
+          invitedNow = invited.ok && invited.data.emailSent;
+          if (invited.ok && invited.data.emailSent) toast.success(`Invitation Inkera envoyée à ${createdClient.email}`);
+          else toast.error(invited.ok ? "L’invitation n’a pas pu partir par e-mail : copiez ou partagez le lien." : invited.message);
+        }
+        setCreated({ id: createdClient.id, firstName: createdClient.firstName, email: createdClient.email, invited: invitedNow });
         return;
       }
       onCreate();
@@ -141,7 +153,7 @@ export default function CreateOrUpdateClient({ onCreate, existingClient, setIsOp
             <div className="mx-auto max-w-xl space-y-4 py-2">
               <div className="flex items-center gap-3 rounded-2xl bg-emerald-400/[0.08] p-4">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-400/15 text-emerald-300"><ShieldCheck size={17} aria-hidden="true" /></span>
-                <div><p className="text-sm font-semibold text-white font-one">Fiche créée</p><p className="mt-0.5 text-xs text-white/55 font-two">Dernière étape conseillée : invitez votre client sur Inkera pour qu’il suive ses rendez-vous et vous écrive directement.</p></div>
+                <div><p className="text-sm font-semibold text-white font-one">Fiche créée</p><p className="mt-0.5 text-xs text-white/55 font-two">{created.invited ? `Invitation Inkera envoyée à ${created.email}. Vous pouvez aussi lui partager le lien.` : "Dernière étape conseillée : invitez votre client sur Inkera pour qu’il suive ses rendez-vous et vous écrive directement."}</p></div>
               </div>
               <ClientInvitationCard clientId={created.id} firstName={created.firstName} email={created.email} />
             </div>
@@ -194,6 +206,16 @@ export default function CreateOrUpdateClient({ onCreate, existingClient, setIsOp
               )}
             </section>
 
+            {!isEditing && (
+              <label htmlFor="sendInvitation" className="flex cursor-pointer items-start gap-3 rounded-2xl bg-tertiary-400/[0.08] p-4 lg:col-span-12">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-tertiary-400/15 text-tertiary-400"><MailPlus size={17} /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-white font-one">Inviter le client sur Inkera</span>
+                  <span className="mt-0.5 block text-[11px] leading-5 text-white/55 font-two">Un e-mail lui est envoyé avec la fiche. Avec son compte (gratuit, à cette adresse), il retrouve les rendez-vous que vous lui créez et vous écrit dans la messagerie Inkera.</span>
+                </span>
+                <input id="sendInvitation" type="checkbox" checked={sendInvitation} onChange={(event) => setSendInvitation(event.target.checked)} className="mt-1 h-4 w-4 shrink-0 accent-tertiary-400" />
+              </label>
+            )}
             {error && <div className={`rounded-2xl border p-4 lg:col-span-12 ${error === "SAAS_LIMIT" ? "border-amber-400/25 bg-amber-400/[0.08]" : "border-red-400/25 bg-red-400/[0.08]"}`}><div className="flex items-start gap-3"><AlertTriangle size={18} className={error === "SAAS_LIMIT" ? "text-amber-300" : "text-red-300"} /><div><p className="text-sm font-semibold text-white font-one">{error === "SAAS_LIMIT" ? "Limite de plan atteinte" : "Enregistrement impossible"}</p><p className="mt-1 text-xs text-white/60 font-two">{error === "SAAS_LIMIT" ? "Votre plan actuel ne permet pas d’ajouter une fiche client supplémentaire." : error}</p>{error === "SAAS_LIMIT" && <DashboardButton href="/parametres" className="mt-3 !min-w-0">Changer de plan</DashboardButton>}</div></div></div>}
             {success && <div className="flex items-center gap-2 rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.08] p-4 text-xs text-emerald-200 lg:col-span-12 font-two"><ShieldCheck size={17} />{success}</div>}
           </div>
