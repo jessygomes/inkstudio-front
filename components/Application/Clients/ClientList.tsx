@@ -3,6 +3,7 @@ import { ActivityBadge } from "@/components/Providers/ActivityNotificationsProvi
 import { ClientProps, PaginationInfo } from "@/lib/type";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import ClientCard from "./ClientCard";
 import CreateOrUpdateClient from "./CreateOrUpdateClient";
@@ -44,8 +45,14 @@ export default function ClientList() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
+  //! Arrivée depuis une notification : /clients?client=<id>&search=<e-mail> filtre la liste puis ouvre la fiche
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const clientParam = searchParams.get("client");
+
   //! Filtre
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get("search") ?? "");
 
   //! Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -140,6 +147,15 @@ export default function ClientList() {
     setClientForInfos(client);
     setIsFullInfoModalOpen(true);
   };
+
+  // Fiche demandée par une notification : ouverte dès que la liste (filtrée par son e-mail) est chargée, puis l'URL est nettoyée.
+  useEffect(() => {
+    if (!clientParam || loading) return;
+    const found = clients.find((client) => client.id === clientParam);
+    if (found) handleShowReservations(found);
+    router.replace(pathname, { scroll: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientParam, loading]);
 
   //! Handlers pour les actions
   const handleEdit = (client: ClientProps) => {

@@ -12,6 +12,7 @@ import BaseInfoSection from "./Fiche/BaseInfoSection";
 import FollowUpSection from "./Fiche/FollowUpSection";
 import MedicalHistorySection from "./Fiche/MedicalHistorySection";
 import ClientAvatar from "./ClientAvatar";
+import ClientInvitationCard from "./ClientInvitationCard";
 import ConsentFormModal from "./ConsentFormModal";
 
 interface InfoClientProps {
@@ -110,6 +111,7 @@ export default function InfoClient({ client: sourceClient, isOpen, onClose, salo
           <ClientAvatar client={client} className="size-12 rounded-2xl" />
           <div className="min-w-0 flex-1"><div className="flex min-w-0 items-center gap-2"><h2 id={tabsId + "-title"} className="truncate text-lg font-semibold tracking-tight">{fullName}</h2>{client.isMinor && <span className="shrink-0 rounded-md bg-white/[0.08] px-1.5 py-0.5 text-[10px] text-white/60">Mineur</span>}</div><p className="mt-0.5 text-[11px] text-white/40">Fiche client<span className="mx-1.5">·</span>{client.appointments?.length ?? 0} rendez-vous</p></div>
           <div className="hidden min-w-0 items-center gap-2 lg:flex">{client.email && <a href={"mailto:" + client.email} className="inline-flex h-8 max-w-56 items-center gap-1.5 rounded-xl bg-white/[0.06] px-2.5 text-[11px] text-white/60 transition hover:bg-white/10 hover:text-white"><Mail size={12} className="shrink-0" /><span className="truncate">{client.email}</span></a>}{client.phone && <a href={"tel:" + client.phone} className="inline-flex h-8 items-center gap-1.5 rounded-xl bg-white/[0.06] px-2.5 text-[11px] text-white/60 transition hover:bg-white/10 hover:text-white"><Phone size={12} />{formatPhoneNumber(client.phone)}</a>}</div>
+          {client.linkedUserId && <span title="Le client retrouve ses rendez-vous dans son espace Inkera et peut vous écrire dans la messagerie." className="hidden h-8 shrink-0 items-center gap-1.5 rounded-xl bg-tertiary-400/15 px-2.5 text-[10px] font-semibold text-tertiary-400 sm:inline-flex"><span className="size-1.5 rounded-full bg-current" />Compte Inkera</span>}
           <span className={"hidden h-8 shrink-0 items-center gap-1.5 rounded-xl px-2.5 text-[10px] font-semibold sm:inline-flex " + (client.consentSigned ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300")}><span className="size-1.5 rounded-full bg-current" />{client.consentSigned ? "Consentement signé" : "Consentement à signer"}</span>
           <button ref={closeButton} type="button" onClick={onClose} aria-label="Fermer la fiche client" className="grid size-8 shrink-0 place-items-center rounded-xl bg-white/[0.06] text-white/55 transition hover:bg-white/12 hover:text-white"><X size={16} aria-hidden="true" /></button>
         </div>
@@ -123,7 +125,7 @@ export default function InfoClient({ client: sourceClient, isOpen, onClose, salo
       <main key={client.id + activeSection} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
         <div className="mx-auto w-full max-w-6xl">
           <section role="tabpanel" id={tabsId + "-panel-" + activeSection} aria-labelledby={tabsId + "-tab-" + activeSection} tabIndex={0} className="outline-none focus-visible:ring-2 focus-visible:ring-tertiary-400/40">
-            {activeSection === "infos" && <div className="space-y-4"><BaseInfoSection client={client} onOpenConsent={() => setIsConsentOpen(true)} /><MedicalHistorySection medicalHistory={client.medicalHistory} /></div>}
+            {activeSection === "infos" && <div className="space-y-4"><ClientInvitationCard clientId={client.id} firstName={client.firstName} email={client.email} linked={!!client.linkedUserId} /><BaseInfoSection client={client} onOpenConsent={() => setIsConsentOpen(true)} /><MedicalHistorySection medicalHistory={client.medicalHistory} /></div>}
             {activeSection === "appointments" && <AppointmentSection appointments={client.appointments ?? []} />}
             {activeSection === "photos" && <AppointmentPhotos clientId={client.id} readOnly />}
             {activeSection === "followups" && <FollowUpSection followUpSubmissions={client.FollowUpSubmission} />}

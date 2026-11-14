@@ -23,6 +23,7 @@ import {
 import DashboardButton from "@/components/Shared/DashboardButton";
 import type { ClientProps } from "@/lib/type";
 import { createOrUpdateClient } from "@/lib/queries/client";
+import ClientInvitationCard from "./ClientInvitationCard";
 import { clientSchema } from "@/lib/zod/validator.schema";
 
 type ClientFormData = z.infer<typeof clientSchema>;
@@ -41,6 +42,8 @@ export default function CreateOrUpdateClient({ onCreate, existingClient, setIsOp
   const [loading, setLoading] = useState(false);
   const [showMedicalHistory, setShowMedicalHistory] = useState(Boolean(existingClient?.medicalHistory));
   const isEditing = Boolean(existingClient);
+  const [created, setCreated] = useState<{ id: string; firstName?: string; email?: string } | null>(null);
+  const close = () => (created ? onCreate() : setIsOpen(false));
 
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
@@ -96,6 +99,12 @@ export default function CreateOrUpdateClient({ onCreate, existingClient, setIsOp
       setSuccess(message);
       toast.success(message);
       form.reset();
+      // Nouvelle fiche : on propose tout de suite d'inviter le client sur Inkera (la liste est rafraîchie à la fermeture).
+      const createdClient = result.data?.client;
+      if (!isEditing && createdClient?.id) {
+        setCreated({ id: createdClient.id, firstName: createdClient.firstName, email: createdClient.email });
+        return;
+      }
       onCreate();
     } catch (submitError) {
       console.error("Erreur lors de l’enregistrement du client :", submitError);
@@ -123,11 +132,20 @@ export default function CreateOrUpdateClient({ onCreate, existingClient, setIsOp
                 <p className="mt-0.5 hidden text-xs text-white/40 font-two sm:block">{isEditing ? "Mettez à jour les informations utiles du client" : "Renseignez les informations nécessaires à la création du profil"}</p>
               </div>
             </div>
-            <DashboardButton variant="secondary" onClick={() => setIsOpen(false)} className="!h-10 !min-w-10 !rounded-xl !p-0" ><span className="sr-only">Fermer</span><X size={17} /></DashboardButton>
+            <DashboardButton variant="secondary" onClick={close} className="!h-10 !min-w-10 !rounded-xl !p-0" ><span className="sr-only">Fermer</span><X size={17} /></DashboardButton>
           </div>
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-5 lg:p-6">
+          {created ? (
+            <div className="mx-auto max-w-xl space-y-4 py-2">
+              <div className="flex items-center gap-3 rounded-2xl bg-emerald-400/[0.08] p-4">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-400/15 text-emerald-300"><ShieldCheck size={17} aria-hidden="true" /></span>
+                <div><p className="text-sm font-semibold text-white font-one">Fiche créée</p><p className="mt-0.5 text-xs text-white/55 font-two">Dernière étape conseillée : invitez votre client sur Inkera pour qu’il suive ses rendez-vous et vous écrive directement.</p></div>
+              </div>
+              <ClientInvitationCard clientId={created.id} firstName={created.firstName} email={created.email} />
+            </div>
+          ) : (
           <div className="grid gap-4 lg:grid-cols-12">
             <FormSection icon={<UserRound size={17} />} title="Identité et contact" description="Coordonnées principales du client" className="lg:col-span-7">
               <div className="grid gap-3 sm:grid-cols-2">
@@ -179,11 +197,16 @@ export default function CreateOrUpdateClient({ onCreate, existingClient, setIsOp
             {error && <div className={`rounded-2xl border p-4 lg:col-span-12 ${error === "SAAS_LIMIT" ? "border-amber-400/25 bg-amber-400/[0.08]" : "border-red-400/25 bg-red-400/[0.08]"}`}><div className="flex items-start gap-3"><AlertTriangle size={18} className={error === "SAAS_LIMIT" ? "text-amber-300" : "text-red-300"} /><div><p className="text-sm font-semibold text-white font-one">{error === "SAAS_LIMIT" ? "Limite de plan atteinte" : "Enregistrement impossible"}</p><p className="mt-1 text-xs text-white/60 font-two">{error === "SAAS_LIMIT" ? "Votre plan actuel ne permet pas d’ajouter une fiche client supplémentaire." : error}</p>{error === "SAAS_LIMIT" && <DashboardButton href="/parametres" className="mt-3 !min-w-0">Changer de plan</DashboardButton>}</div></div></div>}
             {success && <div className="flex items-center gap-2 rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.08] p-4 text-xs text-emerald-200 lg:col-span-12 font-two"><ShieldCheck size={17} />{success}</div>}
           </div>
+          )}
         </div>
 
         <footer className="dashboard-embedded-footer flex shrink-0 items-center justify-end gap-2 border-t border-white/[0.08] px-4 py-3 sm:px-6 lg:px-7">
-          <DashboardButton type="button" variant="secondary" onClick={() => setIsOpen(false)} className="!min-w-[110px]">Annuler</DashboardButton>
-          <DashboardButton type="submit" disabled={loading} className="!min-w-[160px]"><Save size={14} />{loading ? "Enregistrement…" : isEditing ? "Enregistrer" : "Créer le client"}</DashboardButton>
+          {created
+            ? <DashboardButton type="button" onClick={close} className="!min-w-[160px]">Terminer</DashboardButton>
+            : <>
+                <DashboardButton type="button" variant="secondary" onClick={close} className="!min-w-[110px]">Annuler</DashboardButton>
+                <DashboardButton type="submit" disabled={loading} className="!min-w-[160px]"><Save size={14} />{loading ? "Enregistrement…" : isEditing ? "Enregistrer" : "Créer le client"}</DashboardButton>
+              </>}
         </footer>
       </form>
     </div>

@@ -23,6 +23,15 @@ export function notificationHref(n: AppNotification): string | null {
       return "/suiviDessin";
     case "followup.reply":
       return "/dashboard";
+    case "client.account_linked":
+    case "client.booking_name_mismatch": {
+      // La liste des clients filtre sur l'e-mail puis ouvre la fiche indiquée par ?client=<id>.
+      const clientId = str(n, "clientId");
+      const clientEmail = str(n, "clientEmail");
+      if (!clientId) return "/clients";
+      const params = new URLSearchParams({ client: clientId, ...(clientEmail ? { search: clientEmail } : {}) });
+      return `/clients?${params.toString()}`;
+    }
     case "review.new":
       return "/review";
     case "explorer.proposal_reply":
@@ -44,7 +53,7 @@ export const CATEGORY_LABELS: Record<string, { label: string; description: strin
   appointments: { label: "Rendez-vous", description: "Nouveaux rendez-vous, annulations, modifications et rappels." },
   messages: { label: "Messages", description: "Nouveaux messages et conversations sans réponse." },
   stock: { label: "Stock", description: "Stock bas, ruptures et produits bientôt périmés." },
-  followups: { label: "Suivis et dessins", description: "Réponses aux suivis de cicatrisation et retours sur les dessins." },
+  followups: { label: "Clients et suivis", description: "Clients qui rejoignent Inkera, réponses aux suivis de cicatrisation et retours sur les dessins." },
   explorer: { label: "Explorer", description: "Réponses aux propositions envoyées sur les projets." },
   reviews: { label: "Avis", description: "Nouveaux avis clients." },
   team: { label: "Équipe", description: "Invitations, demandes d’autorisation et affectations." },

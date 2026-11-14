@@ -899,7 +899,13 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                       </div>
                     </div>
                     <div className="mt-4 flex flex-wrap items-center gap-2">
-                      <RdvActionButton tone="neutral" icon={thread.linkedClient ? UserRound : UserPlus} iconOnly loading={clientFileLoading} aria-expanded={thread.linkedClient ? undefined : clientFormOpen} onClick={() => { if (thread.linkedClient) void openClientFile(); else setClientFormOpen((open) => !open); }}>{thread.linkedClient ? "Fiche client" : "Relier un client"}</RdvActionButton>
+                      <RdvActionButton tone="neutral" icon={thread.linkedClient ? UserRound : UserPlus} iconOnly loading={clientFileLoading} aria-expanded={thread.linkedClient ? undefined : clientFormOpen} onClick={() => {
+                        if (thread.linkedClient) { void openClientFile(); return; }
+                        // Conversation Inkera : fiche préremplie avec le compte, pour qu'elle y soit reliée (même e-mail).
+                        const account = thread.channel === "INKERA" ? thread.conversation?.clientUser : null;
+                        if (!clientFormOpen && account) setNewClient({ firstName: account.firstName ?? "", lastName: account.lastName ?? "", email: account.email ?? "", phone: "" });
+                        setClientFormOpen((open) => !open);
+                      }}>{thread.linkedClient ? "Fiche client" : "Relier un client"}</RdvActionButton>
                       {!isFree && <RdvActionButton tone="neutral" icon={CalendarPlus} className="!w-auto flex-1" title="Proposer un RDV (lien de réservation)" onClick={() => setBookingLinkOpen(true)}>Proposer un RDV</RdvActionButton>}
                       <RdvActionButton tone="neutral" size="sm" iconOnly icon={CheckCheck} disabled={pending} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, false), "Conversation marquée lue")}>Marquer comme lue</RdvActionButton>
                       <RdvActionButton tone="neutral" size="sm" iconOnly icon={AtSign} disabled={pending} onClick={() => void mutate(() => setInboxReadStateAction(thread.id, true), "Conversation marquée non lue")}>Marquer comme non lue</RdvActionButton>
@@ -911,6 +917,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                       <input className={panelField} aria-label="Rechercher une fiche client" placeholder="Rechercher un client (nom ou e-mail)…" value={clientQuery} onChange={(event) => setClientQuery(event.target.value)} />
                       {clientResults.map((client) => <button type="button" key={client.id} className="block w-full rounded-xl bg-white/[0.04] p-2.5 text-left transition hover:bg-white/[0.08]" disabled={pending} onClick={() => void mutate(() => linkInboxClientAction(thread.id, client.id), "Fiche client associée", true)}><span className="text-xs font-medium text-white/90">{client.firstName} {client.lastName}</span> <span className="block text-[11px] text-white/40">{client.email}</span></button>)}
                       <p className="pt-2 text-[10px] font-medium uppercase tracking-wider text-white/40">Ou créer une nouvelle fiche</p>
+                      {thread.channel === "INKERA" && thread.conversation?.clientUser?.email && <p className="text-[11px] leading-relaxed text-white/45">Avec l’e-mail de son compte Inkera, la fiche sera reliée à son compte : rendez-vous visibles dans son espace, notifications et messagerie.</p>}
                       {(["firstName", "lastName", "email", "phone"] as const).map((key) => <input key={key} type={key === "email" ? "email" : "text"} className={panelField} aria-label={key} placeholder={({ firstName: "Prénom", lastName: "Nom", email: "E-mail", phone: "Téléphone" })[key]} value={newClient[key]} onChange={(event) => setNewClient((old) => ({ ...old, [key]: event.target.value }))} />)}
                       <RdvActionButton tone="primary" icon={Plus} disabled={pending || isFree || Object.values(newClient).some((value) => !value.trim())} onClick={() => void mutate(() => createInboxClientAction(thread.id, newClient), "Fiche client créée et associée", true)}>Créer et associer</RdvActionButton>
                     </div>
