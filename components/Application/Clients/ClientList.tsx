@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import ClientCard from "./ClientCard";
+import { SkeletonRows } from "@/components/Skeleton/Skeleton";
 import CreateOrUpdateClient from "./CreateOrUpdateClient";
 import DeleteClient from "./DeleteClient";
 import InfoClient from "./InfoClient";
@@ -279,69 +280,7 @@ export default function ClientList() {
         ) : (
           <div className="client-list-surface rounded-[28px] p-2.5 sm:p-0">
             {loading ? (
-              <div className="space-y-2.5 mb-5">
-                {/* Vue desktop - skeletons */}
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="client-row-skeleton hidden lg:grid grid-cols-6 gap-4 rounded-2xl px-5 py-4 items-center"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse"></div>
-                      <div className="flex-1 space-y-2">
-                        <div className="h-3 bg-white/10 rounded-lg w-24 animate-pulse"></div>
-                        <div className="h-2 bg-white/10 rounded-lg w-16 animate-pulse"></div>
-                      </div>
-                    </div>
-                    <div className="h-3 bg-white/10 rounded-lg w-32 animate-pulse"></div>
-                    <div className="h-3 bg-white/10 rounded-lg w-28 animate-pulse"></div>
-                    <div className="h-6 bg-white/10 rounded-lg w-12 animate-pulse"></div>
-                    <div className="h-8 bg-white/10 rounded-lg w-20 animate-pulse mx-auto"></div>
-                    <div className="flex gap-2 justify-center">
-                      <div className="h-8 w-8 bg-white/10 rounded-lg animate-pulse"></div>
-                      <div className="h-8 w-8 bg-white/10 rounded-lg animate-pulse"></div>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Vue mobile - skeletons */}
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={`mobile-${i}`}
-                    className="client-row-skeleton lg:hidden overflow-hidden rounded-2xl"
-                  >
-                    {/* En-tête avec avatar et nom */}
-                    <div className="bg-gradient-to-r from-white/10 to-white/5 p-4 border-b border-white/10">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-white/10 animate-pulse flex-shrink-0"></div>
-                        <div className="flex justify-between items-center w-full gap-3">
-                          <div className="h-4 bg-white/10 rounded-lg flex-1 animate-pulse"></div>
-                          <div className="h-6 bg-white/10 rounded-lg w-16 animate-pulse"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Contenu principal */}
-                    <div className="p-4 space-y-3">
-                      <div className="flex items-start gap-2">
-                        <div className="w-4 h-4 bg-white/10 rounded mt-0.5 flex-shrink-0 animate-pulse"></div>
-                        <div className="h-3 bg-white/10 rounded-lg flex-1 animate-pulse"></div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 bg-white/10 rounded flex-shrink-0 animate-pulse"></div>
-                        <div className="h-3 bg-white/10 rounded-lg w-32 animate-pulse"></div>
-                      </div>
-                    </div>
-
-                    {/* Actions - pied de carte */}
-                    <div className="flex items-center gap-2 p-3 bg-white/5 border-t border-white/10">
-                      <div className="flex-1 h-10 bg-white/10 rounded-lg animate-pulse"></div>
-                      <div className="w-10 h-10 bg-white/10 rounded-lg animate-pulse"></div>
-                      <div className="w-10 h-10 bg-white/10 rounded-lg animate-pulse"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <SkeletonRows count={7} label="Chargement des clients" className="mb-5" />
             ) : error ? (
               <div className="h-full w-full flex">
                 <div className="dashboard-empty-state mt-4 w-full p-6 sm:p-10 flex flex-col items-center justify-center gap-6 mx-auto">

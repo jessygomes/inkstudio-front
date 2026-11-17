@@ -1,63 +1,23 @@
-import React from 'react'
+import { Bone, SkeletonRegion } from "./Skeleton";
 
-export default function RdvListSkeleton() {
+/** Liste de rendez-vous en cours de chargement : tuile de date, titre, détails et statut, sans contour. */
+export default function RdvListSkeleton({ count = 6 }: { count?: number }) {
+  const titles = ["w-40", "w-52", "w-32", "w-48", "w-36", "w-44"];
   return (
-      <div className="space-y-4">
-        {/* Header skeleton */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
-          <div className="h-8 bg-white/10 rounded-2xl w-48 animate-pulse" />
-          <div className="hidden sm:flex bg-white/10 rounded-2xl border border-white/20 overflow-hidden h-10 w-32">
-            <div className="flex-1 bg-white/5 animate-pulse" />
+    <SkeletonRegion label="Chargement des rendez-vous" className="space-y-2">
+      {Array.from({ length: count }, (_, index) => (
+        <div key={index} className="flex items-center gap-4 rounded-2xl bg-white/[0.03] px-4 py-3.5">
+          <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1.5 rounded-xl bg-white/[0.05]">
+            <Bone className="h-4 w-6" />
+            <Bone className="h-2 w-8 !bg-white/[0.05]" />
           </div>
+          <div className="min-w-0 flex-1 space-y-2">
+            <Bone className={`h-3.5 ${titles[index % titles.length]} max-w-full`} />
+            <Bone className="h-2.5 w-56 max-w-full !bg-white/[0.05]" />
+          </div>
+          <Bone className="h-6 w-24 shrink-0 !rounded-lg" />
         </div>
-
-        {/* Filtres skeleton */}
-        <div className="flex gap-2 mb-4">
-          {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className="h-8 bg-white/10 rounded-2xl w-24 animate-pulse"
-            />
-          ))}
-        </div>
-
-        {/* Table header skeleton */}
-        <div className="hidden sm:grid grid-cols-7 gap-4 p-4 bg-white/5 rounded-xl border border-white/10 mb-4">
-          {[...Array(7)].map((_, i) => (
-            <div
-              key={i}
-              className="h-4 bg-white/10 rounded-2xl animate-pulse"
-            />
-          ))}
-        </div>
-
-        {/* Rows skeleton */}
-        <div className="space-y-2">
-          {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="hidden sm:grid grid-cols-7 items-center gap-4 p-4 rounded-2xl border border-white/10 bg-white/5 animate-pulse"
-            >
-              {[...Array(7)].map((_, j) => (
-                <div key={j} className="h-6 bg-white/10 rounded-2xl" />
-              ))}
-            </div>
-          ))}
-
-          {/* Mobile skeleton */}
-          {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="sm:hidden p-4 rounded-2xl border border-white/10 bg-white/5 space-y-3 animate-pulse"
-            >
-              <div className="flex justify-between">
-                <div className="h-6 bg-white/10 rounded-2xl w-32" />
-                <div className="h-6 bg-white/10 rounded-2xl w-20" />
-              </div>
-              <div className="h-4 bg-white/10 rounded-2xl w-24" />
-            </div>
-          ))}
-      </div>
-    </div>
-  )
+      ))}
+    </SkeletonRegion>
+  );
 }

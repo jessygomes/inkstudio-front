@@ -1,4 +1,5 @@
 "use client";
+import { SkeletonRows } from "@/components/Skeleton/Skeleton";
 import { useSession } from "next-auth/react";
 import {
   getSalonStockAction,
@@ -339,20 +340,7 @@ export default function StockList() {
       ) : (
         <div className=" space-y-3">
           {loading ? (
-            <div className="space-y-2.5">
-              {[...Array(5)].map((_, index) => (
-                <div key={index} className="animate-pulse rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="space-y-2 flex-1">
-                      <div className="h-4 w-40 rounded-lg bg-white/10" />
-                      <div className="h-3 w-28 rounded-lg bg-white/10" />
-                    </div>
-                    <div className="hidden h-8 w-28 rounded-xl bg-white/10 sm:block" />
-                    <div className="h-8 w-18 rounded-xl bg-white/10" />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <SkeletonRows count={7} avatar={false} label="Chargement du stock" />
           ) : error ? (
             <div className="dashboard-empty-state p-6">
               <div className="text-center py-8">

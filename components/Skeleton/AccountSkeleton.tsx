@@ -1,64 +1,61 @@
-import React from 'react'
+import { Bone, SkeletonRegion } from "./Skeleton";
 
+/** Page Mon compte en cours de chargement : couverture et profil, infos, horaires, équipe, galerie (sans contour). */
 export default function AccountSkeleton() {
   return (
-            <div className="mt-3 space-y-3 sm:space-y-4 mx-auto">
-              {/* Section INFO SALON skeleton */}
-              <div className="dashboard-embedded-panel p-3 sm:p-4">
-                <div className="dashboard-embedded-section p-3">
-                  <div className="h-5 bg-white/10 rounded-lg w-32 mb-4 animate-pulse"></div>
-                  <div className="space-y-3">
-                    <div className="h-10 bg-white/10 rounded-lg animate-pulse"></div>
-                    <div className="h-10 bg-white/10 rounded-lg animate-pulse"></div>
-                    <div className="h-10 bg-white/10 rounded-lg animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
-    
-              {/* Section HORAIRES skeleton */}
-              <div className="dashboard-embedded-panel p-3 sm:p-4">
-                <div className="dashboard-embedded-section p-3">
-                  <div className="h-5 bg-white/10 rounded-lg w-32 mb-4 animate-pulse"></div>
-                  <div className="space-y-2">
-                    {[...Array(7)].map((_, i) => (
-                      <div key={i} className="flex items-center justify-between">
-                        <div className="h-4 bg-white/10 rounded-lg w-20 animate-pulse"></div>
-                        <div className="h-6 bg-white/10 rounded-lg w-40 animate-pulse"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-    
-              {/* Section TATOUEURS skeleton */}
-              <div className="dashboard-embedded-panel p-3 sm:p-4">
-                <div className="dashboard-embedded-section p-3">
-                  <div className="h-5 bg-white/10 rounded-lg w-32 mb-4 animate-pulse"></div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[...Array(4)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-20 bg-white/10 rounded-lg animate-pulse"
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-    
-              {/* Section PHOTOS skeleton */}
-              <div className="dashboard-embedded-panel p-3 sm:p-4">
-                <div className="dashboard-embedded-section p-3">
-                  <div className="h-5 bg-white/10 rounded-lg w-32 mb-4 animate-pulse"></div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {[...Array(8)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="aspect-square bg-white/10 rounded-lg animate-pulse"
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+    <SkeletonRegion label="Chargement de votre compte" className="space-y-4">
+      {/* Couverture, photo de profil et nom */}
+      <div className="overflow-hidden rounded-3xl bg-white/[0.03]">
+        <Bone className="h-36 w-full !rounded-none !bg-white/[0.05] sm:h-48" />
+        <div className="flex flex-wrap items-end gap-4 px-5 pb-5">
+          <Bone className="-mt-10 h-20 w-20 shrink-0 !rounded-2xl !bg-white/[0.09]" />
+          <div className="min-w-0 flex-1 space-y-2 pb-1">
+            <Bone className="h-5 w-48 max-w-full" />
+            <Bone className="h-3 w-64 max-w-full !bg-white/[0.05]" />
+          </div>
+          <div className="flex gap-2 pb-1">
+            <Bone className="h-9 w-28 !rounded-xl" />
+            <Bone className="h-9 w-9 !rounded-xl" />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+        {/* Infos et horaires */}
+        <div className="space-y-4">
+          <div className="space-y-3 rounded-3xl bg-white/[0.03] p-5">
+            <Bone className="h-3.5 w-32" />
+            {[0, 1, 2].map((index) => <Bone key={index} className="h-10 !rounded-xl !bg-white/[0.05]" />)}
+          </div>
+          <div className="space-y-3 rounded-3xl bg-white/[0.03] p-5">
+            <Bone className="h-3.5 w-24" />
+            <div className="grid grid-cols-2 gap-2">
+              {Array.from({ length: 6 }, (_, index) => <Bone key={index} className="h-12 !rounded-xl !bg-white/[0.05]" />)}
             </div>
-  )
+          </div>
+        </div>
+
+        {/* Équipe et galerie */}
+        <div className="space-y-4">
+          <div className="space-y-3 rounded-3xl bg-white/[0.03] p-5">
+            <Bone className="h-3.5 w-36" />
+            <div className="grid gap-3 sm:grid-cols-2">
+              {Array.from({ length: 4 }, (_, index) => (
+                <div key={index} className="flex items-center gap-3 rounded-2xl bg-white/[0.04] p-3">
+                  <Bone className="h-11 w-11 shrink-0 !rounded-xl" />
+                  <div className="min-w-0 flex-1 space-y-2"><Bone className="h-3 w-3/4" /><Bone className="h-2.5 w-1/2 !bg-white/[0.05]" /></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-3 rounded-3xl bg-white/[0.03] p-5">
+            <Bone className="h-3.5 w-44" />
+            <div className="grid grid-cols-3 gap-2">
+              {Array.from({ length: 6 }, (_, index) => <Bone key={index} className="aspect-square !rounded-xl !bg-white/[0.05]" />)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </SkeletonRegion>
+  );
 }

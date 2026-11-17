@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { SkeletonCardGrid } from "@/components/Skeleton/Skeleton";
 import { useSession } from "next-auth/react";
 import { ProductSalonProps } from "@/lib/type";
 import { IoCreateOutline } from "react-icons/io5";
@@ -133,36 +134,7 @@ export default function ProductList() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
-          {[...Array(10)].map((_, i) => (
-            <div
-              key={i}
-              className="overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg sm:rounded-2xl"
-            >
-              <div className="aspect-square relative overflow-hidden bg-white/10 animate-pulse"></div>
-
-              <div className="space-y-2.5 p-3 sm:p-3.5">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="h-4 bg-white/10 rounded-lg flex-1 animate-pulse"></div>
-                    <div className="h-6 bg-white/10 rounded-full w-16 animate-pulse"></div>
-                  </div>
-                </div>
-
-                <div className="border-t border-white/10 pt-2 space-y-2">
-                  <div className="h-3 bg-white/10 rounded-lg w-full animate-pulse"></div>
-                  <div className="h-3 bg-white/10 rounded-lg w-3/4 animate-pulse"></div>
-                  <div className="h-3 bg-white/10 rounded-lg w-1/2 animate-pulse"></div>
-                </div>
-
-                <div className="flex gap-2 justify-end pt-2 lg:hidden">
-                  <div className="w-8 h-8 bg-white/10 rounded-lg animate-pulse"></div>
-                  <div className="w-8 h-8 bg-white/10 rounded-lg animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <SkeletonCardGrid count={10} lines={3} label="Chargement des produits" gridClassName="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4" />
       ) : products.length === 0 ? (
         <div className="h-full w-full flex">
           <div className="dashboard-empty-state mx-auto flex w-full flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 p-6 sm:p-8">
@@ -276,7 +248,7 @@ export default function ProductList() {
       {/* Sentinel infinite scroll */}
       <div ref={loadMoreRef} className="flex items-center justify-center py-4">
         {loadingMore && (
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-tertiary-400 border-t-transparent" />
+          <SkeletonCardGrid count={5} lines={3} label="Chargement de produits supplémentaires" gridClassName="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4" />
         )}
         {!hasNextPage && !loadingMore && products.length > 0 && (
           <p className="text-xs font-one text-white/30">Tous les produits sont affichés</p>

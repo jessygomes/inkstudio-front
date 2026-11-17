@@ -1,4 +1,5 @@
 "use client";
+import { SkeletonCardGrid } from "@/components/Skeleton/Skeleton";
 import { useSession } from "next-auth/react";
 import { PortfolioProps } from "@/lib/type";
 import Image from "next/image";
@@ -352,32 +353,7 @@ export default function ShowPortfolio() {
 
       <div className="w-full h-full">
         {loading ? (
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
-            {[...Array(10)].map((_, i) => (
-              <div
-                key={i}
-                className="overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-noir-500/10 to-noir-500/5 backdrop-blur-lg sm:rounded-2xl"
-              >
-                <div className="aspect-square relative overflow-hidden bg-white/10 animate-pulse"></div>
-
-                <div className="space-y-2.5 p-3 sm:p-3.5">
-                  <div className="space-y-1">
-                    <div className="h-4 bg-white/10 rounded-lg w-20 animate-pulse"></div>
-                  </div>
-
-                  <div className="space-y-2 border-t border-white/10 pt-2">
-                    <div className="h-3 bg-white/10 rounded-lg w-full animate-pulse"></div>
-                    <div className="h-3 bg-white/10 rounded-lg w-3/4 animate-pulse"></div>
-                  </div>
-
-                  <div className="flex gap-2 justify-end pt-2 lg:hidden">
-                    <div className="w-8 h-8 bg-white/10 rounded-lg animate-pulse"></div>
-                    <div className="w-8 h-8 bg-white/10 rounded-lg animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <SkeletonCardGrid count={10} label="Chargement du portfolio" gridClassName="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4" />
         ) : photos.length === 0 ? (
           <div className="h-full w-full flex">
             <div className="dashboard-empty-state mx-auto flex w-full flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 p-6 sm:p-8">

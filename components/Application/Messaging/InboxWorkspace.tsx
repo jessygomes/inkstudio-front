@@ -87,6 +87,72 @@ const threadName = (thread: InboxThread) => {
   return contact?.displayName || contact?.username || contact?.email || "Contact externe";
 };
 
+/** Lignes fantômes pendant le chargement de la liste : même gabarit qu'une conversation (avatar, nom et date, aperçu). */
+function ThreadListSkeleton({ count }: { count: number }) {
+  // Largeurs variées pour un rendu naturel.
+  const widths = [["w-28", "w-40"], ["w-36", "w-32"], ["w-24", "w-44"], ["w-32", "w-28"]];
+  return (
+    <div role="status" aria-label="Chargement des conversations" className="motion-safe:animate-pulse">
+      {Array.from({ length: count }, (_, index) => {
+        const [name, preview] = widths[index % widths.length];
+        return (
+          <div key={index} aria-hidden="true" className="mb-1 flex items-start gap-3 rounded-2xl px-3 py-3">
+            <span className="h-11 w-11 shrink-0 rounded-xl bg-white/[0.07]" />
+            <span className="min-w-0 flex-1 space-y-2 pt-1">
+              <span className="flex items-center justify-between gap-2">
+                <span className={`h-3 ${name} max-w-full rounded-md bg-white/[0.09]`} />
+                <span className="h-2.5 w-8 shrink-0 rounded-md bg-white/[0.06]" />
+              </span>
+              <span className={`block h-2.5 ${preview} max-w-full rounded-md bg-white/[0.06]`} />
+            </span>
+          </div>
+        );
+      })}
+      <span className="sr-only">Chargement des conversations…</span>
+    </div>
+  );
+}
+
+/** Conversation en cours de chargement : bulles de messages et zone de saisie, plus le panneau de détails sur grand écran. */
+function ConversationSkeleton({ columns }: { columns: string }) {
+  const bubbles: [boolean, string][] = [[false, "w-56"], [true, "w-48"], [false, "w-72"], [false, "w-40"], [true, "w-64"], [true, "w-36"]];
+  return (
+    <div role="status" aria-label="Chargement de la conversation" className={`grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)] overflow-hidden motion-safe:animate-pulse ${columns}`}>
+      <div aria-hidden="true" className="flex min-h-0 flex-col">
+        <div className="flex items-center gap-3 px-4 py-3.5 xl:hidden">
+          <span className="h-12 w-12 shrink-0 rounded-xl bg-white/[0.07]" />
+          <span className="space-y-2"><span className="block h-3.5 w-36 rounded-md bg-white/[0.09]" /><span className="block h-2.5 w-24 rounded-md bg-white/[0.06]" /></span>
+        </div>
+        <div className="min-h-0 flex-1 space-y-3 overflow-hidden p-4">
+          {bubbles.map(([outgoing, width], index) => (
+            <div key={index} className={`flex ${outgoing ? "justify-end" : "justify-start"}`}>
+              <span className={`block h-14 ${width} max-w-[80%] rounded-2xl ${outgoing ? "bg-tertiary-400/10" : "bg-white/[0.06]"}`} />
+            </div>
+          ))}
+        </div>
+        <div className="flex items-end gap-2 p-3">
+          <span className="h-11 w-11 shrink-0 rounded-xl bg-white/[0.06]" />
+          <span className="h-11 flex-1 rounded-xl bg-white/[0.06]" />
+          <span className="h-11 w-24 shrink-0 rounded-xl bg-tertiary-400/10" />
+        </div>
+      </div>
+      <div aria-hidden="true" className="hidden min-h-0 flex-col gap-3 overflow-hidden p-4 xl:flex">
+        <div className="rounded-2xl bg-white/[0.04] p-4">
+          <div className="flex items-center gap-3"><span className="h-12 w-12 rounded-xl bg-white/[0.07]" /><span className="space-y-2"><span className="block h-3.5 w-32 rounded-md bg-white/[0.09]" /><span className="block h-2.5 w-20 rounded-md bg-white/[0.06]" /></span></div>
+          <div className="mt-4 flex gap-2"><span className="h-9 w-9 rounded-xl bg-white/[0.06]" /><span className="h-9 flex-1 rounded-xl bg-white/[0.06]" /></div>
+        </div>
+        {[0, 1, 2].map((index) => (
+          <div key={index} className="space-y-3 rounded-2xl bg-white/[0.04] p-4">
+            <span className="block h-3 w-24 rounded-md bg-white/[0.09]" />
+            <span className="block h-10 rounded-xl bg-white/[0.05]" />
+          </div>
+        ))}
+      </div>
+      <span className="sr-only">Chargement de la conversation…</span>
+    </div>
+  );
+}
+
 function ThreadAvatar({ thread, large = false }: { thread: InboxThread; large?: boolean }) {
   const [failedSource, setFailedSource] = useState<string | null>(null);
   const source = thread.conversation?.clientUser?.image?.trim() || thread.linkedClient?.image?.trim();
@@ -696,12 +762,14 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
     }
   };
 
-  if (sessionStatus === "loading") return <p className="p-6 text-sm text-white/60">Chargement de votre espace…</p>;
+  // Session en cours de lecture : la liste fantôme, comme au chargement des conversations.
+  if (sessionStatus === "loading") return <div className="w-full max-w-[320px] p-2"><ThreadListSkeleton count={8} /></div>;
   return (
     <section ref={workspaceRef} data-conversation-open={Boolean(selectedId)} className={`${styles.workspace} flex min-h-0 flex-col font-one text-white lg:grid lg:grid-cols-[auto_minmax(0,1fr)] lg:grid-rows-[auto_auto_minmax(0,1fr)]`}>
       <div className={`${selectedId ? "hidden lg:flex" : "flex"} shrink-0 flex-nowrap items-center justify-between gap-x-4 gap-y-2 bg-[var(--app-surface-raised)] px-3 py-2 lg:col-start-2 lg:row-start-1 lg:px-4`}>
-        <div className="relative flex min-w-0 flex-1 items-center gap-2">
-          <button type="button" aria-label={listCollapsed ? "Afficher la liste des conversations" : "Masquer la liste des conversations"} title={listCollapsed ? "Afficher la liste" : "Masquer la liste"} aria-pressed={listCollapsed} className={`${subtleButton} hidden h-10 w-10 shrink-0 !border-transparent !bg-white/[0.04] !px-0 hover:!bg-white/[0.09] lg:inline-flex`} onClick={() => { setFiltersOpen(false); setListCollapsed((collapsed) => !collapsed); }}>{listCollapsed ? <PanelLeftOpen size={15} aria-hidden="true" /> : <PanelLeftClose size={15} aria-hidden="true" />}</button>
+        {/* Recherche, canaux et filtres alignés à droite ; le bouton qui masque la liste reste à gauche. */}
+        <div className="relative flex min-w-0 flex-1 items-center justify-end gap-2">
+          <button type="button" aria-label={listCollapsed ? "Afficher la liste des conversations" : "Masquer la liste des conversations"} title={listCollapsed ? "Afficher la liste" : "Masquer la liste"} aria-pressed={listCollapsed} className={`${subtleButton} hidden h-10 w-10 shrink-0 !border-transparent !bg-white/[0.04] !px-0 hover:!bg-white/[0.09] lg:mr-auto lg:inline-flex`} onClick={() => { setFiltersOpen(false); setListCollapsed((collapsed) => !collapsed); }}>{listCollapsed ? <PanelLeftOpen size={15} aria-hidden="true" /> : <PanelLeftClose size={15} aria-hidden="true" />}</button>
           <label className="relative block min-w-0 flex-1 lg:w-64 lg:flex-none">
           <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
           <input aria-label="Rechercher un client ou un sujet" value={search} onChange={(event) => changeFilter(() => setSearch(event.target.value))} placeholder="Rechercher…" className="h-10 w-full rounded-xl bg-white/[0.04] pl-9 pr-3 text-sm text-white outline-none transition placeholder:text-white/35 hover:bg-white/[0.09] focus:ring-2 focus:ring-tertiary-400/30" />
@@ -737,7 +805,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
           </div>
         </div>
         {toolbarRight && <div className="flex items-center gap-2">{toolbarRight}</div>}
-        <button type="button" aria-label="Actualiser les conversations" title="Actualiser" disabled={loading || loadingMore} className={`${subtleButton} h-10 w-10 shrink-0 ml-auto !border-transparent !bg-white/[0.04] !px-0 hover:!bg-white/[0.09]`} onClick={() => { void refreshList(); if (selectedId) void refreshDetail(selectedId); }}><RefreshCw size={15} className={loading || loadingMore ? "motion-safe:animate-spin" : ""} aria-hidden="true" /></button>
+        <button type="button" aria-label="Actualiser les conversations" title="Actualiser" disabled={loading || loadingMore} className={`${subtleButton} h-10 w-10 shrink-0 !border-transparent !bg-white/[0.04] !px-0 hover:!bg-white/[0.09]`} onClick={() => { void refreshList(); if (selectedId) void refreshDetail(selectedId); }}><RefreshCw size={15} className={loading || loadingMore ? "motion-safe:animate-spin" : ""} aria-hidden="true" /></button>
       </div>
 
       {channel === "INSTAGRAM" && (
@@ -764,7 +832,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
         <aside className={`${listCollapsed ? "lg:invisible lg:pointer-events-none lg:-ml-[290px] lg:opacity-0 xl:-ml-[320px]" : "lg:ml-0 lg:opacity-100"} ${selectedId ? "hidden lg:flex" : "flex"} w-full min-w-0 flex-col bg-noir-700 transition-[margin,opacity] duration-300 ease-in-out lg:col-start-1 lg:row-span-3 lg:row-start-1 lg:min-h-0 lg:w-[290px] lg:shrink-0 lg:overflow-hidden xl:w-[320px]`}>
 
           <div ref={threadListRef} className={`${styles.threadList} scrollbar-hidden min-h-0 flex-1 p-2`} aria-label="Conversations" aria-busy={loading || loadingMore}>
-            {loading && <p className="px-3 py-8 text-center text-xs text-white/50">Chargement des conversations…</p>}
+            {loading && <ThreadListSkeleton count={8} />}
             {listError && <div className="space-y-2 p-4 text-sm text-red-300"><p>{listError}</p><button className={subtleButton} onClick={() => void refreshList()}>Réessayer</button></div>}
             {!loading && !listError && threads.length === 0 && (
               <div className="px-4 py-16 text-center">
@@ -803,7 +871,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
               );
             })}
             <div ref={loadMoreRef} className="h-px" aria-hidden="true" />
-            {loadingMore && <p role="status" className="flex items-center justify-center gap-2 py-5 text-xs text-white/45"><RefreshCw size={14} className="motion-safe:animate-spin" aria-hidden="true" /> Chargement des conversations…</p>}
+            {loadingMore && <ThreadListSkeleton count={2} />}
             {loadMoreError && <div role="alert" className="space-y-2 p-3 text-center text-xs text-red-300"><p>{loadMoreError}</p><button type="button" className={subtleButton} onClick={() => void loadMore()}>Réessayer</button></div>}
             {!loading && !loadingMore && !listError && threads.length > 0 && page >= totalPages && <p className="py-4 text-center text-[11px] text-white/30">Toutes vos conversations sont affichées</p>}
           </div>
@@ -813,7 +881,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
           {!selectedId ? (
             <div className="m-auto max-w-xs px-6 text-center text-white/40"><MessageCircle size={36} className="mx-auto mb-4 text-tertiary-400/40"/><p className="text-base text-white/75">Sélectionnez une conversation</p><p className="mt-2 text-xs leading-relaxed">Les messages, rendez-vous, notes et informations client seront affichés ici.</p></div>
           ) : detailLoading ? (
-            <p className="m-auto text-xs text-white/50">Chargement de la conversation…</p>
+            <ConversationSkeleton columns={listCollapsed ? "xl:grid-cols-[minmax(0,1fr)_420px]" : "xl:grid-cols-[minmax(0,1fr)_340px]"} />
           ) : detailError ? (
             <div className="m-auto space-y-3 px-5 text-center"><CircleAlert className="mx-auto text-red-300"/><p className="text-sm text-red-300">{detailError}</p><button className={subtleButton} onClick={() => selectedId && void refreshDetail(selectedId)}>Réessayer</button></div>
           ) : thread ? (
@@ -943,7 +1011,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
                   </PanelSection>
 
                   <PanelSection icon={CalendarDays} title="Rendez-vous" right={<span className="rounded-md bg-white/[0.07] px-1.5 py-0.5 text-[10px] tabular-nums text-white/55">{appointmentTotal}</span>}>
-                    {appointmentLoading && <p className="py-1 text-white/40">Chargement…</p>}
+                    {appointmentLoading && <div role="status" aria-label="Chargement des rendez-vous" className="space-y-2 motion-safe:animate-pulse">{[0, 1].map((index) => <span key={index} aria-hidden="true" className="block h-12 rounded-xl bg-white/[0.05]" />)}</div>}
                     {!appointmentLoading && appointments.length === 0 && <p className="text-white/45">Aucun rendez-vous pour ce client.</p>}
                     <div className="space-y-1.5">{appointments.map((item) => <button type="button" key={item.id} onClick={() => setActiveAppointment(item)} className="flex w-full items-center gap-2.5 rounded-xl bg-white/[0.04] p-2.5 text-left transition hover:bg-white/[0.08]"><span className="min-w-0 flex-1"><span className="block truncate text-xs font-medium text-white/90">{item.prestation || item.title}</span><span className="mt-0.5 block truncate text-[11px] text-white/50">{displayDate(item.start)}</span></span><ChevronRight size={14} className="shrink-0 text-white/30" aria-hidden="true" /></button>)}</div>
                     {appointmentPages > 1 && <div className="mt-3 flex items-center justify-between gap-2"><RdvActionButton tone="neutral" size="sm" iconOnly icon={ChevronLeft} disabled={appointmentPage === 1} onClick={() => setAppointmentPage((v) => v - 1)}>Page précédente</RdvActionButton><span className="text-[11px] text-white/50">{appointmentPage} / {appointmentPages}</span><RdvActionButton tone="neutral" size="sm" iconOnly icon={ChevronRight} disabled={appointmentPage >= appointmentPages} onClick={() => setAppointmentPage((v) => v + 1)}>Page suivante</RdvActionButton></div>}

@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+import { SkeletonColumns } from "@/components/Skeleton/Skeleton";
 
 import imageCompression from "browser-image-compression";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -214,9 +215,7 @@ export default function DrawingBoard() {
 
       {/* Chargement, puis affichage des colonnes et de leurs cards. */}
       {loading ? (
-        <div className="flex min-h-64 items-center justify-center text-white/60">
-          <Loader2 className="mr-2 animate-spin" size={18} /> Chargement…
-        </div>
+        <SkeletonColumns label="Chargement des suivis de dessin" columns={visibleStatuses.length || 5} className="grid flex-1 grid-cols-[repeat(5,minmax(260px,1fr))] items-start gap-3 overflow-x-auto xl:grid-cols-[repeat(5,minmax(0,1fr))] xl:overflow-x-visible" columnClassName="min-w-0" />
       ) : (
         <div
           className="grid flex-1 grid-cols-[repeat(5,minmax(260px,1fr))] items-stretch gap-3 overflow-x-auto xl:grid-cols-[repeat(5,minmax(0,1fr))] xl:overflow-x-visible"

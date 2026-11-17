@@ -308,8 +308,9 @@ export default function ProjectExplorer() {
                         </div>
                       </div>
                     )}
+                    {/* Badge posé sur la photo : couleurs fixes, car « white » / « black » sont inversés par le thème clair. */}
                     {project.images.length > 0 && (
-                      <span className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-lg border border-white/15 bg-black/65 px-2 py-1 text-[10px] text-white/85 backdrop-blur-sm">
+                      <span className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-lg bg-[#000000b3] px-2 py-1 text-[10px] font-medium text-[#ffffff] backdrop-blur-sm">
                         <ImageIcon size={12} aria-hidden="true" />
                         {project.images.length} inspiration
                         {project.images.length > 1 ? "s" : ""}

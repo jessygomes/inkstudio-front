@@ -1,4 +1,5 @@
 "use client";
+import { SkeletonCardGrid } from "@/components/Skeleton/Skeleton";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -257,14 +258,7 @@ export default function ShowFlash() {
       </div>
 
       {loading ? (
-        <div className={cardStyles.grid} role="status" aria-label="Chargement des flashs">
-          {Array.from({ length: 10 }, (_, index) => (
-            <div key={index} className={cardStyles.skeleton} aria-hidden="true">
-              <div className={cardStyles.skeletonImage} />
-              <div className={cardStyles.skeletonBody}><div /><div /><div /></div>
-            </div>
-          ))}
-        </div>
+        <SkeletonCardGrid count={10} lines={3} label="Chargement des flashs" gridClassName={cardStyles.grid} />
       ) : flashs.length === 0 ? (
         <div className="dashboard-empty-state flex w-full flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 p-6 sm:p-8">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-tertiary-400/30 to-tertiary-500/20 sm:h-16 sm:w-16">
