@@ -116,6 +116,7 @@ const nextConfig: NextConfig = {
   // Configuration pour le SEO
   experimental: {
     optimizePackageImports: ["lucide-react", "react-icons"],
+    agentUpgrade: "security",
   },
 };
 
