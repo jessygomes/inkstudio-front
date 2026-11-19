@@ -1,4 +1,5 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
 import { getAuthHeaders } from "../session";
 
 //! ----------------------------------------------------------------------------
@@ -24,7 +25,7 @@ export async function getRecentReviewsBySalon() {
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
 
@@ -81,7 +82,7 @@ export async function respondToReviewAction(
       console.error("Response not ok:", result.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${result.status}: ${result.statusText}`,
+        message: httpErrorMessage(result.status),
       };
     }
 
@@ -124,7 +125,7 @@ export async function removeReviewResponseAction(reviewId: string) {
       console.error("Response not ok:", result.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${result.status}: ${result.statusText}`,
+        message: httpErrorMessage(result.status),
       };
     }
 
@@ -185,7 +186,8 @@ export async function getAllReviewsBySalon(
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
+        status: response.status,
       };
     }
 

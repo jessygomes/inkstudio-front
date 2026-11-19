@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 import imageCompression from "browser-image-compression";
@@ -171,7 +172,7 @@ export default function VerificationDocumentsSection() {
       await loadDocuments();
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Erreur lors de l'upload";
+        userErrorMessage(err, "Erreur lors de l'upload");
       setError(message);
       console.error("Erreur:", err);
     } finally {

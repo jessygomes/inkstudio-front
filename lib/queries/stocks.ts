@@ -1,3 +1,4 @@
+import { httpErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
@@ -25,7 +26,7 @@ export const createOrUpdateItem = async (
 
     if (!res.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${res.status})`;
+        data?.message || httpErrorMessage(res.status);
       return { ok: false, error: true, status: res.status, message, data };
     }
 
@@ -119,7 +120,7 @@ export const getStockCategoriesAction = async () => {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      throw new Error(httpErrorMessage(response.status));
     }
     return data || [];
   } catch (error) {
@@ -152,7 +153,7 @@ export const updateStockQuantityAction = async (
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      throw new Error(httpErrorMessage(response.status));
     }
 
     return { ok: true, error: false, data };

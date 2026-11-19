@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import React, {
   useEffect,
   useRef,
@@ -61,7 +62,7 @@ export default function Conversation() {
       setConversation(result);
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Erreur inconnue";
+        userErrorMessage(err, "Erreur inconnue");
       setError(errorMessage);
       console.error("Erreur lors du chargement de la conversation:", err);
     } finally {

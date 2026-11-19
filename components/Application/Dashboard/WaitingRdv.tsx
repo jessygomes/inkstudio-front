@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 import { useState, useEffect } from "react";
@@ -99,7 +100,7 @@ export default function WaitingRdv({ userId }: { userId: string }) {
 
       setAppointments(data.appointments || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setError(userErrorMessage(err, "Une erreur est survenue"));
     } finally {
       setLoading(false);
     }

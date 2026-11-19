@@ -1,3 +1,4 @@
+import { httpErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
@@ -59,7 +60,7 @@ export const getAvailableFlashsByUserAction = async (
 
     if (!res.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${res.status})`;
+        data?.message || httpErrorMessage(res.status);
       return { ok: false, error: true, status: res.status, message, data };
     }
 
@@ -122,7 +123,7 @@ export const createOrUpdateFlashAction = async (
 
     if (!res.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${res.status})`;
+        data?.message || httpErrorMessage(res.status);
       return { ok: false, error: true, status: res.status, message, data };
     }
 

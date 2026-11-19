@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -188,9 +189,7 @@ export default function CreateOrUpdateFlash({
     } catch (submitError) {
       console.error("Erreur:", submitError);
       setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Une erreur est survenue.",
+        userErrorMessage(submitError, "Une erreur est survenue."),
       );
     } finally {
       setLoading(false);

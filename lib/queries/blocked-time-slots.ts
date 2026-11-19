@@ -1,3 +1,4 @@
+import { httpErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
@@ -24,7 +25,7 @@ export const createBlockedTimeSlotAction = async (payload: any) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -56,7 +57,7 @@ export const deleteBlockedTimeSlotAction = async (id: string) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 

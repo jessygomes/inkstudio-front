@@ -1,4 +1,5 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
 
 import { getAuthHeaders } from "../session";
 
@@ -75,7 +76,7 @@ export const searchTatoueurUsersAction = async (query: string) => {
 
     if (!response.ok || data?.error) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return {
         ok: false,
         error: true,
@@ -123,7 +124,7 @@ export const createTeamRequestAction = async ({
 
     if (!response.ok || data?.error) {
       const messageText =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return {
         ok: false,
         error: true,
@@ -166,7 +167,7 @@ export const getIncomingTeamRequestsAction = async () => {
 
     if (!response.ok || data?.error) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, requests: [] as IncomingTeamRequest[] };
     }
 
@@ -202,7 +203,7 @@ export const getLinkedSalonsAction = async () => {
 
     if (!response.ok || data?.error) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, salons: [] as LinkedSalon[] };
     }
 
@@ -259,7 +260,7 @@ export const respondToTeamRequestAction = async ({
 
     if (!response.ok || data?.error) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -289,7 +290,7 @@ export const leaveCurrentSalonAction = async () => {
 
     if (!response.ok || data?.error) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 

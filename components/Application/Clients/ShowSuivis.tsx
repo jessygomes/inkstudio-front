@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { useActivityNotifications } from "@/components/Providers/ActivityNotificationsProvider";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
@@ -78,7 +79,7 @@ export default function ShowSuivis() {
       }
       setFollowUps(Array.isArray(result.data?.followUps) ? result.data.followUps : []);
       setPagination(nextPagination);
-    } catch (cause) { if (current === requestNumber.current) setError(cause instanceof Error ? cause.message : "Impossible de charger les suivis."); }
+    } catch (cause) { if (current === requestNumber.current) setError(userErrorMessage(cause, "Impossible de charger les suivis.")); }
     finally { if (current === requestNumber.current) setLoading(false); }
   }, [userId, page, limit, status, artist, query, updateParams]);
 
@@ -115,7 +116,7 @@ export default function ShowSuivis() {
       if (!result.ok) throw new Error(result.message || "Impossible d’envoyer votre réponse.");
       setSelected(null); setReply(""); toast.success(replySentMessage(replyChannel, result.data?.inkeraSent));
       await load();
-    } catch (cause) { setReplyError(cause instanceof Error ? cause.message : "Impossible d’envoyer votre réponse."); }
+    } catch (cause) { setReplyError(userErrorMessage(cause, "Impossible d’envoyer votre réponse.")); }
     finally { setReplying(false); }
   };
   const confirmDelete = async () => {
@@ -134,7 +135,7 @@ export default function ShowSuivis() {
         if (fileKeys.length) await fetch("/api/uploadthing/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fileKeys }) });
       } catch { /* The follow-up itself has already been deleted. */ }
       setToDelete(null); toast.success("Suivi supprimé"); await load();
-    } catch (cause) { setDeleteError(cause instanceof Error ? cause.message : "Impossible de supprimer ce suivi."); }
+    } catch (cause) { setDeleteError(userErrorMessage(cause, "Impossible de supprimer ce suivi.")); }
     finally { setDeleting(false); }
   };
   const currentPage = pagination?.currentPage ?? page;

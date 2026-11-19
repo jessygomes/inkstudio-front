@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
@@ -34,7 +35,7 @@ export default function PaymentCancelPage() {
       }
     } catch (err) {
       setRetryError(
-        err instanceof Error ? err.message : "Une erreur est survenue.",
+        userErrorMessage(err, "Une erreur est survenue."),
       );
       setIsRetrying(false);
     }

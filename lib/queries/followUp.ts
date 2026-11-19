@@ -1,3 +1,4 @@
+import { httpErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
@@ -23,7 +24,7 @@ export const getUnansweredFollowUpsAction = async () => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -72,7 +73,7 @@ export const getFollowUpAction = async (
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -106,7 +107,7 @@ export const replySuiviAction = async (suiviId: string, reply: string, channel: 
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -138,7 +139,7 @@ export const deleteSuiviAction = async (suiviId: string) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message };
     }
 

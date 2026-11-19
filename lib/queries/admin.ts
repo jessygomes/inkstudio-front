@@ -1,3 +1,4 @@
+import { httpErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { authorizeUploadDeletion } from "@/lib/upload-security";
@@ -63,7 +64,7 @@ export async function getAdminDashboardStats() {
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
     const data = await response.json();
@@ -139,7 +140,7 @@ export async function getAllRegisteredSalons(
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
 
@@ -203,7 +204,7 @@ export async function getAllClients(
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
 
@@ -253,7 +254,7 @@ export async function getSalonById(id: string) {
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
 
@@ -314,7 +315,7 @@ export async function getSalonsPendingVerification(
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
     const data = await response.json();
@@ -378,7 +379,7 @@ export async function reviewSalonDocument(
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
 
@@ -433,7 +434,7 @@ export async function getMonthlyEvolution(months: number = 6) {
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
 
@@ -499,7 +500,7 @@ export async function getTopSalons(limit = 10, days = 30): Promise<TopSalon[]> {
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch top salons: ${response.statusText}`);
+      throw new Error(httpErrorMessage(response.status));
     }
 
     const data = await response.json();
@@ -583,7 +584,7 @@ export async function deleteAdminUserAction(id: string) {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -676,7 +677,7 @@ export async function sendAdminEmailToClientAction({
       }
 
       const failureMessage =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
 
       lastFailure = {
         status: response.status,

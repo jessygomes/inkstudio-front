@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { useId, useState } from "react";
 import { Send, Star, X } from "lucide-react";
 import { toast } from "sonner";
@@ -54,7 +55,7 @@ export default function NotAnswerClientReplyPanel({ selectedFollowUp, onClose, o
       onReplySuccess();
       onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erreur lors de l'envoi de la réponse");
+      toast.error(userErrorMessage(error, "Erreur lors de l'envoi de la réponse"));
     } finally {
       setIsReplying(false);
     }

@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { BACK_OFFICE_PATH } from "@/lib/back-office";
 
 import Link from "next/link";
@@ -59,7 +60,7 @@ export default function AdminArticlesPage() {
 
       setArticles(result.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur inconnue");
+      setError(userErrorMessage(err, "Erreur inconnue"));
       setArticles([]);
     } finally {
       setLoading(false);
@@ -113,7 +114,7 @@ export default function AdminArticlesPage() {
       toast.success("Article mis a jour");
       cancelEdit();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erreur inconnue");
+      toast.error(userErrorMessage(err, "Erreur inconnue"));
     } finally {
       setSavingId(null);
     }
@@ -135,7 +136,7 @@ export default function AdminArticlesPage() {
       setDeleteCandidate(null);
       toast.success("Article supprime");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erreur inconnue");
+      toast.error(userErrorMessage(err, "Erreur inconnue"));
     } finally {
       setDeletingId(null);
     }

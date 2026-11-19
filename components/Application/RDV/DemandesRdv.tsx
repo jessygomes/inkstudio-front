@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
@@ -86,7 +87,7 @@ export default function DemandesRdv() {
       );
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "Une erreur est survenue"
+        userErrorMessage(error, "Une erreur est survenue")
       );
     } finally {
       setLoading(false);

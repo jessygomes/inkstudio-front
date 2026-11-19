@@ -1,4 +1,5 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
 
 import { getAuthHeaders } from "../session";
 
@@ -43,7 +44,7 @@ export const getSalonLinkedPermissionsAction = async (): Promise<{
 
 		if (!response.ok || data?.error) {
 			const message =
-				data?.message || `Erreur lors de l'opération (${response.status})`;
+				data?.message || httpErrorMessage(response.status);
 			return { ok: false, error: true, status: response.status, message, data };
 		}
 
@@ -96,7 +97,7 @@ export const updateSalonAgendaAccessPermissionAction = async (
 
 		if (!response.ok || data?.error) {
 			const message =
-				data?.message || `Erreur lors de l'opération (${response.status})`;
+				data?.message || httpErrorMessage(response.status);
 			return { ok: false, error: true, status: response.status, message, data };
 		}
 
@@ -146,7 +147,7 @@ export const updateSalonAppointmentCreationPermissionAction = async (
 
 		if (!response.ok || data?.error) {
 			const message =
-				data?.message || `Erreur lors de l'opération (${response.status})`;
+				data?.message || httpErrorMessage(response.status);
 			return { ok: false, error: true, status: response.status, message, data };
 		}
 

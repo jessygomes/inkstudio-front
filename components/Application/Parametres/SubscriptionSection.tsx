@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 import SettingsSectionHeader from "./SettingsSectionHeader";
@@ -144,7 +145,7 @@ export default function SubscriptionSection({
     } catch (error) {
       console.error("Erreur lors du changement de plan:", error);
       toast.error(
-        error instanceof Error ? error.message : "Erreur lors du changement de plan"
+        userErrorMessage(error, "Erreur lors du changement de plan")
       );
     } finally {
       setIsChangingPlan(false);

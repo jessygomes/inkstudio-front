@@ -1,4 +1,5 @@
 "use server";
+import { actionError } from "@/lib/action-error";
 
 import { getAuthHeaders } from "@/lib/session";
 import type { ReminderSettings, ReminderSettingsResponse } from "@/lib/reminder-settings";
@@ -10,7 +11,7 @@ async function request(method: "GET" | "PATCH", settings?: ReminderSettings): Pr
     ...(settings ? { body: JSON.stringify(settings) } : {}),
   });
   const data = await response.json();
-  if (!response.ok || data.error) throw new Error(Array.isArray(data.message) ? data.message.join(" ") : data.message || "Impossible de récupérer les réglages des rappels.");
+  if (!response.ok || data.error) throw actionError(Array.isArray(data.message) ? data.message.join(" ") : data.message || "Impossible de récupérer les réglages des rappels.");
   return data;
 }
 

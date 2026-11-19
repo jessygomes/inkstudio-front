@@ -1,4 +1,6 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
+import { actionError } from "@/lib/action-error";
 
 import { getAuthHeaders } from "../session";
 import type {
@@ -26,7 +28,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
     const message = Array.isArray(payload?.message)
       ? payload.message.join(" ")
       : payload?.message;
-    throw new Error(message || `Erreur Suivi dessin (${response.status})`);
+    throw actionError(message || httpErrorMessage(response.status));
   }
   return payload as T;
 }

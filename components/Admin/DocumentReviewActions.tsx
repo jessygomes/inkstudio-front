@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -33,7 +34,7 @@ export default function DocumentReviewActions({ documentId, documentType, docume
       setOpen(false); setReason("");
       router.refresh(); onReviewed?.();
     } catch (cause) {
-      const message = cause instanceof Error ? cause.message : "Impossible de modifier ce fichier.";
+      const message = userErrorMessage(cause, "Impossible de modifier ce fichier.");
       setError(message); toast.error(message);
     } finally { setLoading(false); }
   }

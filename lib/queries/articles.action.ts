@@ -1,4 +1,5 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
 
 import { getAuthHeaders } from "../session";
 
@@ -52,7 +53,7 @@ export const getAdminArticlesAction = async (): Promise<
 
 		if (!response.ok || (data && data.error)) {
 			const message =
-				data?.message || `Erreur lors de l'operation (${response.status})`;
+				data?.message || httpErrorMessage(response.status);
 			return {
 				ok: false,
 				error: true,
@@ -92,7 +93,7 @@ export const createAdminArticleAction = async (
 
 		if (!response.ok || (data && data.error)) {
 			const message =
-				data?.message || `Erreur lors de l'operation (${response.status})`;
+				data?.message || httpErrorMessage(response.status);
 			return {
 				ok: false,
 				error: true,
@@ -133,7 +134,7 @@ export const updateAdminArticleAction = async (
 
 		if (!response.ok || (data && data.error)) {
 			const message =
-				data?.message || `Erreur lors de l'operation (${response.status})`;
+				data?.message || httpErrorMessage(response.status);
 			return {
 				ok: false,
 				error: true,
@@ -172,7 +173,7 @@ export const deleteAdminArticleAction = async (
 
 		if (!response.ok || (data && data.error)) {
 			const message =
-				data?.message || `Erreur lors de l'operation (${response.status})`;
+				data?.message || httpErrorMessage(response.status);
 			return {
 				ok: false,
 				error: true,

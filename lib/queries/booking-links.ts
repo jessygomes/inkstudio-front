@@ -1,4 +1,5 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
 
 import { getAuthHeaders } from "../session";
 import type {
@@ -31,7 +32,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<ApiResu
         ok: false,
         status: response.status,
         code: typeof body?.code === "string" ? body.code : undefined,
-        message: messages ? messages.join(" · ") : typeof raw === "string" ? raw : `Erreur (${response.status})`,
+        message: messages ? messages.join(" · ") : typeof raw === "string" ? raw : httpErrorMessage(response.status),
         messages,
         retryAfterSeconds: Number.isFinite(retry) && retry > 0 ? Math.ceil(retry) : undefined,
       };

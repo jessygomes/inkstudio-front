@@ -5,7 +5,8 @@ import { useSession } from "next-auth/react";
 import { SalonUserProps } from "@/lib/type";
 import { useEffect, useState } from "react";
 import RdvActionButton from "@/components/Application/RDV/RdvActionButton";
-import { CalendarClock, Gem, Plus } from "lucide-react";
+import { CalendarClock, Gem, Plus, RefreshCw } from "lucide-react";
+import { httpErrorMessage, userErrorMessage } from "@/lib/user-error";
 import Horaire from "./Horaire";
 import InfoSalon from "./InfoSalon";
 import TatoueurSalon from "./TatoueurSalon";
@@ -22,6 +23,8 @@ export default function SalonAccount() {
   const isIndependentAccount = session?.user?.role === "user_tatoueur";
 
   const [salon, setSalon] = useState<SalonUserProps>();
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [teamTatoueurs, setTeamTatoueurs] = useState<TatoueurProps[]>([]);
 
   useEffect(() => {
@@ -36,19 +39,22 @@ export default function SalonAccount() {
         );
 
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error(httpErrorMessage(response.status));
         }
         const data = await response.json();
+        setLoadError(null);
         setSalon(data);
       } catch (error) {
         console.error("Error fetching salon data:", error);
+        // Avant : le squelette restait affiché indéfiniment quand le profil ne se chargeait pas.
+        setLoadError(userErrorMessage(error, "Votre profil n'a pas pu être chargé."));
       }
     };
 
     if (salonId) {
       fetchSalon();
     }
-  }, [salonId]);
+  }, [salonId, reloadKey]);
 
   useEffect(() => {
     const fetchTeamTatoueurs = async () => {
@@ -67,6 +73,19 @@ export default function SalonAccount() {
     fetchTeamTatoueurs();
   }, [salonId, isIndependentAccount]);
 
+
+  if (!salon && loadError) {
+    return (
+      <section className="w-full space-y-3">
+        <AccountTitle />
+        <div role="alert" className="flex flex-col items-start gap-3 rounded-[28px] bg-noir-600 p-6 font-one">
+          <p className="text-sm font-medium text-white/85">Votre profil n&apos;a pas pu être chargé</p>
+          <p className="text-xs leading-5 text-white/55">{loadError}</p>
+          <RdvActionButton tone="neutral" icon={RefreshCw} onClick={() => { setLoadError(null); setReloadKey((k) => k + 1); }}>Réessayer</RdvActionButton>
+        </div>
+      </section>
+    );
+  }
 
   if (!salon) {
     return (

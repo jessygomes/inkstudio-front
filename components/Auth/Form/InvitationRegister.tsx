@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Building2, Check, CreditCard, Eye, EyeOff, Gift, LoaderCircle, LockKeyhole, Mail, MailCheck, Phone, UserRound } from "lucide-react";
@@ -69,9 +70,7 @@ export default function InvitationRegister({
       setDone(true);
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : "Impossible de joindre le serveur.",
+        userErrorMessage(err, "Impossible de joindre le serveur."),
       );
     } finally {
       setPending(false);

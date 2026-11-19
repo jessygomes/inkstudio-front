@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useEffect, useId, useState } from "react";
 import { CalendarClock } from "lucide-react";
@@ -25,7 +26,7 @@ export default function SameDayBookingSetting() {
         if (!result.ok || !result.data?.user) throw new Error(result.message || "Impossible de charger ce réglage.");
         if (current) setAllowed(result.data.user.allowSameDayBooking !== false);
       })
-      .catch((reason) => { if (current) setError(reason instanceof Error ? reason.message : "Chargement impossible."); })
+      .catch((reason) => { if (current) setError(userErrorMessage(reason, "Chargement impossible.")); })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
   }, [attempt]);
@@ -41,7 +42,7 @@ export default function SameDayBookingSetting() {
       toast.success(value ? "Les clients peuvent réserver pour le jour même." : "Les réservations client pour le jour même sont désactivées.");
     } catch (reason) {
       setAllowed(previous);
-      toast.error(reason instanceof Error ? reason.message : "Enregistrement impossible.");
+      toast.error(userErrorMessage(reason, "Enregistrement impossible."));
     } finally {
       setSaving(false);
     }

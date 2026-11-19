@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { BACK_OFFICE_PATH } from "@/lib/back-office";
 
 import Link from "next/link";
@@ -45,7 +46,7 @@ export default function NewAdminArticlePage() {
       toast.success("Article cree avec succes");
       router.push(`${BACK_OFFICE_PATH}/articles`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erreur inconnue");
+      toast.error(userErrorMessage(error, "Erreur inconnue"));
     } finally {
       setSaving(false);
     }

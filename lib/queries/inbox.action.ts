@@ -1,4 +1,6 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
+import { actionError } from "@/lib/action-error";
 
 import { getAuthHeaders } from "../session";
 import { sortInboxThreads } from "../utils/sort-inbox-threads";
@@ -12,14 +14,14 @@ const ROOT = "/messaging/inbox";
 
 async function instagramRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = await getAuthHeaders();
-  if (!headers.Authorization) throw new Error("Connectez-vous à Inkera Studio.");
-  if (!process.env.NEXT_PUBLIC_BACK_URL) throw new Error("L'URL du backend Inkera n'est pas configurée.");
+  if (!headers.Authorization) throw actionError("Connectez-vous à Inkera Studio.");
+  if (!process.env.NEXT_PUBLIC_BACK_URL) throw actionError("L'URL du backend Inkera n'est pas configurée.");
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/messaging/instagram${path}`, {
     ...init, headers: { ...headers, ...(init.headers || {}) }, cache: "no-store",
   });
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as { message?: string | string[] } | null;
-    throw new Error(Array.isArray(body?.message) ? body.message.join(" · ") : body?.message || `Instagram (${response.status})`);
+    throw actionError(Array.isArray(body?.message) ? body.message.join(" · ") : body?.message || httpErrorMessage(response.status));
   }
   return response.json() as Promise<T>;
 }
@@ -38,8 +40,8 @@ export async function disconnectInstagramAction(connectionId: string): Promise<{
 
 async function inboxRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = await getAuthHeaders();
-  if (!headers.Authorization) throw new Error("Connectez-vous à Inkera Studio pour accéder aux messages.");
-  if (!process.env.NEXT_PUBLIC_BACK_URL) throw new Error("L'URL de l'API Inkera n'est pas configurée.");
+  if (!headers.Authorization) throw actionError("Connectez-vous à Inkera Studio pour accéder aux messages.");
+  if (!process.env.NEXT_PUBLIC_BACK_URL) throw actionError("L'URL de l'API Inkera n'est pas configurée.");
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}${ROOT}${path}`, {
     ...init,
@@ -50,7 +52,7 @@ async function inboxRequest<T>(path: string, init: RequestInit = {}): Promise<T>
   const result = (await response.json().catch(() => null)) as T | { message?: string | string[] } | null;
   if (!response.ok) {
     const message = result && typeof result === "object" && "message" in result ? result.message : undefined;
-    throw new Error(Array.isArray(message) ? message.join(" · ") : message || `Erreur Inbox (${response.status})`);
+    throw actionError(Array.isArray(message) ? message.join(" · ") : message || httpErrorMessage(response.status));
   }
   return result as T;
 }

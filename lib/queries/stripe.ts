@@ -1,4 +1,6 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
+import { actionError } from "@/lib/action-error";
 import { getAuthHeaders } from "../session";
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -201,8 +203,8 @@ export const changePlanAction = async (
 
   if (!response.ok) {
     const message =
-      data?.message || `Erreur lors du changement de plan (${response.status})`;
-    throw new Error(message);
+      data?.message || httpErrorMessage(response.status);
+    throw actionError(message);
   }
 
   return data as ChangePlanResult;
@@ -232,10 +234,10 @@ export const getInvoicesAction = async (
   const data: unknown = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(
+    throw actionError(
       getErrorMessage(
         data,
-        `Erreur lors de la récupération des factures (${response.status})`,
+        httpErrorMessage(response.status),
       ),
     );
   }
@@ -258,16 +260,16 @@ export const getPortalSessionAction = async (): Promise<{ url: string }> => {
   const data: unknown = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(
+    throw actionError(
       getErrorMessage(
         data,
-        `Erreur lors de l'ouverture du portail Stripe (${response.status})`,
+        httpErrorMessage(response.status),
       ),
     );
   }
 
   if (!isRecord(data) || typeof data.url !== "string" || !data.url.trim()) {
-    throw new Error("URL du portail Stripe introuvable.");
+    throw actionError("URL du portail Stripe introuvable.");
   }
 
   return { url: data.url };

@@ -1,4 +1,5 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
 import { getAuthHeaders } from "../session";
 import type { AppointmentDetailsBundle } from "../types/appointment-details";
 
@@ -20,7 +21,7 @@ export async function getAppointmentDetailsAction(
     const payload = await response.json().catch(() => null);
     if (!response.ok || !payload || typeof payload !== "object") {
       const message = Array.isArray(payload?.message) ? payload.message.join(" ") : payload?.message;
-      return { ok: false, message: message || `Impossible de charger le rendez-vous (${response.status}).` };
+      return { ok: false, message: message || httpErrorMessage(response.status) };
     }
     return { ok: true, details: payload as AppointmentDetailsBundle };
   } catch (error) {

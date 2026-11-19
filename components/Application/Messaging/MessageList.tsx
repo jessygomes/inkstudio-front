@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import NotificationBadge from "@/components/Shared/NotificationBadge";
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
@@ -57,7 +58,7 @@ function LegacyMessageList() {
         setCurrentPage(result.page);
         setTotalPages(result.totalPages);
       } catch (fetchError) {
-        setError(fetchError instanceof Error ? fetchError.message : "Erreur inconnue");
+        setError(userErrorMessage(fetchError, "Erreur inconnue"));
         setConversations([]);
       } finally {
         setLoading(false);

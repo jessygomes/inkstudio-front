@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { ActivityBadge } from "@/components/Providers/ActivityNotificationsProvider";
 import { ClientProps, PaginationInfo } from "@/lib/type";
 import React, { useEffect, useRef, useState, useCallback } from "react";
@@ -118,7 +119,7 @@ export default function ClientList() {
       } catch (err) {
         console.error("Erreur lors du chargement des clients :", err);
         setError(
-          err instanceof Error ? err.message : "Une erreur est survenue",
+          userErrorMessage(err, "Une erreur est survenue"),
         );
         setClients([]);
       } finally {

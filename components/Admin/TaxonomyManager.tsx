@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -92,7 +93,7 @@ export default function TaxonomyManager({
         setItems(result.data.map(fromCategory));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Le chargement a échoué.");
+      setError(userErrorMessage(err, "Le chargement a échoué."));
     } finally {
       setLoading(false);
     }
@@ -189,7 +190,7 @@ export default function TaxonomyManager({
       await load();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "L’enregistrement a échoué.",
+        userErrorMessage(err, "L’enregistrement a échoué."),
       );
     } finally {
       setBusy(false);
@@ -210,7 +211,7 @@ export default function TaxonomyManager({
       toast.success(isStyle ? "Style supprimé" : "Catégorie supprimée");
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "La suppression a échoué.",
+        userErrorMessage(err, "La suppression a échoué."),
       );
     } finally {
       setBusy(false);

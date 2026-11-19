@@ -1,3 +1,4 @@
+import { userErrorMessage, httpErrorMessage } from "@/lib/user-error";
 ﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
@@ -91,7 +92,7 @@ export const fetchAllAppointments = async (
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(httpErrorMessage(response.status));
     }
 
     const data = await response.json();
@@ -151,7 +152,7 @@ export const createAppointment = async (rdvBody: any) => {
     if (!res.ok || data?.error) {
       const message =
         data?.message ||
-        `Erreur lors de la création du rendez-vous (${res.status})`;
+        httpErrorMessage(res.status);
       throw new Error(message);
     }
 
@@ -185,7 +186,7 @@ export const updateAppointment = async (rdvId: string, updatedData: any) => {
     if (!res.ok || data?.error) {
       const message =
         data?.message ||
-        `Erreur lors de la mise à jour du rendez-vous (${res.status})`;
+        httpErrorMessage(res.status);
       throw new Error(message);
     }
 
@@ -222,7 +223,7 @@ export const fetchTodayAppointmentsAction = async (date?: string) => {
     return data || [];
   } catch (error) {
     console.error("Error fetching today's appointments:", error);
-    return { error: true, message: error instanceof Error ? error.message : "Une erreur est survenue" };
+    return { error: true, message: userErrorMessage(error, "Une erreur est survenue") };
   }
 };
 
@@ -310,7 +311,7 @@ export const proposeAppointment = async (demandeId: string, payload: any) => {
     if (!res.ok || data?.error) {
       const message =
         data?.message ||
-        `Erreur lors de la proposition du créneau (${res.status})`;
+        httpErrorMessage(res.status);
       throw new Error(message);
     }
 
@@ -351,7 +352,7 @@ export const weeklyFillRateAction = async (start: string, end: string) => {
     return data || [];
   } catch (error) {
     console.error("Error fetching weekly fill rate:", error);
-    return { error: true, message: error instanceof Error ? error.message : "Une erreur est survenue" };
+    return { error: true, message: userErrorMessage(error, "Une erreur est survenue") };
   }
 };
 
@@ -381,7 +382,7 @@ export const cancelRateAction = async () => {
     return data || [];
   } catch (error) {
     console.error("Error fetching weekly fill rate:", error);
-    return { error: true, message: error instanceof Error ? error.message : "Une erreur est survenue" };
+    return { error: true, message: userErrorMessage(error, "Une erreur est survenue") };
   }
 };
 
@@ -414,7 +415,7 @@ export const totalPaidAppointmentsAction = async (
     return data || [];
   } catch (error) {
     console.error("Error fetching total paid appointments:", error);
-    return { error: true, message: error instanceof Error ? error.message : "Une erreur est survenue" };
+    return { error: true, message: userErrorMessage(error, "Une erreur est survenue") };
   }
 };
 
@@ -452,7 +453,7 @@ export const newClientsCountAction = async (
     return data;
   } catch (error) {
     console.error("Error fetching new clients count:", error);
-    return { error: true, message: error instanceof Error ? error.message : "Une erreur est survenue" };
+    return { error: true, message: userErrorMessage(error, "Une erreur est survenue") };
   }
 };
 
@@ -651,7 +652,7 @@ export const proposeRescheduleAppointmentAction = async (
 
     if (!res.ok || data?.error) {
       const errorMessage =
-        data?.message || `Erreur ${res.status}: ${res.statusText}`;
+        data?.message || httpErrorMessage(res.status);
       throw new Error(errorMessage);
     }
 

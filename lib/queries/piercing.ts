@@ -1,4 +1,5 @@
 "use server";
+import { userErrorMessage, httpErrorMessage } from "@/lib/user-error";
 
 import { getAuthHeaders } from "../session";
 
@@ -503,7 +504,7 @@ export async function getPiercingPrice({ salonId }: { salonId: string }) {
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
 
@@ -525,7 +526,7 @@ export async function getPiercingPrice({ salonId }: { salonId: string }) {
     return {
       ok: false,
       message: `Erreur réseau: ${
-        error instanceof Error ? error.message : "Erreur inconnue"
+        userErrorMessage(error, "Erreur inconnue")
       }`,
     };
   }

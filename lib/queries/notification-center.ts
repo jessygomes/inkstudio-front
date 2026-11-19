@@ -1,4 +1,5 @@
 "use server";
+import { actionError } from "@/lib/action-error";
 import { getAuthHeaders } from "../session";
 
 export type NotificationCategory = "appointments" | "messages" | "stock" | "followups" | "aftercare" | "salons" | "explorer" | "reviews" | "team" | "account";
@@ -21,7 +22,7 @@ const base = () => `${process.env.NEXT_PUBLIC_BACK_URL}/notifications`;
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = await getAuthHeaders();
   const res = await fetch(`${base()}${path}`, { ...init, headers, cache: "no-store" });
-  if (!res.ok) throw new Error("Notifications indisponibles");
+  if (!res.ok) throw actionError("Notifications indisponibles");
   return res.json() as Promise<T>;
 }
 

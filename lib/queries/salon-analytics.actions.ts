@@ -1,4 +1,5 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
 
 import { getAuthHeaders } from "../session";
 
@@ -89,7 +90,7 @@ const fetchSalonAnalytics = async <T>(
         status: response.status,
         message: getErrorMessage(
           payload,
-          `Erreur lors de la recuperation des analytics (${response.status})`,
+          httpErrorMessage(response.status),
         ),
       };
     }

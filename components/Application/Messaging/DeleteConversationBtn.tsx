@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { deleteConversationAction } from "@/lib/queries/conversation.action";
@@ -32,9 +33,7 @@ export default function DeleteConversationBtn({
       onDeleteSuccess?.();
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de la suppression";
+        userErrorMessage(error, "Erreur lors de la suppression");
       toast.error(message);
       console.error("Erreur lors de la suppression:", error);
     } finally {

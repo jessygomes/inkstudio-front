@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { AlertTriangle, CalendarDays, Check, Loader2, Search, UserRound, X } from "lucide-react";
@@ -98,7 +99,7 @@ export default function DrawingCardEditor({ card, onClose, onSaved }: {
         : await createDrawingCard({ title: title.trim(), description: description.trim() || undefined, sourceAppointmentId: sourceId || undefined, clientId: identity.clientId || undefined, clientUserId: identity.clientUserId || undefined });
       await onSaved(result);
       onClose();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Impossible d’enregistrer cette card."); }
+    } catch (cause) { setError(userErrorMessage(cause, "Impossible d’enregistrer cette card.")); }
     finally { setSaving(false); }
   };
 

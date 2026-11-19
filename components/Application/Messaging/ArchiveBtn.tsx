@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { archiveConversationAction } from "@/lib/queries/conversation.action";
@@ -45,7 +46,7 @@ export default function ArchiveBtn({
       onArchiveSuccess?.();
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Erreur lors de l'opération";
+        userErrorMessage(error, "Erreur lors de l'opération");
       toast.error(errorMessage);
       console.error("Erreur lors de l'opération:", error);
     } finally {

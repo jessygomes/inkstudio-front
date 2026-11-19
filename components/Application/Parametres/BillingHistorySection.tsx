@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import SettingsSectionHeader from "./SettingsSectionHeader";
 import { ReceiptText, CreditCard, Download, ExternalLink } from "lucide-react";
 
@@ -147,9 +148,7 @@ export default function BillingHistorySection({
           error,
         );
         setInvoicesError(
-          error instanceof Error
-            ? error.message
-            : "Impossible de récupérer les factures Stripe.",
+          userErrorMessage(error, "Impossible de récupérer les factures Stripe."),
         );
       } finally {
         setIsInvoicesLoading(false);
@@ -179,9 +178,7 @@ export default function BillingHistorySection({
     } catch (error) {
       console.error("Erreur lors de l'ouverture du portail Stripe :", error);
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Impossible d'ouvrir le portail Stripe.",
+        userErrorMessage(error, "Impossible d'ouvrir le portail Stripe."),
       );
     } finally {
       setIsOpeningPortal(false);

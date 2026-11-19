@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import ProposeCreneau from "./DemandeRdvBtn/ProposeCreneau";
@@ -119,7 +120,7 @@ export default function DemandeRdvClient({ userId }: { userId: string }) {
         Array.isArray(data?.appointmentRequests) ? data.appointmentRequests : []
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setError(userErrorMessage(err, "Une erreur est survenue"));
     } finally {
       setLoading(false);
     }

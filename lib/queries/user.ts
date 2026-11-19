@@ -1,3 +1,4 @@
+import { httpErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
@@ -25,7 +26,7 @@ export const getUserInfoAction = async (salonId: string) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -58,7 +59,7 @@ export const getUserParamAction = async (salonId: string) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -89,7 +90,7 @@ export const updateUserInfoAction = async (payload: any) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -122,7 +123,7 @@ export const changePasswordAction = async (payload: any) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -152,7 +153,7 @@ export const fetchSalonPhotosAction = async (salonId: string) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -187,7 +188,7 @@ export const fetchAppointmentConfirmationAction = async () => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -223,7 +224,7 @@ export const updateAppointmentConfirmationAction = async (value: boolean) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -258,7 +259,7 @@ export const toggleInspirationSalonAction = async () => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -293,7 +294,7 @@ export const fetchInspirationSalonStatusAction = async (salonId: string) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -339,7 +340,7 @@ export const fetchAppointmentParamAction = async () => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -425,7 +426,7 @@ export const updateProjectAppointmentBookingAction = async (
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -461,7 +462,7 @@ export const getColorProfileAction = async () => {
     if (!response.ok || (data && data.error)) {
       const message =
         data?.message ||
-        `Erreur lors de la récupération des couleurs (${response.status})`;
+        httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -510,7 +511,7 @@ export const getfacturesSalonAction = async (
     if (!response.ok || (data && data.error)) {
       const message =
         data?.message ||
-        `Erreur lors de la récupération des factures (${response.status})`;
+        httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
     return { ok: true, error: false, status: response.status, data };
@@ -548,7 +549,7 @@ export const updateColorProfileAction = async (
     if (!response.ok || (data && data.error)) {
       const message =
         data?.message ||
-        `Erreur lors de la mise à jour des couleurs (${response.status})`;
+        httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 

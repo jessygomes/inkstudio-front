@@ -1,4 +1,5 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
 import { getAuthHeaders } from "../session";
 
 export type SalonVerificationDocumentType =
@@ -47,7 +48,7 @@ export const submitSalonDocument = async (
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
 
@@ -83,7 +84,7 @@ export const getSalonVerificationDocuments = async () => {
       console.error("Response not ok:", response.statusText);
       return {
         ok: false,
-        message: `Erreur HTTP ${response.status}: ${response.statusText}`,
+        message: httpErrorMessage(response.status),
       };
     }
 

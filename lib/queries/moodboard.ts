@@ -1,10 +1,11 @@
 "use server";
+import { actionError } from "@/lib/action-error";
 
 import { getAuthHeaders } from "../session";
 
 export async function getAppointmentMoodboardOptions(email: string): Promise<{ id: string; name: string }[]> {
   const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_URL}/moodboard/appointment-options?email=${encodeURIComponent(email)}`, { headers: await getAuthHeaders(), cache: "no-store" });
-  if (!response.ok) throw new Error("Moodboards indisponibles.");
+  if (!response.ok) throw actionError("Moodboards indisponibles.");
   return response.json();
 }
 

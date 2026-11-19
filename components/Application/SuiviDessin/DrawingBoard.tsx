@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { SkeletonColumns } from "@/components/Skeleton/Skeleton";
@@ -127,9 +128,7 @@ export default function DrawingBoard() {
       );
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Impossible de charger les cards",
+        userErrorMessage(error, "Impossible de charger les cards"),
       );
     } finally {
       setLoading(false);
@@ -175,7 +174,7 @@ export default function DrawingBoard() {
     } catch (error) {
       setCards(previous);
       toast.error(
-        error instanceof Error ? error.message : "Déplacement impossible",
+        userErrorMessage(error, "Déplacement impossible"),
       );
     }
   };
@@ -505,7 +504,7 @@ function CardPanel({
       await onChanged();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue",
+        userErrorMessage(error, "Une erreur est survenue"),
       );
     } finally {
       setSaving(false);
@@ -536,7 +535,7 @@ function CardPanel({
       );
       setCaption("");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Upload impossible");
+      toast.error(userErrorMessage(error, "Upload impossible"));
     }
   };
 
@@ -1016,7 +1015,7 @@ function ImageItem({
       }
       await onChanged();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Envoi impossible");
+      toast.error(userErrorMessage(error, "Envoi impossible"));
     } finally {
       setSending(false);
     }

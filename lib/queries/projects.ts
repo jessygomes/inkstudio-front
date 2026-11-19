@@ -1,4 +1,5 @@
 "use server";
+import { actionError } from "@/lib/action-error";
 import { getAuthHeaders } from "../session";
 
 export type ExploredProject = {
@@ -30,7 +31,7 @@ export async function getProjectFilterOptions(): Promise<{
     `${process.env.NEXT_PUBLIC_BACK_URL}/projects/options`,
     { headers: await getAuthHeaders(), cache: "no-store" },
   );
-  if (!response.ok) throw new Error("Filtres indisponibles.");
+  if (!response.ok) throw actionError("Filtres indisponibles.");
   return response.json();
 }
 export async function exploreProjects(
@@ -44,7 +45,7 @@ export async function exploreProjects(
     { headers: await getAuthHeaders(), cache: "no-store" },
   );
   const data = await response.json();
-  if (!response.ok) throw new Error(data.message || "Projets indisponibles.");
+  if (!response.ok) throw actionError(data.message || "Projets indisponibles.");
   return data;
 }
 export async function proposeProject(id: string, message: string) {
@@ -58,6 +59,6 @@ export async function proposeProject(id: string, message: string) {
     },
   );
   const data = await response.json();
-  if (!response.ok) throw new Error(data.message || "Envoi impossible.");
+  if (!response.ok) throw actionError(data.message || "Envoi impossible.");
   return data as { id: string; conversationId?: string };
 }

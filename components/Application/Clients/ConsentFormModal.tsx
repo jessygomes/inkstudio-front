@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import SignatureCanvas from "react-signature-canvas";
@@ -228,7 +229,7 @@ export default function ConsentFormModal({
       setSavedAt(signedAt);
       onConsentSaved?.(client.id, fileUrl, signedAt);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setError(userErrorMessage(err, "Une erreur est survenue"));
     } finally {
       setIsGenerating(false);
       isSubmittingRef.current = false;

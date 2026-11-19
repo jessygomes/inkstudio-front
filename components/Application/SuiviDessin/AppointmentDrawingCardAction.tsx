@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
@@ -67,7 +68,7 @@ export default function AppointmentDrawingCardAction({
   const loadLinkCards = async () => {
     setLinkLoading(true); setLinkError("");
     try { setLinkCards(await getLinkableDrawingCards(appointmentId)); }
-    catch (cause) { setLinkError(cause instanceof Error ? cause.message : "Impossible de charger les cards."); }
+    catch (cause) { setLinkError(userErrorMessage(cause, "Impossible de charger les cards.")); }
     finally { setLinkLoading(false); }
   };
   const linkCard = async () => {
@@ -77,7 +78,7 @@ export default function AppointmentDrawingCardAction({
       applyCard(await linkDrawingCardToAppointment(linkId, appointmentId));
       setLinkOpen(false);
       toast.success("Card reliée au rendez-vous");
-    } catch (cause) { setLinkError(cause instanceof Error ? cause.message : "Impossible de relier cette card."); }
+    } catch (cause) { setLinkError(userErrorMessage(cause, "Impossible de relier cette card.")); }
     finally { setLinking(false); }
   };
 
@@ -99,7 +100,7 @@ export default function AppointmentDrawingCardAction({
       toast.success("Suivi de dessin créé");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Création impossible",
+        userErrorMessage(error, "Création impossible"),
       );
     } finally {
       setCreating(false);

@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import NotificationBadge from "@/components/Shared/NotificationBadge";
@@ -416,9 +417,7 @@ export default function RDV() {
             </div>
             <p className="text-white text-xl font-two">Erreur de chargement</p>
             <p className="text-white/60 text-sm max-w-md">
-              {error instanceof Error
-                ? error.message
-                : "Une erreur est survenue lors du chargement des rendez-vous"}
+              {userErrorMessage(error, "Une erreur est survenue lors du chargement des rendez-vous")}
             </p>
             <button
               onClick={() => window.location.reload()}

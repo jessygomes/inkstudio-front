@@ -1,4 +1,5 @@
 "use server";
+import { actionError } from "@/lib/action-error";
 import { getAuthHeaders } from "../session";
 
 export interface AppointmentPhoto {
@@ -17,7 +18,7 @@ async function request(path: string, method = "GET", body?: unknown) {
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok || data?.error) throw new Error(data?.message || "Impossible de charger les photos.");
+  if (!response.ok || data?.error) throw actionError(data?.message || "Impossible de charger les photos.");
   return data;
 }
 

@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -196,7 +197,7 @@ export function BookingLinkDetails({ link: initial, variant, onClose, onOpenAppo
         <StatusBadge link={link} />
       </div>
       {detail.isFetching && <p className="flex items-center gap-2 text-[11px] text-white/40"><LoaderCircle size={12} className="animate-spin" />Actualisation…</p>}
-      {detail.isError && <p role="alert" className="text-[11px] text-amber-200/80">{detail.error instanceof Error ? detail.error.message : "Impossible d’actualiser ce lien."}</p>}
+      {detail.isError && <p role="alert" className="text-[11px] text-amber-200/80">{userErrorMessage(detail.error, "Impossible d’actualiser ce lien.")}</p>}
       <dl className="grid grid-cols-1 gap-x-4 gap-y-3 rounded-2xl border border-white/10 bg-noir-600 p-4 sm:grid-cols-2">
         {rows.map(([term, value]) => <div key={term} className="min-w-0"><dt className="text-[10px] text-white/35">{term}</dt><dd className="mt-1 break-words text-sm text-white/85">{value}</dd></div>)}
         <div className="sm:col-span-2"><dt className="text-[10px] text-white/35">Règles horaires</dt><dd className="mt-1 text-sm leading-6 text-white/85">{describeBookingRules(link)}</dd></div>
@@ -292,7 +293,7 @@ export default function BookingLinksPanel({ onOpenAppointment, onCreate, selecte
     <div className="h-px w-full bg-gradient-to-r from-tertiary-400/50 via-white/30 to-transparent" />
 
     {isLoading ? <ul className="space-y-2" aria-busy="true">{Array.from({ length: 4 }, (_, index) => <li key={index} className="h-[74px] animate-pulse rounded-2xl border border-white/8 bg-white/[0.03]" />)}</ul>
-      : isError ? <div role="alert" className="space-y-3 rounded-2xl border border-red-400/20 bg-red-500/5 p-6 text-center"><p className="text-sm text-red-200">{error instanceof Error ? error.message : "Impossible de charger les liens."}</p><button type="button" onClick={() => void refetch()} className="rounded-xl border border-white/12 px-3 py-2 text-xs text-white/75 hover:bg-white/5">Réessayer</button></div>
+      : isError ? <div role="alert" className="space-y-3 rounded-2xl border border-red-400/20 bg-red-500/5 p-6 text-center"><p className="text-sm text-red-200">{userErrorMessage(error, "Impossible de charger les liens.")}</p><button type="button" onClick={() => void refetch()} className="rounded-xl border border-white/12 px-3 py-2 text-xs text-white/75 hover:bg-white/5">Réessayer</button></div>
       : links.length === 0 ? <div className="flex flex-col items-center gap-3 py-16 text-center"><span className="grid size-16 place-items-center rounded-full bg-white/10 text-white"><Link2 size={26} /></span><p className="font-two text-xl text-white">{page > 1 ? "Aucun autre lien" : "Aucun lien de réservation"}</p><p className="max-w-sm text-sm text-white/55">Générez un lien depuis un RDV Projet, une conversation ou directement ici, puis partagez-le avec votre client.</p>{onCreate && page === 1 && <DashboardButton onClick={onCreate}><Link2 size={14} />Créer un lien de réservation</DashboardButton>}</div>
       : <ul className="space-y-2">{links.map((link) => <LinkRow key={link.id} link={link} selected={selectedId === link.id} artistName={artistName} onOpen={() => onSelect(link)} onOpenAppointment={onOpenAppointment} />)}</ul>}
 

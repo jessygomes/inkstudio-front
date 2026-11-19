@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import NotificationBadge from "@/components/Shared/NotificationBadge";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
@@ -338,7 +339,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
       loadedPagesRef.current = Math.min(loadedPagesRef.current, Math.max(1, result.totalPages));
       setPage(loadedPagesRef.current);
     } catch (error) {
-      if (request === listRequestRef.current) setListError(error instanceof Error ? error.message : "Chargement impossible");
+      if (request === listRequestRef.current) setListError(userErrorMessage(error, "Chargement impossible"));
     } finally {
       if (request === listRequestRef.current) {
         listFetchingRef.current = false;
@@ -363,7 +364,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
       setTotal(result.total);
       setTotalPages(Math.max(1, result.totalPages));
     } catch (error) {
-      if (request === listRequestRef.current) setLoadMoreError(error instanceof Error ? error.message : "Chargement impossible");
+      if (request === listRequestRef.current) setLoadMoreError(userErrorMessage(error, "Chargement impossible"));
     } finally {
       if (request === listRequestRef.current) {
         listFetchingRef.current = false;
@@ -403,7 +404,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
       setNotes(noteList);
       void acknowledgeThread(id, msg.data[0]?.id);
     } catch (error) {
-      setDetailError(error instanceof Error ? error.message : "Conversation indisponible");
+      setDetailError(userErrorMessage(error, "Conversation indisponible"));
     } finally {
       setDetailLoading(false);
     }
@@ -518,7 +519,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
       setInstagramError("");
       setInstagramConnections(await getInstagramConnectionsAction());
     } catch (error) {
-      setInstagramError(error instanceof Error ? error.message : "Statut Instagram indisponible");
+      setInstagramError(userErrorMessage(error, "Statut Instagram indisponible"));
     } finally {
       setInstagramLoading(false);
     }
@@ -545,7 +546,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
       if (new URL(authorizationUrl).origin !== "https://www.instagram.com") throw new Error("URL Instagram invalide");
       window.location.assign(authorizationUrl);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Connexion Instagram indisponible");
+      toast.error(userErrorMessage(error, "Connexion Instagram indisponible"));
       setInstagramConnecting(false);
     }
   };
@@ -558,7 +559,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
       await refreshInstagramConnections();
       toast.success("Compte Instagram déconnecté. L’historique reste disponible.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Déconnexion impossible");
+      toast.error(userErrorMessage(error, "Déconnexion impossible"));
     } finally {
       setInstagramConnecting(false);
     }
@@ -693,7 +694,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
       await refreshList();
       return true;
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Action impossible");
+      toast.error(userErrorMessage(error, "Action impossible"));
       return false;
     } finally {
       setPending(false);
@@ -736,7 +737,7 @@ export default function InboxWorkspace({ toolbarRight }: { toolbarRight?: ReactN
         forceScrollRef.current = true;
         await Promise.all([refreshDetail(threadId), refreshList()]);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Message non envoyé, veuillez réessayer.");
+        toast.error(userErrorMessage(error, "Message non envoyé, veuillez réessayer."));
       } finally {
         setProcessingImage(false);
         setPending(false);

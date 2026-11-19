@@ -1,3 +1,4 @@
+import { httpErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
@@ -65,7 +66,7 @@ export const searchClientsAction = async (
       return {
         error: true,
         message:
-          data.message || `Erreur lors de la recherche (${response.status})`,
+          data.message || httpErrorMessage(response.status),
         clients: [],
         userClients: [],
       };
@@ -109,7 +110,7 @@ export const createOrUpdateClient = async (
 
     if (!res.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${res.status})`;
+        data?.message || httpErrorMessage(res.status);
       return { ok: false, error: true, status: res.status, message, data };
     }
 
@@ -146,7 +147,7 @@ export const getSalonClientsAction = async (page: number, search: string) => {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      throw new Error(httpErrorMessage(response.status));
     }
 
     return data;

@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { useActivityNotifications } from "@/components/Providers/ActivityNotificationsProvider";
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -134,6 +135,15 @@ export default function AvisList() {
         sortBy: "recent",
       });
 
+      // Pas de profil public trouvé (profil masqué, pas encore complet) : on affiche simplement « aucun avis ».
+      if (!result.ok && "status" in result && result.status === 404) {
+        setReviews([]);
+        setTotal(0);
+        setTotalPages(null);
+        setStatistics({});
+        setPage(1);
+        return;
+      }
       if (!result.ok || !result.data) {
         throw new Error(result.message || "Impossible de récupérer les avis");
       }
@@ -157,7 +167,7 @@ export default function AvisList() {
       setPage(data.page ?? data.pagination?.currentPage ?? pageToLoad);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Une erreur est survenue";
+        userErrorMessage(err, "Une erreur est survenue");
       setError(message);
       setReviews([]);
     } finally {
@@ -179,7 +189,7 @@ export default function AvisList() {
       setConfirmRemoveId(null);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Une erreur est survenue";
+        userErrorMessage(err, "Une erreur est survenue");
       setResponseError((prev) => ({ ...prev, [reviewId]: message }));
     } finally {
       setRemovingId(null);
@@ -241,7 +251,7 @@ export default function AvisList() {
       setExpandedId(null);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Une erreur est survenue";
+        userErrorMessage(err, "Une erreur est survenue");
       setResponseError((prev) => ({ ...prev, [reviewId]: message }));
     } finally {
       setSubmittingId(null);

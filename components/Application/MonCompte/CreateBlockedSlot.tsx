@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -210,7 +211,7 @@ export default function CreateBlockedSlot({
       onSuccess();
     } catch (err) {
       console.error("❌ Erreur lors de la création:", err);
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setError(userErrorMessage(err, "Une erreur est survenue"));
     } finally {
       setLoading(false);
     }

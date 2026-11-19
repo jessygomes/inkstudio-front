@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -91,7 +92,7 @@ export default function ProjectExplorer() {
     } catch (error) {
       if (request === sequence.current)
         setError(
-          error instanceof Error ? error.message : "Chargement impossible.",
+          userErrorMessage(error, "Chargement impossible."),
         );
     } finally {
       if (request === sequence.current) setLoading(false);
@@ -138,7 +139,7 @@ export default function ProjectExplorer() {
       setMessage("");
       await load();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Envoi impossible.");
+      toast.error(userErrorMessage(error, "Envoi impossible."));
     } finally {
       setSending(false);
     }

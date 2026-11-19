@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -93,7 +94,7 @@ export default function ResetPasswordForm() {
       }, 2000);
 
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue.");
+      setError(userErrorMessage(err, "Une erreur est survenue."));
     } finally {
       setIsPending(false);
     }

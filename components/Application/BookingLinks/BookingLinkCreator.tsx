@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
@@ -251,7 +252,7 @@ export default function BookingLinkCreator({ context, delivery, onClose, onCreat
       setSent(true);
       toast.success("Lien envoyé au client");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Envoi impossible. Copiez le lien pour le partager.");
+      toast.error(userErrorMessage(error, "Envoi impossible. Copiez le lien pour le partager."));
     } finally {
       setSending(false);
     }

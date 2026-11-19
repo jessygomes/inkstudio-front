@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import SettingsSectionHeader from "./SettingsSectionHeader";
 import { ShieldCheck } from "lucide-react";
 
@@ -83,9 +84,7 @@ export default function SecuritySection({
     } catch (error) {
       console.error("Erreur lors du changement de mot de passe :", error);
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Erreur lors du changement de mot de passe",
+        userErrorMessage(error, "Erreur lors du changement de mot de passe"),
       );
     } finally {
       setIsChangingPassword(false);

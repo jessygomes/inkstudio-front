@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useForm, type Resolver } from "react-hook-form";
@@ -389,7 +390,7 @@ export default function CreateOrUpdatePhoto({
     } catch (error) {
       console.error("Erreur:", error);
       setError(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        userErrorMessage(error, "Une erreur est survenue.")
       );
     } finally {
       setLoading(false);

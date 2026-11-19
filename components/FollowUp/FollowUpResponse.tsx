@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
@@ -100,7 +101,7 @@ export default function FollowUpResponse({ token }: { token: string }) {
       }
       setStage("done");
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Impossible d’envoyer votre réponse. Réessayez dans un instant.");
+      setSubmitError(userErrorMessage(error, "Impossible d’envoyer votre réponse. Réessayez dans un instant."));
       setStage("idle");
     } finally { submitting.current = false; }
   };

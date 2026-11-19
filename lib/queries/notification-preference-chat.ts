@@ -1,4 +1,5 @@
 "use server";
+import { actionError } from "@/lib/action-error";
 import { getAuthHeaders } from "../session";
 
 //! ----------------------------------------------------------------------------
@@ -19,7 +20,7 @@ export async function getNotificationPreferenceChat() {
     },
   );
   if (!res.ok) {
-    throw new Error(
+    throw actionError(
       `Erreur lors de la récupération des préférences de notification chat`,
     );
   }
@@ -53,7 +54,7 @@ export async function updateNotificationPreferenceChat(
     },
   );
   if (!res.ok) {
-    throw new Error(
+    throw actionError(
       `Erreur lors de la mise à jour des préférences de notification chat`,
     );
   }

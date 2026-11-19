@@ -1,4 +1,6 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
+import { actionError } from "@/lib/action-error";
 import { getAuthHeaders } from "../session";
 
 //! ============================================================================
@@ -140,7 +142,7 @@ export const getConversationsAction = async (
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch conversations: ${response.statusText}`);
+    throw actionError(httpErrorMessage(response.status));
   }
 
   return response.json();
@@ -157,7 +159,7 @@ export const getConversationByIdAction = async (
   const headers = await getAuthHeaders();
 
   if (!id) {
-    throw new Error("Invalid conversation ID");
+    throw actionError("Invalid conversation ID");
   }
 
   // Récupérer la conversation complète avec tous les messages
@@ -180,12 +182,12 @@ export const getConversationByIdAction = async (
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch conversation: ${response.statusText}`);
+    throw actionError(httpErrorMessage(response.status));
   }
 
   if (!messageResponse.ok) {
-    throw new Error(
-      `Failed to fetch conversation messages: ${messageResponse.statusText}`,
+    throw actionError(
+      httpErrorMessage(messageResponse.status),
     );
   }
 
@@ -213,7 +215,7 @@ export const archiveConversationAction = async (
     },
   );
   if (!response.ok) {
-    throw new Error(`Failed to archive conversation: ${response.statusText}`);
+    throw actionError(httpErrorMessage(response.status));
   }
   return;
 };
@@ -233,7 +235,7 @@ export const deleteConversationAction = async (
     },
   );
   if (!response.ok) {
-    throw new Error(`Failed to delete conversation: ${response.statusText}`);
+    throw actionError(httpErrorMessage(response.status));
   }
   return;
 };
@@ -254,7 +256,7 @@ export const deleteMessageAction = async (
     },
   );
   if (!response.ok) {
-    throw new Error(`Failed to delete message: ${response.statusText}`);
+    throw actionError(httpErrorMessage(response.status));
   }
   return;
 };
@@ -280,8 +282,8 @@ export const getUnreadMessagesCountAction = async (): Promise<number> => {
         console.warn("Nouveau compte ou données manquantes, retour 0 messages");
         return 0;
       }
-      throw new Error(
-        `Failed to fetch unread messages count: ${response.statusText}`,
+      throw actionError(
+        httpErrorMessage(response.status),
       );
     }
     const data = await response.json();
@@ -318,8 +320,8 @@ export const getRecentUnreadConversationsAction = async (): Promise<
         );
         return [];
       }
-      throw new Error(
-        `Failed to fetch recent unread conversations: ${response.statusText}`,
+      throw actionError(
+        httpErrorMessage(response.status),
       );
     }
     const data = await response.json();

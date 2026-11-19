@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { SkeletonRows } from "@/components/Skeleton/Skeleton";
 import { useSession } from "next-auth/react";
 import {
@@ -92,7 +93,7 @@ export default function StockList() {
       } catch (err) {
         console.error("Erreur lors du chargement des articles de stock :", err);
         setError(
-          err instanceof Error ? err.message : "Une erreur est survenue",
+          userErrorMessage(err, "Une erreur est survenue"),
         );
         setItemsStock([]);
       } finally {

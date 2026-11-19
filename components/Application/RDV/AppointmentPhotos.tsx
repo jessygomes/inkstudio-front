@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
@@ -96,7 +97,7 @@ export default function AppointmentPhotos({ appointmentId, clientId, readOnly = 
       setDeleting(null);
       refreshPhotos();
     } catch (reason) {
-      setDeleteError(reason instanceof Error ? reason.message : "Suppression impossible.");
+      setDeleteError(userErrorMessage(reason, "Suppression impossible."));
       refreshPhotos();
     } finally { setSaving(false); }
   };
@@ -108,7 +109,7 @@ export default function AppointmentPhotos({ appointmentId, clientId, readOnly = 
     setPhotos([]);
     const request = clientId ? getClientPhotos(clientId) : loadAppointmentBlock(queryClient, appointmentId!, "photos", { fresh: revision > 0 });
     request.then((result) => { if (active) setPhotos(result); })
-      .catch((reason) => { if (active) setError(reason instanceof Error ? reason.message : "Chargement impossible."); })
+      .catch((reason) => { if (active) setError(userErrorMessage(reason, "Chargement impossible.")); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [appointmentId, clientId, revision, queryClient]);
@@ -150,7 +151,7 @@ export default function AppointmentPhotos({ appointmentId, clientId, readOnly = 
       if (!result?.length) throw new Error("L'envoi des photos a échoué.");
       await addAppointmentPhotos(appointmentId, result.map((file) => ({ url: file.ufsUrl })));
       refreshPhotos();
-    } catch (reason) { setError(reason instanceof Error ? reason.message : "Enregistrement impossible."); }
+    } catch (reason) { setError(userErrorMessage(reason, "Enregistrement impossible.")); }
     finally { setSaving(false); }
   };
 

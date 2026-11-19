@@ -1,3 +1,4 @@
+import FriendlyErrors from "@/components/Shared/FriendlyErrors";
 import type { Metadata } from "next";
 import { Didact_Gothic, Exo_2, Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
@@ -161,6 +162,8 @@ export default function RootLayout({
               <GoogleAnalytics measurementId="G-W3LKS9M53F" />
 
               <Toaster />
+
+              <FriendlyErrors />
               <ModalManager />
 
               {/* Bannière de consentement des cookies */}

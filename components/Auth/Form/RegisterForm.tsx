@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 import { priceFr } from "@/lib/pricing";
@@ -285,9 +286,7 @@ export const Register = ({ isTatoueurProOfferActive }: RegisterProps) => {
     } catch (error) {
       console.error("❌ Erreur lors de l'inscription :", error);
       setError(
-        error instanceof Error
-          ? error.message
-          : "Impossible de s'inscrire. Veuillez réessayer plus tard.",
+        userErrorMessage(error, "Impossible de s'inscrire. Veuillez réessayer plus tard."),
       );
       setIsPending(false);
     }

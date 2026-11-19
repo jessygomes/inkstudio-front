@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { CalendarClock, Check, Eye, LoaderCircle, Mail, MessageSquare, RotateCcw, Send } from "lucide-react";
@@ -31,7 +32,7 @@ export default function AppointmentRemindersSetting({ salonName }: { salonName?:
     let current = true;
     getReminderSettingsAction().then(response => {
       if (current) { setLoaded(response); setDraft(response.settings); }
-    }).catch(error => { if (current) setError(error instanceof Error ? error.message : "Chargement impossible."); })
+    }).catch(error => { if (current) setError(userErrorMessage(error, "Chargement impossible.")); })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
   }, [attempt]);
@@ -63,7 +64,7 @@ export default function AppointmentRemindersSetting({ salonName }: { salonName?:
       const response = await updateReminderSettingsAction(draft);
       setLoaded(response); setDraft(response.settings);
       toast.success("Rappels après séance enregistrés.");
-    } catch (error) { setError(error instanceof Error ? error.message : "Enregistrement impossible."); }
+    } catch (error) { setError(userErrorMessage(error, "Enregistrement impossible.")); }
     finally { setSaving(false); }
   }
 

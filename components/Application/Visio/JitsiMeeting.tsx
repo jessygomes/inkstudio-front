@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { RiFileUserLine } from "react-icons/ri";
@@ -177,7 +178,7 @@ export default function JitsiMeeting() {
         setLoading(false);
       } catch (err) {
         console.error("❌ Erreur chargement rendez-vous:", err);
-        setError(err instanceof Error ? err.message : "Erreur inconnue");
+        setError(userErrorMessage(err, "Erreur inconnue"));
         setLoading(false);
       }
     }
@@ -214,7 +215,7 @@ export default function JitsiMeeting() {
         }
       } catch (err) {
         console.error("❌ Erreur initialisation Jitsi:", err);
-        setError(err instanceof Error ? err.message : "Erreur inconnue");
+        setError(userErrorMessage(err, "Erreur inconnue"));
       }
     }
 

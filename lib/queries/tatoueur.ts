@@ -1,3 +1,4 @@
+import { httpErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 import { getAuthHeaders } from "../session";
@@ -25,7 +26,7 @@ export const createOrUpdateTatoueur = async (
 
     if (!res.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${res.status})`;
+        data?.message || httpErrorMessage(res.status);
       return { ok: false, error: true, status: res.status, message, data };
     }
 
@@ -86,7 +87,7 @@ export const getTatoueursByUserIdAction = async (userId: string) => {
 
     if (!response.ok || (data && data.error)) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -129,7 +130,7 @@ export const unlinkLinkedTatoueurAction = async (tatoueurUserId: string) => {
 
     if (!response.ok || data?.error) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 
@@ -177,7 +178,7 @@ export const updateLinkedTatoueurAppointmentBookingAction = async (
 
     if (!response.ok || data?.error) {
       const message =
-        data?.message || `Erreur lors de l'opération (${response.status})`;
+        data?.message || httpErrorMessage(response.status);
       return { ok: false, error: true, status: response.status, message, data };
     }
 

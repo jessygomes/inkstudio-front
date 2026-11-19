@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -85,7 +86,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
 
       setBlockedSlots(data.blockedSlots || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setError(userErrorMessage(err, "Une erreur est survenue"));
     } finally {
       setLoading(false);
     }
@@ -119,7 +120,7 @@ export default function BlockedSlots({ userId, tatoueurs }: BlockedSlotsProps) {
       setSlotToDelete(null);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Erreur lors de la suppression"
+        userErrorMessage(err, "Erreur lors de la suppression")
       );
     } finally {
       setIsDeleting(false);

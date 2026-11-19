@@ -1,3 +1,4 @@
+import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { authenticatedFetch } from "@/lib/authenticated-fetch";
@@ -357,7 +358,7 @@ export default function ProposeCreneau({
       mutation.mutate(payload);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : "Une erreur est survenue.";
+        userErrorMessage(err, "Une erreur est survenue.");
       setError(msg);
       setLoading(false);
       toast.error(`Erreur : ${msg}`);

@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { useState, useEffect } from "react";
 import {
   fetchTodayAppointmentsAction,
@@ -94,7 +95,7 @@ export default function RendezVousToday({ userId }: { userId: string }) {
       if (data.error) throw new Error(data.message);
       setAppointments(data.appointments || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
+      setError(userErrorMessage(err, "Une erreur est survenue"));
     } finally {
       setLoading(false);
     }

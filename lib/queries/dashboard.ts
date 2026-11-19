@@ -1,4 +1,5 @@
 "use server";
+import { httpErrorMessage } from "@/lib/user-error";
 import { getAuthHeaders } from "../session";
 import type { DashboardSummary, DashboardSummaryParams } from "../types/dashboard";
 
@@ -26,7 +27,7 @@ export async function getDashboardSummaryAction(
     const payload = await response.json().catch(() => null);
     if (!response.ok || !payload || typeof payload !== "object") {
       const message = Array.isArray(payload?.message) ? payload.message.join(" ") : payload?.message;
-      return { ok: false, message: message || `Erreur lors du chargement du tableau de bord (${response.status}).` };
+      return { ok: false, message: message || httpErrorMessage(response.status) };
     }
     return { ok: true, summary: payload as DashboardSummary };
   } catch (error) {

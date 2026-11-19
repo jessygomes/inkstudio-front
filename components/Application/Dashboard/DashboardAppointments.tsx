@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CalendarDays, ChevronRight, Clock3 } from "lucide-react";
@@ -59,7 +60,7 @@ export default function DashboardAppointments({ userId, mode }: DashboardAppoint
       if (result.error) throw new Error(result.message || "Impossible de charger les rendez-vous.");
       const items: Appointment[] = result.appointments || [];
       if (request === generation.current) { setAppointments(items.slice().sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())); setSelectedId(current => items.some(item => item.id === current) ? current : null); }
-    } catch (cause) { if (request === generation.current) setError(cause instanceof Error ? cause.message : "Chargement impossible."); }
+    } catch (cause) { if (request === generation.current) setError(userErrorMessage(cause, "Chargement impossible.")); }
     finally { if (request === generation.current) setLoading(false); }
   }, [date, mode, userId, queryClient]);
   const cancelPending = useCallback(() => { generation.current++; }, []);

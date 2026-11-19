@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 
 import { useEffect, useState, type FormEvent } from "react";
 import { CalendarClock, LoaderCircle } from "lucide-react";
@@ -28,7 +29,7 @@ export default function ProjectAppointmentSetting() {
       const user = result.data.user;
       const settings = { duration: user.projectAppointmentDurationMinutes ?? 60, free: user.projectAppointmentIsFree ?? true, price: user.projectAppointmentPrice == null ? "" : String(user.projectAppointmentPrice) };
       setDraft(settings); setInitial(settings);
-    }).catch(error => { if (current) setError(error instanceof Error ? error.message : "Chargement impossible."); })
+    }).catch(error => { if (current) setError(userErrorMessage(error, "Chargement impossible.")); })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
   }, [attempt]);
@@ -47,7 +48,7 @@ export default function ProjectAppointmentSetting() {
       const saved = { ...draft, price: draft.free ? "" : draft.price };
       setDraft(saved); setInitial(saved);
       toast.success("Réglages du premier échange enregistrés.");
-    } catch (error) { setError(error instanceof Error ? error.message : "Enregistrement impossible."); }
+    } catch (error) { setError(userErrorMessage(error, "Enregistrement impossible.")); }
     finally { setSaving(false); }
   }
 

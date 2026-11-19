@@ -1,4 +1,5 @@
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { useSession } from "next-auth/react";
 import { getfacturesSalonAction } from "@/lib/queries/user";
 import { FactureProps, PaginationInfo, FactureStatistics } from "@/lib/type";
@@ -86,7 +87,7 @@ export default function FactureList() {
       } catch (err) {
         console.error("Erreur lors du chargement des factures :", err);
         setError(
-          err instanceof Error ? err.message : "Une erreur est survenue",
+          userErrorMessage(err, "Une erreur est survenue"),
         );
         setFactures([]);
       } finally {
