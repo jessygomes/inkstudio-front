@@ -1,6 +1,6 @@
-import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import NotificationBadge from "@/components/Shared/NotificationBadge";
 import { useActivityNotifications } from "@/components/Providers/ActivityNotificationsProvider";
 import {

@@ -2,7 +2,6 @@
 "use client";
 import { deletePortfolioImageAction } from "@/lib/queries/portfolio";
 import { PortfolioProps } from "@/lib/type";
-import { extractUploadThingKey } from "@/lib/utils/uploadImg/extractUploadThingKey";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
@@ -27,36 +26,6 @@ export default function DeletePhoto({
     );
   }
 
-  const deleteFromUploadThing = async (fileKey: string): Promise<boolean> => {
-    try {
-      // Utiliser l'endpoint correct pour la suppression UploadThing
-      const response = await fetch("/api/uploadthing/delete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fileKeys: [fileKey],
-        }),
-      });
-
-      if (!response.ok) {
-        console.error(
-          "Erreur lors de la suppression UploadThing:",
-          response.statusText
-        );
-        return false;
-      }
-
-      const result = await response.json();
-      console.log("Suppression UploadThing réussie:", result);
-      return true;
-    } catch (error) {
-      console.error("Erreur lors de la suppression UploadThing:", error);
-      return false;
-    }
-  };
-
   const handleDelete = async () => {
     if (!photo.id) return;
 
@@ -64,21 +33,8 @@ export default function DeletePhoto({
     setError("");
 
     try {
+      // Le backend efface le fichier d'UploadThing s'il ne sert plus ailleurs (rendez-vous, flash…).
       await deletePortfolioImageAction(photo.id);
-
-      // 2. Supprimer de UploadThing si l'URL provient d'UploadThing
-      if (!photo.appointmentPhotoId && photo.imageUrl && photo.imageUrl.includes("utfs.io")) {
-        const fileKey = extractUploadThingKey(photo.imageUrl);
-        if (fileKey) {
-          const uploadThingDeleted = await deleteFromUploadThing(fileKey);
-          if (!uploadThingDeleted) {
-            console.warn(
-              "La photo a été supprimée de la base de données mais pas d'UploadThing"
-            );
-            toast.warning("Photo supprimée mais fichier distant non supprimé");
-          }
-        }
-      }
 
       setSuccess("Photo supprimée avec succès");
       toast.success("Photo supprimée avec succès");

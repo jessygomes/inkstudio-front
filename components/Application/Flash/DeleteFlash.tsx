@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { deleteFlashAction } from "@/lib/queries/flash";
 import { FlashProps } from "@/lib/type";
-import { extractUploadThingKey } from "@/lib/utils/uploadImg/extractUploadThingKey";
 
 export default function DeleteFlash({
   flash,
@@ -27,36 +26,14 @@ export default function DeleteFlash({
     );
   }
 
-  const deleteFromUploadThing = async (fileKey: string): Promise<boolean> => {
-    try {
-      const response = await fetch("/api/uploadthing/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileKeys: [fileKey] }),
-      });
-
-      if (!response.ok) return false;
-      await response.json();
-      return true;
-    } catch (uploadError) {
-      console.error("Erreur suppression UploadThing:", uploadError);
-      return false;
-    }
-  };
-
   const handleDelete = async () => {
     setLoading(true);
     setError("");
 
     try {
+      // Le backend efface le fichier d'UploadThing s'il ne sert plus ailleurs : le visuel d'un flash réservé
+      // est recopié dans les photos du rendez-vous, il ne doit pas disparaître avec le flash.
       await deleteFlashAction(flash.id);
-
-      if (flash.imageUrl && flash.imageUrl.includes("utfs.io")) {
-        const key = extractUploadThingKey(flash.imageUrl);
-        if (key) {
-          await deleteFromUploadThing(key);
-        }
-      }
 
       toast.success("Flash supprimé avec succès");
       setIsOpen(false);

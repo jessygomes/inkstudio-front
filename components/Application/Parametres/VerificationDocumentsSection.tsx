@@ -1,6 +1,6 @@
-import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable react/no-unescaped-entities */
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import imageCompression from "browser-image-compression";
 import SettingsSectionHeader from "./SettingsSectionHeader";
 import { BadgeCheck } from "lucide-react";

@@ -1,6 +1,6 @@
-import { userErrorMessage } from "@/lib/user-error";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { userErrorMessage } from "@/lib/user-error";
 import { authenticatedFetch } from "@/lib/authenticated-fetch";
 import React, { useEffect, useState } from "react";
 import { TatoueurProps, TimeSlotProps } from "@/lib/type";
